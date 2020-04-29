@@ -4,7 +4,7 @@
 using namespace mj;
 
 
-TEST(tile, tile)
+TEST(tile, Tile)
 {
     EXPECT_NO_FATAL_FAILURE(Tile(0));
     EXPECT_NO_FATAL_FAILURE(Tile(135));
