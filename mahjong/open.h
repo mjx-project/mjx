@@ -20,9 +20,9 @@ namespace mj
         virtual Tile at(std::size_t i) = 0;  // sorted by tile id
         virtual std::size_t size() = 0;
         virtual std::vector<Tile> tiles() = 0;  // tiles() = tiles_from_hand() + [stolen()]
-        virtual std::vector<Tile> tiles_from_hand() = 0;  // chow => 2, pung => 2, kong_mld => 3, kong_cnc => 4, kong_ext => 2
-        virtual Tile stolen() = 0; // kong_ext => punged tile by others, kong_cnc => tile id represented at left 8 bits
-        virtual Tile last() = 0;  // Last tile added to this open tile sets. kong_ext => konged tile, the others => stolen()
+        virtual std::vector<Tile> tiles_from_hand() = 0;  // chi => 2, pon => 2, kan_opened => 3, kan_closed => 4, kan_added => 2
+        virtual Tile stolen() = 0; // kan_added => punged tile by others, kan_closed => tile id represented at left 8 bits
+        virtual Tile last() = 0;  // Last tile added to this open tile sets. kan_added => konged tile, the others => stolen()
         virtual std::vector<tile_type> undiscardable_tile_types() = 0;
         virtual std::uint16_t get_bits();
     protected:
@@ -35,12 +35,12 @@ namespace mj
        std::unique_ptr<Open> generate(std::uint16_t bits);
     };
 
-    class Chow : public Open
+    class Chi : public Open
     {
     public:
-        Chow() = delete;
-        explicit Chow(std::uint16_t bits);
-        Chow(std::vector<Tile> &tiles, Tile stolen);
+        Chi() = delete;
+        explicit Chi(std::uint16_t bits);
+        Chi(std::vector<Tile> &tiles, Tile stolen);
         open_type type() final;
         relative_pos from() final;
         Tile at(std::size_t i) final;
@@ -55,12 +55,12 @@ namespace mj
         Tile at(std::size_t i, std::uint16_t min_type);
     };
 
-    class Pung: public Open
+    class Pon: public Open
     {
     public:
-        Pung() = delete;
-        explicit Pung(std::uint16_t bits);
-        Pung(Tile stolen, Tile unused, relative_pos from);
+        Pon() = delete;
+        explicit Pon(std::uint16_t bits);
+        Pon(Tile stolen, Tile unused, relative_pos from);
         open_type type() final;
         relative_pos from() final;
         Tile at(std::size_t i) final;
@@ -72,12 +72,12 @@ namespace mj
         std::vector<tile_type> undiscardable_tile_types() final;
     };
 
-    class KongMld : public Open
+    class KanOpened : public Open
     {
     public:
-        KongMld() = delete;
-        explicit KongMld(std::uint16_t bits);
-        KongMld(Tile stolen, relative_pos from);
+        KanOpened() = delete;
+        explicit KanOpened(std::uint16_t bits);
+        KanOpened(Tile stolen, relative_pos from);
         open_type type() final;
         relative_pos from() final;
         Tile at(std::size_t i) final;
@@ -89,12 +89,12 @@ namespace mj
         std::vector<tile_type> undiscardable_tile_types() final;
     };
 
-    class KongCnc : public Open
+    class KanClosed : public Open
     {
     public:
-        KongCnc() = delete;
-        explicit KongCnc(std::uint16_t bits);
-        explicit KongCnc(Tile tile);  // TODO: check which tile id does Tenhou use? 0? drawn tile? This should be aligned.
+        KanClosed() = delete;
+        explicit KanClosed(std::uint16_t bits);
+        explicit KanClosed(Tile tile);  // TODO: check which tile id does Tenhou use? 0? drawn tile? This should be aligned.
         open_type type() final;
         relative_pos from() final;
         Tile at(std::size_t i) final;
@@ -106,12 +106,12 @@ namespace mj
         std::vector<tile_type> undiscardable_tile_types() final;
     };
 
-    class KongExt : public Open
+    class KanAdded : public Open
     {
     public:
-        KongExt() = delete;
-        explicit KongExt(std::uint16_t bits);
-        KongExt(Open* pung);
+        KanAdded() = delete;
+        explicit KanAdded(std::uint16_t bits);
+        KanAdded(Open* pung);
         open_type type() final;
         relative_pos from() final;
         Tile at(std::size_t i) final;

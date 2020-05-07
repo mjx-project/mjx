@@ -27,13 +27,13 @@ namespace mj
         return bits_;
     }
 
-    Chow::Chow(std::uint16_t bits) : Open(bits)
+    Chi::Chi(std::uint16_t bits) : Open(bits)
     {
         assert(bits_ & MASK_IS_CHOW);
         assert(static_cast<relative_pos>(bits_ & MASK_FROM) == relative_pos::left);
     }
 
-    Chow::Chow(std::vector<Tile> &tiles, Tile stolen) {
+    Chi::Chi(std::vector<Tile> &tiles, Tile stolen) {
         std::sort(tiles.begin(), tiles.end());
         bits_ = 0;
         bits_ |= (MASK_FROM & static_cast<std::uint16_t>(relative_pos::left));
@@ -46,25 +46,25 @@ namespace mj
         bits_|= static_cast<std::uint16_t>(((base/9)*7 + base%9)*3+stolen_ix)<<10;
     }
 
-    open_type Chow::type() { return open_type::chow; }
+    open_type Chi::type() { return open_type::chow; }
 
-    relative_pos Chow::from() { return relative_pos::left; }
+    relative_pos Chi::from() { return relative_pos::left; }
 
-   Tile Chow::at(std::size_t i) {
+   Tile Chi::at(std::size_t i) {
         assert(i < 3);
         return at(i, min_type());
     }
 
-    std::size_t Chow::size() { return 3; }
+    std::size_t Chi::size() { return 3; }
 
-    std::vector<Tile> Chow::tiles() {
+    std::vector<Tile> Chi::tiles() {
         auto v = std::vector<Tile>();
         auto m = min_type();
         for (std::size_t i = 0; i < 3; ++i) v.push_back(at(i, m));
         return v;
     }
 
-    std::vector<Tile> Chow::tiles_from_hand() {
+    std::vector<Tile> Chi::tiles_from_hand() {
         auto v = std::vector<Tile>();
         auto m = min_type();
         for (std::size_t i = 0; i < 3; ++i) {
@@ -73,15 +73,15 @@ namespace mj
         }
         return v;
     }
-    Tile Chow::stolen() {
+    Tile Chi::stolen() {
         return at((bits_>>10) % 3);
     }
 
-    Tile Chow::last() {
+    Tile Chi::last() {
         return stolen();
     }
 
-    std::vector<tile_type> Chow::undiscardable_tile_types() {
+    std::vector<tile_type> Chi::undiscardable_tile_types() {
         auto v = std::vector<tile_type>();
         auto stolen_ = stolen();
         auto type = stolen_.type();
@@ -107,24 +107,24 @@ namespace mj
         return v;
     }
 
-    std::uint16_t Chow::min_type() {
+    std::uint16_t Chi::min_type() {
         std::uint16_t min_type_base21 = (bits_>>10) / 3;
         return (min_type_base21 / 7) * 9 + min_type_base21 % 7;
     }
 
-    Tile Chow::at(std::size_t i, std::uint16_t min_type) {
+    Tile Chi::at(std::size_t i, std::uint16_t min_type) {
         return Tile(static_cast<std::uint8_t>(
                             (min_type + static_cast<std::uint8_t>(i)) * 4 + ((bits_&MASK_CHOW_OFFSET[i])>>(2*i+3))
                     ));
     }
 
 
-   Pung::Pung(std::uint16_t bits) : Open(bits) {
+   Pon::Pon(std::uint16_t bits) : Open(bits) {
        assert(bits_ & MASK_IS_PUNG);
        assert(!(bits_ & MASK_IS_KONG_EXT));
    }
 
-    Pung::Pung(Tile stolen, Tile unused, relative_pos from) {
+    Pon::Pon(Tile stolen, Tile unused, relative_pos from) {
         bits_ = 0;
         bits_ |= (MASK_FROM & static_cast<std::uint16_t>(from));
         bits_ |= MASK_IS_PUNG;
@@ -143,15 +143,15 @@ namespace mj
         bits_|= (base * 3 + stolen_ix) <<9;
     }
 
-    open_type Pung::type() {
+    open_type Pon::type() {
         return open_type::pung;
     }
 
-    relative_pos Pung::from() {
+    relative_pos Pon::from() {
         return relative_pos(static_cast<std::uint8_t>(bits_ & MASK_FROM));
     }
 
-    Tile Pung::at(std::size_t i) {
+    Tile Pon::at(std::size_t i) {
         std::uint16_t type = (bits_ >> 9) / 3;
         std::uint16_t unused_offset = (bits_ & MASK_PUNG_UNUSED_OFFSET) >> 5;
         if (i >= unused_offset) ++i;
@@ -163,77 +163,77 @@ namespace mj
         return Tile(static_cast<std::uint8_t>(type * 4 + i));
     }
 
-    std::size_t Pung::size() {
+    std::size_t Pon::size() {
         return 3;
     }
 
-    std::vector<Tile> Pung::tiles() {
+    std::vector<Tile> Pon::tiles() {
         auto v = std::vector<Tile>();
         for (std::size_t i = 0; i < 3; ++i) v.push_back(at(i));
         return v;
     }
 
-    std::vector<Tile> Pung::tiles_from_hand() {
+    std::vector<Tile> Pon::tiles_from_hand() {
         auto v = std::vector<Tile>();
         std::uint16_t stolen_ix = (bits_ >> 9) % 3;
         for (std::size_t i = 0; i < 3; ++i) if (i != stolen_ix) v.push_back(at(i));
         return v;
     }
 
-    Tile Pung::stolen() {
+    Tile Pon::stolen() {
         std::uint16_t stolen_ix = (bits_ >> 9) % 3;
         return at(stolen_ix);
     }
 
-    Tile Pung::last() {
+    Tile Pon::last() {
         return stolen();
     }
 
-    std::vector<tile_type> Pung::undiscardable_tile_types() {
+    std::vector<tile_type> Pon::undiscardable_tile_types() {
         return std::vector<tile_type>(1, at(0).type());
     }
 
-    KongExt::KongExt(std::uint16_t bits) : Open(bits) {
+    KanAdded::KanAdded(std::uint16_t bits) : Open(bits) {
         assert(bits_ & MASK_IS_PUNG);
         assert(bits_ & MASK_IS_KONG_EXT);
     }
 
-    KongExt::KongExt(Open *pung) {
+    KanAdded::KanAdded(Open *pung) {
         bits_ = pung->get_bits();
         bits_ |= MASK_IS_KONG_EXT;
     }
 
-    open_type KongExt::type() {
+    open_type KanAdded::type() {
         return open_type::kong_ext;
     }
 
-    relative_pos KongExt::from() {
+    relative_pos KanAdded::from() {
         return relative_pos(static_cast<std::uint8_t>(bits_ & MASK_FROM));
     }
 
-    Tile KongExt::at(std::size_t i) {
+    Tile KanAdded::at(std::size_t i) {
         assert(i < 4);
         std::uint16_t type = (bits_ >> 9) / 3;
         return Tile(static_cast<std::uint8_t>(type * 4 + i));
     }
 
-    std::size_t KongExt::size() {
+    std::size_t KanAdded::size() {
         return 4;
     }
 
-    std::vector<Tile> KongExt::tiles() {
+    std::vector<Tile> KanAdded::tiles() {
         std::vector<tile_type> v(4, tile_type(static_cast<std::uint8_t>((bits_ >> 9) / 3)));
         return Tile::create(v);
     }
 
-    std::vector<Tile> KongExt::tiles_from_hand() {
+    std::vector<Tile> KanAdded::tiles_from_hand() {
         auto v = std::vector<Tile>();
         std::uint16_t stolen_ix = (bits_ >> 9) % 3;
         for (int i = 0; i < 4; ++i) if (i != stolen_ix) v.push_back(at(i));
         return v;
     }
 
-    Tile KongExt::stolen() {
+    Tile KanAdded::stolen() {
         std::uint16_t type = (bits_ >> 9) / 3;
         std::uint16_t stolen_ix = (bits_ >> 9) % 3;
         std::uint16_t unused_offset = (bits_ & MASK_PUNG_UNUSED_OFFSET) >> 5;
@@ -241,49 +241,49 @@ namespace mj
         return Tile(static_cast<std::uint8_t>(type * 4 + stolen_ix));
     }
 
-    Tile KongExt::last() {
+    Tile KanAdded::last() {
         std::uint16_t type = (bits_ >> 9) / 3;
         std::uint16_t unused_offset = (bits_ & MASK_PUNG_UNUSED_OFFSET) >> 5;
         return Tile(static_cast<std::uint8_t>(type * 4 + unused_offset));
     }
 
-    std::vector<tile_type> KongExt::undiscardable_tile_types() {
+    std::vector<tile_type> KanAdded::undiscardable_tile_types() {
         return std::vector<tile_type>();
     }
 
-    KongMld::KongMld(std::uint16_t bits) : Open(bits) {
+    KanOpened::KanOpened(std::uint16_t bits) : Open(bits) {
         assert(!(bits_&MASK_IS_CHOW) && !(bits_&MASK_IS_PUNG) && !(bits_&MASK_IS_KONG_EXT));
         assert(from() != relative_pos::self);
     }
 
-    KongMld::KongMld(Tile stolen, relative_pos from) {
+    KanOpened::KanOpened(Tile stolen, relative_pos from) {
         bits_ = 0;
         bits_ |= static_cast<std::uint16_t>(from);
         bits_ |= (static_cast<std::uint16_t>(stolen.id()) << 8);
     }
 
-    open_type KongMld::type() {
+    open_type KanOpened::type() {
         return open_type::kong_mld;
     }
 
-    relative_pos KongMld::from() {
+    relative_pos KanOpened::from() {
         return relative_pos(static_cast<std::uint8_t>(bits_&MASK_FROM));
     }
 
-    Tile KongMld::at(std::size_t i) {
+    Tile KanOpened::at(std::size_t i) {
         return Tile(static_cast<std::uint8_t>(((bits_ >> 8) / 4) * 4 + i));
     }
 
-    std::size_t KongMld::size() {
+    std::size_t KanOpened::size() {
         return 4;
     }
 
-    std::vector<Tile> KongMld::tiles() {
+    std::vector<Tile> KanOpened::tiles() {
         auto v = std::vector<tile_type>(4, tile_type(static_cast<std::uint8_t>((bits_ >> 8) / 4)));
         return Tile::create(v);
     }
 
-    std::vector<Tile> KongMld::tiles_from_hand() {
+    std::vector<Tile> KanOpened::tiles_from_hand() {
         auto v = std::vector<Tile>();
         auto type = (bits_ >> 8) / 4;
         auto stolen_offset = (bits_ >> 8) % 4;
@@ -292,80 +292,80 @@ namespace mj
         return v;
     }
 
-    Tile KongMld::stolen() {
+    Tile KanOpened::stolen() {
         return Tile(static_cast<std::uint8_t>(bits_ >> 8));
     }
 
-    Tile KongMld::last() {
+    Tile KanOpened::last() {
         return stolen();
     }
 
-    std::vector<tile_type> KongMld::undiscardable_tile_types() {
+    std::vector<tile_type> KanOpened::undiscardable_tile_types() {
         return std::vector<tile_type>();
     }
 
-    KongCnc::KongCnc(std::uint16_t bits) : Open(bits) {
+    KanClosed::KanClosed(std::uint16_t bits) : Open(bits) {
         assert(!(bits_&MASK_IS_CHOW) && !(bits_&MASK_IS_PUNG) && !(bits_&MASK_IS_KONG_EXT));
         assert(relative_pos(static_cast<std::uint8_t>(bits_&MASK_FROM)) == relative_pos::self);
     }
 
-    KongCnc::KongCnc(Tile tile) {
+    KanClosed::KanClosed(Tile tile) {
         bits_ = 0;
         bits_ |= static_cast<std::uint16_t>(relative_pos::self);
         bits_ |= (static_cast<std::uint16_t>(tile.id()) << 8);
     }
 
-    open_type KongCnc::type() {
+    open_type KanClosed::type() {
         return open_type::kong_cnc;
     }
 
-    relative_pos KongCnc::from() {
+    relative_pos KanClosed::from() {
         return relative_pos::self;
     }
 
-    Tile KongCnc::at(std::size_t i) {
+    Tile KanClosed::at(std::size_t i) {
         return Tile(static_cast<std::uint8_t>(((bits_ >> 8) / 4) * 4 + i));
     }
 
-    std::size_t KongCnc::size() {
+    std::size_t KanClosed::size() {
         return 4;
     }
 
-    std::vector<Tile> KongCnc::tiles() {
+    std::vector<Tile> KanClosed::tiles() {
         auto v = std::vector<tile_type>(4, tile_type(static_cast<std::uint8_t>((bits_ >> 8) / 4)));
         return Tile::create(v);
     }
 
-    std::vector<Tile> KongCnc::tiles_from_hand() {
+    std::vector<Tile> KanClosed::tiles_from_hand() {
         return tiles();
     }
 
-    Tile KongCnc::stolen() {
+    Tile KanClosed::stolen() {
         return Tile(static_cast<std::uint8_t>(bits_ >> 8));
     }
 
-    Tile KongCnc::last() {
+    Tile KanClosed::last() {
         return stolen();
     }
 
-    std::vector<tile_type> KongCnc::undiscardable_tile_types() {
+    std::vector<tile_type> KanClosed::undiscardable_tile_types() {
         return std::vector<tile_type>();
     }
 
     std::unique_ptr<Open> OpenGenerator::generate(std::uint16_t bits) {
         if (bits&MASK_IS_CHOW) {
-            return std::make_unique<Chow>(bits);
+            return std::make_unique<Chi>(bits);
         } else if (bits&MASK_IS_PUNG) {
             if (!(bits&MASK_IS_KONG_EXT)) {
-                return std::make_unique<Pung>(bits);
+                return std::make_unique<Pon>(bits);
             } else {
-                return std::make_unique<KongExt>(bits);
+                return std::make_unique<KanAdded>(bits);
             }
         } else {
             if (relative_pos(static_cast<std::uint8_t>(bits&MASK_FROM)) == relative_pos::self) {
-                return std::make_unique<KongCnc>(bits);
+                return std::make_unique<KanClosed>(bits);
             } else {
-                return std::make_unique<KongMld>(bits);
+                return std::make_unique<KanOpened>(bits);
             }
         }
     }

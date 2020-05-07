@@ -46,11 +46,11 @@ namespace mj
         hand_phase phase();
         // actions
         void draw(Tile tile);
-        void chow(std::unique_ptr<Open> open);
-        void pung(std::unique_ptr<Open> open);
-        void kong_mld(std::unique_ptr<Open> open);
-        void kong_cnc(std::unique_ptr<Open> open);
-        void kong_ext(std::unique_ptr<Open> open);
+        void chi(std::unique_ptr<Open> open);
+        void pon(std::unique_ptr<Open> open);
+        void kan_opened(std::unique_ptr<Open> open);
+        void kan_closed(std::unique_ptr<Open> open);
+        void kan_added(std::unique_ptr<Open> open);
         Tile discard(Tile tile);
         WinningInfo ron(Tile tile);
         WinningInfo tsumo(Tile tile);
@@ -59,12 +59,12 @@ namespace mj
         std::vector<std::unique_ptr<Open>> possible_opens_after_others_discard(Tile tile, relative_pos from);
         std::vector<std::unique_ptr<Open>> possible_opens_after_draw();
         // action validators (called after other player's discard)
-        std::vector<std::unique_ptr<Open>> possible_chows(Tile tile);  // E.g., 2m 3m [4m] vs 3m [4m] 5m
-        std::vector<std::unique_ptr<Open>> possible_pungs(Tile tile, relative_pos from);  // E.g., with red or not  TODO: check the id choice strategy of tenhou (smalelr one) when it has 2 identical choices.
-        std::vector<std::unique_ptr<Open>> possible_kong_mlds(Tile tile, relative_pos from);
+        std::vector<std::unique_ptr<Open>> possible_chis(Tile tile);  // E.g., 2m 3m [4m] vs 3m [4m] 5m
+        std::vector<std::unique_ptr<Open>> possible_pons(Tile tile, relative_pos from);  // E.g., with red or not  TODO: check the id choice strategy of tenhou (smalelr one) when it has 2 identical choices.
+        std::vector<std::unique_ptr<Open>> possible_kan_opened(Tile tile, relative_pos from);
         // action validators (called after draw)
-        std::vector<std::unique_ptr<Open>> possible_kong_cncs();  // TODO: which tile id should be used to represent farleft left bits? (current is type * 4 + 0)
-        std::vector<std::unique_ptr<Open>> possible_kong_exts();
+        std::vector<std::unique_ptr<Open>> possible_kan_closed();  // TODO: which tile id should be used to represent farleft left bits? (current is type * 4 + 0)
+        std::vector<std::unique_ptr<Open>> possible_kan_added();
         bool is_furiten(const std::vector<Tile> &discards);
         bool can_ron(Tile tile);  // this does not take furiten into account
         bool can_tsumo(Tile tile);

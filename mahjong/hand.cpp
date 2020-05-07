@@ -38,7 +38,7 @@ namespace mj
         drawn_tile_ = Tile(tile);
     }
 
-    void Hand::chow(std::unique_ptr<Open> open)
+    void Hand::chi(std::unique_ptr<Open> open)
     {
         assert(hand_phase_ == hand_phase::after_discard);
         assert(open->type() == open_type::chow);
@@ -54,7 +54,7 @@ namespace mj
         hand_phase_ = hand_phase::after_chow;
     }
 
-    void Hand::pung(std::unique_ptr<Open> open)
+    void Hand::pon(std::unique_ptr<Open> open)
     {
         assert(hand_phase_ == hand_phase::after_discard);
         assert(open->type() == open_type::pung);
@@ -69,7 +69,7 @@ namespace mj
         hand_phase_ = hand_phase::after_pung;
     }
 
-    void Hand::kong_mld(std::unique_ptr<Open> open)
+    void Hand::kan_opened(std::unique_ptr<Open> open)
     {
         assert(hand_phase_ == hand_phase::after_discard);
         assert(open->type() == open_type::kong_mld);
@@ -80,9 +80,9 @@ namespace mj
         hand_phase_ = hand_phase::after_kong_mld;
     }
 
-    void Hand::kong_cnc(std::unique_ptr<Open> open)
+    void Hand::kan_closed(std::unique_ptr<Open> open)
     {
-        // TODO: implement undiscardable_tiles after kong_cnc during riichi
+        // TODO: implement undiscardable_tiles after kan_closed during riichi
         assert(hand_phase_ == hand_phase::after_draw);
         assert(open->type() == open_type::kong_cnc);
         assert(undiscardable_tiles_.empty());
@@ -95,14 +95,14 @@ namespace mj
         hand_phase_ = hand_phase::after_kong_cnc;
     }
 
-    void Hand::kong_ext(std::unique_ptr<Open> open)
+    void Hand::kan_added(std::unique_ptr<Open> open)
     {
         assert(hand_phase_ == hand_phase::after_draw);
         assert(open->type() == open_type::kong_ext);
         assert(undiscardable_tiles_.empty());
         assert(closed_tiles_.find(open->last()) != closed_tiles_.end());
         closed_tiles_.erase(open->last());
-        // change pung to extended kong
+        // change pon to extended kong
         const auto stolen = open->stolen();
         auto it = std::find_if(open_sets_.begin(), open_sets_.end(),
                 [&stolen](const auto &x){ return x->type() == open_type::pung && x->stolen() == stolen; });
@@ -161,25 +161,25 @@ namespace mj
         return possible_discards;
     }
 
-    std::vector<std::unique_ptr<Open>> Hand::possible_kong_mlds(Tile tile, relative_pos from) {
+    std::vector<std::unique_ptr<Open>> Hand::possible_kan_opened(Tile tile, relative_pos from) {
         std::size_t c = std::count_if(closed_tiles_.begin(), closed_tiles_.end(), [&tile](auto x){ return x.is(tile.type()); });
         auto v = std::vector<std::unique_ptr<Open>>();
-        if (c >= 3) v.push_back(std::make_unique<KongMld>(tile, from));
+        if (c >= 3) v.push_back(std::make_unique<KanOpened>(tile, from));
         return v;
     }
 
-    std::vector<std::unique_ptr<Open>> Hand::possible_kong_cncs() {
+    std::vector<std::unique_ptr<Open>> Hand::possible_kan_closed() {
         assert(size() == 14);
         assert(phase() == hand_phase::after_draw);
         std::unordered_map<tile_type, std::uint8_t> m;
         for (const auto t : closed_tiles_) ++m[t.type()];
         auto v = std::vector<std::unique_ptr<Open>>();
         for (auto it = m.begin(); it != m.end(); ++it)
-            if (it->second == 4) v.push_back(std::make_unique<KongCnc>(Tile(static_cast<std::uint8_t>(it->first) * 4)));
+            if (it->second == 4) v.push_back(std::make_unique<KanClosed>(Tile(static_cast<std::uint8_t>(it->first) * 4)));
         return v;
     }
 
-    std::vector<std::unique_ptr<Open>> Hand::possible_kong_exts() {
+    std::vector<std::unique_ptr<Open>> Hand::possible_kan_added() {
         assert(size() == 14);
         assert(phase() == hand_phase::after_draw);
         auto v = std::vector<std::unique_ptr<Open>>();
@@ -188,13 +188,13 @@ namespace mj
                 const auto type = o->at(0).type();
                 if(std::find_if(closed_tiles_.begin(), closed_tiles_.end(),
                         [&type](auto x){ return x.type() == type; }) != closed_tiles_.end()) {
-                    v.push_back(std::make_unique<KongExt>(o.get()));
+                    v.push_back(std::make_unique<KanAdded>(o.get()));
                 }
             }
         return v;
     }
 
-    std::vector<std::unique_ptr<Open>> Hand::possible_pungs(Tile tile, relative_pos from) {
+    std::vector<std::unique_ptr<Open>> Hand::possible_pons(Tile tile, relative_pos from) {
         assert(size() == 13);
         assert(phase() == hand_phase::after_discard);
         std::size_t counter = 0, sum = 0;
@@ -207,7 +207,7 @@ namespace mj
         auto v = std::vector<std::unique_ptr<Open>>();
         if (counter == 2) {
             Tile unused_tile = Tile(tile.type(), 6 - sum - tile.id() % 4);
-            v.push_back(std::make_unique<Pung>(tile, unused_tile, from));
+            v.push_back(std::make_unique<Pon>(tile, unused_tile, from));
         }
         if (counter == 3) {
             // stolen 0 => 1, 2  unused: 3
@@ -215,16 +215,16 @@ namespace mj
             // stolen 2 => 0, 1  unused: 3
             // stolen 3 => 0, 1  unused: 2
             std::uint8_t unused_offset = tile.id() % 4 == 3 ? 2 : 3;
-            v.push_back(std::make_unique<Pung>(tile, Tile(tile.type(), unused_offset), from));
+            v.push_back(std::make_unique<Pon>(tile, Tile(tile.type(), unused_offset), from));
             // if closed tiles has red 5
             if ((tile.is(tile_type::m5) || tile.is(tile_type::p5) || tile.is(tile_type::s5)) &&
                 !tile.is_red5())
-                v.push_back(std::make_unique<Pung>(tile, Tile(tile.type(), 0), from));
+                v.push_back(std::make_unique<Pon>(tile, Tile(tile.type(), 0), from));
         }
         return v;
     }
 
-    std::vector<std::unique_ptr<Open>> Hand::possible_chows(Tile tile) {
+    std::vector<std::unique_ptr<Open>> Hand::possible_chis(Tile tile) {
         auto v = std::vector<std::unique_ptr<Open>>();
         if (!tile.is(tile_set_type::honors)) {
             using tt = tile_type;
@@ -241,16 +241,16 @@ namespace mj
             if (!(tile.is(8) || tile.is(9))) {
                 if (!m[tt_p1].empty() && !m[tt_p2].empty()) {
                     std::vector<Tile> c = {tile, m[tt_p1].at(0), m[tt_p2].at(0)};
-                    v.push_back(std::make_unique<Chow>(c, tile));
+                    v.push_back(std::make_unique<Chi>(c, tile));
                     // if tt_p1 is red five, add another
                     if (m[tt_p1].size() > 1 && m[tt_p1].at(0).is_red5()) {
                         c = {tile, m[tt_p1].at(1), m[tt_p2].at(0)};
-                        v.push_back(std::make_unique<Chow>(c, tile));
+                        v.push_back(std::make_unique<Chi>(c, tile));
                     }
                     // if tt_p2 is red five add another
                     if (m[tt_p2].size() > 1 && m[tt_p2].at(0).is_red5()) {
                         c = {tile, m[tt_p1].at(0), m[tt_p2].at(1)};
-                        v.push_back(std::make_unique<Chow>(c, tile));
+                        v.push_back(std::make_unique<Chi>(c, tile));
                     }
                 }
             }
@@ -259,17 +259,17 @@ namespace mj
             if (!(tile.is(1) || tile.is(9))) {
                 if (!m[tt_p1].empty() && !m[tt_m1].empty()) {
                     std::vector<Tile> c = {m[tt_m1].at(0), tile, m[tt_p1].at(0)};
-                    v.push_back(std::make_unique<Chow>(c, tile));
+                    v.push_back(std::make_unique<Chi>(c, tile));
                     // if tt_m1 is red five add another
                     if (m[tt_m1].size() > 1 && m[tt_m1].at(0).is_red5()) {
                         c = {m[tt_m1].at(1), tile, m[tt_p1].at(0)};
-                        v.push_back(std::make_unique<Chow>(c, tile));
+                        v.push_back(std::make_unique<Chi>(c, tile));
                     }
                     // if tt_p1 is red five, add another
                     if ((tt_p1 == tt::m5 || tt_p1 == tt::p5 || tt_p1 == tt::s5) &&
                         m[tt_p1].size() > 1 && m[tt_p1].at(0).is_red5()) {
                         c = {m[tt_m1].at(0), tile, m[tt_p1].at(1)};
-                        v.push_back(std::make_unique<Chow>(c, tile));
+                        v.push_back(std::make_unique<Chi>(c, tile));
                     }
                 }
             }
@@ -278,16 +278,16 @@ namespace mj
             if (!(tile.is(1) || tile.is(2))) {
                 if (!m[tt_m1].empty() && !m[tt_m2].empty()) {
                     std::vector<Tile> c = {m[tt_m2].at(0), m[tt_m1].at(0), tile};
-                    v.push_back(std::make_unique<Chow>(c, tile));
+                    v.push_back(std::make_unique<Chi>(c, tile));
                     // if tt_m2 is red five, add another
                     if (m[tt_m2].size() > 1 && m[tt_m2].at(0).is_red5()) {
                         c = {tile, m[tt_m2].at(1), m[tt_m1].at(0)};
-                        v.push_back(std::make_unique<Chow>(c, tile));
+                        v.push_back(std::make_unique<Chi>(c, tile));
                     }
                     // if tt_m1 is red five, add another
                     if (m[tt_m1].size() > 1 && m[tt_m1].at(0).is_red5()) {
                         c = {tile, m[tt_m2].at(0), m[tt_m1].at(1)};
-                        v.push_back(std::make_unique<Chow>(c, tile));
+                        v.push_back(std::make_unique<Chi>(c, tile));
                     }
                 }
             }
@@ -300,20 +300,20 @@ namespace mj
         assert(hand_phase_ == hand_phase::after_discard);
         auto v = std::vector<std::unique_ptr<Open>>();
         if (from == relative_pos::left) {
-            auto chows = possible_chows(tile);
+            auto chows = possible_chis(tile);
             for (auto & chow : chows) v.push_back(std::move(chow));
         }
-        auto pungs = possible_pungs(tile, from);
+        auto pungs = possible_pons(tile, from);
         for (auto & pung : pungs) v.push_back(std::move(pung));
-        auto kong_mlds = possible_kong_mlds(tile, from);
+        auto kong_mlds = possible_kan_opened(tile, from);
         for (auto & kong_mld : kong_mlds) v.push_back(std::move(kong_mld));
         return v;
     }
 
     std::vector<std::unique_ptr<Open>> Hand::possible_opens_after_draw() {
         assert(hand_phase_ == hand_phase::after_draw);
-        auto v = possible_kong_cncs();
-        auto kong_exts = possible_kong_exts();
+        auto v = possible_kan_closed();
+        auto kong_exts = possible_kan_added();
         for (auto & kong_ext : kong_exts) v.push_back(std::move(kong_ext));
         return v;
     }

@@ -49,10 +49,10 @@ TEST(hand, draw) {
 TEST(hand, chow) {
     auto h = Hand({"m1", "m1", "m1", "m2", "m3", "m4", "m5", "m6", "m7", "m8", "m9", "m9", "m9"});
     std::vector<Tile> t = {Tile("m2"), Tile("m3"), Tile("m4", 3)};
-    auto c = std::make_unique<Chow>(t, Tile("m4", 3));
+    auto c = std::make_unique<Chi>(t, Tile("m4", 3));
     EXPECT_EQ(h.phase(), hand_phase::after_discard);
     EXPECT_EQ(h.size(), 13);
-    h.chow(std::move(c));
+    h.chi(std::move(c));
     EXPECT_EQ(h.phase(), hand_phase::after_chow);
     EXPECT_EQ(h.size(), 14);
     EXPECT_EQ(h.size_opened(), 3);
@@ -70,10 +70,10 @@ TEST(hand, chow) {
 TEST(hand, pung)
 {
     auto h = Hand({"m1", "m1", "m1", "m2", "m3", "m4", "m5", "m6", "m7", "m8", "m9", "m9", "m9"});
-    auto p = std::make_unique<Pung>(Tile("m9", 3), Tile("m9", 0), relative_pos::left);
+    auto p = std::make_unique<Pon>(Tile("m9", 3), Tile("m9", 0), relative_pos::left);
     EXPECT_EQ(h.phase(), hand_phase::after_discard);
     EXPECT_EQ(h.size(), 13);
-    h.pung(std::move(p));
+    h.pon(std::move(p));
     EXPECT_EQ(h.phase(), hand_phase::after_pung);
     EXPECT_EQ(h.size(), 14);
     EXPECT_EQ(h.size_opened(), 3);
@@ -89,10 +89,10 @@ TEST(hand, pung)
 TEST(hand, kong_mld)
 {
     auto h = Hand({"m1", "m1", "m1", "m2", "m3", "m4", "m5", "m6", "m7", "m8", "m9", "m9", "m9"});
-    auto k = std::make_unique<KongMld>(Tile("m9", 3), relative_pos::mid);
+    auto k = std::make_unique<KanOpened>(Tile("m9", 3), relative_pos::mid);
     EXPECT_EQ(h.phase(), hand_phase::after_discard);
     EXPECT_EQ(h.size(), 13);
-    h.kong_mld(std::move(k));
+    h.kan_opened(std::move(k));
     EXPECT_EQ(h.phase(), hand_phase::after_kong_mld);
     EXPECT_EQ(h.size(), 14);
     EXPECT_EQ(h.size_opened(), 4);
@@ -105,10 +105,10 @@ TEST(hand, kong_cnc)
 {
     auto h = Hand({"m1", "m1", "m1", "m2", "m3", "m4", "m5", "m6", "m7", "m8", "m9", "m9", "m9"});
     h.draw(Tile("m9", 3));
-    auto k = std::make_unique<KongCnc>(Tile("m9", 0));
+    auto k = std::make_unique<KanClosed>(Tile("m9", 0));
     EXPECT_EQ(h.phase(), hand_phase::after_draw);
     EXPECT_EQ(h.size(), 14);
-    h.kong_cnc(std::move(k));
+    h.kan_closed(std::move(k));
     EXPECT_EQ(h.phase(), hand_phase::after_kong_cnc);
     EXPECT_EQ(h.size(), 14);
     EXPECT_EQ(h.size_opened(), 4);
@@ -120,10 +120,10 @@ TEST(hand, kong_cnc)
 TEST(hand, kong_ext)
 {
     auto h = Hand({"m1", "m1", "m1", "m2", "m3", "m4", "m5", "m6", "m7", "m8", "m8", "m9", "m9"});
-    auto p = std::make_unique<Pung>(Tile("m9", 2), Tile("m9", 3), relative_pos::left);
-    auto k = std::make_unique<KongExt>(p.get());
+    auto p = std::make_unique<Pon>(Tile("m9", 2), Tile("m9", 3), relative_pos::left);
+    auto k = std::make_unique<KanAdded>(p.get());
     EXPECT_EQ(h.size(), 13);
-    h.pung(std::move(p));
+    h.pon(std::move(p));
     EXPECT_EQ(h.size(), 14);
     EXPECT_EQ(h.size_opened(), 3);
     EXPECT_EQ(h.size_closed(), 11);
@@ -135,7 +135,7 @@ TEST(hand, kong_ext)
     EXPECT_EQ(h.size(), 14);
     EXPECT_EQ(h.size_opened(), 3);
     EXPECT_EQ(h.size_closed(), 11);
-    h.kong_ext(std::move(k));
+    h.kan_added(std::move(k));
     EXPECT_EQ(h.size(), 14);
     EXPECT_EQ(h.size_opened(), 4);
     EXPECT_EQ(h.size_closed(), 10);
@@ -157,8 +157,8 @@ TEST(hand, discard)
 TEST(hand, possible_discards) {
     auto h = Hand({"m1", "m2", "m3", "p9", "s1", "s9", "ew", "sw", "ww", "nw", "wd", "gd", "rd"});
     auto t = Tile::create({"m1", "m2", "m3"});
-    auto c = std::make_unique<Chow>(t, Tile("m3", 0));
-    h.chow(std::move(c));
+    auto c = std::make_unique<Chi>(t, Tile("m3", 0));
+    h.chi(std::move(c));
     auto possible_discards = h.possible_discards();
     EXPECT_EQ(possible_discards.size(), 10);
     EXPECT_EQ(std::find_if(possible_discards.begin(), possible_discards.end(),
@@ -168,128 +168,128 @@ TEST(hand, possible_discards) {
 TEST(hand, possible_chows) { // TODO: add more detailed test
     auto h = Hand({"m1", "m1", "m1", "m2", "m3", "m4", "m5", "m6", "m7", "m8", "m9", "m9", "m9"});
     // [m1]m2m3
-    auto opens = h.possible_chows(Tile("m1", 3));
+    auto opens = h.possible_chis(Tile("m1", 3));
     EXPECT_EQ(opens.size(), 1);
     // m1[m2]m3, [m2]m3m4
-    opens = h.possible_chows(Tile("m2", 3));
+    opens = h.possible_chis(Tile("m2", 3));
     EXPECT_EQ(opens.size(), 2);
     // [m3]m4m5, m2[m3]m4, m1m2[m3]
-    opens = h.possible_chows(Tile("m3", 3));
+    opens = h.possible_chis(Tile("m3", 3));
     EXPECT_EQ(opens.size(), 3);
     // [m3]m4m5, [m3]m4*m5, m2[m3]m4, m1m2[m3]
     h = Hand({"m1", "m1", "m1", "m2", "m3", "m4", "m5", "m5", "m6", "m7", "m8", "m9", "m9"});
-    opens = h.possible_chows(Tile("m3", 3));
+    opens = h.possible_chis(Tile("m3", 3));
     EXPECT_EQ(opens.size(), 4);
     // [m4]m5m6, m3[m4]m5, m2m3[m4]
     h = Hand({"m1", "m1", "m1", "m2", "m3", "m4", "m5", "m6", "m7", "m8", "m9", "m9", "m9"});
-    opens = h.possible_chows(Tile("m4", 3));
+    opens = h.possible_chis(Tile("m4", 3));
     EXPECT_EQ(opens.size(), 3);
     // [m4]m5m6, [m4]*m5m6, m3[m4]m5, m3[m4]*m5, m2m3[m4]
     h = Hand({"m1", "m1", "m1", "m2", "m3", "m4", "m5", "m5", "m6", "m7", "m8", "m9", "m9"});
-    opens = h.possible_chows(Tile("m4", 3));
+    opens = h.possible_chis(Tile("m4", 3));
     EXPECT_EQ(opens.size(), 5);
     // [m5]m6m7, m4[m5]m6, m3m4[m5]
     h = Hand({"m1", "m1", "m1", "m2", "m3", "m4", "m5", "m6", "m7", "m8", "m9", "m9", "m9"});
-    opens = h.possible_chows(Tile("m5", 3));
+    opens = h.possible_chis(Tile("m5", 3));
     EXPECT_EQ(opens.size(), 3);
     // [m5]m6m7, m4[m5]m6, m3m4[m5]
     h = Hand({"m1", "m1", "m1", "m2", "m3", "m4", "m5", "m5", "m6", "m7", "m8", "m9", "m9"});
-    opens = h.possible_chows(Tile("m5", 3));
+    opens = h.possible_chis(Tile("m5", 3));
     EXPECT_EQ(opens.size(), 3);
     // [m6]m7m8, m5[m6]m7, m4m5[m6]
     h = Hand({"m1", "m1", "m1", "m2", "m3", "m4", "m5", "m6", "m7", "m8", "m9", "m9", "m9"});
-    opens = h.possible_chows(Tile("m6", 3));
+    opens = h.possible_chis(Tile("m6", 3));
     EXPECT_EQ(opens.size(), 3);
     // [m6]m7m8, m5[m6]m7, *m5[m6]m7, m4m5[m6], m4*m5[m6]
     h = Hand({"m1", "m1", "m1", "m2", "m3", "m4", "m5", "m5", "m6", "m7", "m8", "m9", "m9"});
-    opens = h.possible_chows(Tile("m6", 3));
+    opens = h.possible_chis(Tile("m6", 3));
     EXPECT_EQ(opens.size(), 5);
     // [m7]m8m9, m6[m7]m8, m5m6[m7]
     h = Hand({"m1", "m1", "m1", "m2", "m3", "m4", "m5", "m6", "m7", "m8", "m9", "m9", "m9"});
-    opens = h.possible_chows(Tile("m7", 3));
+    opens = h.possible_chis(Tile("m7", 3));
     EXPECT_EQ(opens.size(), 3);
     // [m7]m8m9, m6[m7]m8, m5m6[m7], *m5m6[m7]
     h = Hand({"m1", "m1", "m1", "m2", "m3", "m4", "m5", "m5", "m6", "m7", "m8", "m9", "m9"});
-    opens = h.possible_chows(Tile("m7", 3));
+    opens = h.possible_chis(Tile("m7", 3));
     EXPECT_EQ(opens.size(), 4);
     // m7[m8]m9, 6m7[m8]
     h = Hand({"m1", "m1", "m1", "m2", "m3", "m4", "m5", "m6", "m7", "m8", "m9", "m9", "m9"});
-    opens = h.possible_chows(Tile("m8", 2));
+    opens = h.possible_chis(Tile("m8", 2));
     EXPECT_EQ(opens.size(), 2);
     // m7m8[m9]
     h = Hand({"m1", "m1", "m1", "m2", "m3", "m4", "m5", "m6", "m7", "m8", "m9", "m9", "m9"});
-    opens = h.possible_chows(Tile("m9", 2));
+    opens = h.possible_chis(Tile("m9", 2));
     EXPECT_EQ(opens.size(), 1);
 }
 
 TEST(hand, possible_pungs) {
     auto h = Hand({"m1", "m1", "m1", "m2", "m3", "m4", "m5", "m6", "m7", "m8", "m9", "m9", "m9"});
-    // No pung is expected
-    EXPECT_EQ(h.possible_pungs(Tile("m5", 3), relative_pos::mid).size(), 0);
+    // No pon is expected
+    EXPECT_EQ(h.possible_pons(Tile("m5", 3), relative_pos::mid).size(), 0);
     h = Hand({"m1", "m1", "m1", "m2", "m3", "m5", "m5", "m6", "m7", "m8", "m9", "m9", "m9"});
-    // One possible pung is expected
-    EXPECT_EQ(h.possible_pungs(Tile("m5", 3), relative_pos::mid).size(), 1);
-    EXPECT_EQ((*h.possible_pungs(Tile("m5", 3), relative_pos::mid).begin())->type(), open_type::pung);
-    EXPECT_EQ((*h.possible_pungs(Tile("m5", 3), relative_pos::mid).begin())->at(0).type(), tile_type::m5);
+    // One possible pon is expected
+    EXPECT_EQ(h.possible_pons(Tile("m5", 3), relative_pos::mid).size(), 1);
+    EXPECT_EQ((*h.possible_pons(Tile("m5", 3), relative_pos::mid).begin())->type(), open_type::pung);
+    EXPECT_EQ((*h.possible_pons(Tile("m5", 3), relative_pos::mid).begin())->at(0).type(), tile_type::m5);
     h = Hand({"m1", "m1", "m1", "m2", "m5", "m5", "m5", "m6", "m7", "m8", "m9", "m9", "m9"});
     // Two possible pungs are expected (w/ red 5 and w/o red 5)
-    EXPECT_EQ(h.possible_pungs(Tile("m5", 3), relative_pos::mid).size(), 2);
-    EXPECT_EQ((*h.possible_pungs(Tile("m5", 3), relative_pos::mid).begin())->at(0).id() % 4, 0);
-    EXPECT_EQ((*h.possible_pungs(Tile("m5", 3), relative_pos::mid).begin())->at(1).id() % 4, 1);
+    EXPECT_EQ(h.possible_pons(Tile("m5", 3), relative_pos::mid).size(), 2);
+    EXPECT_EQ((*h.possible_pons(Tile("m5", 3), relative_pos::mid).begin())->at(0).id() % 4, 0);
+    EXPECT_EQ((*h.possible_pons(Tile("m5", 3), relative_pos::mid).begin())->at(1).id() % 4, 1);
     h = Hand({"m1", "m1", "m1", "m2", "m4", "m4", "m4", "m6", "m7", "m8", "m9", "m9", "m9"});
-    // One possible pung is expected
-    EXPECT_EQ(h.possible_pungs(Tile("m4", 3), relative_pos::mid).size(), 1);
-    EXPECT_EQ((*h.possible_pungs(Tile("m4", 3), relative_pos::mid).begin())->at(0).id() % 4, 0);
-    EXPECT_EQ((*h.possible_pungs(Tile("m4", 3), relative_pos::mid).begin())->at(1).id() % 4, 1);
+    // One possible pon is expected
+    EXPECT_EQ(h.possible_pons(Tile("m4", 3), relative_pos::mid).size(), 1);
+    EXPECT_EQ((*h.possible_pons(Tile("m4", 3), relative_pos::mid).begin())->at(0).id() % 4, 0);
+    EXPECT_EQ((*h.possible_pons(Tile("m4", 3), relative_pos::mid).begin())->at(1).id() % 4, 1);
 }
 
 TEST(hand, possible_kong_mlds) {
     auto h = Hand({"m1", "m1", "m1", "m2", "m3", "m4", "m5", "m6", "m7", "m8", "m9", "m9", "m9"});
     EXPECT_EQ(h.size(), 13);
-    EXPECT_EQ(h.possible_kong_mlds(Tile("m1", 3), relative_pos::mid).size(), 1);
-    EXPECT_EQ((*h.possible_kong_mlds(Tile("m1", 3), relative_pos::mid).begin())->type(), open_type::kong_mld);
-    EXPECT_EQ((*h.possible_kong_mlds(Tile("m1", 3), relative_pos::mid).begin())->at(0).type(), tile_type::m1);
-    EXPECT_EQ((*h.possible_kong_mlds(Tile("m1", 3), relative_pos::mid).begin())->stolen(), Tile("m1", 3));
-    EXPECT_EQ((*h.possible_kong_mlds(Tile("m1", 3), relative_pos::mid).begin())->last(), Tile("m1", 3));
-    EXPECT_EQ(h.possible_kong_mlds(Tile("m2", 3), relative_pos::mid).size(), 0);
-    EXPECT_EQ(h.possible_kong_mlds(Tile("m9", 3), relative_pos::mid).size(), 1);
-    EXPECT_EQ((*h.possible_kong_mlds(Tile("m9", 3), relative_pos::mid).begin())->type(), open_type::kong_mld);
-    EXPECT_EQ((*h.possible_kong_mlds(Tile("m9", 3), relative_pos::mid).begin())->at(0).type(), tile_type::m9);
-    EXPECT_EQ((*h.possible_kong_mlds(Tile("m9", 3), relative_pos::mid).begin())->stolen(), Tile("m9", 3));
-    EXPECT_EQ((*h.possible_kong_mlds(Tile("m9", 3), relative_pos::mid).begin())->last(), Tile("m9", 3));
+    EXPECT_EQ(h.possible_kan_opened(Tile("m1", 3), relative_pos::mid).size(), 1);
+    EXPECT_EQ((*h.possible_kan_opened(Tile("m1", 3), relative_pos::mid).begin())->type(), open_type::kong_mld);
+    EXPECT_EQ((*h.possible_kan_opened(Tile("m1", 3), relative_pos::mid).begin())->at(0).type(), tile_type::m1);
+    EXPECT_EQ((*h.possible_kan_opened(Tile("m1", 3), relative_pos::mid).begin())->stolen(), Tile("m1", 3));
+    EXPECT_EQ((*h.possible_kan_opened(Tile("m1", 3), relative_pos::mid).begin())->last(), Tile("m1", 3));
+    EXPECT_EQ(h.possible_kan_opened(Tile("m2", 3), relative_pos::mid).size(), 0);
+    EXPECT_EQ(h.possible_kan_opened(Tile("m9", 3), relative_pos::mid).size(), 1);
+    EXPECT_EQ((*h.possible_kan_opened(Tile("m9", 3), relative_pos::mid).begin())->type(), open_type::kong_mld);
+    EXPECT_EQ((*h.possible_kan_opened(Tile("m9", 3), relative_pos::mid).begin())->at(0).type(), tile_type::m9);
+    EXPECT_EQ((*h.possible_kan_opened(Tile("m9", 3), relative_pos::mid).begin())->stolen(), Tile("m9", 3));
+    EXPECT_EQ((*h.possible_kan_opened(Tile("m9", 3), relative_pos::mid).begin())->last(), Tile("m9", 3));
 }
 
 TEST(hand, possible_kong_cncs) {
     auto h = Hand({"m1", "m1", "m1", "m2", "m2", "m3", "m4", "m5", "m6", "m7", "m9", "m9", "m9"});
     h.draw(Tile("m9", 3));
     EXPECT_EQ(h.size(), 14);
-    EXPECT_EQ(h.possible_kong_cncs().size(), 1);
-    EXPECT_EQ((*h.possible_kong_cncs().begin())->type(), open_type::kong_cnc);
-    EXPECT_EQ((*h.possible_kong_cncs().begin())->at(0).type(), tile_type::m9);
-    EXPECT_EQ((*h.possible_kong_cncs().begin())->stolen(), Tile("m9", 0));
-    EXPECT_EQ((*h.possible_kong_cncs().begin())->last(), Tile("m9", 0));
+    EXPECT_EQ(h.possible_kan_closed().size(), 1);
+    EXPECT_EQ((*h.possible_kan_closed().begin())->type(), open_type::kong_cnc);
+    EXPECT_EQ((*h.possible_kan_closed().begin())->at(0).type(), tile_type::m9);
+    EXPECT_EQ((*h.possible_kan_closed().begin())->stolen(), Tile("m9", 0));
+    EXPECT_EQ((*h.possible_kan_closed().begin())->last(), Tile("m9", 0));
 }
 
 TEST(hand, possible_kong_exts) {
     auto h = Hand({"m1", "m1", "m1", "m2", "m3", "m4", "m5", "m6", "m7", "m8", "m9", "m9", "m9"});
-    h.pung(std::make_unique<Pung>(Tile("m9", 3), Tile("m9", 2), relative_pos::mid));
+    h.pon(std::make_unique<Pon>(Tile("m9", 3), Tile("m9", 2), relative_pos::mid));
     h.discard(Tile("m1", 0));
     h.draw(Tile("m8", 2));
     EXPECT_EQ(h.size(), 14);
     EXPECT_EQ(h.size_closed(), 11);
     EXPECT_EQ(h.size_opened(), 3);
-    EXPECT_EQ(h.possible_kong_exts().size(), 1);
-    EXPECT_EQ((*h.possible_kong_exts().begin())->type(), open_type::kong_ext);
-    EXPECT_EQ((*h.possible_kong_exts().begin())->at(0).type(), tile_type::m9);
-    EXPECT_EQ((*h.possible_kong_exts().begin())->stolen(), Tile("m9", 3));
-    EXPECT_EQ((*h.possible_kong_exts().begin())->last(), Tile("m9", 2));
+    EXPECT_EQ(h.possible_kan_added().size(), 1);
+    EXPECT_EQ((*h.possible_kan_added().begin())->type(), open_type::kong_ext);
+    EXPECT_EQ((*h.possible_kan_added().begin())->at(0).type(), tile_type::m9);
+    EXPECT_EQ((*h.possible_kan_added().begin())->stolen(), Tile("m9", 3));
+    EXPECT_EQ((*h.possible_kan_added().begin())->last(), Tile("m9", 2));
 }
 
 TEST(hand, possible_opens_after_others_discard) {
     auto h = Hand({"m2", "m3", "m4", "m4", "m4", "m5", "m5", "m6", "m7", "m8", "m9", "m9", "m9"});
     auto possible_opens = h.possible_opens_after_others_discard(Tile("m4", 3), relative_pos::left);
-    // chow [m4]m5m6, [m4]*m5m6, m3[m4]m5, m3[m4]*m5, m2m3[m4]
-    // pung m4m4m4
+    // chi [m4]m5m6, [m4]*m5m6, m3[m4]m5, m3[m4]*m5, m2m3[m4]
+    // pon m4m4m4
     // kong m4m4m4m4
     EXPECT_EQ(possible_opens.size(), 7);
     EXPECT_EQ(possible_opens.at(0)->type(), open_type::chow);
@@ -312,7 +312,7 @@ TEST(hand, possible_opens_after_others_discard) {
 
 TEST(hand, possible_opens_after_draw) {
     auto h = Hand({"m1", "m1", "m1", "m2", "m3", "m4", "m5", "m6", "m7", "m8", "m9", "m9", "m9"});
-    h.pung(std::make_unique<Pung>(Tile("m9", 3), Tile("m9", 2), relative_pos::mid));
+    h.pon(std::make_unique<Pon>(Tile("m9", 3), Tile("m9", 2), relative_pos::mid));
     h.discard(Tile("m3", 0));
     h.draw(Tile("m1", 3));
     auto possible_opens = h.possible_opens_after_draw();
@@ -339,11 +339,11 @@ TEST(hand, to_vector) {
     };
 
     auto h = Hand({"m1", "m1", "m1", "m2", "m3", "m4", "m5", "m6", "m7", "m8", "m9", "m9", "m9"});
-    auto chows = h.possible_chows(Tile("m2", 1));
-    h.chow(std::move(chows.at(0)));
+    auto chows = h.possible_chis(Tile("m2", 1));
+    h.chi(std::move(chows.at(0)));
     h.discard(Tile("m9", 2));
-    auto pungs = h.possible_pungs(Tile("m1", 3), relative_pos::mid);
-    h.pung(std::move(pungs.at(0)));
+    auto pungs = h.possible_pons(Tile("m1", 3), relative_pos::mid);
+    h.pon(std::move(pungs.at(0)));
     h.discard(Tile("m9", 1));
     EXPECT_EQ(h.size(), 13);
     EXPECT_EQ(h.to_vector().size(), 13);
@@ -368,11 +368,11 @@ TEST(hand, to_array) {
     };
 
     auto h = Hand({"m1", "m1", "m1", "m2", "m3", "m4", "m5", "m6", "m7", "m8", "m9", "m9", "m9"});
-    auto chows = h.possible_chows(Tile("m2", 1));
-    h.chow(std::move(chows.at(0)));
+    auto chows = h.possible_chis(Tile("m2", 1));
+    h.chi(std::move(chows.at(0)));
     h.discard(Tile("m9", 2));
-    auto pungs = h.possible_pungs(Tile("m1", 3), relative_pos::mid);
-    h.pung(std::move(pungs.at(0)));
+    auto pungs = h.possible_pons(Tile("m1", 3), relative_pos::mid);
+    h.pon(std::move(pungs.at(0)));
     h.discard(Tile("m9", 1));
     std::array<std::uint8_t, 34> expected =
     {4,2,1,1,1,1,1,1,1,
@@ -398,8 +398,8 @@ TEST(hand, is_menzen) {
     // menzen
     auto h = Hand({"m1", "m1", "m1", "m2", "m3", "m4", "m5", "m6", "m7", "m8", "m9", "m9", "m9"});
     EXPECT_TRUE(h.is_menzen());
-    auto chows = h.possible_chows(Tile("m1", 3));
-    h.chow(std::move(chows.at(0)));
+    auto chows = h.possible_chis(Tile("m1", 3));
+    h.chi(std::move(chows.at(0)));
     EXPECT_FALSE(h.is_menzen());
 }
 
@@ -421,8 +421,8 @@ TEST(hand, can_riichi) {
     h.draw(Tile("p1"));
     EXPECT_FALSE(h.can_riichi(win_cache));
     h = Hand({"m1", "m1", "m2", "m3", "m4", "m5", "m6", "m7", "m8", "m9", "m9", "m9", "m9"});
-    auto chows = h.possible_chows(Tile("m1", 2));
-    h.chow(std::move(chows.at(0)));
+    auto chows = h.possible_chis(Tile("m1", 2));
+    h.chi(std::move(chows.at(0)));
     h.discard(Tile("m9"));
     h.draw(Tile("p1"));
     EXPECT_FALSE(h.can_riichi(win_cache));

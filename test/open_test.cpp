@@ -16,7 +16,7 @@ TEST(open, Chow)
 {
     // constructor
     std::vector<Tile> t = {Tile("p5", 2), Tile("p6", 1), Tile("p7", 0)};
-    std::unique_ptr<Open> c = std::make_unique<Chow>(t, Tile("p6", 1));
+    std::unique_ptr<Open> c = std::make_unique<Chi>(t, Tile("p6", 1));
     EXPECT_EQ(c->type(), open_type::chow);
     EXPECT_EQ(c->from(), relative_pos::left);
     EXPECT_EQ(c->at(0).id(), Tile("p5", 2).id());
@@ -25,7 +25,7 @@ TEST(open, Chow)
     EXPECT_EQ(c->stolen().id(), Tile("p6", 1).id());
 
     // samples from Tenhou  TODO: add more test cases
-    c = std::make_unique<Chow>(static_cast<std::uint16_t>(49495));  // http://tenhou.net/5/?log=2019101219gm-0009-0000-a1515896
+    c = std::make_unique<Chi>(static_cast<std::uint16_t>(49495));  // http://tenhou.net/5/?log=2019101219gm-0009-0000-a1515896
     EXPECT_EQ(c->type(), open_type::chow);
     EXPECT_EQ(c->from(), relative_pos::left);
     EXPECT_EQ(c->at(0).type(), tile_type::s3);
@@ -43,19 +43,19 @@ TEST(open, Chow)
 
     // undiscardable_tile_types
     t = Tile::create({"m4", "m3", "m2"});
-    c = std::make_unique<Chow>(t, Tile("m4"));
+    c = std::make_unique<Chi>(t, Tile("m4"));
     EXPECT_EQ(c->undiscardable_tile_types().size(), 2);
     EXPECT_EQ(c->undiscardable_tile_types().at(0), tile_type::m4);
     EXPECT_EQ(c->undiscardable_tile_types().at(1), tile_type::m1);
 
     t = Tile::create({"p7", "p8", "p6"});
-    c = std::make_unique<Chow>(t, Tile("p6"));
+    c = std::make_unique<Chi>(t, Tile("p6"));
     EXPECT_EQ(c->undiscardable_tile_types().size(), 2);
     EXPECT_EQ(c->undiscardable_tile_types().at(0), tile_type::p6);
     EXPECT_EQ(c->undiscardable_tile_types().at(1), tile_type::p9);
 
     t = Tile::create({"s4", "s6", "s5"});
-    c = std::make_unique<Chow>(t, Tile("s5"));
+    c = std::make_unique<Chi>(t, Tile("s5"));
     EXPECT_EQ(c->undiscardable_tile_types().size(), 1);
     EXPECT_EQ(c->undiscardable_tile_types().at(0), tile_type::s5);
 }
@@ -63,7 +63,7 @@ TEST(open, Chow)
 TEST(open, Pung)
 {
     // constructor
-    std::unique_ptr<Open> p = std::make_unique<Pung>(Tile("gd", 2), Tile("gd", 1), relative_pos::mid);
+    std::unique_ptr<Open> p = std::make_unique<Pon>(Tile("gd", 2), Tile("gd", 1), relative_pos::mid);
     EXPECT_EQ(p->type(), open_type::pung);
     EXPECT_EQ(p->from(), relative_pos::mid);
     EXPECT_EQ(p->at(0).id(), Tile("gd", 0).id());
@@ -79,7 +79,7 @@ TEST(open, Pung)
     EXPECT_EQ(p->undiscardable_tile_types().at(0), tile_type::gd);
 
     // samples from Tenhou  TODO: add more test cases
-    p = std::make_unique<Pung>(static_cast<std::uint16_t>(47723));  // http://tenhou.net/5/?log=2019101219gm-0009-0000-a1515896
+    p = std::make_unique<Pon>(static_cast<std::uint16_t>(47723));  // http://tenhou.net/5/?log=2019101219gm-0009-0000-a1515896
     EXPECT_EQ(p->type(), open_type::pung);
     EXPECT_EQ(p->from(), relative_pos::left);
     EXPECT_EQ(p->at(0).type(), tile_type::wd);
@@ -93,7 +93,7 @@ TEST(open, Pung)
 
 TEST(open, KongMld)
 {
-    std::unique_ptr<Open> k = std::make_unique<KongMld>(Tile("m2", 3), relative_pos::right);
+    std::unique_ptr<Open> k = std::make_unique<KanOpened>(Tile("m2", 3), relative_pos::right);
     EXPECT_EQ(k->type(), open_type::kong_mld);
     EXPECT_EQ(k->from(), relative_pos::right);
     EXPECT_EQ(k->at(0).id(), Tile("m2", 0).id());
@@ -111,7 +111,7 @@ TEST(open, KongMld)
 
 TEST(open, KongCnc)
 {
-    std::unique_ptr<Open> k = std::make_unique<KongCnc>(Tile("m3"));
+    std::unique_ptr<Open> k = std::make_unique<KanClosed>(Tile("m3"));
     EXPECT_EQ(k->type(), open_type::kong_cnc);
     EXPECT_EQ(k->from(), relative_pos::self);
     EXPECT_EQ(k->at(0).id(), Tile("m3", 0).id());
@@ -129,8 +129,8 @@ TEST(open, KongCnc)
 
 TEST(open, KongExt)
 {
-    std::unique_ptr<Open> p = std::make_unique<Pung>(Tile("m1", 2), Tile("m1", 0), relative_pos::mid);
-    std::unique_ptr<Open> k = std::make_unique<KongExt>(p.get());
+    std::unique_ptr<Open> p = std::make_unique<Pon>(Tile("m1", 2), Tile("m1", 0), relative_pos::mid);
+    std::unique_ptr<Open> k = std::make_unique<KanAdded>(p.get());
     EXPECT_EQ(k->type(), open_type::kong_ext);
     EXPECT_EQ(k->from(), relative_pos::mid);
     EXPECT_EQ(k->at(0).id(), Tile("m1", 0).id());
