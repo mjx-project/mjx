@@ -17,5 +17,6 @@
 - Tenhou/mjlog
   - [mjlog形式について](http://m77.hatenablog.com/entry/2017/05/21/214529)
   - [NegativeMjark/tenhou-log](https://github.com/NegativeMjark/tenhou-log)
+  - [mthrok/tenhou-log-utils](https://github.com/mthrok/tenhou-log-utils) mjlongのコンソールでの表示などができる
 - Play at tenhou
   - [MahjongRepository/tenhou-python-bot](https://github.com/MahjongRepository/tenhou-python-bot)
