@@ -1,0 +1,23 @@
+syntax = "proto3";
+
+package mj;
+
+service Agent {
+  rpc UpdateInfo (Info) returns (Empty) {}
+  rpc TakeAction (ActionRequest) returns (ActionResponse) {}
+}
+
+message Info {
+}
+
+message Empty {
+}
+
+message ActionRequest {  // i.e., observation
+  uint32 type = 1;
+}
+
+message ActionResponse {
+  uint32 type = 1;
+  uint32 action = 2;
+}
