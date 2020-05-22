@@ -3,12 +3,28 @@
 
 #include "mahjong.grpc.pb.h"
 
+#include "agent_server.h"
+
 namespace mj
 {
-    class MockAgentService final : public Agent::Service
+    // class MockAgentServiceImpl final : public AgentServiceImpl
+    class MockAgentServiceImpl final : public Agent::Service
     {
+    public:
         grpc::Status TakeAction(grpc::ServerContext* context, const ActionRequest* request, ActionResponse* reply) final ;
     };
+
+
+    class MockAgentServer final : public AgentServer
+    {
+    public:
+        MockAgentServer();
+        ~MockAgentServer() final = default;
+        void RunServer(const std::string &socket_address) final ;
+    private:
+        std::unique_ptr<grpc::Service> agent_impl_;
+    };
+
 }  // namespace mj
 
 #endif //MAHJONG_AGENT_SERVICE_MOCK_H

@@ -4,17 +4,19 @@
 #include <memory>
 #include "state.h"
 #include "action.h"
+#include "agent_client.h"
 
 namespace mj
 {
     class Env
     {
     public:
+        Env(const std::vector<std::shared_ptr<AgentClient>> &agents, std::uint32_t seed);
         void Step(const Action & action);
         bool IsGameOver();
-        State& GetState();
+        std::unique_ptr<Observation> GetObservation();
     private:
-        State state_;
+        std::unique_ptr<State> state_;
     };
 }
 #endif //MAHJONG_ENV_H

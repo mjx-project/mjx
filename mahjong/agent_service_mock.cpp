@@ -9,8 +9,24 @@
 
 namespace mj
 {
+    MockAgentServer::MockAgentServer() {
+        agent_impl_ = std::make_unique<MockAgentServiceImpl>();
+    }
+
+    void MockAgentServer::RunServer(const std::string &socket_address) {
+        std::cout << socket_address << std::endl;
+        grpc::EnableDefaultHealthCheckService(true);
+        grpc::reflection::InitProtoReflectionServerBuilderPlugin();
+        grpc::ServerBuilder builder;
+        builder.AddListeningPort(socket_address, grpc::InsecureServerCredentials());
+        builder.RegisterService(agent_impl_.get());
+        std::unique_ptr<grpc::Server> server(builder.BuildAndStart());
+        std::cout << "Mock agent server listening on " << socket_address << std::endl;
+        server->Wait();
+    }
+
     grpc::Status
-    MockAgentService::TakeAction(grpc::ServerContext *context, const ActionRequest *request, ActionResponse *reply) {
+    MockAgentServiceImpl::TakeAction(grpc::ServerContext *context, const ActionRequest *request, ActionResponse *reply) {
         reply->set_type(999);
         reply->set_action(2);
         return grpc::Status::OK;
@@ -18,20 +34,9 @@ namespace mj
 }  // namesapce mj
 
 
-void RunServer() {
-    std::string server_address("127.0.0.1:9090");
-    mj::MockAgentService service;
-    grpc::EnableDefaultHealthCheckService(true);
-    grpc::reflection::InitProtoReflectionServerBuilderPlugin();
-    grpc::ServerBuilder builder;
-    builder.AddListeningPort(server_address, grpc::InsecureServerCredentials());
-    builder.RegisterService(&service);
-    std::unique_ptr<grpc::Server> server(builder.BuildAndStart());
-    std::cout << "Mock agent server listening on " << server_address << std::endl;
-    server->Wait();
-}
 
 int main(int argc, char** argv) {
-    RunServer();
+    std::unique_ptr<mj::AgentServer> mock_agent =  std::make_unique<mj::MockAgentServer>();
+    mock_agent->RunServer("127.0.0.1:9090");
     return 0;
 }
