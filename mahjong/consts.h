@@ -33,12 +33,36 @@ namespace mj {
         after_win
     };
 
-    enum class absolute_pos : std::uint8_t {
+    enum class ActionType : std::uint8_t {
+        discard,
+        riichi_and_discard,
+        tsumo,
+        ron,
+        chi,
+        pon,
+        kan_opened,
+        kan_closed,
+        kan_added,
+        kyushu,  // 9 different honors and terminals （九種九牌）　
+    };
+
+    enum class AbsolutePos : std::uint8_t {
         east,
         south,
         west,
         north
     };
+
+    AbsolutePos& operator++(AbsolutePos &e ) {  // ++absolute_pos
+        e = static_cast<AbsolutePos>(static_cast<std::underlying_type<AbsolutePos>::type>(e) + 1);
+        return e;
+    }
+
+    AbsolutePos operator++(AbsolutePos &e, std::int32_t ) {  // absolute_pos++
+        AbsolutePos tmp = e;
+        ++e;
+        return tmp;
+    }
 
     enum class relative_pos : std::uint8_t  // Order follows mjlog
     {

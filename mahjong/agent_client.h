@@ -3,7 +3,9 @@
 
 #include <grpcpp/grpcpp.h>
 #include <mahjong.grpc.pb.h>
+
 #include "action.h"
+#include "observation.h"
 
 namespace mj
 {
@@ -11,7 +13,7 @@ namespace mj
     {
     public:
         AgentClient(std::shared_ptr<grpc::Channel> channel);
-        std::unique_ptr<Action> TakeAction();
+        std::unique_ptr<Action> TakeAction(std::unique_ptr<Observation> observation);
     private:
         std::unique_ptr<Agent::Stub> stub_;
     };

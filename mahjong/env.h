@@ -12,11 +12,9 @@ namespace mj
     {
     public:
         Env(const std::vector<std::shared_ptr<AgentClient>> &agents, std::uint32_t seed);
-        void Step(const Action & action);
+        void Start();
         bool IsGameOver();
-        std::unique_ptr<Observation> GetObservation();
     private:
-        std::unique_ptr<State> state_;
     };
 }
 #endif //MAHJONG_ENV_H

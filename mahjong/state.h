@@ -4,9 +4,10 @@
 #include <string>
 #include <array>
 #include <vector>
-#include "observation.h"
 #include "consts.h"
 #include "tile.h"
+#include "observation.h"
+#include "action.h"
 
 namespace mj
 {
@@ -18,8 +19,8 @@ namespace mj
         std::uint8_t honba;  // 本場
         std::uint8_t riichi;  // リー棒
         std::array<std::int16_t, 4> ten;  // 点 250 start
-        void Tsumo(absolute_pos who);
-        void Ron(absolute_pos who, absolute_pos from);
+        void Tsumo(AbsolutePos who);
+        void Ron(AbsolutePos who, AbsolutePos from);
     };
 
     class WallState
@@ -49,11 +50,34 @@ namespace mj
 
     };
 
+    class RoundMatchState
+    {
+    public:
+        RoundMatchState(std::uint32_t round_seed);
+        bool IsMatchOver();
+        AbsolutePos GetDealer();
+    };
+
     class State
     {
     public:
+        State(std::uint32_t seed);
+        void InitRound();
+        bool IsRoundOver();
+        AbsolutePos GetDealerPos();
+        bool HasNoDrawTileLeft();
+        void UpdateStateByDraw(AbsolutePos drawer_pos);
+        void UpdateStateByAction(std::unique_ptr<Action>);
+        void UpdateStateByKanDora();
+        void UpdateStateByKanDraw(AbsolutePos drawer_pos);
+        void UpdateStateByRyukyoku();
+        std::unique_ptr<Action> UpdateStateByStealActionCandidates(const std::vector<std::unique_ptr<Action>> &action_candidates);
+        void UpdateStateByFourKanByDifferentPlayers();
+        bool CanSteal(AbsolutePos stealer_pos);
+        bool CanRon(AbsolutePos winner_pos);
+        bool HasFourKanByDifferentPlayers();
+        std::unique_ptr<Observation> GetObservation(AbsolutePos pos);
         std::string ToMjlog();
-        Observation& GetObservation(absolute_pos pos);
     private:
         ScoreState score_state_;
         WallState wall_satets_;
