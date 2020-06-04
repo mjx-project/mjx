@@ -29,11 +29,11 @@ namespace mj
     {
     public:
        /*
-         * Note for extending kong
+         * Note for added kan
          *
-         *   In extending kong, from implies the opponent player from whom the player declared pong, not kong.
-         *   The 3rd tile of tiles represents the tile stolen by kong (tile[2]) and
-         *   the 4th tile represents the tile added by kong.
+         *   In added kan, from implies the opponent player from whom the player declared pon, not kan.
+         *   The 3rd tile of tiles represents the tile stolen by kan (tile[2]) and
+         *   the 4th tile represents the tile added by kan.
          *
          */
 

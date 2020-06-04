@@ -41,7 +41,7 @@ namespace mj
     void Hand::chi(std::unique_ptr<Open> open)
     {
         assert(hand_phase_ == hand_phase::after_discard);
-        assert(open->type() == open_type::chow);
+        assert(open->type() == open_type::chi);
         assert(open->size() == 3);
         assert(undiscardable_tiles_.empty());
         auto tiles_from_hand = open->tiles_from_hand();
@@ -51,13 +51,13 @@ namespace mj
             for (const auto tile : closed_tiles_)
                 if (tile.is(undiscardable_tt)) undiscardable_tiles_.insert(tile);
         open_sets_.insert(std::move(open));
-        hand_phase_ = hand_phase::after_chow;
+        hand_phase_ = hand_phase::after_chi;
     }
 
     void Hand::pon(std::unique_ptr<Open> open)
     {
         assert(hand_phase_ == hand_phase::after_discard);
-        assert(open->type() == open_type::pung);
+        assert(open->type() == open_type::pon);
         assert(undiscardable_tiles_.empty());
         auto tiles_from_hand = open->tiles_from_hand();
         for (const auto t : tiles_from_hand) closed_tiles_.erase(t);
@@ -66,25 +66,25 @@ namespace mj
             for (auto tile : closed_tiles_)
                 if (tile.is(undiscardable_tt)) undiscardable_tiles_.insert(tile);
         open_sets_.insert(std::move(open));
-        hand_phase_ = hand_phase::after_pung;
+        hand_phase_ = hand_phase::after_pon;
     }
 
     void Hand::kan_opened(std::unique_ptr<Open> open)
     {
         assert(hand_phase_ == hand_phase::after_discard);
-        assert(open->type() == open_type::kong_mld);
+        assert(open->type() == open_type::kan_opened);
         assert(undiscardable_tiles_.empty());
         auto tiles_from_hand = open->tiles_from_hand();
         for (const auto t : tiles_from_hand) closed_tiles_.erase(t);
         open_sets_.insert(std::move(open));
-        hand_phase_ = hand_phase::after_kong_mld;
+        hand_phase_ = hand_phase::after_kan_opened;
     }
 
     void Hand::kan_closed(std::unique_ptr<Open> open)
     {
         // TODO: implement undiscardable_tiles after kan_closed during riichi
         assert(hand_phase_ == hand_phase::after_draw);
-        assert(open->type() == open_type::kong_cnc);
+        assert(open->type() == open_type::kan_closed);
         assert(undiscardable_tiles_.empty());
         auto tiles_from_hand = open->tiles_from_hand();
         for (const auto t : tiles_from_hand) closed_tiles_.erase(t);
@@ -92,27 +92,27 @@ namespace mj
         if (is_under_riichi()) {
             // TODO: add undiscardable_tiles here
         }
-        hand_phase_ = hand_phase::after_kong_cnc;
+        hand_phase_ = hand_phase::after_kan_closed;
     }
 
     void Hand::kan_added(std::unique_ptr<Open> open)
     {
         assert(hand_phase_ == hand_phase::after_draw);
-        assert(open->type() == open_type::kong_ext);
+        assert(open->type() == open_type::kan_added);
         assert(undiscardable_tiles_.empty());
         assert(closed_tiles_.find(open->last()) != closed_tiles_.end());
         closed_tiles_.erase(open->last());
-        // change pon to extended kong
+        // change pon to extended kan
         const auto stolen = open->stolen();
         auto it = std::find_if(open_sets_.begin(), open_sets_.end(),
-                [&stolen](const auto &x){ return x->type() == open_type::pung && x->stolen() == stolen; });
+                [&stolen](const auto &x){ return x->type() == open_type::pon && x->stolen() == stolen; });
         if (it != open_sets_.end()) open_sets_.erase(*it);
         open_sets_.insert(std::move(open));
-        hand_phase_ = hand_phase::after_kong_ext;
+        hand_phase_ = hand_phase::after_kan_added;
     }
 
     Tile Hand::discard(Tile tile) {
-        assert(hand_phase::after_draw <= hand_phase_ && hand_phase_ <= hand_phase::after_kong_ext);
+        assert(hand_phase::after_draw <= hand_phase_ && hand_phase_ <= hand_phase::after_kan_added);
         assert(closed_tiles_.find(tile) != closed_tiles_.end());
         assert(undiscardable_tiles_.find(tile) == undiscardable_tiles_.end());
         if (hand_phase_ == hand_phase::after_discard) assert(drawn_tile_);
@@ -184,7 +184,7 @@ namespace mj
         assert(phase() == hand_phase::after_draw);
         auto v = std::vector<std::unique_ptr<Open>>();
         for (const auto &o : open_sets_)
-            if (o->type() == open_type::pung) {
+            if (o->type() == open_type::pon) {
                 const auto type = o->at(0).type();
                 if(std::find_if(closed_tiles_.begin(), closed_tiles_.end(),
                         [&type](auto x){ return x.type() == type; }) != closed_tiles_.end()) {
@@ -300,21 +300,21 @@ namespace mj
         assert(hand_phase_ == hand_phase::after_discard);
         auto v = std::vector<std::unique_ptr<Open>>();
         if (from == relative_pos::left) {
-            auto chows = possible_chis(tile);
-            for (auto & chow : chows) v.push_back(std::move(chow));
+            auto chis = possible_chis(tile);
+            for (auto & chi: chis) v.push_back(std::move(chi));
         }
-        auto pungs = possible_pons(tile, from);
-        for (auto & pung : pungs) v.push_back(std::move(pung));
-        auto kong_mlds = possible_kan_opened(tile, from);
-        for (auto & kong_mld : kong_mlds) v.push_back(std::move(kong_mld));
+        auto pons = possible_pons(tile, from);
+        for (auto & pon : pons) v.push_back(std::move(pon));
+        auto kan_openeds = possible_kan_opened(tile, from);
+        for (auto & kan_opened : kan_openeds) v.push_back(std::move(kan_opened));
         return v;
     }
 
     std::vector<std::unique_ptr<Open>> Hand::possible_opens_after_draw() {
         assert(hand_phase_ == hand_phase::after_draw);
         auto v = possible_kan_closed();
-        auto kong_exts = possible_kan_added();
-        for (auto & kong_ext : kong_exts) v.push_back(std::move(kong_ext));
+        auto kan_addeds = possible_kan_added();
+        for (auto & kan_added : kan_addeds ) v.push_back(std::move(kan_added));
         return v;
     }
 

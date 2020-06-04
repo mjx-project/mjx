@@ -10,16 +10,16 @@ namespace mj
     //   - https://github.com/NegativeMjark/tenhou-log
     //   - http://m77.hatenablog.com/entry/2017/05/21/214529
     constexpr std::uint16_t MASK_FROM                 =  0b0000000000000011;
-    constexpr std::uint16_t MASK_IS_CHOW              =  0b0000000000000100;  // >>2
-    constexpr std::uint16_t MASK_CHOW_OFFSET[3]       = {0b0000000000011000,  // >>3
+    constexpr std::uint16_t MASK_IS_CHI               =  0b0000000000000100;  // >>2
+    constexpr std::uint16_t MASK_CHI_OFFSET[3]        = {0b0000000000011000,  // >>3
                                                          0b0000000001100000,  // >>5
                                                          0b0000000110000000}; // >>7
-    constexpr std::uint16_t MASK_CHOW_BASE_AND_STOLEN =  0b1111110000000000;  // >>10, ((type/9)*7+type%9)*3+(stolen)
-    constexpr std::uint16_t MASK_IS_PUNG              =  0b0000000000001000;  // >>3
-    constexpr std::uint16_t MASK_IS_KONG_EXT          =  0b0000000000010000;  // >>4
-    constexpr std::uint16_t MASK_PUNG_UNUSED_OFFSET   =  0b0000000001100000;  // >>5
-    constexpr std::uint16_t MASK_PUNG_BASE_AND_STOLEN =  0b1111111000000000;  // >>9, type*3+(stolen)
-    constexpr std::uint16_t MASK_KONG_STOLEN          =  0b1111111100000000;  // >>8, id
+    constexpr std::uint16_t MASK_CHI_BASE_AND_STOLEN  =  0b1111110000000000;  // >>10, ((type/9)*7+type%9)*3+(stolen)
+    constexpr std::uint16_t MASK_IS_PON               =  0b0000000000001000;  // >>3
+    constexpr std::uint16_t MASK_IS_KAN_ADDED         =  0b0000000000010000;  // >>4
+    constexpr std::uint16_t MASK_PON_UNUSED_OFFSET    =  0b0000000001100000;  // >>5
+    constexpr std::uint16_t MASK_PON_BASE_AND_STOLEN  =  0b1111111000000000;  // >>9, type*3+(stolen)
+    constexpr std::uint16_t MASK_KAN_STOLEN           =  0b1111111100000000;  // >>8, id
 
     Open::Open(std::uint16_t bits) : bits_(bits) { }
 
@@ -29,7 +29,7 @@ namespace mj
 
     Chi::Chi(std::uint16_t bits) : Open(bits)
     {
-        assert(bits_ & MASK_IS_CHOW);
+        assert(bits_ & MASK_IS_CHI);
         assert(static_cast<relative_pos>(bits_ & MASK_FROM) == relative_pos::left);
     }
 
@@ -37,7 +37,7 @@ namespace mj
         std::sort(tiles.begin(), tiles.end());
         bits_ = 0;
         bits_ |= (MASK_FROM & static_cast<std::uint16_t>(relative_pos::left));
-        bits_ |= MASK_IS_CHOW;
+        bits_ |= MASK_IS_CHI;
         bits_ |= (static_cast<std::uint16_t>(tiles.at(0).id() % 4) << 3);
         bits_ |= (static_cast<std::uint16_t>(tiles.at(1).id() % 4) << 5);
         bits_ |= (static_cast<std::uint16_t>(tiles.at(2).id() % 4) << 7);
@@ -46,7 +46,7 @@ namespace mj
         bits_|= static_cast<std::uint16_t>(((base/9)*7 + base%9)*3+stolen_ix)<<10;
     }
 
-    open_type Chi::type() { return open_type::chow; }
+    open_type Chi::type() { return open_type::chi; }
 
     relative_pos Chi::from() { return relative_pos::left; }
 
@@ -114,20 +114,20 @@ namespace mj
 
     Tile Chi::at(std::size_t i, std::uint16_t min_type) {
         return Tile(static_cast<std::uint8_t>(
-                            (min_type + static_cast<std::uint8_t>(i)) * 4 + ((bits_&MASK_CHOW_OFFSET[i])>>(2*i+3))
+                            (min_type + static_cast<std::uint8_t>(i)) * 4 + ((bits_&MASK_CHI_OFFSET[i])>>(2*i+3))
                     ));
     }
 
 
    Pon::Pon(std::uint16_t bits) : Open(bits) {
-       assert(bits_ & MASK_IS_PUNG);
-       assert(!(bits_ & MASK_IS_KONG_EXT));
+       assert(bits_ & MASK_IS_PON);
+       assert(!(bits_ & MASK_IS_KAN_ADDED));
    }
 
     Pon::Pon(Tile stolen, Tile unused, relative_pos from) {
         bits_ = 0;
         bits_ |= (MASK_FROM & static_cast<std::uint16_t>(from));
-        bits_ |= MASK_IS_PUNG;
+        bits_ |= MASK_IS_PON;
         std::uint16_t unused_offset = static_cast<std::uint16_t>(unused.id() % 4);
         bits_ |=  unused_offset << 5;
         std::uint16_t base = static_cast<std::uint16_t>(stolen.type());
@@ -144,7 +144,7 @@ namespace mj
     }
 
     open_type Pon::type() {
-        return open_type::pung;
+        return open_type::pon;
     }
 
     relative_pos Pon::from() {
@@ -153,7 +153,7 @@ namespace mj
 
     Tile Pon::at(std::size_t i) {
         std::uint16_t type = (bits_ >> 9) / 3;
-        std::uint16_t unused_offset = (bits_ & MASK_PUNG_UNUSED_OFFSET) >> 5;
+        std::uint16_t unused_offset = (bits_ & MASK_PON_UNUSED_OFFSET) >> 5;
         if (i >= unused_offset) ++i;
         // unused at(0) at(1) at(2)
         // 0 [1]  2   3
@@ -194,17 +194,17 @@ namespace mj
     }
 
     KanAdded::KanAdded(std::uint16_t bits) : Open(bits) {
-        assert(bits_ & MASK_IS_PUNG);
-        assert(bits_ & MASK_IS_KONG_EXT);
+        assert(bits_ & MASK_IS_PON);
+        assert(bits_ & MASK_IS_KAN_ADDED);
     }
 
-    KanAdded::KanAdded(Open *pung) {
-        bits_ = pung->get_bits();
-        bits_ |= MASK_IS_KONG_EXT;
+    KanAdded::KanAdded(Open *pon) {
+        bits_ = pon->get_bits();
+        bits_ |= MASK_IS_KAN_ADDED;
     }
 
     open_type KanAdded::type() {
-        return open_type::kong_ext;
+        return open_type::kan_added;
     }
 
     relative_pos KanAdded::from() {
@@ -236,14 +236,14 @@ namespace mj
     Tile KanAdded::stolen() {
         std::uint16_t type = (bits_ >> 9) / 3;
         std::uint16_t stolen_ix = (bits_ >> 9) % 3;
-        std::uint16_t unused_offset = (bits_ & MASK_PUNG_UNUSED_OFFSET) >> 5;
+        std::uint16_t unused_offset = (bits_ & MASK_PON_UNUSED_OFFSET) >> 5;
         if (stolen_ix >= unused_offset) ++stolen_ix;
         return Tile(static_cast<std::uint8_t>(type * 4 + stolen_ix));
     }
 
     Tile KanAdded::last() {
         std::uint16_t type = (bits_ >> 9) / 3;
-        std::uint16_t unused_offset = (bits_ & MASK_PUNG_UNUSED_OFFSET) >> 5;
+        std::uint16_t unused_offset = (bits_ & MASK_PON_UNUSED_OFFSET) >> 5;
         return Tile(static_cast<std::uint8_t>(type * 4 + unused_offset));
     }
 
@@ -252,7 +252,7 @@ namespace mj
     }
 
     KanOpened::KanOpened(std::uint16_t bits) : Open(bits) {
-        assert(!(bits_&MASK_IS_CHOW) && !(bits_&MASK_IS_PUNG) && !(bits_&MASK_IS_KONG_EXT));
+        assert(!(bits_&MASK_IS_CHI) && !(bits_&MASK_IS_PON) && !(bits_&MASK_IS_KAN_ADDED));
         assert(from() != relative_pos::self);
     }
 
@@ -263,7 +263,7 @@ namespace mj
     }
 
     open_type KanOpened::type() {
-        return open_type::kong_mld;
+        return open_type::kan_opened;
     }
 
     relative_pos KanOpened::from() {
@@ -305,7 +305,7 @@ namespace mj
     }
 
     KanClosed::KanClosed(std::uint16_t bits) : Open(bits) {
-        assert(!(bits_&MASK_IS_CHOW) && !(bits_&MASK_IS_PUNG) && !(bits_&MASK_IS_KONG_EXT));
+        assert(!(bits_&MASK_IS_CHI) && !(bits_&MASK_IS_PON) && !(bits_&MASK_IS_KAN_ADDED));
         assert(relative_pos(static_cast<std::uint8_t>(bits_&MASK_FROM)) == relative_pos::self);
     }
 
@@ -316,7 +316,7 @@ namespace mj
     }
 
     open_type KanClosed::type() {
-        return open_type::kong_cnc;
+        return open_type::kan_closed;
     }
 
     relative_pos KanClosed::from() {
@@ -353,10 +353,10 @@ namespace mj
     }
 
     std::unique_ptr<Open> OpenGenerator::generate(std::uint16_t bits) {
-        if (bits&MASK_IS_CHOW) {
+        if (bits&MASK_IS_CHI) {
             return std::make_unique<Chi>(bits);
-        } else if (bits&MASK_IS_PUNG) {
-            if (!(bits&MASK_IS_KONG_EXT)) {
+        } else if (bits&MASK_IS_PON) {
+            if (!(bits&MASK_IS_KAN_ADDED)) {
                 return std::make_unique<Pon>(bits);
             } else {
                 return std::make_unique<KanAdded>(bits);
