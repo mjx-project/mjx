@@ -1,4 +1,5 @@
 .idea/*
+mahjong/cmake-build-debug/*
 cmake-build-debug/*
 build/*
 test/lib/*
