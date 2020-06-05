@@ -2,7 +2,8 @@
 #include <array>
 #include <sstream>
 #include <iostream>
-#include "random"
+#include <bitset>
+#include <random>
 
 #include "consts.h"
 #include "block.h"

@@ -1,3 +1,5 @@
+![](https://github.com/sotetsuk/mahjong/workflows/build/badge.svg)
+
 # Open Mahjong
 
 [![](./img/architecture.png)](https://docs.google.com/presentation/d/1lhb_sNix02Iyp0DI0Be5uuQub1W7CVbFiUdiDazG6tY/edit?usp=sharing)
@@ -26,3 +28,16 @@
   - [天鳳牌譜(.mjlog形式)をXMLに直す](http://rausumaru.hatenablog.com/entry/2019/08/30/021154)
 - Play at tenhou
   - [MahjongRepository/tenhou-python-bot](https://github.com/MahjongRepository/tenhou-python-bot)
+  
+## Build
+
+```
+$ ./build.sh
+```
+で`build` ディレクトリにビルドされる。
+
+```
+$ ./build/test/mahjong_test
+```
+でテストが実行できる。
+
