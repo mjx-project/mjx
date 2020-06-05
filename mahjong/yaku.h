@@ -14,13 +14,13 @@ namespace mj
     public:
         Yaku() = default;
         Yaku(Hand hand, relative_pos from);
-        std::unique_ptr<std::vector<std::pair<yaku, std::uint8_t>>> to_vector();  // follows tenhou format
+        std::unique_ptr<std::vector<std::pair<yaku, std::uint8_t>>> ToVector();  // follows tenhou format
     private:
         std::uint64_t bits_ = 0;
         std::uint8_t dora_count_ = -1;
         std::uint8_t reversed_dora_count_ = -1;
         std::uint8_t red_dora_count_ = -1;
-        bool is_valid();
+        bool IsValid();
     };
     // fully_concealed_hand, // 門前清自摸和
     // riichi, // 立直

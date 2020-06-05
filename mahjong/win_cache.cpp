@@ -159,18 +159,18 @@ namespace mj
     }
 
     WinningHandCache::WinningHandCache() {
-        load();
+        Load();
     }
 
-    bool WinningHandCache::has(const std::string &s) const noexcept {
+    bool WinningHandCache::Has(const std::string &s) const noexcept {
         return cache_->find(s) != cache_->end();
     }
 
-    std::uint64_t WinningHandCache::yaku(const std::string &s) const {
+    std::uint64_t WinningHandCache::Yaku(const std::string &s) const {
         return cache_->at(s);
     }
 
-    void WinningHandCache::prepare_win_cache() {
+    void WinningHandCache::PrepareWinCache() {
         std::vector<std::array<uint8_t, 34>> sets;
         std::vector<std::array<uint8_t, 34>> heads;
         std::array<std::uint8_t, 34> a{};
@@ -348,8 +348,8 @@ namespace mj
                             //     }
                             // }
                             //////////////////////////////////////////////////////////////////////////////////
-                            auto blocks = mj::Block::build(a);
-                            cache[Block::blocks_to_string(blocks)] |= yaku_bits;
+                            auto blocks = mj::Block::Build(a);
+                            cache[Block::BlocksToString(blocks)] |= yaku_bits;
                         }
                     }
                 }
@@ -377,8 +377,8 @@ namespace mj
                                     std::uint64_t yaku_bits = bits_init;
                                     yaku_bits |= bit_seven_pairs;
                                     // cache
-                                    auto blocks = mj::Block::build(a);
-                                    cache[Block::blocks_to_string(blocks)] |= yaku_bits;
+                                    auto blocks = mj::Block::Build(a);
+                                    cache[Block::BlocksToString(blocks)] |= yaku_bits;
                                 }
                             }
                         }
@@ -395,11 +395,11 @@ namespace mj
         a[18] = 1;
         a[26] = 1;
         for (int i = 27; i < 34; ++i) a[i] = 1;
-        auto blocks = mj::Block::build(a);
+        auto blocks = mj::Block::Build(a);
         std::uint64_t yaku_bits = bits_init;
         yaku_bits |= bit_thirteen_orphans;
         yaku_bits |= bit_completed_thirteen_orphans;
-        cache[Block::blocks_to_string(blocks)] = yaku_bits;
+        cache[Block::BlocksToString(blocks)] = yaku_bits;
 
         for (const auto &kv: cache) {
             std::cout << "\"" << kv.first << "\"" << "\t";
@@ -408,7 +408,7 @@ namespace mj
         }
     }
 
-    void WinningHandCache::load() {
+    void WinningHandCache::Load() {
         cache_ = std::make_unique<std::unordered_map<std::string, std::uint64_t>>();
         (*cache_)["1,1,1,1,1,1,1,1,1,1,1,1,2"] = 0b0000000001110001100000000111000000000000001000000000000001111111;
         (*cache_)["2,2,2,2,2,2,2"] = 0b0000000001110000000000000111000000000000011000000000000001111111;
@@ -4265,11 +4265,11 @@ namespace mj
         (*cache_)["311,333"] = 0b0000000001110000000000000111111000101000101000000000001111111111;
     }
 
-    std::size_t WinningHandCache::size() const noexcept {
+    std::size_t WinningHandCache::Size() const noexcept {
         return cache_->size();
     }
 
-    void WinningHandCache::show_stats(std::uint64_t yaku_bit, const std::string &yaku_name) {
+    void WinningHandCache::ShowStats(std::uint64_t yaku_bit, const std::string &yaku_name) {
         int c = 0;
         std::vector<std::string> v;
         for (const auto & kv : *cache_) {

@@ -10,15 +10,15 @@ namespace mj
     {
     public:
         WinningHandCache();
-        [[nodiscard]] std::size_t size() const noexcept ;
-        [[nodiscard]] bool has(const std::string &s) const noexcept ;
-        [[nodiscard]] std::uint64_t yaku(const std::string &s) const;
+        [[nodiscard]] std::size_t Size() const noexcept ;
+        [[nodiscard]] bool Has(const std::string &s) const noexcept ;
+        [[nodiscard]] std::uint64_t Yaku(const std::string &s) const;
         // utils
-        static void prepare_win_cache();
-        void show_stats(std::uint64_t yaku_bit, const std::string &yaku_name);
+        static void PrepareWinCache();
+        void ShowStats(std::uint64_t yaku_bit, const std::string &yaku_name);
     private:
         std::unique_ptr<std::unordered_map<std::string, std::uint64_t>> cache_;
-        void load();
+        void Load();
     };
 }
 

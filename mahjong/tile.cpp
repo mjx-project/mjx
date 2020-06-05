@@ -10,7 +10,7 @@ namespace mj
 {
     Tile::Tile(tile_id tile_id)
     : tile_id_(tile_id) {
-        assert(is_valid());
+        assert(IsValid());
     }
 
     Tile::Tile(tile_type tile_type, std::uint8_t offset)
@@ -19,15 +19,15 @@ namespace mj
     }
 
     Tile::Tile(const std::string &tile_type_str, std::uint8_t offset)
-    : Tile(str2type(tile_type_str), offset) { }
+    : Tile(Str2Type(tile_type_str), offset) { }
 
-    std::vector<Tile> Tile::create(const std::vector<tile_id> &vector) noexcept {
+    std::vector<Tile> Tile::Create(const std::vector<tile_id> &vector) noexcept {
         auto tiles = std::vector<Tile>();
         for (const auto &id : vector) tiles.emplace_back(id);
         return tiles;
     }
 
-    std::vector<Tile> Tile::create(const std::vector<tile_type> &vector) noexcept {
+    std::vector<Tile> Tile::Create(const std::vector<tile_type> &vector) noexcept {
         std::unordered_map<tile_type, std::uint8_t> m;
         auto tiles = std::vector<Tile>();
         for (const auto &type : vector)
@@ -40,60 +40,60 @@ namespace mj
         return tiles;
     }
 
-    std::vector<Tile> Tile::create(const std::vector<std::string> &vector) noexcept {
+    std::vector<Tile> Tile::Create(const std::vector<std::string> &vector) noexcept {
         std::vector<tile_type> types;
         types.reserve(vector.size());
-        for (const auto &s : vector) types.emplace_back(Tile::str2type(s));
-        auto tiles = Tile::create(types);
+        for (const auto &s : vector) types.emplace_back(Tile::Str2Type(s));
+        auto tiles = Tile::Create(types);
         return tiles;
     }
 
-    std::vector<Tile> Tile::create_all() noexcept {
+    std::vector<Tile> Tile::CreateAll() noexcept {
         // TODO: switch depending on rule::PLAYER_NUM
         auto ids = std::vector<tile_id>(136);
         std::iota(ids.begin(), ids.end(), 0);
-        auto tiles = Tile::create(ids);
+        auto tiles = Tile::Create(ids);
         return tiles;
     }
 
-    tile_id Tile::id() const noexcept {
-        assert(is_valid());
+    tile_id Tile::Id() const noexcept {
+        assert(IsValid());
         return tile_id_;
     }
 
-    tile_type Tile::type() const noexcept {
-        assert(is_valid());
-        return tile_type(type_uint());
+    tile_type Tile::Type() const noexcept {
+        assert(IsValid());
+        return tile_type(TypeUint());
     }
 
-    std::uint8_t Tile::type_uint() const noexcept {
-        assert(is_valid());
-        return id() / 4;
+    std::uint8_t Tile::TypeUint() const noexcept {
+        assert(IsValid());
+        return Id() / 4;
     }
 
-    tile_set_type Tile::color() const noexcept {
-        if (is(tile_set_type::manzu)) return tile_set_type::manzu;
-        if (is(tile_set_type::pinzu)) return tile_set_type::pinzu;
-        if (is(tile_set_type::souzu)) return tile_set_type::souzu;
+    tile_set_type Tile::Color() const noexcept {
+        if (Is(tile_set_type::manzu)) return tile_set_type::manzu;
+        if (Is(tile_set_type::pinzu)) return tile_set_type::pinzu;
+        if (Is(tile_set_type::souzu)) return tile_set_type::souzu;
         assert(false);
     }
 
-    std::uint8_t Tile::num() const noexcept {
-        assert(!is(tile_set_type::honors));
-        return type_uint() % 9 + 1;
+    std::uint8_t Tile::Num() const noexcept {
+        assert(!Is(tile_set_type::honors));
+        return TypeUint() % 9 + 1;
     }
 
-    bool Tile::is(std::uint8_t n) const noexcept {
-        if (is(tile_set_type::honors)) return false;
-        return num() == n;
+    bool Tile::Is(std::uint8_t n) const noexcept {
+        if (Is(tile_set_type::honors)) return false;
+        return Num() == n;
     }
 
-    bool Tile::is(tile_type tile_type) const noexcept {
-        return type() == tile_type;
+    bool Tile::Is(tile_type tile_type) const noexcept {
+        return Type() == tile_type;
     }
 
-    bool Tile::is(tile_set_type tile_set_type) const noexcept {
-        auto tt = type();
+    bool Tile::Is(tile_set_type tile_set_type) const noexcept {
+        auto tt = Type();
         switch (tile_set_type)
         {
             case tile_set_type::all:
@@ -131,9 +131,9 @@ namespace mj
         }
     }
 
-    bool Tile::is_red5() const {
+    bool Tile::IsRedFive() const {
         // TODO: switch depending on rule
-        return id() == 16 || id() == 52 || id() == 88;
+        return Id() == 16 || Id() == 52 || Id() == 88;
     }
 
     bool Tile::operator==(const Tile &right) const noexcept {
@@ -160,13 +160,13 @@ namespace mj
         return tile_id_ >= right.tile_id_;
     }
 
-    std::string Tile::to_string() const noexcept {
+    std::string Tile::ToString() const noexcept {
         return "<tile_id: " + std::to_string(tile_id_) + ", tile_type: "
-        + std::to_string(type_uint()) + ">";
+               + std::to_string(TypeUint()) + ">";
     }
 
-    std::string Tile::to_unicode() const noexcept {
-        switch (type())
+    std::string Tile::ToUnicode() const noexcept {
+        switch (Type())
         {
             case tile_type::m1 : return u8"\U0001F007";
             case tile_type::m2 : return u8"\U0001F008";
@@ -205,8 +205,8 @@ namespace mj
         }
     }
 
-    std::string Tile::to_char() const noexcept {
-        switch (type())
+    std::string Tile::ToChar() const noexcept {
+        switch (Type())
         {
             case tile_type::m1 : return u8"一";
             case tile_type::m2 : return u8"二";
@@ -245,11 +245,11 @@ namespace mj
         }
     }
 
-    bool Tile::is_valid() const noexcept {
+    bool Tile::IsValid() const noexcept {
         return 0 <= tile_id_ && tile_id_ < 136;
     }
 
-    tile_type Tile::str2type(const std::string &s) noexcept {
+    tile_type Tile::Str2Type(const std::string &s) noexcept {
         if (s == "m1") return tile_type::m1;
         if (s == "m2") return tile_type::m2;
         if (s == "m3") return tile_type::m3;

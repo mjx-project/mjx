@@ -13,7 +13,7 @@ namespace mj
         }
     }
 
-    std::uint32_t mj::Block::size() const noexcept {
+    std::uint32_t mj::Block::Size() const noexcept {
         std::uint32_t s = 0;
         auto h = hash_;
         while (h != 0) {
@@ -23,11 +23,11 @@ namespace mj
         return s;
     }
 
-    std::uint32_t mj::Block::hash() const noexcept {
+    std::uint32_t mj::Block::Hash() const noexcept {
         return hash_;
     }
 
-    std::vector<std::uint8_t> mj::Block::block() const noexcept {
+    std::vector<std::uint8_t> mj::Block::ToVector() const noexcept {
         auto v = std::vector<std::uint8_t>();
         auto h = hash_;
         while (h != 0) {
@@ -37,14 +37,14 @@ namespace mj
         return v;
     }
 
-    std::string mj::Block::to_string() const noexcept {
-        auto v = block();
+    std::string mj::Block::ToString() const noexcept {
+        auto v = ToVector();
         std::ostringstream os;
         for (const auto e : v) os << static_cast<int>(e);
         return os.str();
     }
 
-    std::vector<Block> Block::build(const std::array<std::uint8_t, 34> &arr) {
+    std::vector<Block> Block::Build(const std::array<std::uint8_t, 34> &arr) {
         auto v = std::vector<Block>();
         std::vector<std::uint8_t> b = {};
         auto push = [&]() { v.emplace_back(b); b = {}; };
@@ -67,30 +67,30 @@ namespace mj
     }
 
     bool Block::operator==(const Block &right) const noexcept {
-        return hash() == right.hash();
+        return Hash() == right.Hash();
     }
 
     bool Block::operator!=(const Block &right) const noexcept {
-        return hash() != right.hash();
+        return Hash() != right.Hash();
     }
 
     bool Block::operator<(const Block &right) const noexcept {
-        return hash() < right.hash();
+        return Hash() < right.Hash();
     }
 
     bool Block::operator<=(const Block &right) const noexcept {
-        return hash() <= right.hash();
+        return Hash() <= right.Hash();
     }
 
     bool Block::operator>(const Block &right) const noexcept {
-        return hash() > right.hash();
+        return Hash() > right.Hash();
     }
 
     bool Block::operator>=(const Block &right) const noexcept {
-        return hash() >= right.hash();
+        return Hash() >= right.Hash();
     }
 
-    std::vector<Block> Block::build(const std::string &blocks_str) {
+    std::vector<Block> Block::Build(const std::string &blocks_str) {
         auto blocks = std::vector<Block>();
         std::vector<std::uint8_t> v;
         for (const auto c: blocks_str) {
@@ -105,10 +105,10 @@ namespace mj
         return blocks;
     }
 
-    std::string Block::blocks_to_string(const std::vector<mj::Block> &blocks) noexcept {
+    std::string Block::BlocksToString(const std::vector<mj::Block> &blocks) noexcept {
         std::ostringstream os;
         for (const auto &b : blocks) {
-            os << b.to_string() << ",";
+            os << b.ToString() << ",";
         }
         std::string s = os.str();
         return s.substr(0, s.size() - 1);
