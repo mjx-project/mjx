@@ -382,7 +382,7 @@ namespace mj
             if (arr.at(i) == 4) continue;
             ++(arr.at(i));
             auto blocks = Block::Build(arr);
-            if (win_cache.has(Block::BlocksToString(blocks))) return true;
+            if (win_cache.Has(Block::BlocksToString(blocks))) return true;
             --(arr.at(i));
         }
         return false;
@@ -401,7 +401,7 @@ namespace mj
                 if (arr.at(j) == 4) continue;
                 ++arr.at(j);
                 auto blocks = Block::Build(arr);
-                if (win_cache.has(Block::BlocksToString(blocks))) return true;
+                if (win_cache.Has(Block::BlocksToString(blocks))) return true;
                 --arr.at(j);
             }
             ++arr.at(i);
