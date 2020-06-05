@@ -1,5 +1,6 @@
 #include <sstream>
 #include <iostream>
+#include <algorithm>
 #include "block.h"
 
 namespace mj

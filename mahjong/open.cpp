@@ -3,6 +3,8 @@
 
 #include <open.h>
 #include <iostream>
+#include <cassert>
+#include <algorithm>
 
 namespace mj
 {

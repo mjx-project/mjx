@@ -8,6 +8,8 @@
 #include <iostream>
 #include <numeric>
 #include <array>
+#include <cassert>
+#include <algorithm>
 
 namespace mj
 {

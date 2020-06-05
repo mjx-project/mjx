@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <bitset>
+#include <memory>
 
 #include <tile.h>
 
