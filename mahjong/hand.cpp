@@ -381,8 +381,8 @@ namespace mj
         for (std::uint8_t i = 0; i < 34; ++i) {
             if (arr.at(i) == 4) continue;
             ++(arr.at(i));
-            auto blocks = Block::build(arr);
-            if (win_cache.has(Block::blocks_to_string(blocks))) return true;
+            auto blocks = Block::Build(arr);
+            if (win_cache.has(Block::BlocksToString(blocks))) return true;
             --(arr.at(i));
         }
         return false;
@@ -400,8 +400,8 @@ namespace mj
             for (std::uint8_t j = 0; j < 34; ++j) {
                 if (arr.at(j) == 4) continue;
                 ++arr.at(j);
-                auto blocks = Block::build(arr);
-                if (win_cache.has(Block::blocks_to_string(blocks))) return true;
+                auto blocks = Block::Build(arr);
+                if (win_cache.has(Block::BlocksToString(blocks))) return true;
                 --arr.at(j);
             }
             ++arr.at(i);

@@ -15,67 +15,67 @@ TEST(block, build)
          0,0,0,0,0,0,0,0,0,
          0,0,0,0,0,0,1,1,1,
          0,0,0,0,0,3, 0};
-    auto v = Block::build(a);
+    auto v = Block::Build(a);
     EXPECT_EQ(v.size(), 3);
-    EXPECT_EQ(v.at(0).to_string(), "3");
-    EXPECT_EQ(v.at(1).to_string(), "111");
-    EXPECT_EQ(v.at(2).to_string(), "2222");
+    EXPECT_EQ(v.at(0).ToString(), "3");
+    EXPECT_EQ(v.at(1).ToString(), "111");
+    EXPECT_EQ(v.at(2).ToString(), "2222");
     a = {0,0,0,0,0,0,0,0,2,
         1,1,1,1,1,1,1,1,1,
         1,1,1,0,0,0,0,0,0,
         0,0,0,0,0,0, 0};
-    v = Block::build(a);
+    v = Block::Build(a);
     EXPECT_EQ(v.size(), 3);
-    EXPECT_EQ(v.at(0).to_string(), "2");
-    EXPECT_EQ(v.at(1).to_string(), "111");
-    EXPECT_EQ(v.at(2).to_string(), "111111111");
+    EXPECT_EQ(v.at(0).ToString(), "2");
+    EXPECT_EQ(v.at(1).ToString(), "111");
+    EXPECT_EQ(v.at(2).ToString(), "111111111");
     a = {1,0,0,0,0,0,0,0,1,
          1,0,0,0,0,0,0,0,1,
          1,0,0,0,0,0,0,0,1,
          1,1,1,1,1,1,1};
-    v = Block::build(a);
+    v = Block::Build(a);
     EXPECT_EQ(v.size(), 13);
 
     // From string
-    auto blocks = Block::build("2,3,111,222");
-    EXPECT_EQ(Block::blocks_to_string(blocks), "2,3,111,222");
+    auto blocks = Block::Build("2,3,111,222");
+    EXPECT_EQ(Block::BlocksToString(blocks), "2,3,111,222");
 }
 
 TEST(block, size)
 {
-    EXPECT_EQ(Block({1}).size(), 1);
-    EXPECT_EQ(Block({3}).size(), 3);
-    EXPECT_EQ(Block({1,1,1}).size(), 3);
-    EXPECT_EQ(Block({3,1,1}).size(), 5);
-    EXPECT_EQ(Block({1,1,3}).size(), 5);
-    EXPECT_EQ(Block({3,1,1,1,1,1,1,1,3}).size(), 13);
+    EXPECT_EQ(Block({1}).Size(), 1);
+    EXPECT_EQ(Block({3}).Size(), 3);
+    EXPECT_EQ(Block({1, 1, 1}).Size(), 3);
+    EXPECT_EQ(Block({3, 1, 1}).Size(), 5);
+    EXPECT_EQ(Block({1, 1, 3}).Size(), 5);
+    EXPECT_EQ(Block({3, 1, 1, 1, 1, 1, 1, 1, 3}).Size(), 13);
 }
 
 TEST(block, hash)
 {
-    EXPECT_EQ(Block({1}).hash(), 1);
-    EXPECT_EQ(Block({3}).hash(), 3);
-    EXPECT_EQ(Block({1,1,1}).hash(), 31);
-    EXPECT_EQ(Block({3,1,1}).hash(), 33);
-    EXPECT_EQ(Block({1,1,3}).hash(), 81);
+    EXPECT_EQ(Block({1}).Hash(), 1);
+    EXPECT_EQ(Block({3}).Hash(), 3);
+    EXPECT_EQ(Block({1, 1, 1}).Hash(), 31);
+    EXPECT_EQ(Block({3, 1, 1}).Hash(), 33);
+    EXPECT_EQ(Block({1, 1, 3}).Hash(), 81);
 }
 
 TEST(block, block)
 {
-    EXPECT_EQ(Block({1}).block(), std::vector<std::uint8_t>({1}));
-    EXPECT_EQ(Block({3}).block(), std::vector<std::uint8_t>({3}));
-    EXPECT_EQ(Block({1,1,1}).block(), std::vector<std::uint8_t>({1,1,1}));
-    EXPECT_EQ(Block({3,1,1}).block(), std::vector<std::uint8_t>({3,1,1}));
-    EXPECT_EQ(Block({1,1,3}).block(), std::vector<std::uint8_t>({1,1,3}));
-    EXPECT_EQ(Block({3,1,1,1,1,1,1,1,3}).block(), std::vector<std::uint8_t>({3,1,1,1,1,1,1,1,3}));
+    EXPECT_EQ(Block({1}).ToVector(), std::vector<std::uint8_t>({1}));
+    EXPECT_EQ(Block({3}).ToVector(), std::vector<std::uint8_t>({3}));
+    EXPECT_EQ(Block({1, 1, 1}).ToVector(), std::vector<std::uint8_t>({1, 1, 1}));
+    EXPECT_EQ(Block({3, 1, 1}).ToVector(), std::vector<std::uint8_t>({3, 1, 1}));
+    EXPECT_EQ(Block({1, 1, 3}).ToVector(), std::vector<std::uint8_t>({1, 1, 3}));
+    EXPECT_EQ(Block({3, 1, 1, 1, 1, 1, 1, 1, 3}).ToVector(), std::vector<std::uint8_t>({3, 1, 1, 1, 1, 1, 1, 1, 3}));
 }
 
 TEST(block, to_string)
 {
-    EXPECT_EQ(Block({1}).to_string(), "1");
-    EXPECT_EQ(Block({3}).to_string(), "3");
-    EXPECT_EQ(Block({1,1,1}).to_string(), "111");
-    EXPECT_EQ(Block({3,1,1}).to_string(), "311");
-    EXPECT_EQ(Block({1,1,3}).to_string(), "113");
-    EXPECT_EQ(Block({3,1,1,1,1,1,1,1,3}).to_string(), "311111113");
+    EXPECT_EQ(Block({1}).ToString(), "1");
+    EXPECT_EQ(Block({3}).ToString(), "3");
+    EXPECT_EQ(Block({1, 1, 1}).ToString(), "111");
+    EXPECT_EQ(Block({3, 1, 1}).ToString(), "311");
+    EXPECT_EQ(Block({1, 1, 3}).ToString(), "113");
+    EXPECT_EQ(Block({3, 1, 1, 1, 1, 1, 1, 1, 3}).ToString(), "311111113");
 }

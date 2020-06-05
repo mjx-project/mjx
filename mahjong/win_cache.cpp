@@ -347,8 +347,8 @@ namespace mj
                             //     }
                             // }
                             //////////////////////////////////////////////////////////////////////////////////
-                            auto blocks = mj::Block::build(a);
-                            cache[Block::blocks_to_string(blocks)] |= yaku_bits;
+                            auto blocks = mj::Block::Build(a);
+                            cache[Block::BlocksToString(blocks)] |= yaku_bits;
                         }
                     }
                 }
@@ -376,8 +376,8 @@ namespace mj
                                     std::uint64_t yaku_bits = bits_init;
                                     yaku_bits |= bit_seven_pairs;
                                     // cache
-                                    auto blocks = mj::Block::build(a);
-                                    cache[Block::blocks_to_string(blocks)] |= yaku_bits;
+                                    auto blocks = mj::Block::Build(a);
+                                    cache[Block::BlocksToString(blocks)] |= yaku_bits;
                                 }
                             }
                         }
@@ -394,11 +394,11 @@ namespace mj
         a[18] = 1;
         a[26] = 1;
         for (int i = 27; i < 34; ++i) a[i] = 1;
-        auto blocks = mj::Block::build(a);
+        auto blocks = mj::Block::Build(a);
         std::uint64_t yaku_bits = bits_init;
         yaku_bits |= bit_thirteen_orphans;
         yaku_bits |= bit_completed_thirteen_orphans;
-        cache[Block::blocks_to_string(blocks)] = yaku_bits;
+        cache[Block::BlocksToString(blocks)] = yaku_bits;
 
         for (const auto &kv: cache) {
             std::cout << "\"" << kv.first << "\"" << "\t";
