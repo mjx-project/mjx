@@ -22,57 +22,57 @@ namespace mj
         for (auto &e: arr) e = 0;
     }
 
-    bool is_chow(const std::array<std::uint8_t, 34> &arr, std::array<std::uint8_t, 34> &chow_pos) {
+    bool is_chi(const std::array<std::uint8_t, 34> &arr, std::array<std::uint8_t, 34> &chi_pos) {
         for (int i = 0; i < 34; ++i) {
             if (arr[i] == 1) {
-                ++chow_pos[i];
+                ++chi_pos[i];
                 return true;
             }
         }
         return false;
     }
 
-    bool is_outside_chow(const std::array<std::uint8_t, 34> &arr) {
+    bool is_outside_chi(const std::array<std::uint8_t, 34> &arr) {
         for (int i = 0; i < 34; ++i) {
             if (arr[i] == 1) return i == 0 || i == 6 || i == 9 || i == 15 || i == 18 || i == 24;
         }
         return false;
     }
 
-    bool has_straight(const std::array<std::uint8_t, 34> &chow_min) {
-        if (chow_min[0] != 0 && chow_min[3] != 0 && chow_min[6] != 0) return true;
-        if (chow_min[9] != 0 && chow_min[12] != 0 && chow_min[15] != 0) return true;
-        if (chow_min[18] != 0 && chow_min[21] != 0 && chow_min[24] != 0) return true;
+    bool has_straight(const std::array<std::uint8_t, 34> &chi_min) {
+        if (chi_min[0] != 0 && chi_min[3] != 0 && chi_min[6] != 0) return true;
+        if (chi_min[9] != 0 && chi_min[12] != 0 && chi_min[15] != 0) return true;
+        if (chi_min[18] != 0 && chi_min[21] != 0 && chi_min[24] != 0) return true;
         return false;
     }
 
-    bool has_mixed_triple_chows(const std::array<std::uint8_t, 34> &chow_pos) {
+    bool has_mixed_triple_chis(const std::array<std::uint8_t, 34> &chi_pos) {
         for (int i = 0; i < 9; ++i) {
-            if (chow_pos[i] != 0 && chow_pos[i + 9] != 0 && chow_pos[i + 18] != 0) return true;
+            if (chi_pos[i] != 0 && chi_pos[i + 9] != 0 && chi_pos[i + 18] != 0) return true;
         }
         return false;
     }
 
 
-    bool has_twice_pure_double_chows(const std::array<std::uint8_t, 34> &chow_pos) {
+    bool has_twice_pure_double_chis(const std::array<std::uint8_t, 34> &chi_pos) {
         int c = 0;
-        for (auto e: chow_pos) if (e > 1) ++c;
+        for (auto e: chi_pos) if (e > 1) ++c;
         return c > 1;
     }
 
-    bool is_pung(const std::array<std::uint8_t, 34> &arr, std::array<std::uint8_t, 34> &pung_pos) {
+    bool is_pon(const std::array<std::uint8_t, 34> &arr, std::array<std::uint8_t, 34> &pon_pos) {
         for (int i = 0; i < 34; ++i) {
             if (arr[i] == 3) {
-                ++pung_pos[i];
+                ++pon_pos[i];
                 return true;
             }
         }
         return false;
     }
 
-    bool has_triple_pungs(const std::array<std::uint8_t, 34> &pung_pos) {
+    bool has_triple_pons(const std::array<std::uint8_t, 34> &pon_pos) {
         for (int i = 0; i < 9; ++i) {
-            if (pung_pos[i] != 0 && pung_pos[i + 9] != 0 && pung_pos[i + 18] != 0) return true;
+            if (pon_pos[i] != 0 && pon_pos[i + 9] != 0 && pon_pos[i + 18] != 0) return true;
         }
         return false;
     }
@@ -174,7 +174,7 @@ namespace mj
         std::vector<std::array<uint8_t, 34>> heads;
         std::array<std::uint8_t, 34> a{};
 
-        // chows
+        // chis
         for (int i = 0; i < 7; ++i) {
             init_arr(a);
             a[i] = 1; a[i+1] = 1; a[i + 2] = 1;
@@ -190,7 +190,7 @@ namespace mj
             a[i] = 1; a[i+1] = 1; a[i + 2] = 1;
             sets.push_back(a);
         }
-        // pungs
+        // pons
         for (int i = 0; i < 34; ++i) {
             init_arr(a);
             a[i] = 3;
@@ -210,27 +210,27 @@ namespace mj
         auto s = n*n*n*n*34;
         // flags
         bool is_pinfu = true;
-        std::array<std::uint8_t, 34> chow_pos{};
-        std::array<std::uint8_t, 34> pung_pos{};
-        int num_pungs = 0;
-        int num_honours_pungs = 0;
-        int num_possible_kongs = 0;
+        std::array<std::uint8_t, 34> chi_pos{};
+        std::array<std::uint8_t, 34> pon_pos{};
+        int num_pons = 0;
+        int num_honours_pons = 0;
+        int num_possible_kans = 0;
         bool is_outside_hand = true;
         bool is_terminals_in_all_set = true;
         bool is_head_honours = false;
         // checker for each set
         auto check = [&](auto &set) {
-            if (is_pung(set, pung_pos)) {
+            if (is_pon(set, pon_pos)) {
                 is_pinfu = false;
-                ++num_pungs;
+                ++num_pons;
                 if (is_all_simples(set)) {
                     is_terminals_in_all_set = false;
                 } else {
                     is_outside_hand = false;
                 }
             }
-            if (is_chow(set, chow_pos)) {
-                if (!is_outside_chow(set)) {
+            if (is_chi(set, chi_pos)) {
+                if (!is_outside_chi(set)) {
                     is_outside_hand = false;
                     is_terminals_in_all_set = false;
                 }
@@ -254,11 +254,11 @@ namespace mj
                             if (!ok) continue;
                             // reset flags
                             is_pinfu = true;
-                            for (auto &e : chow_pos) e = 0;
-                            for (auto &e : pung_pos) e = 0;
-                            num_pungs = 0;
-                            num_honours_pungs = 0;
-                            num_possible_kongs = 0;
+                            for (auto &e : chi_pos) e = 0;
+                            for (auto &e : pon_pos) e = 0;
+                            num_pons = 0;
+                            num_honours_pons = 0;
+                            num_possible_kans = 0;
                             is_outside_hand = true;
                             is_terminals_in_all_set = true;
                             is_head_honours = false;
@@ -277,32 +277,32 @@ namespace mj
                             if(is_pinfu) yaku_bits |= bit_pinfu;
                             // all simples
                             if(is_all_simples(a)) yaku_bits |= bit_all_simples;
-                            // pure double chows
-                            for (auto e: chow_pos) if (e > 1) yaku_bits |= bit_pure_double_chows;
+                            // pure double chis
+                            for (auto e: chi_pos) if (e > 1) yaku_bits |= bit_pure_double_chis;
                             // honours
-                            for(int i = 27; i < 34; ++i) num_honours_pungs += pung_pos[i];
-                            if (num_honours_pungs > 0) yaku_bits |= bits_honours;
+                            for(int i = 27; i < 34; ++i) num_honours_pons += pon_pos[i];
+                            if (num_honours_pons > 0) yaku_bits |= bits_honours;
                             // outside hand
                             if (is_outside_hand) yaku_bits |= bit_outside_hand;
                             // straight
-                            if (has_straight(chow_pos)) yaku_bits |= bit_pure_straight;
-                            // mixed_triple_chows
-                            if (has_mixed_triple_chows(chow_pos)) yaku_bits |= bit_mixed_triple_chows;
-                            // triple pungs
-                            if (has_triple_pungs(pung_pos)) yaku_bits |= bit_triple_pungs;
-                            for (int i = 0; i < 34; ++i) if (pung_pos[i] > 0 && a[i] != 4) ++num_possible_kongs;
-                            // three kongs
-                            if (num_possible_kongs >= 3) yaku_bits |= bit_three_kongs;
-                            // all pungs
-                            if (num_pungs == 4) yaku_bits |= bit_all_pungs;
-                            // three concealed pungs
-                            if (num_pungs >= 3) yaku_bits |= bit_three_concealed_pungs;
+                            if (has_straight(chi_pos)) yaku_bits |= bit_pure_straight;
+                            // mixed_triple_chis
+                            if (has_mixed_triple_chis(chi_pos)) yaku_bits |= bit_mixed_triple_chis;
+                            // triple pons
+                            if (has_triple_pons(pon_pos)) yaku_bits |= bit_triple_pons;
+                            for (int i = 0; i < 34; ++i) if (pon_pos[i] > 0 && a[i] != 4) ++num_possible_kans;
+                            // three kans
+                            if (num_possible_kans >= 3) yaku_bits |= bit_three_kans;
+                            // all pons
+                            if (num_pons == 4) yaku_bits |= bit_all_pons;
+                            // three concealed pons
+                            if (num_pons >= 3) yaku_bits |= bit_three_concealed_pons;
                             // little three dragons
-                            if (num_honours_pungs >= 2) yaku_bits |= bit_little_three_dragons;
+                            if (num_honours_pons >= 2) yaku_bits |= bit_little_three_dragons;
                             // all terms and honours
-                            if (num_honours_pungs == 4 && is_head_honours) yaku_bits |= bit_all_terms_and_honours;
-                            // twice pure double chows
-                            if (has_twice_pure_double_chows(chow_pos)) yaku_bits |= bit_twice_pure_double_chows;
+                            if (num_honours_pons == 4 && is_head_honours) yaku_bits |= bit_all_terms_and_honours;
+                            // twice pure double chis
+                            if (has_twice_pure_double_chis(chi_pos)) yaku_bits |= bit_twice_pure_double_chis;
                             // terminals in all sets
                             if (is_terminals_in_all_set) yaku_bits |= bit_terminals_in_all_sets;
                             // half flush
@@ -310,27 +310,27 @@ namespace mj
                             // full flush
                             if (is_full_flush(a)) yaku_bits |= bit_full_flush;
                             // big three dragons
-                            if (num_honours_pungs >= 3) yaku_bits |= bit_big_three_dragons;
-                            // four concealed pungs
-                            if (num_pungs == 4) yaku_bits |= bit_four_concealed_pungs;
-                            // completed four concealed pungs
-                            if (num_pungs == 4) yaku_bits |= bit_completed_four_concealed_pungs;
-                            // completed four concealed pungs
-                            if (num_honours_pungs == 4 && is_head_honours) yaku_bits |= bit_all_honours;
+                            if (num_honours_pons >= 3) yaku_bits |= bit_big_three_dragons;
+                            // four concealed pons
+                            if (num_pons == 4) yaku_bits |= bit_four_concealed_pons;
+                            // completed four concealed pons
+                            if (num_pons == 4) yaku_bits |= bit_completed_four_concealed_pons;
+                            // completed four concealed pons
+                            if (num_honours_pons == 4 && is_head_honours) yaku_bits |= bit_all_honours;
                             // all green
                             if (is_all_green(a)) yaku_bits |= bit_all_green;
                             // all terminals
-                            if (num_honours_pungs == 4) yaku_bits |= bit_all_terminals;
+                            if (num_honours_pons == 4) yaku_bits |= bit_all_terminals;
                             // nine gates
                             if (is_nine_gates(a)) yaku_bits |= bit_nine_gates;
                             // pure nine gates
                             if (is_nine_gates(a)) yaku_bits |= bit_pure_nine_gates;
                             // big four winds
-                            if (num_honours_pungs == 4) yaku_bits |= bit_big_four_winds;
+                            if (num_honours_pons == 4) yaku_bits |= bit_big_four_winds;
                             // little four winds
-                            if (num_honours_pungs == 3 && is_head_honours) yaku_bits |= bit_little_four_winds;
-                            // four kongs
-                            if (num_possible_kongs == 4) yaku_bits |= bit_four_kongs;
+                            if (num_honours_pons == 3 && is_head_honours) yaku_bits |= bit_little_four_winds;
+                            // four kans
+                            if (num_possible_kans == 4) yaku_bits |= bit_four_kans;
 
                             // add cache
                             double per = (static_cast<double>(c) / static_cast<double>(s)) * 100.0;

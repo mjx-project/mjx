@@ -13,8 +13,8 @@ TEST(win_cache, hand_made_samples)
     // fully_concealed_hand, // 門前清自摸和
     // riichi, // 立直
     // ippatsu, // 一発
-    // robbing_a_kong, // 槍槓
-    // after_a_kong, // 嶺上開花
+    // robbing_a_kan, // 槍槓
+    // after_a_kan, // 嶺上開花
     // bottom_of_the_sea, // 海底摸月
     // bottom_of_the_river, // 河底撈魚
     // pinfu, // 平和
@@ -23,7 +23,7 @@ TEST(win_cache, hand_made_samples)
     // all_simples, // 断幺九
     EXPECT_TRUE(cache.yaku("2,111,111,111111") & bit_all_simples);
     EXPECT_FALSE(cache.yaku("2,111,111111111") & bit_all_simples);
-    // pure_double_chows, // 一盃口
+    // pure_double_chis, // 一盃口
     EXPECT_TRUE(cache.yaku("2,222222") & bit_all_simples);
     EXPECT_FALSE(cache.yaku("2,2,22,222") & bit_all_simples);
     // seat_wind_east,// 自風 東
@@ -59,31 +59,31 @@ TEST(win_cache, hand_made_samples)
     EXPECT_FALSE(cache.yaku("141112112") & bit_pure_straight);
     EXPECT_FALSE(cache.yaku("33,112112") & bit_pure_straight);
     EXPECT_FALSE(cache.yaku("3,3,111,1112") & bit_pure_straight);
-    // // mixed_triple_chows, // 三色同順
-    EXPECT_TRUE(cache.yaku("2,111,111,114") & bit_mixed_triple_chows);
+    // // mixed_triple_chis, // 三色同順
+    EXPECT_TRUE(cache.yaku("2,111,111,114") & bit_mixed_triple_chis);
     EXPECT_FALSE(cache.yaku("2,33,111,111") & bit_seat_wind_east);
-    // triple_pungs, // 三色同刻
-    EXPECT_TRUE(cache.yaku("2,3,3,114") & bit_triple_pungs);
-    EXPECT_FALSE(cache.yaku("2,111,111,114") & bit_triple_pungs);
-    EXPECT_FALSE(cache.yaku("2,3,333") & bit_triple_pungs);
-    // three_kongs, // 三槓子
-    EXPECT_TRUE(cache.yaku("2,3,3,1113") & bit_three_kongs);
-    EXPECT_FALSE(cache.yaku("2,3,3,114") & bit_three_kongs);
-    // all_pungs, // 対々和
-    EXPECT_TRUE(cache.yaku("2,3,333") & bit_all_pungs);
-    EXPECT_FALSE(cache.yaku("2,111,333") & bit_all_pungs);
-    // three_concealed_pungs, // 三暗刻
-    EXPECT_TRUE(cache.yaku("2,111,333") & bit_three_concealed_pungs);
-    EXPECT_FALSE(cache.yaku("2,111,11133") & bit_three_concealed_pungs);
+    // triple_pons, // 三色同刻
+    EXPECT_TRUE(cache.yaku("2,3,3,114") & bit_triple_pons);
+    EXPECT_FALSE(cache.yaku("2,111,111,114") & bit_triple_pons);
+    EXPECT_FALSE(cache.yaku("2,3,333") & bit_triple_pons);
+    // three_kans, // 三槓子
+    EXPECT_TRUE(cache.yaku("2,3,3,1113") & bit_three_kans);
+    EXPECT_FALSE(cache.yaku("2,3,3,114") & bit_three_kans);
+    // all_pons, // 対々和
+    EXPECT_TRUE(cache.yaku("2,3,333") & bit_all_pons);
+    EXPECT_FALSE(cache.yaku("2,111,333") & bit_all_pons);
+    // three_concealed_pons, // 三暗刻
+    EXPECT_TRUE(cache.yaku("2,111,333") & bit_three_concealed_pons);
+    EXPECT_FALSE(cache.yaku("2,111,11133") & bit_three_concealed_pons);
     // little_three_dragons, // 小三元
     EXPECT_TRUE(cache.yaku("2,3,3,3,111") & bit_little_three_dragons);
     EXPECT_FALSE(cache.yaku("2,111,333") & bit_little_three_dragons);
     // all_terms_and_honours, // 混老頭
     // EXPECT_TRUE(cache.yaku("2,3,3,3,3") & bit_all_terms_and_honours);
     EXPECT_FALSE(cache.yaku("2,3,333") & bit_all_terms_and_honours);
-    // twice_pure_double_chows, // 二盃口
-    EXPECT_TRUE(cache.yaku("2,222,222") & bit_twice_pure_double_chows);
-    EXPECT_FALSE(cache.yaku("2,22,2222") & bit_twice_pure_double_chows);
+    // twice_pure_double_chis, // 二盃口
+    EXPECT_TRUE(cache.yaku("2,222,222") & bit_twice_pure_double_chis);
+    EXPECT_FALSE(cache.yaku("2,22,2222") & bit_twice_pure_double_chis);
     // terminals_in_all_sets, // 純全帯幺九
     EXPECT_TRUE(cache.yaku("2,111,111,111,111") & bit_terminals_in_all_sets);
     EXPECT_FALSE(cache.yaku("2,111,111,111111") & bit_terminals_in_all_sets);
@@ -103,12 +103,12 @@ TEST(win_cache, hand_made_samples)
     // big_three_dragons, // 大三元
     EXPECT_TRUE(cache.yaku("3,3,3,23") & bit_big_three_dragons);
     EXPECT_FALSE(cache.yaku("3,3,233") & bit_big_three_dragons);
-    // // four_concealed_pungs, // 四暗刻
-    EXPECT_TRUE(cache.yaku("23333") & bit_four_concealed_pungs);
-    EXPECT_FALSE(cache.yaku("111,2333") & bit_four_concealed_pungs);
-    // completed_four_concealed_pungs, // 四暗刻単騎
-    EXPECT_TRUE(cache.yaku("23333") & bit_completed_four_concealed_pungs);
-    EXPECT_FALSE(cache.yaku("111,2333") & bit_completed_four_concealed_pungs);
+    // // four_concealed_pons, // 四暗刻
+    EXPECT_TRUE(cache.yaku("23333") & bit_four_concealed_pons);
+    EXPECT_FALSE(cache.yaku("111,2333") & bit_four_concealed_pons);
+    // completed_four_concealed_pons, // 四暗刻単騎
+    EXPECT_TRUE(cache.yaku("23333") & bit_completed_four_concealed_pons);
+    EXPECT_FALSE(cache.yaku("111,2333") & bit_completed_four_concealed_pons);
     // all_honours, // 字一色
     EXPECT_TRUE(cache.yaku("2,3,3,3,3") & bit_all_honours);
     EXPECT_FALSE(cache.yaku("3,3,3,23") & bit_all_honours);
@@ -136,10 +136,10 @@ TEST(win_cache, hand_made_samples)
     // little_four_winds, // 小四喜
     EXPECT_TRUE(cache.yaku("2,3,3,3,111") & bit_little_four_winds);
     EXPECT_FALSE(cache.yaku("2,3,33,111") & bit_little_four_winds);
-    // four_kongs, // 四槓子
-    EXPECT_TRUE(cache.yaku("2,3,3,3,3") & bit_four_kongs);
-    EXPECT_FALSE(cache.yaku("2,11433") & bit_four_kongs);
-    EXPECT_FALSE(cache.yaku("2,3,3,3,111") & bit_four_kongs);
+    // four_kans, // 四槓子
+    EXPECT_TRUE(cache.yaku("2,3,3,3,3") & bit_four_kans);
+    EXPECT_FALSE(cache.yaku("2,11433") & bit_four_kans);
+    EXPECT_FALSE(cache.yaku("2,3,3,3,111") & bit_four_kans);
     // dora, // ドラ
     // reversed_dora, // 裏ドラ
     // red_dora, // 赤ドラ
@@ -148,13 +148,13 @@ TEST(win_cache, hand_made_samples)
     cache.show_stats(bit_fully_concealed_hand, "門前清自摸和");
     cache.show_stats(bit_riichi, "立直");
     cache.show_stats(bit_ippatsu, "一発");
-    cache.show_stats(bit_robbing_a_kong, "槍槓");
-    cache.show_stats(bit_after_a_kong, "嶺上開花");
+    cache.show_stats(bit_robbing_a_kan, "槍槓");
+    cache.show_stats(bit_after_a_kan, "嶺上開花");
     cache.show_stats(bit_bottom_of_the_sea, "海底摸月");
     cache.show_stats(bit_bottom_of_the_river, "河底撈魚");
     cache.show_stats(bit_pinfu, "平和");
     cache.show_stats(bit_all_simples, "断幺九");
-    cache.show_stats(bit_pure_double_chows, "一盃口");
+    cache.show_stats(bit_pure_double_chis, "一盃口");
     cache.show_stats(bit_seat_wind_east, "自風 東");
     cache.show_stats(bit_seat_wind_south, "自風 南");
     cache.show_stats(bit_seat_wind_west, "自風 西");
@@ -170,14 +170,14 @@ TEST(win_cache, hand_made_samples)
     cache.show_stats(bit_seven_pairs, "七対子");
     cache.show_stats(bit_outside_hand, "混全帯幺九");
     cache.show_stats(bit_pure_straight, "一気通貫");
-    cache.show_stats(bit_mixed_triple_chows, "三色同順");
-    cache.show_stats(bit_triple_pungs, "三色同刻");
-    cache.show_stats(bit_three_kongs, "三槓子");
-    cache.show_stats(bit_all_pungs, "対々和");
-    cache.show_stats(bit_three_concealed_pungs, "三暗刻");
+    cache.show_stats(bit_mixed_triple_chis, "三色同順");
+    cache.show_stats(bit_triple_pons, "三色同刻");
+    cache.show_stats(bit_three_kans, "三槓子");
+    cache.show_stats(bit_all_pons, "対々和");
+    cache.show_stats(bit_three_concealed_pons, "三暗刻");
     cache.show_stats(bit_little_three_dragons, "小三元");
     cache.show_stats(bit_all_terms_and_honours, "混老頭");
-    cache.show_stats(bit_twice_pure_double_chows, "二盃口");
+    cache.show_stats(bit_twice_pure_double_chis, "二盃口");
     cache.show_stats(bit_terminals_in_all_sets, "純全帯幺九");
     cache.show_stats(bit_half_flush, "混一色");
     cache.show_stats(bit_full_flush, "清一色");
@@ -185,8 +185,8 @@ TEST(win_cache, hand_made_samples)
     cache.show_stats(bit_blessing_of_heaven, "天和");
     cache.show_stats(bit_blessing_of_earth, "地和");
     cache.show_stats(bit_big_three_dragons, "大三元");
-    cache.show_stats(bit_four_concealed_pungs, "四暗刻");
-    cache.show_stats(bit_completed_four_concealed_pungs, "四暗刻単騎");
+    cache.show_stats(bit_four_concealed_pons, "四暗刻");
+    cache.show_stats(bit_completed_four_concealed_pons, "四暗刻単騎");
     cache.show_stats(bit_all_honours, "字一色");
     cache.show_stats(bit_all_green, "緑一色");
     cache.show_stats(bit_all_terminals, "清老頭");
@@ -196,7 +196,7 @@ TEST(win_cache, hand_made_samples)
     cache.show_stats(bit_completed_thirteen_orphans, "国士無双１３面");
     cache.show_stats(bit_big_four_winds, "大四喜");
     cache.show_stats(bit_little_four_winds, "小四喜");
-    cache.show_stats(bit_four_kongs, "四槓子");
+    cache.show_stats(bit_four_kans, "四槓子");
     cache.show_stats(bit_dora, "ドラ");
     cache.show_stats(bit_reversed_dora, "裏ドラ");
     cache.show_stats(bit_red_dora, "赤ドラ");

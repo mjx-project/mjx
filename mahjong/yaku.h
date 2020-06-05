@@ -25,13 +25,13 @@ namespace mj
     // fully_concealed_hand, // 門前清自摸和
     // riichi, // 立直
     // ippatsu, // 一発
-    // robbing_a_kong, // 槍槓
-    // after_a_kong, // 嶺上開花
+    // robbing_a_kan, // 槍槓
+    // after_a_kan, // 嶺上開花
     // bottom_of_the_sea, // 海底摸月
     // bottom_of_the_river, // 河底撈魚
     // pinfu, // 平和
     // all_simples, // 断幺九
-    // pure_double_chows, // 一盃口
+    // pure_double_chis, // 一盃口
     // seat_wind_east,// 自風 東
     // seat_wind_south, // 自風 南
     // seat_wind_west, // 自風 西
@@ -47,14 +47,14 @@ namespace mj
     // seven_pairs, // 七対子
     // outside_hand, // 混全帯幺九
     // pure_straight, // 一気通貫
-    // mixed_triple_chows, // 三色同順
-    // triple_pungs, // 三色同刻
-    // three_kongs, // 三槓子
-    // all_pungs, // 対々和
-    // three_concealed_pungs, // 三暗刻
+    // mixed_triple_chis, // 三色同順
+    // triple_pons, // 三色同刻
+    // three_kans, // 三槓子
+    // all_pons, // 対々和
+    // three_concealed_pons, // 三暗刻
     // little_three_dragons, // 小三元
     // all_terms_and_honours, // 混老頭
-    // twice_pure_double_chows, // 二盃口
+    // twice_pure_double_chis, // 二盃口
     // terminals_in_all_sets, // 純全帯幺九
     // half_flush, // 混一色
     // full_flush, // 清一色
@@ -62,8 +62,8 @@ namespace mj
     // blessing_of_heaven, // 天和
     // blessing_of_earth, // 地和
     // big_three_dragons, // 大三元
-    // four_concealed_pungs, // 四暗刻
-    // completed_four_concealed_pungs, // 四暗刻単騎
+    // four_concealed_pons, // 四暗刻
+    // completed_four_concealed_pons, // 四暗刻単騎
     // all_honours, // 字一色
     // all_green, // 緑一色
     // all_terminals, // 清老頭
@@ -73,7 +73,7 @@ namespace mj
     // completed_thirteen_orphans, // 国士無双１３面
     // big_four_winds, // 大四喜
     // little_four_winds, // 小四喜
-    // four_kongs, // 四槓子
+    // four_kans, // 四槓子
     // dora, // ドラ
     // reversed_dora, // 裏ドラ
     // red_dora, // 赤ドラ

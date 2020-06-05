@@ -21,8 +21,8 @@ namespace mj
         virtual std::size_t size() = 0;
         virtual std::vector<Tile> tiles() = 0;  // tiles() = tiles_from_hand() + [stolen()]
         virtual std::vector<Tile> tiles_from_hand() = 0;  // chi => 2, pon => 2, kan_opened => 3, kan_closed => 4, kan_added => 2
-        virtual Tile stolen() = 0; // kan_added => punged tile by others, kan_closed => tile id represented at left 8 bits
-        virtual Tile last() = 0;  // Last tile added to this open tile sets. kan_added => konged tile, the others => stolen()
+        virtual Tile stolen() = 0; // kan_added => poned tile by others, kan_closed => tile id represented at left 8 bits
+        virtual Tile last() = 0;  // Last tile added to this open tile sets. kan_added => lastly kaned tile, the others => stolen()
         virtual std::vector<tile_type> undiscardable_tile_types() = 0;
         virtual std::uint16_t get_bits();
     protected:
@@ -111,7 +111,7 @@ namespace mj
     public:
         KanAdded() = delete;
         explicit KanAdded(std::uint16_t bits);
-        KanAdded(Open* pung);
+        KanAdded(Open* pon);
         open_type type() final;
         relative_pos from() final;
         Tile at(std::size_t i) final;
