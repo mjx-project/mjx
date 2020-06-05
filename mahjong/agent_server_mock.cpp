@@ -34,7 +34,6 @@ namespace mj
 }  // namesapce mj
 
 
-
 int main(int argc, char** argv) {
     std::unique_ptr<mj::AgentServer> mock_agent =  std::make_unique<mj::MockAgentServer>();
     mock_agent->RunServer("127.0.0.1:9090");
