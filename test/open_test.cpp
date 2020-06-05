@@ -7,7 +7,7 @@ using namespace mj;
 using tt = tile_type;
 auto vec_type_eq = [] (std::vector<Tile> v1, std::vector<tt> v2) {
     for (int i = 0; i < v1.size(); ++i)
-        if (v1.at(i).type() != v2.at(i)) return false;
+        if (v1.at(i).Type() != v2.at(i)) return false;
     return true;
 };
 
@@ -19,20 +19,20 @@ TEST(open, Chi)
     std::unique_ptr<Open> c = std::make_unique<Chi>(t, Tile("p6", 1));
     EXPECT_EQ(c->type(), open_type::chi);
     EXPECT_EQ(c->from(), relative_pos::left);
-    EXPECT_EQ(c->at(0).id(), Tile("p5", 2).id());
-    EXPECT_EQ(c->at(1).id(), Tile("p6", 1).id());
-    EXPECT_EQ(c->at(2).id(), Tile("p7", 0).id());
-    EXPECT_EQ(c->stolen().id(), Tile("p6", 1).id());
+    EXPECT_EQ(c->at(0).Id(), Tile("p5", 2).Id());
+    EXPECT_EQ(c->at(1).Id(), Tile("p6", 1).Id());
+    EXPECT_EQ(c->at(2).Id(), Tile("p7", 0).Id());
+    EXPECT_EQ(c->stolen().Id(), Tile("p6", 1).Id());
 
     // samples from Tenhou  TODO: add more test cases
     c = std::make_unique<Chi>(static_cast<std::uint16_t>(49495));  // http://tenhou.net/5/?log=2019101219gm-0009-0000-a1515896
     EXPECT_EQ(c->type(), open_type::chi);
     EXPECT_EQ(c->from(), relative_pos::left);
-    EXPECT_EQ(c->at(0).type(), tile_type::s3);
-    EXPECT_EQ(c->at(1).type(), tile_type::s4);
-    EXPECT_EQ(c->at(2).type(), tile_type::s5);
-    EXPECT_EQ(c->stolen().type(), tile_type::s3);
-    EXPECT_EQ(c->last().type(), tile_type::s3);
+    EXPECT_EQ(c->at(0).Type(), tile_type::s3);
+    EXPECT_EQ(c->at(1).Type(), tile_type::s4);
+    EXPECT_EQ(c->at(2).Type(), tile_type::s5);
+    EXPECT_EQ(c->stolen().Type(), tile_type::s3);
+    EXPECT_EQ(c->last().Type(), tile_type::s3);
     EXPECT_EQ(c->tiles().size(), 3);
     EXPECT_TRUE(vec_type_eq((c->tiles()), {tt::s3, tt::s4, tt::s5}));
     EXPECT_EQ(c->tiles_from_hand().size(), 2);
@@ -42,19 +42,19 @@ TEST(open, Chi)
     EXPECT_EQ(c->undiscardable_tile_types().at(1), tile_type::s6);
 
     // undiscardable_tile_types
-    t = Tile::create({"m4", "m3", "m2"});
+    t = Tile::Create({"m4", "m3", "m2"});
     c = std::make_unique<Chi>(t, Tile("m4"));
     EXPECT_EQ(c->undiscardable_tile_types().size(), 2);
     EXPECT_EQ(c->undiscardable_tile_types().at(0), tile_type::m4);
     EXPECT_EQ(c->undiscardable_tile_types().at(1), tile_type::m1);
 
-    t = Tile::create({"p7", "p8", "p6"});
+    t = Tile::Create({"p7", "p8", "p6"});
     c = std::make_unique<Chi>(t, Tile("p6"));
     EXPECT_EQ(c->undiscardable_tile_types().size(), 2);
     EXPECT_EQ(c->undiscardable_tile_types().at(0), tile_type::p6);
     EXPECT_EQ(c->undiscardable_tile_types().at(1), tile_type::p9);
 
-    t = Tile::create({"s4", "s6", "s5"});
+    t = Tile::Create({"s4", "s6", "s5"});
     c = std::make_unique<Chi>(t, Tile("s5"));
     EXPECT_EQ(c->undiscardable_tile_types().size(), 1);
     EXPECT_EQ(c->undiscardable_tile_types().at(0), tile_type::s5);
@@ -66,15 +66,15 @@ TEST(open, Pon)
     std::unique_ptr<Open> p = std::make_unique<Pon>(Tile("gd", 2), Tile("gd", 1), relative_pos::mid);
     EXPECT_EQ(p->type(), open_type::pon);
     EXPECT_EQ(p->from(), relative_pos::mid);
-    EXPECT_EQ(p->at(0).id(), Tile("gd", 0).id());
-    EXPECT_EQ(p->at(1).id(), Tile("gd", 2).id());
-    EXPECT_EQ(p->at(2).id(), Tile("gd", 3).id());
-    EXPECT_EQ(p->stolen().id(), Tile("gd", 2).id());
+    EXPECT_EQ(p->at(0).Id(), Tile("gd", 0).Id());
+    EXPECT_EQ(p->at(1).Id(), Tile("gd", 2).Id());
+    EXPECT_EQ(p->at(2).Id(), Tile("gd", 3).Id());
+    EXPECT_EQ(p->stolen().Id(), Tile("gd", 2).Id());
     EXPECT_EQ(p->tiles().size(), 3);
     EXPECT_TRUE(vec_type_eq(p->tiles(), {tt::gd, tt::gd, tt::gd}));
     EXPECT_EQ(p->tiles_from_hand().size(), 2);
     EXPECT_TRUE(vec_type_eq(p->tiles_from_hand(), {tt::gd, tt::gd}));
-    EXPECT_EQ(p->last().id(), Tile("gd", 2).id());
+    EXPECT_EQ(p->last().Id(), Tile("gd", 2).Id());
     EXPECT_EQ(p->undiscardable_tile_types().size(), 1);
     EXPECT_EQ(p->undiscardable_tile_types().at(0), tile_type::gd);
 
@@ -82,11 +82,11 @@ TEST(open, Pon)
     p = std::make_unique<Pon>(static_cast<std::uint16_t>(47723));  // http://tenhou.net/5/?log=2019101219gm-0009-0000-a1515896
     EXPECT_EQ(p->type(), open_type::pon);
     EXPECT_EQ(p->from(), relative_pos::left);
-    EXPECT_EQ(p->at(0).type(), tile_type::wd);
-    EXPECT_EQ(p->at(1).type(), tile_type::wd);
-    EXPECT_EQ(p->at(2).type(), tile_type::wd);
-    EXPECT_EQ(p->stolen().type(), tile_type::wd);
-    EXPECT_EQ(p->last().type(), tile_type::wd);
+    EXPECT_EQ(p->at(0).Type(), tile_type::wd);
+    EXPECT_EQ(p->at(1).Type(), tile_type::wd);
+    EXPECT_EQ(p->at(2).Type(), tile_type::wd);
+    EXPECT_EQ(p->stolen().Type(), tile_type::wd);
+    EXPECT_EQ(p->last().Type(), tile_type::wd);
     EXPECT_EQ(p->undiscardable_tile_types().size(), 1);
     EXPECT_EQ(p->undiscardable_tile_types().at(0), tile_type::wd);
 }
@@ -96,16 +96,16 @@ TEST(open, KanOpened)
     std::unique_ptr<Open> k = std::make_unique<KanOpened>(Tile("m2", 3), relative_pos::right);
     EXPECT_EQ(k->type(), open_type::kan_opened);
     EXPECT_EQ(k->from(), relative_pos::right);
-    EXPECT_EQ(k->at(0).id(), Tile("m2", 0).id());
-    EXPECT_EQ(k->at(1).id(), Tile("m2", 1).id());
-    EXPECT_EQ(k->at(2).id(), Tile("m2", 2).id());
-    EXPECT_EQ(k->at(3).id(), Tile("m2", 3).id());
+    EXPECT_EQ(k->at(0).Id(), Tile("m2", 0).Id());
+    EXPECT_EQ(k->at(1).Id(), Tile("m2", 1).Id());
+    EXPECT_EQ(k->at(2).Id(), Tile("m2", 2).Id());
+    EXPECT_EQ(k->at(3).Id(), Tile("m2", 3).Id());
     EXPECT_EQ(k->tiles().size(), 4);
     EXPECT_TRUE(vec_type_eq(k->tiles(), {tt::m2, tt::m2, tt::m2, tt::m2}));
     EXPECT_EQ(k->tiles_from_hand().size(), 3);
     EXPECT_TRUE(vec_type_eq(k->tiles_from_hand(), {tt::m2, tt::m2, tt::m2}));
-    EXPECT_EQ(k->stolen().type(), tile_type::m2);
-    EXPECT_EQ(k->last().type(), tile_type::m2);
+    EXPECT_EQ(k->stolen().Type(), tile_type::m2);
+    EXPECT_EQ(k->last().Type(), tile_type::m2);
     EXPECT_EQ(k->undiscardable_tile_types().size(), 0);
 }
 
@@ -114,16 +114,16 @@ TEST(open, KanClosed)
     std::unique_ptr<Open> k = std::make_unique<KanClosed>(Tile("m3"));
     EXPECT_EQ(k->type(), open_type::kan_closed);
     EXPECT_EQ(k->from(), relative_pos::self);
-    EXPECT_EQ(k->at(0).id(), Tile("m3", 0).id());
-    EXPECT_EQ(k->at(1).id(), Tile("m3", 1).id());
-    EXPECT_EQ(k->at(2).id(), Tile("m3", 2).id());
-    EXPECT_EQ(k->at(3).id(), Tile("m3", 3).id());
+    EXPECT_EQ(k->at(0).Id(), Tile("m3", 0).Id());
+    EXPECT_EQ(k->at(1).Id(), Tile("m3", 1).Id());
+    EXPECT_EQ(k->at(2).Id(), Tile("m3", 2).Id());
+    EXPECT_EQ(k->at(3).Id(), Tile("m3", 3).Id());
     EXPECT_EQ(k->tiles().size(), 4);
     EXPECT_TRUE(vec_type_eq(k->tiles(), {tt::m3, tt::m3, tt::m3, tt::m3}));
     EXPECT_EQ(k->tiles_from_hand().size(), 4);
     EXPECT_TRUE(vec_type_eq(k->tiles(), {tt::m3, tt::m3, tt::m3, tt::m3}));
-    EXPECT_EQ(k->stolen().type(), tile_type::m3);
-    EXPECT_EQ(k->last().type(), tile_type::m3);
+    EXPECT_EQ(k->stolen().Type(), tile_type::m3);
+    EXPECT_EQ(k->last().Type(), tile_type::m3);
     EXPECT_EQ(k->undiscardable_tile_types().size(), 0);
 }
 
@@ -133,18 +133,18 @@ TEST(open, KanAdded)
     std::unique_ptr<Open> k = std::make_unique<KanAdded>(p.get());
     EXPECT_EQ(k->type(), open_type::kan_added);
     EXPECT_EQ(k->from(), relative_pos::mid);
-    EXPECT_EQ(k->at(0).id(), Tile("m1", 0).id());
-    EXPECT_EQ(k->at(1).id(), Tile("m1", 1).id());
-    EXPECT_EQ(k->at(2).id(), Tile("m1", 2).id());
-    EXPECT_EQ(k->at(3).id(), Tile("m1", 3).id());
-    EXPECT_EQ(k->stolen().type(), tile_type::m1);
-    EXPECT_EQ(k->stolen().id(), Tile("m1", 2).id());
+    EXPECT_EQ(k->at(0).Id(), Tile("m1", 0).Id());
+    EXPECT_EQ(k->at(1).Id(), Tile("m1", 1).Id());
+    EXPECT_EQ(k->at(2).Id(), Tile("m1", 2).Id());
+    EXPECT_EQ(k->at(3).Id(), Tile("m1", 3).Id());
+    EXPECT_EQ(k->stolen().Type(), tile_type::m1);
+    EXPECT_EQ(k->stolen().Id(), Tile("m1", 2).Id());
     EXPECT_EQ(k->tiles().size(), 4);
     EXPECT_TRUE(vec_type_eq(p->tiles(), {tt::m1, tt::m1, tt::m1, tt::m1}));
     EXPECT_EQ(k->tiles_from_hand().size(), 3);
     EXPECT_TRUE(vec_type_eq(p->tiles(), {tt::m1, tt::m1, tt::m1}));
-    EXPECT_EQ(k->last().type(), tile_type::m1);
-    EXPECT_EQ(k->last().id(), Tile("m1", 0).id());
+    EXPECT_EQ(k->last().Type(), tile_type::m1);
+    EXPECT_EQ(k->last().Id(), Tile("m1", 0).Id());
     EXPECT_EQ(k->undiscardable_tile_types().size(), 0);
 }
 
@@ -153,8 +153,8 @@ TEST(open, OpenGenerator)
     auto check = [] (Open *o, std::vector<tt> v, tt t, relative_pos f) {
         auto tiles = o -> tiles();
         for (int i = 0; i < v.size(); ++i)
-            if (o -> at(i).type() != v.at(i)) return false;
-        if (o->stolen().type() != t) return false;
+            if (o->at(i).Type() != v.at(i)) return false;
+        if (o->stolen().Type() != t) return false;
         if (o->from() != f) return false;
         return true;
     };
