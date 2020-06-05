@@ -15,3 +15,5 @@ jobs:
     - name: Run tests
       run: |
         ./build/test/mahjong_test
+    env:
+      CXX: /usr/bin/clang++
