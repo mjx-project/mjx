@@ -1,10 +1,5 @@
 project(${CMAKE_PROJECT_NAME})
 
-file(GLOB SOURCE_FILES *.cpp)
-file(GLOB HEADER_FILES *.h)
-
-add_library(${CMAKE_PROJECT_NAME} STATIC ${SOURCE_FILES} ${HEADER_FILES})
-
 ####################################################################################
 # For gRPc
 ####################################################################################
@@ -44,7 +39,7 @@ add_custom_command(
 # Include generated *.pb.h files
 include_directories("${CMAKE_CURRENT_BINARY_DIR}")
 
-# gRPC targets
+# Targets for quick gRPC execution test
 foreach(_target
         agent_server_mock agent_client)
     add_executable(${_target} "${_target}.cpp"
@@ -55,3 +50,13 @@ foreach(_target
             ${_GRPC_GRPCPP}
             ${_PROTOBUF_LIBPROTOBUF})
 endforeach()
+
+####################################################################################
+# For mahjong library
+####################################################################################
+
+file(GLOB SOURCE_FILES *.cpp)
+file(GLOB HEADER_FILES *.h)
+add_library(${CMAKE_PROJECT_NAME} STATIC
+        ${SOURCE_FILES} ${HEADER_FILES} ${mj_proto_srcs} ${mj_grpc_srcs})
+target_link_libraries(${CMAKE_PROJECT_NAME} ${_REFLECTION} ${_GRPC_GRPCPP} ${_PROTOBUF_LIBPROTOBUF})
