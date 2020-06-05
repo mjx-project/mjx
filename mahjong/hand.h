@@ -43,57 +43,57 @@ namespace mj
         explicit Hand(std::vector<Tile> tiles);
         Hand(std::vector<Tile>::iterator begin, std::vector<Tile>::iterator end);
 
-        hand_phase phase();
+        hand_phase Phase();
         // actions
-        void draw(Tile tile);
-        void chi(std::unique_ptr<Open> open);
-        void pon(std::unique_ptr<Open> open);
-        void kan_opened(std::unique_ptr<Open> open);
-        void kan_closed(std::unique_ptr<Open> open);
-        void kan_added(std::unique_ptr<Open> open);
-        Tile discard(Tile tile);
-        WinningInfo ron(Tile tile);
-        WinningInfo tsumo(Tile tile);
+        void Draw(Tile tile);
+        void ApplyChi(std::unique_ptr<Open> open);
+        void ApplyPon(std::unique_ptr<Open> open);
+        void ApplyKanOpened(std::unique_ptr<Open> open);
+        void ApplyKanClosed(std::unique_ptr<Open> open);
+        void ApplyKanAdded(std::unique_ptr<Open> open);
+        Tile Discard(Tile tile);
+        WinningInfo Ron(Tile tile);
+        WinningInfo Tsumo(Tile tile);
         // action validators
-        std::vector<Tile> possible_discards();
-        std::vector<std::unique_ptr<Open>> possible_opens_after_others_discard(Tile tile, relative_pos from);
-        std::vector<std::unique_ptr<Open>> possible_opens_after_draw();
+        std::vector<Tile> PossibleDiscards();
+        std::vector<std::unique_ptr<Open>> PossibleOpensAfterOthersDiscard(Tile tile, relative_pos from);
+        std::vector<std::unique_ptr<Open>> PossibleOpensAfterDraw();
         // action validators (called after other player's discard)
-        std::vector<std::unique_ptr<Open>> possible_chis(Tile tile);  // E.g., 2m 3m [4m] vs 3m [4m] 5m
-        std::vector<std::unique_ptr<Open>> possible_pons(Tile tile, relative_pos from);  // E.g., with red or not  TODO: check the id choice strategy of tenhou (smalelr one) when it has 2 identical choices.
-        std::vector<std::unique_ptr<Open>> possible_kan_opened(Tile tile, relative_pos from);
+        std::vector<std::unique_ptr<Open>> PossibleChis(Tile tile);  // E.g., 2m 3m [4m] vs 3m [4m] 5m
+        std::vector<std::unique_ptr<Open>> PossiblePons(Tile tile, relative_pos from);  // E.g., with red or not  TODO: check the id choice strategy of tenhou (smalelr one) when it has 2 identical choices.
+        std::vector<std::unique_ptr<Open>> PossibleKanOpened(Tile tile, relative_pos from);
         // action validators (called after draw)
-        std::vector<std::unique_ptr<Open>> possible_kan_closed();  // TODO: which tile id should be used to represent farleft left bits? (current is type * 4 + 0)
-        std::vector<std::unique_ptr<Open>> possible_kan_added();
-        bool is_furiten(const std::vector<Tile> &discards);
-        bool can_ron(Tile tile);  // this does not take furiten into account
-        bool can_tsumo(Tile tile);
-        bool can_win(Tile tile);
-        bool can_riichi(const WinningHandCache &win_cache);
-        bool can_nine_tiles();
-      // state
-        bool is_tenpai(const WinningHandCache &win_cache);
-        bool is_menzen();
-        bool has_yaku();
-        bool is_under_riichi();
-       // count scores
-        bool count_dora(const std::vector<Tile> & doras);
-        std::uint8_t count_fan();
-        std::uint8_t count_fu();
+        std::vector<std::unique_ptr<Open>> PossibleKanClosed();  // TODO: which tile id should be used to represent farleft left bits? (current is type * 4 + 0)
+        std::vector<std::unique_ptr<Open>> PossibleKanAdded();
+        bool IsFuriten(const std::vector<Tile> &discards);
+        bool CanRon(Tile tile);  // this does not take furiten into account
+        bool CanTsumo(Tile tile);
+        bool CanWin(Tile tile);
+        bool CanRiichi(const WinningHandCache &win_cache);
+        bool CanNineTiles();
+        // state
+        bool IsTenpai(const WinningHandCache &win_cache);
+        bool IsMenzen();
+        bool HasYaku();
+        bool IsUnderRiichi();
+        // count scores
+        bool CountDora(const std::vector<Tile> & doras);
+        std::uint8_t CountFan();
+        std::uint8_t CountFu();
         // utility
-        bool has(const std::vector<tile_type> &tiles);
-        // size
-        std::size_t size();
-        std::size_t size_opened();
-        std::size_t size_closed();
+        bool Has(const std::vector<tile_type> &tiles);
+        // Size
+        std::size_t Size();
+        std::size_t SizeOpened();
+        std::size_t SizeClosed();
         // get vector
-        std::vector<Tile> to_vector(bool sorted = false);
-        std::vector<Tile> to_vector_closed(bool sorted = false);
-        std::vector<Tile> to_vector_opened(bool sorted = false);
+        std::vector<Tile> ToVector(bool sorted = false);
+        std::vector<Tile> ToVectorClosed(bool sorted = false);
+        std::vector<Tile> ToVectorOpened(bool sorted = false);
         // get array
-        std::array<std::uint8_t, 34> to_array();
-        std::array<std::uint8_t, 34> to_array_closed();
-        std::array<std::uint8_t, 34> to_array_opened();
+        std::array<std::uint8_t, 34> ToArray();
+        std::array<std::uint8_t, 34> ToArrayClosed();
+        std::array<std::uint8_t, 34> ToArrayOpened();
     private:
         std::unordered_set<Tile, HashTile> closed_tiles_;
         std::set<std::unique_ptr<Open>> open_sets_;  // Though open only uses 16 bits, to handle different open types, we need to use pointer
