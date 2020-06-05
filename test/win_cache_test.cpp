@@ -6,7 +6,7 @@
 using namespace mj;
 
 
-TEST(win_cache, hand_made_samples)
+TEST(win_cache, Yaku)
 {
     auto cache = WinningHandCache();
     EXPECT_EQ(cache.Size(), 3853);

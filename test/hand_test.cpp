@@ -27,7 +27,7 @@ TEST(hand, Hand)
     );
 }
 
-TEST(hand, has)
+TEST(hand, Has)
 {
     using tt = tile_type;
     auto h = Hand({"m1", "m1", "p1", "p2", "p3", "s9", "ew", "sw", "ww", "nw", "wd", "gd", "rd"});
@@ -38,7 +38,7 @@ TEST(hand, has)
     EXPECT_FALSE(h.Has({tt::p1, tt::p2, tt::p3, tt::p4}));
 }
 
-TEST(hand, draw) {
+TEST(hand, Draw) {
     auto h = Hand({"m1", "m9", "p1", "p9", "s1", "s9", "ew", "sw", "ww", "nw", "wd", "gd", "rd"});
     EXPECT_EQ(h.Size(), 13);
     h.Draw(Tile(1));
@@ -46,7 +46,7 @@ TEST(hand, draw) {
     EXPECT_EQ(h.Size(), 14);
 }
 
-TEST(hand, chi) {
+TEST(hand, ApplyChi) {
     auto h = Hand({"m1", "m1", "m1", "m2", "m3", "m4", "m5", "m6", "m7", "m8", "m9", "m9", "m9"});
     std::vector<Tile> t = {Tile("m2"), Tile("m3"), Tile("m4", 3)};
     auto c = std::make_unique<Chi>(t, Tile("m4", 3));
@@ -67,7 +67,7 @@ TEST(hand, chi) {
                            [](Tile x) { return x.Is(tile_type::m5); }), possible_discards.end());
 }
 
-TEST(hand, pon)
+TEST(hand, ApplyPon)
 {
     auto h = Hand({"m1", "m1", "m1", "m2", "m3", "m4", "m5", "m6", "m7", "m8", "m9", "m9", "m9"});
     auto p = std::make_unique<Pon>(Tile("m9", 3), Tile("m9", 0), relative_pos::left);
@@ -86,7 +86,7 @@ TEST(hand, pon)
                            [](Tile x){ return x.Is(tile_type::m5); }), possible_discards.end());
 }
 
-TEST(hand, kan_opened)
+TEST(hand, ApplyKanOpened)
 {
     auto h = Hand({"m1", "m1", "m1", "m2", "m3", "m4", "m5", "m6", "m7", "m8", "m9", "m9", "m9"});
     auto k = std::make_unique<KanOpened>(Tile("m9", 3), relative_pos::mid);
@@ -101,7 +101,7 @@ TEST(hand, kan_opened)
     EXPECT_EQ(possible_discards.size(), 10);
 }
 
-TEST(hand, kan_closed)
+TEST(hand, ApplyKanClosed)
 {
     auto h = Hand({"m1", "m1", "m1", "m2", "m3", "m4", "m5", "m6", "m7", "m8", "m9", "m9", "m9"});
     h.Draw(Tile("m9", 3));
@@ -117,7 +117,7 @@ TEST(hand, kan_closed)
     EXPECT_EQ(possible_discards.size(), 10);
 }
 
-TEST(hand, kan_added)
+TEST(hand, ApplyKanAdded)
 {
     auto h = Hand({"m1", "m1", "m1", "m2", "m3", "m4", "m5", "m6", "m7", "m8", "m8", "m9", "m9"});
     auto p = std::make_unique<Pon>(Tile("m9", 2), Tile("m9", 3), relative_pos::left);
@@ -142,7 +142,7 @@ TEST(hand, kan_added)
     EXPECT_EQ(h.Phase(), hand_phase::after_kan_added);
 }
 
-TEST(hand, discard)
+TEST(hand, Discard)
 {
     auto h = Hand({"m1", "m1", "p1", "p2", "p3", "s9", "ew", "sw", "ww", "nw", "wd", "gd", "rd"});
     EXPECT_EQ(h.Size(), 13);
@@ -154,7 +154,7 @@ TEST(hand, discard)
     EXPECT_EQ(h.Phase(), hand_phase::after_discard);
 }
 
-TEST(hand, possible_discards) {
+TEST(hand, PossibleDiscards) {
     auto h = Hand({"m1", "m2", "m3", "p9", "s1", "s9", "ew", "sw", "ww", "nw", "wd", "gd", "rd"});
     auto t = Tile::Create({"m1", "m2", "m3"});
     auto c = std::make_unique<Chi>(t, Tile("m3", 0));
@@ -165,7 +165,7 @@ TEST(hand, possible_discards) {
             [](Tile x){ return x.Is(tile_type::m3); }), possible_discards.end());
 }
 
-TEST(hand, possible_chis) { // TODO: add more detailed test
+TEST(hand, PossibleChis) { // TODO: add more detailed test
     auto h = Hand({"m1", "m1", "m1", "m2", "m3", "m4", "m5", "m6", "m7", "m8", "m9", "m9", "m9"});
     // [m1]m2m3
     auto opens = h.PossibleChis(Tile("m1", 3));
@@ -222,7 +222,7 @@ TEST(hand, possible_chis) { // TODO: add more detailed test
     EXPECT_EQ(opens.size(), 1);
 }
 
-TEST(hand, possible_pons) {
+TEST(hand, PossiblePons) {
     auto h = Hand({"m1", "m1", "m1", "m2", "m3", "m4", "m5", "m6", "m7", "m8", "m9", "m9", "m9"});
     // No pon is expected
     EXPECT_EQ(h.PossiblePons(Tile("m5", 3), relative_pos::mid).size(), 0);
@@ -243,7 +243,7 @@ TEST(hand, possible_pons) {
     EXPECT_EQ((*h.PossiblePons(Tile("m4", 3), relative_pos::mid).begin())->At(1).Id() % 4, 1);
 }
 
-TEST(hand, possible_kan_opened) {
+TEST(hand, PossibleKanOpened) {
     auto h = Hand({"m1", "m1", "m1", "m2", "m3", "m4", "m5", "m6", "m7", "m8", "m9", "m9", "m9"});
     EXPECT_EQ(h.Size(), 13);
     EXPECT_EQ(h.PossibleKanOpened(Tile("m1", 3), relative_pos::mid).size(), 1);
@@ -259,7 +259,7 @@ TEST(hand, possible_kan_opened) {
     EXPECT_EQ((*h.PossibleKanOpened(Tile("m9", 3), relative_pos::mid).begin())->LastTile(), Tile("m9", 3));
 }
 
-TEST(hand, possible_kan_closed) {
+TEST(hand, PossibleKanClosed) {
     auto h = Hand({"m1", "m1", "m1", "m2", "m2", "m3", "m4", "m5", "m6", "m7", "m9", "m9", "m9"});
     h.Draw(Tile("m9", 3));
     EXPECT_EQ(h.Size(), 14);
@@ -270,7 +270,7 @@ TEST(hand, possible_kan_closed) {
     EXPECT_EQ((*h.PossibleKanClosed().begin())->LastTile(), Tile("m9", 0));
 }
 
-TEST(hand, possible_kan_added) {
+TEST(hand, PossibleKanAdded) {
     auto h = Hand({"m1", "m1", "m1", "m2", "m3", "m4", "m5", "m6", "m7", "m8", "m9", "m9", "m9"});
     h.ApplyPon(std::make_unique<Pon>(Tile("m9", 3), Tile("m9", 2), relative_pos::mid));
     h.Discard(Tile("m1", 0));
@@ -285,7 +285,7 @@ TEST(hand, possible_kan_added) {
     EXPECT_EQ((*h.PossibleKanAdded().begin())->LastTile(), Tile("m9", 2));
 }
 
-TEST(hand, possible_opens_after_others_discard) {
+TEST(hand, PossibleOpensAfterOthersDiscard) {
     auto h = Hand({"m2", "m3", "m4", "m4", "m4", "m5", "m5", "m6", "m7", "m8", "m9", "m9", "m9"});
     auto possible_opens = h.PossibleOpensAfterOthersDiscard(Tile("m4", 3), relative_pos::left);
     // chi [m4]m5m6, [m4]*m5m6, m3[m4]m5, m3[m4]*m5, m2m3[m4]
@@ -310,7 +310,7 @@ TEST(hand, possible_opens_after_others_discard) {
     EXPECT_EQ(possible_opens.at(6)->Type(), open_type::kan_opened);
 }
 
-TEST(hand, possible_opens_after_draw) {
+TEST(hand, PossibleOpensAfterDraw) {
     auto h = Hand({"m1", "m1", "m1", "m2", "m3", "m4", "m5", "m6", "m7", "m8", "m9", "m9", "m9"});
     h.ApplyPon(std::make_unique<Pon>(Tile("m9", 3), Tile("m9", 2), relative_pos::mid));
     h.Discard(Tile("m3", 0));
@@ -323,7 +323,7 @@ TEST(hand, possible_opens_after_draw) {
     EXPECT_EQ(possible_opens.at(1)->At(0).Type(), tile_type::m9);
 }
 
-TEST(hand, size) {
+TEST(hand, Size) {
     auto h = Hand({"m1", "m9", "p1", "p9", "s1", "s9", "ew", "sw", "ww", "nw", "wd", "gd", "rd"});
     EXPECT_EQ(h.Size(), 13);
     EXPECT_EQ(h.SizeClosed(), 13);
@@ -331,7 +331,7 @@ TEST(hand, size) {
     // TODO : add test cases with melds
 }
 
-TEST(hand, to_vector) {
+TEST(hand, ToVector) {
     auto check_vec = [] (const std::vector<Tile> &v1, const std::vector<Tile>&v2) {
         for (std::size_t i = 0; i < v1.size(); ++i)
             if (v1.at(i).Type() != v2.at(i).Type()) return false;
@@ -359,7 +359,7 @@ TEST(hand, to_vector) {
                           Tile::Create({"m1", "m1", "m1", "m2", "m3", "m4"})));
 }
 
-TEST(hand, to_array) {
+TEST(hand, ToArray) {
     auto check_arr = [] (const std::array<std::uint8_t, 34> &a1, const std::array<std::uint8_t, 34> &a2) {
         for (std::size_t i = 0; i < 34; ++i) {
             if (a1.at(i) != a2.at(i)) return false;
@@ -394,7 +394,7 @@ TEST(hand, to_array) {
     EXPECT_TRUE(check_arr(h.ToArrayOpened(), expected));
 }
 
-TEST(hand, is_menzen) {
+TEST(hand, IsMenzen) {
     // menzen
     auto h = Hand({"m1", "m1", "m1", "m2", "m3", "m4", "m5", "m6", "m7", "m8", "m9", "m9", "m9"});
     EXPECT_TRUE(h.IsMenzen());
@@ -403,7 +403,7 @@ TEST(hand, is_menzen) {
     EXPECT_FALSE(h.IsMenzen());
 }
 
-TEST(hand, is_tenpai) {
+TEST(hand, IsTenpai) {
     // tenpai
     auto h = Hand({"m1", "m1", "m1", "m2", "m3", "m4", "m5", "m6", "m7", "m8", "m9", "m9", "m9"});
     const auto win_cache = WinningHandCache();
@@ -412,7 +412,7 @@ TEST(hand, is_tenpai) {
     EXPECT_FALSE(h.IsTenpai(win_cache));
 }
 
-TEST(hand, can_riichi) {
+TEST(hand, CanRiichi) {
     const auto win_cache = WinningHandCache();
     auto h = Hand({"m1", "m1", "m1", "m2", "m3", "m4", "m5", "m6", "m7", "m8", "m9", "m9", "m9"});
     h.Draw(Tile("p1"));

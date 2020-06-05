@@ -8,7 +8,7 @@ TEST(block, Block)
     EXPECT_NO_FATAL_FAILURE(Block({1, 2, 2, 1}));
 }
 
-TEST(block, build)
+TEST(block, Build)
 {
     std::array<std::uint8_t, 34>
     a = {0,0,0,0,2,2,2,2,0,
@@ -41,7 +41,7 @@ TEST(block, build)
     EXPECT_EQ(Block::BlocksToString(blocks), "2,3,111,222");
 }
 
-TEST(block, size)
+TEST(block, Size)
 {
     EXPECT_EQ(Block({1}).Size(), 1);
     EXPECT_EQ(Block({3}).Size(), 3);
@@ -51,7 +51,7 @@ TEST(block, size)
     EXPECT_EQ(Block({3, 1, 1, 1, 1, 1, 1, 1, 3}).Size(), 13);
 }
 
-TEST(block, hash)
+TEST(block, Hash)
 {
     EXPECT_EQ(Block({1}).Hash(), 1);
     EXPECT_EQ(Block({3}).Hash(), 3);
@@ -60,7 +60,7 @@ TEST(block, hash)
     EXPECT_EQ(Block({1, 1, 3}).Hash(), 81);
 }
 
-TEST(block, block)
+TEST(block, ToVector)
 {
     EXPECT_EQ(Block({1}).ToVector(), std::vector<std::uint8_t>({1}));
     EXPECT_EQ(Block({3}).ToVector(), std::vector<std::uint8_t>({3}));
@@ -70,7 +70,7 @@ TEST(block, block)
     EXPECT_EQ(Block({3, 1, 1, 1, 1, 1, 1, 1, 3}).ToVector(), std::vector<std::uint8_t>({3, 1, 1, 1, 1, 1, 1, 1, 3}));
 }
 
-TEST(block, to_string)
+TEST(block, ToString)
 {
     EXPECT_EQ(Block({1}).ToString(), "1");
     EXPECT_EQ(Block({3}).ToString(), "3");

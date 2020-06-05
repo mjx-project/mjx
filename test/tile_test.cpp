@@ -23,7 +23,7 @@ TEST(tile, Tile)
 }
 
 
-TEST(tile, create)
+TEST(tile, Create)
 {
     auto tiles1 = Tile::Create(std::vector<tile_id>{10, 20, 30});
     auto expected1 = std::vector<Tile>{Tile(10), Tile(20), Tile(30)};
@@ -40,20 +40,20 @@ TEST(tile, create)
 }
 
 
-TEST(tile, id)
+TEST(tile, Id)
 {
     auto t = Tile(100);
     EXPECT_EQ(100, t.Id());
 }
 
 
-TEST(tile, type)
+TEST(tile, Type)
 {
     auto t = Tile(0);
     EXPECT_EQ(tile_type::m1, t.Type());
 }
 
-TEST(tile, type_uint)
+TEST(tile, TypeUint)
 {
     auto t = Tile(0);
     EXPECT_EQ(t.TypeUint(), 0);
@@ -61,7 +61,7 @@ TEST(tile, type_uint)
     EXPECT_EQ(t.TypeUint(), 33);
 }
 
-TEST(tile, color)
+TEST(tile, Color)
 {
     auto m5 = Tile(16);
     EXPECT_EQ(tile_set_type::manzu, m5.Color());
@@ -72,7 +72,7 @@ TEST(tile, color)
 }
 
 
-TEST(tile, is_red)
+TEST(tile, IsRedFive)
 {
     auto m5 = Tile(16);
     EXPECT_TRUE(m5.IsRedFive());
@@ -82,7 +82,7 @@ TEST(tile, is_red)
     EXPECT_TRUE(s5.IsRedFive());
 }
 
-TEST(tile, num) {
+TEST(tile, Num) {
     auto t = Tile("m1", 0);
     EXPECT_EQ(t.Num(), 1);
     t = Tile("m9", 3);
@@ -95,7 +95,7 @@ TEST(tile, num) {
     EXPECT_EQ(t.Num(), 9);
 }
 
-TEST(tile, is)
+TEST(tile, Is)
 {
     // num
     auto t = Tile("m1", 0);
@@ -207,7 +207,7 @@ TEST(tile, is)
 }
 
 
-TEST(tile, comp)
+TEST(tile, ComparisonOperators)
 {
     auto t1 = Tile(0);
     auto t2 = Tile(0);
@@ -235,7 +235,7 @@ TEST(tile, comp)
 }
 
 
-TEST(tile, to_string)
+TEST(tile, ToString)
 {
     auto t1 = Tile(0);
     auto t2 = Tile(135);
