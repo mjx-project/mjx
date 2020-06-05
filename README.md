@@ -26,3 +26,16 @@
   - [天鳳牌譜(.mjlog形式)をXMLに直す](http://rausumaru.hatenablog.com/entry/2019/08/30/021154)
 - Play at tenhou
   - [MahjongRepository/tenhou-python-bot](https://github.com/MahjongRepository/tenhou-python-bot)
+  
+## Build
+
+```
+$ ./build.sh
+```
+で`build` ディレクトリにビルドされる。
+
+```
+$ ./build/test/mahjong_test
+```
+でテストが実行できる。
+
