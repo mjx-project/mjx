@@ -41,12 +41,12 @@ namespace mj
     void Hand::chi(std::unique_ptr<Open> open)
     {
         assert(hand_phase_ == hand_phase::after_discard);
-        assert(open->type() == open_type::chi);
-        assert(open->size() == 3);
+        assert(open->Type() == open_type::chi);
+        assert(open->Size() == 3);
         assert(undiscardable_tiles_.empty());
-        auto tiles_from_hand = open->tiles_from_hand();
+        auto tiles_from_hand = open->TilesFromHand();
         for (const auto t : tiles_from_hand) closed_tiles_.erase(t);
-        auto undiscardable_tile_types = open->undiscardable_tile_types();
+        auto undiscardable_tile_types = open->UndiscardableTileTypes();
         for (const auto undiscardable_tt : undiscardable_tile_types)
             for (const auto tile : closed_tiles_)
                 if (tile.Is(undiscardable_tt)) undiscardable_tiles_.insert(tile);
@@ -57,11 +57,11 @@ namespace mj
     void Hand::pon(std::unique_ptr<Open> open)
     {
         assert(hand_phase_ == hand_phase::after_discard);
-        assert(open->type() == open_type::pon);
+        assert(open->Type() == open_type::pon);
         assert(undiscardable_tiles_.empty());
-        auto tiles_from_hand = open->tiles_from_hand();
+        auto tiles_from_hand = open->TilesFromHand();
         for (const auto t : tiles_from_hand) closed_tiles_.erase(t);
-        auto undiscardable_tile_types = open->undiscardable_tile_types();
+        auto undiscardable_tile_types = open->UndiscardableTileTypes();
         for (const auto undiscardable_tt : undiscardable_tile_types)
             for (auto tile : closed_tiles_)
                 if (tile.Is(undiscardable_tt)) undiscardable_tiles_.insert(tile);
@@ -72,9 +72,9 @@ namespace mj
     void Hand::kan_opened(std::unique_ptr<Open> open)
     {
         assert(hand_phase_ == hand_phase::after_discard);
-        assert(open->type() == open_type::kan_opened);
+        assert(open->Type() == open_type::kan_opened);
         assert(undiscardable_tiles_.empty());
-        auto tiles_from_hand = open->tiles_from_hand();
+        auto tiles_from_hand = open->TilesFromHand();
         for (const auto t : tiles_from_hand) closed_tiles_.erase(t);
         open_sets_.insert(std::move(open));
         hand_phase_ = hand_phase::after_kan_opened;
@@ -84,9 +84,9 @@ namespace mj
     {
         // TODO: implement undiscardable_tiles after kan_closed during riichi
         assert(hand_phase_ == hand_phase::after_draw);
-        assert(open->type() == open_type::kan_closed);
+        assert(open->Type() == open_type::kan_closed);
         assert(undiscardable_tiles_.empty());
-        auto tiles_from_hand = open->tiles_from_hand();
+        auto tiles_from_hand = open->TilesFromHand();
         for (const auto t : tiles_from_hand) closed_tiles_.erase(t);
         open_sets_.insert(std::move(open));
         if (is_under_riichi()) {
@@ -98,14 +98,14 @@ namespace mj
     void Hand::kan_added(std::unique_ptr<Open> open)
     {
         assert(hand_phase_ == hand_phase::after_draw);
-        assert(open->type() == open_type::kan_added);
+        assert(open->Type() == open_type::kan_added);
         assert(undiscardable_tiles_.empty());
-        assert(closed_tiles_.find(open->last()) != closed_tiles_.end());
-        closed_tiles_.erase(open->last());
+        assert(closed_tiles_.find(open->LastTile()) != closed_tiles_.end());
+        closed_tiles_.erase(open->LastTile());
         // change pon to extended kan
-        const auto stolen = open->stolen();
+        const auto stolen = open->StolenTile();
         auto it = std::find_if(open_sets_.begin(), open_sets_.end(),
-                [&stolen](const auto &x){ return x->type() == open_type::pon && x->stolen() == stolen; });
+                [&stolen](const auto &x){ return x->Type() == open_type::pon && x->StolenTile() == stolen; });
         if (it != open_sets_.end()) open_sets_.erase(*it);
         open_sets_.insert(std::move(open));
         hand_phase_ = hand_phase::after_kan_added;
@@ -141,7 +141,7 @@ namespace mj
 
     std::size_t Hand::size_opened() {
         std::uint8_t s = 0;
-        for (const auto &o: open_sets_) s += o -> size();
+        for (const auto &o: open_sets_) s += o->Size();
         return s;
     }
 
@@ -185,8 +185,8 @@ namespace mj
         assert(phase() == hand_phase::after_draw);
         auto v = std::vector<std::unique_ptr<Open>>();
         for (const auto &o : open_sets_)
-            if (o->type() == open_type::pon) {
-                const auto type = o->at(0).Type();
+            if (o->Type() == open_type::pon) {
+                const auto type = o->At(0).Type();
                 if(std::find_if(closed_tiles_.begin(), closed_tiles_.end(),
                         [&type](Tile x){ return x.Type() == type; }) != closed_tiles_.end()) {
                     v.push_back(std::make_unique<KanAdded>(o.get()));
@@ -336,7 +336,7 @@ namespace mj
     std::vector<Tile> Hand::to_vector_opened(bool sorted) {
         auto v = std::vector<Tile>();
         for (const auto &o : open_sets_) {
-            auto tiles = o->tiles();
+            auto tiles = o->Tiles();
             for (const auto t : tiles) v.push_back(t);
         }
         if (sorted) std::sort(v.begin(), v.end());
@@ -348,7 +348,7 @@ namespace mj
         std::fill(a.begin(), a.end(), 0);
         for(const auto t: closed_tiles_) a.at(t.TypeUint())++;
         for (const auto &o : open_sets_)  {
-            auto tiles = o->tiles();
+            auto tiles = o->Tiles();
             for (const auto t : tiles) a.at(t.TypeUint())++;
         }
         return a;
@@ -365,7 +365,7 @@ namespace mj
         auto a = std::array<std::uint8_t, 34>();
         std::fill(a.begin(), a.end(), 0);
         for (const auto &o : open_sets_)  {
-            auto tiles = o->tiles();
+            auto tiles = o->Tiles();
             for (const auto t : tiles) a.at(t.TypeUint())++;
         }
         return a;

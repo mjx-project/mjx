@@ -229,34 +229,34 @@ TEST(hand, possible_pons) {
     h = Hand({"m1", "m1", "m1", "m2", "m3", "m5", "m5", "m6", "m7", "m8", "m9", "m9", "m9"});
     // One possible pon is expected
     EXPECT_EQ(h.possible_pons(Tile("m5", 3), relative_pos::mid).size(), 1);
-    EXPECT_EQ((*h.possible_pons(Tile("m5", 3), relative_pos::mid).begin())->type(), open_type::pon);
-    EXPECT_EQ((*h.possible_pons(Tile("m5", 3), relative_pos::mid).begin())->at(0).Type(), tile_type::m5);
+    EXPECT_EQ((*h.possible_pons(Tile("m5", 3), relative_pos::mid).begin())->Type(), open_type::pon);
+    EXPECT_EQ((*h.possible_pons(Tile("m5", 3), relative_pos::mid).begin())->At(0).Type(), tile_type::m5);
     h = Hand({"m1", "m1", "m1", "m2", "m5", "m5", "m5", "m6", "m7", "m8", "m9", "m9", "m9"});
     // Two possible pons are expected (w/ red 5 and w/o red 5)
     EXPECT_EQ(h.possible_pons(Tile("m5", 3), relative_pos::mid).size(), 2);
-    EXPECT_EQ((*h.possible_pons(Tile("m5", 3), relative_pos::mid).begin())->at(0).Id() % 4, 0);
-    EXPECT_EQ((*h.possible_pons(Tile("m5", 3), relative_pos::mid).begin())->at(1).Id() % 4, 1);
+    EXPECT_EQ((*h.possible_pons(Tile("m5", 3), relative_pos::mid).begin())->At(0).Id() % 4, 0);
+    EXPECT_EQ((*h.possible_pons(Tile("m5", 3), relative_pos::mid).begin())->At(1).Id() % 4, 1);
     h = Hand({"m1", "m1", "m1", "m2", "m4", "m4", "m4", "m6", "m7", "m8", "m9", "m9", "m9"});
     // One possible pon is expected
     EXPECT_EQ(h.possible_pons(Tile("m4", 3), relative_pos::mid).size(), 1);
-    EXPECT_EQ((*h.possible_pons(Tile("m4", 3), relative_pos::mid).begin())->at(0).Id() % 4, 0);
-    EXPECT_EQ((*h.possible_pons(Tile("m4", 3), relative_pos::mid).begin())->at(1).Id() % 4, 1);
+    EXPECT_EQ((*h.possible_pons(Tile("m4", 3), relative_pos::mid).begin())->At(0).Id() % 4, 0);
+    EXPECT_EQ((*h.possible_pons(Tile("m4", 3), relative_pos::mid).begin())->At(1).Id() % 4, 1);
 }
 
 TEST(hand, possible_kan_opened) {
     auto h = Hand({"m1", "m1", "m1", "m2", "m3", "m4", "m5", "m6", "m7", "m8", "m9", "m9", "m9"});
     EXPECT_EQ(h.size(), 13);
     EXPECT_EQ(h.possible_kan_opened(Tile("m1", 3), relative_pos::mid).size(), 1);
-    EXPECT_EQ((*h.possible_kan_opened(Tile("m1", 3), relative_pos::mid).begin())->type(), open_type::kan_opened);
-    EXPECT_EQ((*h.possible_kan_opened(Tile("m1", 3), relative_pos::mid).begin())->at(0).Type(), tile_type::m1);
-    EXPECT_EQ((*h.possible_kan_opened(Tile("m1", 3), relative_pos::mid).begin())->stolen(), Tile("m1", 3));
-    EXPECT_EQ((*h.possible_kan_opened(Tile("m1", 3), relative_pos::mid).begin())->last(), Tile("m1", 3));
+    EXPECT_EQ((*h.possible_kan_opened(Tile("m1", 3), relative_pos::mid).begin())->Type(), open_type::kan_opened);
+    EXPECT_EQ((*h.possible_kan_opened(Tile("m1", 3), relative_pos::mid).begin())->At(0).Type(), tile_type::m1);
+    EXPECT_EQ((*h.possible_kan_opened(Tile("m1", 3), relative_pos::mid).begin())->StolenTile(), Tile("m1", 3));
+    EXPECT_EQ((*h.possible_kan_opened(Tile("m1", 3), relative_pos::mid).begin())->LastTile(), Tile("m1", 3));
     EXPECT_EQ(h.possible_kan_opened(Tile("m2", 3), relative_pos::mid).size(), 0);
     EXPECT_EQ(h.possible_kan_opened(Tile("m9", 3), relative_pos::mid).size(), 1);
-    EXPECT_EQ((*h.possible_kan_opened(Tile("m9", 3), relative_pos::mid).begin())->type(), open_type::kan_opened);
-    EXPECT_EQ((*h.possible_kan_opened(Tile("m9", 3), relative_pos::mid).begin())->at(0).Type(), tile_type::m9);
-    EXPECT_EQ((*h.possible_kan_opened(Tile("m9", 3), relative_pos::mid).begin())->stolen(), Tile("m9", 3));
-    EXPECT_EQ((*h.possible_kan_opened(Tile("m9", 3), relative_pos::mid).begin())->last(), Tile("m9", 3));
+    EXPECT_EQ((*h.possible_kan_opened(Tile("m9", 3), relative_pos::mid).begin())->Type(), open_type::kan_opened);
+    EXPECT_EQ((*h.possible_kan_opened(Tile("m9", 3), relative_pos::mid).begin())->At(0).Type(), tile_type::m9);
+    EXPECT_EQ((*h.possible_kan_opened(Tile("m9", 3), relative_pos::mid).begin())->StolenTile(), Tile("m9", 3));
+    EXPECT_EQ((*h.possible_kan_opened(Tile("m9", 3), relative_pos::mid).begin())->LastTile(), Tile("m9", 3));
 }
 
 TEST(hand, possible_kan_closed) {
@@ -264,10 +264,10 @@ TEST(hand, possible_kan_closed) {
     h.draw(Tile("m9", 3));
     EXPECT_EQ(h.size(), 14);
     EXPECT_EQ(h.possible_kan_closed().size(), 1);
-    EXPECT_EQ((*h.possible_kan_closed().begin())->type(), open_type::kan_closed);
-    EXPECT_EQ((*h.possible_kan_closed().begin())->at(0).Type(), tile_type::m9);
-    EXPECT_EQ((*h.possible_kan_closed().begin())->stolen(), Tile("m9", 0));
-    EXPECT_EQ((*h.possible_kan_closed().begin())->last(), Tile("m9", 0));
+    EXPECT_EQ((*h.possible_kan_closed().begin())->Type(), open_type::kan_closed);
+    EXPECT_EQ((*h.possible_kan_closed().begin())->At(0).Type(), tile_type::m9);
+    EXPECT_EQ((*h.possible_kan_closed().begin())->StolenTile(), Tile("m9", 0));
+    EXPECT_EQ((*h.possible_kan_closed().begin())->LastTile(), Tile("m9", 0));
 }
 
 TEST(hand, possible_kan_added) {
@@ -279,10 +279,10 @@ TEST(hand, possible_kan_added) {
     EXPECT_EQ(h.size_closed(), 11);
     EXPECT_EQ(h.size_opened(), 3);
     EXPECT_EQ(h.possible_kan_added().size(), 1);
-    EXPECT_EQ((*h.possible_kan_added().begin())->type(), open_type::kan_added);
-    EXPECT_EQ((*h.possible_kan_added().begin())->at(0).Type(), tile_type::m9);
-    EXPECT_EQ((*h.possible_kan_added().begin())->stolen(), Tile("m9", 3));
-    EXPECT_EQ((*h.possible_kan_added().begin())->last(), Tile("m9", 2));
+    EXPECT_EQ((*h.possible_kan_added().begin())->Type(), open_type::kan_added);
+    EXPECT_EQ((*h.possible_kan_added().begin())->At(0).Type(), tile_type::m9);
+    EXPECT_EQ((*h.possible_kan_added().begin())->StolenTile(), Tile("m9", 3));
+    EXPECT_EQ((*h.possible_kan_added().begin())->LastTile(), Tile("m9", 2));
 }
 
 TEST(hand, possible_opens_after_others_discard) {
@@ -292,22 +292,22 @@ TEST(hand, possible_opens_after_others_discard) {
     // pon m4m4m4
     // kan m4m4m4m4
     EXPECT_EQ(possible_opens.size(), 7);
-    EXPECT_EQ(possible_opens.at(0)->type(), open_type::chi);
-    EXPECT_EQ(possible_opens.at(0)->at(0).Type(), tile_type::m4);
-    EXPECT_TRUE(possible_opens.at(0)->at(1).IsRedFive());
-    EXPECT_EQ(possible_opens.at(1)->type(), open_type::chi);
-    EXPECT_EQ(possible_opens.at(1)->at(0).Type(), tile_type::m4);
-    EXPECT_TRUE(!possible_opens.at(1)->at(1).IsRedFive());
-    EXPECT_EQ(possible_opens.at(2)->type(), open_type::chi);
-    EXPECT_EQ(possible_opens.at(2)->at(0).Type(), tile_type::m3);
-    EXPECT_TRUE(possible_opens.at(2)->at(2).IsRedFive());
-    EXPECT_EQ(possible_opens.at(3)->type(), open_type::chi);
-    EXPECT_EQ(possible_opens.at(3)->at(0).Type(), tile_type::m3);
-    EXPECT_TRUE(!possible_opens.at(3)->at(2).IsRedFive());
-    EXPECT_EQ(possible_opens.at(4)->type(), open_type::chi);
-    EXPECT_EQ(possible_opens.at(4)->at(0).Type(), tile_type::m2);
-    EXPECT_EQ(possible_opens.at(5)->type(), open_type::pon);
-    EXPECT_EQ(possible_opens.at(6)->type(), open_type::kan_opened);
+    EXPECT_EQ(possible_opens.at(0)->Type(), open_type::chi);
+    EXPECT_EQ(possible_opens.at(0)->At(0).Type(), tile_type::m4);
+    EXPECT_TRUE(possible_opens.at(0)->At(1).IsRedFive());
+    EXPECT_EQ(possible_opens.at(1)->Type(), open_type::chi);
+    EXPECT_EQ(possible_opens.at(1)->At(0).Type(), tile_type::m4);
+    EXPECT_TRUE(!possible_opens.at(1)->At(1).IsRedFive());
+    EXPECT_EQ(possible_opens.at(2)->Type(), open_type::chi);
+    EXPECT_EQ(possible_opens.at(2)->At(0).Type(), tile_type::m3);
+    EXPECT_TRUE(possible_opens.at(2)->At(2).IsRedFive());
+    EXPECT_EQ(possible_opens.at(3)->Type(), open_type::chi);
+    EXPECT_EQ(possible_opens.at(3)->At(0).Type(), tile_type::m3);
+    EXPECT_TRUE(!possible_opens.at(3)->At(2).IsRedFive());
+    EXPECT_EQ(possible_opens.at(4)->Type(), open_type::chi);
+    EXPECT_EQ(possible_opens.at(4)->At(0).Type(), tile_type::m2);
+    EXPECT_EQ(possible_opens.at(5)->Type(), open_type::pon);
+    EXPECT_EQ(possible_opens.at(6)->Type(), open_type::kan_opened);
 }
 
 TEST(hand, possible_opens_after_draw) {
@@ -317,10 +317,10 @@ TEST(hand, possible_opens_after_draw) {
     h.draw(Tile("m1", 3));
     auto possible_opens = h.possible_opens_after_draw();
     EXPECT_EQ(possible_opens.size(), 2);
-    EXPECT_EQ(possible_opens.at(0)->type(), open_type::kan_closed);
-    EXPECT_EQ(possible_opens.at(0)->at(0).Type(), tile_type::m1);
-    EXPECT_EQ(possible_opens.at(1)->type(), open_type::kan_added);
-    EXPECT_EQ(possible_opens.at(1)->at(0).Type(), tile_type::m9);
+    EXPECT_EQ(possible_opens.at(0)->Type(), open_type::kan_closed);
+    EXPECT_EQ(possible_opens.at(0)->At(0).Type(), tile_type::m1);
+    EXPECT_EQ(possible_opens.at(1)->Type(), open_type::kan_added);
+    EXPECT_EQ(possible_opens.at(1)->At(0).Type(), tile_type::m9);
 }
 
 TEST(hand, size) {
