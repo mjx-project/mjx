@@ -15,9 +15,9 @@ namespace mj
 {
     struct WinningInfo
     {
-        std::vector<yaku> yaku;
-        fan fan;
-        minipoint minipoint;
+        std::vector<Yaku> yaku;
+        Fan fan;
+        Minipoint minipoint;
     };
 
     // This class is mainly for
@@ -37,13 +37,13 @@ namespace mj
          *
          */
 
-        explicit Hand(const std::vector<tile_id> &vector);
-        explicit Hand(const std::vector<tile_type> &vector);
+        explicit Hand(const std::vector<TileId> &vector);
+        explicit Hand(const std::vector<TileType> &vector);
         explicit Hand(const std::vector<std::string> &vector);
         explicit Hand(std::vector<Tile> tiles);
         Hand(std::vector<Tile>::iterator begin, std::vector<Tile>::iterator end);
 
-        hand_phase Phase();
+        TilePhase Phase();
         // actions
         void Draw(Tile tile);
         void ApplyChi(std::unique_ptr<Open> open);
@@ -56,12 +56,12 @@ namespace mj
         WinningInfo Tsumo(Tile tile);
         // action validators
         std::vector<Tile> PossibleDiscards();
-        std::vector<std::unique_ptr<Open>> PossibleOpensAfterOthersDiscard(Tile tile, relative_pos from);
+        std::vector<std::unique_ptr<Open>> PossibleOpensAfterOthersDiscard(Tile tile, RelativePos from);
         std::vector<std::unique_ptr<Open>> PossibleOpensAfterDraw();
         // action validators (called after other player's discard)
         std::vector<std::unique_ptr<Open>> PossibleChis(Tile tile);  // E.g., 2m 3m [4m] vs 3m [4m] 5m
-        std::vector<std::unique_ptr<Open>> PossiblePons(Tile tile, relative_pos from);  // E.g., with red or not  TODO: check the id choice strategy of tenhou (smalelr one) when it has 2 identical choices.
-        std::vector<std::unique_ptr<Open>> PossibleKanOpened(Tile tile, relative_pos from);
+        std::vector<std::unique_ptr<Open>> PossiblePons(Tile tile, RelativePos from);  // E.g., with red or not  TODO: check the id choice strategy of tenhou (smalelr one) when it has 2 identical choices.
+        std::vector<std::unique_ptr<Open>> PossibleKanOpened(Tile tile, RelativePos from);
         // action validators (called after draw)
         std::vector<std::unique_ptr<Open>> PossibleKanClosed();  // TODO: which tile id should be used to represent farleft left bits? (current is type * 4 + 0)
         std::vector<std::unique_ptr<Open>> PossibleKanAdded();
@@ -81,7 +81,7 @@ namespace mj
         std::uint8_t CountFan();
         std::uint8_t CountFu();
         // utility
-        bool Has(const std::vector<tile_type> &tiles);
+        bool Has(const std::vector<TileType> &tiles);
         // Size
         std::size_t Size();
         std::size_t SizeOpened();
@@ -99,7 +99,7 @@ namespace mj
         std::set<std::unique_ptr<Open>> open_sets_;  // Though open only uses 16 bits, to handle different open types, we need to use pointer
         std::unordered_set<Tile, HashTile> undiscardable_tiles_;
         std::optional<Tile> drawn_tile_;
-        hand_phase hand_phase_;
+        TilePhase hand_phase_;
         bool under_riichi_;
     };
 }  // namespace mj

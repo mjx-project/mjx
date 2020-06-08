@@ -5,11 +5,10 @@
 
 
 namespace mj {
-    using tile_id = std::uint8_t;  // {0, ..., 135} corresponds to mjlog format of Tenhou
+    using TileId = std::uint8_t;  // {0, ..., 135} corresponds to mjlog format of Tenhou
 
-    enum class tile_type
-            : std::uint8_t  // Naming follows https://github.com/NegativeMjark/tenhou-log/blob/master/TenhouDecoder.py
-    {
+    // Naming follows https://github.com/NegativeMjark/tenhou-log/blob/master/TenhouDecoder.py
+    enum class TileType : std::uint8_t {
         m1, m2, m3, m4, m5, m6, m7, m8, m9,
         p1, p2, p3, p4, p5, p6, p7, p8, p9,
         s1, s2, s3, s4, s5, s6, s7, s8, s9,
@@ -17,11 +16,11 @@ namespace mj {
         wd, gd, rd  // {0, ..., 33}
     };
 
-    enum class tile_set_type : std::uint8_t {  // TODO: rename using honours and terminals,
+    enum class TileSetType : std::uint8_t {  // TODO: rename using honours and terminals,
         all, manzu, pinzu, souzu, tanyao, terminals, winds, dragons, honors, yaochu, red_five, empty
     };
 
-    enum class hand_phase : std::uint8_t {
+    enum class TilePhase : std::uint8_t {
         after_discard,
         after_draw,
         after_chi,
@@ -33,14 +32,14 @@ namespace mj {
         after_win
     };
 
-    enum class absolute_pos : std::uint8_t {
+    enum class AbsolutePos : std::uint8_t {
         east,
         south,
         west,
         north
     };
 
-    enum class relative_pos : std::uint8_t  // Order follows mjlog
+    enum class RelativePos : std::uint8_t  // Order follows mjlog
     {
         self,
         right,  // 下家
@@ -48,7 +47,7 @@ namespace mj {
         left    // 上家
     };
 
-    enum class open_type : std::uint8_t {
+    enum class OpenType : std::uint8_t {
         chi,
         pon,
         kan_opened,  // opened kan（大明槓）
@@ -56,7 +55,7 @@ namespace mj {
         kan_added    // added kan（加槓）
     };
 
-    enum class fan : std::uint8_t {
+    enum class Fan : std::uint8_t {
         one,
         two,
         three,
@@ -68,11 +67,11 @@ namespace mj {
         yakuman
     };
 
-    using minipoint = std::uint8_t;
+    using Minipoint = std::uint8_t;
 
     // The order follows: http://tenhou.net/1/script/tenhou.js
     // The terminology basically follows: http://mahjong-europe.org/portal/images/docs/riichi_scoresheet_EN.pdf
-    enum class yaku : std::uint8_t {
+    enum class Yaku : std::uint8_t {
         // 1fan
         fully_concealed_hand, // 門前清自摸和
         riichi, // 立直
