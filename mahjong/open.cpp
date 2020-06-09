@@ -32,13 +32,13 @@ namespace mj
     Chi::Chi(std::uint16_t bits) : Open(bits)
     {
         assert(bits_ & MASK_IS_CHI);
-        assert(static_cast<RelativePos>(bits_ & MASK_FROM) == RelativePos::left);
+        assert(static_cast<RelativePos>(bits_ & MASK_FROM) == RelativePos::kLeft);
     }
 
     Chi::Chi(std::vector<Tile> &tiles, Tile stolen) {
         std::sort(tiles.begin(), tiles.end());
         bits_ = 0;
-        bits_ |= (MASK_FROM & static_cast<std::uint16_t>(RelativePos::left));
+        bits_ |= (MASK_FROM & static_cast<std::uint16_t>(RelativePos::kLeft));
         bits_ |= MASK_IS_CHI;
         bits_ |= (static_cast<std::uint16_t>(tiles.at(0).Id() % 4) << 3);
         bits_ |= (static_cast<std::uint16_t>(tiles.at(1).Id() % 4) << 5);
@@ -48,9 +48,9 @@ namespace mj
         bits_|= static_cast<std::uint16_t>(((base/9)*7 + base%9)*3+stolen_ix)<<10;
     }
 
-    OpenType Chi::Type() { return OpenType::chi; }
+    OpenType Chi::Type() { return OpenType::kChi; }
 
-    RelativePos Chi::From() { return RelativePos::left; }
+    RelativePos Chi::From() { return RelativePos::kLeft; }
 
    Tile Chi::At(std::size_t i) {
         assert(i < 3);
@@ -90,18 +90,18 @@ namespace mj
         v.push_back(type);
         // m2m3[m4]
         if (At(2) == stolen_ &&
-            ((TileType::m4 <= type && type <= TileType::m9) ||
-             (TileType::p4 <= type && type <= TileType::p9) ||
-             (TileType::s4 <= type && type <= TileType::s9)))
+            ((TileType::kM4 <= type && type <= TileType::kM9) ||
+             (TileType::kP4 <= type && type <= TileType::kP9) ||
+             (TileType::kS4 <= type && type <= TileType::kS9)))
         {
             auto prev = TileType(static_cast<std::uint8_t>(type) - 3);
             v.push_back(prev);
         }
         // [m6]m7m8
         if (At(0) == stolen_ &&
-            ((TileType::m1 <= type && type <= TileType::m6) ||
-             (TileType::p1 <= type && type <= TileType::p6) ||
-             (TileType::s1 <= type && type <= TileType::s6)))
+            ((TileType::kM1 <= type && type <= TileType::kM6) ||
+             (TileType::kP1 <= type && type <= TileType::kP6) ||
+             (TileType::kS1 <= type && type <= TileType::kS6)))
         {
             auto next = TileType(static_cast<std::uint8_t>(type) + 3);
             v.push_back(next);
@@ -146,7 +146,7 @@ namespace mj
     }
 
     OpenType Pon::Type() {
-        return OpenType::pon;
+        return OpenType::kPon;
     }
 
     RelativePos Pon::From() {
@@ -206,7 +206,7 @@ namespace mj
     }
 
     OpenType KanAdded::Type() {
-        return OpenType::kan_added;
+        return OpenType::kKanAdded;
     }
 
     RelativePos KanAdded::From() {
@@ -255,7 +255,7 @@ namespace mj
 
     KanOpened::KanOpened(std::uint16_t bits) : Open(bits) {
         assert(!(bits_&MASK_IS_CHI) && !(bits_&MASK_IS_PON) && !(bits_&MASK_IS_KAN_ADDED));
-        assert(From() != RelativePos::self);
+        assert(From() != RelativePos::kSelf);
     }
 
     KanOpened::KanOpened(Tile stolen, RelativePos from) {
@@ -265,7 +265,7 @@ namespace mj
     }
 
     OpenType KanOpened::Type() {
-        return OpenType::kan_opened;
+        return OpenType::kKanOpened;
     }
 
     RelativePos KanOpened::From() {
@@ -308,21 +308,21 @@ namespace mj
 
     KanClosed::KanClosed(std::uint16_t bits) : Open(bits) {
         assert(!(bits_&MASK_IS_CHI) && !(bits_&MASK_IS_PON) && !(bits_&MASK_IS_KAN_ADDED));
-        assert(RelativePos(static_cast<std::uint8_t>(bits_ & MASK_FROM)) == RelativePos::self);
+        assert(RelativePos(static_cast<std::uint8_t>(bits_ & MASK_FROM)) == RelativePos::kSelf);
     }
 
     KanClosed::KanClosed(Tile tile) {
         bits_ = 0;
-        bits_ |= static_cast<std::uint16_t>(RelativePos::self);
+        bits_ |= static_cast<std::uint16_t>(RelativePos::kSelf);
         bits_ |= (static_cast<std::uint16_t>(tile.Id()) << 8);
     }
 
     OpenType KanClosed::Type() {
-        return OpenType::kan_closed;
+        return OpenType::kKanClosed;
     }
 
     RelativePos KanClosed::From() {
-        return RelativePos::self;
+        return RelativePos::kSelf;
     }
 
     Tile KanClosed::At(std::size_t i) {
@@ -364,7 +364,7 @@ namespace mj
                 return std::make_unique<KanAdded>(bits);
             }
         } else {
-            if (RelativePos(static_cast<std::uint8_t>(bits & MASK_FROM)) == RelativePos::self) {
+            if (RelativePos(static_cast<std::uint8_t>(bits & MASK_FROM)) == RelativePos::kSelf) {
                 return std::make_unique<KanClosed>(bits);
             } else {
                 return std::make_unique<KanOpened>(bits);

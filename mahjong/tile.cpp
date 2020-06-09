@@ -72,19 +72,19 @@ namespace mj
     }
 
     TileSetType Tile::Color() const noexcept {
-        if (Is(TileSetType::manzu)) return TileSetType::manzu;
-        if (Is(TileSetType::pinzu)) return TileSetType::pinzu;
-        if (Is(TileSetType::souzu)) return TileSetType::souzu;
+        if (Is(TileSetType::kManzu)) return TileSetType::kManzu;
+        if (Is(TileSetType::kPinzu)) return TileSetType::kPinzu;
+        if (Is(TileSetType::kSouzu)) return TileSetType::kSouzu;
         assert(false);
     }
 
     std::uint8_t Tile::Num() const noexcept {
-        assert(!Is(TileSetType::honors));
+        assert(!Is(TileSetType::kHonours));
         return TypeUint() % 9 + 1;
     }
 
     bool Tile::Is(std::uint8_t n) const noexcept {
-        if (Is(TileSetType::honors)) return false;
+        if (Is(TileSetType::kHonours)) return false;
         return Num() == n;
     }
 
@@ -96,37 +96,37 @@ namespace mj
         auto tt = Type();
         switch (tile_set_type)
         {
-            case TileSetType::all:
+            case TileSetType::kAll:
                 return true;
-            case TileSetType::manzu:
-                return TileType::m1 <= tt && tt <= TileType::m9;
-            case TileSetType::pinzu:
-                return TileType::p1 <= tt && tt <= TileType::p9;
-            case TileSetType::souzu:
-                return TileType::s1 <= tt && tt <= TileType::s9;
-            case TileSetType::tanyao:
-                return (TileType::m2 <= tt && tt <= TileType::m8) ||
-                       (TileType::p2 <= tt && tt <= TileType::p8) ||
-                       (TileType::s2 <= tt && tt <= TileType::s8);
-            case TileSetType::terminals:
-                return tt == TileType::m1 || tt == TileType::m9 ||
-                       tt == TileType::p1 || tt == TileType::p9 ||
-                       tt == TileType::s1 || tt == TileType::s9;
-            case TileSetType::winds:
-                return TileType::ew <= tt && tt <= TileType::nw;
-            case TileSetType::dragons:
-                return TileType::wd <= tt && tt <= TileType::rd;
-            case TileSetType::honors:
-                return TileType::ew <= tt && tt <= TileType::rd;
-            case TileSetType::yaochu:
-                return tt == TileType::m1 || tt == TileType::m9 ||
-                       tt == TileType::p1 || tt == TileType::p9 ||
-                       tt == TileType::s1 || tt == TileType::s9 ||
-                       (TileType::ew <= tt && tt <= TileType::rd);
-            case TileSetType::red_five:
-                return (tt == TileType::m5 || tt == TileType::p5 || tt == TileType::s5) &&
+            case TileSetType::kManzu:
+                return TileType::kM1 <= tt && tt <= TileType::kM9;
+            case TileSetType::kPinzu:
+                return TileType::kP1 <= tt && tt <= TileType::kP9;
+            case TileSetType::kSouzu:
+                return TileType::kS1 <= tt && tt <= TileType::kS9;
+            case TileSetType::kTanyao:
+                return (TileType::kM2 <= tt && tt <= TileType::kM8) ||
+                       (TileType::kP2 <= tt && tt <= TileType::kP8) ||
+                       (TileType::kS2 <= tt && tt <= TileType::kS8);
+            case TileSetType::kTerminals:
+                return tt == TileType::kM1 || tt == TileType::kM9 ||
+                       tt == TileType::kP1 || tt == TileType::kP9 ||
+                       tt == TileType::kS1 || tt == TileType::kS9;
+            case TileSetType::kWinds:
+                return TileType::kEW <= tt && tt <= TileType::kNW;
+            case TileSetType::kDragons:
+                return TileType::kWD <= tt && tt <= TileType::kRD;
+            case TileSetType::kHonours:
+                return TileType::kEW <= tt && tt <= TileType::kRD;
+            case TileSetType::kYaocyu:
+                return tt == TileType::kM1 || tt == TileType::kM9 ||
+                       tt == TileType::kP1 || tt == TileType::kP9 ||
+                       tt == TileType::kS1 || tt == TileType::kS9 ||
+                       (TileType::kEW <= tt && tt <= TileType::kRD);
+            case TileSetType::kRedFive:
+                return (tt == TileType::kM5 || tt == TileType::kP5 || tt == TileType::kS5) &&
                         tile_id_ % 4 == 0;
-            case TileSetType::empty:
+            case TileSetType::kEmpty:
                 return false;
         }
     }
@@ -168,80 +168,80 @@ namespace mj
     std::string Tile::ToUnicode() const noexcept {
         switch (Type())
         {
-            case TileType::m1 : return u8"\U0001F007";
-            case TileType::m2 : return u8"\U0001F008";
-            case TileType::m3 : return u8"\U0001F009";
-            case TileType::m4 : return u8"\U0001F00A";
-            case TileType::m5 : return u8"\U0001F00B";
-            case TileType::m6 : return u8"\U0001F00C";
-            case TileType::m7 : return u8"\U0001F00D";
-            case TileType::m8 : return u8"\U0001F00E";
-            case TileType::m9 : return u8"\U0001F00F";
-            case TileType::p1 : return u8"\U0001F019";
-            case TileType::p2 : return u8"\U0001F01A";
-            case TileType::p3 : return u8"\U0001F01B";
-            case TileType::p4 : return u8"\U0001F01C";
-            case TileType::p5 : return u8"\U0001F01D";
-            case TileType::p6 : return u8"\U0001F01E";
-            case TileType::p7 : return u8"\U0001F01F";
-            case TileType::p8 : return u8"\U0001F020";
-            case TileType::p9 : return u8"\U0001F021";
-            case TileType::s1 : return u8"\U0001F010";
-            case TileType::s2 : return u8"\U0001F011";
-            case TileType::s3 : return u8"\U0001F012";
-            case TileType::s4 : return u8"\U0001F013";
-            case TileType::s5 : return u8"\U0001F014";
-            case TileType::s6 : return u8"\U0001F015";
-            case TileType::s7 : return u8"\U0001F016";
-            case TileType::s8 : return u8"\U0001F017";
-            case TileType::s9 : return u8"\U0001F018";
-            case TileType::ew : return u8"\U0001F000";
-            case TileType::sw : return u8"\U0001F001";
-            case TileType::ww : return u8"\U0001F002";
-            case TileType::nw : return u8"\U0001F003";
-            case TileType::wd : return u8"\U0001F006";
-            case TileType::gd : return u8"\U0001F005";
-            case TileType::rd : return u8"\U0001F004\U0000FE0E";  // Use text presentation (U+FE0E VS15)
+            case TileType::kM1 : return u8"\U0001F007";
+            case TileType::kM2 : return u8"\U0001F008";
+            case TileType::kM3 : return u8"\U0001F009";
+            case TileType::kM4 : return u8"\U0001F00A";
+            case TileType::kM5 : return u8"\U0001F00B";
+            case TileType::kM6 : return u8"\U0001F00C";
+            case TileType::kM7 : return u8"\U0001F00D";
+            case TileType::kM8 : return u8"\U0001F00E";
+            case TileType::kM9 : return u8"\U0001F00F";
+            case TileType::kP1 : return u8"\U0001F019";
+            case TileType::kP2 : return u8"\U0001F01A";
+            case TileType::kP3 : return u8"\U0001F01B";
+            case TileType::kP4 : return u8"\U0001F01C";
+            case TileType::kP5 : return u8"\U0001F01D";
+            case TileType::kP6 : return u8"\U0001F01E";
+            case TileType::kP7 : return u8"\U0001F01F";
+            case TileType::kP8 : return u8"\U0001F020";
+            case TileType::kP9 : return u8"\U0001F021";
+            case TileType::kS1 : return u8"\U0001F010";
+            case TileType::kS2 : return u8"\U0001F011";
+            case TileType::kS3 : return u8"\U0001F012";
+            case TileType::kS4 : return u8"\U0001F013";
+            case TileType::kS5 : return u8"\U0001F014";
+            case TileType::kS6 : return u8"\U0001F015";
+            case TileType::kS7 : return u8"\U0001F016";
+            case TileType::kS8 : return u8"\U0001F017";
+            case TileType::kS9 : return u8"\U0001F018";
+            case TileType::kEW : return u8"\U0001F000";
+            case TileType::kSW : return u8"\U0001F001";
+            case TileType::kWW : return u8"\U0001F002";
+            case TileType::kNW : return u8"\U0001F003";
+            case TileType::kWD : return u8"\U0001F006";
+            case TileType::kGD : return u8"\U0001F005";
+            case TileType::kRD : return u8"\U0001F004\U0000FE0E";  // Use text presentation (U+FE0E VS15)
         }
     }
 
     std::string Tile::ToChar() const noexcept {
         switch (Type())
         {
-            case TileType::m1 : return u8"一";
-            case TileType::m2 : return u8"二";
-            case TileType::m3 : return u8"三";
-            case TileType::m4 : return u8"四";
-            case TileType::m5 : return u8"五";
-            case TileType::m6 : return u8"六";
-            case TileType::m7 : return u8"七";
-            case TileType::m8 : return u8"八";
-            case TileType::m9 : return u8"九";
-            case TileType::p1 : return u8"①";
-            case TileType::p2 : return u8"②";
-            case TileType::p3 : return u8"③";
-            case TileType::p4 : return u8"④";
-            case TileType::p5 : return u8"⑤";
-            case TileType::p6 : return u8"⑥";
-            case TileType::p7 : return u8"⑦";
-            case TileType::p8 : return u8"⑧";
-            case TileType::p9 : return u8"⑨";
-            case TileType::s1 : return u8"１";
-            case TileType::s2 : return u8"２";
-            case TileType::s3 : return u8"３";
-            case TileType::s4 : return u8"４";
-            case TileType::s5 : return u8"５";
-            case TileType::s6 : return u8"６";
-            case TileType::s7 : return u8"７";
-            case TileType::s8 : return u8"８";
-            case TileType::s9 : return u8"９";
-            case TileType::ew : return u8"東";
-            case TileType::sw : return u8"南";
-            case TileType::ww : return u8"西";
-            case TileType::nw : return u8"北";
-            case TileType::wd : return u8"白";
-            case TileType::gd : return u8"發";
-            case TileType::rd : return u8"中";
+            case TileType::kM1 : return u8"一";
+            case TileType::kM2 : return u8"二";
+            case TileType::kM3 : return u8"三";
+            case TileType::kM4 : return u8"四";
+            case TileType::kM5 : return u8"五";
+            case TileType::kM6 : return u8"六";
+            case TileType::kM7 : return u8"七";
+            case TileType::kM8 : return u8"八";
+            case TileType::kM9 : return u8"九";
+            case TileType::kP1 : return u8"①";
+            case TileType::kP2 : return u8"②";
+            case TileType::kP3 : return u8"③";
+            case TileType::kP4 : return u8"④";
+            case TileType::kP5 : return u8"⑤";
+            case TileType::kP6 : return u8"⑥";
+            case TileType::kP7 : return u8"⑦";
+            case TileType::kP8 : return u8"⑧";
+            case TileType::kP9 : return u8"⑨";
+            case TileType::kS1 : return u8"１";
+            case TileType::kS2 : return u8"２";
+            case TileType::kS3 : return u8"３";
+            case TileType::kS4 : return u8"４";
+            case TileType::kS5 : return u8"５";
+            case TileType::kS6 : return u8"６";
+            case TileType::kS7 : return u8"７";
+            case TileType::kS8 : return u8"８";
+            case TileType::kS9 : return u8"９";
+            case TileType::kEW : return u8"東";
+            case TileType::kSW : return u8"南";
+            case TileType::kWW : return u8"西";
+            case TileType::kNW : return u8"北";
+            case TileType::kWD : return u8"白";
+            case TileType::kGD : return u8"發";
+            case TileType::kRD : return u8"中";
         }
     }
 
@@ -250,40 +250,40 @@ namespace mj
     }
 
     TileType Tile::Str2Type(const std::string &s) noexcept {
-        if (s == "m1") return TileType::m1;
-        if (s == "m2") return TileType::m2;
-        if (s == "m3") return TileType::m3;
-        if (s == "m4") return TileType::m4;
-        if (s == "m5") return TileType::m5;
-        if (s == "m6") return TileType::m6;
-        if (s == "m7") return TileType::m7;
-        if (s == "m8") return TileType::m8;
-        if (s == "m9") return TileType::m9;
-        if (s == "p1") return TileType::p1;
-        if (s == "p2") return TileType::p2;
-        if (s == "p3") return TileType::p3;
-        if (s == "p4") return TileType::p4;
-        if (s == "p5") return TileType::p5;
-        if (s == "p6") return TileType::p6;
-        if (s == "p7") return TileType::p7;
-        if (s == "p8") return TileType::p8;
-        if (s == "p9") return TileType::p9;
-        if (s == "s1") return TileType::s1;
-        if (s == "s2") return TileType::s2;
-        if (s == "s3") return TileType::s3;
-        if (s == "s4") return TileType::s4;
-        if (s == "s5") return TileType::s5;
-        if (s == "s6") return TileType::s6;
-        if (s == "s7") return TileType::s7;
-        if (s == "s8") return TileType::s8;
-        if (s == "s9") return TileType::s9;
-        if (s == "ew") return TileType::ew;
-        if (s == "sw") return TileType::sw;
-        if (s == "ww") return TileType::ww;
-        if (s == "nw") return TileType::nw;
-        if (s == "wd") return TileType::wd;
-        if (s == "gd") return TileType::gd;
-        if (s == "rd") return TileType::rd;
+        if (s == "m1") return TileType::kM1;
+        if (s == "m2") return TileType::kM2;
+        if (s == "m3") return TileType::kM3;
+        if (s == "m4") return TileType::kM4;
+        if (s == "m5") return TileType::kM5;
+        if (s == "m6") return TileType::kM6;
+        if (s == "m7") return TileType::kM7;
+        if (s == "m8") return TileType::kM8;
+        if (s == "m9") return TileType::kM9;
+        if (s == "p1") return TileType::kP1;
+        if (s == "p2") return TileType::kP2;
+        if (s == "p3") return TileType::kP3;
+        if (s == "p4") return TileType::kP4;
+        if (s == "p5") return TileType::kP5;
+        if (s == "p6") return TileType::kP6;
+        if (s == "p7") return TileType::kP7;
+        if (s == "p8") return TileType::kP8;
+        if (s == "p9") return TileType::kP9;
+        if (s == "s1") return TileType::kS1;
+        if (s == "s2") return TileType::kS2;
+        if (s == "s3") return TileType::kS3;
+        if (s == "s4") return TileType::kS4;
+        if (s == "s5") return TileType::kS5;
+        if (s == "s6") return TileType::kS6;
+        if (s == "s7") return TileType::kS7;
+        if (s == "s8") return TileType::kS8;
+        if (s == "s9") return TileType::kS9;
+        if (s == "ew") return TileType::kEW;
+        if (s == "sw") return TileType::kSW;
+        if (s == "ww") return TileType::kWW;
+        if (s == "nw") return TileType::kNW;
+        if (s == "wd") return TileType::kWD;
+        if (s == "gd") return TileType::kGD;
+        if (s == "rd") return TileType::kRD;
         assert(false);  // TODO: fix
     }
 }  // namespace mj
