@@ -9,7 +9,7 @@ namespace mj
     {
     public:
         Tile() = delete;
-        explicit Tile(std::uint8_t tile_id);
+        explicit Tile(TileId tile_id);
         explicit Tile(TileType tile_type, std::uint8_t offset = 0);
         explicit Tile(const std::string &tile_type_str, std::uint8_t offset = 0);
 
