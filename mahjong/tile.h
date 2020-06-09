@@ -1,7 +1,7 @@
 #ifndef MAHJONG_TILE_H
 #define MAHJONG_TILE_H
 
-#include "consts.h"
+#include "types.h"
 
 namespace mj
 {
