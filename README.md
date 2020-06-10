@@ -1,11 +1,24 @@
-![](https://github.com/sotetsuk/mahjong/workflows/build/badge.svg)
+[![](https://github.com/sotetsuk/mahjong/workflows/build/badge.svg)](https://github.com/sotetsuk/mahjong/actions)
 
 # Open Mahjong
 
 [![](./img/architecture.png)](https://docs.google.com/presentation/d/1lhb_sNix02Iyp0DI0Be5uuQub1W7CVbFiUdiDazG6tY/edit?usp=sharing)
 
+## Build
+
+```
+$ ./build.sh
+```
+で`build` ディレクトリにビルドされる。
+
+```
+$ ./build/test/mahjong_test
+```
+でテストが実行できる。
+
 ## Tenhou/mjlog
 天鳳から天鳳位などの牌譜をダウンロードすると、基本的に `.mjlog` という拡張子のファイルが得られる。これはそのままWindows版の天鳳で観戦することができる。このファイルの中身をテキストエディタ等で直接編集したい場合は、一度 `.gz` 形式になおしてから解凍する必要がある[[1](http://rausumaru.hatenablog.com/entry/2019/08/30/021154)]。名前の匿名表示のオンオフはプレミアム版で設定可能らしい（要確認）。
+
 
 ## Terms
 | Japanese | English | Reference |
@@ -29,15 +42,4 @@
 - Play at tenhou
   - [MahjongRepository/tenhou-python-bot](https://github.com/MahjongRepository/tenhou-python-bot)
   
-## Build
-
-```
-$ ./build.sh
-```
-で`build` ディレクトリにビルドされる。
-
-```
-$ ./build/test/mahjong_test
-```
-でテストが実行できる。
 
