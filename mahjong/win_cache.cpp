@@ -12,8 +12,8 @@
 
 namespace mj
 {
-    constexpr std::uint64_t bits_init = 0b00000000000000000001110000000000000111000000000000001000000000000001111111;
-    constexpr std::uint64_t bits_honours = 0b00000000000000000000000000000000000000000000000000000111111111110000000000;
+    constexpr std::uint64_t kBitsInit = 0b00000000000000000001110000000000000111000000000000001000000000000001111111;
+    constexpr std::uint64_t kBitsHonours = 0b00000000000000000000000000000000000000000000000000000111111111110000000000;
 
     void join(std::array<std::uint8_t, 34> &arr1, const std::array<std::uint8_t, 34> &arr2) {
         for (int i = 0; i < 34; ++i) arr1[i] += arr2[i];
@@ -274,64 +274,64 @@ namespace mj
                             ////////////////////////////////////////////////////////////////////////
                             // define yaku
                             ////////////////////////////////////////////////////////////////////////
-                            std::uint64_t yaku_bits = bits_init;
-                            if(is_pinfu) yaku_bits |= bit_pinfu;
+                            std::uint64_t yaku_bits = kBitsInit;
+                            if(is_pinfu) yaku_bits |= kBitPinfu;
                             // all simples
-                            if(is_all_simples(a)) yaku_bits |= bit_all_simples;
+                            if(is_all_simples(a)) yaku_bits |= kBitAllSimples;
                             // pure double chis
-                            for (auto e: chi_pos) if (e > 1) yaku_bits |= bit_pure_double_chis;
+                            for (auto e: chi_pos) if (e > 1) yaku_bits |= kBitPureDoubleChis;
                             // honours
                             for(int i = 27; i < 34; ++i) num_honours_pons += pon_pos[i];
-                            if (num_honours_pons > 0) yaku_bits |= bits_honours;
+                            if (num_honours_pons > 0) yaku_bits |= kBitsHonours;
                             // outside hand
-                            if (is_outside_hand) yaku_bits |= bit_outside_hand;
+                            if (is_outside_hand) yaku_bits |= kBitOutsideHand;
                             // straight
-                            if (has_straight(chi_pos)) yaku_bits |= bit_pure_straight;
+                            if (has_straight(chi_pos)) yaku_bits |= kBitPureStraight;
                             // mixed_triple_chis
-                            if (has_mixed_triple_chis(chi_pos)) yaku_bits |= bit_mixed_triple_chis;
+                            if (has_mixed_triple_chis(chi_pos)) yaku_bits |= kBitMixedTripleChis;
                             // triple pons
-                            if (has_triple_pons(pon_pos)) yaku_bits |= bit_triple_pons;
+                            if (has_triple_pons(pon_pos)) yaku_bits |= kBitTriplePons;
                             for (int i = 0; i < 34; ++i) if (pon_pos[i] > 0 && a[i] != 4) ++num_possible_kans;
                             // three kans
-                            if (num_possible_kans >= 3) yaku_bits |= bit_three_kans;
+                            if (num_possible_kans >= 3) yaku_bits |= kBitThreeKans;
                             // all pons
-                            if (num_pons == 4) yaku_bits |= bit_all_pons;
+                            if (num_pons == 4) yaku_bits |= kBitAllPons;
                             // three concealed pons
-                            if (num_pons >= 3) yaku_bits |= bit_three_concealed_pons;
+                            if (num_pons >= 3) yaku_bits |= kBitThreeConcealedPons;
                             // little three dragons
-                            if (num_honours_pons >= 2) yaku_bits |= bit_little_three_dragons;
+                            if (num_honours_pons >= 2) yaku_bits |= kBitLittleThreeDragons;
                             // all terms and honours
-                            if (num_honours_pons == 4 && is_head_honours) yaku_bits |= bit_all_terms_and_honours;
+                            if (num_honours_pons == 4 && is_head_honours) yaku_bits |= kBitAllTermsAndHonours;
                             // twice pure double chis
-                            if (has_twice_pure_double_chis(chi_pos)) yaku_bits |= bit_twice_pure_double_chis;
+                            if (has_twice_pure_double_chis(chi_pos)) yaku_bits |= kBitTwicePureDoubleChis;
                             // terminals in all sets
-                            if (is_terminals_in_all_set) yaku_bits |= bit_terminals_in_all_sets;
+                            if (is_terminals_in_all_set) yaku_bits |= kBitTerminalsInAllSets;
                             // half flush
-                            if (is_half_flush(a)) yaku_bits |= bit_half_flush;
+                            if (is_half_flush(a)) yaku_bits |= kBitHalfFlush;
                             // full flush
-                            if (is_full_flush(a)) yaku_bits |= bit_full_flush;
+                            if (is_full_flush(a)) yaku_bits |= kBitFullFlush;
                             // big three dragons
-                            if (num_honours_pons >= 3) yaku_bits |= bit_big_three_dragons;
+                            if (num_honours_pons >= 3) yaku_bits |= kBitBigThreeDragons;
                             // four concealed pons
-                            if (num_pons == 4) yaku_bits |= bit_four_concealed_pons;
+                            if (num_pons == 4) yaku_bits |= kBitFourConcealedPons;
                             // completed four concealed pons
-                            if (num_pons == 4) yaku_bits |= bit_completed_four_concealed_pons;
+                            if (num_pons == 4) yaku_bits |= kBitCompletedFourConcealedPons;
                             // completed four concealed pons
-                            if (num_honours_pons == 4 && is_head_honours) yaku_bits |= bit_all_honours;
+                            if (num_honours_pons == 4 && is_head_honours) yaku_bits |= kBitAllHonours;
                             // all green
-                            if (is_all_green(a)) yaku_bits |= bit_all_green;
+                            if (is_all_green(a)) yaku_bits |= kBitAllGreen;
                             // all terminals
-                            if (num_honours_pons == 4) yaku_bits |= bit_all_terminals;
+                            if (num_honours_pons == 4) yaku_bits |= kBitAllTerminals;
                             // nine gates
-                            if (is_nine_gates(a)) yaku_bits |= bit_nine_gates;
+                            if (is_nine_gates(a)) yaku_bits |= kBitNineGates;
                             // pure nine gates
-                            if (is_nine_gates(a)) yaku_bits |= bit_pure_nine_gates;
+                            if (is_nine_gates(a)) yaku_bits |= kBitPureNineGates;
                             // big four winds
-                            if (num_honours_pons == 4) yaku_bits |= bit_big_four_winds;
+                            if (num_honours_pons == 4) yaku_bits |= kBitBigFourWinds;
                             // little four winds
-                            if (num_honours_pons == 3 && is_head_honours) yaku_bits |= bit_little_four_winds;
+                            if (num_honours_pons == 3 && is_head_honours) yaku_bits |= kBitLittleFourWinds;
                             // four kans
-                            if (num_possible_kans == 4) yaku_bits |= bit_four_kans;
+                            if (num_possible_kans == 4) yaku_bits |= kBitFourKans;
 
                             // add cache
                             double per = (static_cast<double>(c) / static_cast<double>(s)) * 100.0;
@@ -374,8 +374,8 @@ namespace mj
                                     join(a, heads[i6]);
                                     join(a, heads[i7]);
                                     // define yaku
-                                    std::uint64_t yaku_bits = bits_init;
-                                    yaku_bits |= bit_seven_pairs;
+                                    std::uint64_t yaku_bits = kBitsInit;
+                                    yaku_bits |= kBitSevenPairs;
                                     // cache
                                     auto blocks = mj::Block::Build(a);
                                     cache[Block::BlocksToString(blocks)] |= yaku_bits;
@@ -396,9 +396,9 @@ namespace mj
         a[26] = 1;
         for (int i = 27; i < 34; ++i) a[i] = 1;
         auto blocks = mj::Block::Build(a);
-        std::uint64_t yaku_bits = bits_init;
-        yaku_bits |= bit_thirteen_orphans;
-        yaku_bits |= bit_completed_thirteen_orphans;
+        std::uint64_t yaku_bits = kBitsInit;
+        yaku_bits |= kBitThirteenOrphans;
+        yaku_bits |= kBitCompletedThirteenOrphans;
         cache[Block::BlocksToString(blocks)] = yaku_bits;
 
         for (const auto &kv: cache) {
