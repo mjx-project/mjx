@@ -10,10 +10,10 @@ namespace mj {
     public:
         Block() = default;
         Block(const std::vector<std::uint8_t> &block);
-        [[nodiscard]] std::uint32_t size() const noexcept;
-        [[nodiscard]] std::uint32_t hash() const noexcept;
-        [[nodiscard]] std::vector<std::uint8_t> block() const noexcept;
-        [[nodiscard]] std::string to_string() const noexcept;
+        [[nodiscard]] std::uint32_t Size() const noexcept;
+        [[nodiscard]] std::uint32_t Hash() const noexcept;
+        [[nodiscard]] std::vector<std::uint8_t> ToVector() const noexcept;
+        [[nodiscard]] std::string ToString() const noexcept;
         // comp
         bool operator== (const Block &right) const noexcept;
         bool operator!= (const Block &right) const noexcept;
@@ -22,10 +22,10 @@ namespace mj {
         bool operator> (const Block &right) const noexcept;
         bool operator>= (const Block &right) const noexcept;
         // factory method
-        static std::vector<Block> build(const std::array<std::uint8_t, 34> &arr);
-        static std::vector<Block> build(const std::string &blocks_str);  // e.g., "2,3,111,222"
+        static std::vector<Block> Build(const std::array<std::uint8_t, 34> &arr);
+        static std::vector<Block> Build(const std::string &blocks_str);  // e.g., "2,3,111,222"
         // utils
-        static std::string blocks_to_string(const std::vector<mj::Block> &blocks) noexcept;
+        static std::string BlocksToString(const std::vector<mj::Block> &blocks) noexcept;
     private:
         std::uint32_t hash_ = 0;
     };

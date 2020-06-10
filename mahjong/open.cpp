@@ -25,48 +25,48 @@ namespace mj
 
     Open::Open(std::uint16_t bits) : bits_(bits) { }
 
-    std::uint16_t Open::get_bits() {
+    std::uint16_t Open::GetBits() {
         return bits_;
     }
 
     Chi::Chi(std::uint16_t bits) : Open(bits)
     {
         assert(bits_ & MASK_IS_CHI);
-        assert(static_cast<relative_pos>(bits_ & MASK_FROM) == relative_pos::left);
+        assert(static_cast<RelativePos>(bits_ & MASK_FROM) == RelativePos::kLeft);
     }
 
     Chi::Chi(std::vector<Tile> &tiles, Tile stolen) {
         std::sort(tiles.begin(), tiles.end());
         bits_ = 0;
-        bits_ |= (MASK_FROM & static_cast<std::uint16_t>(relative_pos::left));
+        bits_ |= (MASK_FROM & static_cast<std::uint16_t>(RelativePos::kLeft));
         bits_ |= MASK_IS_CHI;
-        bits_ |= (static_cast<std::uint16_t>(tiles.at(0).id() % 4) << 3);
-        bits_ |= (static_cast<std::uint16_t>(tiles.at(1).id() % 4) << 5);
-        bits_ |= (static_cast<std::uint16_t>(tiles.at(2).id() % 4) << 7);
-        std::uint16_t base = tiles.at(0).id() / 4;
+        bits_ |= (static_cast<std::uint16_t>(tiles.at(0).Id() % 4) << 3);
+        bits_ |= (static_cast<std::uint16_t>(tiles.at(1).Id() % 4) << 5);
+        bits_ |= (static_cast<std::uint16_t>(tiles.at(2).Id() % 4) << 7);
+        std::uint16_t base = tiles.at(0).Id() / 4;
         std::uint16_t stolen_ix = std::distance(tiles.begin(), std::find(tiles.begin(), tiles.end(), stolen));
         bits_|= static_cast<std::uint16_t>(((base/9)*7 + base%9)*3+stolen_ix)<<10;
     }
 
-    open_type Chi::type() { return open_type::chi; }
+    OpenType Chi::Type() { return OpenType::kChi; }
 
-    relative_pos Chi::from() { return relative_pos::left; }
+    RelativePos Chi::From() { return RelativePos::kLeft; }
 
-   Tile Chi::at(std::size_t i) {
+   Tile Chi::At(std::size_t i) {
         assert(i < 3);
         return at(i, min_type());
     }
 
-    std::size_t Chi::size() { return 3; }
+    std::size_t Chi::Size() { return 3; }
 
-    std::vector<Tile> Chi::tiles() {
+    std::vector<Tile> Chi::Tiles() {
         auto v = std::vector<Tile>();
         auto m = min_type();
         for (std::size_t i = 0; i < 3; ++i) v.push_back(at(i, m));
         return v;
     }
 
-    std::vector<Tile> Chi::tiles_from_hand() {
+    std::vector<Tile> Chi::TilesFromHand() {
         auto v = std::vector<Tile>();
         auto m = min_type();
         for (std::size_t i = 0; i < 3; ++i) {
@@ -75,35 +75,35 @@ namespace mj
         }
         return v;
     }
-    Tile Chi::stolen() {
-        return at((bits_>>10) % 3);
+    Tile Chi::StolenTile() {
+        return At((bits_ >> 10) % 3);
     }
 
-    Tile Chi::last() {
-        return stolen();
+    Tile Chi::LastTile() {
+        return StolenTile();
     }
 
-    std::vector<tile_type> Chi::undiscardable_tile_types() {
-        auto v = std::vector<tile_type>();
-        auto stolen_ = stolen();
-        auto type = stolen_.type();
+    std::vector<TileType> Chi::UndiscardableTileTypes() {
+        auto v = std::vector<TileType>();
+        auto stolen_ = StolenTile();
+        auto type = stolen_.Type();
         v.push_back(type);
         // m2m3[m4]
-        if (at(2) == stolen_ &&
-            ((tile_type::m4 <= type && type <= tile_type::m9) ||
-             (tile_type::p4 <= type && type <= tile_type::p9) ||
-             (tile_type::s4 <= type && type <= tile_type::s9)))
+        if (At(2) == stolen_ &&
+            ((TileType::kM4 <= type && type <= TileType::kM9) ||
+             (TileType::kP4 <= type && type <= TileType::kP9) ||
+             (TileType::kS4 <= type && type <= TileType::kS9)))
         {
-            auto prev = tile_type(static_cast<std::uint8_t>(type)-3);
+            auto prev = TileType(static_cast<std::uint8_t>(type) - 3);
             v.push_back(prev);
         }
         // [m6]m7m8
-        if (at(0) == stolen_ &&
-            ((tile_type::m1 <= type && type <= tile_type::m6) ||
-             (tile_type::p1 <= type && type <= tile_type::p6) ||
-             (tile_type::s1 <= type && type <= tile_type::s6)))
+        if (At(0) == stolen_ &&
+            ((TileType::kM1 <= type && type <= TileType::kM6) ||
+             (TileType::kP1 <= type && type <= TileType::kP6) ||
+             (TileType::kS1 <= type && type <= TileType::kS6)))
         {
-            auto next = tile_type(static_cast<std::uint8_t>(type)+3);
+            auto next = TileType(static_cast<std::uint8_t>(type) + 3);
             v.push_back(next);
         }
         return v;
@@ -126,34 +126,34 @@ namespace mj
        assert(!(bits_ & MASK_IS_KAN_ADDED));
    }
 
-    Pon::Pon(Tile stolen, Tile unused, relative_pos from) {
+    Pon::Pon(Tile stolen, Tile unused, RelativePos from) {
         bits_ = 0;
         bits_ |= (MASK_FROM & static_cast<std::uint16_t>(from));
         bits_ |= MASK_IS_PON;
-        std::uint16_t unused_offset = static_cast<std::uint16_t>(unused.id() % 4);
+        std::uint16_t unused_offset = static_cast<std::uint16_t>(unused.Id() % 4);
         bits_ |=  unused_offset << 5;
-        std::uint16_t base = static_cast<std::uint16_t>(stolen.type());
+        std::uint16_t base = static_cast<std::uint16_t>(stolen.Type());
         // stolen\unused
         //     0  1  2  3
         // 0   -  0  0  0
         // 1   0  -  1  1
         // 2   1  1  -  2
         // 3   2  2  2  -
-        std::uint16_t stolen_ix = static_cast<std::uint16_t>(stolen.id() % 4);
+        std::uint16_t stolen_ix = static_cast<std::uint16_t>(stolen.Id() % 4);
         if (stolen_ix > unused_offset) --stolen_ix;
         assert(stolen_ix < 3);
         bits_|= (base * 3 + stolen_ix) <<9;
     }
 
-    open_type Pon::type() {
-        return open_type::pon;
+    OpenType Pon::Type() {
+        return OpenType::kPon;
     }
 
-    relative_pos Pon::from() {
-        return relative_pos(static_cast<std::uint8_t>(bits_ & MASK_FROM));
+    RelativePos Pon::From() {
+        return RelativePos(static_cast<std::uint8_t>(bits_ & MASK_FROM));
     }
 
-    Tile Pon::at(std::size_t i) {
+    Tile Pon::At(std::size_t i) {
         std::uint16_t type = (bits_ >> 9) / 3;
         std::uint16_t unused_offset = (bits_ & MASK_PON_UNUSED_OFFSET) >> 5;
         if (i >= unused_offset) ++i;
@@ -165,34 +165,34 @@ namespace mj
         return Tile(static_cast<std::uint8_t>(type * 4 + i));
     }
 
-    std::size_t Pon::size() {
+    std::size_t Pon::Size() {
         return 3;
     }
 
-    std::vector<Tile> Pon::tiles() {
+    std::vector<Tile> Pon::Tiles() {
         auto v = std::vector<Tile>();
-        for (std::size_t i = 0; i < 3; ++i) v.push_back(at(i));
+        for (std::size_t i = 0; i < 3; ++i) v.push_back(At(i));
         return v;
     }
 
-    std::vector<Tile> Pon::tiles_from_hand() {
+    std::vector<Tile> Pon::TilesFromHand() {
         auto v = std::vector<Tile>();
         std::uint16_t stolen_ix = (bits_ >> 9) % 3;
-        for (std::size_t i = 0; i < 3; ++i) if (i != stolen_ix) v.push_back(at(i));
+        for (std::size_t i = 0; i < 3; ++i) if (i != stolen_ix) v.push_back(At(i));
         return v;
     }
 
-    Tile Pon::stolen() {
+    Tile Pon::StolenTile() {
         std::uint16_t stolen_ix = (bits_ >> 9) % 3;
-        return at(stolen_ix);
+        return At(stolen_ix);
     }
 
-    Tile Pon::last() {
-        return stolen();
+    Tile Pon::LastTile() {
+        return StolenTile();
     }
 
-    std::vector<tile_type> Pon::undiscardable_tile_types() {
-        return std::vector<tile_type>(1, at(0).type());
+    std::vector<TileType> Pon::UndiscardableTileTypes() {
+        return std::vector<TileType>(1, At(0).Type());
     }
 
     KanAdded::KanAdded(std::uint16_t bits) : Open(bits) {
@@ -201,41 +201,41 @@ namespace mj
     }
 
     KanAdded::KanAdded(Open *pon) {
-        bits_ = pon->get_bits();
+        bits_ = pon->GetBits();
         bits_ |= MASK_IS_KAN_ADDED;
     }
 
-    open_type KanAdded::type() {
-        return open_type::kan_added;
+    OpenType KanAdded::Type() {
+        return OpenType::kKanAdded;
     }
 
-    relative_pos KanAdded::from() {
-        return relative_pos(static_cast<std::uint8_t>(bits_ & MASK_FROM));
+    RelativePos KanAdded::From() {
+        return RelativePos(static_cast<std::uint8_t>(bits_ & MASK_FROM));
     }
 
-    Tile KanAdded::at(std::size_t i) {
+    Tile KanAdded::At(std::size_t i) {
         assert(i < 4);
         std::uint16_t type = (bits_ >> 9) / 3;
         return Tile(static_cast<std::uint8_t>(type * 4 + i));
     }
 
-    std::size_t KanAdded::size() {
+    std::size_t KanAdded::Size() {
         return 4;
     }
 
-    std::vector<Tile> KanAdded::tiles() {
-        std::vector<tile_type> v(4, tile_type(static_cast<std::uint8_t>((bits_ >> 9) / 3)));
-        return Tile::create(v);
+    std::vector<Tile> KanAdded::Tiles() {
+        std::vector<TileType> v(4, TileType(static_cast<std::uint8_t>((bits_ >> 9) / 3)));
+        return Tile::Create(v);
     }
 
-    std::vector<Tile> KanAdded::tiles_from_hand() {
+    std::vector<Tile> KanAdded::TilesFromHand() {
         auto v = std::vector<Tile>();
         std::uint16_t stolen_ix = (bits_ >> 9) % 3;
-        for (int i = 0; i < 4; ++i) if (i != stolen_ix) v.push_back(at(i));
+        for (int i = 0; i < 4; ++i) if (i != stolen_ix) v.push_back(At(i));
         return v;
     }
 
-    Tile KanAdded::stolen() {
+    Tile KanAdded::StolenTile() {
         std::uint16_t type = (bits_ >> 9) / 3;
         std::uint16_t stolen_ix = (bits_ >> 9) % 3;
         std::uint16_t unused_offset = (bits_ & MASK_PON_UNUSED_OFFSET) >> 5;
@@ -243,49 +243,49 @@ namespace mj
         return Tile(static_cast<std::uint8_t>(type * 4 + stolen_ix));
     }
 
-    Tile KanAdded::last() {
+    Tile KanAdded::LastTile() {
         std::uint16_t type = (bits_ >> 9) / 3;
         std::uint16_t unused_offset = (bits_ & MASK_PON_UNUSED_OFFSET) >> 5;
         return Tile(static_cast<std::uint8_t>(type * 4 + unused_offset));
     }
 
-    std::vector<tile_type> KanAdded::undiscardable_tile_types() {
-        return std::vector<tile_type>();
+    std::vector<TileType> KanAdded::UndiscardableTileTypes() {
+        return std::vector<TileType>();
     }
 
     KanOpened::KanOpened(std::uint16_t bits) : Open(bits) {
         assert(!(bits_&MASK_IS_CHI) && !(bits_&MASK_IS_PON) && !(bits_&MASK_IS_KAN_ADDED));
-        assert(from() != relative_pos::self);
+        assert(From() != RelativePos::kSelf);
     }
 
-    KanOpened::KanOpened(Tile stolen, relative_pos from) {
+    KanOpened::KanOpened(Tile stolen, RelativePos from) {
         bits_ = 0;
         bits_ |= static_cast<std::uint16_t>(from);
-        bits_ |= (static_cast<std::uint16_t>(stolen.id()) << 8);
+        bits_ |= (static_cast<std::uint16_t>(stolen.Id()) << 8);
     }
 
-    open_type KanOpened::type() {
-        return open_type::kan_opened;
+    OpenType KanOpened::Type() {
+        return OpenType::kKanOpened;
     }
 
-    relative_pos KanOpened::from() {
-        return relative_pos(static_cast<std::uint8_t>(bits_&MASK_FROM));
+    RelativePos KanOpened::From() {
+        return RelativePos(static_cast<std::uint8_t>(bits_ & MASK_FROM));
     }
 
-    Tile KanOpened::at(std::size_t i) {
+    Tile KanOpened::At(std::size_t i) {
         return Tile(static_cast<std::uint8_t>(((bits_ >> 8) / 4) * 4 + i));
     }
 
-    std::size_t KanOpened::size() {
+    std::size_t KanOpened::Size() {
         return 4;
     }
 
-    std::vector<Tile> KanOpened::tiles() {
-        auto v = std::vector<tile_type>(4, tile_type(static_cast<std::uint8_t>((bits_ >> 8) / 4)));
-        return Tile::create(v);
+    std::vector<Tile> KanOpened::Tiles() {
+        auto v = std::vector<TileType>(4, TileType(static_cast<std::uint8_t>((bits_ >> 8) / 4)));
+        return Tile::Create(v);
     }
 
-    std::vector<Tile> KanOpened::tiles_from_hand() {
+    std::vector<Tile> KanOpened::TilesFromHand() {
         auto v = std::vector<Tile>();
         auto type = (bits_ >> 8) / 4;
         auto stolen_offset = (bits_ >> 8) % 4;
@@ -294,64 +294,64 @@ namespace mj
         return v;
     }
 
-    Tile KanOpened::stolen() {
+    Tile KanOpened::StolenTile() {
         return Tile(static_cast<std::uint8_t>(bits_ >> 8));
     }
 
-    Tile KanOpened::last() {
-        return stolen();
+    Tile KanOpened::LastTile() {
+        return StolenTile();
     }
 
-    std::vector<tile_type> KanOpened::undiscardable_tile_types() {
-        return std::vector<tile_type>();
+    std::vector<TileType> KanOpened::UndiscardableTileTypes() {
+        return std::vector<TileType>();
     }
 
     KanClosed::KanClosed(std::uint16_t bits) : Open(bits) {
         assert(!(bits_&MASK_IS_CHI) && !(bits_&MASK_IS_PON) && !(bits_&MASK_IS_KAN_ADDED));
-        assert(relative_pos(static_cast<std::uint8_t>(bits_&MASK_FROM)) == relative_pos::self);
+        assert(RelativePos(static_cast<std::uint8_t>(bits_ & MASK_FROM)) == RelativePos::kSelf);
     }
 
     KanClosed::KanClosed(Tile tile) {
         bits_ = 0;
-        bits_ |= static_cast<std::uint16_t>(relative_pos::self);
-        bits_ |= (static_cast<std::uint16_t>(tile.id()) << 8);
+        bits_ |= static_cast<std::uint16_t>(RelativePos::kSelf);
+        bits_ |= (static_cast<std::uint16_t>(tile.Id()) << 8);
     }
 
-    open_type KanClosed::type() {
-        return open_type::kan_closed;
+    OpenType KanClosed::Type() {
+        return OpenType::kKanClosed;
     }
 
-    relative_pos KanClosed::from() {
-        return relative_pos::self;
+    RelativePos KanClosed::From() {
+        return RelativePos::kSelf;
     }
 
-    Tile KanClosed::at(std::size_t i) {
+    Tile KanClosed::At(std::size_t i) {
         return Tile(static_cast<std::uint8_t>(((bits_ >> 8) / 4) * 4 + i));
     }
 
-    std::size_t KanClosed::size() {
+    std::size_t KanClosed::Size() {
         return 4;
     }
 
-    std::vector<Tile> KanClosed::tiles() {
-        auto v = std::vector<tile_type>(4, tile_type(static_cast<std::uint8_t>((bits_ >> 8) / 4)));
-        return Tile::create(v);
+    std::vector<Tile> KanClosed::Tiles() {
+        auto v = std::vector<TileType>(4, TileType(static_cast<std::uint8_t>((bits_ >> 8) / 4)));
+        return Tile::Create(v);
     }
 
-    std::vector<Tile> KanClosed::tiles_from_hand() {
-        return tiles();
+    std::vector<Tile> KanClosed::TilesFromHand() {
+        return Tiles();
     }
 
-    Tile KanClosed::stolen() {
+    Tile KanClosed::StolenTile() {
         return Tile(static_cast<std::uint8_t>(bits_ >> 8));
     }
 
-    Tile KanClosed::last() {
-        return stolen();
+    Tile KanClosed::LastTile() {
+        return StolenTile();
     }
 
-    std::vector<tile_type> KanClosed::undiscardable_tile_types() {
-        return std::vector<tile_type>();
+    std::vector<TileType> KanClosed::UndiscardableTileTypes() {
+        return std::vector<TileType>();
     }
 
     std::unique_ptr<Open> OpenGenerator::generate(std::uint16_t bits) {
@@ -364,7 +364,7 @@ namespace mj
                 return std::make_unique<KanAdded>(bits);
             }
         } else {
-            if (relative_pos(static_cast<std::uint8_t>(bits&MASK_FROM)) == relative_pos::self) {
+            if (RelativePos(static_cast<std::uint8_t>(bits & MASK_FROM)) == RelativePos::kSelf) {
                 return std::make_unique<KanClosed>(bits);
             } else {
                 return std::make_unique<KanOpened>(bits);
