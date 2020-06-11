@@ -9,7 +9,6 @@ namespace mj
     YakuEvaluator::YakuEvaluator(const WinningHandCache &win_cache) : win_cache_(win_cache){ }
 
     std::vector<Yaku> YakuEvaluator::Apply(Hand &hand) {
-        assert(hand.Size() == 14);
         assert(hand.LastTileAdded());
         assert(hand.LastActionType() == ActionType::kTsumo || hand.LastActionType() == ActionType::kRon);
         auto blocks = Block::Build(hand.ToArray());
