@@ -19,14 +19,28 @@ namespace mj
     Hand::Hand(const std::vector<TileType> &vector)
     : Hand(Tile::Create(vector)) { }
 
-    Hand::Hand(const std::vector<std::string> &vector)
-    : Hand(Tile::Create(vector)) { }
-
     Hand::Hand(std::vector<Tile> tiles)
     : Hand(tiles.begin(), tiles.end()) { }
 
     Hand::Hand(std::vector<Tile>::iterator begin, std::vector<Tile>::iterator end)
     : closed_tiles_(begin, end), hand_phase_(TilePhase::kAfterDiscards), under_riichi_(false) { }
+
+    Hand::Hand(std::vector<std::string> closed, std::vector<std::vector<std::string>> chis,
+               std::vector<std::pair<std::vector<std::string>, RelativePos>> pons,
+               std::vector<std::pair<std::vector<std::string>, RelativePos>> kan_openeds,
+               std::vector<std::pair<std::vector<std::string>, RelativePos>> kan_closeds,
+               std::vector<std::pair<std::vector<std::string>, RelativePos>> kan_addeds) {
+        std::vector<std::string> tile_strs = {};
+        tile_strs.insert(tile_strs.end(), closed.begin(), closed.end());
+        for (const auto &chi: chis) tile_strs.insert(tile_strs.end(), chi.begin(), chi.end());
+        for (const auto &pon: pons) tile_strs.insert(tile_strs.end(), pon.first.begin(), pon.first.end());
+        for (const auto &kan: kan_openeds) tile_strs.insert(tile_strs.end(), kan.first.begin(), kan.first.end());
+        for (const auto &kan: kan_closeds) tile_strs.insert(tile_strs.end(), kan.first.begin(), kan.first.end());
+        for (const auto &kan: kan_addeds) tile_strs.insert(tile_strs.end(), kan.first.begin(), kan.first.end());
+        auto tiles = Tile::Create(tile_strs);
+        auto it = tiles.begin() + closed.size();
+        *this = Hand(tiles.begin(), it);
+    }
 
     TilePhase Hand::Phase() {
         return hand_phase_;

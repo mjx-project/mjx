@@ -32,9 +32,15 @@ namespace mj
 
         explicit Hand(const std::vector<TileId> &vector);
         explicit Hand(const std::vector<TileType> &vector);
-        explicit Hand(const std::vector<std::string> &vector);
         explicit Hand(std::vector<Tile> tiles);
         Hand(std::vector<Tile>::iterator begin, std::vector<Tile>::iterator end);
+        // utility constructor mainly for test
+        Hand(std::vector<std::string> closed,
+             std::vector<std::vector<std::string>> chis = {},
+             std::vector<std::pair<std::vector<std::string>, RelativePos>> pons = {},
+             std::vector<std::pair<std::vector<std::string>, RelativePos>> kan_openeds = {},
+             std::vector<std::pair<std::vector<std::string>, RelativePos>> kan_closeds = {},
+             std::vector<std::pair<std::vector<std::string>, RelativePos>> kan_addeds = {});
 
         TilePhase Phase();
         // actions
