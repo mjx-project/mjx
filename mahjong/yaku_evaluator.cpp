@@ -1,4 +1,4 @@
-#include <iostream>
+#include <cassert>
 #include "consts.h"
 #include "block.h"
 #include "yaku_evaluator.h"
@@ -9,6 +9,9 @@ namespace mj
     YakuEvaluator::YakuEvaluator(const WinningHandCache &win_cache) : win_cache_(win_cache){ }
 
     std::vector<Yaku> YakuEvaluator::Apply(Hand &hand) {
+        assert(hand.Size() == 14);
+        assert(hand.LastTileAdded());
+        assert(hand.LastActionType() == ActionType::kTsumo || hand.LastActionType() == ActionType::kRon);
         auto blocks = Block::Build(hand.ToArray());
         auto blocks_str = Block::BlocksToString(blocks);
         if (!win_cache_.Has(blocks_str)) return std::vector<Yaku>();
