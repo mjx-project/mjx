@@ -12,7 +12,7 @@ namespace mj
         WinningHandCache();
         [[nodiscard]] std::size_t Size() const noexcept ;
         [[nodiscard]] bool Has(const std::string &s) const noexcept ;
-        [[nodiscard]] std::uint64_t Yaku(const std::string &s) const;
+        [[nodiscard]] std::uint64_t YakuBit(const std::string &s) const;
         // utils
         static void PrepareWinCache();
         void ShowStats(std::uint64_t yaku_bit, const std::string &yaku_name);

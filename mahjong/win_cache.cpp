@@ -166,7 +166,7 @@ namespace mj
         return cache_->find(s) != cache_->end();
     }
 
-    std::uint64_t WinningHandCache::Yaku(const std::string &s) const {
+    std::uint64_t WinningHandCache::YakuBit(const std::string &s) const {
         return cache_->at(s);
     }
 

@@ -31,6 +31,20 @@ namespace mj {
         kEmpty
     };
 
+    enum class ActionType : std::uint8_t {
+        kDraw,
+        kDiscard,
+        kRiichi,
+        kTsumo,
+        kRon,
+        kChi,
+        kPon,
+        kKanOpened,
+        kKanClosed,
+        kKanAdded,
+        kKyushu,  // 9 different honors and terminals （九種九牌）　
+    };
+
     enum class TilePhase : std::uint8_t {
         kAfterDiscards,
         kAfterDraw,
@@ -145,6 +159,8 @@ namespace mj {
         kDora, // ドラ
         kReversedDora, // 裏ドラ
         kRedDora, // 赤ドラ
+        kEnd,  // Dummy
+        kBegin = 0,
     };
 
 }  // namespace mj

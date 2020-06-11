@@ -37,7 +37,8 @@ namespace mj
         assert(hand_phase_ == TilePhase::kAfterDiscards);
         closed_tiles_.insert(tile);
         hand_phase_ = TilePhase::kAfterDraw;
-        drawn_tile_ = Tile(tile);
+        last_tile_added_ = tile;
+        last_action_type_ = ActionType::kDraw;
     }
 
     void Hand::ApplyChi(std::unique_ptr<Open> open)
@@ -52,6 +53,8 @@ namespace mj
         for (const auto undiscardable_tt : undiscardable_tile_types)
             for (const auto tile : closed_tiles_)
                 if (tile.Is(undiscardable_tt)) undiscardable_tiles_.insert(tile);
+        last_tile_added_ = open->LastTile();
+        last_action_type_ = ActionType::kChi;
         open_sets_.insert(std::move(open));
         hand_phase_ = TilePhase::kAfterChi;
     }
@@ -67,6 +70,8 @@ namespace mj
         for (const auto undiscardable_tt : undiscardable_tile_types)
             for (auto tile : closed_tiles_)
                 if (tile.Is(undiscardable_tt)) undiscardable_tiles_.insert(tile);
+        last_tile_added_ = open->LastTile();
+        last_action_type_ = ActionType::kPon;
         open_sets_.insert(std::move(open));
         hand_phase_ = TilePhase::kAfterPon;
     }
@@ -78,6 +83,8 @@ namespace mj
         assert(undiscardable_tiles_.empty());
         auto tiles_from_hand = open->TilesFromHand();
         for (const auto t : tiles_from_hand) closed_tiles_.erase(t);
+        last_tile_added_ = open->LastTile();
+        last_action_type_ = ActionType::kKanOpened;
         open_sets_.insert(std::move(open));
         hand_phase_ = TilePhase::kAfterKanOpened;
     }
@@ -90,6 +97,8 @@ namespace mj
         assert(undiscardable_tiles_.empty());
         auto tiles_from_hand = open->TilesFromHand();
         for (const auto t : tiles_from_hand) closed_tiles_.erase(t);
+        last_tile_added_ = open->LastTile();
+        last_action_type_ = ActionType::kKanClosed;
         open_sets_.insert(std::move(open));
         if (IsUnderRiichi()) {
             // TODO: add undiscardable_tiles here
@@ -109,6 +118,8 @@ namespace mj
         auto it = std::find_if(open_sets_.begin(), open_sets_.end(),
                 [&stolen](const auto &x){ return x->Type() == OpenType::kPon && x->StolenTile() == stolen; });
         if (it != open_sets_.end()) open_sets_.erase(*it);
+        last_tile_added_ = open->LastTile();
+        last_action_type_ = ActionType::kKanAdded;
         open_sets_.insert(std::move(open));
         hand_phase_ = TilePhase::kAfterKanAdded;
     }
@@ -117,12 +128,13 @@ namespace mj
         assert(TilePhase::kAfterDraw <= hand_phase_ && hand_phase_ <= TilePhase::kAfterKanAdded);
         assert(closed_tiles_.find(tile) != closed_tiles_.end());
         assert(undiscardable_tiles_.find(tile) == undiscardable_tiles_.end());
-        if (hand_phase_ == TilePhase::kAfterDiscards) assert(drawn_tile_);
-        if (under_riichi_) assert(tile == drawn_tile_);
+        if (hand_phase_ == TilePhase::kAfterDiscards) assert(last_tile_added_);
+        if (under_riichi_) assert(tile == last_tile_added_);
         closed_tiles_.erase(tile);
         undiscardable_tiles_.clear();
         hand_phase_ = TilePhase::kAfterDiscards;
-        drawn_tile_ = std::nullopt;
+        last_tile_added_ = std::nullopt;
+        last_action_type_ = std::nullopt;
         return tile;
     }
 
@@ -409,5 +421,25 @@ namespace mj
             ++arr.at(i);
         }
         return false;
+    }
+
+    std::optional<Tile> Hand::LastTileAdded() {
+        return last_tile_added_;
+    }
+
+    std::optional<ActionType> Hand::LastActionType() {
+        return last_action_type_;
+    }
+
+    void Hand::Ron(Tile tile) {
+        closed_tiles_.insert(tile);
+        last_tile_added_ = tile;
+        last_action_type_ = ActionType::kRon;
+    }
+
+    void Hand::Tsumo(Tile tile) {
+        closed_tiles_.insert(tile);
+        last_tile_added_ = tile;
+        last_action_type_ = ActionType::kTsumo;
     }
 }  // namespace mj
