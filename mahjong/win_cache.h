@@ -1,25 +1,32 @@
-#ifndef MAHJONG_WIN_CACHE_H
-#define MAHJONG_WIN_CACHE_H
+#ifndef MAHJONG_CLOSED_WIN_CACHE_H
+#define MAHJONG_CLOSED_WIN_CACHE_H
 
 #include <memory>
 #include <unordered_map>
 
 namespace mj
 {
-    class WinningHandCache
+    using AbstructHand = std::vector<std::vector<int>>;
+
+    struct AbstructHandInfo {
+        std::pair<int,int> head_pos;
+        std::vector<std::pair<int,int>> triple_pos;
+    };
+
+    class WinningClosedHandCache
     {
     public:
-        WinningHandCache();
-        [[nodiscard]] std::size_t Size() const noexcept ;
-        [[nodiscard]] bool Has(const std::string &s) const noexcept ;
-        [[nodiscard]] std::uint64_t Yaku(const std::string &s) const;
+        WinningClosedHandCache();
+        [[nodiscard]] bool Has(const std::vector<Tile> &closed_hand) const noexcept ;
         // utils
         static void PrepareWinCache();
-        void ShowStats(std::uint64_t yaku_bit, const std::string &yaku_name);
     private:
-        std::unique_ptr<std::unordered_map<std::string, std::uint64_t>> cache_;
-        void Load();
+        std::unique_ptr<std::unordered_map<AbstructHand, AbstructHandInfo>> cache_;
+
+        using TileCount = std::array<int,34>;
+        std::vector<TileCount> CreateSets() const noexcept ;
+        std::vector<TileCount> CreateHeads() const noexcept ;
     };
 }
 
-#endif //MAHJONG_WIN_CACHE_H
+#endif //MAHJONG_CLOSED_WIN_CACHE_H
