@@ -159,6 +159,8 @@ namespace mj {
         kDora, // ドラ
         kReversedDora, // 裏ドラ
         kRedDora, // 赤ドラ
+        kEnd,  // Dummy
+        kBegin = 0,
     };
 
 }  // namespace mj

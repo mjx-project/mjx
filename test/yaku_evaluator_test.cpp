@@ -22,58 +22,58 @@ TEST(YakuEvaluator, kBitFullyConcealedHand) // 門前清自摸和
     EXPECT_FALSE(std::find(yakus.begin(), yakus.end(), Yaku::kFullyConcealedHand) != yakus.end());
 }
 
-// kBitFullyConcealedHand         // 門前清自摸和
-// kBitRiichi                     // 立直
-// kBitIppatsu                    // 一発
-// kBitRobbingKan                 // 槍槓
-// kBitAfterKan                   // 嶺上開花
-// kBitBottomOfTheSea             // 海底摸月
-// kBitBottomOfTheRiver           // 河底撈魚
-// kBitPinfu                      // 平和
-// kBitAllSimples                 // 断幺九
-// kBitPureDoubleChis             // 一盃口
-// kBitSeatWindEast               // 自風 東
-// kBitSeatWindSouth              // 自風 南
-// kBitSeatWindWest               // 自風 西
-// kBitSeatWindNorth              // 自風 北
-// kBitPrevalentWindEast          // 場風 東
-// kBitPrevalentWindSouth         // 場風 南
-// kBitPrevalentWindWest          // 場風 西
-// kBitPrevalentWindNorth         // 場風 北
-// kBitWhiteDragon                // 役牌 白
-// kBitGreenDragon                // 役牌 發
-// kBitRedDragon                  // 役牌 中
-// kBitDoubleRiichi               // 両立直
-// kBitSevenPairs                 // 七対子
-// kBitOutsideHand                // 混全帯幺九
-// kBitPureStraight               // 一気通貫
-// kBitMixedTripleChis            // 三色同順
-// kBitTriplePons                 // 三色同刻
-// kBitThreeKans                  // 三槓子
-// kBitAllPons                    // 対々和
-// kBitThreeConcealedPons         // 三暗刻
-// kBitLittleThreeDragons         // 小三元
-// kBitAllTermsAndHonours         // 混老頭
-// kBitTwicePureDoubleChis        // 二盃口
-// kBitTerminalsInAllSets         // 純全帯幺九
-// kBitHalfFlush                  // 混一色
-// kBitFullFlush                  // 清一色
-// kBitBlessingOfMan              // 人和
-// kBitBlessingOfHeaven           // 天和
-// kBitBlessingOfEarth            // 地和
-// kBitBigThreeDragons            // 大三元
-// kBitFourConcealedPons          // 四暗刻
-// kBitCompletedFourConcealedPons // 四暗刻単騎
-// kBitAllHonours                 // 字一色
-// kBitAllGreen                   // 緑一色
-// kBitAllTerminals               // 清老頭
-// kBitNineGates                  // 九蓮宝燈
-// kBitPureNineGates              // 純正九蓮宝燈
-// kBitThirteenOrphans            // 国士無双
-// kBitCompletedThirteenOrphans   // 国士無双１３面
-// kBitBigFourWinds               // 大四喜
-// kBitLittleFourWinds            // 小四喜
-// kBitFourKans                   // 四槓子
-// kBitDora                       // ドラ
-// kBitReversedDora               // 裏ドラ
-// kBitRedDora                    // 赤ドラ
+// FullyConcealedHand         門前清自摸和
+// Riichi                     立直
+// Ippatsu                    一発
+// RobbingKan                 槍槓
+// AfterKan                   嶺上開花
+// BottomOfTheSea             海底摸月
+// BottomOfTheRiver           河底撈魚
+// Pinfu                      平和
+// AllSimples                 断幺九
+// PureDoubleChis             一盃口
+// SeatWindEast               自風 東
+// SeatWindSouth              自風 南
+// SeatWindWest               自風 西
+// SeatWindNorth              自風 北
+// PrevalentWindEast          場風 東
+// PrevalentWindSouth         場風 南
+// PrevalentWindWest          場風 西
+// PrevalentWindNorth         場風 北
+// WhiteDragon                役牌 白
+// GreenDragon                役牌 發
+// RedDragon                  役牌 中
+// DoubleRiichi               両立直
+// SevenPairs                 七対子
+// OutsideHand                混全帯幺九
+// PureStraight               一気通貫
+// MixedTripleChis            三色同順
+// TriplePons                 三色同刻
+// ThreeKans                  三槓子
+// AllPons                    対々和
+// ThreeConcealedPons         三暗刻
+// LittleThreeDragons         小三元
+// AllTermsAndHonours         混老頭
+// TwicePureDoubleChis        二盃口
+// TerminalsInAllSets         純全帯幺九
+// HalfFlush                  混一色
+// FullFlush                  清一色
+// BlessingOfMan              人和
+// BlessingOfHeaven           天和
+// BlessingOfEarth            地和
+// BigThreeDragons            大三元
+// FourConcealedPons          四暗刻
+// CompletedFourConcealedPons 四暗刻単騎
+// AllHonours                 字一色
+// AllGreen                   緑一色
+// AllTerminals               清老頭
+// NineGates                  九蓮宝燈
+// PureNineGates              純正九蓮宝燈
+// ThirteenOrphans            国士無双
+// CompletedThirteenOrphans   国士無双１３面
+// BigFourWinds               大四喜
+// LittleFourWinds            小四喜
+// FourKans                   四槓子
+// Dora                       ドラ
+// ReversedDora               裏ドラ
+// RedDora                    赤ドラ
