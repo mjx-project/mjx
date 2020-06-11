@@ -13,13 +13,6 @@
 
 namespace mj
 {
-    struct WinningInfo
-    {
-        std::vector<Yaku> yaku;
-        Fan fan;
-        Minipoint minipoint;
-    };
-
     // This class is mainly for
     //   - to list up possible actions (win/riichi/chi/pon/kan/discard)
     //   - to calculate score of win (yaku/fu)
@@ -51,9 +44,9 @@ namespace mj
         void ApplyKanOpened(std::unique_ptr<Open> open);
         void ApplyKanClosed(std::unique_ptr<Open> open);
         void ApplyKanAdded(std::unique_ptr<Open> open);
+        void Ron(Tile tile);
+        void Tsumo(Tile tile);
         Tile Discard(Tile tile);
-        WinningInfo Ron(Tile tile);
-        WinningInfo Tsumo(Tile tile);
         // action validators
         std::vector<Tile> PossibleDiscards();
         std::vector<std::unique_ptr<Open>> PossibleOpensAfterOthersDiscard(Tile tile, RelativePos from);
@@ -82,6 +75,9 @@ namespace mj
         std::uint8_t CountFu();
         // utility
         bool Has(const std::vector<TileType> &tiles);
+        // 14 th tile information. Return std::nullopt if hand only has 13 tiles
+        std::optional<Tile> LastTileAdded();
+        std::optional<ActionType> LastActionType();
         // Size
         std::size_t Size();
         std::size_t SizeOpened();
@@ -98,7 +94,8 @@ namespace mj
         std::unordered_set<Tile, HashTile> closed_tiles_;
         std::set<std::unique_ptr<Open>> open_sets_;  // Though open only uses 16 bits, to handle different open types, we need to use pointer
         std::unordered_set<Tile, HashTile> undiscardable_tiles_;
-        std::optional<Tile> drawn_tile_;
+        std::optional<Tile> last_tile_added_;
+        std::optional<ActionType> last_action_type_;
         TilePhase hand_phase_;
         bool under_riichi_;
     };
