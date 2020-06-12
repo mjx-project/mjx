@@ -1,32 +1,32 @@
-#ifndef MAHJONG_CLOSED_WIN_CACHE_H
-#define MAHJONG_CLOSED_WIN_CACHE_H
+#ifndef MAHJONG_WIN_CACHE_H
+#define MAHJONG_WIN_CACHE_H
+
+#include "types.h"
 
 #include <memory>
+#include <map>
 #include <unordered_map>
+#include <vector>
 
 namespace mj
 {
-    using AbstructHand = std::vector<std::vector<int>>;
+    using AbstructHand = std::string;
+    using SplitPattern = std::vector<std::vector<int>>;
 
-    struct AbstructHandInfo {
-        std::pair<int,int> head_pos;
-        std::vector<std::pair<int,int>> triple_pos;
-    };
-
-    class WinningClosedHandCache
+    class WinningHandCache
     {
     public:
-        WinningClosedHandCache();
-        [[nodiscard]] bool Has(const std::vector<Tile> &closed_hand) const noexcept ;
-        // utils
-        static void PrepareWinCache();
+        WinningHandCache();
+        [[nodiscard]] bool Has(const std::string &s) const noexcept ;
+        void PrepareWinCache();
+        std::pair<AbstructHand, std::map<int, TileType>>
+        CreateAbstructHand(const std::map<TileType, int>& count) const noexcept ;
     private:
-        std::unique_ptr<std::unordered_map<AbstructHand, AbstructHandInfo>> cache_;
-
-        using TileCount = std::array<int,34>;
-        std::vector<TileCount> CreateSets() const noexcept ;
-        std::vector<TileCount> CreateHeads() const noexcept ;
+        std::map<AbstructHand, std::vector<SplitPattern>> cache_;
+        //std::map<std::string, std::vector<int>> cache_;
+        std::vector<std::map<TileType, int>> CreateSets() const noexcept ;
+        std::vector<std::map<TileType, int>> CreateHeads() const noexcept ;
     };
 }
 
-#endif //MAHJONG_CLOSED_WIN_CACHE_H
+#endif //MAHJONG_WIN_CACHE_H

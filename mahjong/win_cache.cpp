@@ -5,109 +5,150 @@
 #include <bitset>
 #include <random>
 
-#include "consts.h"
-#include "block.h"
+#include "types.h"
 #include "win_cache.h"
 
 
 namespace mj {
 
-    WinningClosedHandCache::WinningClosedHandCache() {
+    bool WinningHandCache::Has(const std::string &s) const noexcept {
+        return true; // TODO
     }
 
-
-    bool WinningClosedHandCache::Has(const std::vector<Tile> &closed_hand) const noexcept {
+    WinningHandCache::WinningHandCache() {
+        std::cout << "WinningHandCache::WinningHandCache" << std::endl;
+        PrepareWinCache();
     }
 
-    std::vector<TileCount> WinningClosedHandCache::CreateSets() const noexcept {
-        std::vector<TileCount> sets;
+    std::vector<std::map<TileType,int>> WinningHandCache::CreateSets() const noexcept {
+        std::cout << "WinningHandCache::CreateSets" << std::endl;
+        std::vector<std::map<TileType,int>> sets;
         for (int start : {0, 9, 18}) {
             for (int i = start; i + 2 < start + 9; ++i) {
-                TileCount count;
-                count[i] = count[i + 1] = count[i + 2] = 1;
+                std::map<TileType,int> count;
+                count[static_cast<TileType>(i)] = 1;
+                count[static_cast<TileType>(i + 1)] = 1;
+                count[static_cast<TileType>(i + 2)] = 1;
                 sets.push_back(count);
             }
         }
         for (int i = 0; i < 34; ++i) {
-            TileCount count;
-            count[i] = 3;
+            std::map<TileType,int> count;
+            count[static_cast<TileType>(i)] = 3;
             sets.push_back(count);
         }
         return sets;
     }
-    std::vector<TileCount> WinningClosedHandCache::CreateHeads() const noexcept {
-        std::vector<TileCount> heads;
+
+    std::vector<std::map<TileType,int>> WinningHandCache::CreateHeads() const noexcept {
+        std::cout << "WinningHandCache::CreateHeads" << std::endl;
+        std::vector<std::map<TileType,int>> heads;
         for (int i = 0; i < 34; ++i) {
-            TileCount count;
-            count[i] = 2;
+            std::map<TileType,int> count;
+            count[static_cast<TileType>(i)] = 2;
             heads.push_back(count);
         }
         return heads;
     }
 
-    std::pair<AbstructHand, std::vector<std::vector<TileType>>>
-            WinningClosedHandCache::CreateAbstructHand(const std::array<int,34>& count) const noexcept {
-        AbstructHand abstruct_hand;
-        std::vector<std::vector<TileType>> concrete_tiles;
+    std::pair<AbstructHand, std::map<int, TileType>>
+            WinningHandCache::CreateAbstructHand(const std::map<TileType,int>& count) const noexcept {
 
-        std::vector<int> hand;
+        std::vector<std::string> hands;
         std::vector<TileType> tiles;
+
+        std::string hand;
 
         for (int start : {0, 9, 18}) {
             for (int i = start; i < start + 9; ++i) {
-                if (count[i]) {
-                    hand.push_back(count[i]);
-                    tiles.push_back(i);
-                } else if (!prev.empty()) {
-                    abstruct_hand.push_back(hand);
-                    concrete_tiles.push_back(tiles);
+                TileType tile = static_cast<TileType>(i);
+                if (count.count(tile)) {
+                    hand += std::to_string(count.at(tile));
+                    tiles.push_back(tile);
+                } else if (!hand.empty()) {
+                    hands.push_back(hand);
                     hand.clear();
-                    tiles.clear();
                 }
             }
-            if (!prev.empty()) {
-                abstruct_hand.push_back(hand);
-                concrete_tiles.push_back(tiles);
+            if (!hand.empty()) {
+                hands.push_back(hand);
                 hand.clear();
-                tiles.clear();
             }
         }
 
         for (int i = 27; i < 34; ++i) {
-            if (count[i]) {
-                abstruct_hand.push_back({count[i]});
-                concrete_tiles.push_back({i});
+            TileType tile = static_cast<TileType>(i);
+            if (count.count(tile)) {
+                hands.push_back(std::to_string(count.at(tile)));
+                tiles.push_back(tile);
             }
         }
 
-        return {abstruct_hand, concrete_tiles};
+        AbstructHand abstruct_hand;
+        std::map<int, TileType> tile_types;
+
+        int tile_id = 0;
+        for (int i = 0; i < hands.size(); ++i) {
+            if (i) abstruct_hand += ',';
+            for (int j = 0; j < hands[i].size(); ++j) {
+                tile_types[abstruct_hand.size() + j] = tiles[tile_id++];
+            }
+            abstruct_hand += hands[i];
+        }
+
+        return {abstruct_hand, tile_types};
     }
 
 
-    void WinningClosedHandCache::PrepareWinCache() {
-        std::vector<TileCount> sets = CreateSets();
-        std::vector<TileCount> heads = CreateHeads();
+    void WinningHandCache::PrepareWinCache() {
 
-        for (TileCount& s1 : sets) {
-            for (TileCount& s2 : sets) {
-                for (TileCount& s3 : sets) {
-                    for (TileCount& s4 : sets) {
-                        for (TileCount& h : heads) {
-                            TileCount sum, set_flag, head_flag;
+        const std::vector<std::map<TileType,int>> sets = CreateSets();
+        const std::vector<std::map<TileType,int>> heads = CreateHeads();
+
+        for (const std::map<TileType,int>& s1 : sets) {
+            for (const std::map<TileType,int>& s2 : sets) {
+                for (const std::map<TileType,int>& s3 : sets) {
+                    for (const std::map<TileType,int>& s4 : sets) {
+                        for (const std::map<TileType,int>& h : heads) {
+                            std::map<TileType, int> total;
                             for (int i = 0; i < 34; ++i) {
-                                sum[i] = s1.count[i] + s2.count[i] + s3.count[i] + s4.count[i] + h.count[i];
-                                set_flag[i] = s1.count[i] == 3 or s2.count[i] == 3 or s3.count[i] == 3 or s4.count[i] == 3;
-                                head_flag[i] = h.count[i] == 2;
+                                TileType tile = static_cast<TileType>(i);
+                                if (s1.count(tile)) total[tile] += s1.at(tile);
+                                if (s2.count(tile)) total[tile] += s2.at(tile);
+                                if (s3.count(tile)) total[tile] += s3.at(tile);
+                                if (s4.count(tile)) total[tile] += s4.at(tile);
+                                if (h.count(tile)) total[tile] += h.at(tile);
                             }
 
                             bool valid = true;
-                            for (int i = 0; i < 34; ++i) {
-                                if (sum[i] > 4) {
+                            for (auto& p : total) {
+                                if (p.second > 4) {
                                     valid = false;
                                     break;
                                 }
                             }
+                            if (!valid) continue;
 
+                            AbstructHand abstruct_hand;
+                            std::map<int, TileType> tile_types;
+
+                            std::tie(abstruct_hand, tile_types) = CreateAbstructHand(total);
+
+                            std::map<TileType, int> tile_index;
+                            for (auto& p : tile_types) tile_index[p.second] = p.first;
+
+                            SplitPattern pattern;
+                            for (const std::map<TileType, int>& s : {s1, s2, s3, s4, h}) {
+                                std::vector<int> set_index;
+                                for (auto& p : s) {
+                                    for (int t = 0; t < p.second; ++t) {
+                                        set_index.push_back(tile_index[p.first]);
+                                    }
+                                }
+                                pattern.push_back(set_index);
+                            }
+
+                            cache_[abstruct_hand].push_back(pattern);
                         }
                     }
                 }
@@ -115,3 +156,4 @@ namespace mj {
         }
     }
 };
+
