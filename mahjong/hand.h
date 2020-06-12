@@ -86,7 +86,7 @@ namespace mj
         //   - Tile ids are successive and always zero-indexed
         //   - Chi: Stolen tile is always the smallest one. E.g., [1m]2m3m
         //   - Pon: Stolen tile id is always zero. Stolen player is always left player.
-        //   - Kan: Stolen tile id is always zero. Stolen player is always left player.
+        //   - Kan: Stolen tile id is always zero. Stolen player is always left player. (Last tile of KanAdded has last id = 3)
         Hand(std::vector<std::string> closed,
              std::vector<std::vector<std::string>> chis = {},
              std::vector<std::vector<std::string>> pons = {},

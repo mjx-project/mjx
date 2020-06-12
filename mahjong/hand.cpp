@@ -40,6 +40,45 @@ namespace mj
         auto tiles = Tile::Create(tile_strs);
         auto it = tiles.begin() + closed.size();
         *this = Hand(tiles.begin(), it);
+        for (const auto &chi: chis) {
+            auto it_end = it + chi.size();
+            auto chi_tiles = std::vector<Tile>(it, it_end);
+            auto chi_ = std::make_unique<Chi>(chi_tiles, *std::min_element(chi_tiles.begin(), chi_tiles.end()));
+            this->ApplyChi(std::move(chi_));
+            it = it_end;
+        }
+        for (const auto &pon: pons) {
+            auto it_end = it + pon.size();
+            auto pon_tiles = std::vector<Tile>(it, it_end);
+            auto pon_ = std::make_unique<Pon>(*std::min_element(pon_tiles.begin(), pon_tiles.end()),
+                    Tile(pon_tiles[0].Type(), 3), RelativePos::kLeft);
+            this->ApplyPon(std::move(pon_));
+            it = it_end;
+        }
+        for (const auto &kan: kan_openeds) {
+            auto it_end = it + kan.size();
+            auto kan_tiles = std::vector<Tile>(it, it_end);
+            auto kan_ = std::make_unique<KanOpened>(*std::min_element(kan_tiles.begin(), kan_tiles.end()),
+                            RelativePos::kLeft);
+            this->ApplyKanOpened(std::move(kan_));
+            it = it_end;
+        }
+        for (const auto &kan: kan_closeds) {
+            auto it_end = it + kan.size();
+            auto kan_tiles = std::vector<Tile>(it, it_end);
+            auto kan_ = std::make_unique<KanClosed>(*std::min_element(kan_tiles.begin(), kan_tiles.end()));
+            this->ApplyKanClosed(std::move(kan_));
+            it = it_end;
+        }
+        for (const auto &kan: kan_addeds) {
+            auto it_end = it + kan.size();
+            auto pon_tiles = std::vector<Tile>(it, it_end - 1);
+            auto pon_ = std::make_unique<Pon>(*std::min_element(pon_tiles.begin(), pon_tiles.end()),
+                            Tile(pon_tiles[0].Type(), 3), RelativePos::kLeft);
+            auto kan_ = std::make_unique<KanAdded>(pon_.get());
+            this->ApplyKanAdded(std::move(kan_));
+            it = it_end;
+        }
     }
 
     TilePhase Hand::Phase() {
