@@ -25,6 +25,17 @@ TEST(hand, Hand)
     EXPECT_NO_FATAL_FAILURE(
             Hand(tiles.begin(), tiles.end())
     );
+    auto hand = Hand(
+            {"m1", "m2", "m3", "m4", "m5", "m6", "rd", "rd"},  // closed
+            {{"m7", "m8", "m9"}},  // chi
+            {},  // pon
+            {},  // kan_opend
+            {},  // kan_closed
+            {{"p1", "p1", "p1", "p1"}}  // kan_added
+    );
+    auto actual = hand.ToVector(true);
+    auto expected = Tile::Create({"m1", "m2", "m3", "m4", "m5", "m6", "rd", "rd", "m7", "m8", "m9", "p1", "p1", "p1", "p1"}, true);
+    EXPECT_EQ(actual, expected);
 }
 
 TEST(hand, Has)

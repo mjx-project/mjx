@@ -70,15 +70,19 @@ namespace mj
             this->ApplyKanClosed(std::move(kan_));
             it = it_end;
         }
+        hand_phase_ = TilePhase::kAfterDraw;
         for (const auto &kan: kan_addeds) {
             auto it_end = it + kan.size();
-            auto pon_tiles = std::vector<Tile>(it, it_end - 1);
+            auto pon_tiles = std::vector<Tile>(it, it_end-1);
             auto pon_ = std::make_unique<Pon>(*std::min_element(pon_tiles.begin(), pon_tiles.end()),
                             Tile(pon_tiles[0].Type(), 3), RelativePos::kLeft);
+            closed_tiles_.insert(*(it_end-1));
             auto kan_ = std::make_unique<KanAdded>(pon_.get());
             this->ApplyKanAdded(std::move(kan_));
             it = it_end;
         }
+        hand_phase_ = TilePhase::kAfterDiscards;
+        under_riichi_ = false;
     }
 
     TilePhase Hand::Phase() {

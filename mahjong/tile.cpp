@@ -21,13 +21,14 @@ namespace mj
     Tile::Tile(const std::string &tile_type_str, std::uint8_t offset)
     : Tile(Str2Type(tile_type_str), offset) { }
 
-    std::vector<Tile> Tile::Create(const std::vector<TileId> &vector) noexcept {
+    std::vector<Tile> Tile::Create(const std::vector<TileId> &vector, bool sorted) noexcept {
         auto tiles = std::vector<Tile>();
         for (const auto &id : vector) tiles.emplace_back(id);
+        if(sorted) std::sort(tiles.begin(), tiles.end());
         return tiles;
     }
 
-    std::vector<Tile> Tile::Create(const std::vector<TileType> &vector) noexcept {
+    std::vector<Tile> Tile::Create(const std::vector<TileType> &vector, bool sorted) noexcept {
         std::unordered_map<TileType, std::uint8_t> m;
         auto tiles = std::vector<Tile>();
         for (const auto &type : vector)
@@ -37,22 +38,23 @@ namespace mj
             tiles.emplace_back(id);
             ++m[type];
         }
+        if(sorted) std::sort(tiles.begin(), tiles.end());
         return tiles;
     }
 
-    std::vector<Tile> Tile::Create(const std::vector<std::string> &vector) noexcept {
+    std::vector<Tile> Tile::Create(const std::vector<std::string> &vector, bool sorted) noexcept {
         std::vector<TileType> types;
         types.reserve(vector.size());
         for (const auto &s : vector) types.emplace_back(Tile::Str2Type(s));
-        auto tiles = Tile::Create(types);
+        auto tiles = Tile::Create(types, sorted);
         return tiles;
     }
 
-    std::vector<Tile> Tile::CreateAll() noexcept {
+    std::vector<Tile> Tile::CreateAll(bool sorted) noexcept {
         // TODO: switch depending on rule::PLAYER_NUM
         auto ids = std::vector<TileId>(136);
         std::iota(ids.begin(), ids.end(), 0);
-        auto tiles = Tile::Create(ids);
+        auto tiles = Tile::Create(ids, sorted);
         return tiles;
     }
 
