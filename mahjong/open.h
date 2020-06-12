@@ -17,7 +17,7 @@ namespace mj
         explicit Open(std::uint16_t bits);
         virtual ~Open() = default;
         virtual OpenType Type() = 0;
-        virtual RelativePos From() = 0;
+        virtual RelativePos From() = 0;  // In added kan, it's the opponent player from whom the pon was declared (not kan)
         virtual Tile At(std::size_t i) = 0;  // sorted by tile id
         virtual std::size_t Size() = 0;
         virtual std::vector<Tile> Tiles() = 0;  // tiles() = tiles_from_hand() + [stolen()]
@@ -63,8 +63,7 @@ namespace mj
         explicit Pon(std::uint16_t bits);
         Pon(Tile stolen, Tile unused, RelativePos from);
         OpenType Type() final;
-        RelativePos From() final;
-        Tile At(std::size_t i) final;
+        RelativePos From() final; Tile At(std::size_t i) final;
         std::size_t Size() final;
         std::vector<Tile> Tiles() final;
         std::vector<Tile> TilesFromHand() final;

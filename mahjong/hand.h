@@ -21,18 +21,8 @@ namespace mj
     class Hand
     {
     public:
-       /*
-         * Note for added kan
-         *
-         *   In added kan, from implies the opponent player from whom the player declared pon, not kan.
-         *   The 3rd tile of tiles represents the tile stolen by kan (tile[2]) and
-         *   the 4th tile represents the tile added by kan.
-         *
-         */
-
-        explicit Hand(const std::vector<TileId> &vector);
+       explicit Hand(const std::vector<TileId> &vector);
         explicit Hand(const std::vector<TileType> &vector);
-        explicit Hand(const std::vector<std::string> &vector);
         explicit Hand(std::vector<Tile> tiles);
         Hand(std::vector<Tile>::iterator begin, std::vector<Tile>::iterator end);
 
@@ -90,6 +80,19 @@ namespace mj
         std::array<std::uint8_t, 34> ToArray();
         std::array<std::uint8_t, 34> ToArrayClosed();
         std::array<std::uint8_t, 34> ToArrayOpened();
+
+        // Utility constructor only for test usage
+        // This simplifies Chi/Pon/Kan information.
+        //   - Tile ids are successive and always zero-indexed
+        //   - Chi: Stolen tile is always the smallest one. E.g., [1m]2m3m
+        //   - Pon: Stolen tile id is always zero. Stolen player is always left player.
+        //   - Kan: Stolen tile id is always zero. Stolen player is always left player. (Last tile of KanAdded has last id = 3)
+        Hand(std::vector<std::string> closed,
+             std::vector<std::vector<std::string>> chis = {},
+             std::vector<std::vector<std::string>> pons = {},
+             std::vector<std::vector<std::string>> kan_openeds = {},
+             std::vector<std::vector<std::string>> kan_closeds = {},
+             std::vector<std::vector<std::string>> kan_addeds = {});
     private:
         std::unordered_set<Tile, HashTile> closed_tiles_;
         std::set<std::unique_ptr<Open>> open_sets_;  // Though open only uses 16 bits, to handle different open types, we need to use pointer

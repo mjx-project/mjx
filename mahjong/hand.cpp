@@ -19,14 +19,80 @@ namespace mj
     Hand::Hand(const std::vector<TileType> &vector)
     : Hand(Tile::Create(vector)) { }
 
-    Hand::Hand(const std::vector<std::string> &vector)
-    : Hand(Tile::Create(vector)) { }
-
     Hand::Hand(std::vector<Tile> tiles)
     : Hand(tiles.begin(), tiles.end()) { }
 
     Hand::Hand(std::vector<Tile>::iterator begin, std::vector<Tile>::iterator end)
     : closed_tiles_(begin, end), hand_phase_(TilePhase::kAfterDiscards), under_riichi_(false) { }
+
+    Hand::Hand(std::vector<std::string> closed, std::vector<std::vector<std::string>> chis,
+               std::vector<std::vector<std::string>> pons,
+               std::vector<std::vector<std::string>> kan_openeds,
+               std::vector<std::vector<std::string>> kan_closeds,
+               std::vector<std::vector<std::string>> kan_addeds) {
+        std::vector<std::string> tile_strs = {};
+        tile_strs.insert(tile_strs.end(), closed.begin(), closed.end());
+        for (const auto &chi: chis) tile_strs.insert(tile_strs.end(), chi.begin(), chi.end());
+        for (const auto &pon: pons) tile_strs.insert(tile_strs.end(), pon.begin(), pon.end());
+        for (const auto &kan: kan_openeds) tile_strs.insert(tile_strs.end(), kan.begin(), kan.end());
+        for (const auto &kan: kan_closeds) tile_strs.insert(tile_strs.end(), kan.begin(), kan.end());
+        for (const auto &kan: kan_addeds) tile_strs.insert(tile_strs.end(), kan.begin(), kan.end());
+        auto tiles = Tile::Create(tile_strs);
+        auto it = tiles.begin() + closed.size();
+        *this = Hand(tiles.begin(), it);
+        for (const auto &chi: chis) {
+            hand_phase_ = TilePhase::kAfterDiscards;
+            undiscardable_tiles_.clear();
+            auto it_end = it + chi.size();
+            auto chi_tiles = std::vector<Tile>(it, it_end);
+            auto chi_ = std::make_unique<Chi>(chi_tiles, *std::min_element(chi_tiles.begin(), chi_tiles.end()));
+            this->ApplyChi(std::move(chi_));
+            it = it_end;
+        }
+        for (const auto &pon: pons) {
+            hand_phase_ = TilePhase::kAfterDiscards;
+            undiscardable_tiles_.clear();
+            auto it_end = it + pon.size();
+            auto pon_tiles = std::vector<Tile>(it, it_end);
+            auto pon_ = std::make_unique<Pon>(*std::min_element(pon_tiles.begin(), pon_tiles.end()),
+                    Tile(pon_tiles[0].Type(), 3), RelativePos::kLeft);
+            this->ApplyPon(std::move(pon_));
+            it = it_end;
+        }
+        for (const auto &kan: kan_openeds) {
+            hand_phase_ = TilePhase::kAfterDiscards;
+            undiscardable_tiles_.clear();
+            auto it_end = it + kan.size();
+            auto kan_tiles = std::vector<Tile>(it, it_end);
+            auto kan_ = std::make_unique<KanOpened>(*std::min_element(kan_tiles.begin(), kan_tiles.end()),
+                            RelativePos::kLeft);
+            this->ApplyKanOpened(std::move(kan_));
+            it = it_end;
+        }
+        for (const auto &kan: kan_closeds) {
+            hand_phase_ = TilePhase::kAfterDraw;
+            undiscardable_tiles_.clear();
+            auto it_end = it + kan.size();
+            auto kan_tiles = std::vector<Tile>(it, it_end);
+            auto kan_ = std::make_unique<KanClosed>(*std::min_element(kan_tiles.begin(), kan_tiles.end()));
+            this->ApplyKanClosed(std::move(kan_));
+            it = it_end;
+        }
+        for (const auto &kan: kan_addeds) {
+            hand_phase_ = TilePhase::kAfterDraw;
+            undiscardable_tiles_.clear();
+            auto it_end = it + kan.size();
+            auto pon_tiles = std::vector<Tile>(it, it_end-1);
+            auto pon_ = std::make_unique<Pon>(*std::min_element(pon_tiles.begin(), pon_tiles.end()),
+                            Tile(pon_tiles[0].Type(), 3), RelativePos::kLeft);
+            closed_tiles_.insert(*(it_end-1));
+            auto kan_ = std::make_unique<KanAdded>(pon_.get());
+            this->ApplyKanAdded(std::move(kan_));
+            it = it_end;
+        }
+        hand_phase_ = TilePhase::kAfterDiscards;
+        under_riichi_ = false;
+    }
 
     TilePhase Hand::Phase() {
         return hand_phase_;
