@@ -6,6 +6,7 @@
 #include <memory>
 #include <map>
 #include <unordered_map>
+#include <set>
 #include <vector>
 
 namespace mj
@@ -19,13 +20,13 @@ namespace mj
         WinningHandCache();
         [[nodiscard]] bool Has(const std::string &s) const noexcept ;
         void PrepareWinCache();
-        std::pair<AbstructHand, std::map<int, TileType>>
+        void LoadWinCache();
+        [[nodiscard]] std::pair<AbstructHand, std::map<int, TileType>>
         CreateAbstructHand(const std::map<TileType, int>& count) const noexcept ;
     private:
-        std::map<AbstructHand, std::vector<SplitPattern>> cache_;
-        //std::map<std::string, std::vector<int>> cache_;
-        std::vector<std::map<TileType, int>> CreateSets() const noexcept ;
-        std::vector<std::map<TileType, int>> CreateHeads() const noexcept ;
+        std::unordered_map<AbstructHand, std::set<SplitPattern>> cache_;
+        [[nodiscard]] std::vector<std::map<TileType, int>> CreateSets() const noexcept ;
+        [[nodiscard]] std::vector<std::map<TileType, int>> CreateHeads() const noexcept ;
     };
 }
 
