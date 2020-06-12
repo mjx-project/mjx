@@ -41,6 +41,8 @@ namespace mj
         auto it = tiles.begin() + closed.size();
         *this = Hand(tiles.begin(), it);
         for (const auto &chi: chis) {
+            hand_phase_ = TilePhase::kAfterDiscards;
+            undiscardable_tiles_.clear();
             auto it_end = it + chi.size();
             auto chi_tiles = std::vector<Tile>(it, it_end);
             auto chi_ = std::make_unique<Chi>(chi_tiles, *std::min_element(chi_tiles.begin(), chi_tiles.end()));
@@ -48,6 +50,8 @@ namespace mj
             it = it_end;
         }
         for (const auto &pon: pons) {
+            hand_phase_ = TilePhase::kAfterDiscards;
+            undiscardable_tiles_.clear();
             auto it_end = it + pon.size();
             auto pon_tiles = std::vector<Tile>(it, it_end);
             auto pon_ = std::make_unique<Pon>(*std::min_element(pon_tiles.begin(), pon_tiles.end()),
@@ -56,6 +60,8 @@ namespace mj
             it = it_end;
         }
         for (const auto &kan: kan_openeds) {
+            hand_phase_ = TilePhase::kAfterDiscards;
+            undiscardable_tiles_.clear();
             auto it_end = it + kan.size();
             auto kan_tiles = std::vector<Tile>(it, it_end);
             auto kan_ = std::make_unique<KanOpened>(*std::min_element(kan_tiles.begin(), kan_tiles.end()),
@@ -64,14 +70,17 @@ namespace mj
             it = it_end;
         }
         for (const auto &kan: kan_closeds) {
+            hand_phase_ = TilePhase::kAfterDraw;
+            undiscardable_tiles_.clear();
             auto it_end = it + kan.size();
             auto kan_tiles = std::vector<Tile>(it, it_end);
             auto kan_ = std::make_unique<KanClosed>(*std::min_element(kan_tiles.begin(), kan_tiles.end()));
             this->ApplyKanClosed(std::move(kan_));
             it = it_end;
         }
-        hand_phase_ = TilePhase::kAfterDraw;
         for (const auto &kan: kan_addeds) {
+            hand_phase_ = TilePhase::kAfterDraw;
+            undiscardable_tiles_.clear();
             auto it_end = it + kan.size();
             auto pon_tiles = std::vector<Tile>(it, it_end-1);
             auto pon_ = std::make_unique<Pon>(*std::min_element(pon_tiles.begin(), pon_tiles.end()),
