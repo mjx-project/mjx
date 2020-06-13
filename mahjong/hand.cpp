@@ -455,17 +455,11 @@ namespace mj
         return open_sets_.empty();
     }
 
-    bool Hand::IsTenpai(const WinningHandCache &win_cache) {
+    bool Hand::CanComplete(Tile tile, const WinningHandCache &win_cache) {
         auto arr = ToArray();
-        // backtrack
-        for (std::uint8_t i = 0; i < 34; ++i) {
-            if (arr.at(i) == 4) continue;
-            ++(arr.at(i));
-            auto blocks = Block::Build(arr);
-            if (win_cache.Has(Block::BlocksToString(blocks))) return true;
-            --(arr.at(i));
-        }
-        return false;
+        arr[tile.TypeUint()]++;
+        auto blocks = Block::Build(arr);
+        return win_cache.Has(Block::BlocksToString(blocks));
     }
 
     bool Hand::CanRiichi(const WinningHandCache &win_cache) {

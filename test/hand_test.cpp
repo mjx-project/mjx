@@ -558,13 +558,15 @@ TEST(hand, IsMenzen) {
     EXPECT_FALSE(h.IsMenzen());
 }
 
-TEST(hand, IsTenpai) {
+TEST(hand, IsComplete) {
     // tenpai
     auto h = Hand({"m1", "m1", "m1", "m2", "m3", "m4", "m5", "m6", "m7", "m8", "m9", "m9", "m9"});
     const auto win_cache = WinningHandCache();
-    EXPECT_TRUE(h.IsTenpai(win_cache));
+    EXPECT_TRUE(h.CanComplete(Tile("m1", 3), win_cache));
+    EXPECT_TRUE(h.CanComplete(Tile("m5", 3), win_cache));
+    EXPECT_TRUE(h.CanComplete(Tile("m9", 3), win_cache));
     h = Hand({"m1", "m1", "m1", "m2", "m3", "m4", "m5", "m6", "m7", "m8", "m9", "m9", "rd"});
-    EXPECT_FALSE(h.IsTenpai(win_cache));
+    EXPECT_FALSE(h.CanComplete(Tile("m1", 3), win_cache));
 }
 
 TEST(hand, CanRiichi) {

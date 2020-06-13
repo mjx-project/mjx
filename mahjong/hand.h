@@ -48,7 +48,6 @@ namespace mj
         HandStage Stage();
         std::optional<Tile> LastTileAdded();
         std::optional<ActionType> LastActionType();
-        bool IsTenpai(const WinningHandCache &win_cache);
         bool IsMenzen();
         bool IsUnderRiichi();
         std::size_t Size();
