@@ -31,20 +31,6 @@ namespace mj {
         kEmpty
     };
 
-    enum class ActionType : std::uint8_t {
-        kDraw,
-        kDiscard,
-        kRiichi,
-        kTsumo,
-        kRon,
-        kChi,
-        kPon,
-        kKanOpened,
-        kKanClosed,
-        kKanAdded,
-        kKyushu,  // 9 different honors and terminals （九種九牌）　
-    };
-
     enum class HandStage : std::uint8_t {
         kAfterDiscards,
         kAfterDraw,
