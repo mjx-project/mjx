@@ -52,16 +52,6 @@ namespace mj
         std::size_t Size();
         std::size_t SizeOpened();
         std::size_t SizeClosed();
-        std::size_t SizeChi();
-        std::size_t SizePon();
-        std::size_t SizeKanOpened();
-        std::size_t SizeKanClosed();
-        std::size_t SizeAdded();
-        std::size_t NumChi();
-        std::size_t NumPon();
-        std::size_t NumKanOpened();
-        std::size_t NumKanClosed();
-        std::size_t NumKanAdded();
         std::vector<Tile> ToVector(bool sorted = false);
         std::vector<Tile> ToVectorClosed(bool sorted = false);
         std::vector<Tile> ToVectorOpened(bool sorted = false);
