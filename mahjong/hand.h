@@ -73,18 +73,15 @@ namespace mj
 
         // action validators
         std::vector<Tile> PossibleDiscards();
-        std::vector<std::unique_ptr<Open>> PossibleOpensAfterOthersDiscard(Tile tile, RelativePos from);
-        std::vector<std::unique_ptr<Open>> PossibleOpensAfterDraw();
-        // action validators (called after other player's discard)
-        std::vector<std::unique_ptr<Open>> PossibleChis(Tile tile);  // E.g., 2m 3m [4m] vs 3m [4m] 5m
-        std::vector<std::unique_ptr<Open>> PossiblePons(Tile tile, RelativePos from);  // E.g., with red or not  TODO: check the id choice strategy of tenhou (smalelr one) when it has 2 identical choices.
-        std::vector<std::unique_ptr<Open>> PossibleKanOpened(Tile tile, RelativePos from);
+        std::vector<std::unique_ptr<Open>> PossibleOpensAfterOthersDiscard(Tile tile, RelativePos from);  // includes Chi, Pon, and KanOpened
+        std::vector<std::unique_ptr<Open>> PossibleOpensAfterDraw();  // includes KanClosed and KanAdded
+        bool CanComplete(Tile tile, const WinningHandCache &win_cache);  // This does not take furiten and fan into account.
+        bool CanRiichi(const WinningHandCache &win_cache);
+        bool CanNineTiles(bool IsDealer);  // 九種九牌
+
         // action validators (called after draw)
         std::vector<std::unique_ptr<Open>> PossibleKanClosed();  // TODO: which tile id should be used to represent farleft left bits? (current is type * 4 + 0)
         std::vector<std::unique_ptr<Open>> PossibleKanAdded();
-        bool CanComplete(Tile tile);  // this does not take furiten into account
-        bool CanRiichi(const WinningHandCache &win_cache);
-        bool CanNineTiles(bool IsDealer);  // 九種九牌
 
         // apply actions
         void Draw(Tile tile);
@@ -108,7 +105,13 @@ namespace mj
         std::optional<ActionType> last_action_type_;
         TilePhase hand_phase_;
         bool under_riichi_;
-    };
+
+        // possible actions
+        // action validators (called after other player's discard)
+        std::vector<std::unique_ptr<Open>> PossibleChis(Tile tile);  // E.g., 2m 3m [4m] vs 3m [4m] 5m
+        std::vector<std::unique_ptr<Open>> PossiblePons(Tile tile, RelativePos from);  // E.g., with red or not  TODO: check the id choice strategy of tenhou (smalelr one) when it has 2 identical choices.
+        std::vector<std::unique_ptr<Open>> PossibleKanOpened(Tile tile, RelativePos from);
+   };
 }  // namespace mj
 
 #endif //MAHJONG_HAND_H
