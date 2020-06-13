@@ -45,7 +45,7 @@ namespace mj {
         kKyushu,  // 9 different honors and terminals （九種九牌）　
     };
 
-    enum class TilePhase : std::uint8_t {
+    enum class HandStage : std::uint8_t {
         kAfterDiscards,
         kAfterDraw,
         kAfterChi,
@@ -54,7 +54,8 @@ namespace mj {
         kAfterKanOpened,
         kAfterKanClosed,
         kAfterKanAdded,
-        kAfterWin
+        kAfterTsumo,
+        kAfterRon,
     };
 
     enum class AbsolutePos : std::uint8_t {

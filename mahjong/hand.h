@@ -44,8 +44,8 @@ namespace mj
              std::vector<std::vector<std::string>> kan_closeds = {},
              std::vector<std::vector<std::string>> kan_addeds = {});
 
-        // accessor to hand state
-        TilePhase Phase();
+        // accessor to hand internal state
+        HandStage Stage();
         std::optional<Tile> LastTileAdded();
         std::optional<ActionType> LastActionType();
         bool IsTenpai(const WinningHandCache &win_cache);
@@ -99,7 +99,7 @@ namespace mj
         std::unordered_set<Tile, HashTile> undiscardable_tiles_;
         std::optional<Tile> last_tile_added_;
         std::optional<ActionType> last_action_type_;
-        TilePhase hand_phase_;
+        HandStage hand_phase_;
         bool under_riichi_;
 
         // possible actions

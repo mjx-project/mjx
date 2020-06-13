@@ -186,7 +186,7 @@ TEST(hand, Draw) {
     auto h = Hand({"m1", "m9", "p1", "p9", "s1", "s9", "ew", "sw", "ww", "nw", "wd", "gd", "rd"});
     EXPECT_EQ(h.Size(), 13);
     h.Draw(Tile(1));
-    EXPECT_EQ(h.Phase(), TilePhase::kAfterDraw);
+    EXPECT_EQ(h.Stage(), HandStage::kAfterDraw);
     EXPECT_EQ(h.Size(), 14);
 }
 
@@ -194,10 +194,10 @@ TEST(hand, ApplyChi) {
     auto h = Hand({"m1", "m1", "m1", "m2", "m3", "m4", "m5", "m6", "m7", "m8", "m9", "m9", "m9"});
     std::vector<Tile> t = {Tile("m2"), Tile("m3"), Tile("m4", 3)};
     auto c = std::make_unique<Chi>(t, Tile("m4", 3));
-    EXPECT_EQ(h.Phase(), TilePhase::kAfterDiscards);
+    EXPECT_EQ(h.Stage(), HandStage::kAfterDiscards);
     EXPECT_EQ(h.Size(), 13);
     h.ApplyChi(std::move(c));
-    EXPECT_EQ(h.Phase(), TilePhase::kAfterChi);
+    EXPECT_EQ(h.Stage(), HandStage::kAfterChi);
     EXPECT_EQ(h.Size(), 14);
     EXPECT_EQ(h.SizeOpened(), 3);
     EXPECT_EQ(h.SizeClosed(), 11);
@@ -215,10 +215,10 @@ TEST(hand, ApplyPon)
 {
     auto h = Hand({"m1", "m1", "m1", "m2", "m3", "m4", "m5", "m6", "m7", "m8", "m9", "m9", "m9"});
     auto p = std::make_unique<Pon>(Tile("m9", 3), Tile("m9", 0), RelativePos::kLeft);
-    EXPECT_EQ(h.Phase(), TilePhase::kAfterDiscards);
+    EXPECT_EQ(h.Stage(), HandStage::kAfterDiscards);
     EXPECT_EQ(h.Size(), 13);
     h.ApplyPon(std::move(p));
-    EXPECT_EQ(h.Phase(), TilePhase::kAfterPon);
+    EXPECT_EQ(h.Stage(), HandStage::kAfterPon);
     EXPECT_EQ(h.Size(), 14);
     EXPECT_EQ(h.SizeOpened(), 3);
     EXPECT_EQ(h.SizeClosed(), 11);
@@ -234,10 +234,10 @@ TEST(hand, ApplyKanOpened)
 {
     auto h = Hand({"m1", "m1", "m1", "m2", "m3", "m4", "m5", "m6", "m7", "m8", "m9", "m9", "m9"});
     auto k = std::make_unique<KanOpened>(Tile("m9", 3), RelativePos::kMid);
-    EXPECT_EQ(h.Phase(), TilePhase::kAfterDiscards);
+    EXPECT_EQ(h.Stage(), HandStage::kAfterDiscards);
     EXPECT_EQ(h.Size(), 13);
     h.ApplyKanOpened(std::move(k));
-    EXPECT_EQ(h.Phase(), TilePhase::kAfterKanOpened);
+    EXPECT_EQ(h.Stage(), HandStage::kAfterKanOpened);
     EXPECT_EQ(h.Size(), 14);
     EXPECT_EQ(h.SizeOpened(), 4);
     EXPECT_EQ(h.SizeClosed(), 10);
@@ -250,10 +250,10 @@ TEST(hand, ApplyKanClosed)
     auto h = Hand({"m1", "m1", "m1", "m2", "m3", "m4", "m5", "m6", "m7", "m8", "m9", "m9", "m9"});
     h.Draw(Tile("m9", 3));
     auto k = std::make_unique<KanClosed>(Tile("m9", 0));
-    EXPECT_EQ(h.Phase(), TilePhase::kAfterDraw);
+    EXPECT_EQ(h.Stage(), HandStage::kAfterDraw);
     EXPECT_EQ(h.Size(), 14);
     h.ApplyKanClosed(std::move(k));
-    EXPECT_EQ(h.Phase(), TilePhase::kAfterKanClosed);
+    EXPECT_EQ(h.Stage(), HandStage::kAfterKanClosed);
     EXPECT_EQ(h.Size(), 14);
     EXPECT_EQ(h.SizeOpened(), 4);
     EXPECT_EQ(h.SizeClosed(), 10);
@@ -283,7 +283,7 @@ TEST(hand, ApplyKanAdded)
     EXPECT_EQ(h.Size(), 14);
     EXPECT_EQ(h.SizeOpened(), 4);
     EXPECT_EQ(h.SizeClosed(), 10);
-    EXPECT_EQ(h.Phase(), TilePhase::kAfterKanAdded);
+    EXPECT_EQ(h.Stage(), HandStage::kAfterKanAdded);
 }
 
 TEST(hand, Discard)
@@ -292,10 +292,10 @@ TEST(hand, Discard)
     EXPECT_EQ(h.Size(), 13);
     h.Draw(Tile("rd", 2));
     EXPECT_EQ(h.Size(), 14);
-    EXPECT_EQ(h.Phase(), TilePhase::kAfterDraw);
+    EXPECT_EQ(h.Stage(), HandStage::kAfterDraw);
     h.Discard(Tile("rd"));
     EXPECT_EQ(h.Size(), 13);
-    EXPECT_EQ(h.Phase(), TilePhase::kAfterDiscards);
+    EXPECT_EQ(h.Stage(), HandStage::kAfterDiscards);
 }
 
 TEST(hand, PossibleDiscards) {
