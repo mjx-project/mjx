@@ -68,6 +68,7 @@ namespace mj
         std::array<std::uint8_t, 34> ToArray();
         std::array<std::uint8_t, 34> ToArrayClosed();
         std::array<std::uint8_t, 34> ToArrayOpened();
+        std::vector<Open*> Opens();  // TODO(sotetsuk): Is this return signature ok (raw pointer)?
 
         // action validators
         std::vector<Tile> PossibleDiscards();

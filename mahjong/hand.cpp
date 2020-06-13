@@ -495,4 +495,12 @@ namespace mj
     void Hand::RiichiAndDiscard() {
         under_riichi_ = true;
     }
+
+    std::vector<Open*> Hand::Opens() {
+        std::vector<Open*> ret;
+        for (auto &o: open_sets_) {
+            ret.push_back(o.get());
+        }
+        return ret;
+    }
 }  // namespace mj

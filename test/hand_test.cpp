@@ -584,3 +584,12 @@ TEST(hand, CanRiichi) {
     h.Draw(Tile("p1"));
     EXPECT_FALSE(h.CanRiichi(win_cache));
 }
+
+TEST(hand, Opens) {
+    auto h = Hand({"m1", "m1", "m2", "m3", "m4", "m5", "m6", "m7", "m8", "m9", "m9", "m9", "m9"});
+    auto chis = h.PossibleOpensAfterOthersDiscard(Tile("m1", 2), RelativePos::kLeft);
+    h.ApplyChi(std::move(chis.at(0)));
+    const auto opens = h.Opens();
+    EXPECT_EQ(opens.size(), 1);
+    EXPECT_EQ(opens.front()->Type(), OpenType::kChi);
+}
