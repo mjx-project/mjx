@@ -47,7 +47,6 @@ namespace mj
         // accessor to hand internal state
         HandStage Stage();
         std::optional<Tile> LastTileAdded();
-        std::optional<ActionType> LastActionType();
         bool IsMenzen();
         bool IsUnderRiichi();
         std::size_t Size();
@@ -97,8 +96,7 @@ namespace mj
         std::set<std::unique_ptr<Open>> open_sets_;  // Though open only uses 16 bits, to handle different open types, we need to use pointer
         std::unordered_set<Tile, HashTile> undiscardable_tiles_;
         std::optional<Tile> last_tile_added_;
-        std::optional<ActionType> last_action_type_;
-        HandStage hand_phase_;
+        HandStage stage_;
         bool under_riichi_;
 
         // possible actions
