@@ -79,7 +79,7 @@ namespace mj
 
         // apply actions
         void Draw(Tile tile);
-        void Riichi();  // Fixes hand
+        void RiichiAndDiscard();  // Fixes hand
         void ApplyChi(std::unique_ptr<Open> open);
         void ApplyPon(std::unique_ptr<Open> open);
         void ApplyKanOpened(std::unique_ptr<Open> open);

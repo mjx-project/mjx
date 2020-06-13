@@ -491,4 +491,8 @@ namespace mj
         last_tile_added_ = tile;
         stage_ = HandStage::kAfterTsumo;
     }
+
+    void Hand::RiichiAndDiscard() {
+        under_riichi_ = true;
+    }
 }  // namespace mj
