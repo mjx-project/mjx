@@ -79,10 +79,6 @@ namespace mj
         bool CanRiichi(const WinningHandCache &win_cache);
         bool CanNineTiles(bool IsDealer);  // 九種九牌
 
-        // action validators (called after draw)
-        std::vector<std::unique_ptr<Open>> PossibleKanClosed();  // TODO: which tile id should be used to represent farleft left bits? (current is type * 4 + 0)
-        std::vector<std::unique_ptr<Open>> PossibleKanAdded();
-
         // apply actions
         void Draw(Tile tile);
         void Riichi();  // Fixes hand
@@ -107,10 +103,11 @@ namespace mj
         bool under_riichi_;
 
         // possible actions
-        // action validators (called after other player's discard)
         std::vector<std::unique_ptr<Open>> PossibleChis(Tile tile);  // E.g., 2m 3m [4m] vs 3m [4m] 5m
         std::vector<std::unique_ptr<Open>> PossiblePons(Tile tile, RelativePos from);  // E.g., with red or not  TODO: check the id choice strategy of tenhou (smalelr one) when it has 2 identical choices.
         std::vector<std::unique_ptr<Open>> PossibleKanOpened(Tile tile, RelativePos from);
+        std::vector<std::unique_ptr<Open>> PossibleKanClosed();  // TODO: which tile id should be used to represent farleft left bits? (current is type * 4 + 0)
+        std::vector<std::unique_ptr<Open>> PossibleKanAdded();
    };
 }  // namespace mj
 
