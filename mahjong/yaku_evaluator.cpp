@@ -10,7 +10,7 @@ namespace mj
 
     std::vector<Yaku> YakuEvaluator::Apply(Hand &hand) {
         assert(hand.LastTileAdded());
-        assert(hand.LastActionType() == ActionType::kTsumo || hand.LastActionType() == ActionType::kRon);
+        assert(hand.Stage() == HandStage::kAfterTsumo || hand.Stage() == HandStage::kAfterRon);
         auto blocks = Block::Build(hand.ToArray());
         auto blocks_str = Block::BlocksToString(blocks);
         if (!win_cache_.Has(blocks_str)) return std::vector<Yaku>();
@@ -18,7 +18,7 @@ namespace mj
         std::vector<Yaku> yakus;
         std::uint64_t yaku_bit = win_cache_.YakuBit(blocks_str);
         // kBitFullyConcealedHand         門前清自摸和
-        if (hand.IsMenzen() && hand.LastActionType() == ActionType::kTsumo) yaku_bit |= kBitFullyConcealedHand;
+        if (hand.IsMenzen() && hand.Stage() == HandStage::kAfterTsumo) yaku_bit |= kBitFullyConcealedHand;
         else yaku_bit &= ~kBitFullyConcealedHand;
         // kBitRiichi                     立直
         // kBitIppatsu                    一発

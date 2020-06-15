@@ -13,22 +13,65 @@
 
 namespace mj
 {
-    // This class is mainly for
-    //   - to list up possible actions (win/riichi/chi/pon/kan/discard)
-    //   - to calculate score of win (yaku/fu)
-    // Usage
-    //   - inside of simulator
     class Hand
     {
     public:
-       explicit Hand(const std::vector<TileId> &vector);
+        explicit Hand(const std::vector<TileId> &vector);
         explicit Hand(const std::vector<TileType> &vector);
         explicit Hand(std::vector<Tile> tiles);
         Hand(std::vector<Tile>::iterator begin, std::vector<Tile>::iterator end);
+        /*
+         * Utility constructor only for test usage. This simplifies Chi/Pon/Kan information:
+         *   - Tile ids are successive and always zero-indexed
+         *   - Chi: Stolen tile is always the smallest one. E.g., [1m]2m3m
+         *   - Pon: Stolen tile id is always zero. Stolen player is always left player.
+         *   - Kan: Stolen tile id is always zero. Stolen player is always left player. (Last tile of KanAdded has last id = 3)
+         *
+         *  Usage:
+         *    auto hand = Hand(
+         *            {"m4", "m5", "m6", "rd", "rd"},  // closed
+         *            {{"m1", "m2", "m3"}, {"m7", "m8", "m9"}},  // chi
+         *            {},  // pon
+         *            {},  // kan_opend
+         *            {},  // kan_closed
+         *            {{"p1", "p1", "p1", "p1"}}  // kan_added
+         *    );
+         */
+        Hand(std::vector<std::string> closed,
+             std::vector<std::vector<std::string>> chis = {},
+             std::vector<std::vector<std::string>> pons = {},
+             std::vector<std::vector<std::string>> kan_openeds = {},
+             std::vector<std::vector<std::string>> kan_closeds = {},
+             std::vector<std::vector<std::string>> kan_addeds = {});
 
-        TilePhase Phase();
-        // actions
+        // accessor to hand internal state
+        HandStage Stage();
+        std::optional<Tile> LastTileAdded();
+        bool IsMenzen();
+        bool IsUnderRiichi();
+        std::size_t Size();
+        std::size_t SizeOpened();
+        std::size_t SizeClosed();
+        std::vector<Tile> ToVector(bool sorted = false);
+        std::vector<Tile> ToVectorClosed(bool sorted = false);
+        std::vector<Tile> ToVectorOpened(bool sorted = false);
+        std::array<std::uint8_t, 34> ToArray();
+        std::array<std::uint8_t, 34> ToArrayClosed();
+        std::array<std::uint8_t, 34> ToArrayOpened();
+        std::vector<Open*> Opens();  // TODO(sotetsuk): Should we avoid raw pointer?
+
+        // action validators
+        std::vector<Tile> PossibleDiscards();  // TODO(sotetsuk): Current implementation has the tiles with same type (e.g., 2m x 3). What is the Tenhou's implementation? Only first id? or any id?
+        std::vector<Tile> PossibleDiscardsAfterRiichi(const WinningHandCache &win_cache);
+        std::vector<std::unique_ptr<Open>> PossibleOpensAfterOthersDiscard(Tile tile, RelativePos from);  // includes Chi, Pon, and KanOpened
+        std::vector<std::unique_ptr<Open>> PossibleOpensAfterDraw();  // includes KanClosed and KanAdded
+        bool CanComplete(Tile tile, const WinningHandCache &win_cache);  // This does not take furiten and fan into account.
+        bool CanRiichi(const WinningHandCache &win_cache);
+        bool CanNineTiles(bool IsDealer);  // 九種九牌
+
+        // apply actions
         void Draw(Tile tile);
+        void Riichi();  // After riichi, hand is fixed
         void ApplyChi(std::unique_ptr<Open> open);
         void ApplyPon(std::unique_ptr<Open> open);
         void ApplyKanOpened(std::unique_ptr<Open> open);
@@ -37,71 +80,24 @@ namespace mj
         void Ron(Tile tile);
         void Tsumo(Tile tile);
         Tile Discard(Tile tile);
-        // action validators
-        std::vector<Tile> PossibleDiscards();
-        std::vector<std::unique_ptr<Open>> PossibleOpensAfterOthersDiscard(Tile tile, RelativePos from);
-        std::vector<std::unique_ptr<Open>> PossibleOpensAfterDraw();
-        // action validators (called after other player's discard)
-        std::vector<std::unique_ptr<Open>> PossibleChis(Tile tile);  // E.g., 2m 3m [4m] vs 3m [4m] 5m
-        std::vector<std::unique_ptr<Open>> PossiblePons(Tile tile, RelativePos from);  // E.g., with red or not  TODO: check the id choice strategy of tenhou (smalelr one) when it has 2 identical choices.
-        std::vector<std::unique_ptr<Open>> PossibleKanOpened(Tile tile, RelativePos from);
-        // action validators (called after draw)
-        std::vector<std::unique_ptr<Open>> PossibleKanClosed();  // TODO: which tile id should be used to represent farleft left bits? (current is type * 4 + 0)
-        std::vector<std::unique_ptr<Open>> PossibleKanAdded();
-        bool IsFuriten(const std::vector<Tile> &discards);
-        bool CanRon(Tile tile);  // this does not take furiten into account
-        bool CanTsumo(Tile tile);
-        bool CanWin(Tile tile);
-        bool CanRiichi(const WinningHandCache &win_cache);
-        bool CanNineTiles();
-        // state
-        bool IsTenpai(const WinningHandCache &win_cache);
-        bool IsMenzen();
-        bool HasYaku();
-        bool IsUnderRiichi();
-        // count scores
-        bool CountDora(const std::vector<Tile> & doras);
-        std::uint8_t CountFan();
-        std::uint8_t CountFu();
+
         // utility
         bool Has(const std::vector<TileType> &tiles);
-        // 14 th tile information. Return std::nullopt if hand only has 13 tiles
-        std::optional<Tile> LastTileAdded();
-        std::optional<ActionType> LastActionType();
-        // Size
-        std::size_t Size();
-        std::size_t SizeOpened();
-        std::size_t SizeClosed();
-        // get vector
-        std::vector<Tile> ToVector(bool sorted = false);
-        std::vector<Tile> ToVectorClosed(bool sorted = false);
-        std::vector<Tile> ToVectorOpened(bool sorted = false);
-        // get array
-        std::array<std::uint8_t, 34> ToArray();
-        std::array<std::uint8_t, 34> ToArrayClosed();
-        std::array<std::uint8_t, 34> ToArrayOpened();
-
-        // Utility constructor only for test usage
-        // This simplifies Chi/Pon/Kan information.
-        //   - Tile ids are successive and always zero-indexed
-        //   - Chi: Stolen tile is always the smallest one. E.g., [1m]2m3m
-        //   - Pon: Stolen tile id is always zero. Stolen player is always left player.
-        //   - Kan: Stolen tile id is always zero. Stolen player is always left player. (Last tile of KanAdded has last id = 3)
-        Hand(std::vector<std::string> closed,
-             std::vector<std::vector<std::string>> chis = {},
-             std::vector<std::vector<std::string>> pons = {},
-             std::vector<std::vector<std::string>> kan_openeds = {},
-             std::vector<std::vector<std::string>> kan_closeds = {},
-             std::vector<std::vector<std::string>> kan_addeds = {});
-    private:
+  private:
         std::unordered_set<Tile, HashTile> closed_tiles_;
         std::set<std::unique_ptr<Open>> open_sets_;  // Though open only uses 16 bits, to handle different open types, we need to use pointer
         std::unordered_set<Tile, HashTile> undiscardable_tiles_;
         std::optional<Tile> last_tile_added_;
-        std::optional<ActionType> last_action_type_;
-        TilePhase hand_phase_;
+        HandStage stage_;
         bool under_riichi_;
-    };
+
+        // possible actions
+        std::vector<std::unique_ptr<Open>> PossibleChis(Tile tile);  // E.g., 2m 3m [4m] vs 3m [4m] 5m
+        std::vector<std::unique_ptr<Open>> PossiblePons(Tile tile, RelativePos from);  // E.g., with red or not  TODO: check the id choice strategy of tenhou (smalelr one) when it has 2 identical choices.
+        std::vector<std::unique_ptr<Open>> PossibleKanOpened(Tile tile, RelativePos from);
+        std::vector<std::unique_ptr<Open>> PossibleKanClosed();  // TODO: which tile id should be used to represent farleft left bits? (current is type * 4 + 0)
+        std::vector<std::unique_ptr<Open>> PossibleKanAdded();
+   };
 }  // namespace mj
 
 #endif //MAHJONG_HAND_H
