@@ -58,10 +58,11 @@ namespace mj
         std::array<std::uint8_t, 34> ToArray();
         std::array<std::uint8_t, 34> ToArrayClosed();
         std::array<std::uint8_t, 34> ToArrayOpened();
-        std::vector<Open*> Opens();  // TODO(sotetsuk): Is this return signature ok (raw pointer)?
+        std::vector<Open*> Opens();  // TODO(sotetsuk): Should we avoid raw pointer?
 
         // action validators
-        std::vector<Tile> PossibleDiscards();
+        std::vector<Tile> PossibleDiscards();  // TODO(sotetsuk): Current implementation has the tiles with same type (e.g., 2m x 3). What is the Tenhou's implementation? Only first id? or any id?
+        std::vector<Tile> PossibleDiscardsAfterRiichi(const WinningHandCache &win_cache);
         std::vector<std::unique_ptr<Open>> PossibleOpensAfterOthersDiscard(Tile tile, RelativePos from);  // includes Chi, Pon, and KanOpened
         std::vector<std::unique_ptr<Open>> PossibleOpensAfterDraw();  // includes KanClosed and KanAdded
         bool CanComplete(Tile tile, const WinningHandCache &win_cache);  // This does not take furiten and fan into account.
@@ -70,7 +71,7 @@ namespace mj
 
         // apply actions
         void Draw(Tile tile);
-        void RiichiAndDiscard();  // Fixes hand
+        void Riichi();  // After riichi, hand is fixed
         void ApplyChi(std::unique_ptr<Open> open);
         void ApplyPon(std::unique_ptr<Open> open);
         void ApplyKanOpened(std::unique_ptr<Open> open);

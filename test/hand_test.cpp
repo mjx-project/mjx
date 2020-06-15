@@ -593,3 +593,28 @@ TEST(hand, Opens) {
     EXPECT_EQ(opens.size(), 1);
     EXPECT_EQ(opens.front()->Type(), OpenType::kChi);
 }
+
+TEST(hand, Riichi) {
+    auto h = Hand({"m1", "m1", "m1", "m2", "m3", "m4", "m5", "m6", "m7", "m8", "m9", "m9", "m9"});
+    h.Draw(Tile("rd"));
+    EXPECT_FALSE(h.IsUnderRiichi());
+    h.Riichi();
+    EXPECT_TRUE(h.IsUnderRiichi());
+}
+
+TEST(hand, PossibleDiscardsAfterRiichi) {
+    auto h = Hand({"m1", "m1", "m1", "m2", "m3", "m4", "m5", "m6", "m7", "m8", "m9", "m9", "m9"});
+    const auto win_cache = WinningHandCache();
+    h.Draw(Tile("rd"));
+    h.Riichi();
+    auto possible_discards = h.PossibleDiscardsAfterRiichi(win_cache);
+    EXPECT_EQ(possible_discards.size(), 4);
+    auto HasType = [&](TileType tt) {
+        return std::find_if(possible_discards.begin(), possible_discards.end(),
+                             [&](auto x){ return x.Type() == tt; })!= possible_discards.end();
+    };
+    EXPECT_TRUE(HasType(TileType::kRD));
+    EXPECT_TRUE(HasType(TileType::kM2));
+    EXPECT_TRUE(HasType(TileType::kM5));
+    EXPECT_TRUE(HasType(TileType::kM8));
+}

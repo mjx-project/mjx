@@ -227,10 +227,48 @@ namespace mj
     }
 
     std::vector<Tile> Hand::PossibleDiscards() {
+        assert(stage_ != HandStage::kAfterDiscards);
+        assert(last_tile_added_);
+        assert(stage_ != HandStage::kAfterRiichi);  // PossibleDiscardsAfterRiichi handle this
         auto possible_discards = std::vector<Tile>();
+        if (under_riichi_) {
+            possible_discards.push_back(last_tile_added_.value());
+            return possible_discards;
+        }
         for (auto t : closed_tiles_)
             if (undiscardable_tiles_.find(t) == undiscardable_tiles_.end())
                 possible_discards.push_back(t);
+        return possible_discards;
+    }
+
+    std::vector<Tile> Hand::PossibleDiscardsAfterRiichi(const WinningHandCache &win_cache) {
+        assert(IsMenzen());
+        assert(under_riichi_);
+        assert(stage_ == HandStage::kAfterRiichi);
+        std::vector<Tile> possible_discards;
+        std::unordered_set<TileType> possible_types;
+        auto arr = ToArray();
+        for (std::uint8_t i = 0; i < 34; ++i) {
+            if (arr.at(i) == 0) continue;
+            --arr.at(i);
+            bool ok = false;
+            for (std::uint8_t j = 0; j < 34; ++j) {
+                if (arr.at(j) == 4) continue;
+                ++arr.at(j);
+                auto blocks = Block::Build(arr);
+                if (win_cache.Has(Block::BlocksToString(blocks))) ok = true;
+                --arr.at(j);
+            }
+            ++arr.at(i);
+            if (ok) {
+                possible_types.insert(TileType(i));
+            }
+        }
+        for (const auto &tile: closed_tiles_) {
+            if (possible_types.find(tile.Type()) != possible_types.end()) {
+                possible_discards.push_back(tile);
+            }
+        }
         return possible_discards;
     }
 
@@ -373,6 +411,7 @@ namespace mj
     Hand::PossibleOpensAfterOthersDiscard(Tile tile, RelativePos from) {
         assert(stage_ == HandStage::kAfterDiscards);
         auto v = std::vector<std::unique_ptr<Open>>();
+        if (under_riichi_) return v;
         if (from == RelativePos::kLeft) {
             auto chis = PossibleChis(tile);
             for (auto & chi: chis) v.push_back(std::move(chi));
@@ -492,15 +531,19 @@ namespace mj
         stage_ = HandStage::kAfterTsumo;
     }
 
-    void Hand::RiichiAndDiscard() {
-        under_riichi_ = true;
-    }
-
     std::vector<Open*> Hand::Opens() {
         std::vector<Open*> ret;
         for (auto &o: open_sets_) {
             ret.push_back(o.get());
         }
         return ret;
+    }
+
+    void Hand::Riichi() {
+        assert(IsMenzen());
+        assert(!under_riichi_);
+        assert(stage_ == HandStage::kAfterDraw);
+        under_riichi_ = true;
+        stage_ = HandStage::kAfterRiichi;
     }
 }  // namespace mj
