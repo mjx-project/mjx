@@ -163,9 +163,47 @@ namespace mj
         return tile_id_ >= right.tile_id_;
     }
 
-    std::string Tile::ToString() const noexcept {
-        return "<tile_id: " + std::to_string(tile_id_) + ", tile_type: "
-               + std::to_string(TypeUint()) + ">";
+    std::string Tile::ToString(bool verbose) const noexcept {
+        std::string s = "";
+        switch (Type())
+        {
+            case TileType::kM1 : s += "m1"; break;
+            case TileType::kM2 : s += "m2"; break;
+            case TileType::kM3 : s += "m3"; break;
+            case TileType::kM4 : s += "m4"; break;
+            case TileType::kM5 : s += "m5"; break;
+            case TileType::kM6 : s += "m6"; break;
+            case TileType::kM7 : s += "m7"; break;
+            case TileType::kM8 : s += "m8"; break;
+            case TileType::kM9 : s += "m9"; break;
+            case TileType::kP1 : s += "p1"; break;
+            case TileType::kP2 : s += "p2"; break;
+            case TileType::kP3 : s += "p3"; break;
+            case TileType::kP4 : s += "p4"; break;
+            case TileType::kP5 : s += "p5"; break;
+            case TileType::kP6 : s += "p6"; break;
+            case TileType::kP7 : s += "p7"; break;
+            case TileType::kP8 : s += "p8"; break;
+            case TileType::kP9 : s += "p9"; break;
+            case TileType::kS1 : s += "s1"; break;
+            case TileType::kS2 : s += "s2"; break;
+            case TileType::kS3 : s += "s3"; break;
+            case TileType::kS4 : s += "s4"; break;
+            case TileType::kS5 : s += "s5"; break;
+            case TileType::kS6 : s += "s6"; break;
+            case TileType::kS7 : s += "s7"; break;
+            case TileType::kS8 : s += "s8"; break;
+            case TileType::kS9 : s += "s9"; break;
+            case TileType::kEW : s += "ew"; break;
+            case TileType::kSW : s += "sw"; break;
+            case TileType::kWW : s += "ww"; break;
+            case TileType::kNW : s += "nw"; break;
+            case TileType::kWD : s += "wd"; break;
+            case TileType::kGD : s += "gd"; break;
+            case TileType::kRD : s += "rd"; break;
+        }
+        if (verbose) s += "(" + std::to_string(Offset()) + ")";
+        return s;
     }
 
     std::string Tile::ToUnicode() const noexcept {

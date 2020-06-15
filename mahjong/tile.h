@@ -37,7 +37,7 @@ namespace mj
         bool operator> (const Tile & right) const noexcept;
         bool operator>= (const Tile & right) const noexcept;
 
-        [[nodiscard]] std::string ToString() const noexcept;  // tile_type::ew => "ew"
+        [[nodiscard]] std::string ToString(bool verbose = false) const noexcept;  // tile_type::ew => "ew"
         [[nodiscard]] std::string ToChar() const noexcept;  // tile_type::ew => 東 (East)
         [[nodiscard]] std::string ToUnicode() const noexcept;  // tile_type::ew => 🀀
 
