@@ -45,6 +45,8 @@ TEST(open, Chi)
     EXPECT_EQ(c->UndiscardableTileTypes().size(), 2);
     EXPECT_EQ(c->UndiscardableTileTypes().at(0), TileType::kS3);
     EXPECT_EQ(c->UndiscardableTileTypes().at(1), TileType::kS6);
+    EXPECT_EQ(c->ToString(), "s3s4s5");
+    EXPECT_EQ(c->ToString(true), "s3(2)s4(2)s5(2)");
 
     // undiscardable_tile_types
     t = Tile::Create({"m4", "m3", "m2"});
@@ -99,6 +101,8 @@ TEST(open, Pon)
     EXPECT_EQ(p->LastTile().Type(), TileType::kWD);
     EXPECT_EQ(p->UndiscardableTileTypes().size(), 1);
     EXPECT_EQ(p->UndiscardableTileTypes().at(0), TileType::kWD);
+    EXPECT_EQ(p->ToString(), "wdwdwd");
+    EXPECT_EQ(p->ToString(true), "wd(0)wd(1)wd(2)");
 }
 
 TEST(open, KanOpened)
@@ -124,6 +128,8 @@ TEST(open, KanOpened)
     EXPECT_EQ(k->StolenTile().Type(), TileType::kM2);
     EXPECT_EQ(k->LastTile().Type(), TileType::kM2);
     EXPECT_EQ(k->UndiscardableTileTypes().size(), 0);
+    EXPECT_EQ(k->ToString(), "m2m2m2m2o");
+    EXPECT_EQ(k->ToString(true), "m2(0)m2(1)m2(2)m2(3)o");
 }
 
 TEST(open, KanClosed)
@@ -150,6 +156,8 @@ TEST(open, KanClosed)
     EXPECT_EQ(k->StolenTile().Type(), TileType::kM3);
     EXPECT_EQ(k->LastTile().Type(), TileType::kM3);
     EXPECT_EQ(k->UndiscardableTileTypes().size(), 0);
+    EXPECT_EQ(k->ToString(), "m3m3m3m3c");
+    EXPECT_EQ(k->ToString(true), "m3(0)m3(1)m3(2)m3(3)c");
 }
 
 TEST(open, KanAdded)
@@ -178,6 +186,8 @@ TEST(open, KanAdded)
     EXPECT_EQ(k->LastTile().Type(), TileType::kM1);
     EXPECT_EQ(k->LastTile().Id(), Tile("m1", 0).Id());
     EXPECT_EQ(k->UndiscardableTileTypes().size(), 0);
+    EXPECT_EQ(k->ToString(), "m1m1m1m1a");
+    EXPECT_EQ(k->ToString(true), "m1(0)m1(1)m1(2)m1(3)a");
 }
 
 TEST(open, OpenGenerator)

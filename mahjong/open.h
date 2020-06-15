@@ -26,7 +26,7 @@ namespace mj
         virtual Tile LastTile() = 0;  // Last tile added to this open tile sets. kan_added => lastly kaned tile, the others => stolen()
         virtual std::vector<TileType> UndiscardableTileTypes() = 0;
         virtual std::uint16_t GetBits();
-        virtual std::string ToString();
+        virtual std::string ToString(bool verbose = false);  // TODO(sotetsuk): put more information
     protected:
         std::uint16_t bits_;  // follows tenhou format (see https://github.com/NegativeMjark/tenhou-log)
     };

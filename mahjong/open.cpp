@@ -29,10 +29,14 @@ namespace mj
         return bits_;
     }
 
-    std::string Open::ToString() {
+    std::string Open::ToString(bool verbose) {
         std::string s = "";
         for (const auto &t: Tiles()) {
+            s += t.ToString(verbose);
         }
+        if (Type() == OpenType::kKanOpened) s += "o";
+        if (Type() == OpenType::kKanClosed) s += "c";
+        if (Type() == OpenType::kKanAdded) s += "a";
         return s;
     }
 
