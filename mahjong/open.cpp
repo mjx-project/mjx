@@ -29,6 +29,13 @@ namespace mj
         return bits_;
     }
 
+    std::string Open::ToString() {
+        std::string s = "";
+        for (const auto &t: Tiles()) {
+        }
+        return s;
+    }
+
     Chi::Chi(std::uint16_t bits) : Open(bits)
     {
         assert(bits_ & MASK_IS_CHI);
@@ -225,13 +232,16 @@ namespace mj
 
     std::vector<Tile> KanAdded::Tiles() {
         std::vector<TileType> v(4, TileType(static_cast<std::uint8_t>((bits_ >> 9) / 3)));
-        return Tile::Create(v);
+        return Tile::Create(v, true);
     }
 
     std::vector<Tile> KanAdded::TilesFromHand() {
         auto v = std::vector<Tile>();
-        std::uint16_t stolen_ix = (bits_ >> 9) % 3;
-        for (int i = 0; i < 4; ++i) if (i != stolen_ix) v.push_back(At(i));
+        auto stolen = StolenTile();
+        for (int i = 0; i < 4; ++i) {
+            auto t = At(i);
+            if (t != stolen) v.push_back(At(i));
+        }
         return v;
     }
 
@@ -282,7 +292,7 @@ namespace mj
 
     std::vector<Tile> KanOpened::Tiles() {
         auto v = std::vector<TileType>(4, TileType(static_cast<std::uint8_t>((bits_ >> 8) / 4)));
-        return Tile::Create(v);
+        return Tile::Create(v, true);
     }
 
     std::vector<Tile> KanOpened::TilesFromHand() {
@@ -335,7 +345,7 @@ namespace mj
 
     std::vector<Tile> KanClosed::Tiles() {
         auto v = std::vector<TileType>(4, TileType(static_cast<std::uint8_t>((bits_ >> 8) / 4)));
-        return Tile::Create(v);
+        return Tile::Create(v, true);
     }
 
     std::vector<Tile> KanClosed::TilesFromHand() {
