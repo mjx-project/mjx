@@ -21,6 +21,7 @@ namespace mj
         [[nodiscard]] TileId Id() const noexcept;  // 0 ~ 135
         [[nodiscard]] TileType Type() const noexcept;  // 0 ~ 33
         [[nodiscard]] std::uint8_t TypeUint() const noexcept;  // 0 ~ 33
+        [[nodiscard]] std::uint8_t Offset() const noexcept;  // 0 ~ 3
         [[nodiscard]] TileSetType Color() const noexcept;
         [[nodiscard]] std::uint8_t Num() const noexcept;  // m1 => 1
 

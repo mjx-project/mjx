@@ -61,6 +61,16 @@ TEST(tile, TypeUint)
     EXPECT_EQ(t.TypeUint(), 33);
 }
 
+TEST(tile, Offset)
+{
+    auto t = Tile(0);
+    EXPECT_EQ(t.Offset(), 0);
+    t = Tile(33);
+    EXPECT_EQ(t.Offset(), 1);
+    t = Tile(135);
+    EXPECT_EQ(t.Offset(), 3);
+}
+
 TEST(tile, Color)
 {
     auto m5 = Tile(16);

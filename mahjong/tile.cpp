@@ -289,4 +289,8 @@ namespace mj
         if (s == "rd") return TileType::kRD;
         assert(false);  // TODO: fix
     }
+
+    std::uint8_t Tile::Offset() const noexcept {
+        return static_cast<std::uint8_t>(tile_id_) % 4;
+    }
 }  // namespace mj
