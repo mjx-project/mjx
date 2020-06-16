@@ -643,7 +643,7 @@ TEST(hand, LastTileAdded) {
     h.Discard(Tile("m1", 0));
     EXPECT_TRUE(h.LastTileAdded() == std::nullopt);
     auto opens = h.PossibleOpensAfterOthersDiscard(Tile("m2", 3), RelativePos::kLeft);
-    h.ApplyChi(std::move(opens.front()));
+    h.ApplyOpen(std::move(opens.front()));
     EXPECT_TRUE(h.LastTileAdded() == Tile("m2", 3));
     h.Discard(Tile("m1", 1));
     EXPECT_TRUE(h.LastTileAdded() == std::nullopt);
