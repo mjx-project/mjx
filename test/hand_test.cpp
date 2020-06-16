@@ -662,3 +662,20 @@ TEST(hand, Tsumo) {
     EXPECT_EQ(h.Stage(), HandStage::kAfterTsumo);
     EXPECT_EQ(h.LastTileAdded(), Tile("m1", 3));
 }
+
+TEST(hand, RonAfterOhtersKan) {
+    auto h = Hand({"m1", "m1", "m1", "m2", "m3", "m4", "m5", "m6", "m7", "m8", "m9", "m9", "m9"});
+    h.RonAfterOthersKan(Tile("m1", 3));
+    EXPECT_EQ(h.Stage(), HandStage::kAfterRonAfterOthersKan);
+    EXPECT_EQ(h.LastTileAdded(), Tile("m1", 3));
+}
+
+TEST(hand, TsumoAfterKan) {
+    auto h = Hand({"m1", "m1", "m1", "m2", "m3", "m4", "m5", "m6", "m7", "m8", "m9", "m9", "m9"});
+    h.Draw(Tile("m9", 3));
+    auto possible_opens = h.PossibleOpensAfterDraw();
+    h.ApplyOpen(std::move(possible_opens.front()));
+    h.TsumoAfterKan(Tile("m1", 3));
+    EXPECT_EQ(h.Stage(), HandStage::kAfterTsumoAfterKan);
+    EXPECT_EQ(h.LastTileAdded(), Tile("m1", 3));
+}

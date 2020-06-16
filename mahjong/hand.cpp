@@ -520,12 +520,14 @@ namespace mj
     }
 
     void Hand::Ron(Tile tile) {
+        assert(stage_ == HandStage::kAfterDiscards);
         closed_tiles_.insert(tile);
         last_tile_added_ = tile;
         stage_ = HandStage::kAfterRon;
     }
 
     void Hand::Tsumo(Tile tile) {
+        assert(stage_ == HandStage::kAfterDiscards || stage_ == HandStage::kAfterKanOpened || stage_ == HandStage::kAfterKanClosed || stage_ == HandStage::kAfterKanAdded);
         closed_tiles_.insert(tile);
         last_tile_added_ = tile;
         stage_ = HandStage::kAfterTsumo;
@@ -579,5 +581,17 @@ namespace mj
                 ApplyKanAdded(std::move(open));
                 break;
         }
+    }
+
+    void Hand::RonAfterOthersKan(Tile tile) {
+        assert(stage_ == HandStage::kAfterDiscards);
+        Ron(tile);
+        stage_ = HandStage::kAfterRonAfterOthersKan;
+    }
+
+    void Hand::TsumoAfterKan(Tile tile) {
+        assert(stage_ == HandStage::kAfterKanOpened || stage_ == HandStage::kAfterKanClosed || stage_ == HandStage::kAfterKanAdded);
+        Tsumo(tile);
+        stage_ = HandStage::kAfterTsumoAfterKan;
     }
 }  // namespace mj
