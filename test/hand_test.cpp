@@ -648,3 +648,17 @@ TEST(hand, LastTileAdded) {
     h.Discard(Tile("m1", 1));
     EXPECT_TRUE(h.LastTileAdded() == std::nullopt);
 }
+
+TEST(hand, Ron) {
+    auto h = Hand({"m1", "m1", "m1", "m2", "m3", "m4", "m5", "m6", "m7", "m8", "m9", "m9", "m9"});
+    h.Ron(Tile("m1", 3));
+    EXPECT_EQ(h.Stage(), HandStage::kAfterRon);
+    EXPECT_EQ(h.LastTileAdded(), Tile("m1", 3));
+}
+
+TEST(hand, Tsumo) {
+    auto h = Hand({"m1", "m1", "m1", "m2", "m3", "m4", "m5", "m6", "m7", "m8", "m9", "m9", "m9"});
+    h.Tsumo(Tile("m1", 3));
+    EXPECT_EQ(h.Stage(), HandStage::kAfterTsumo);
+    EXPECT_EQ(h.LastTileAdded(), Tile("m1", 3));
+}
