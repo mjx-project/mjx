@@ -73,11 +73,7 @@ namespace mj
         // apply actions
         void Draw(Tile tile);
         void Riichi();  // After riichi, hand is fixed
-        void ApplyChi(std::unique_ptr<Open> open);
-        void ApplyPon(std::unique_ptr<Open> open);
-        void ApplyKanOpened(std::unique_ptr<Open> open);
-        void ApplyKanClosed(std::unique_ptr<Open> open);
-        void ApplyKanAdded(std::unique_ptr<Open> open);
+        void Call(std::unique_ptr<Open> open);  // TODO: (sotetsuk) current implementation switch private method depending on OpenType. This is not smart way to do dynamic polymorphism.
         void Ron(Tile tile);
         void Tsumo(Tile tile);
         Tile Discard(Tile tile);
@@ -98,6 +94,13 @@ namespace mj
         std::vector<std::unique_ptr<Open>> PossibleKanOpened(Tile tile, RelativePos from);
         std::vector<std::unique_ptr<Open>> PossibleKanClosed();  // TODO: which tile id should be used to represent farleft left bits? (current is type * 4 + 0)
         std::vector<std::unique_ptr<Open>> PossibleKanAdded();
+        void ApplyKanAdded(std::unique_ptr<Open> open);
+
+        // apply actions
+        void ApplyChi(std::unique_ptr<Open> open);
+        void ApplyPon(std::unique_ptr<Open> open);
+        void ApplyKanOpened(std::unique_ptr<Open> open);
+        void ApplyKanClosed(std::unique_ptr<Open> open);
    };
 }  // namespace mj
 
