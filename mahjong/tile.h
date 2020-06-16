@@ -21,6 +21,7 @@ namespace mj
         [[nodiscard]] TileId Id() const noexcept;  // 0 ~ 135
         [[nodiscard]] TileType Type() const noexcept;  // 0 ~ 33
         [[nodiscard]] std::uint8_t TypeUint() const noexcept;  // 0 ~ 33
+        [[nodiscard]] std::uint8_t Offset() const noexcept;  // 0 ~ 3
         [[nodiscard]] TileSetType Color() const noexcept;
         [[nodiscard]] std::uint8_t Num() const noexcept;  // m1 => 1
 
@@ -36,7 +37,7 @@ namespace mj
         bool operator> (const Tile & right) const noexcept;
         bool operator>= (const Tile & right) const noexcept;
 
-        [[nodiscard]] std::string ToString() const noexcept;  // tile_type::ew => "ew"
+        [[nodiscard]] std::string ToString(bool verbose = false) const noexcept;  // tile_type::ew => "ew"
         [[nodiscard]] std::string ToChar() const noexcept;  // tile_type::ew => 東 (East)
         [[nodiscard]] std::string ToUnicode() const noexcept;  // tile_type::ew => 🀀
 

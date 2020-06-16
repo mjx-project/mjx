@@ -546,4 +546,18 @@ namespace mj
         under_riichi_ = true;
         stage_ = HandStage::kAfterRiichi;
     }
+
+    std::string Hand::ToString(bool verbose) {
+        std::string s = "";
+        auto closed = ToVectorClosed(true);
+        for (const auto &t: closed) {
+            s += t.ToString(verbose) + ",";
+        }
+        s.pop_back();
+        auto opens = Opens();
+        for (const auto &o: opens) {
+            s += "," + o->ToString(verbose);
+        }
+        return s;
+    }
 }  // namespace mj
