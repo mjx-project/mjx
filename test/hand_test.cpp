@@ -27,7 +27,7 @@ TEST(hand, Hand)
     );
 
     auto hand = Hand(
-            {"m1", "m2", "m3", "m4", "m5", "m6", "rd", "rd"},  // closed
+            {"m1", "m2", "m3", "m4", "m5", "rd", "rd"},  // closed
             {{"m7", "m8", "m9"}},  // chi
             {},  // pon
             {},  // kan_opend
@@ -35,17 +35,17 @@ TEST(hand, Hand)
             {{"p1", "p1", "p1", "p1"}}  // kan_added
     );
     auto actual = hand.ToVector(true);
-    auto expected = Tile::Create({"m1", "m2", "m3", "m4", "m5", "m6", "rd", "rd", "m7", "m8", "m9", "p1", "p1", "p1", "p1"}, true);
+    auto expected = Tile::Create({"m1", "m2", "m3", "m4", "m5", "rd", "rd", "m7", "m8", "m9", "p1", "p1", "p1", "p1"}, true);
     EXPECT_EQ(actual, expected);
     actual = hand.ToVectorClosed(true);
-    expected = Tile::Create({"m1", "m2", "m3", "m4", "m5", "m6", "rd", "rd"}, true);
+    expected = Tile::Create({"m1", "m2", "m3", "m4", "m5", "rd", "rd"}, true);
     EXPECT_EQ(actual, expected);
     actual = hand.ToVectorOpened(true);
     expected = Tile::Create({"m7", "m8", "m9", "p1", "p1", "p1", "p1"}, true);
     EXPECT_EQ(actual, expected);
 
     hand = Hand(
-        {"m1", "m2", "m3", "m4", "m5", "m6", "rd", "rd", "wd", "wd", "wd"},  // closed
+        {"m1", "m2", "m3", "m4", "m5", "rd", "rd", "wd", "wd", "wd"},  // closed
         {{"m7", "m8", "m9"}},  // chi
         {},  // pon
         {},  // kan_opend
@@ -53,17 +53,17 @@ TEST(hand, Hand)
         {}  // kan_added
     );
     actual = hand.ToVector(true);
-    expected = Tile::Create({{"m1", "m2", "m3", "m4", "m5", "m6", "rd", "rd", "wd", "wd", "wd", "m7", "m8", "m9"}}, true);
+    expected = Tile::Create({{"m1", "m2", "m3", "m4", "m5", "rd", "rd", "wd", "wd", "wd", "m7", "m8", "m9"}}, true);
     EXPECT_EQ(actual, expected);
     actual = hand.ToVectorClosed(true);
-    expected = Tile::Create({"m1", "m2", "m3", "m4", "m5", "m6", "rd", "rd", "wd", "wd", "wd"}, true);
+    expected = Tile::Create({"m1", "m2", "m3", "m4", "m5", "rd", "rd", "wd", "wd", "wd"}, true);
     EXPECT_EQ(actual, expected);
     actual = hand.ToVectorOpened(true);
     expected = Tile::Create({{"m7", "m8", "m9"}}, true);
     EXPECT_EQ(actual, expected);
 
     hand = Hand(
-            {"m4", "m5", "m6", "rd", "rd", "wd", "wd", "wd"},  // closed
+            {"m4", "m5", "rd", "rd", "wd", "wd", "wd"},  // closed
             {{"m1", "m2", "m3"}, {"m7", "m8", "m9"}},  // chi
             {},  // pon
             {},  // kan_opend
@@ -71,17 +71,17 @@ TEST(hand, Hand)
             {}  // kan_added
     );
     actual = hand.ToVector(true);
-    expected = Tile::Create({"m4", "m5", "m6", "rd", "rd", "wd", "wd", "wd", "m1", "m2", "m3", "m7", "m8", "m9"}, true);
+    expected = Tile::Create({"m4", "m5", "rd", "rd", "wd", "wd", "wd", "m1", "m2", "m3", "m7", "m8", "m9"}, true);
     EXPECT_EQ(actual, expected);
     actual = hand.ToVectorClosed(true);
-    expected = Tile::Create({"m4", "m5", "m6", "rd", "rd", "wd", "wd", "wd"}, true);
+    expected = Tile::Create({"m4", "m5", "rd", "rd", "wd", "wd", "wd"}, true);
     EXPECT_EQ(actual, expected);
     actual = hand.ToVectorOpened(true);
     expected = Tile::Create({"m1", "m2", "m3", "m7", "m8", "m9"}, true);
     EXPECT_EQ(actual, expected);
 
     hand = Hand(
-            {"m1", "m2", "m3", "m4", "m5", "m6", "rd", "rd", "wd", "wd", "wd"},  // closed
+            {"m1", "m2", "m3", "m4", "m5", "rd", "rd", "wd", "wd", "wd"},  // closed
             {},  // chi
             {{"p3", "p3", "p3"}},  // pon
             {},  // kan_opend
@@ -89,17 +89,17 @@ TEST(hand, Hand)
             {}  // kan_added
     );
     actual = hand.ToVector(true);
-    expected = Tile::Create({"m1", "m2", "m3", "m4", "m5", "m6", "rd", "rd", "wd", "wd", "wd", "p3", "p3", "p3"}, true);
+    expected = Tile::Create({"m1", "m2", "m3", "m4", "m5", "rd", "rd", "wd", "wd", "wd", "p3", "p3", "p3"}, true);
     EXPECT_EQ(actual, expected);
     actual = hand.ToVectorClosed(true);
-    expected = Tile::Create({"m1", "m2", "m3", "m4", "m5", "m6", "rd", "rd", "wd", "wd", "wd"}, true);
+    expected = Tile::Create({"m1", "m2", "m3", "m4", "m5", "rd", "rd", "wd", "wd", "wd"}, true);
     EXPECT_EQ(actual, expected);
     actual = hand.ToVectorOpened(true);
     expected = Tile::Create({"p3", "p3", "p3"}, true);
     EXPECT_EQ(actual, expected);
 
     hand = Hand(
-            {"m1", "m2", "m3", "m4", "m5", "m6", "rd", "rd"},  // closed
+            {"m1", "m2", "m3", "m4", "m5", "rd", "rd"},  // closed
             {},  // chi
             {{"p3", "p3", "p3"}, {"wd", "wd", "wd"}},  // pon
             {},  // kan_opend
@@ -107,17 +107,17 @@ TEST(hand, Hand)
             {}  // kan_added
     );
     actual = hand.ToVector(true);
-    expected = Tile::Create({"m1", "m2", "m3", "m4", "m5", "m6", "rd", "rd", "p3", "p3", "p3", "wd", "wd", "wd"}, true);
+    expected = Tile::Create({"m1", "m2", "m3", "m4", "m5", "rd", "rd", "p3", "p3", "p3", "wd", "wd", "wd"}, true);
     EXPECT_EQ(actual, expected);
     actual = hand.ToVectorClosed(true);
-    expected = Tile::Create({"m1", "m2", "m3", "m4", "m5", "m6", "rd", "rd"}, true);
+    expected = Tile::Create({"m1", "m2", "m3", "m4", "m5", "rd", "rd"}, true);
     EXPECT_EQ(actual, expected);
     actual = hand.ToVectorOpened(true);
     expected = Tile::Create({"p3", "p3", "p3", "wd", "wd", "wd"}, true);
     EXPECT_EQ(actual, expected);
 
     hand = Hand(
-            {"nw", "nw"},  // closed
+            {"nw"},  // closed
             {},  // chi
             {},  // pon
             {{"p3", "p3", "p3", "p3"}, {"wd", "wd", "wd", "wd"}, {"rd", "rd", "rd", "rd"}, {"gd", "gd", "gd", "gd"}},  // kan_opend
@@ -125,17 +125,17 @@ TEST(hand, Hand)
             {}  // kan_added
     );
     actual = hand.ToVector(true);
-    expected = Tile::Create({"nw", "nw", "p3", "p3", "p3", "p3", "wd", "wd", "wd", "wd", "rd", "rd", "rd", "rd", "gd", "gd", "gd", "gd"}, true);
+    expected = Tile::Create({"nw", "p3", "p3", "p3", "p3", "wd", "wd", "wd", "wd", "rd", "rd", "rd", "rd", "gd", "gd", "gd", "gd"}, true);
     EXPECT_EQ(actual, expected);
     actual = hand.ToVectorClosed(true);
-    expected = Tile::Create(std::vector<std::string>({"nw", "nw"}), true);
+    expected = Tile::Create(std::vector<std::string>({"nw"}), true);
     EXPECT_EQ(actual, expected);
     actual = hand.ToVectorOpened(true);
     expected = Tile::Create({"p3", "p3", "p3", "p3", "wd", "wd", "wd", "wd", "rd", "rd", "rd", "rd", "gd", "gd", "gd", "gd"}, true);
     EXPECT_EQ(actual, expected);
 
     hand = Hand(
-            {"nw", "nw"},  // closed
+            {"nw"},  // closed
             {},  // chi
             {},  // pon
             {},  // kan_opend
@@ -143,17 +143,17 @@ TEST(hand, Hand)
             {}  // kan_added
     );
     actual = hand.ToVector(true);
-    expected = Tile::Create({"nw", "nw", "p3", "p3", "p3", "p3", "wd", "wd", "wd", "wd", "rd", "rd", "rd", "rd", "gd", "gd", "gd", "gd"}, true);
+    expected = Tile::Create({"nw", "p3", "p3", "p3", "p3", "wd", "wd", "wd", "wd", "rd", "rd", "rd", "rd", "gd", "gd", "gd", "gd"}, true);
     EXPECT_EQ(actual, expected);
     actual = hand.ToVectorClosed(true);
-    expected = Tile::Create(std::vector<std::string>({"nw", "nw"}), true);
+    expected = Tile::Create(std::vector<std::string>({"nw"}), true);
     EXPECT_EQ(actual, expected);
     actual = hand.ToVectorOpened(true);
     expected = Tile::Create({"p3", "p3", "p3", "p3", "wd", "wd", "wd", "wd", "rd", "rd", "rd", "rd", "gd", "gd", "gd", "gd"}, true);
     EXPECT_EQ(actual, expected);
 
     hand = Hand(
-            {"nw", "nw"},  // closed
+            {"nw"},  // closed
             {},  // chi
             {},  // pon
             {},  // kan_opened
@@ -161,10 +161,10 @@ TEST(hand, Hand)
             {{"p3", "p3", "p3", "p3"}, {"wd", "wd", "wd", "wd"}, {"rd", "rd", "rd", "rd"}, {"gd", "gd", "gd", "gd"}}  // kan_added
     );
     actual = hand.ToVector(true);
-    expected = Tile::Create({"nw", "nw", "p3", "p3", "p3", "p3", "wd", "wd", "wd", "wd", "rd", "rd", "rd", "rd", "gd", "gd", "gd", "gd"}, true);
+    expected = Tile::Create({"nw","p3", "p3", "p3", "p3", "wd", "wd", "wd", "wd", "rd", "rd", "rd", "rd", "gd", "gd", "gd", "gd"}, true);
     EXPECT_EQ(actual, expected);
     actual = hand.ToVectorClosed(true);
-    expected = Tile::Create(std::vector<std::string>({"nw", "nw"}), true);
+    expected = Tile::Create(std::vector<std::string>({"nw"}), true);
     EXPECT_EQ(actual, expected);
     actual = hand.ToVectorOpened(true);
     expected = Tile::Create({"p3", "p3", "p3", "p3", "wd", "wd", "wd", "wd", "rd", "rd", "rd", "rd", "gd", "gd", "gd", "gd"}, true);

@@ -23,7 +23,9 @@ namespace mj
     : Hand(tiles.begin(), tiles.end()) { }
 
     Hand::Hand(std::vector<Tile>::iterator begin, std::vector<Tile>::iterator end)
-    : closed_tiles_(begin, end), stage_(HandStage::kAfterDiscards), under_riichi_(false) { }
+    : closed_tiles_(begin, end), stage_(HandStage::kAfterDiscards), under_riichi_(false) {
+        assert(closed_tiles_.size() == 13);
+    }
 
     Hand::Hand(std::vector<std::string> closed, std::vector<std::vector<std::string>> chis,
                std::vector<std::vector<std::string>> pons,
@@ -39,7 +41,7 @@ namespace mj
         for (const auto &kan: kan_addeds) tile_strs.insert(tile_strs.end(), kan.begin(), kan.end());
         auto tiles = Tile::Create(tile_strs);
         auto it = tiles.begin() + closed.size();
-        *this = Hand(tiles.begin(), it);
+        closed_tiles_.insert(tiles.begin(), it);
         for (const auto &chi: chis) {
             stage_ = HandStage::kAfterDiscards;
             undiscardable_tiles_.clear();
@@ -47,8 +49,7 @@ namespace mj
             auto chi_tiles = std::vector<Tile>(it, it_end);
             auto chi_ = std::make_unique<Chi>(chi_tiles, *std::min_element(chi_tiles.begin(), chi_tiles.end()));
             this->ApplyChi(std::move(chi_));
-            it = it_end;
-        }
+            it = it_end; }
         for (const auto &pon: pons) {
             stage_ = HandStage::kAfterDiscards;
             undiscardable_tiles_.clear();
@@ -92,6 +93,10 @@ namespace mj
         }
         stage_ = HandStage::kAfterDiscards;
         under_riichi_ = false;
+        assert(Size() - std::count_if(opens_.begin(), opens_.end(),
+                [](const auto &x){ return x->Type() == OpenType::kKanClosed
+                                    || x->Type() == OpenType::kKanOpened
+                                    || x->Type() == OpenType::kKanAdded; }) == 13);
     }
 
     HandStage Hand::Stage() {
