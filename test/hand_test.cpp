@@ -241,8 +241,9 @@ TEST(hand, ApplyKanOpened)
     EXPECT_EQ(h.Size(), 14);
     EXPECT_EQ(h.SizeOpened(), 4);
     EXPECT_EQ(h.SizeClosed(), 10);
+    h.Draw(Tile("m3", 3));
     auto possible_discards = h.PossibleDiscards();
-    EXPECT_EQ(possible_discards.size(), 10);
+    EXPECT_EQ(possible_discards.size(), 11);
 }
 
 TEST(hand, ApplyKanClosed)
@@ -257,8 +258,9 @@ TEST(hand, ApplyKanClosed)
     EXPECT_EQ(h.Size(), 14);
     EXPECT_EQ(h.SizeOpened(), 4);
     EXPECT_EQ(h.SizeClosed(), 10);
+    h.Draw(Tile("m3", 3));
     auto possible_discards = h.PossibleDiscards();
-    EXPECT_EQ(possible_discards.size(), 10);
+    EXPECT_EQ(possible_discards.size(), 11);
 }
 
 TEST(hand, ApplyKanAdded)
@@ -556,6 +558,7 @@ TEST(hand, IsMenzen) {
     h.Draw(Tile("m9", 3));
     auto kans = h.PossibleOpensAfterDraw();
     h.ApplyOpen(std::move(kans.front()));
+    h.Draw(Tile("m4", 3));
     EXPECT_TRUE(h.IsMenzen());
     h.Discard(Tile("m4", 0));
     auto chis = h.PossibleOpensAfterOthersDiscard(Tile("m5", 3), RelativePos::kLeft);
