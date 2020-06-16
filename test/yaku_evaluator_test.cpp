@@ -12,7 +12,8 @@ auto yaku_evaluator = YakuEvaluator(win_cache);
 TEST(yaku_evaluator, FullyConcealedHand) // 門前清自摸和
 {
     auto hand = Hand({"m1", "m9", "p1", "p9", "s1", "s9", "ew", "sw", "ww", "nw", "wd", "gd", "rd"});
-    hand.Tsumo(Tile("m1", 1));
+    hand.Draw(Tile("m1", 1));
+    hand.Tsumo();
     auto yakus = yaku_evaluator.Apply(hand);
     EXPECT_TRUE(std::find(yakus.begin(), yakus.end(), Yaku::kFullyConcealedHand) != yakus.end());
 
