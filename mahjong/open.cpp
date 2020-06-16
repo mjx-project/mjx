@@ -30,10 +30,12 @@ namespace mj
     }
 
     std::string Open::ToString(bool verbose) {
-        std::string s = "";
+        std::string s = "[";
         for (const auto &t: Tiles()) {
-            s += t.ToString(verbose);
+            s += t.ToString(verbose) + ",";
         }
+        s.pop_back();
+        s += "]";
         if (Type() == OpenType::kKanOpened) s += "o";
         if (Type() == OpenType::kKanClosed) s += "c";
         if (Type() == OpenType::kKanAdded) s += "a";

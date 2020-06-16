@@ -58,7 +58,8 @@ namespace mj
         std::array<std::uint8_t, 34> ToArray();
         std::array<std::uint8_t, 34> ToArrayClosed();
         std::array<std::uint8_t, 34> ToArrayOpened();
-        std::vector<Open*> Opens();  // TODO(sotetsuk): Should we avoid raw pointer?
+        std::vector<Open*> Opens();  // TODO(sotetsuk): Should we avoid raw pointer? Also current implementation does not assure anything about the order of opens.
+        std::string ToString(bool verbose = false);
 
         // action validators
         std::vector<Tile> PossibleDiscards();  // TODO(sotetsuk): Current implementation has the tiles with same type (e.g., 2m x 3). What is the Tenhou's implementation? Only first id? or any id?
