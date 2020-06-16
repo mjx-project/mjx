@@ -73,7 +73,7 @@ namespace mj
         // apply actions
         void Draw(Tile tile);
         void Riichi();  // After riichi, hand is fixed
-        void Call(std::unique_ptr<Open> open);  // TODO: (sotetsuk) current implementation switch private method depending on OpenType. This is not smart way to do dynamic polymorphism.
+        void ApplyOpen(std::unique_ptr<Open> open);  // TODO: (sotetsuk) current implementation switch private method depending on OpenType. This is not smart way to do dynamic polymorphism.
         void Ron(Tile tile);
         void Tsumo(Tile tile);
         Tile Discard(Tile tile);

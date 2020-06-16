@@ -561,7 +561,7 @@ namespace mj
         return s;
     }
 
-    void Hand::Call(std::unique_ptr<Open> open) {
+    void Hand::ApplyOpen(std::unique_ptr<Open> open) {
         switch (open->Type()) {
             case OpenType::kChi:
                 ApplyChi(std::move(open));
