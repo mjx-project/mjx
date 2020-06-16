@@ -41,7 +41,9 @@ namespace mj {
         kAfterKanClosed,
         kAfterKanAdded,
         kAfterTsumo,
+        kAfterTsumoAfterKan,
         kAfterRon,
+        kAfterRonAfterOthersKan,
     };
 
     enum class AbsolutePos : std::uint8_t {
