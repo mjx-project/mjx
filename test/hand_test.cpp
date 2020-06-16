@@ -631,6 +631,6 @@ TEST(hand, ToString) {
     h.Draw(Tile("m9", 3));
     possible_opens = h.PossibleOpensAfterDraw();
     h.ApplyKanClosed(std::move(possible_opens.front()));
-    EXPECT_EQ(h.ToString(), "m1,m1,m2,m3,m4,m5,m8,[m9,m9,m9,m9]c,[m5,m6,m7]");
-    EXPECT_EQ(h.ToString(true), "m1(1),m1(2),m2(0),m3(0),m4(0),m5(0),m8(0),[m9(0),m9(1),m9(2),m9(3)]c,[m5(3),m6(0),m7(0)]");
+    EXPECT_EQ(h.ToString(), "m1,m1,m2,m3,m4,m5,m8,[m5,m6,m7],[m9,m9,m9,m9]c");
+    EXPECT_EQ(h.ToString(true), "m1(1),m1(2),m2(0),m3(0),m4(0),m5(0),m8(0),[m5(3),m6(0),m7(0)],[m9(0),m9(1),m9(2),m9(3)]c");
 }
