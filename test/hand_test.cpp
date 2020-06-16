@@ -553,20 +553,36 @@ TEST(hand, IsMenzen) {
     // menzen
     auto h = Hand({"m1", "m1", "m1", "m2", "m3", "m4", "m5", "m6", "m7", "m8", "m9", "m9", "m9"});
     EXPECT_TRUE(h.IsMenzen());
-    auto chis = h.PossibleOpensAfterOthersDiscard(Tile("m1", 3), RelativePos::kLeft);
-    h.ApplyOpen(std::move(chis.at(0)));
+    h.Draw(Tile("m9", 3));
+    auto kans = h.PossibleOpensAfterDraw();
+    h.ApplyOpen(std::move(kans.front()));
+    EXPECT_TRUE(h.IsMenzen());
+    h.Discard(Tile("m4", 0));
+    auto chis = h.PossibleOpensAfterOthersDiscard(Tile("m5", 3), RelativePos::kLeft);
+    h.ApplyOpen(std::move(chis.front()));
     EXPECT_FALSE(h.IsMenzen());
 }
 
-TEST(hand, IsComplete) {
+TEST(hand, CanRon) {
     // tenpai
     auto h = Hand({"m1", "m1", "m1", "m2", "m3", "m4", "m5", "m6", "m7", "m8", "m9", "m9", "m9"});
     const auto win_cache = WinningHandCache();
-    EXPECT_TRUE(h.CanComplete(Tile("m1", 3), win_cache));
-    EXPECT_TRUE(h.CanComplete(Tile("m5", 3), win_cache));
-    EXPECT_TRUE(h.CanComplete(Tile("m9", 3), win_cache));
+    EXPECT_TRUE(h.CanRon(Tile("m1", 3), win_cache));
+    EXPECT_TRUE(h.CanRon(Tile("m5", 3), win_cache));
+    EXPECT_TRUE(h.CanRon(Tile("m9", 3), win_cache));
     h = Hand({"m1", "m1", "m1", "m2", "m3", "m4", "m5", "m6", "m7", "m8", "m9", "m9", "rd"});
-    EXPECT_FALSE(h.CanComplete(Tile("m1", 3), win_cache));
+    EXPECT_FALSE(h.CanRon(Tile("m1", 3), win_cache));
+}
+
+TEST(hand, IsCompleted) {
+    // tenpai
+    auto h = Hand({"m1", "m1", "m1", "m2", "m3", "m4", "m5", "m6", "m7", "m8", "m9", "m9", "m9"});
+    const auto win_cache = WinningHandCache();
+    h.Draw(Tile("m1", 3));
+    EXPECT_TRUE(h.IsCompleted(win_cache));
+    h = Hand({"m1", "m1", "m1", "m2", "m3", "m4", "m5", "m6", "m7", "m8", "m9", "m9", "m9"});
+    h.Draw(Tile("rd", 0));
+    EXPECT_FALSE(h.IsCompleted(win_cache));
 }
 
 TEST(hand, CanRiichi) {
@@ -658,8 +674,19 @@ TEST(hand, Ron) {
 
 TEST(hand, Tsumo) {
     auto h = Hand({"m1", "m1", "m1", "m2", "m3", "m4", "m5", "m6", "m7", "m8", "m9", "m9", "m9"});
-    h.Tsumo(Tile("m1", 3));
+    h.Draw(Tile("m1", 3));
+    h.Tsumo();
     EXPECT_EQ(h.Stage(), HandStage::kAfterTsumo);
+    EXPECT_EQ(h.LastTileAdded(), Tile("m1", 3));
+
+    // after kan
+    h = Hand({"m1", "m1", "m1", "m2", "m3", "m4", "m5", "m6", "m7", "m8", "m9", "m9", "m9"});
+    h.Draw(Tile("m9", 3));
+    auto possible_opens = h.PossibleOpensAfterDraw();
+    h.ApplyOpen(std::move(possible_opens.front()));
+    h.Draw(Tile("m1", 3));
+    h.Tsumo();
+    EXPECT_EQ(h.Stage(), HandStage::kAfterTsumoAfterKan);
     EXPECT_EQ(h.LastTileAdded(), Tile("m1", 3));
 }
 
@@ -667,15 +694,5 @@ TEST(hand, RonAfterOhtersKan) {
     auto h = Hand({"m1", "m1", "m1", "m2", "m3", "m4", "m5", "m6", "m7", "m8", "m9", "m9", "m9"});
     h.RonAfterOthersKan(Tile("m1", 3));
     EXPECT_EQ(h.Stage(), HandStage::kAfterRonAfterOthersKan);
-    EXPECT_EQ(h.LastTileAdded(), Tile("m1", 3));
-}
-
-TEST(hand, TsumoAfterKan) {
-    auto h = Hand({"m1", "m1", "m1", "m2", "m3", "m4", "m5", "m6", "m7", "m8", "m9", "m9", "m9"});
-    h.Draw(Tile("m9", 3));
-    auto possible_opens = h.PossibleOpensAfterDraw();
-    h.ApplyOpen(std::move(possible_opens.front()));
-    h.TsumoAfterKan(Tile("m1", 3));
-    EXPECT_EQ(h.Stage(), HandStage::kAfterTsumoAfterKan);
     EXPECT_EQ(h.LastTileAdded(), Tile("m1", 3));
 }

@@ -66,7 +66,8 @@ namespace mj
         std::vector<Tile> PossibleDiscardsAfterRiichi(const WinningHandCache &win_cache);
         std::vector<std::unique_ptr<Open>> PossibleOpensAfterOthersDiscard(Tile tile, RelativePos from);  // includes Chi, Pon, and KanOpened
         std::vector<std::unique_ptr<Open>> PossibleOpensAfterDraw();  // includes KanClosed and KanAdded
-        bool CanComplete(Tile tile, const WinningHandCache &win_cache);  // This does not take furiten and fan into account.
+        bool CanRon(Tile tile, const WinningHandCache &win_cache);  // This does not take furiten and fan into account.
+        bool IsCompleted(const WinningHandCache &win_cache);
         bool CanRiichi(const WinningHandCache &win_cache);
         bool CanNineTiles(bool IsDealer);  // 九種九牌
 
@@ -76,8 +77,7 @@ namespace mj
         void ApplyOpen(std::unique_ptr<Open> open);  // TODO: (sotetsuk) current implementation switch private method depending on OpenType. This is not smart way to do dynamic polymorphism.
         void Ron(Tile tile);
         void RonAfterOthersKan(Tile tile);
-        void Tsumo(Tile tile);
-        void TsumoAfterKan(Tile tile);
+        void Tsumo();  // should be called after draw like h.Draw(tile); if (h.IsCompleted(w)) h.Tsumo();
         Tile Discard(Tile tile);
 
         // utility

@@ -105,9 +105,13 @@ namespace mj
 
     void Hand::Draw(Tile tile)
     {
-        assert(stage_ == HandStage::kAfterDiscards);
+        assert(stage_ == HandStage::kAfterDiscards ||
+               stage_ == HandStage::kAfterKanOpened ||
+               stage_ == HandStage::kAfterKanClosed ||
+               stage_ == HandStage::kAfterKanAdded);
         closed_tiles_.insert(tile);
-        stage_ = HandStage::kAfterDraw;
+        if (stage_ == HandStage::kAfterDiscards) stage_ = HandStage::kAfterDraw;
+        else stage_ = HandStage::kAfterDrawAfterKan;
         last_tile_added_ = tile;
     }
 
@@ -489,10 +493,14 @@ namespace mj
     }
 
     bool Hand::IsMenzen() {
-        return opens_.empty();
+        if (opens_.empty()) return true;
+        if (std::all_of(opens_.begin(), opens_.end(),
+                [](const auto &x){ return x->Type() == OpenType::kKanClosed; }));
     }
 
-    bool Hand::CanComplete(Tile tile, const WinningHandCache &win_cache) {
+    bool Hand::CanRon(Tile tile, const WinningHandCache &win_cache) {
+        assert(stage_ == HandStage::kAfterDiscards);
+        assert(SizeClosed() == 1 || SizeClosed() == 4 || SizeClosed() == 7 || SizeClosed() == 10 || SizeClosed() == 13);
         auto arr = ToArray();
         arr[tile.TypeUint()]++;
         auto blocks = Block::Build(arr);
@@ -501,7 +509,8 @@ namespace mj
 
     bool Hand::CanRiichi(const WinningHandCache &win_cache) {
         // TODO: use different cache might become faster
-        assert(Stage() == HandStage::kAfterDraw);
+        assert(stage_ == HandStage::kAfterDraw || stage_ == HandStage::kAfterKanClosed);
+        assert(SizeClosed() == 2 || SizeClosed() == 5 || SizeClosed() == 8 || SizeClosed() == 11 || SizeClosed() == 14);
         if (!IsMenzen()) return false;
         auto arr = ToArray();
         // backtrack
@@ -531,11 +540,11 @@ namespace mj
         stage_ = HandStage::kAfterRon;
     }
 
-    void Hand::Tsumo(Tile tile) {
-        assert(stage_ == HandStage::kAfterDiscards || stage_ == HandStage::kAfterKanOpened || stage_ == HandStage::kAfterKanClosed || stage_ == HandStage::kAfterKanAdded);
-        closed_tiles_.insert(tile);
-        last_tile_added_ = tile;
-        stage_ = HandStage::kAfterTsumo;
+    void Hand::Tsumo() {
+        assert(stage_ == HandStage::kAfterDraw ||  stage_ == HandStage::kAfterDrawAfterKan);
+        assert(SizeClosed() == 2 || SizeClosed() == 5 || SizeClosed() == 8 || SizeClosed() == 11 || SizeClosed() == 14);
+        if (stage_ == HandStage::kAfterDraw) stage_ = HandStage::kAfterTsumo;
+        if (stage_ == HandStage::kAfterDrawAfterKan) stage_ = HandStage::kAfterTsumoAfterKan;
     }
 
     std::vector<Open*> Hand::Opens() {
@@ -594,9 +603,11 @@ namespace mj
         stage_ = HandStage::kAfterRonAfterOthersKan;
     }
 
-    void Hand::TsumoAfterKan(Tile tile) {
-        assert(stage_ == HandStage::kAfterKanOpened || stage_ == HandStage::kAfterKanClosed || stage_ == HandStage::kAfterKanAdded);
-        Tsumo(tile);
-        stage_ = HandStage::kAfterTsumoAfterKan;
+    bool Hand::IsCompleted(const WinningHandCache &win_cache) {
+        assert(stage_ == HandStage::kAfterDraw || stage_ == HandStage::kAfterDrawAfterKan);
+        assert(SizeClosed() == 2 || SizeClosed() == 5 || SizeClosed() == 8 || SizeClosed() == 11 || SizeClosed() == 14);
+        auto arr = ToArray();
+        auto blocks = Block::Build(arr);
+        return win_cache.Has(Block::BlocksToString(blocks));
     }
 }  // namespace mj

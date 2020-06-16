@@ -34,6 +34,7 @@ namespace mj {
     enum class HandStage : std::uint8_t {
         kAfterDiscards,
         kAfterDraw,
+        kAfterDrawAfterKan,
         kAfterRiichi,
         kAfterChi,
         kAfterPon,
