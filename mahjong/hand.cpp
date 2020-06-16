@@ -119,7 +119,7 @@ namespace mj
             for (const auto tile : closed_tiles_)
                 if (tile.Is(undiscardable_tt)) undiscardable_tiles_.insert(tile);
         last_tile_added_ = open->LastTile();
-        open_sets_.insert(std::move(open));
+        opens_.emplace_back(std::move(open));
         stage_ = HandStage::kAfterChi;
     }
 
@@ -135,7 +135,7 @@ namespace mj
             for (auto tile : closed_tiles_)
                 if (tile.Is(undiscardable_tt)) undiscardable_tiles_.insert(tile);
         last_tile_added_ = open->LastTile();
-        open_sets_.insert(std::move(open));
+        opens_.emplace_back(std::move(open));
         stage_ = HandStage::kAfterPon;
     }
 
@@ -147,7 +147,7 @@ namespace mj
         auto tiles_from_hand = open->TilesFromHand();
         for (const auto t : tiles_from_hand) closed_tiles_.erase(t);
         last_tile_added_ = open->LastTile();
-        open_sets_.insert(std::move(open));
+        opens_.emplace_back(std::move(open));
         stage_ = HandStage::kAfterKanOpened;
     }
 
@@ -160,7 +160,7 @@ namespace mj
         auto tiles_from_hand = open->TilesFromHand();
         for (const auto t : tiles_from_hand) closed_tiles_.erase(t);
         last_tile_added_ = open->LastTile();
-        open_sets_.insert(std::move(open));
+        opens_.emplace_back(std::move(open));
         if (IsUnderRiichi()) {
             // TODO: add undiscardable_tiles here
         }
@@ -176,11 +176,11 @@ namespace mj
         closed_tiles_.erase(open->LastTile());
         // change pon to extended kan
         const auto stolen = open->StolenTile();
-        auto it = std::find_if(open_sets_.begin(), open_sets_.end(),
-                [&stolen](const auto &x){ return x->Type() == OpenType::kPon && x->StolenTile() == stolen; });
-        if (it != open_sets_.end()) open_sets_.erase(*it);
+        auto it = std::find_if(opens_.begin(), opens_.end(),
+                               [&stolen](const auto &x){ return x->Type() == OpenType::kPon && x->StolenTile() == stolen; });
+        if (it != opens_.end()) opens_.erase(it);
         last_tile_added_ = open->LastTile();
-        open_sets_.insert(std::move(open));
+        opens_.emplace_back(std::move(open));
         stage_ = HandStage::kAfterKanAdded;
     }
 
@@ -214,7 +214,7 @@ namespace mj
 
     std::size_t Hand::SizeOpened() {
         std::uint8_t s = 0;
-        for (const auto &o: open_sets_) s += o->Size();
+        for (const auto &o: opens_) s += o->Size();
         return s;
     }
 
@@ -295,7 +295,7 @@ namespace mj
         assert(Size() == 14);
         assert(Stage() == HandStage::kAfterDraw);
         auto v = std::vector<std::unique_ptr<Open>>();
-        for (const auto &o : open_sets_)
+        for (const auto &o : opens_)
             if (o->Type() == OpenType::kPon) {
                 const auto type = o->At(0).Type();
                 if(std::find_if(closed_tiles_.begin(), closed_tiles_.end(),
@@ -447,7 +447,7 @@ namespace mj
 
     std::vector<Tile> Hand::ToVectorOpened(bool sorted) {
         auto v = std::vector<Tile>();
-        for (const auto &o : open_sets_) {
+        for (const auto &o : opens_) {
             auto tiles = o->Tiles();
             for (const auto t : tiles) v.push_back(t);
         }
@@ -459,7 +459,7 @@ namespace mj
         auto a = std::array<std::uint8_t, 34>();
         std::fill(a.begin(), a.end(), 0);
         for(const auto t: closed_tiles_) a.at(t.TypeUint())++;
-        for (const auto &o : open_sets_)  {
+        for (const auto &o : opens_)  {
             auto tiles = o->Tiles();
             for (const auto t : tiles) a.at(t.TypeUint())++;
         }
@@ -476,7 +476,7 @@ namespace mj
     std::array<std::uint8_t, 34> Hand::ToArrayOpened() {
         auto a = std::array<std::uint8_t, 34>();
         std::fill(a.begin(), a.end(), 0);
-        for (const auto &o : open_sets_)  {
+        for (const auto &o : opens_)  {
             auto tiles = o->Tiles();
             for (const auto t : tiles) a.at(t.TypeUint())++;
         }
@@ -484,7 +484,7 @@ namespace mj
     }
 
     bool Hand::IsMenzen() {
-        return open_sets_.empty();
+        return opens_.empty();
     }
 
     bool Hand::CanComplete(Tile tile, const WinningHandCache &win_cache) {
@@ -533,7 +533,7 @@ namespace mj
 
     std::vector<Open*> Hand::Opens() {
         std::vector<Open*> ret;
-        for (auto &o: open_sets_) {
+        for (auto &o: opens_) {
             ret.push_back(o.get());
         }
         return ret;

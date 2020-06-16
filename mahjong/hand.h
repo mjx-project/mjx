@@ -85,7 +85,7 @@ namespace mj
         bool Has(const std::vector<TileType> &tiles);
   private:
         std::unordered_set<Tile, HashTile> closed_tiles_;
-        std::set<std::unique_ptr<Open>> open_sets_;  // Though open only uses 16 bits, to handle different open types, we need to use pointer
+        std::vector<std::unique_ptr<Open>> opens_;  // Though open only uses 16 bits, to handle different open types, we need to use pointer
         std::unordered_set<Tile, HashTile> undiscardable_tiles_;
         std::optional<Tile> last_tile_added_;
         HandStage stage_;
