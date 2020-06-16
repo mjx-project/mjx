@@ -13,6 +13,7 @@
 
 namespace mj
 {
+    class HandParams;
     class Hand
     {
     public:
@@ -82,7 +83,7 @@ namespace mj
 
         // utility
         bool Has(const std::vector<TileType> &tiles);
-  private:
+    private:
         std::unordered_set<Tile, HashTile> closed_tiles_;
         std::vector<std::unique_ptr<Open>> opens_;  // Though open only uses 16 bits, to handle different open types, we need to use pointer
         std::unordered_set<Tile, HashTile> undiscardable_tiles_;
@@ -103,7 +104,25 @@ namespace mj
         void ApplyPon(std::unique_ptr<Open> open);
         void ApplyKanOpened(std::unique_ptr<Open> open);
         void ApplyKanClosed(std::unique_ptr<Open> open);
-   };
+    };
+
+    class HandParams
+    {
+    public:
+        HandParams();
+        HandParams& Chi();
+        HandParams& Pon();
+        HandParams& KanOpened();
+        HandParams& KanClosed();
+        HandParams& KanAdded();
+    private:
+        std::vector<std::string> closed;
+        std::vector<std::vector<std::string>> chis;
+        std::vector<std::vector<std::string>> pons;
+        std::vector<std::vector<std::string>> kan_openeds;
+        std::vector<std::vector<std::string>> kan_closeds;
+        std::vector<std::vector<std::string>> kan_addeds;
+    };
 }  // namespace mj
 
 #endif //MAHJONG_HAND_H
