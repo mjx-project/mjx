@@ -58,7 +58,7 @@ namespace mj
         std::array<std::uint8_t, 34> ToArray();
         std::array<std::uint8_t, 34> ToArrayClosed();
         std::array<std::uint8_t, 34> ToArrayOpened();
-        std::vector<Open*> Opens();  // TODO(sotetsuk): Should we avoid raw pointer? Also current implementation does not assure anything about the order of opens.
+        std::vector<Open*> Opens();  // TODO(sotetsuk): Should we avoid raw pointer?
         std::string ToString(bool verbose = false);
 
         // action validators
