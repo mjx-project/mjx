@@ -11,11 +11,11 @@ auto yaku_evaluator = YakuEvaluator(win_cache);
 
 TEST(yaku_evaluator, FullyConcealedHand) // 門前清自摸和
 {
-    auto hand = Hand(HandParams("m1,m9,p1,p9,s1,s9,ew,sw,ww,nw,wd,gd,rd").Tsumo("m1"));
+    auto hand = Hand(HandParams("m1,m9,p1,p9,s1,s9,ew,sw,ww,nw,wd,gd,rd").Riichi().Tsumo("m1"));
     auto yakus = yaku_evaluator.Apply(hand);
     EXPECT_TRUE(std::find(yakus.begin(), yakus.end(), Yaku::kFullyConcealedHand) != yakus.end());
 
-    hand = Hand(HandParams("m1,m9,p1,p9,s1,s9,ew,sw,ww,nw,wd,gd,rd").Ron("m1"));
+    hand = Hand(HandParams("m1,m9,p1,p9,s1,s9,ew,sw,ww,nw,wd,gd,rd").Riichi().Ron("m1"));
     yakus = yaku_evaluator.Apply(hand);
     EXPECT_FALSE(std::find(yakus.begin(), yakus.end(), Yaku::kFullyConcealedHand) != yakus.end());
 }

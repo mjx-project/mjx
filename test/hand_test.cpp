@@ -8,16 +8,6 @@ using namespace mj;
 
 TEST(hand, Hand)
 {
-    using tt = TileType;
-    EXPECT_NO_FATAL_FAILURE(
-            Hand({tt::kM1, tt::kM9, tt::kP1, tt::kP9, tt::kS1, tt::kS9, tt::kEW, tt::kSW, tt::kWW, tt::kNW, tt::kWD, tt::kGD, tt::kRD})
-    );
-    EXPECT_NO_FATAL_FAILURE(
-            Hand({0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60});
-    );
-    EXPECT_NO_FATAL_FAILURE(
-            Hand({"m1", "m9", "p1", "p9", "s1", "s9", "ew", "sw", "ww", "nw", "wd", "gd", "rd"})
-    );
     EXPECT_NO_FATAL_FAILURE(
             Hand(Tile::Create({"m1", "m9", "p1", "p9", "s1", "s9", "ew", "sw", "ww", "nw", "wd", "gd", "rd"}))
     );
@@ -113,6 +103,10 @@ TEST(hand, Hand)
     actual = hand.ToVectorOpened(true);
     expected = Tile::Create({"p3", "p3", "p3", "p3", "wd", "wd", "wd", "wd", "rd", "rd", "rd", "rd", "gd", "gd", "gd", "gd"}, true);
     EXPECT_EQ(actual, expected);
+
+    hand = Hand(HandParams("m1,m2,m3,m4,m5,rd,rd,m7,m8,m9").KanClosed("p1,p1,p1,p1").Riichi().Tsumo("m6"));
+    EXPECT_TRUE(hand.IsMenzen());
+    EXPECT_TRUE(hand.IsUnderRiichi());
 }
 
 TEST(hand, Has)
@@ -625,7 +619,7 @@ TEST(hand, Tsumo) {
     EXPECT_EQ(h.LastTileAdded(), Tile("m1", 3));
 
     // after kan
-    h = Hand({"m1", "m1", "m1", "m2", "m3", "m4", "m5", "m6", "m7", "m8", "m9", "m9", "m9"});
+    h = Hand(HandParams("m1,m1,m1,m2,m3,m4,m5,m6,m7,m8,m9,m9,m9"));
     h.Draw(Tile("m9", 3));
     auto possible_opens = h.PossibleOpensAfterDraw();
     h.ApplyOpen(std::move(possible_opens.front()));
