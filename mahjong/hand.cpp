@@ -13,12 +13,6 @@
 
 namespace mj
 {
-    Hand::Hand(const std::vector<TileId> &vector)
-    : Hand(Tile::Create(vector)) { }
-
-    Hand::Hand(const std::vector<TileType> &vector)
-    : Hand(Tile::Create(vector)) { }
-
     Hand::Hand(std::vector<Tile> tiles)
     : Hand(tiles.begin(), tiles.end()) { }
 
@@ -31,7 +25,8 @@ namespace mj
                std::vector<std::vector<std::string>> pons,
                std::vector<std::vector<std::string>> kan_openeds,
                std::vector<std::vector<std::string>> kan_closeds,
-               std::vector<std::vector<std::string>> kan_addeds) {
+               std::vector<std::vector<std::string>> kan_addeds,
+               std::string tsumo, std::string ron, bool riichi, bool after_kan) {
         std::vector<std::string> tile_strs = {};
         tile_strs.insert(tile_strs.end(), closed.begin(), closed.end());
         for (const auto &chi: chis) tile_strs.insert(tile_strs.end(), chi.begin(), chi.end());
@@ -39,46 +34,34 @@ namespace mj
         for (const auto &kan: kan_openeds) tile_strs.insert(tile_strs.end(), kan.begin(), kan.end());
         for (const auto &kan: kan_closeds) tile_strs.insert(tile_strs.end(), kan.begin(), kan.end());
         for (const auto &kan: kan_addeds) tile_strs.insert(tile_strs.end(), kan.begin(), kan.end());
+        assert(tsumo.empty() || ron.empty());
+        if (!tsumo.empty()) tile_strs.emplace_back(tsumo);
+        if (!ron.empty()) tile_strs.emplace_back(ron);
         auto tiles = Tile::Create(tile_strs);
         auto it = tiles.begin() + closed.size();
         closed_tiles_.insert(tiles.begin(), it);
-        Tile dummy_tile = Tile(0);
-        while (std::any_of(tiles.begin(), tiles.end(), [&](auto x){ return x == dummy_tile; })) dummy_tile = Tile(dummy_tile.Id()+1);
         for (const auto &chi: chis) {
-            stage_ = HandStage::kAfterDiscards;
-            undiscardable_tiles_.clear();
             auto it_end = it + chi.size();
             auto chi_tiles = std::vector<Tile>(it, it_end);
             auto stolen = *std::min_element(chi_tiles.begin(), chi_tiles.end());
-            for (auto t: chi_tiles) if (t != stolen) closed_tiles_.insert(t);
-            closed_tiles_.insert(dummy_tile);
             auto chi_ = std::make_unique<Chi>(chi_tiles, stolen);
-            ApplyChi(std::move(chi_));
-            closed_tiles_.erase(dummy_tile);
+            opens_.emplace_back(std::move(chi_));
             it = it_end;
         }
         for (const auto &pon: pons) {
-            stage_ = HandStage::kAfterDiscards;
-            undiscardable_tiles_.clear();
             auto it_end = it + pon.size();
             auto pon_tiles = std::vector<Tile>(it, it_end);
             auto stolen = *std::min_element(pon_tiles.begin(), pon_tiles.end());
-            for (auto t: pon_tiles) if (t != stolen) closed_tiles_.insert(t);
-            closed_tiles_.insert(dummy_tile);
             auto pon_ = std::make_unique<Pon>(stolen, Tile(pon_tiles[0].Type(), 3), RelativePos::kLeft);
-            ApplyPon(std::move(pon_));
-            closed_tiles_.erase(dummy_tile);
+            opens_.emplace_back(std::move(pon_));
             it = it_end;
         }
         for (const auto &kan: kan_openeds) {
-            stage_ = HandStage::kAfterDiscards;
-            undiscardable_tiles_.clear();
             auto it_end = it + kan.size();
             auto kan_tiles = std::vector<Tile>(it, it_end);
             auto stolen = *std::min_element(kan_tiles.begin(), kan_tiles.end());
-            for (auto t: kan_tiles) if (t != stolen) closed_tiles_.insert(t);
             auto kan_ = std::make_unique<KanOpened>(stolen, RelativePos::kLeft);
-            ApplyKanOpened(std::move(kan_));
+            opens_.emplace_back(std::move(kan_));
             it = it_end;
         }
         for (const auto &kan: kan_closeds) {
@@ -86,9 +69,8 @@ namespace mj
             undiscardable_tiles_.clear();
             auto it_end = it + kan.size();
             auto kan_tiles = std::vector<Tile>(it, it_end);
-            for (auto t: kan_tiles) closed_tiles_.insert(t);
             auto kan_ = std::make_unique<KanClosed>(*std::min_element(kan_tiles.begin(), kan_tiles.end()));
-            ApplyKanClosed(std::move(kan_));
+            opens_.emplace_back(std::move(kan_));
             it = it_end;
         }
         for (const auto &kan: kan_addeds) {
@@ -97,16 +79,9 @@ namespace mj
             auto it_end = it + kan.size();
             auto pon_tiles = std::vector<Tile>(it, it_end-1);
             auto stolen = *std::min_element(pon_tiles.begin(), pon_tiles.end());
-            for (auto t: pon_tiles) if (t != stolen) closed_tiles_.insert(t);
-            closed_tiles_.insert(dummy_tile);
             auto pon_ = std::make_unique<Pon>(stolen, Tile(pon_tiles[0].Type(), 3), RelativePos::kLeft);
-            ApplyPon(std::move(pon_));
-            closed_tiles_.erase(dummy_tile);
-            stage_ = HandStage::kAfterDiscards;
-            undiscardable_tiles_.clear();
-            Draw(*(it_end-1));
-            auto opens = PossibleOpensAfterDraw();
-            ApplyKanAdded(std::move(opens.front()));
+            auto kan_ = std::make_unique<KanAdded>(pon_.get());
+            opens_.emplace_back(std::move(kan_));
             it = it_end;
         }
         stage_ = HandStage::kAfterDiscards;
@@ -115,7 +90,30 @@ namespace mj
                 [](const auto &x){ return x->Type() == OpenType::kKanClosed
                                     || x->Type() == OpenType::kKanOpened
                                     || x->Type() == OpenType::kKanAdded; }) == 13);
+        if (riichi) {
+            auto dummy_tile = Tile(0);
+            while(std::any_of(closed_tiles_.begin(), closed_tiles_.end(),
+                              [&](auto x){return x == dummy_tile;})) dummy_tile = Tile(dummy_tile.Id() + 1);
+            Draw(dummy_tile);
+            Riichi();
+            Discard(dummy_tile);
+        }
+        if (!tsumo.empty()) {
+            Draw(tiles.back());
+            Tsumo();
+            if (after_kan) stage_ = HandStage::kAfterTsumoAfterKan;
+        }
+        if (!ron.empty()) {
+            if(!after_kan) Ron(tiles.back());
+            else RonAfterOthersKan(tiles.back());
+        }
     }
+
+    Hand::Hand(const HandParams &hand_params)
+    : Hand(hand_params.closed_, hand_params.chis_, hand_params.pons_,
+           hand_params.kan_openeds_, hand_params.kan_closeds_, hand_params.kan_addeds_,
+           hand_params.tsumo_, hand_params.ron_, hand_params.riichi_, hand_params.after_kan_)
+    {}
 
     HandStage Hand::Stage() {
         return stage_;
@@ -588,6 +586,7 @@ namespace mj
         closed_tiles_.insert(tile);
         last_tile_added_ = tile;
         stage_ = HandStage::kAfterRon;
+        assert(last_tile_added_);
     }
 
     void Hand::Tsumo() {
@@ -595,6 +594,7 @@ namespace mj
         assert(SizeClosed() == 2 || SizeClosed() == 5 || SizeClosed() == 8 || SizeClosed() == 11 || SizeClosed() == 14);
         if (stage_ == HandStage::kAfterDraw) stage_ = HandStage::kAfterTsumo;
         if (stage_ == HandStage::kAfterDrawAfterKan) stage_ = HandStage::kAfterTsumoAfterKan;
+        assert(last_tile_added_);
     }
 
     std::vector<Open*> Hand::Opens() {
@@ -653,6 +653,7 @@ namespace mj
         assert(SizeClosed() == 1 || SizeClosed() == 4 || SizeClosed() == 7 || SizeClosed() == 10 || SizeClosed() == 13);
         Ron(tile);
         stage_ = HandStage::kAfterRonAfterOthersKan;
+        assert(last_tile_added_);
     }
 
     bool Hand::IsCompleted(const WinningHandCache &win_cache) {
@@ -661,5 +662,72 @@ namespace mj
         auto arr = ToArray();
         auto blocks = Block::Build(arr);
         return win_cache.Has(Block::BlocksToString(blocks));
+    }
+
+   HandParams::HandParams(const std::string &closed) {
+        assert(closed.size() % 3 == 2);
+        for (std::int32_t i = 0; i < closed.size(); i += 3) {
+            closed_.emplace_back(closed.substr(i, 2));
+        }
+       assert(closed_.size() == 1 || closed_.size() == 4 || closed_.size() == 7 || closed_.size() == 10 || closed_.size() == 13);
+    }
+
+    HandParams &HandParams::Chi(const std::string &chi) {
+        assert(chi.size() == 8);
+        Push(chi, chis_);
+        return *this;
+    }
+
+    HandParams &HandParams::Pon(const std::string &pon) {
+        assert(pon.size() == 8);
+        Push(pon, pons_);
+        return *this;
+    }
+
+    HandParams &HandParams::KanOpened(const std::string &kan_opened) {
+        assert(kan_opened.size() == 11);
+        Push(kan_opened, kan_openeds_);
+        return *this;
+    }
+
+    HandParams &HandParams::KanClosed(const std::string &kan_closed) {
+        assert(kan_closed.size() == 11);
+        Push(kan_closed, kan_closeds_);
+        return *this;
+    }
+
+    HandParams &HandParams::KanAdded(const std::string &kan_added) {
+        assert(kan_added.size() == 11);
+        Push(kan_added, kan_addeds_);
+        return *this;
+    }
+
+    HandParams &HandParams::Riichi() {
+        assert(chis_.empty() && pons_.empty() && kan_openeds_.empty() && kan_addeds_.empty());
+        riichi_ = true;
+        return *this;
+    }
+
+    HandParams &HandParams::Tsumo(const std::string &tsumo, bool after_kan) {
+        assert(tsumo.size() == 2);
+        assert(closed_.size() == 1 || closed_.size() == 4 || closed_.size() == 7 || closed_.size() == 10 || closed_.size() == 13);
+        tsumo_ = tsumo;
+        after_kan_ = after_kan;
+        return *this;
+    }
+
+    HandParams &HandParams::Ron(const std::string &ron, bool after_kan) {
+        assert(ron.size() == 2);
+        assert(closed_.size() == 1 || closed_.size() == 4 || closed_.size() == 7 || closed_.size() == 10 || closed_.size() == 13);
+        ron_ = ron;
+        return *this;
+    }
+
+    void HandParams::Push(const std::string &input, std::vector<std::vector<std::string>> &vec) {
+        std::vector<std::string> tmp;
+        for (std::int32_t i = 0; i < input.size(); i += 3) {
+            tmp.emplace_back(input.substr(i, 2));
+        }
+        vec.emplace_back(tmp);
     }
 }  // namespace mj

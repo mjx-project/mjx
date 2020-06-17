@@ -10,7 +10,10 @@ namespace mj
 
     std::vector<Yaku> YakuEvaluator::Apply(Hand &hand) {
         assert(hand.LastTileAdded());
-        assert(hand.Stage() == HandStage::kAfterTsumo || hand.Stage() == HandStage::kAfterRon);
+        assert(hand.Stage() == HandStage::kAfterTsumo ||
+                       hand.Stage() == HandStage::kAfterTsumoAfterKan ||
+                       hand.Stage() == HandStage::kAfterRon ||
+                       hand.Stage() == HandStage::kAfterRonAfterOthersKan);
         auto blocks = Block::Build(hand.ToArray());
         auto blocks_str = Block::BlocksToString(blocks);
         if (!win_cache_.Has(blocks_str)) return std::vector<Yaku>();

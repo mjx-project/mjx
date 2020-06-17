@@ -13,11 +13,10 @@
 
 namespace mj
 {
+    class HandParams;
     class Hand
     {
     public:
-        explicit Hand(const std::vector<TileId> &vector);
-        explicit Hand(const std::vector<TileType> &vector);
         explicit Hand(std::vector<Tile> tiles);
         Hand(std::vector<Tile>::iterator begin, std::vector<Tile>::iterator end);
         /*
@@ -29,20 +28,11 @@ namespace mj
          *
          *  Usage:
          *    auto hand = Hand(
-         *            {"m4", "m5", "m6", "rd", "rd"},  // closed
-         *            {{"m1", "m2", "m3"}, {"m7", "m8", "m9"}},  // chi
-         *            {},  // pon
-         *            {},  // kan_opend
-         *            {},  // kan_closed
-         *            {{"p1", "p1", "p1", "p1"}}  // kan_added
+         *        HandParams("m1,m2,m3,m4,m5,rd,rd").Chi("m7,m8,m9").KanAdded("p1,p1,p1,p1")
          *    );
+         *
          */
-        Hand(std::vector<std::string> closed,
-             std::vector<std::vector<std::string>> chis = {},
-             std::vector<std::vector<std::string>> pons = {},
-             std::vector<std::vector<std::string>> kan_openeds = {},
-             std::vector<std::vector<std::string>> kan_closeds = {},
-             std::vector<std::vector<std::string>> kan_addeds = {});
+        explicit Hand(const HandParams &hand_params);
 
         // accessor to hand internal state
         HandStage Stage();
@@ -82,7 +72,7 @@ namespace mj
 
         // utility
         bool Has(const std::vector<TileType> &tiles);
-  private:
+    private:
         std::unordered_set<Tile, HashTile> closed_tiles_;
         std::vector<std::unique_ptr<Open>> opens_;  // Though open only uses 16 bits, to handle different open types, we need to use pointer
         std::unordered_set<Tile, HashTile> undiscardable_tiles_;
@@ -103,7 +93,45 @@ namespace mj
         void ApplyPon(std::unique_ptr<Open> open);
         void ApplyKanOpened(std::unique_ptr<Open> open);
         void ApplyKanClosed(std::unique_ptr<Open> open);
-   };
+
+        explicit Hand(std::vector<std::string> closed,
+             std::vector<std::vector<std::string>> chis = {},
+             std::vector<std::vector<std::string>> pons = {},
+             std::vector<std::vector<std::string>> kan_openeds = {},
+             std::vector<std::vector<std::string>> kan_closeds = {},
+             std::vector<std::vector<std::string>> kan_addeds = {},
+             std::string tsumo = "", std::string ron = "",
+             bool riichi = false, bool after_kan = false);
+    };
+
+    class HandParams
+    {
+    public:
+        // Usage:
+        //   auto h = Hand(HandParams("m1m1wdwd").Chi("m2m3m4").Pon("m9m9m9").Pon("rdrdrd").Tsumo("wd"));
+        explicit HandParams(const std::string &closed);
+        HandParams& Chi(const std::string &chi);
+        HandParams& Pon(const std::string &pon);
+        HandParams& KanOpened(const std::string &kan_opened);
+        HandParams& KanClosed(const std::string &kan_closed);
+        HandParams& KanAdded(const std::string &kan_added);
+        HandParams& Riichi();
+        HandParams& Tsumo(const std::string &tsumo, bool after_kan = false);
+        HandParams& Ron(const std::string &ron, bool after_kan = false);
+    private:
+        friend class Hand;
+        std::vector<std::string> closed_ = {};
+        std::vector<std::vector<std::string>> chis_ = {};
+        std::vector<std::vector<std::string>> pons_ = {};
+        std::vector<std::vector<std::string>> kan_openeds_ = {};
+        std::vector<std::vector<std::string>> kan_closeds_ = {};
+        std::vector<std::vector<std::string>> kan_addeds_ = {};
+        std::string tsumo_ = "";
+        std::string ron_ = "";
+        bool after_kan_ = false;
+        bool riichi_ = false;
+        void Push(const std::string &input, std::vector<std::vector<std::string>> &vec);
+    };
 }  // namespace mj
 
 #endif //MAHJONG_HAND_H
