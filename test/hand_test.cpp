@@ -109,17 +109,6 @@ TEST(hand, Hand)
     EXPECT_TRUE(hand.IsUnderRiichi());
 }
 
-TEST(hand, Has)
-{
-    using tt = TileType;
-    auto h = Hand(HandParams("m1,m1,p1,p2,p3,s9,ew,sw,ww,nw,wd,gd,rd"));
-    EXPECT_TRUE(h.Has({tt::kM1}));
-    EXPECT_TRUE(h.Has({tt::kM1, tt::kM1}));
-    EXPECT_FALSE(h.Has({tt::kM1, tt::kM1, tt::kM1}));
-    EXPECT_TRUE(h.Has({tt::kP1, tt::kP2, tt::kP3}));
-    EXPECT_FALSE(h.Has({tt::kP1, tt::kP2, tt::kP3, tt::kP4}));
-}
-
 TEST(hand, Draw) {
     auto h = Hand(HandParams("m1,m9,p1,p9,s1,s9,ew,sw,ww,nw,wd,gd,rd"));
     EXPECT_EQ(h.Size(), 13);
