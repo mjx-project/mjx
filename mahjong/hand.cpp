@@ -117,6 +117,11 @@ namespace mj
                                     || x->Type() == OpenType::kKanAdded; }) == 13);
     }
 
+    Hand::Hand(const HandParams &hand_params)
+    : Hand(hand_params.closed_, hand_params.chis_, hand_params.pons_,
+            hand_params.kan_openeds_, hand_params.kan_closeds_, hand_params.kan_addeds_)
+    {}
+
     HandStage Hand::Stage() {
         return stage_;
     }
@@ -661,5 +666,65 @@ namespace mj
         auto arr = ToArray();
         auto blocks = Block::Build(arr);
         return win_cache.Has(Block::BlocksToString(blocks));
+    }
+
+   HandParams::HandParams(const std::string &closed) {
+        assert(closed.size() % 3 == 2);
+        for (std::int32_t i = 0; i < closed.size(); i += 3) {
+            closed_.emplace_back(closed.substr(i, 2));
+        }
+       assert(closed_.size() == 1 || closed_.size() == 4 || closed_.size() == 7 || closed_.size() == 10 || closed_.size() == 13);
+    }
+
+    HandParams &HandParams::Chi(const std::string &chi) {
+        assert(chi.size() == 8);
+        Push(chi, chis_);
+        return *this;
+    }
+
+    HandParams &HandParams::Pon(const std::string &pon) {
+        assert(pon.size() == 8);
+        Push(pon, pons_);
+        return *this;
+    }
+
+    HandParams &HandParams::KanOpened(const std::string &kan_opened) {
+        assert(kan_opened.size() == 11);
+        Push(kan_opened, kan_openeds_);
+        return *this;
+    }
+
+    HandParams &HandParams::KanClosed(const std::string &kan_closed) {
+        assert(kan_closed.size() == 11);
+        Push(kan_closed, kan_closeds_);
+        return *this;
+    }
+
+    HandParams &HandParams::KanAdded(const std::string &kan_added) {
+        assert(kan_added.size() == 11);
+        Push(kan_added, kan_addeds_);
+        return *this;
+    }
+
+    HandParams &HandParams::Tsumo(const std::string &tsumo) {
+        assert(tsumo.size() == 2);
+        tsumo_ = tsumo;
+        assert(closed_.size() == 2 || closed_.size() == 5 || closed_.size() == 8 || closed_.size() == 11 || closed_.size() == 14);
+        return *this;
+    }
+
+    HandParams &HandParams::Ron(const std::string &ron) {
+        assert(ron.size() == 2);
+        ron_ = ron;
+        assert(closed_.size() == 2 || closed_.size() == 5 || closed_.size() == 8 || closed_.size() == 11 || closed_.size() == 14);
+        return *this;
+    }
+
+    void HandParams::Push(const std::string &input, std::vector<std::vector<std::string>> &vec) {
+        std::vector<std::string> tmp;
+        for (std::int32_t i = 0; i < input.size(); i += 3) {
+            tmp.emplace_back(input.substr(i, 2));
+        }
+        vec.emplace_back(tmp);
     }
 }  // namespace mj

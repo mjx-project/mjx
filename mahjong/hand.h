@@ -44,6 +44,7 @@ namespace mj
              std::vector<std::vector<std::string>> kan_openeds = {},
              std::vector<std::vector<std::string>> kan_closeds = {},
              std::vector<std::vector<std::string>> kan_addeds = {});
+        Hand(const HandParams &hand_params);
 
         // accessor to hand internal state
         HandStage Stage();
@@ -109,19 +110,27 @@ namespace mj
     class HandParams
     {
     public:
-        HandParams();
-        HandParams& Chi();
-        HandParams& Pon();
-        HandParams& KanOpened();
-        HandParams& KanClosed();
-        HandParams& KanAdded();
+        // Usage:
+        // auto h = Hand(HandParams("m1m1wdwd").Chi("m2m3m4").Pon("m9m9m9").Pon("rdrdrd").Tsumo("wd"));
+        HandParams(const std::string &closed);
+        HandParams& Chi(const std::string &chi);
+        HandParams& Pon(const std::string &pon);
+        HandParams& KanOpened(const std::string &kan_opened);
+        HandParams& KanClosed(const std::string &kan_closed);
+        HandParams& KanAdded(const std::string &kan_added);
+        HandParams& Tsumo(const std::string &tsumo);
+        HandParams& Ron(const std::string &ron);
     private:
-        std::vector<std::string> closed;
-        std::vector<std::vector<std::string>> chis;
-        std::vector<std::vector<std::string>> pons;
-        std::vector<std::vector<std::string>> kan_openeds;
-        std::vector<std::vector<std::string>> kan_closeds;
-        std::vector<std::vector<std::string>> kan_addeds;
+        friend class Hand;
+        std::vector<std::string> closed_ = {};
+        std::vector<std::vector<std::string>> chis_ = {};
+        std::vector<std::vector<std::string>> pons_ = {};
+        std::vector<std::vector<std::string>> kan_openeds_ = {};
+        std::vector<std::vector<std::string>> kan_closeds_ = {};
+        std::vector<std::vector<std::string>> kan_addeds_ = {};
+        std::string tsumo_ = "";
+        std::string ron_ = "";
+        void Push(const std::string &input, std::vector<std::vector<std::string>> &vec);
     };
 }  // namespace mj
 
