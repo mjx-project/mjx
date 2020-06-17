@@ -31,7 +31,8 @@ namespace mj
                std::vector<std::vector<std::string>> pons,
                std::vector<std::vector<std::string>> kan_openeds,
                std::vector<std::vector<std::string>> kan_closeds,
-               std::vector<std::vector<std::string>> kan_addeds) {
+               std::vector<std::vector<std::string>> kan_addeds,
+               std::string tsumo, std::string ron, bool after_kan) {
         std::vector<std::string> tile_strs = {};
         tile_strs.insert(tile_strs.end(), closed.begin(), closed.end());
         for (const auto &chi: chis) tile_strs.insert(tile_strs.end(), chi.begin(), chi.end());
@@ -39,6 +40,9 @@ namespace mj
         for (const auto &kan: kan_openeds) tile_strs.insert(tile_strs.end(), kan.begin(), kan.end());
         for (const auto &kan: kan_closeds) tile_strs.insert(tile_strs.end(), kan.begin(), kan.end());
         for (const auto &kan: kan_addeds) tile_strs.insert(tile_strs.end(), kan.begin(), kan.end());
+        assert(tsumo.empty()||ron.empty());
+        tile_strs.emplace_back(tsumo);
+        tile_strs.emplace_back(ron);
         auto tiles = Tile::Create(tile_strs);
         auto it = tiles.begin() + closed.size();
         closed_tiles_.insert(tiles.begin(), it);
@@ -115,6 +119,14 @@ namespace mj
                 [](const auto &x){ return x->Type() == OpenType::kKanClosed
                                     || x->Type() == OpenType::kKanOpened
                                     || x->Type() == OpenType::kKanAdded; }) == 13);
+        if (!tsumo.empty()) {
+            Draw(tiles.back()); Tsumo();
+            if (after_kan) stage_ = HandStage::kAfterTsumoAfterKan;
+        }
+        if (!ron.empty()) {
+            if(!after_kan) Ron(tiles.back());
+            else RonAfterOthersKan(tiles.back());
+        }
     }
 
     Hand::Hand(const HandParams &hand_params)
@@ -706,17 +718,19 @@ namespace mj
         return *this;
     }
 
-    HandParams &HandParams::Tsumo(const std::string &tsumo) {
+    HandParams &HandParams::Tsumo(const std::string &tsumo, bool after_kan) {
         assert(tsumo.size() == 2);
         tsumo_ = tsumo;
         assert(closed_.size() == 2 || closed_.size() == 5 || closed_.size() == 8 || closed_.size() == 11 || closed_.size() == 14);
+        after_kan_ = after_kan;
         return *this;
     }
 
-    HandParams &HandParams::Ron(const std::string &ron) {
+    HandParams &HandParams::Ron(const std::string &ron, bool after_kan) {
         assert(ron.size() == 2);
         ron_ = ron;
         assert(closed_.size() == 2 || closed_.size() == 5 || closed_.size() == 8 || closed_.size() == 11 || closed_.size() == 14);
+        return *this;
         return *this;
     }
 

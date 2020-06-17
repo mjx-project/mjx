@@ -43,7 +43,8 @@ namespace mj
              std::vector<std::vector<std::string>> pons = {},
              std::vector<std::vector<std::string>> kan_openeds = {},
              std::vector<std::vector<std::string>> kan_closeds = {},
-             std::vector<std::vector<std::string>> kan_addeds = {});
+             std::vector<std::vector<std::string>> kan_addeds = {},
+             std::string tsumo = "", std::string ron = "", bool after_kan = false);
         Hand(const HandParams &hand_params);
 
         // accessor to hand internal state
@@ -118,8 +119,8 @@ namespace mj
         HandParams& KanOpened(const std::string &kan_opened);
         HandParams& KanClosed(const std::string &kan_closed);
         HandParams& KanAdded(const std::string &kan_added);
-        HandParams& Tsumo(const std::string &tsumo);
-        HandParams& Ron(const std::string &ron);
+        HandParams& Tsumo(const std::string &tsumo, bool after_kan = false);
+        HandParams& Ron(const std::string &ron, bool after_kan = false);
     private:
         friend class Hand;
         std::vector<std::string> closed_ = {};
@@ -130,6 +131,7 @@ namespace mj
         std::vector<std::vector<std::string>> kan_addeds_ = {};
         std::string tsumo_ = "";
         std::string ron_ = "";
+        bool after_kan_ = false;
         void Push(const std::string &input, std::vector<std::vector<std::string>> &vec);
     };
 }  // namespace mj
