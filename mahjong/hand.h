@@ -69,9 +69,6 @@ namespace mj
         void RonAfterOthersKan(Tile tile);
         void Tsumo();  // should be called after draw like h.Draw(tile); if (h.IsCompleted(w)) h.Tsumo();
         Tile Discard(Tile tile);
-
-        // utility
-        bool Has(const std::vector<TileType> &tiles);
     private:
         std::unordered_set<Tile, HashTile> closed_tiles_;
         std::vector<std::unique_ptr<Open>> opens_;  // Though open only uses 16 bits, to handle different open types, we need to use pointer

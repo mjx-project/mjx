@@ -243,17 +243,6 @@ namespace mj
         return tile;
     }
 
-    bool Hand::Has(const std::vector<TileType> &tiles) {
-        std::unordered_map<TileType, uint8_t> m;
-        for (auto tile: tiles) ++m[tile];
-        for (auto it = m.begin(); it != m.end(); ++it) {
-            auto c = std::count_if(closed_tiles_.begin(), closed_tiles_.end(),
-                                   [=](Tile x){ return x.Is(it->first); });
-            if (c < it->second) return false;
-        }
-        return true;
-    }
-
     std::size_t Hand::Size() {
         return SizeOpened() + SizeClosed();
     }
