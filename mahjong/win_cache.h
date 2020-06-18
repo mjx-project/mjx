@@ -1,24 +1,35 @@
 #ifndef MAHJONG_WIN_CACHE_H
 #define MAHJONG_WIN_CACHE_H
 
+#include "types.h"
+
 #include <memory>
+#include <map>
 #include <unordered_map>
+#include <set>
+#include <vector>
 
 namespace mj
 {
+    using AbstructHand = std::string;
+    using SplitPattern = std::vector<std::vector<int>>;
+
     class WinningHandCache
     {
     public:
         WinningHandCache();
-        [[nodiscard]] std::size_t Size() const noexcept ;
         [[nodiscard]] bool Has(const std::string &s) const noexcept ;
-        [[nodiscard]] std::uint64_t YakuBit(const std::string &s) const;
-        // utils
-        static void PrepareWinCache();
-        void ShowStats(std::uint64_t yaku_bit, const std::string &yaku_name);
+        void PrepareWinCache();
+        void LoadWinCache();
+        [[nodiscard]] std::pair<AbstructHand, std::vector<TileType>>
+        CreateAbstructHand(const std::map<TileType, int>& count) const noexcept ;
     private:
-        std::unique_ptr<std::unordered_map<std::string, std::uint64_t>> cache_;
-        void Load();
+        std::map<AbstructHand, std::set<SplitPattern>> cache_;
+        [[nodiscard]] std::vector<std::map<TileType, int>> CreateSets() const noexcept ;
+        [[nodiscard]] std::vector<std::map<TileType, int>> CreateHeads() const noexcept ;
+        bool Register(const std::vector<std::map<TileType,int>>& blocks, const std::map<TileType,int>& total);
+        void Add(std::map<TileType,int>& total, const std::map<TileType,int>& block);
+        void Sub(std::map<TileType,int>& total, const std::map<TileType,int>& block);
     };
 }
 
