@@ -3,7 +3,7 @@ project(mahjong)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_FLAGS "-Wall")
-set(CMAKE_CXX_FLAGS "--pedantic-errors")
+# set(CMAKE_CXX_FLAGS "--pedantic-errors")
 
 set(SOURCE_FILES main.cpp)
 add_executable(${CMAKE_PROJECT_NAME}.out ${SOURCE_FILES})
