@@ -31,16 +31,20 @@ namespace mj {
         kEmpty
     };
 
-    enum class TilePhase : std::uint8_t {
+    enum class HandStage : std::uint8_t {
         kAfterDiscards,
         kAfterDraw,
+        kAfterDrawAfterKan,
+        kAfterRiichi,
         kAfterChi,
         kAfterPon,
-        kAfterDeclareRiichi,
         kAfterKanOpened,
         kAfterKanClosed,
         kAfterKanAdded,
-        kAfterWin
+        kAfterTsumo,
+        kAfterTsumoAfterKan,
+        kAfterRon,
+        kAfterRonAfterOthersKan,
     };
 
     enum class AbsolutePos : std::uint8_t {
@@ -145,6 +149,8 @@ namespace mj {
         kDora, // ドラ
         kReversedDora, // 裏ドラ
         kRedDora, // 赤ドラ
+        kEnd,  // Dummy
+        kBegin = 0,
     };
 
 }  // namespace mj

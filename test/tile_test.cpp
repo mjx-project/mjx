@@ -61,6 +61,16 @@ TEST(tile, TypeUint)
     EXPECT_EQ(t.TypeUint(), 33);
 }
 
+TEST(tile, Offset)
+{
+    auto t = Tile(0);
+    EXPECT_EQ(t.Offset(), 0);
+    t = Tile(33);
+    EXPECT_EQ(t.Offset(), 1);
+    t = Tile(135);
+    EXPECT_EQ(t.Offset(), 3);
+}
+
 TEST(tile, Color)
 {
     auto m5 = Tile(16);
@@ -239,6 +249,8 @@ TEST(tile, ToString)
 {
     auto t1 = Tile(0);
     auto t2 = Tile(135);
-    EXPECT_EQ("<tile_id: 0, tile_type: 0>", t1.ToString());
-    EXPECT_EQ("<tile_id: 135, tile_type: 33>", t2.ToString());
+    EXPECT_EQ("m1", t1.ToString());
+    EXPECT_EQ("rd", t2.ToString());
+    EXPECT_EQ("m1(0)", t1.ToString(true));
+    EXPECT_EQ("rd(3)", t2.ToString(true));
 }

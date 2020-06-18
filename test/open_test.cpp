@@ -34,12 +34,19 @@ TEST(open, Chi)
     EXPECT_EQ(c->StolenTile().Type(), TileType::kS3);
     EXPECT_EQ(c->LastTile().Type(), TileType::kS3);
     EXPECT_EQ(c->Tiles().size(), 3);
+    EXPECT_EQ(c->Tiles().at(0).Type(), TileType::kS3);
+    EXPECT_EQ(c->Tiles().at(1).Type(), TileType::kS4);
+    EXPECT_EQ(c->Tiles().at(2).Type(), TileType::kS5);
+    EXPECT_EQ(c->TilesFromHand().at(0).Type(), TileType::kS4);
+    EXPECT_EQ(c->TilesFromHand().at(1).Type(), TileType::kS5);
     EXPECT_TRUE(vec_type_eq((c->Tiles()), {tt::kS3, tt::kS4, tt::kS5}));
     EXPECT_EQ(c->TilesFromHand().size(), 2);
     EXPECT_TRUE(vec_type_eq(c->TilesFromHand(), {tt::kS4, tt::kS5}));
     EXPECT_EQ(c->UndiscardableTileTypes().size(), 2);
     EXPECT_EQ(c->UndiscardableTileTypes().at(0), TileType::kS3);
     EXPECT_EQ(c->UndiscardableTileTypes().at(1), TileType::kS6);
+    EXPECT_EQ(c->ToString(), "[s3,s4,s5]");
+    EXPECT_EQ(c->ToString(true), "[s3(2),s4(2),s5(2)]");
 
     // undiscardable_tile_types
     t = Tile::Create({"m4", "m3", "m2"});
@@ -71,6 +78,11 @@ TEST(open, Pon)
     EXPECT_EQ(p->At(2).Id(), Tile("gd", 3).Id());
     EXPECT_EQ(p->StolenTile().Id(), Tile("gd", 2).Id());
     EXPECT_EQ(p->Tiles().size(), 3);
+    EXPECT_EQ(p->Tiles().at(0).Id(), Tile("gd", 0).Id());
+    EXPECT_EQ(p->Tiles().at(1).Id(), Tile("gd", 2).Id());
+    EXPECT_EQ(p->Tiles().at(2).Id(), Tile("gd", 3).Id());
+    EXPECT_EQ(p->TilesFromHand().at(0).Id(), Tile("gd", 0).Id());
+    EXPECT_EQ(p->TilesFromHand().at(1).Id(), Tile("gd", 3).Id());
     EXPECT_TRUE(vec_type_eq(p->Tiles(), {tt::kGD, tt::kGD, tt::kGD}));
     EXPECT_EQ(p->TilesFromHand().size(), 2);
     EXPECT_TRUE(vec_type_eq(p->TilesFromHand(), {tt::kGD, tt::kGD}));
@@ -89,6 +101,8 @@ TEST(open, Pon)
     EXPECT_EQ(p->LastTile().Type(), TileType::kWD);
     EXPECT_EQ(p->UndiscardableTileTypes().size(), 1);
     EXPECT_EQ(p->UndiscardableTileTypes().at(0), TileType::kWD);
+    EXPECT_EQ(p->ToString(), "[wd,wd,wd]");
+    EXPECT_EQ(p->ToString(true), "[wd(0),wd(1),wd(2)]");
 }
 
 TEST(open, KanOpened)
@@ -102,11 +116,20 @@ TEST(open, KanOpened)
     EXPECT_EQ(k->At(3).Id(), Tile("m2", 3).Id());
     EXPECT_EQ(k->Tiles().size(), 4);
     EXPECT_TRUE(vec_type_eq(k->Tiles(), {tt::kM2, tt::kM2, tt::kM2, tt::kM2}));
+    EXPECT_EQ(k->Tiles().at(0).Id(), Tile("m2", 0).Id());
+    EXPECT_EQ(k->Tiles().at(1).Id(), Tile("m2", 1).Id());
+    EXPECT_EQ(k->Tiles().at(2).Id(), Tile("m2", 2).Id());
+    EXPECT_EQ(k->Tiles().at(3).Id(), Tile("m2", 3).Id());
     EXPECT_EQ(k->TilesFromHand().size(), 3);
+    EXPECT_EQ(k->TilesFromHand().at(0).Id(), Tile("m2", 0).Id());
+    EXPECT_EQ(k->TilesFromHand().at(1).Id(), Tile("m2", 1).Id());
+    EXPECT_EQ(k->TilesFromHand().at(2).Id(), Tile("m2", 2).Id());
     EXPECT_TRUE(vec_type_eq(k->TilesFromHand(), {tt::kM2, tt::kM2, tt::kM2}));
     EXPECT_EQ(k->StolenTile().Type(), TileType::kM2);
     EXPECT_EQ(k->LastTile().Type(), TileType::kM2);
     EXPECT_EQ(k->UndiscardableTileTypes().size(), 0);
+    EXPECT_EQ(k->ToString(), "[m2,m2,m2,m2]o");
+    EXPECT_EQ(k->ToString(true), "[m2(0),m2(1),m2(2),m2(3)]o");
 }
 
 TEST(open, KanClosed)
@@ -120,11 +143,21 @@ TEST(open, KanClosed)
     EXPECT_EQ(k->At(3).Id(), Tile("m3", 3).Id());
     EXPECT_EQ(k->Tiles().size(), 4);
     EXPECT_TRUE(vec_type_eq(k->Tiles(), {tt::kM3, tt::kM3, tt::kM3, tt::kM3}));
+    EXPECT_EQ(k->Tiles().at(0).Id(), Tile("m3", 0).Id());
+    EXPECT_EQ(k->Tiles().at(1).Id(), Tile("m3", 1).Id());
+    EXPECT_EQ(k->Tiles().at(2).Id(), Tile("m3", 2).Id());
+    EXPECT_EQ(k->Tiles().at(3).Id(), Tile("m3", 3).Id());
     EXPECT_EQ(k->TilesFromHand().size(), 4);
+    EXPECT_EQ(k->TilesFromHand().at(0).Id(), Tile("m3", 0).Id());
+    EXPECT_EQ(k->TilesFromHand().at(1).Id(), Tile("m3", 1).Id());
+    EXPECT_EQ(k->TilesFromHand().at(2).Id(), Tile("m3", 2).Id());
+    EXPECT_EQ(k->TilesFromHand().at(3).Id(), Tile("m3", 3).Id());
     EXPECT_TRUE(vec_type_eq(k->Tiles(), {tt::kM3, tt::kM3, tt::kM3, tt::kM3}));
     EXPECT_EQ(k->StolenTile().Type(), TileType::kM3);
     EXPECT_EQ(k->LastTile().Type(), TileType::kM3);
     EXPECT_EQ(k->UndiscardableTileTypes().size(), 0);
+    EXPECT_EQ(k->ToString(), "[m3,m3,m3,m3]c");
+    EXPECT_EQ(k->ToString(true), "[m3(0),m3(1),m3(2),m3(3)]c");
 }
 
 TEST(open, KanAdded)
@@ -141,11 +174,20 @@ TEST(open, KanAdded)
     EXPECT_EQ(k->StolenTile().Id(), Tile("m1", 2).Id());
     EXPECT_EQ(k->Tiles().size(), 4);
     EXPECT_TRUE(vec_type_eq(p->Tiles(), {tt::kM1, tt::kM1, tt::kM1, tt::kM1}));
+    EXPECT_EQ(k->Tiles().at(0).Id(), Tile("m1", 0).Id());
+    EXPECT_EQ(k->Tiles().at(1).Id(), Tile("m1", 1).Id());
+    EXPECT_EQ(k->Tiles().at(2).Id(), Tile("m1", 2).Id());
+    EXPECT_EQ(k->Tiles().at(3).Id(), Tile("m1", 3).Id());
     EXPECT_EQ(k->TilesFromHand().size(), 3);
     EXPECT_TRUE(vec_type_eq(p->Tiles(), {tt::kM1, tt::kM1, tt::kM1}));
+    EXPECT_EQ(k->TilesFromHand().at(0).Id(), Tile("m1", 0).Id());
+    EXPECT_EQ(k->TilesFromHand().at(1).Id(), Tile("m1", 1).Id());
+    EXPECT_EQ(k->TilesFromHand().at(2).Id(), Tile("m1", 3).Id());
     EXPECT_EQ(k->LastTile().Type(), TileType::kM1);
     EXPECT_EQ(k->LastTile().Id(), Tile("m1", 0).Id());
     EXPECT_EQ(k->UndiscardableTileTypes().size(), 0);
+    EXPECT_EQ(k->ToString(), "[m1,m1,m1,m1]a");
+    EXPECT_EQ(k->ToString(true), "[m1(0),m1(1),m1(2),m1(3)]a");
 }
 
 TEST(open, OpenGenerator)

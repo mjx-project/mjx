@@ -17,15 +17,16 @@ namespace mj
         explicit Open(std::uint16_t bits);
         virtual ~Open() = default;
         virtual OpenType Type() = 0;
-        virtual RelativePos From() = 0;
+        virtual RelativePos From() = 0;  // In added kan, it's the opponent player from whom the pon was declared (not kan)
         virtual Tile At(std::size_t i) = 0;  // sorted by tile id
         virtual std::size_t Size() = 0;
-        virtual std::vector<Tile> Tiles() = 0;  // tiles() = tiles_from_hand() + [stolen()]
-        virtual std::vector<Tile> TilesFromHand() = 0;  // chi => 2, pon => 2, kan_opened => 3, kan_closed => 4, kan_added => 2
+        virtual std::vector<Tile> Tiles() = 0;  // sorted by tile id
+        virtual std::vector<Tile> TilesFromHand() = 0;  // sorted by tile id. chi => 2 tiles, pon => 2, kan_opened => 3, kan_closed => 4, kan_added => 2
         virtual Tile StolenTile() = 0; // kan_added => poned tile by others, kan_closed => tile id represented at left 8 bits
         virtual Tile LastTile() = 0;  // Last tile added to this open tile sets. kan_added => lastly kaned tile, the others => stolen()
         virtual std::vector<TileType> UndiscardableTileTypes() = 0;
         virtual std::uint16_t GetBits();
+        virtual std::string ToString(bool verbose = false);  // TODO(sotetsuk): put more information
     protected:
         std::uint16_t bits_;  // follows tenhou format (see https://github.com/NegativeMjark/tenhou-log)
     };
@@ -63,8 +64,7 @@ namespace mj
         explicit Pon(std::uint16_t bits);
         Pon(Tile stolen, Tile unused, RelativePos from);
         OpenType Type() final;
-        RelativePos From() final;
-        Tile At(std::size_t i) final;
+        RelativePos From() final; Tile At(std::size_t i) final;
         std::size_t Size() final;
         std::vector<Tile> Tiles() final;
         std::vector<Tile> TilesFromHand() final;
