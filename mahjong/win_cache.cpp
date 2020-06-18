@@ -327,5 +327,5 @@ namespace mj {
 
         std::cout << "Finish Loading" << std::endl;
     }
-};
+}
 
