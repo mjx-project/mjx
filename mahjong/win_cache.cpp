@@ -8,7 +8,6 @@
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/json_parser.hpp>
 
-
 #include "types.h"
 #include "win_cache.h"
 
@@ -16,18 +15,18 @@
 namespace mj {
 
     bool WinningHandCache::Has(const std::string &s) const noexcept {
-        return true; // TODO
+        return cache_.count(s);
     }
 
     WinningHandCache::WinningHandCache() {
-        std::cout << "WinningHandCache::WinningHandCache" << std::endl;
-        PrepareWinCache();
-        //LoadWinCache();
+        //PrepareWinCache();
+        LoadWinCache();
     }
 
     std::vector<std::map<TileType,int>> WinningHandCache::CreateSets() const noexcept {
-        std::cout << "WinningHandCache::CreateSets" << std::endl;
         std::vector<std::map<TileType,int>> sets;
+
+        // 順子
         for (int start : {0, 9, 18}) {
             for (int i = start; i + 2 < start + 9; ++i) {
                 std::map<TileType,int> count;
@@ -37,6 +36,8 @@ namespace mj {
                 sets.push_back(count);
             }
         }
+
+        // 刻子
         for (int i = 0; i < 34; ++i) {
             std::map<TileType,int> count;
             count[static_cast<TileType>(i)] = 3;
@@ -46,7 +47,6 @@ namespace mj {
     }
 
     std::vector<std::map<TileType,int>> WinningHandCache::CreateHeads() const noexcept {
-        std::cout << "WinningHandCache::CreateHeads" << std::endl;
         std::vector<std::map<TileType,int>> heads;
         for (int i = 0; i < 34; ++i) {
             std::map<TileType,int> count;
@@ -107,10 +107,12 @@ namespace mj {
             }
         }
 
-        AbstructHand abstruct_hand;
-        std::vector<TileType> tile_types;
+        //AbstructHand abstruct_hand;
+        //std::vector<TileType> tile_types;
 
-        std::tie(abstruct_hand, tile_types) = CreateAbstructHand(total);
+        //std::tie(abstruct_hand, tile_types) = CreateAbstructHand(total);
+
+        auto [abstruct_hand, tile_types] = CreateAbstructHand(total);
 
         std::map<TileType, int> tile_index;
         for (int i = 0; i < tile_types.size(); ++i) {
@@ -120,9 +122,9 @@ namespace mj {
         SplitPattern pattern;
         for (const std::map<TileType, int>& s : blocks) {
             std::vector<int> set_index;
-            for (const auto& p : s) {
-                for (int t = 0; t < p.second; ++t) {
-                    set_index.push_back(tile_index[p.first]);
+            for (const auto& [tile_type, count] : s) {
+                for (int t = 0; t < count; ++t) {
+                    set_index.push_back(tile_index[tile_type]);
                 }
             }
             pattern.push_back(set_index);
@@ -134,11 +136,11 @@ namespace mj {
     }
 
     void WinningHandCache::Add(std::map<TileType,int>& total, const std::map<TileType,int>& block) {
-        for (const auto& p : block) total[p.first] += p.second;
+        for (const auto& [tile_type, count] : block) total[tile_type] += count;
     }
     void WinningHandCache::Sub(std::map<TileType,int>& total, const std::map<TileType,int>& block) {
-        for (const auto& p : block) {
-            if ((total[p.first] -= p.second) == 0) total.erase(p.first);
+        for (const auto& [tile_type, count] : block) {
+            if ((total[tile_type] -= count) == 0) total.erase(tile_type);
         }
     }
 
@@ -148,34 +150,7 @@ namespace mj {
         const std::vector<std::map<TileType,int>> heads = CreateHeads();
 
         {
-            // 国士無双
-            std::cout << "国士無双" << std::endl;
-            std::vector<TileType> thirteen_orphans_tile;
-            for (int i : {0, 8, 9, 17, 18, 26, 27, 28, 29, 30, 31, 32, 33}) {
-                thirteen_orphans_tile.push_back(static_cast<TileType>(i));
-            }
-
-            std::map<TileType, int> thirteen_orphans;
-            for (TileType tile : thirteen_orphans_tile) {
-                thirteen_orphans[tile] = 1;
-            }
-
-            std::map<TileType, int> thirteen_orphans_total = thirteen_orphans;
-
-            for (TileType tile : thirteen_orphans_tile) {
-                std::map<TileType, int> last;
-                last[tile] = 1;
-                Add(thirteen_orphans_total, last);
-                Register({thirteen_orphans, last}, thirteen_orphans_total);
-                Sub(thirteen_orphans_total, last);
-            }
-        }
-
-        std::map<TileType, int> total;
-
-        // 七対子
-        {
-            std::cout << "七対子" << std::endl;
+            // 七対子
             SplitPattern pattern;
             for (int i = 0; i < 7; ++i) {
                 pattern.push_back({i, i});
@@ -191,10 +166,13 @@ namespace mj {
         }
 
 
+        std::map<TileType, int> total;
+
         // 基本形
         for (int h = 0; h < heads.size(); ++h)
         {
-            std::cout << h << '/' << heads.size() << std::endl;
+            std::cerr << h << '/' << heads.size() << std::endl;
+
             Add(total, heads[h]);
             if (!Register({heads[h]}, total)) {
                 Sub(total, heads[h]);
@@ -244,79 +222,56 @@ namespace mj {
             Sub(total, heads[h]);
         }
 
-        /////////////////
-        // 統計情報
-
-        std::cout << "abstruct hand kinds: " << cache_.size() << std::endl;
-
-        int max_size = 0, size_total = 0;
-        for (const auto& cache : cache_) {
-            size_total += cache.second.size();
-            if (max_size < cache.second.size()) {
-                max_size = cache.second.size();
-            }
-        }
-
-        std::cout << "max size of abstruct hand: " << max_size << std::endl;
-        for (const auto& cache : cache_) {
-            if (max_size == cache.second.size()) {
-                std::cout << cache.first << std::endl;
-            }
-        }
-
-        std::cout << "average size of abstruct hand: " << static_cast<double>(size_total) / cache_.size() << std::endl;
-
-        /////////////////
-
-
         boost::property_tree::ptree root;
 
-        for (const auto& cache : cache_) {
-            boost::property_tree::ptree patterns;
+        std::cerr << "Writing cache file... ";
 
-            for (const SplitPattern& p : cache.second) {
-                // e.g. p = [[0,1,2],[0,1,2],[0,1,2],[0,1,2],[3,3]]
+        for (const auto& [hand, patterns] : cache_) {
+            boost::property_tree::ptree patterns_pt;
 
-                boost::property_tree::ptree pattern;
+            for (const SplitPattern& pattern : patterns) {
 
-                for (const std::vector<int>& s : p) {
+                boost::property_tree::ptree pattern_pt;
 
-                    boost::property_tree::ptree st;
-                    for (int e : s) {
-                        boost::property_tree::ptree elem;
-                        elem.put_value(e);
-                        st.push_back(std::make_pair("", elem));
+                for (const std::vector<int>& st : pattern) {
+
+                    boost::property_tree::ptree st_pt;
+                    for (int elem : st) {
+                        boost::property_tree::ptree elem_pt;
+                        elem_pt.put_value(elem);
+                        st_pt.push_back(std::make_pair("", elem_pt));
                     }
 
-                    pattern.push_back(std::make_pair("", st));
+                    pattern_pt.push_back(std::make_pair("", st_pt));
                 }
 
-                patterns.push_back(std::make_pair("", pattern));
+                patterns_pt.push_back(std::make_pair("", pattern_pt));
             }
 
-            root.add_child(cache.first, patterns);
+            root.add_child(hand, patterns_pt);
         }
 
-        // TODO: enable relative path
-        boost::property_tree::write_json("/Users/habarakeigo/mahjong/mahjong/cache.json", root);
+        boost::property_tree::write_json("cache.json", root);
+
+        std::cerr << "Done" << std::endl;
+
+        ShowStatus();
     }
 
 
     void WinningHandCache::LoadWinCache() {
+        std::cerr << "Loading cache file... ";
 
         boost::property_tree::ptree root;
-        // TODO: enable relative path
-        boost::property_tree::read_json("/Users/habarakeigo/mahjong/mahjong/cache.json", root);
+        boost::property_tree::read_json("cache.json", root);
 
-        for (auto& cache : root) {
-            AbstructHand hand = cache.first;
-
-            for (auto& p : cache.second) {
+        for (const auto& [hand, patterns_pt] : root) {
+            for (auto& pattern_pt : patterns_pt) {
                 SplitPattern pattern;
-                for (auto& s : p.second) {
+                for (auto& st_pt : pattern_pt.second) {
                     std::vector<int> st;
-                    for (auto& e : s.second) {
-                        st.push_back(e.second.get_value<int>());
+                    for (auto& elem_pt : st_pt.second) {
+                        st.push_back(elem_pt.second.get_value<int>());
                     }
                     pattern.push_back(st);
                 }
@@ -325,7 +280,34 @@ namespace mj {
             }
         }
 
-        std::cout << "Finish Loading" << std::endl;
+        std::cerr << "Done" << std::endl;
+
+        ShowStatus();
+    }
+
+    void WinningHandCache::ShowStatus() const noexcept {
+        std::cerr << "=====統計情報=====" << std::endl;
+
+        std::cerr << "abstruct hand kinds: " << cache_.size() << std::endl;
+
+        int max_size = 0, size_total = 0;
+        for (const auto& [hand, patterns] : cache_) {
+            size_total += patterns.size();
+            if (max_size < patterns.size()) {
+                max_size = patterns.size();
+            }
+        }
+
+        std::cerr << "max size of abstruct hand: " << max_size << std::endl;
+        for (const auto& [hand, patterns] : cache_) {
+            if (max_size == patterns.size()) {
+                std::cerr << "- " << hand << std::endl;
+            }
+        }
+
+        std::cerr << "average size of abstruct hand: " << static_cast<double>(size_total) / cache_.size() << std::endl;
+
+        std::cerr << "================" << std::endl;
     }
 };
 
