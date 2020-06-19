@@ -1,5 +1,8 @@
 #include "yaku_evaluator.h"
 
+#include <cassert>
+#include <vector>
+
 namespace mj
 {
     YakuEvaluator::YakuEvaluator() : win_cache_() {}
