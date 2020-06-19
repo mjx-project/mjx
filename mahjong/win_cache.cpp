@@ -1,12 +1,9 @@
-#include <cstdint>
-#include <array>
-#include <sstream>
+#include "win_cache.h"
+
 #include <iostream>
 
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/json_parser.hpp>
-
-#include "win_cache.h"
 
 
 namespace mj {
@@ -43,5 +40,5 @@ namespace mj {
 
         std::cerr << "Done" << std::endl;
     }
-};
+}  // namespace mj
 

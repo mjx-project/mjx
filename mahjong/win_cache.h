@@ -1,14 +1,13 @@
 #ifndef MAHJONG_WIN_CACHE_H
 #define MAHJONG_WIN_CACHE_H
 
-#include "types.h"
-
-#include <memory>
 #include <map>
 #include <unordered_map>
 #include <set>
 #include <vector>
 #include <string>
+
+#include "types.h"
 
 namespace mj
 {
@@ -24,6 +23,6 @@ namespace mj
         std::map<AbstructHand, std::set<SplitPattern>> cache_;
         void LoadWinCache();
     };
-}
+}  // namespace mj
 
 #endif //MAHJONG_WIN_CACHE_H

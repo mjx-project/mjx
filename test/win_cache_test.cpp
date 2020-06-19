@@ -1,4 +1,3 @@
-#include <numeric>
 #include "gtest/gtest.h"
 #include "win_cache.h"
 

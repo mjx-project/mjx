@@ -1,13 +1,13 @@
 #ifndef MAHJONG_WIN_CACHE_GENERATOR_H
 #define MAHJONG_WIN_CACHE_GENERATOR_H
 
-#include "types.h"
-
 #include <memory>
 #include <map>
 #include <unordered_map>
 #include <set>
 #include <vector>
+
+#include "types.h"
 
 namespace mj
 {
@@ -30,6 +30,6 @@ namespace mj
         static void Sub(TileCount& total, const TileCount& block) noexcept ;
         static void ShowStatus(const CacheType& cache) noexcept ;
     };
-}
+}  // namespace mj
 
 #endif //MAHJONG_WIN_CACHE_GENERATOR_H

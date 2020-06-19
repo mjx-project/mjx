@@ -1,13 +1,10 @@
-#include <array>
-#include <sstream>
+#include "win_cache_generator.h"
+
 #include <iostream>
-#include <bitset>
 
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/json_parser.hpp>
-
 #include "types.h"
-#include "win_cache_generator.h"
 
 
 namespace mj {
@@ -267,5 +264,5 @@ namespace mj {
 
         std::cerr << "================" << std::endl;
     }
-};
+}  // namespace mj
 
