@@ -8,7 +8,7 @@ namespace mj
     YakuEvaluator::YakuEvaluator() : win_cache_() {}
 
     bool YakuEvaluator::Has(const Hand& hand) const noexcept {
-        auto [abstruct_hand, _] = CreateAbstructHand(hand);
+        auto [abstruct_hand, _] = WinningHandCache::CreateAbstructHand(ClosedHandTiles(hand));
         return win_cache_.Has(abstruct_hand);
     }
 
@@ -23,13 +23,12 @@ namespace mj
         return yaku;
     }
 
-    std::pair<AbstructHand, std::vector<TileType>>
-    YakuEvaluator::CreateAbstructHand(const Hand& hand) noexcept {
+    mj::TileCount YakuEvaluator::ClosedHandTiles(const Hand& hand) noexcept {
         mj::TileCount count;
         for (const Tile& tile : hand.ToVectorClosed(true)) {
             ++count[tile.Type()];
         }
-        return WinningHandCache::CreateAbstructHand(count);
+        return count;
     }
 
     bool YakuEvaluator::HasFullyConcealdHand(const Hand &hand) const noexcept {

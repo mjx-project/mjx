@@ -14,10 +14,9 @@ namespace mj
         YakuEvaluator();
         bool Has(const Hand& hand) const noexcept ;
         std::vector<Yaku> Eval(const Hand& hand) const noexcept ;
-    private:
 
-        [[nodiscard]] static std::pair<AbstructHand, std::vector<TileType>>
-        CreateAbstructHand(const Hand& hand) noexcept ;
+    private:
+        static mj::TileCount ClosedHandTiles(const Hand& hand) noexcept ;
         bool HasFullyConcealdHand(const Hand& hand) const noexcept ;
         WinningHandCache win_cache_;
     };
