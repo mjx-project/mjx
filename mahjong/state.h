@@ -1,0 +1,4 @@
+#ifndef MAHJONG_STATE_H
+#define MAHJONG_STATE_H
+
+#endif //MAHJONG_STATE_H

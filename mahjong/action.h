@@ -1,0 +1,4 @@
+#ifndef MAHJONG_ACTION_H
+#define MAHJONG_ACTION_H
+
+#endif //MAHJONG_ACTION_H

@@ -1,0 +1,4 @@
+#ifndef MAHJONG_RIVER_H
+#define MAHJONG_RIVER_H
+
+#endif //MAHJONG_RIVER_H
