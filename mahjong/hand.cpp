@@ -115,7 +115,7 @@ namespace mj
            hand_params.tsumo_, hand_params.ron_, hand_params.riichi_, hand_params.after_kan_)
     {}
 
-    HandStage Hand::Stage() {
+    HandStage Hand::Stage() const {
         return stage_;
     }
 
@@ -484,7 +484,7 @@ namespace mj
         return v;
     }
 
-    std::vector<Tile> Hand::ToVectorClosed(bool sorted) {
+    std::vector<Tile> Hand::ToVectorClosed(bool sorted) const {
         auto v = std::vector<Tile>(closed_tiles_.begin(), closed_tiles_.end());
         if (sorted) std::sort(v.begin(), v.end());
         return v;
@@ -528,7 +528,7 @@ namespace mj
         return a;
     }
 
-    bool Hand::IsMenzen() {
+    bool Hand::IsMenzen() const {
         if (opens_.empty()) return true;
         return std::all_of(opens_.begin(), opens_.end(),
                 [](const auto &x){ return x->Type() == OpenType::kKanClosed; });
