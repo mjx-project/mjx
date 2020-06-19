@@ -3,17 +3,17 @@ syntax = "proto3";
 package mj;
 
 service Agent {
-  rpc TakeAction (Observation) returns (Action) {}
+  rpc TakeAction (ActionRequest) returns (ActionResponse) {}
 }
 
 message Empty {
 }
 
-message Observation {  // i.e., observation
+message ActionRequest {  // i.e., observation
   uint32 type = 1;
 }
 
-message Action {
+message ActionResponse {
   uint32 type = 1;
   uint32 action = 2;
 }

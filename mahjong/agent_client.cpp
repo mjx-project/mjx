@@ -7,10 +7,10 @@ namespace mj
 
     void AgentClient::TakeAction() {
         std::cout << "AgentClient::TakeAction() starts" << std::endl;
-        Observation request;
+        ActionRequest request;
         request.set_type(1);
 
-        Action response;
+        ActionResponse response;
         grpc::ClientContext context;
         grpc::Status status = stub_->TakeAction(&context, request, &response);
 

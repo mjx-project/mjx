@@ -26,7 +26,7 @@ namespace mj
     }
 
     grpc::Status
-    MockAgentServiceImpl::TakeAction(grpc::ServerContext *context, const Observation *request, Action *reply) {
+    MockAgentServiceImpl::TakeAction(grpc::ServerContext *context, const ActionRequest *request, ActionResponse *reply) {
         reply->set_type(999);
         reply->set_action(2);
         return grpc::Status::OK;
