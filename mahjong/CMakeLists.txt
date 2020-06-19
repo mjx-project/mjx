@@ -1,6 +1,15 @@
 project(${CMAKE_PROJECT_NAME})
 
 ####################################################################################
+# For Boost
+####################################################################################
+find_package(Boost)
+IF (Boost_FOUND)
+    INCLUDE_DIRECTORIES(${Boost_INCLUDE_DIR})
+    ADD_DEFINITIONS( "-DHAS_BOOST" )
+ENDIF()
+
+####################################################################################
 # For gRPc
 ####################################################################################
 # Assumes that gRPC dependencies are previously installed (and thus following codes can find them)

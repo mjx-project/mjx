@@ -530,8 +530,8 @@ namespace mj
 
     bool Hand::IsMenzen() {
         if (opens_.empty()) return true;
-        if (std::all_of(opens_.begin(), opens_.end(),
-                [](const auto &x){ return x->Type() == OpenType::kKanClosed; }));
+        return std::all_of(opens_.begin(), opens_.end(),
+                [](const auto &x){ return x->Type() == OpenType::kKanClosed; });
     }
 
     bool Hand::CanRon(Tile tile, const WinningHandCache &win_cache) {
