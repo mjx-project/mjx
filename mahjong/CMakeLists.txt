@@ -69,3 +69,12 @@ file(GLOB HEADER_FILES *.h)
 add_library(${CMAKE_PROJECT_NAME} STATIC
         ${SOURCE_FILES} ${HEADER_FILES} ${mj_proto_srcs} ${mj_grpc_srcs})
 target_link_libraries(${CMAKE_PROJECT_NAME} ${_REFLECTION} ${_GRPC_GRPCPP} ${_PROTOBUF_LIBPROTOBUF})
+
+####################################################################################
+# For winning hand cache
+####################################################################################
+add_definitions(-DWIN_CACHE_DIR="${CMAKE_CURRENT_SOURCE_DIR}/cache")
+
+# Generate cache file
+add_executable(win_cache_generator win_cache_generator.cpp)
+target_link_libraries(win_cache_generator ${CMAKE_PROJECT_NAME})
