@@ -133,6 +133,7 @@ namespace mj {
         const std::vector<TileCount> heads = CreateHeads();
 
         CacheType cache;
+        cache.reserve(9362);
 
         {
             // 七対子

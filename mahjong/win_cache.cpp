@@ -23,6 +23,8 @@ namespace mj {
 
         boost::property_tree::read_json(std::string(WIN_CACHE_DIR) + "/win_cache.json", root);
 
+        cache_.reserve(root.size());
+
         for (const auto& [hand, patterns_pt] : root) {
             for (auto& pattern_pt : patterns_pt) {
                 SplitPattern pattern;

@@ -1,7 +1,6 @@
 #ifndef MAHJONG_WIN_CACHE_H
 #define MAHJONG_WIN_CACHE_H
 
-#include <map>
 #include <unordered_map>
 #include <set>
 #include <vector>
@@ -13,6 +12,7 @@ namespace mj
 {
     using AbstructHand = std::string;
     using SplitPattern = std::vector<std::vector<int>>;
+    using CacheType = std::unordered_map<AbstructHand, std::set<SplitPattern>>;
 
     class WinningHandCache
     {
@@ -20,7 +20,7 @@ namespace mj
         WinningHandCache();
         [[nodiscard]] bool Has(const std::string &s) const noexcept ;
     private:
-        std::map<AbstructHand, std::set<SplitPattern>> cache_;
+        CacheType cache_;
         void LoadWinCache();
     };
 }  // namespace mj

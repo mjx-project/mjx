@@ -13,7 +13,7 @@ namespace mj
 {
     using AbstructHand = std::string;
     using SplitPattern = std::vector<std::vector<int>>;
-    using CacheType = std::map<AbstructHand, std::set<SplitPattern>>;
+    using CacheType = std::unordered_map<AbstructHand, std::set<SplitPattern>>;
     using TileCount = std::map<TileType, int>;
 
     class WinningHandCacheGenerator
