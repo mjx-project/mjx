@@ -15,5 +15,8 @@ message ActionRequest {  // i.e., observation
 
 message ActionResponse {
   uint32 type = 1;
-  uint32 action = 2;
+  bool has_discard = 2;
+  bool has_open = 3;
+  uint32 discard = 4;
+  uint32 open = 5;
 }
