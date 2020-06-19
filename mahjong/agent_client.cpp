@@ -18,7 +18,7 @@ namespace mj
             std::cout << status.error_code() << ": " << status.error_message() << std::endl;
         }
         std::cout << "  type: " << response.type() << std::endl;
-        std::cout << "  action: " << response.action() << std::endl;
+        std::cout << "  action: " << response.discard() << std::endl;
         std::cout << "AgentClient::TakeAction() ends" << std::endl;
     }
 }  // namespace mj

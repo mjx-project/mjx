@@ -31,6 +31,19 @@ namespace mj {
         kEmpty
     };
 
+    enum class ActionType : std::uint8_t {
+        kDiscard,
+        kRiichi,
+        kTsumo,
+        kRon,
+        kChi,
+        kPon,
+        kKanClosed,
+        kKanOpened,
+        kKanAdded,
+        kKyushu
+    };
+
     enum class HandStage : std::uint8_t {
         kAfterDiscards,
         kAfterDraw,
