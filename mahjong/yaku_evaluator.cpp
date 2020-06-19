@@ -3,6 +3,8 @@
 #include <cassert>
 #include <vector>
 
+#include "types.h"
+
 namespace mj
 {
     YakuEvaluator::YakuEvaluator() : win_cache_() {}
@@ -23,8 +25,8 @@ namespace mj
         return yaku;
     }
 
-    TileCount YakuEvaluator::ClosedHandTiles(const Hand& hand) noexcept {
-        TileCount count;
+    TileTypeCount YakuEvaluator::ClosedHandTiles(const Hand& hand) noexcept {
+        TileTypeCount count;
         for (const Tile& tile : hand.ToVectorClosed(true)) {
             ++count[tile.Type()];
         }

@@ -17,12 +17,15 @@ namespace mj
     public:
         static void GenerateCache() noexcept ;
     private:
-        [[nodiscard]] static std::vector<TileCount> CreateSets() noexcept ;
-        [[nodiscard]] static std::vector<TileCount> CreateHeads() noexcept ;
-        static bool Register(const std::vector<TileCount>& blocks, const TileCount& total, CacheType& cache) noexcept ;
-        static void Add(TileCount& total, const TileCount& block) noexcept ;
-        static void Sub(TileCount& total, const TileCount& block) noexcept ;
-        static void ShowStatus(const CacheType& cache) noexcept ;
+        [[nodiscard]] static std::vector<TileTypeCount> CreateSets() noexcept ;
+        [[nodiscard]] static std::vector<TileTypeCount> CreateHeads() noexcept ;
+        static bool Register(
+                const std::vector<TileTypeCount>& blocks,
+                const TileTypeCount& total,
+                win_cache::CacheType& cache) noexcept ;
+        static void Add(TileTypeCount& total, const TileTypeCount& block) noexcept ;
+        static void Sub(TileTypeCount& total, const TileTypeCount& block) noexcept ;
+        static void ShowStatus(const win_cache::CacheType& cache) noexcept ;
     };
 }  // namespace mj
 

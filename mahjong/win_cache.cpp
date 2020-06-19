@@ -8,11 +8,11 @@
 
 namespace mj {
 
-    bool WinningHandCache::Has(const AbstructHand &abstruct_hand) const noexcept {
+    bool WinningHandCache::Has(const win_cache::AbstructHand &abstruct_hand) const noexcept {
         return cache_.count(abstruct_hand);
     }
 
-    const std::set<SplitPattern>& WinningHandCache::Patterns(const std::string &abstruct_hand) const noexcept {
+    const std::set<win_cache::SplitPattern>& WinningHandCache::Patterns(const win_cache::AbstructHand &abstruct_hand) const noexcept {
         return cache_.at(abstruct_hand);
     }
 
@@ -31,7 +31,7 @@ namespace mj {
 
         for (const auto& [hand, patterns_pt] : root) {
             for (auto& pattern_pt : patterns_pt) {
-                SplitPattern pattern;
+                win_cache::SplitPattern pattern;
                 for (auto& st_pt : pattern_pt.second) {
                     std::vector<int> st;
                     for (auto& elem_pt : st_pt.second) {
@@ -47,8 +47,8 @@ namespace mj {
         std::cerr << "Done" << std::endl;
     }
 
-    std::pair<AbstructHand, std::vector<TileType>>
-    WinningHandCache::CreateAbstructHand(const TileCount& count) noexcept {
+    std::pair<win_cache::AbstructHand, std::vector<TileType>>
+    WinningHandCache::CreateAbstructHand(const TileTypeCount& count) noexcept {
 
         std::vector<std::string> hands;
         std::vector<TileType> tile_types;
@@ -80,7 +80,7 @@ namespace mj {
             }
         }
 
-        AbstructHand abstruct_hand;
+        win_cache::AbstructHand abstruct_hand;
 
         for (int i = 0; i < hands.size(); ++i) {
             if (i) abstruct_hand += ',';

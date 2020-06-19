@@ -16,7 +16,7 @@ namespace mj
         std::vector<Yaku> Eval(const Hand& hand) const noexcept ;
 
     private:
-        static TileCount ClosedHandTiles(const Hand& hand) noexcept ;
+        static TileTypeCount ClosedHandTiles(const Hand& hand) noexcept ;
         bool HasFullyConcealdHand(const Hand& hand) const noexcept ;
         WinningHandCache win_cache_;
     };
