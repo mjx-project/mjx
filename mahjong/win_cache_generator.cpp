@@ -236,8 +236,7 @@ namespace mj {
             root.add_child(hand, patterns_pt);
         }
 
-        // TODO: プロジェクトルートからの絶対パスで指定
-        boost::property_tree::write_json("../cache/win_cache.json", root);
+        boost::property_tree::write_json(std::string(WIN_CACHE_DIR) + "/win_cache.json", root);
 
         std::cerr << "Done" << std::endl;
 

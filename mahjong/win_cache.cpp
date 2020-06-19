@@ -24,8 +24,7 @@ namespace mj {
 
         boost::property_tree::ptree root;
 
-        // TODO: プロジェクトルートからの絶対パスで指定
-        boost::property_tree::read_json("../../cache/win_cache.json", root);
+        boost::property_tree::read_json(std::string(WIN_CACHE_DIR) + "/win_cache.json", root);
 
         for (const auto& [hand, patterns_pt] : root) {
             for (auto& pattern_pt : patterns_pt) {
