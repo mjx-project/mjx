@@ -21,8 +21,6 @@ namespace mj
     public:
         static void GenerateCache() noexcept ;
     private:
-        [[nodiscard]] static std::pair<AbstructHand, std::vector<TileType>>
-        CreateAbstructHand(const TileCount& count) noexcept ;
         [[nodiscard]] static std::vector<TileCount> CreateSets() noexcept ;
         [[nodiscard]] static std::vector<TileCount> CreateHeads() noexcept ;
         static bool Register(const std::vector<TileCount>& blocks, const TileCount& total, CacheType& cache) noexcept ;
