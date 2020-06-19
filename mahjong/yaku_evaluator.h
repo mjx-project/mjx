@@ -15,6 +15,10 @@ namespace mj
         bool Has(const Hand& hand) const noexcept ;
         std::vector<Yaku> Eval(const Hand& hand) const noexcept ;
     private:
+
+        [[nodiscard]] static std::pair<AbstructHand, std::vector<TileType>>
+        CreateAbstructHand(const Hand& hand) noexcept ;
+        bool HasFullyConcealdHand(const Hand& hand) const noexcept ;
         WinningHandCache win_cache_;
     };
 } // namespace mj

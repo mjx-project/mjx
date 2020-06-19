@@ -8,8 +8,12 @@
 
 namespace mj {
 
-    bool WinningHandCache::Has(const AbstructHand &hand) const noexcept {
-        return cache_.count(hand);
+    bool WinningHandCache::Has(const AbstructHand &abstruct_hand) const noexcept {
+        return cache_.count(abstruct_hand);
+    }
+
+    const std::set<SplitPattern>& WinningHandCache::Patterns(const std::string &abstruct_hand) const noexcept {
+        return cache_.at(abstruct_hand);
     }
 
     WinningHandCache::WinningHandCache() {

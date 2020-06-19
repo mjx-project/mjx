@@ -3,6 +3,7 @@
 
 #include <unordered_map>
 #include <set>
+#include <map>
 #include <vector>
 #include <string>
 
@@ -19,9 +20,10 @@ namespace mj
     {
     public:
         WinningHandCache();
-        [[nodiscard]] bool Has(const std::string &s) const noexcept ;
+        [[nodiscard]] bool Has(const std::string &abstruct_hand) const noexcept ;
         [[nodiscard]] static std::pair<AbstructHand, std::vector<TileType>>
         CreateAbstructHand(const TileCount& count) noexcept ;
+        [[nodiscard]] const std::set<SplitPattern>& Patterns(const std::string &abstruct_hand) const noexcept ;
     private:
         CacheType cache_;
         void LoadWinCache();
