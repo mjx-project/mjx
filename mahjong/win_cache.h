@@ -3,6 +3,7 @@
 
 #include <unordered_map>
 #include <set>
+#include <map>
 #include <vector>
 #include <string>
 
@@ -10,17 +11,17 @@
 
 namespace mj
 {
-    using AbstructHand = std::string;
-    using SplitPattern = std::vector<std::vector<int>>;
-    using CacheType = std::unordered_map<AbstructHand, std::set<SplitPattern>>;
-
     class WinningHandCache
     {
     public:
         WinningHandCache();
-        [[nodiscard]] bool Has(const std::string &s) const noexcept ;
+        [[nodiscard]] bool Has(const std::string &abstruct_hand) const noexcept ;
+        [[nodiscard]] static std::pair<win_cache::AbstructHand, std::vector<TileType>>
+        CreateAbstructHand(const TileTypeCount& count) noexcept ;
+        [[nodiscard]] const std::set<win_cache::SplitPattern>& Patterns(
+                const win_cache::AbstructHand &abstruct_hand) const noexcept ;
     private:
-        CacheType cache_;
+        win_cache::CacheType cache_;
         void LoadWinCache();
     };
 }  // namespace mj

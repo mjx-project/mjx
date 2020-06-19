@@ -35,15 +35,15 @@ namespace mj
         explicit Hand(const HandParams &hand_params);
 
         // accessor to hand internal state
-        HandStage Stage();
+        HandStage Stage() const;
         std::optional<Tile> LastTileAdded();
-        bool IsMenzen();
+        bool IsMenzen() const;
         bool IsUnderRiichi();
         std::size_t Size();
         std::size_t SizeOpened();
         std::size_t SizeClosed();
         std::vector<Tile> ToVector(bool sorted = false);
-        std::vector<Tile> ToVectorClosed(bool sorted = false);
+        std::vector<Tile> ToVectorClosed(bool sorted = false) const;
         std::vector<Tile> ToVectorOpened(bool sorted = false);
         std::array<std::uint8_t, 34> ToArray();
         std::array<std::uint8_t, 34> ToArrayClosed();
