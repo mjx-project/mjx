@@ -15,7 +15,6 @@ namespace mj
     using SplitPattern = std::vector<std::vector<int>>;
     using CacheType = std::unordered_map<AbstructHand, std::set<SplitPattern>>;
     using TileCount = std::map<TileType, int>;
-
     class WinningHandCache
     {
     public:

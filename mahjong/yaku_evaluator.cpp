@@ -23,8 +23,8 @@ namespace mj
         return yaku;
     }
 
-    mj::TileCount YakuEvaluator::ClosedHandTiles(const Hand& hand) noexcept {
-        mj::TileCount count;
+    TileCount YakuEvaluator::ClosedHandTiles(const Hand& hand) noexcept {
+        TileCount count;
         for (const Tile& tile : hand.ToVectorClosed(true)) {
             ++count[tile.Type()];
         }
@@ -32,6 +32,6 @@ namespace mj
     }
 
     bool YakuEvaluator::HasFullyConcealdHand(const Hand &hand) const noexcept {
-        return hand.IsMenzen() and hand.Stage() == mj::HandStage::kAfterTsumo;
+        return hand.IsMenzen() and hand.Stage() == HandStage::kAfterTsumo;
     }
 }
