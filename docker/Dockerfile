@@ -8,6 +8,7 @@ RUN apt-get update && apt-get install -y \
   wget \
   cmake \
   build-essential \
+  libboost-dev \
   autoconf \
   libtool \
   pkg-config
