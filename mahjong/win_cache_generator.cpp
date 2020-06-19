@@ -13,7 +13,8 @@ namespace mj {
         std::vector<TileCount> sets;
 
         // 順子
-        for (int start : {0, 9, 18}) {
+        for (int start : {0}) {
+        //for (int start : {0, 9, 18}) {
             for (int i = start; i + 2 < start + 9; ++i) {
                 TileCount count;
                 count[static_cast<TileType>(i)] = 1;
@@ -24,7 +25,8 @@ namespace mj {
         }
 
         // 刻子
-        for (int i = 0; i < 34; ++i) {
+        for (int i = 0; i < 9; ++i) {
+        //for (int i = 0; i < 34; ++i) {
             TileCount count;
             count[static_cast<TileType>(i)] = 3;
             sets.push_back(count);
@@ -34,7 +36,8 @@ namespace mj {
 
     std::vector<TileCount> WinningHandCacheGenerator::CreateHeads() noexcept {
         std::vector<TileCount> heads;
-        for (int i = 0; i < 34; ++i) {
+        for (int i = 0; i < 9; ++i) {
+        //for (int i = 0; i < 34; ++i) {
             TileCount count;
             count[static_cast<TileType>(i)] = 2;
             heads.push_back(count);
@@ -266,3 +269,7 @@ namespace mj {
     }
 }  // namespace mj
 
+int main(int argc, char** argv) {
+    mj::WinningHandCacheGenerator::GenerateCache();
+    return 0;
+}
