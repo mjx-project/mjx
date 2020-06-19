@@ -18,7 +18,8 @@ namespace mj
         [[nodiscard]] bool Has(const std::string &abstruct_hand) const noexcept ;
         [[nodiscard]] static std::pair<win_cache::AbstructHand, std::vector<TileType>>
         CreateAbstructHand(const TileTypeCount& count) noexcept ;
-        [[nodiscard]] const std::set<win_cache::SplitPattern>& Patterns(const win_cache::AbstructHand &abstruct_hand) const noexcept ;
+        [[nodiscard]] const std::set<win_cache::SplitPattern>& Patterns(
+                const win_cache::AbstructHand &abstruct_hand) const noexcept ;
     private:
         win_cache::CacheType cache_;
         void LoadWinCache();
