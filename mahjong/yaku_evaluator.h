@@ -23,6 +23,8 @@ namespace mj
         bool HasGreenDragon(const Hand& hand) const noexcept ;
         bool HasRedDragon(const Hand& hand) const noexcept ;
         bool HasAllTermsAndHonours(const Hand& hand) const noexcept ;
+        bool HasHalfFlush(const Hand &hand) const noexcept ;
+        bool HasFullFlush(const Hand &hand) const noexcept ;
         WinningHandCache win_cache_;
     };
 } // namespace mj

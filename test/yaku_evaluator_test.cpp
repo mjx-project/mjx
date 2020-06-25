@@ -68,3 +68,33 @@ TEST_F(YakuTest, AllTermsAndHonours)
             mj::Hand(mj::HandParams("m1,m2,m3,m9,m9,s1,s1,ew,ew,ew,rd,rd,rd").Tsumo("m9")));
     EXPECT_EQ(std::count(yaku2.begin(), yaku2.end(), mj::Yaku::kAllTermsAndHonours), 0);
 }
+
+TEST_F(YakuTest, HalfFlush)
+{
+    auto yaku1 = evaluator.Eval(
+            mj::Hand(mj::HandParams("m1,m2,m3,m4,m5,m9,m9,m9,ew,ew,ew,rd,rd").Tsumo("m6")));
+    EXPECT_EQ(std::count(yaku1.begin(), yaku1.end(), mj::Yaku::kHalfFlush), 1);
+
+    auto yaku2 = evaluator.Eval(
+            mj::Hand(mj::HandParams("m1,m2,m3,m4,m5,m9,m9,m9,s1,s1,ew,ew,ew").Tsumo("m6")));
+    EXPECT_EQ(std::count(yaku2.begin(), yaku2.end(), mj::Yaku::kHalfFlush), 0);
+
+    auto yaku3 = evaluator.Eval(
+            mj::Hand(mj::HandParams("m1,m2,m3,m4,m5,m7,m7,m7,m8,m8,m9,m9,m9").Tsumo("m6")));
+    EXPECT_EQ(std::count(yaku3.begin(), yaku3.end(), mj::Yaku::kHalfFlush), 0);
+}
+
+TEST_F(YakuTest, FullFlush)
+{
+    auto yaku1 = evaluator.Eval(
+            mj::Hand(mj::HandParams("m1,m2,m3,m4,m5,m9,m9,m9,ew,ew,ew,rd,rd").Tsumo("m6")));
+    EXPECT_EQ(std::count(yaku1.begin(), yaku1.end(), mj::Yaku::kFullFlush), 0);
+
+    auto yaku2 = evaluator.Eval(
+            mj::Hand(mj::HandParams("m1,m2,m3,m4,m5,m9,m9,m9,s1,s1,ew,ew,ew").Tsumo("m6")));
+    EXPECT_EQ(std::count(yaku2.begin(), yaku2.end(), mj::Yaku::kFullFlush), 0);
+
+    auto yaku3 = evaluator.Eval(
+            mj::Hand(mj::HandParams("m1,m2,m3,m4,m5,m7,m7,m7,m8,m8,m9,m9,m9").Tsumo("m6")));
+    EXPECT_EQ(std::count(yaku3.begin(), yaku3.end(), mj::Yaku::kFullFlush), 1);
+}

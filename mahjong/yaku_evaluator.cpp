@@ -26,6 +26,8 @@ namespace mj
         if (HasGreenDragon(hand)) yaku.push_back(mj::Yaku::kGreenDragon);
         if (HasRedDragon(hand)) yaku.push_back(mj::Yaku::kRedDragon);
         if (HasAllTermsAndHonours(hand)) yaku.push_back(mj::Yaku::kAllTermsAndHonours);
+        if (HasHalfFlush(hand)) yaku.push_back(mj::Yaku::kHalfFlush);
+        if (HasFullFlush(hand)) yaku.push_back(mj::Yaku::kFullFlush);
 
         return yaku;
     }
@@ -56,6 +58,7 @@ namespace mj
         }
         return total >= 3;
     }
+
     bool YakuEvaluator::HasGreenDragon(const Hand &hand) const noexcept {
         int total = 0;
         for (const Tile& tile : hand.ToVector()) {
@@ -63,6 +66,7 @@ namespace mj
         }
         return total >= 3;
     }
+
     bool YakuEvaluator::HasRedDragon(const Hand &hand) const noexcept {
         int total = 0;
         for (const Tile& tile : hand.ToVector()) {
@@ -70,10 +74,31 @@ namespace mj
         }
         return total >= 3;
     }
+
     bool YakuEvaluator::HasAllTermsAndHonours(const Hand &hand) const noexcept {
-        for (const Tile& tile : hand.ToVector()) {
+        for (const Tile &tile : hand.ToVector()) {
             if (tile.Is(TileSetType::kTanyao)) return false;
         }
         return true;
+    }
+
+    bool YakuEvaluator::HasHalfFlush(const Hand &hand) const noexcept {
+        std::map<TileSetType,bool> set_types;
+        for (const Tile& tile : hand.ToVector()) {
+            if (tile.Is(TileSetType::kHonours)) set_types[TileSetType::kHonours] = true;
+            else set_types[tile.Color()] = true;
+        }
+
+        return set_types.count(TileSetType::kHonours) and set_types.size() == 2;
+    }
+
+    bool YakuEvaluator::HasFullFlush(const Hand &hand) const noexcept {
+        std::map<TileSetType,bool> set_types;
+        for (const Tile& tile : hand.ToVector()) {
+            if (tile.Is(TileSetType::kHonours)) set_types[TileSetType::kHonours] = true;
+            else set_types[tile.Color()] = true;
+        }
+
+        return set_types.count(TileSetType::kHonours) == 0 and set_types.size() == 1;
     }
 }
