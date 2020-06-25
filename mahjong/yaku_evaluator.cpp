@@ -21,6 +21,7 @@ namespace mj
         std::vector<Yaku> yaku;
 
         if (HasFullyConcealdHand(hand)) yaku.push_back(mj::Yaku::kFullyConcealedHand);
+        if (HasHalfFlush(hand)) yaku.push_back(mj::Yaku::kHalfFlush);
 
         return yaku;
     }
@@ -35,5 +36,15 @@ namespace mj
 
     bool YakuEvaluator::HasFullyConcealdHand(const Hand &hand) const noexcept {
         return hand.IsMenzen() and hand.Stage() == HandStage::kAfterTsumo;
+    }
+
+    bool YakuEvaluator::HasHalfFlush(const Hand &hand) const noexcept {
+        std::map<TileSetType,bool> set_types;
+        for (const Tile& tile : hand.ToVector()) {
+            if (tile.Is(TileSetType::kHonours)) set_types[TileSetType::kHonours] = true;
+            else set_types[tile.Color()] = true;
+        }
+
+        return set_types.count(TileSetType::kHonours) and set_types.size() == 2;
     }
 }
