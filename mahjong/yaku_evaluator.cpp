@@ -22,6 +22,9 @@ namespace mj
 
         if (HasFullyConcealdHand(hand)) yaku.push_back(mj::Yaku::kFullyConcealedHand);
         if (HasAllSimples(hand)) yaku.push_back(mj::Yaku::kAllSimples);
+        if (HasWhiteDragon(hand)) yaku.push_back(mj::Yaku::kWhiteDragon);
+        if (HasGreenDragon(hand)) yaku.push_back(mj::Yaku::kGreenDragon);
+        if (HasRedDragon(hand)) yaku.push_back(mj::Yaku::kRedDragon);
 
         return yaku;
     }
@@ -43,5 +46,27 @@ namespace mj
             if (tile.Is(TileSetType::kYaocyu)) return false;
         }
         return true;
+    }
+
+    bool YakuEvaluator::HasWhiteDragon(const Hand &hand) const noexcept {
+        int total = 0;
+        for (const Tile& tile : hand.ToVector()) {
+            if (tile.Type() == TileType::kWD) ++total;
+        }
+        return total >= 3;
+    }
+    bool YakuEvaluator::HasGreenDragon(const Hand &hand) const noexcept {
+        int total = 0;
+        for (const Tile& tile : hand.ToVector()) {
+            if (tile.Type() == TileType::kGD) ++total;
+        }
+        return total >= 3;
+    }
+    bool YakuEvaluator::HasRedDragon(const Hand &hand) const noexcept {
+        int total = 0;
+        for (const Tile& tile : hand.ToVector()) {
+            if (tile.Type() == TileType::kRD) ++total;
+        }
+        return total >= 3;
     }
 }

@@ -19,6 +19,9 @@ namespace mj
         static TileTypeCount ClosedHandTiles(const Hand& hand) noexcept ;
         bool HasFullyConcealdHand(const Hand& hand) const noexcept ;
         bool HasAllSimples(const Hand& hand) const noexcept ;
+        bool HasWhiteDragon(const Hand& hand) const noexcept ;
+        bool HasGreenDragon(const Hand& hand) const noexcept ;
+        bool HasRedDragon(const Hand& hand) const noexcept ;
         WinningHandCache win_cache_;
     };
 } // namespace mj
