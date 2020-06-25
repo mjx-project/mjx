@@ -28,7 +28,7 @@ namespace mj
     grpc::Status
     MockAgentServiceImpl::TakeAction(grpc::ServerContext *context, const ActionRequest *request, ActionResponse *reply) {
         reply->set_type(999);
-        reply->set_action(2);
+        reply->set_discard(2);
         return grpc::Status::OK;
     }
 }  // namesapce mj

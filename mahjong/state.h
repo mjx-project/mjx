@@ -13,14 +13,15 @@
 
 namespace mj
 {
-    struct Score
+    class Score
     {
     public:
         Score();
-        std::uint8_t round;  // 局
-        std::uint8_t honba;  // 本場
-        std::uint8_t riichi;  // リー棒
-        std::array<std::int16_t, 4> ten;  // 点 250 start
+    private:
+        std::uint8_t round_;  // 局
+        std::uint8_t honba_;  // 本場
+        std::uint8_t riichi_;  // リー棒
+        std::array<std::int16_t, 4> ten_;  // 点 250 start
     };
 
     class Wall
@@ -40,20 +41,10 @@ namespace mj
         std::vector<Tile>::iterator curr_rinshan_;
     };
 
-    class RiverState
-    {
-
-    };
-
-    class HandState
-    {
-
-    };
-
-    class RoundState
+    class StateInRound
     {
     public:
-        RoundState(std::uint32_t round_seed);
+        StateInRound(std::uint32_t round_seed);
         bool IsRoundOver();
         AbsolutePos GetDealer();
         void UpdateStateByDraw(AbsolutePos drawer_pos);
@@ -67,23 +58,26 @@ namespace mj
         bool CanRon(AbsolutePos winner_pos);
         bool HasFourKanByDifferentPlayers();
     private:
-        Wall wall_state_;
-        std::array<River, 4> river_states_;
-        std::array<Hand, 4> hand_state_;
-
+        Wall wall_;
+        std::array<River, 4> river_;
+        std::array<Hand, 4> hand_;
         bool HasNoDrawTileLeft();
     };
 
     class State
     {
     public:
+        State();
         State(std::uint32_t seed);
-        bool IsMatchOver();
-       std::unique_ptr<Observation> GetObservation(AbsolutePos pos);
+        void Init(std::uint32_t seed);
+        bool IsGameOver();
+        bool IsRoundOver();
+        std::unique_ptr<Observation> GetObservation(AbsolutePos pos);
         std::string ToMjlog();
     private:
+        std::uint32_t seed_;
         Score score_;
-        RoundState round_state_;
+        StateInRound state_in_round_;
     };
 }  // namespace mj
 
