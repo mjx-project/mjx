@@ -21,6 +21,7 @@ namespace mj
         std::vector<Yaku> yaku;
 
         if (HasFullyConcealdHand(hand)) yaku.push_back(mj::Yaku::kFullyConcealedHand);
+        if (HasAllTermsAndHonours(hand)) yaku.push_back(mj::Yaku::kAllTermsAndHonours);
 
         return yaku;
     }
@@ -35,5 +36,12 @@ namespace mj
 
     bool YakuEvaluator::HasFullyConcealdHand(const Hand &hand) const noexcept {
         return hand.IsMenzen() and hand.Stage() == HandStage::kAfterTsumo;
+    }
+
+    bool YakuEvaluator::HasAllTermsAndHonours(const Hand &hand) const noexcept {
+        for (const Tile& tile : hand.ToVector()) {
+            if (tile.Is(TileSetType::kTanyao)) return false;
+        }
+        return true;
     }
 }
