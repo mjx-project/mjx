@@ -2,6 +2,7 @@
 #define MAHJONG_TYPES_H
 
 #include <cstdint>
+#include <vector>
 #include <set>
 #include <map>
 #include <unordered_map>

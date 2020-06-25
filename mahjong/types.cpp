@@ -1,5 +1,7 @@
 #include "types.h"
 
+#include <cassert>
+
 namespace mj
 {
     std::uint8_t Num(TileType type) noexcept {
