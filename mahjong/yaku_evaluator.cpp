@@ -25,6 +25,7 @@ namespace mj
         if (HasWhiteDragon(hand)) yaku.push_back(mj::Yaku::kWhiteDragon);
         if (HasGreenDragon(hand)) yaku.push_back(mj::Yaku::kGreenDragon);
         if (HasRedDragon(hand)) yaku.push_back(mj::Yaku::kRedDragon);
+        if (HasAllTermsAndHonours(hand)) yaku.push_back(mj::Yaku::kAllTermsAndHonours);
 
         return yaku;
     }
@@ -68,5 +69,11 @@ namespace mj
             if (tile.Type() == TileType::kRD) ++total;
         }
         return total >= 3;
+    }
+    bool YakuEvaluator::HasAllTermsAndHonours(const Hand &hand) const noexcept {
+        for (const Tile& tile : hand.ToVector()) {
+            if (tile.Is(TileSetType::kTanyao)) return false;
+        }
+        return true;
     }
 }

@@ -22,6 +22,7 @@ namespace mj
         bool HasWhiteDragon(const Hand& hand) const noexcept ;
         bool HasGreenDragon(const Hand& hand) const noexcept ;
         bool HasRedDragon(const Hand& hand) const noexcept ;
+        bool HasAllTermsAndHonours(const Hand& hand) const noexcept ;
         WinningHandCache win_cache_;
     };
 } // namespace mj
