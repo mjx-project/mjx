@@ -2,6 +2,7 @@
 #define MAHJONG_TYPES_H
 
 #include <cstdint>
+#include <vector>
 #include <set>
 #include <map>
 #include <unordered_map>
@@ -154,6 +155,8 @@ namespace mj {
         kEnd,  // Dummy
         kBegin = 0,
     };
+
+    std::uint8_t Num(TileType type) noexcept ;
 
     using TileTypeCount = std::map<TileType, int>;
 

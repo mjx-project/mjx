@@ -35,20 +35,20 @@ namespace mj
         explicit Hand(const HandParams &hand_params);
 
         // accessor to hand internal state
-        HandStage Stage() const;
-        std::optional<Tile> LastTileAdded();
-        bool IsMenzen() const;
+        [[nodiscard]] HandStage Stage() const;
+        [[nodiscard]] std::optional<Tile> LastTileAdded() const;
+        [[nodiscard]] bool IsMenzen() const;
         bool IsUnderRiichi();
         std::size_t Size();
         std::size_t SizeOpened();
         std::size_t SizeClosed();
         std::vector<Tile> ToVector(bool sorted = false);
-        std::vector<Tile> ToVectorClosed(bool sorted = false) const;
+        [[nodiscard]] std::vector<Tile> ToVectorClosed(bool sorted = false) const;
         std::vector<Tile> ToVectorOpened(bool sorted = false);
         std::array<std::uint8_t, 34> ToArray();
         std::array<std::uint8_t, 34> ToArrayClosed();
         std::array<std::uint8_t, 34> ToArrayOpened();
-        std::vector<Open*> Opens();  // TODO(sotetsuk): Should we avoid raw pointer?
+        [[nodiscard]] std::vector<const Open*> Opens() const;  // TODO(sotetsuk): Should we avoid raw pointer?
         std::string ToString(bool verbose = false);
 
         // action validators

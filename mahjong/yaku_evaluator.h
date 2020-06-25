@@ -12,12 +12,14 @@ namespace mj
     class YakuEvaluator {
     public:
         YakuEvaluator();
-        bool Has(const Hand& hand) const noexcept ;
-        std::vector<Yaku> Eval(const Hand& hand) const noexcept ;
+        [[nodiscard]] bool Has(const Hand& hand) const noexcept ;
+        [[nodiscard]] std::map<Yaku,int> Eval(const Hand& hand) const noexcept ;
 
     private:
         static TileTypeCount ClosedHandTiles(const Hand& hand) noexcept ;
-        bool HasFullyConcealdHand(const Hand& hand) const noexcept ;
+        static int YakuScore(const std::map<Yaku,int>& yaku) noexcept ;
+        [[nodiscard]] std::optional<int> HasFullyConcealdHand(const Hand& hand) const noexcept ;
+        [[nodiscard]] std::optional<int> HasPinfu(const Hand &hand, const std::vector<TileTypeCount>& counts) const noexcept ;
         WinningHandCache win_cache_;
     };
 } // namespace mj
