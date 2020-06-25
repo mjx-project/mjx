@@ -18,6 +18,11 @@ namespace mj {
         kWD, kGD, kRD  // {0, ..., 33}
     };
 
+    inline std::optional<int> Num(TileType type) {
+        if (type < TileType::kEW) return static_cast<uint8_t>(type) % 9 + 1;
+        return std::nullopt;
+    }
+
     enum class TileSetType : std::uint8_t {  // TODO: rename using honours and terminals,
         kAll,
         kManzu,

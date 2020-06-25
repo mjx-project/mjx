@@ -565,7 +565,7 @@ namespace mj
         return false;
     }
 
-    std::optional<Tile> Hand::LastTileAdded() {
+    std::optional<Tile> Hand::LastTileAdded() const {
         return last_tile_added_;
     }
 

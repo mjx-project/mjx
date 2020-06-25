@@ -36,7 +36,7 @@ namespace mj
 
         // accessor to hand internal state
         [[nodiscard]] HandStage Stage() const;
-        std::optional<Tile> LastTileAdded();
+        [[nodiscard]] std::optional<Tile> LastTileAdded() const;
         [[nodiscard]] bool IsMenzen() const;
         bool IsUnderRiichi();
         std::size_t Size();

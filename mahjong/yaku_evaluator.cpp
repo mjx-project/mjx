@@ -52,7 +52,7 @@ namespace mj
 
             std::map<Yaku,int> yaku_in_this_pattern;
 
-            if (int score = HasPinfu(hand); score) {
+            if (int score = HasPinfu(hand, counts); score) {
                 yaku[Yaku::kPinfu] = score;
             }
 
@@ -84,7 +84,51 @@ namespace mj
         return hand.IsMenzen() and hand.Stage() == HandStage::kAfterTsumo;
     }
 
-    bool YakuEvaluator::HasPinfu(const Hand &hand) const noexcept {
-        return true;
+    bool YakuEvaluator::HasPinfu(const Hand &hand, const std::vector<TileTypeCount>& counts) const noexcept {
+        if (!hand.IsMenzen()) return false;
+
+        std::vector<TileTypeCount> sets, heads;
+
+        for (const TileTypeCount& count : counts) {
+            switch (count.size()) {
+                case 3:
+                    sets.push_back(count);
+                    break;
+                case 1:
+                    if (count.begin()->second == 2) {
+                        heads.push_back(count);
+                    } else {
+                        return false;
+                    }
+                    break;
+                default:
+                    return false;
+            }
+        }
+
+        if (sets.size() != 4 or heads.size() != 1) return false;
+
+        if (const TileType head = heads[0].begin()->first;
+                        head == TileType::kRD or
+                        head == TileType::kGD or
+                        head == TileType::kWD) {
+            return false;
+        }
+
+        assert(hand.LastTileAdded().has_value());
+        const Tile tsumo = hand.LastTileAdded().value();
+
+        for (const TileTypeCount& st : sets) {
+            const TileType left = st.begin()->first,
+                           right = st.rbegin()->first;
+            if ((tsumo.Type() == left and Num(right) != 9) or
+                (tsumo.Type() == right and Num(left) != 1)) {
+
+                // いずれかの順子のリャンメン待ちをツモっていたらOK
+                return true;
+            }
+        }
+
+        return false;
     }
 }

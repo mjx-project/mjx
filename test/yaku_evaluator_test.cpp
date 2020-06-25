@@ -38,17 +38,18 @@ TEST_F(YakuTest, Pinfu)
             Hand(HandParams("m1,m2,m3,m4,m5,m9,m9,s7,s8,s9,p1,p2,p3").Tsumo("m6")));
     EXPECT_EQ(yaku1.count(Yaku::kPinfu), 1);
 
-    // 刻子はダメ
+    // 鳴きはダメ
     auto yaku2 = evaluator.Eval(
-            Hand(HandParams("m1,m2,m3,m4,m5,m9,m9,s7,s8,s9,p1,p1,p1").Tsumo("m6")));
+            Hand(HandParams("m1,m2,m3,m4,m5,m9,m9,s7,s8,s9").Pon("p1,p1,p1").Tsumo("m6")));
     EXPECT_EQ(yaku2.count(Yaku::kPinfu), 0);
 
-    // 鳴きはダメ
+    // 刻子はダメ
     auto yaku3 = evaluator.Eval(
-            Hand(HandParams("m1,m2,m3,m4,m5,m9,m9,s7,s8,s9").Pon("p1,p1,p1").Tsumo("m6")));
+            Hand(HandParams("m1,m2,m3,m4,m5,m9,m9,s7,s8,s9,p1,p1,p1").Tsumo("m6")));
     EXPECT_EQ(yaku3.count(Yaku::kPinfu), 0);
 
     // 役牌の雀頭はダメ
+    // TODO: 場風, 自風も弾く
     auto yaku4 = evaluator.Eval(
             Hand(HandParams("m1,m2,m3,m4,m5,rd,rd,s7,s8,s9,p1,p2,p3").Tsumo("m6")));
     EXPECT_EQ(yaku4.count(Yaku::kPinfu), 0);

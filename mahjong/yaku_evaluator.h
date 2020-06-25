@@ -19,7 +19,7 @@ namespace mj
         static TileTypeCount ClosedHandTiles(const Hand& hand) noexcept ;
         static int YakuScore(const std::map<Yaku,int>& yaku) noexcept ;
         [[nodiscard]] bool HasFullyConcealdHand(const Hand& hand) const noexcept ;
-        [[nodiscard]] bool HasPinfu(const Hand& hand) const noexcept ;
+        [[nodiscard]] bool HasPinfu(const Hand &hand, const std::vector<TileTypeCount>& counts) const noexcept ;
         WinningHandCache win_cache_;
     };
 } // namespace mj
