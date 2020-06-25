@@ -1,6 +1,13 @@
 #include <iostream>
 
+#include "win_cache_generator.h"
+#include "win_cache.h"
+
+
 int main() {
-    std::cout << "Hello world" << std::endl;
+    std::cerr << "Hello" << std::endl;
+    //mj::WinningHandCacheGenerator::GenerateCache();
+    mj::WinningHandCache win_cache;
+
     return 0;
 }
