@@ -1,7 +1,7 @@
 #ifndef MAHJONG_OBSERVATION_H
 #define MAHJONG_OBSERVATION_H
 
-#include "state.h"
+#include <mahjong.pb.h>
 
 namespace mj
 {
@@ -11,7 +11,6 @@ namespace mj
         Observation();
         ActionRequest GetActionRequest();
     private:
-        const State& state;
         ActionRequest action_request_;
     };
 }
