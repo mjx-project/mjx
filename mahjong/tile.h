@@ -17,6 +17,7 @@ namespace mj
         static std::vector<Tile> Create(const std::vector<TileType> &vector, bool sorted = false) noexcept;
         static std::vector<Tile> Create(const std::vector<std::string> &vector, bool sorted = false) noexcept;
         static std::vector<Tile> CreateAll(bool sorted = false) noexcept;
+        static std::vector<Tile> CreateAllShuffled(std::uint32_t seed = 9999) noexcept;
 
         [[nodiscard]] TileId Id() const noexcept;  // 0 ~ 135
         [[nodiscard]] TileType Type() const noexcept;  // 0 ~ 33
