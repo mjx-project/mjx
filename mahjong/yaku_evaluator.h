@@ -13,7 +13,7 @@ namespace mj
     public:
         YakuEvaluator();
         [[nodiscard]] bool Has(const Hand& hand) const noexcept ;
-        [[nodiscard]] std::map<Yaku,int> Eval(Hand hand) const noexcept ;
+        [[nodiscard]] std::map<Yaku,int> Eval(const Hand& hand) const noexcept ;
 
     private:
         static TileTypeCount ClosedHandTiles(const Hand& hand) noexcept ;

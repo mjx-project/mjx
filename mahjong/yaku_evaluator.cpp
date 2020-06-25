@@ -15,7 +15,7 @@ namespace mj
         return win_cache_.Has(abstruct_hand);
     }
 
-    std::map<Yaku, int> YakuEvaluator::Eval(Hand hand) const noexcept {
+    std::map<Yaku, int> YakuEvaluator::Eval(const Hand& hand) const noexcept {
 
         assert(Has(hand));
 
@@ -111,6 +111,7 @@ namespace mj
 
         if (sets.size() != 4 or heads.size() != 1) return std::nullopt;
 
+        // TODO: 場風, 自風も弾く.
         if (const TileType head = heads[0].begin()->first;
                         head == TileType::kRD or
                         head == TileType::kGD or
