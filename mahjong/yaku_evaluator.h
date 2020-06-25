@@ -19,6 +19,7 @@ namespace mj
         static TileTypeCount ClosedHandTiles(const Hand& hand) noexcept ;
         bool HasFullyConcealdHand(const Hand& hand) const noexcept ;
         bool HasHalfFlush(const Hand &hand) const noexcept ;
+        bool HasFullFlush(const Hand &hand) const noexcept ;
         WinningHandCache win_cache_;
     };
 } // namespace mj
