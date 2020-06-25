@@ -16,17 +16,17 @@ namespace mj
         Open() = default;
         explicit Open(std::uint16_t bits);
         virtual ~Open() = default;
-        virtual OpenType Type() = 0;
+        [[nodiscard]] virtual OpenType Type() const = 0;
         virtual RelativePos From() = 0;  // In added kan, it's the opponent player from whom the pon was declared (not kan)
-        virtual Tile At(std::size_t i) = 0;  // sorted by tile id
+        [[nodiscard]] virtual Tile At(std::size_t i) const = 0;  // sorted by tile id
         virtual std::size_t Size() = 0;
-        virtual std::vector<Tile> Tiles() = 0;  // sorted by tile id
+        [[nodiscard]] virtual std::vector<Tile> Tiles() const = 0;  // sorted by tile id
         virtual std::vector<Tile> TilesFromHand() = 0;  // sorted by tile id. chi => 2 tiles, pon => 2, kan_opened => 3, kan_closed => 4, kan_added => 2
         virtual Tile StolenTile() = 0; // kan_added => poned tile by others, kan_closed => tile id represented at left 8 bits
         virtual Tile LastTile() = 0;  // Last tile added to this open tile sets. kan_added => lastly kaned tile, the others => stolen()
         virtual std::vector<TileType> UndiscardableTileTypes() = 0;
         virtual std::uint16_t GetBits();
-        virtual std::string ToString(bool verbose = false);  // TODO(sotetsuk): put more information
+        [[nodiscard]] virtual std::string ToString(bool verbose = false) const;  // TODO(sotetsuk): put more information
     protected:
         std::uint16_t bits_;  // follows tenhou format (see https://github.com/NegativeMjark/tenhou-log)
     };
@@ -43,18 +43,18 @@ namespace mj
         Chi() = delete;
         explicit Chi(std::uint16_t bits);
         Chi(std::vector<Tile> &tiles, Tile stolen);
-        OpenType Type() final;
+        [[nodiscard]] OpenType Type() const final;
         RelativePos From() final;
-        Tile At(std::size_t i) final;
+        [[nodiscard]] Tile At(std::size_t i) const final;
         std::size_t Size() final;
-        std::vector<Tile> Tiles() final;
+        [[nodiscard]] std::vector<Tile> Tiles() const final;
         std::vector<Tile> TilesFromHand() final;
         Tile StolenTile() final;
         Tile LastTile() final;
         std::vector<TileType> UndiscardableTileTypes() final;
     private:
-        std::uint16_t min_type();
-        Tile at(std::size_t i, std::uint16_t min_type);
+        [[nodiscard]] std::uint16_t min_type() const;
+        [[nodiscard]] Tile at(std::size_t i, std::uint16_t min_type) const;
     };
 
     class Pon: public Open
@@ -63,10 +63,11 @@ namespace mj
         Pon() = delete;
         explicit Pon(std::uint16_t bits);
         Pon(Tile stolen, Tile unused, RelativePos from);
-        OpenType Type() final;
-        RelativePos From() final; Tile At(std::size_t i) final;
+        [[nodiscard]] OpenType Type() const final;
+        RelativePos From() final;
+        [[nodiscard]] Tile At(std::size_t i) const final;
         std::size_t Size() final;
-        std::vector<Tile> Tiles() final;
+        [[nodiscard]] std::vector<Tile> Tiles() const final;
         std::vector<Tile> TilesFromHand() final;
         Tile StolenTile() final;
         Tile LastTile() final;
@@ -79,11 +80,11 @@ namespace mj
         KanOpened() = delete;
         explicit KanOpened(std::uint16_t bits);
         KanOpened(Tile stolen, RelativePos from);
-        OpenType Type() final;
+        [[nodiscard]] OpenType Type() const final;
         RelativePos From() final;
-        Tile At(std::size_t i) final;
+        [[nodiscard]] Tile At(std::size_t i) const final;
         std::size_t Size() final;
-        std::vector<Tile> Tiles() final;
+        [[nodiscard]] std::vector<Tile> Tiles() const final;
         std::vector<Tile> TilesFromHand() final;
         Tile StolenTile() final;
         Tile LastTile() final;
@@ -96,11 +97,11 @@ namespace mj
         KanClosed() = delete;
         explicit KanClosed(std::uint16_t bits);
         explicit KanClosed(Tile tile);  // TODO: check which tile id does Tenhou use? 0? drawn tile? This should be aligned.
-        OpenType Type() final;
+        [[nodiscard]] OpenType Type() const final;
         RelativePos From() final;
-        Tile At(std::size_t i) final;
+        [[nodiscard]] Tile At(std::size_t i) const final;
         std::size_t Size() final;
-        std::vector<Tile> Tiles() final;
+        [[nodiscard]] std::vector<Tile> Tiles() const final;
         std::vector<Tile> TilesFromHand() final;
         Tile StolenTile() final;
         Tile LastTile() final;
@@ -113,11 +114,11 @@ namespace mj
         KanAdded() = delete;
         explicit KanAdded(std::uint16_t bits);
         KanAdded(Open* pon);
-        OpenType Type() final;
+        [[nodiscard]] OpenType Type() const final;
         RelativePos From() final;
-        Tile At(std::size_t i) final;
+        [[nodiscard]] Tile At(std::size_t i) const final;
         std::size_t Size() final;
-        std::vector<Tile> Tiles() final;
+        [[nodiscard]] std::vector<Tile> Tiles() const final;
         std::vector<Tile> TilesFromHand() final;
         Tile StolenTile() final;
         Tile LastTile() final;
