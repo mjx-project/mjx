@@ -22,8 +22,8 @@ namespace mj
         std::map<Yaku,int> yaku;
 
         // 手牌の組み合わせ方によらない役
-        if (int score = HasFullyConcealdHand(hand); score) {
-            yaku[Yaku::kFullyConcealedHand] = score;
+        if (std::optional<int> score = HasFullyConcealdHand(hand); score) {
+            yaku[Yaku::kFullyConcealedHand] = score.value();
         }
 
 
@@ -52,10 +52,12 @@ namespace mj
 
             std::map<Yaku,int> yaku_in_this_pattern;
 
-            if (int score = HasPinfu(hand, counts); score) {
-                yaku[Yaku::kPinfu] = score;
+            // 各役の判定
+            if (std::optional<int> score = HasPinfu(hand, counts); score) {
+                yaku[Yaku::kPinfu] = score.value();
             }
 
+            // 今までに調べた組み合わせ方より役の総得点が高いなら採用する.
             if (YakuScore(best_yaku) < YakuScore(yaku_in_this_pattern)) {
                 std::swap(best_yaku, yaku_in_this_pattern);
             }
@@ -80,12 +82,13 @@ namespace mj
         return total;
     }
 
-    bool YakuEvaluator::HasFullyConcealdHand(const Hand &hand) const noexcept {
-        return hand.IsMenzen() and hand.Stage() == HandStage::kAfterTsumo;
+    std::optional<int> YakuEvaluator::HasFullyConcealdHand(const Hand &hand) const noexcept {
+        if (hand.IsMenzen() and hand.Stage() == HandStage::kAfterTsumo) return 1;
+        return std::nullopt;
     }
 
-    bool YakuEvaluator::HasPinfu(const Hand &hand, const std::vector<TileTypeCount>& counts) const noexcept {
-        if (!hand.IsMenzen()) return false;
+    std::optional<int> YakuEvaluator::HasPinfu(const Hand &hand, const std::vector<TileTypeCount>& counts) const noexcept {
+        if (!hand.IsMenzen()) return std::nullopt;
 
         std::vector<TileTypeCount> sets, heads;
 
@@ -98,21 +101,21 @@ namespace mj
                     if (count.begin()->second == 2) {
                         heads.push_back(count);
                     } else {
-                        return false;
+                        return std::nullopt;
                     }
                     break;
                 default:
-                    return false;
+                    return std::nullopt;
             }
         }
 
-        if (sets.size() != 4 or heads.size() != 1) return false;
+        if (sets.size() != 4 or heads.size() != 1) return std::nullopt;
 
         if (const TileType head = heads[0].begin()->first;
                         head == TileType::kRD or
                         head == TileType::kGD or
                         head == TileType::kWD) {
-            return false;
+            return std::nullopt;
         }
 
         assert(hand.LastTileAdded().has_value());
@@ -125,10 +128,10 @@ namespace mj
                 (tsumo.Type() == right and Num(left) != 1)) {
 
                 // いずれかの順子のリャンメン待ちをツモっていたらOK
-                return true;
+                return 1;
             }
         }
 
-        return false;
+        return std::nullopt;
     }
 }
