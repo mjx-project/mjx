@@ -476,7 +476,7 @@ namespace mj
         return v;
     }
 
-    std::vector<Tile> Hand::ToVector(bool sorted) {
+    std::vector<Tile> Hand::ToVector(bool sorted) const {
         auto v = ToVectorClosed();
         auto opened = ToVectorOpened();
         v.insert(v.end(), opened.begin(), opened.end());
@@ -490,7 +490,7 @@ namespace mj
         return v;
     }
 
-    std::vector<Tile> Hand::ToVectorOpened(bool sorted) {
+    std::vector<Tile> Hand::ToVectorOpened(bool sorted) const {
         auto v = std::vector<Tile>();
         for (const auto &o : opens_) {
             auto tiles = o->Tiles();

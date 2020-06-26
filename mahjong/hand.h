@@ -42,9 +42,9 @@ namespace mj
         std::size_t Size();
         std::size_t SizeOpened();
         std::size_t SizeClosed();
-        std::vector<Tile> ToVector(bool sorted = false);
+        [[nodiscard]] std::vector<Tile> ToVector(bool sorted = false) const;
         [[nodiscard]] std::vector<Tile> ToVectorClosed(bool sorted = false) const;
-        std::vector<Tile> ToVectorOpened(bool sorted = false);
+        [[nodiscard]] std::vector<Tile> ToVectorOpened(bool sorted = false) const;
         std::array<std::uint8_t, 34> ToArray();
         std::array<std::uint8_t, 34> ToArrayClosed();
         std::array<std::uint8_t, 34> ToArrayOpened();
