@@ -565,7 +565,7 @@ namespace mj
         return false;
     }
 
-    std::optional<Tile> Hand::LastTileAdded() {
+    std::optional<Tile> Hand::LastTileAdded() const {
         return last_tile_added_;
     }
 
@@ -586,8 +586,8 @@ namespace mj
         assert(last_tile_added_);
     }
 
-    std::vector<Open*> Hand::Opens() {
-        std::vector<Open*> ret;
+    std::vector<const Open*> Hand::Opens() const {
+        std::vector<const Open*> ret;
         for (auto &o: opens_) {
             ret.push_back(o.get());
         }

@@ -12,19 +12,21 @@ namespace mj
     class YakuEvaluator {
     public:
         YakuEvaluator();
-        bool Has(const Hand& hand) const noexcept ;
-        std::vector<Yaku> Eval(const Hand& hand) const noexcept ;
+        [[nodiscard]] bool Has(const Hand& hand) const noexcept ;
+        [[nodiscard]] std::map<Yaku,int> Eval(const Hand& hand) const noexcept ;
 
     private:
         static TileTypeCount ClosedHandTiles(const Hand& hand) noexcept ;
-        bool HasFullyConcealdHand(const Hand& hand) const noexcept ;
-        bool HasAllSimples(const Hand& hand) const noexcept ;
-        bool HasWhiteDragon(const Hand& hand) const noexcept ;
-        bool HasGreenDragon(const Hand& hand) const noexcept ;
-        bool HasRedDragon(const Hand& hand) const noexcept ;
-        bool HasAllTermsAndHonours(const Hand& hand) const noexcept ;
-        bool HasHalfFlush(const Hand &hand) const noexcept ;
-        bool HasFullFlush(const Hand &hand) const noexcept ;
+        [[nodiscard]] std::optional<int> HasAllSimples(const Hand& hand) const noexcept ;
+        [[nodiscard]] std::optional<int> HasWhiteDragon(const Hand& hand) const noexcept ;
+        [[nodiscard]] std::optional<int> HasGreenDragon(const Hand& hand) const noexcept ;
+        [[nodiscard]] std::optional<int> HasRedDragon(const Hand& hand) const noexcept ;
+        [[nodiscard]] std::optional<int> HasAllTermsAndHonours(const Hand& hand) const noexcept ;
+        [[nodiscard]] std::optional<int> HasHalfFlush(const Hand &hand) const noexcept ;
+        [[nodiscard]] std::optional<int> HasFullFlush(const Hand &hand) const noexcept ;
+        [[nodiscard]] std::optional<int> HasFullyConcealdHand(const Hand& hand) const noexcept ;
+        [[nodiscard]] std::optional<int> HasPinfu(const Hand &hand, const std::vector<TileTypeCount>& counts) const noexcept ;
+        static int TotalFan(const std::map<Yaku,int>& yaku) noexcept ;
         WinningHandCache win_cache_;
     };
 } // namespace mj
