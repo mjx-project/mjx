@@ -8,7 +8,7 @@ namespace mj
     class Observation
     {
     public:
-        Observation();
+        Observation() = default;
         ActionRequest GetActionRequest();
     private:
         ActionRequest action_request_;
