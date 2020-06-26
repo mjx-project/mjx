@@ -84,6 +84,9 @@ namespace mj
             if (std::optional<int> score = HasMixedTripleChis(hand, closed_sets, opened_sets, heads); score) {
                 yaku_in_this_pattern[Yaku::kMixedTripleChis] = score.value();
             }
+            if (std::optional<int> score = HasTriplePons(hand, closed_sets, opened_sets, heads); score) {
+                yaku_in_this_pattern[Yaku::kTriplePons] = score.value();
+            }
 
             // 今までに調べた組み合わせ方より役の総得点が高いなら採用する.
             if (TotalFan(best_yaku) < TotalFan(yaku_in_this_pattern)) {
@@ -342,6 +345,47 @@ namespace mj
             if (hand.IsMenzen()) return 2;
             else return 1;
         }
+
+        return std::nullopt;
+    }
+
+    std::optional<int> YakuEvaluator::HasTriplePons(
+            const Hand &hand,
+            const std::vector<TileTypeCount>& closed_sets,
+            const std::vector<TileTypeCount>& opened_sets,
+            const std::vector<TileTypeCount>& heads) const noexcept {
+
+        if (opened_sets.size() + closed_sets.size() != 4 or heads.size() != 1) {
+            // 基本形でなければNG.
+            return std::nullopt;
+        }
+
+        std::map<TileTypeCount, bool> pons;
+        for (const std::vector<TileTypeCount>& sets : {closed_sets, opened_sets}) {
+            for (const TileTypeCount &count : sets) {
+                if (count.size() == 1) pons[count] = true;
+            }
+        }
+
+        bool has_triple_pons = false;
+
+        for (int start = 0; start < 9; ++start) {
+            bool valid = true;
+            for (int set_start : {start, start + 9, start + 18}) {
+                TileTypeCount count;
+                count[static_cast<TileType>(set_start)] = 3;
+                if (pons.count(count) == 0) {
+                    valid = false;
+                    break;
+                }
+            }
+            if (valid) {
+                has_triple_pons = true;
+                break;
+            }
+        }
+
+        if (has_triple_pons) return 2;
 
         return std::nullopt;
     }

@@ -61,6 +61,11 @@ namespace mj
                 const std::vector<TileTypeCount>& closed_sets,
                 const std::vector<TileTypeCount>& opened_sets,
                 const std::vector<TileTypeCount>& heads) const noexcept ;
+        [[nodiscard]] std::optional<int> HasTriplePons(
+                const Hand &hand,
+                const std::vector<TileTypeCount>& closed_sets,
+                const std::vector<TileTypeCount>& opened_sets,
+                const std::vector<TileTypeCount>& heads) const noexcept ;
         WinningHandCache win_cache_;
     };
 } // namespace mj

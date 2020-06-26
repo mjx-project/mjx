@@ -273,3 +273,21 @@ TEST_F(YakuTest, MixedTripleChis) {
             Hand(HandParams("m1,m2,m3,m4,m5,m6,s4,s5,s6,p1,p1,p1,ew").Tsumo("ew")));
     EXPECT_EQ(yaku3.count(Yaku::kMixedTripleChis), 0);
 }
+
+TEST_F(YakuTest, TriplePons) {
+    auto yaku1 = evaluator.Eval(
+            Hand(HandParams("m1,m1,m1,m4,m5,m6,s1,s1,s1,p1,p1,p1,ew").Tsumo("ew")));
+    EXPECT_EQ(yaku1.count(Yaku::kTriplePons), 1);
+    EXPECT_EQ(yaku1[Yaku::kTriplePons], 2);
+
+    // 鳴いててもOK 喰い下がり無し
+    auto yaku2 = evaluator.Eval(
+            Hand(HandParams("m1,m1,m1,m4,m5,m6,s1,s1,s1,ew").Pon("p1,p1.p1").Tsumo("ew")));
+    EXPECT_EQ(yaku2.count(Yaku::kTriplePons), 1);
+    EXPECT_EQ(yaku2[Yaku::kTriplePons], 2);
+
+    // 三色同刻要素無し
+    auto yaku3 = evaluator.Eval(
+            Hand(HandParams("m1,m2,m3,m4,m5,m6,s4,s5,s6,p1,p1,p1,ew").Tsumo("ew")));
+    EXPECT_EQ(yaku3.count(Yaku::kTriplePons), 0);
+}
