@@ -50,6 +50,7 @@ namespace mj
 
     struct StateInRound
     {
+        AbsolutePos dealer;
         Wall wall;
         std::array<River, 4> river;
         std::array<Hand, 4> hand;
@@ -58,7 +59,6 @@ namespace mj
     class State
     {
     public:
-        State();
         State(std::uint32_t seed = 9999);
 
         void Init(std::uint32_t seed);
@@ -67,28 +67,18 @@ namespace mj
         // operate or access in-round state
         void InitRound();
         bool IsRoundOver();
-        AbsolutePos GetDealer();
-        void UpdateStateByDraw(AbsolutePos drawer_pos);
-        void UpdateStateByAction(std::unique_ptr<Action>);
-        void UpdateStateByKanDora();
-        void UpdateStateByKanDraw(AbsolutePos drawer_pos);
-        void UpdateStateByRyukyoku();
-        std::unique_ptr<Action> UpdateStateByStealActionCandidates(const std::vector<std::unique_ptr<Action>> &action_candidates);
-        void UpdateStateByFourKanByDifferentPlayers();
-        bool CanSteal(AbsolutePos stealer_pos);
-        bool CanRon(AbsolutePos winner_pos);
-        bool HasFourKanByDifferentPlayers();
-        bool HasNoDrawTileLeft();
-
+        AbsolutePos GetDealerPos();
+        AbsolutePos UpdateStateByDraw();
+        void UpdateStateByAction(const Action& action);
+        Action& UpdateStateByActionCandidates(const std::vector<Action> &action_candidates);
         // operate wall
         Tile Draw();
         void AddNewDora();
         Tile DrawRinshan();
 
-        std::unique_ptr<Observation> GetObservation(AbsolutePos pos);
-        std::string ToMjlog();
+        Observation& GetObservation(AbsolutePos pos) const;
+        std::string ToMjlog() const;
     private:
-        friend class Environment;
         std::uint32_t seed_;
         Score score_;
         StateInRound state_in_round_;
