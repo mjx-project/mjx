@@ -17,6 +17,7 @@ namespace mj
 
     private:
         static TileTypeCount ClosedHandTiles(const Hand& hand) noexcept ;
+        static int TotalFan(const std::map<Yaku,int>& yaku) noexcept ;
         [[nodiscard]] std::optional<int> HasAllSimples(const Hand& hand) const noexcept ;
         [[nodiscard]] std::optional<int> HasWhiteDragon(const Hand& hand) const noexcept ;
         [[nodiscard]] std::optional<int> HasGreenDragon(const Hand& hand) const noexcept ;
@@ -33,7 +34,14 @@ namespace mj
                 const Hand &hand,
                 const std::vector<TileTypeCount>& sets,
                 const std::vector<TileTypeCount>& heads) const noexcept ;
-        static int TotalFan(const std::map<Yaku,int>& yaku) noexcept ;
+        [[nodiscard]] std::optional<int> HasTwicePureDoubleChis(
+                const Hand &hand,
+                const std::vector<TileTypeCount>& sets,
+                const std::vector<TileTypeCount>& heads) const noexcept ;
+        [[nodiscard]] std::optional<int> HasSevenPairs(
+                const Hand &hand,
+                const std::vector<TileTypeCount>& sets,
+                const std::vector<TileTypeCount>& heads) const noexcept ;
         WinningHandCache win_cache_;
     };
 } // namespace mj
