@@ -237,3 +237,21 @@ TEST_F(YakuTest, AllPons) {
             Hand(HandParams("m1,m1,m1,m3,m4,m5,ew,ew,rd,rd").Pon("s4,s4,s4").Tsumo("ew")));
     EXPECT_EQ(yaku3.count(Yaku::kAllPons), 0);
 }
+
+TEST_F(YakuTest, PureStraight) {
+    //auto yaku1 = evaluator.Eval(
+    //        Hand(HandParams("m1,m2,m3,m4,m5,m6,m7,m8,m9,ew,ew,rd,rd").Tsumo("ew")));
+    //EXPECT_EQ(yaku1.count(Yaku::kPureStraight), 1);
+    //EXPECT_EQ(yaku1[Yaku::kPureStraight], 2);
+
+    // 鳴いててもOK 喰い下がり1翻
+    auto yaku2 = evaluator.Eval(
+        Hand(HandParams("m1,m2,m3,m4,m5,m6,ew,ew,rd,rd").Chi("m7,m8,m9").Tsumo("ew")));
+    EXPECT_EQ(yaku2.count(Yaku::kPureStraight), 1);
+    EXPECT_EQ(yaku2[Yaku::kPureStraight], 1);
+
+    //// 一気通貫要素無し
+    //auto yaku3 = evaluator.Eval(
+    //        Hand(HandParams("m1,m1,m1,m3,m4,m5,ew,ew,rd,rd").Pon("s4,s4,s4").Tsumo("ew")));
+    //EXPECT_EQ(yaku3.count(Yaku::kPureStraight), 0);
+}

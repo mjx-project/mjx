@@ -47,8 +47,6 @@ namespace mj
         }
 
         // 手牌の組み合わせ方に依存する役
-        auto [abstruct_hand, tile_types] = WinningHandCache::CreateAbstructHand(ClosedHandTiles(hand));
-
         std::map<Yaku,int> best_yaku;
 
         std::vector<TileTypeCount> opened_sets;
@@ -79,6 +77,9 @@ namespace mj
             }
             if (std::optional<int> score = HasAllPons(hand, closed_sets, opened_sets, heads); score) {
                 yaku_in_this_pattern[Yaku::kAllPons] = score.value();
+            }
+            if (std::optional<int> score = HasPureStraight(hand, closed_sets, opened_sets, heads); score) {
+                yaku_in_this_pattern[Yaku::kPureStraight] = score.value();
             }
 
             // 今までに調べた組み合わせ方より役の総得点が高いなら採用する.
@@ -248,6 +249,54 @@ namespace mj
         }
 
         return 2;
+    }
+
+    std::optional<int> YakuEvaluator::HasPureStraight(
+            const Hand &hand,
+            const std::vector<TileTypeCount>& closed_sets,
+            const std::vector<TileTypeCount>& opened_sets,
+            const std::vector<TileTypeCount>& heads) const noexcept {
+
+        if (opened_sets.size() + closed_sets.size() != 4 or heads.size() != 1) {
+            // 基本形でなければNG.
+            return std::nullopt;
+        }
+
+        std::map<TileTypeCount, bool> chies;
+        for (const std::vector<TileTypeCount>& sets : {closed_sets, opened_sets}) {
+            for (const TileTypeCount &count : sets) {
+                if (count.size() == 3) chies[count] = true;
+            }
+        }
+
+        std::vector<std::vector<TileTypeCount>> straights;
+        straights.push_back({
+                            {{TileType::kM1, 1}, {TileType::kM2, 1}, {TileType::kM3, 1}},
+                            {{TileType::kM4, 1}, {TileType::kM5, 1}, {TileType::kM6, 1}},
+                            {{TileType::kM7, 1}, {TileType::kM8, 1}, {TileType::kM9, 1}}});
+        straights.push_back({
+                            {{TileType::kS1, 1}, {TileType::kS2, 1}, {TileType::kS3, 1}},
+                            {{TileType::kS4, 1}, {TileType::kS5, 1}, {TileType::kS6, 1}},
+                            {{TileType::kS7, 1}, {TileType::kS8, 1}, {TileType::kS9, 1}}});
+        straights.push_back({
+                            {{TileType::kP1, 1}, {TileType::kP2, 1}, {TileType::kP3, 1}},
+                            {{TileType::kP4, 1}, {TileType::kP5, 1}, {TileType::kP6, 1}},
+                            {{TileType::kP7, 1}, {TileType::kP8, 1}, {TileType::kP9, 1}}});
+
+        for (auto& straight : straights) {
+            bool make_straight = true;
+            for (const TileTypeCount& count : straight) {
+                if (chies.count(count) == 0) {
+                    make_straight = false;
+                }
+            }
+            if (make_straight) {
+                if (hand.IsMenzen()) return 2;
+                else return 1;
+            }
+        }
+
+        return std::nullopt;
     }
 
     std::optional<int> YakuEvaluator::HasAllSimples(const Hand &hand) const noexcept {
