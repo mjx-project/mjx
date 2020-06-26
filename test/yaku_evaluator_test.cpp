@@ -308,4 +308,27 @@ TEST_F(YakuTest, OutsideHand) {
     auto yaku3 = evaluator.Eval(
             Hand(HandParams("m1,m2,m3,m4,m5,m6,s4,s5,s6,p1,p1,p1,ew").Tsumo("ew")));
     EXPECT_EQ(yaku3.count(Yaku::kOutsideHand), 0);
+
+    // 純全帯幺とは重複しない
+    auto yaku4 = evaluator.Eval(
+            Hand(HandParams("m1,m2,m3,m9,m9,m9,s7,s8,s9,p1,p2,p3,p9").Tsumo("p9")));
+    EXPECT_EQ(yaku4.count(Yaku::kOutsideHand), 0);
+}
+
+TEST_F(YakuTest, TerminalsInAllSets) {
+    auto yaku1 = evaluator.Eval(
+            Hand(HandParams("m1,m2,m3,m9,m9,m9,s7,s8,s9,p1,p2,p3,p9").Tsumo("p9")));
+    EXPECT_EQ(yaku1.count(Yaku::kTerminalsInAllSets), 1);
+    EXPECT_EQ(yaku1[Yaku::kTerminalsInAllSets], 3);
+
+    // 鳴いててもOK 喰い下がり1翻
+    auto yaku2 = evaluator.Eval(
+                Hand(HandParams("m1,m2,m3,m9,m9,m9,s7,s8,s9,p9").Chi("p1,p2,p3").Tsumo("p9")));
+    EXPECT_EQ(yaku2.count(Yaku::kTerminalsInAllSets), 1);
+    EXPECT_EQ(yaku2[Yaku::kTerminalsInAllSets], 2);
+
+    // 純全帯幺要素無し
+    auto yaku3 = evaluator.Eval(
+            Hand(HandParams("m1,m2,m3,m4,m5,m6,s4,s5,s6,p1,p1,p1,ew").Tsumo("ew")));
+    EXPECT_EQ(yaku3.count(Yaku::kTerminalsInAllSets), 0);
 }
