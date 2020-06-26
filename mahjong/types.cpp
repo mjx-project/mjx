@@ -45,4 +45,11 @@ namespace mj
                 assert(false);
         }
     }
+
+    TileSetType Color(TileType type) noexcept {
+        if (Is(type, TileSetType::kManzu)) return TileSetType::kManzu;
+        if (Is(type, TileSetType::kPinzu)) return TileSetType::kPinzu;
+        if (Is(type, TileSetType::kSouzu)) return TileSetType::kSouzu;
+        assert(false);
+    }
 } // namespace mj

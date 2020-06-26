@@ -17,15 +17,16 @@ namespace mj
 
     private:
         static TileTypeCount ClosedHandTiles(const Hand& hand) noexcept ;
+        static TileTypeCount ClosedAndOpenedHandTiles(const Hand& hand) noexcept ;
         static int TotalFan(const std::map<Yaku,int>& yaku) noexcept ;
-        [[nodiscard]] std::optional<int> HasAllSimples(const Hand& hand) const noexcept ;
-        [[nodiscard]] std::optional<int> HasWhiteDragon(const Hand& hand) const noexcept ;
-        [[nodiscard]] std::optional<int> HasGreenDragon(const Hand& hand) const noexcept ;
-        [[nodiscard]] std::optional<int> HasRedDragon(const Hand& hand) const noexcept ;
-        [[nodiscard]] std::optional<int> HasAllTermsAndHonours(const Hand& hand) const noexcept ;
-        [[nodiscard]] std::optional<int> HasHalfFlush(const Hand &hand) const noexcept ;
-        [[nodiscard]] std::optional<int> HasFullFlush(const Hand &hand) const noexcept ;
         [[nodiscard]] std::optional<int> HasFullyConcealdHand(const Hand& hand) const noexcept ;
+        [[nodiscard]] std::optional<int> HasAllSimples(const TileTypeCount& count) const noexcept ;
+        [[nodiscard]] std::optional<int> HasWhiteDragon(const TileTypeCount& count) const noexcept ;
+        [[nodiscard]] std::optional<int> HasGreenDragon(const TileTypeCount& count) const noexcept ;
+        [[nodiscard]] std::optional<int> HasRedDragon(const TileTypeCount& count) const noexcept ;
+        [[nodiscard]] std::optional<int> HasAllTermsAndHonours(const TileTypeCount& count) const noexcept ;
+        [[nodiscard]] std::optional<int> HasHalfFlush(const Hand& hand, const TileTypeCount& count) const noexcept ;
+        [[nodiscard]] std::optional<int> HasFullFlush(const Hand& hand, const TileTypeCount& count) const noexcept ;
         [[nodiscard]] std::optional<int> HasPinfu(
                 const Hand &hand,
                 const std::vector<TileTypeCount>& closed_sets,

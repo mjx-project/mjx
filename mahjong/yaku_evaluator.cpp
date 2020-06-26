@@ -21,28 +21,29 @@ namespace mj
         std::map<Yaku,int> yaku;
 
         // 手牌の組み合わせ方によらない役
+        TileTypeCount all_tiles = ClosedAndOpenedHandTiles(hand);
         if (std::optional<int> score = HasFullyConcealdHand(hand); score) {
             yaku[Yaku::kFullyConcealedHand] = score.value();
         }
-        if (std::optional<int> score = HasAllSimples(hand); score) {
+        if (std::optional<int> score = HasAllSimples(all_tiles); score) {
             yaku[Yaku::kAllSimples] = score.value();
         }
-        if (std::optional<int> score = HasWhiteDragon(hand); score) {
+        if (std::optional<int> score = HasWhiteDragon(all_tiles); score) {
             yaku[Yaku::kWhiteDragon] = score.value();
         }
-        if (std::optional<int> score = HasGreenDragon(hand); score) {
+        if (std::optional<int> score = HasGreenDragon(all_tiles); score) {
             yaku[Yaku::kGreenDragon] = score.value();
         }
-        if (std::optional<int> score = HasRedDragon(hand); score) {
+        if (std::optional<int> score = HasRedDragon(all_tiles); score) {
             yaku[Yaku::kRedDragon] = score.value();
         }
-        if (std::optional<int> score = HasAllTermsAndHonours(hand); score) {
+        if (std::optional<int> score = HasAllTermsAndHonours(all_tiles); score) {
             yaku[Yaku::kAllTermsAndHonours] = score.value();
         }
-        if (std::optional<int> score = HasHalfFlush(hand); score) {
+        if (std::optional<int> score = HasHalfFlush(hand, all_tiles); score) {
             yaku[Yaku::kHalfFlush] = score.value();
         }
-        if (std::optional<int> score = HasFullFlush(hand); score) {
+        if (std::optional<int> score = HasFullFlush(hand, all_tiles); score) {
             yaku[Yaku::kFullFlush] = score.value();
         }
 
@@ -112,16 +113,18 @@ namespace mj
         }
         return count;
     }
+    TileTypeCount YakuEvaluator::ClosedAndOpenedHandTiles(const Hand& hand) noexcept {
+        TileTypeCount count;
+        for (const Tile& tile : hand.ToVector(true)) {
+            ++count[tile.Type()];
+        }
+        return count;
+    }
 
     int YakuEvaluator::TotalFan(const std::map<Yaku,int>& yaku) noexcept {
         int total = 0;
         for (const auto& [key, val] : yaku) total += val;
         return total;
-    }
-
-    std::optional<int> YakuEvaluator::HasFullyConcealdHand(const Hand &hand) const noexcept {
-        if (hand.IsMenzen() and hand.Stage() == HandStage::kAfterTsumo) return 1;
-        return std::nullopt;
     }
 
     std::optional<int> YakuEvaluator::HasPinfu(
@@ -454,52 +457,45 @@ namespace mj
         else return 2;
     }
 
-    std::optional<int> YakuEvaluator::HasAllSimples(const Hand &hand) const noexcept {
-        for (const Tile& tile : hand.ToVector()) {
-            if (tile.Is(TileSetType::kYaocyu)) return std::nullopt;
+    std::optional<int> YakuEvaluator::HasFullyConcealdHand(const Hand &hand) const noexcept {
+        if (hand.IsMenzen() and hand.Stage() == HandStage::kAfterTsumo) return 1;
+        return std::nullopt;
+    }
+
+    std::optional<int> YakuEvaluator::HasAllSimples(const TileTypeCount& count) const noexcept {
+        for (const auto& [tile_type, _] : count) {
+            if (Is(tile_type, TileSetType::kYaocyu)) return std::nullopt;
         }
         return 1;
     }
 
-    std::optional<int> YakuEvaluator::HasWhiteDragon(const Hand &hand) const noexcept {
-        int total = 0;
-        for (const Tile& tile : hand.ToVector()) {
-            if (tile.Type() == TileType::kWD) ++total;
-        }
-        if (total < 2) return std::nullopt;
-        return 1;
+    std::optional<int> YakuEvaluator::HasWhiteDragon(const TileTypeCount& count) const noexcept {
+        if (count.count(TileType::kWD) and count.at(TileType::kWD) >= 3) return 1;
+        return std::nullopt;
     }
 
-    std::optional<int> YakuEvaluator::HasGreenDragon(const Hand &hand) const noexcept {
-        int total = 0;
-        for (const Tile& tile : hand.ToVector()) {
-            if (tile.Type() == TileType::kGD) ++total;
-        }
-        if (total < 2) return std::nullopt;
-        return 1;
+    std::optional<int> YakuEvaluator::HasGreenDragon(const TileTypeCount& count) const noexcept {
+        if (count.count(TileType::kGD) and count.at(TileType::kGD) >= 3) return 1;
+        return std::nullopt;
     }
 
-    std::optional<int> YakuEvaluator::HasRedDragon(const Hand &hand) const noexcept {
-        int total = 0;
-        for (const Tile& tile : hand.ToVector()) {
-            if (tile.Type() == TileType::kRD) ++total;
-        }
-        if (total < 2) return std::nullopt;
-        return 1;
+    std::optional<int> YakuEvaluator::HasRedDragon(const TileTypeCount& count) const noexcept {
+        if (count.count(TileType::kRD) and count.at(TileType::kRD) >= 3) return 1;
+        return std::nullopt;
     }
 
-    std::optional<int> YakuEvaluator::HasAllTermsAndHonours(const Hand &hand) const noexcept {
-        for (const Tile &tile : hand.ToVector()) {
-            if (tile.Is(TileSetType::kTanyao)) return std::nullopt;
+    std::optional<int> YakuEvaluator::HasAllTermsAndHonours(const TileTypeCount& count) const noexcept {
+        for (const auto& [tile_type, _] : count) {
+            if (Is(tile_type, TileSetType::kTanyao)) return std::nullopt;
         }
         return 2;
     }
 
-    std::optional<int> YakuEvaluator::HasHalfFlush(const Hand &hand) const noexcept {
+    std::optional<int> YakuEvaluator::HasHalfFlush(const Hand& hand, const TileTypeCount& count) const noexcept {
         std::map<TileSetType,bool> set_types;
-        for (const Tile& tile : hand.ToVector()) {
-            if (tile.Is(TileSetType::kHonours)) set_types[TileSetType::kHonours] = true;
-            else set_types[tile.Color()] = true;
+        for (const auto& [tile_type, _] : count) {
+            if (Is(tile_type, TileSetType::kHonours)) set_types[TileSetType::kHonours] = true;
+            else set_types[Color(tile_type)] = true;
         }
 
         if (set_types.count(TileSetType::kHonours) == 0 or set_types.size() > 2) return std::nullopt;
@@ -507,11 +503,11 @@ namespace mj
         return 2;
     }
 
-    std::optional<int> YakuEvaluator::HasFullFlush(const Hand &hand) const noexcept {
+    std::optional<int> YakuEvaluator::HasFullFlush(const Hand& hand, const TileTypeCount& count) const noexcept {
         std::map<TileSetType,bool> set_types;
-        for (const Tile& tile : hand.ToVector()) {
-            if (tile.Is(TileSetType::kHonours)) set_types[TileSetType::kHonours] = true;
-            else set_types[tile.Color()] = true;
+        for (const auto& [tile_type, _] : count) {
+            if (Is(tile_type, TileSetType::kHonours)) set_types[TileSetType::kHonours] = true;
+            else set_types[Color(tile_type)] = true;
         }
 
         if (set_types.count(TileSetType::kHonours) or set_types.size() > 1) return std::nullopt;
