@@ -321,7 +321,7 @@ TEST_F(YakuTest, TerminalsInAllSets) {
     EXPECT_EQ(yaku1.count(Yaku::kTerminalsInAllSets), 1);
     EXPECT_EQ(yaku1[Yaku::kTerminalsInAllSets], 3);
 
-    // 鳴いててもOK 喰い下がり1翻
+    // 鳴いててもOK 喰い下がり2翻
     auto yaku2 = evaluator.Eval(
                 Hand(HandParams("m1,m2,m3,m9,m9,m9,s7,s8,s9,p9").Chi("p1,p2,p3").Tsumo("p9")));
     EXPECT_EQ(yaku2.count(Yaku::kTerminalsInAllSets), 1);
