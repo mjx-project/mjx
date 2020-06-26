@@ -42,6 +42,10 @@ namespace mj
                 const Hand &hand,
                 const std::vector<TileTypeCount>& sets,
                 const std::vector<TileTypeCount>& heads) const noexcept ;
+        [[nodiscard]] std::optional<int> HasAllPons(
+                const Hand &hand,
+                const std::vector<TileTypeCount>& sets,
+                const std::vector<TileTypeCount>& heads) const noexcept ;
         WinningHandCache win_cache_;
     };
 } // namespace mj

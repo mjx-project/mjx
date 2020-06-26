@@ -83,6 +83,9 @@ namespace mj
             if (std::optional<int> score = HasSevenPairs(hand, sets, heads); score) {
                 yaku_in_this_pattern[Yaku::kSevenPairs] = score.value();
             }
+            if (std::optional<int> score = HasAllPons(hand, sets, heads); score) {
+                yaku_in_this_pattern[Yaku::kAllPons] = score.value();
+            }
 
             // 今までに調べた組み合わせ方より役の総得点が高いなら採用する.
             if (TotalFan(best_yaku) < TotalFan(yaku_in_this_pattern)) {
@@ -224,6 +227,26 @@ namespace mj
 
         if (heads.size() == 7) return 2;
         return std::nullopt;
+    }
+
+    std::optional<int> YakuEvaluator::HasAllPons(
+            const Hand &hand,
+            const std::vector<TileTypeCount>& sets,
+            const std::vector<TileTypeCount>& heads) const noexcept {
+
+        if (sets.size() != 4 or heads.size() != 1) {
+            // 基本形でなければNG.
+            return std::nullopt;
+        }
+
+        for (const TileTypeCount& count : sets) {
+            if (count.size() >= 3) {
+                // 順子が含まれるとNG.
+                return std::nullopt;
+            }
+        }
+
+        return 2;
     }
 
     std::optional<int> YakuEvaluator::HasAllSimples(const Hand &hand) const noexcept {

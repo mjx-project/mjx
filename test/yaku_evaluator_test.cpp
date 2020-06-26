@@ -219,3 +219,21 @@ TEST_F(YakuTest, SevenPairs) {
             Hand(HandParams("m1,m2,m3,m4,m5,m6,s4,s5,s6,p1,p1,p1,ew").Tsumo("ew")));
     EXPECT_EQ(yaku4.count(Yaku::kSevenPairs), 0);
 }
+
+TEST_F(YakuTest, AllPons) {
+    auto yaku1 = evaluator.Eval(
+            Hand(HandParams("m1,m1,m1,m3,m3,m3,s4,s4,s4,ew,ew,rd,rd").Tsumo("ew")));
+    EXPECT_EQ(yaku1.count(Yaku::kAllPons), 1);
+    EXPECT_EQ(yaku1[Yaku::kAllPons], 2);
+
+    // 鳴いててもOK 喰い下がり無し
+    auto yaku2 = evaluator.Eval(
+            Hand(HandParams("m1,m1,m1,m3,m3,m3,ew,ew,rd,rd").Pon("s4,s4,s4").Tsumo("ew")));
+    EXPECT_EQ(yaku2.count(Yaku::kAllPons), 1);
+    EXPECT_EQ(yaku2[Yaku::kAllPons], 2);
+
+    // 順子が含まれるとNG
+    auto yaku3 = evaluator.Eval(
+            Hand(HandParams("m1,m1,m1,m3,m4,m5,ew,ew,rd,rd").Pon("s4,s4,s4").Tsumo("ew")));
+    EXPECT_EQ(yaku3.count(Yaku::kAllPons), 0);
+}
