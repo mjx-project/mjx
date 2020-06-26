@@ -8,13 +8,6 @@
 
 namespace mj {
 
-    bool WinningHandCache::Has(const win_cache::AbstructHand &abstruct_hand) const noexcept {
-        return cache_.count(abstruct_hand);
-    }
-
-    const std::set<win_cache::SplitPattern>& WinningHandCache::Patterns(const win_cache::AbstructHand &abstruct_hand) const noexcept {
-        return cache_.at(abstruct_hand);
-    }
 
     WinningHandCache::WinningHandCache() {
         LoadWinCache();
@@ -89,6 +82,39 @@ namespace mj {
 
         return {abstruct_hand, tile_types};
     }
+
+    bool WinningHandCache::Has(const TileTypeCount& closed_hand) const noexcept {
+        auto [abstruct_hand, _] = CreateAbstructHand(closed_hand);
+        return cache_.count(abstruct_hand);
+    }
+
+    bool WinningHandCache::Has(const std::string& abstruct_hand) const noexcept {
+        return cache_.count(abstruct_hand);
+    }
+
+    std::vector<std::pair<std::vector<TileTypeCount>, std::vector<TileTypeCount>>>
+    WinningHandCache::SetAndHeads(const TileTypeCount& closed_hand) const noexcept {
+
+        auto [abstruct_hand, tile_types] = CreateAbstructHand(closed_hand);
+
+        using Sets = std::vector<TileTypeCount>;
+        using Heads = std::vector<TileTypeCount>;
+        std::vector<std::pair<Sets, Heads>> ret;
+
+        for (const auto& pattern : cache_.at(abstruct_hand)) {
+            Sets sets;
+            Heads heads;
+            for (const std::vector<int> &block : pattern) {
+                TileTypeCount count;
+                for (const int tile_type_id : block) {
+                    ++count[tile_types[tile_type_id]];
+                }
+                (block.size() == 3 ? sets : heads).push_back(count);
+            }
+            ret.emplace_back(sets, heads);
+        }
+        return ret;
+    };
 
 }  // namespace mj
 

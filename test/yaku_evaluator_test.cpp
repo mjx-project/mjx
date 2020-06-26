@@ -163,3 +163,25 @@ TEST_F(YakuTest, FullFlush)
     EXPECT_EQ(yaku5.count(Yaku::kFullFlush), 1);
     EXPECT_EQ(yaku5[Yaku::kFullFlush], 5);
 }
+
+TEST_F(YakuTest, PureDoubleChis) {
+    auto yaku1 = evaluator.Eval(
+            Hand(HandParams("m1,m1,m2,m2,m3,m3,s4,s5,s6,p1,p1,p1,ew").Tsumo("ew")));
+    EXPECT_EQ(yaku1.count(Yaku::kPureDoubleChis), 1);
+    EXPECT_EQ(yaku1[Yaku::kPureDoubleChis], 1);
+
+    // 鳴いているとダメ
+    auto yaku2 = evaluator.Eval(
+            Hand(HandParams("m1,m1,m2,m2,m3,m3,s4,s5,s6,ew").Pon("p1,p1,p1").Tsumo("ew")));
+    EXPECT_EQ(yaku2.count(Yaku::kPureDoubleChis), 0);
+
+    // 二盃口とは重複しない
+    auto yaku3 = evaluator.Eval(
+            Hand(HandParams("m1,m1,m2,m2,m3,m3,s4,s4,s5,s5,s6,s6,ew").Tsumo("ew")));
+    EXPECT_EQ(yaku3.count(Yaku::kPureDoubleChis), 0);
+
+    // 一盃口要素無し
+    auto yaku4 = evaluator.Eval(
+            Hand(HandParams("m1,m2,m3,m4,m5,m6,s4,s5,s6,p1,p1,p1,ew").Tsumo("ew")));
+    EXPECT_EQ(yaku4.count(Yaku::kPureDoubleChis), 0);
+}

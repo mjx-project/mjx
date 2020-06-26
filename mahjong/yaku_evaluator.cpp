@@ -11,8 +11,7 @@ namespace mj
 
     bool YakuEvaluator::Has(const Hand& hand) const noexcept {
         // TODO: 国士無双を判定する.
-        auto [abstruct_hand, _] = WinningHandCache::CreateAbstructHand(ClosedHandTiles(hand));
-        return win_cache_.Has(abstruct_hand);
+        return win_cache_.Has(ClosedHandTiles(hand));
     }
 
     std::map<Yaku, int> YakuEvaluator::Eval(const Hand& hand) const noexcept {
@@ -52,29 +51,31 @@ namespace mj
 
         std::map<Yaku,int> best_yaku;
 
-        for (const auto& pattern : win_cache_.Patterns(abstruct_hand)) {
-            std::vector<TileTypeCount> counts;
-            for (const std::vector<int>& block : pattern) {
-                TileTypeCount count;
-                for (const int tile_type_id : block) {
-                    ++count[tile_types[tile_type_id]];
-                }
-                counts.push_back(count);
-            }
+        using Sets = std::vector<TileTypeCount>;
 
-            for (const Open* open : hand.Opens()) {
-                TileTypeCount count;
-                for (const Tile tile : open->Tiles()) {
-                    ++count[tile.Type()];
-                }
-                counts.push_back(count);
+        Sets opened_sets;
+        for (const Open* open : hand.Opens()) {
+            TileTypeCount count;
+            for (const Tile tile : open->Tiles()) {
+                ++count[tile.Type()];
+            }
+            opened_sets.push_back(count);
+        }
+
+        for (auto [sets, heads] : win_cache_.SetAndHeads(ClosedHandTiles(hand))) {
+
+            for (const TileTypeCount& count : opened_sets) {
+                sets.push_back(count);
             }
 
             std::map<Yaku,int> yaku_in_this_pattern;
 
             // 各役の判定
-            if (std::optional<int> score = HasPinfu(hand, counts); score) {
+            if (std::optional<int> score = HasPinfu(hand, sets, heads); score) {
                 yaku[Yaku::kPinfu] = score.value();
+            }
+            if (std::optional<int> score = HasPureDoubleChis(hand, sets, heads); score) {
+                yaku[Yaku::kPureDoubleChis] = score.value();
             }
 
             // 今までに調べた組み合わせ方より役の総得点が高いなら採用する.
@@ -98,7 +99,7 @@ namespace mj
 
     int YakuEvaluator::TotalFan(const std::map<Yaku,int>& yaku) noexcept {
         int total = 0;
-        for (const auto& [y, s] : yaku) total += s;
+        for (const auto& [key, val] : yaku) total += val;
         return total;
     }
 
@@ -107,30 +108,25 @@ namespace mj
         return std::nullopt;
     }
 
-    std::optional<int> YakuEvaluator::HasPinfu(const Hand &hand, const std::vector<TileTypeCount>& counts) const noexcept {
+    std::optional<int> YakuEvaluator::HasPinfu(
+            const Hand &hand,
+            const std::vector<TileTypeCount>& sets,
+            const std::vector<TileTypeCount>& heads) const noexcept {
         if (!hand.IsMenzen()) return std::nullopt;
 
-        std::vector<TileTypeCount> sets, heads;
+        if (sets.size() != 4 or heads.size() != 1) {
+            // 基本形でなければNG.
+            return std::nullopt;
+        }
 
-        for (const TileTypeCount& count : counts) {
-            switch (count.size()) {
-                case 3:
-                    sets.push_back(count);
-                    break;
-                case 1:
-                    if (count.begin()->second == 2) {
-                        heads.push_back(count);
-                    } else {
-                        return std::nullopt;
-                    }
-                    break;
-                default:
-                    return std::nullopt;
+        for (const TileTypeCount& count : sets) {
+            if (count.size() == 1) {
+                // 刻子が含まれるとNG
+                return std::nullopt;
             }
         }
 
-        if (sets.size() != 4 or heads.size() != 1) return std::nullopt;
-
+        // 雀頭が役牌だとNG
         // TODO: 場風, 自風も弾く.
         if (const TileType head = heads[0].begin()->first;
                         head == TileType::kRD or
@@ -152,6 +148,36 @@ namespace mj
                 return 1;
             }
         }
+
+        // リャンメン待ちでなければNG
+        return std::nullopt;
+    }
+
+    std::optional<int> YakuEvaluator::HasPureDoubleChis(
+            const Hand &hand,
+            const std::vector<TileTypeCount>& sets,
+            const std::vector<TileTypeCount>& heads) const noexcept {
+
+        // 鳴いているとNG
+        if (!hand.IsMenzen()) return std::nullopt;
+
+        if (sets.size() != 4 or heads.size() != 1) {
+            // 基本形でなければNG.
+            return std::nullopt;
+        }
+
+        std::map<TileTypeCount, int> pure_chies;
+        for (const TileTypeCount& count : sets) {
+            if (count.size() == 3) ++pure_chies[count];
+        }
+
+        int pairs = 0;
+        for (auto& [pure_chie, n] : pure_chies) {
+            if (n >= 2) ++pairs;
+        }
+
+        // 2つ以上重なっている順子が1個だけあるならOK
+        if (pairs == 1) return 1;
 
         return std::nullopt;
     }

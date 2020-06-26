@@ -25,7 +25,14 @@ namespace mj
         [[nodiscard]] std::optional<int> HasHalfFlush(const Hand &hand) const noexcept ;
         [[nodiscard]] std::optional<int> HasFullFlush(const Hand &hand) const noexcept ;
         [[nodiscard]] std::optional<int> HasFullyConcealdHand(const Hand& hand) const noexcept ;
-        [[nodiscard]] std::optional<int> HasPinfu(const Hand &hand, const std::vector<TileTypeCount>& counts) const noexcept ;
+        [[nodiscard]] std::optional<int> HasPinfu(
+                const Hand &hand,
+                const std::vector<TileTypeCount>& sets,
+                const std::vector<TileTypeCount>& heads) const noexcept ;
+        [[nodiscard]] std::optional<int> HasPureDoubleChis(
+                const Hand &hand,
+                const std::vector<TileTypeCount>& sets,
+                const std::vector<TileTypeCount>& heads) const noexcept ;
         static int TotalFan(const std::map<Yaku,int>& yaku) noexcept ;
         WinningHandCache win_cache_;
     };
