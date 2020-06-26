@@ -81,6 +81,9 @@ namespace mj
             if (std::optional<int> score = HasPureStraight(hand, closed_sets, opened_sets, heads); score) {
                 yaku_in_this_pattern[Yaku::kPureStraight] = score.value();
             }
+            if (std::optional<int> score = HasMixedTripleChis(hand, closed_sets, opened_sets, heads); score) {
+                yaku_in_this_pattern[Yaku::kMixedTripleChis] = score.value();
+            }
 
             // 今までに調べた組み合わせ方より役の総得点が高いなら採用する.
             if (TotalFan(best_yaku) < TotalFan(yaku_in_this_pattern)) {
@@ -172,13 +175,13 @@ namespace mj
             return std::nullopt;
         }
 
-        std::map<TileTypeCount, int> pure_chies;
+        std::map<TileTypeCount, int> pure_chis;
         for (const TileTypeCount& count : closed_sets) {
-            if (count.size() == 3) ++pure_chies[count];
+            if (count.size() == 3) ++pure_chis[count];
         }
 
         int pairs = 0;
-        for (auto& [pure_chie, n] : pure_chies) {
+        for (auto& [pure_chie, n] : pure_chis) {
             if (n >= 2) ++pairs;
         }
 
@@ -202,13 +205,13 @@ namespace mj
             return std::nullopt;
         }
 
-        std::map<TileTypeCount, int> pure_chies;
+        std::map<TileTypeCount, int> pure_chis;
         for (const TileTypeCount& count : closed_sets) {
-            if (count.size() == 3) ++pure_chies[count];
+            if (count.size() == 3) ++pure_chis[count];
         }
 
         int pairs = 0;
-        for (auto& [pure_chie, n] : pure_chies) {
+        for (auto& [pure_chie, n] : pure_chis) {
             if (n >= 2) ++pairs;
         }
 
@@ -262,38 +265,82 @@ namespace mj
             return std::nullopt;
         }
 
-        std::map<TileTypeCount, bool> chies;
+        std::map<TileTypeCount, bool> chis;
         for (const std::vector<TileTypeCount>& sets : {closed_sets, opened_sets}) {
             for (const TileTypeCount &count : sets) {
-                if (count.size() == 3) chies[count] = true;
+                if (count.size() == 3) chis[count] = true;
             }
         }
 
-        std::vector<std::vector<TileTypeCount>> straights;
-        straights.push_back({
-                            {{TileType::kM1, 1}, {TileType::kM2, 1}, {TileType::kM3, 1}},
-                            {{TileType::kM4, 1}, {TileType::kM5, 1}, {TileType::kM6, 1}},
-                            {{TileType::kM7, 1}, {TileType::kM8, 1}, {TileType::kM9, 1}}});
-        straights.push_back({
-                            {{TileType::kS1, 1}, {TileType::kS2, 1}, {TileType::kS3, 1}},
-                            {{TileType::kS4, 1}, {TileType::kS5, 1}, {TileType::kS6, 1}},
-                            {{TileType::kS7, 1}, {TileType::kS8, 1}, {TileType::kS9, 1}}});
-        straights.push_back({
-                            {{TileType::kP1, 1}, {TileType::kP2, 1}, {TileType::kP3, 1}},
-                            {{TileType::kP4, 1}, {TileType::kP5, 1}, {TileType::kP6, 1}},
-                            {{TileType::kP7, 1}, {TileType::kP8, 1}, {TileType::kP9, 1}}});
+        bool has_straight = false;
 
-        for (auto& straight : straights) {
-            bool make_straight = true;
-            for (const TileTypeCount& count : straight) {
-                if (chies.count(count) == 0) {
-                    make_straight = false;
+        for (int start : {0, 9, 18}) {
+            bool valid = true;
+            for (int set_start : {start, start + 3, start + 6}) {
+                TileTypeCount count;
+                for (int i = set_start; i < set_start + 3; ++i) {
+                    ++count[static_cast<TileType>(i)];
+                }
+                if (chis.count(count) == 0) {
+                    valid = false;
+                    break;
                 }
             }
-            if (make_straight) {
-                if (hand.IsMenzen()) return 2;
-                else return 1;
+            if (valid) {
+                has_straight = true;
+                break;
             }
+        }
+
+        if (has_straight) {
+            if (hand.IsMenzen()) return 2;
+            else return 1;
+        }
+
+        return std::nullopt;
+    }
+
+    std::optional<int> YakuEvaluator::HasMixedTripleChis(
+            const Hand &hand,
+            const std::vector<TileTypeCount>& closed_sets,
+            const std::vector<TileTypeCount>& opened_sets,
+            const std::vector<TileTypeCount>& heads) const noexcept {
+
+        if (opened_sets.size() + closed_sets.size() != 4 or heads.size() != 1) {
+            // 基本形でなければNG.
+            return std::nullopt;
+        }
+
+        std::map<TileTypeCount, bool> chis;
+        for (const std::vector<TileTypeCount>& sets : {closed_sets, opened_sets}) {
+            for (const TileTypeCount &count : sets) {
+                if (count.size() == 3) chis[count] = true;
+            }
+        }
+
+        bool has_mixed_triple_chis = false;
+
+        for (int start = 0; start + 2 < 9; ++start) {
+            bool valid = true;
+            for (int set_start : {start, start + 9, start + 18}) {
+                TileTypeCount count;
+                for (int i = set_start; i < set_start + 3; ++i) {
+                    ++count[static_cast<TileType>(i)];
+                }
+                if (chis.count(count) == 0) {
+                    valid = false;
+                    break;
+                }
+            }
+            if (valid) {
+                has_mixed_triple_chis = true;
+                break;
+            }
+        }
+
+        if (has_mixed_triple_chis) {
+            if (hand.IsMenzen()) return 2;
+            else return 1;
         }
 
         return std::nullopt;
