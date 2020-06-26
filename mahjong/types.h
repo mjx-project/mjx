@@ -157,6 +157,8 @@ namespace mj {
     };
 
     std::uint8_t Num(TileType type) noexcept ;
+    bool Is(TileType type, TileSetType tile_set_type) noexcept;
+    TileSetType Color(TileType type) noexcept ;
 
     using TileTypeCount = std::map<TileType, int>;
 
