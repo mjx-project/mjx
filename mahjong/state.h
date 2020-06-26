@@ -25,33 +25,32 @@ namespace mj
 
     struct Wall
     {
-        /* 136 tiles
-         *  - 0, ..., 52 (13*4): initial hands of 4 players
-         *  - 53, ..., 122 (70 tiles): draws
-         *  - 123, ..., 126: kan draws (嶺上牌）
-         *  - 127: dora
-         *  - 128, ..., 131: kan doras
-         *  - 132: ura dora
-         *  - 133, ..., 136: kan ura doras
+        /*
+         * 136 tiles, indexed [0, 135]
+         *  - [0, 51] (13*4=52): initial hands of 4 players 配牌
+         *  - [52, 121] (70): draws ツモ
+         *  - [122, 125] (4): kan draws 嶺上牌
+         *  - [126] (1):  dora ドラ
+         *  - [127, 130] (4): kan doras カンドラ
+         *  - [131] (1): ura dora 裏ドラ
+         *  - [132, 135] (4): kan ura doras カンドラ裏
          */
         Wall(std::uint32_t seed = 9999)
-        : seed(seed), wall(Tile::CreateAllShuffled(seed)), curr_tsumo(wall.cbegin()),
-        dora_begin(wall.cend() - 8), ura_dora_begin(dora_begin + 4), num_dora(1),
-
-        {
-        }
+        : seed(seed), wall(Tile::CreateAllShuffled(seed)),
+        itr_curr_draw(wall.cbegin()), itr_curr_kan_draw(wall.cbegin() + 122),
+        itr_dora_begin(wall.cbegin() + 126), itr_ura_dora_begin(wall.cbegin() + 131)
+        {}
         const std::uint32_t seed;
         const std::vector<Tile> wall;
-        std::vector<Tile>::const_iterator curr_tsumo;
-        std::vector<Tile>::const_iterator dora_begin;
-        std::vector<Tile>::const_iterator ura_dora_begin;
-        std::uint8_t num_dora;
-        std::vector<Tile>::iterator curr_kan_dora;
-        std::vector<Tile>::iterator curr_rinshan;
+        std::vector<Tile>::const_iterator itr_curr_draw;
+        std::vector<Tile>::const_iterator itr_curr_kan_draw;
+        const std::vector<Tile>::const_iterator itr_dora_begin;
+        const std::vector<Tile>::const_iterator itr_ura_dora_begin;
     };
 
     struct StateInRound
     {
+        AbsolutePos dealer;
         Wall wall;
         std::array<River, 4> river;
         std::array<Hand, 4> hand;
@@ -60,7 +59,6 @@ namespace mj
     class State
     {
     public:
-        State();
         State(std::uint32_t seed = 9999);
 
         void Init(std::uint32_t seed);
@@ -69,26 +67,17 @@ namespace mj
         // operate or access in-round state
         void InitRound();
         bool IsRoundOver();
-        AbsolutePos GetDealer();
-        void UpdateStateByDraw(AbsolutePos drawer_pos);
-        void UpdateStateByAction(std::unique_ptr<Action>);
-        void UpdateStateByKanDora();
-        void UpdateStateByKanDraw(AbsolutePos drawer_pos);
-        void UpdateStateByRyukyoku();
-        std::unique_ptr<Action> UpdateStateByStealActionCandidates(const std::vector<std::unique_ptr<Action>> &action_candidates);
-        void UpdateStateByFourKanByDifferentPlayers();
-        bool CanSteal(AbsolutePos stealer_pos);
-        bool CanRon(AbsolutePos winner_pos);
-        bool HasFourKanByDifferentPlayers();
-        bool HasNoDrawTileLeft();
-
+        AbsolutePos GetDealerPos();
+        AbsolutePos UpdateStateByDraw();
+        void UpdateStateByAction(const Action& action);
+        Action& UpdateStateByActionCandidates(const std::vector<Action> &action_candidates);
         // operate wall
         Tile Draw();
         void AddNewDora();
         Tile DrawRinshan();
 
-        std::unique_ptr<Observation> GetObservation(AbsolutePos pos);
-        std::string ToMjlog();
+        Observation& GetObservation(AbsolutePos pos) const;
+        std::string ToMjlog() const;
     private:
         friend class Environment;
         std::uint32_t seed_;

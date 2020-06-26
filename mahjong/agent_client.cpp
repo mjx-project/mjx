@@ -5,7 +5,7 @@ namespace mj
     AgentClient::AgentClient(std::shared_ptr<grpc::Channel> channel)
             : stub_(Agent::NewStub(channel)) {}
 
-    void AgentClient::TakeAction() {
+    Action AgentClient::TakeAction(const Observation& observation) const {
         std::cout << "AgentClient::TakeAction() starts" << std::endl;
         ActionRequest request;
         request.set_type(1);
@@ -28,6 +28,6 @@ int main(int argc, char** argv) {
     mj::AgentClient agent(
             grpc::CreateChannel("127.0.0.1:9090", grpc::InsecureChannelCredentials())
     );
-    agent.TakeAction();
+    agent.TakeAction(mj::Observation());
     return 0;
 }

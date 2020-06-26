@@ -64,7 +64,9 @@ namespace mj {
         kEast,
         kSouth,
         kWest,
-        kNorth
+        kNorth,
+        kEnd,  // Dummy
+        kBegin = 0
     };
 
     enum class RelativePos : std::uint8_t  // Order follows mjlog
