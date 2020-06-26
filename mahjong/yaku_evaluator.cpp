@@ -87,6 +87,9 @@ namespace mj
             if (std::optional<int> score = HasTriplePons(hand, closed_sets, opened_sets, heads); score) {
                 yaku_in_this_pattern[Yaku::kTriplePons] = score.value();
             }
+            if (std::optional<int> score = HasOutsideHand(hand, closed_sets, opened_sets, heads); score) {
+                yaku_in_this_pattern[Yaku::kOutsideHand] = score.value();
+            }
 
             // 今までに調べた組み合わせ方より役の総得点が高いなら採用する.
             if (TotalFan(best_yaku) < TotalFan(yaku_in_this_pattern)) {
@@ -388,6 +391,31 @@ namespace mj
         if (has_triple_pons) return 2;
 
         return std::nullopt;
+    }
+
+    std::optional<int> YakuEvaluator::HasOutsideHand(
+            const Hand &hand,
+            const std::vector<TileTypeCount>& closed_sets,
+            const std::vector<TileTypeCount>& opened_sets,
+            const std::vector<TileTypeCount>& heads) const noexcept {
+
+        for (const std::vector<TileTypeCount>& blocks : {closed_sets, opened_sets, heads}) {
+            for (const TileTypeCount& count : blocks) {
+                bool valid = false;
+                for (auto& [tile_type, _] : count) {
+                    if (Is(tile_type, TileSetType::kYaocyu)) {
+                        valid = true;
+                        break;
+                    }
+                }
+                if (!valid) {
+                    return std::nullopt;
+                }
+            }
+        }
+
+        if (hand.IsMenzen()) return 2;
+        else return 1;
     }
 
     std::optional<int> YakuEvaluator::HasAllSimples(const Hand &hand) const noexcept {
