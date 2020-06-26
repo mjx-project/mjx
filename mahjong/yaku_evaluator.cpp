@@ -51,9 +51,7 @@ namespace mj
 
         std::map<Yaku,int> best_yaku;
 
-        using Sets = std::vector<TileTypeCount>;
-
-        Sets opened_sets;
+        std::vector<TileTypeCount> opened_sets;
         for (const Open* open : hand.Opens()) {
             TileTypeCount count;
             for (const Tile tile : open->Tiles()) {
@@ -62,28 +60,24 @@ namespace mj
             opened_sets.push_back(count);
         }
 
-        for (auto [sets, heads] : win_cache_.SetAndHeads(ClosedHandTiles(hand))) {
-
-            for (const TileTypeCount& count : opened_sets) {
-                sets.push_back(count);
-            }
+        for (auto [closed_sets, heads] : win_cache_.SetAndHeads(ClosedHandTiles(hand))) {
 
             std::map<Yaku,int> yaku_in_this_pattern;
 
             // 各役の判定
-            if (std::optional<int> score = HasPinfu(hand, sets, heads); score) {
+            if (std::optional<int> score = HasPinfu(hand, closed_sets, opened_sets, heads); score) {
                 yaku_in_this_pattern[Yaku::kPinfu] = score.value();
             }
-            if (std::optional<int> score = HasPureDoubleChis(hand, sets, heads); score) {
+            if (std::optional<int> score = HasPureDoubleChis(hand, closed_sets, opened_sets, heads); score) {
                 yaku_in_this_pattern[Yaku::kPureDoubleChis] = score.value();
             }
-            if (std::optional<int> score = HasTwicePureDoubleChis(hand, sets, heads); score) {
+            if (std::optional<int> score = HasTwicePureDoubleChis(hand, closed_sets, opened_sets, heads); score) {
                 yaku_in_this_pattern[Yaku::kTwicePureDoubleChis] = score.value();
             }
-            if (std::optional<int> score = HasSevenPairs(hand, sets, heads); score) {
+            if (std::optional<int> score = HasSevenPairs(hand, closed_sets, opened_sets, heads); score) {
                 yaku_in_this_pattern[Yaku::kSevenPairs] = score.value();
             }
-            if (std::optional<int> score = HasAllPons(hand, sets, heads); score) {
+            if (std::optional<int> score = HasAllPons(hand, closed_sets, opened_sets, heads); score) {
                 yaku_in_this_pattern[Yaku::kAllPons] = score.value();
             }
 
@@ -119,16 +113,17 @@ namespace mj
 
     std::optional<int> YakuEvaluator::HasPinfu(
             const Hand &hand,
-            const std::vector<TileTypeCount>& sets,
+            const std::vector<TileTypeCount>& closed_sets,
+            const std::vector<TileTypeCount>& opened_sets,
             const std::vector<TileTypeCount>& heads) const noexcept {
         if (!hand.IsMenzen()) return std::nullopt;
 
-        if (sets.size() != 4 or heads.size() != 1) {
+        if (closed_sets.size() != 4 or heads.size() != 1) {
             // 基本形でなければNG.
             return std::nullopt;
         }
 
-        for (const TileTypeCount& count : sets) {
+        for (const TileTypeCount& count : closed_sets) {
             if (count.size() == 1) {
                 // 刻子が含まれるとNG
                 return std::nullopt;
@@ -147,7 +142,7 @@ namespace mj
         assert(hand.LastTileAdded().has_value());
         const Tile tsumo = hand.LastTileAdded().value();
 
-        for (const TileTypeCount& st : sets) {
+        for (const TileTypeCount& st : closed_sets) {
             const TileType left = st.begin()->first,
                            right = st.rbegin()->first;
             if ((tsumo.Type() == left and Num(right) != 9) or
@@ -164,19 +159,20 @@ namespace mj
 
     std::optional<int> YakuEvaluator::HasPureDoubleChis(
             const Hand &hand,
-            const std::vector<TileTypeCount>& sets,
+            const std::vector<TileTypeCount>& closed_sets,
+            const std::vector<TileTypeCount>& opened_sets,
             const std::vector<TileTypeCount>& heads) const noexcept {
 
         // 鳴いているとNG
         if (!hand.IsMenzen()) return std::nullopt;
 
-        if (sets.size() != 4 or heads.size() != 1) {
+        if (closed_sets.size() != 4 or heads.size() != 1) {
             // 基本形でなければNG.
             return std::nullopt;
         }
 
         std::map<TileTypeCount, int> pure_chies;
-        for (const TileTypeCount& count : sets) {
+        for (const TileTypeCount& count : closed_sets) {
             if (count.size() == 3) ++pure_chies[count];
         }
 
@@ -193,19 +189,20 @@ namespace mj
 
     std::optional<int> YakuEvaluator::HasTwicePureDoubleChis(
             const Hand &hand,
-            const std::vector<TileTypeCount>& sets,
+            const std::vector<TileTypeCount>& closed_sets,
+            const std::vector<TileTypeCount>& opened_sets,
             const std::vector<TileTypeCount>& heads) const noexcept {
 
         // 鳴いているとNG
         if (!hand.IsMenzen()) return std::nullopt;
 
-        if (sets.size() != 4 or heads.size() != 1) {
+        if (closed_sets.size() != 4 or heads.size() != 1) {
             // 基本形でなければNG.
             return std::nullopt;
         }
 
         std::map<TileTypeCount, int> pure_chies;
-        for (const TileTypeCount& count : sets) {
+        for (const TileTypeCount& count : closed_sets) {
             if (count.size() == 3) ++pure_chies[count];
         }
 
@@ -222,7 +219,8 @@ namespace mj
 
     std::optional<int> YakuEvaluator::HasSevenPairs(
             const Hand &hand,
-            const std::vector<TileTypeCount>& sets,
+            const std::vector<TileTypeCount>& closed_sets,
+            const std::vector<TileTypeCount>& opened_sets,
             const std::vector<TileTypeCount>& heads) const noexcept {
 
         if (heads.size() == 7) return 2;
@@ -231,18 +229,21 @@ namespace mj
 
     std::optional<int> YakuEvaluator::HasAllPons(
             const Hand &hand,
-            const std::vector<TileTypeCount>& sets,
+            const std::vector<TileTypeCount>& closed_sets,
+            const std::vector<TileTypeCount>& opened_sets,
             const std::vector<TileTypeCount>& heads) const noexcept {
 
-        if (sets.size() != 4 or heads.size() != 1) {
+        if (closed_sets.size() + opened_sets.size() != 4 or heads.size() != 1) {
             // 基本形でなければNG.
             return std::nullopt;
         }
 
-        for (const TileTypeCount& count : sets) {
-            if (count.size() >= 3) {
-                // 順子が含まれるとNG.
-                return std::nullopt;
+        for (const std::vector<TileTypeCount>& sets : {closed_sets, opened_sets}) {
+            for (const TileTypeCount& count : sets) {
+                if (count.size() >= 3) {
+                    // 順子が含まれるとNG.
+                    return std::nullopt;
+                }
             }
         }
 

@@ -28,23 +28,28 @@ namespace mj
         [[nodiscard]] std::optional<int> HasFullyConcealdHand(const Hand& hand) const noexcept ;
         [[nodiscard]] std::optional<int> HasPinfu(
                 const Hand &hand,
-                const std::vector<TileTypeCount>& sets,
+                const std::vector<TileTypeCount>& closed_sets,
+                const std::vector<TileTypeCount>& opened_sets,
                 const std::vector<TileTypeCount>& heads) const noexcept ;
         [[nodiscard]] std::optional<int> HasPureDoubleChis(
                 const Hand &hand,
-                const std::vector<TileTypeCount>& sets,
+                const std::vector<TileTypeCount>& closed_sets,
+                const std::vector<TileTypeCount>& opened_sets,
                 const std::vector<TileTypeCount>& heads) const noexcept ;
         [[nodiscard]] std::optional<int> HasTwicePureDoubleChis(
                 const Hand &hand,
-                const std::vector<TileTypeCount>& sets,
+                const std::vector<TileTypeCount>& closed_sets,
+                const std::vector<TileTypeCount>& opened_sets,
                 const std::vector<TileTypeCount>& heads) const noexcept ;
         [[nodiscard]] std::optional<int> HasSevenPairs(
                 const Hand &hand,
-                const std::vector<TileTypeCount>& sets,
+                const std::vector<TileTypeCount>& closed_sets,
+                const std::vector<TileTypeCount>& opened_sets,
                 const std::vector<TileTypeCount>& heads) const noexcept ;
         [[nodiscard]] std::optional<int> HasAllPons(
                 const Hand &hand,
-                const std::vector<TileTypeCount>& sets,
+                const std::vector<TileTypeCount>& closed_sets,
+                const std::vector<TileTypeCount>& opened_sets,
                 const std::vector<TileTypeCount>& heads) const noexcept ;
         WinningHandCache win_cache_;
     };
