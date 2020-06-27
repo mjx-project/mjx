@@ -9,14 +9,28 @@ service Agent {
 message Empty {
 }
 
-message ActionRequest {  // i.e., observation
-  uint32 type = 1;
+message ActionRequest {
+  message Observation {
+  }
+  message PossibleAction {
+    uint32 type = 1;
+    uint32 open = 2;
+    repeated uint32 undiscardable_tiles = 3;
+    // discard
+    // riichi_and_discard
+    // chi
+    // pon
+    // kan_opened
+    // kan_closed
+    // kan_added
+  }
+  Observation observation = 1;
+  repeated PossibleAction possible_actions = 2;
 }
 
 message ActionResponse {
   uint32 type = 1;
-  bool has_discard = 2;
-  bool has_open = 3;
-  uint32 discard = 4;
-  uint32 open = 5;
+  bool yes = 2; // riichi_and_discard, tsumo, ron and kyusyu (九種九牌0)
+  uint32 discard = 3;  // discard, riichi_and_discard, chi and pon
+  uint32 open = 4;  // chi, pon, kan_opened, kan_closed, and kan_added
 }
