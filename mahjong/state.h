@@ -50,7 +50,6 @@ namespace mj
 
     struct StateInRound
     {
-        AbsolutePos dealer;
         Wall wall;
         std::array<River, 4> river;
         std::array<Hand, 4> hand;
