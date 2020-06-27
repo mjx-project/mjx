@@ -15,9 +15,9 @@ namespace mj
         Action();
         AbsolutePos Who();
         ActionType Type();
-        bool Yes();
-        Tile Discard();
-        std::unique_ptr<Open> Open();
+        std::optional<bool> Yes();
+        std::optional<Tile> Discard();
+        std::optional<std::unique_ptr<Open>> GetOpen();
     private:
         std::unique_ptr<ActionResponse> action_response_;
     };
