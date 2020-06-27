@@ -28,7 +28,8 @@ message ActionRequest {
       uint32 type = 2;  // draw, discard, riichi_and_discard, chi, pon, kan_opened, kan_closed, kan_added, tsumo ,ron
       uint32 draw = 3;
       uint32 discard = 4;
-      uint32 open = 5;
+      bool tsumogiri = 5;  // discard the drawn tile
+      uint32 open = 6;
     }
     Score score = 1;
     InitialHand initial_hand = 2;
@@ -47,7 +48,7 @@ message ActionRequest {
 message ActionResponse {
   uint32 who = 1;
   uint32 type = 2;
-  bool yes = 3; // riichi_and_discard, tsumo, ron and kyusyu (九種九牌0)
+  bool yes = 3; // riichi_and_discard, tsumo, ron and kyusyu (九種九牌)
   uint32 discard = 4;  // discard, riichi_and_discard, chi and pon
   uint32 open = 5;  // chi, pon, kan_opened, kan_closed, and kan_added
 }
