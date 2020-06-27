@@ -33,7 +33,7 @@ namespace mj {
 
     enum class ActionType : std::uint8_t {
         kDiscard,
-        kRiichi,
+        kRiichiAndDiscard,
         kTsumo,
         kRon,
         kChi,

@@ -8,7 +8,6 @@ namespace mj
     Action AgentClient::TakeAction(const Observation& observation) const {
         std::cout << "AgentClient::TakeAction() starts" << std::endl;
         ActionRequest request;
-        request.set_type(1);
 
         ActionResponse response;
         grpc::ClientContext context;

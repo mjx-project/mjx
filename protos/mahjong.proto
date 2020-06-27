@@ -9,23 +9,38 @@ service Agent {
 message Empty {
 }
 
+// Similar to Tenhou's mjlog format. Initial hand and action sequence are sent to each player.
+// However, different from Tenhou, each request is state-less.
+// Each request has enough information to make decisions.
 message ActionRequest {
   message Observation {
+    message Score {
+      uint32 round = 1;
+      uint32 honba = 2;
+      uint32 riichi = 3;
+      uint32 ten = 4;
+    }
+    message InitialHand {
+      repeated uint32 tiles = 1;
+    }
+    message Action {
+      uint32 who = 1;
+      uint32 type = 2;  // draw, discard, riichi_and_discard, chi, pon, kan_opened, kan_closed, kan_added, tsumo ,ron
+      uint32 draw = 3;
+      uint32 discard = 4;
+      uint32 open = 5;
+    }
+    Score score = 1;
+    InitialHand initial_hand = 2;
+    repeated Action actions = 3;
   }
   message PossibleAction {
     uint32 type = 1;
     uint32 open = 2;
-    repeated uint32 undiscardable_tiles = 3;
-    // discard
-    // riichi_and_discard
-    // chi
-    // pon
-    // kan_opened
-    // kan_closed
-    // kan_added
+    repeated uint32 discard_candidates = 3;
   }
-  Observation observation = 1;
-  repeated PossibleAction possible_actions = 2;
+  Observation observation = 3;
+  repeated PossibleAction possible_actions = 4;
 }
 
 message ActionResponse {
