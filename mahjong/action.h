@@ -4,6 +4,8 @@
 #include <memory>
 #include <mahjong.pb.h>
 #include "types.h"
+#include "tile.h"
+#include "open.h"
 
 namespace mj
 {
@@ -13,6 +15,9 @@ namespace mj
         Action();
         AbsolutePos Who();
         ActionType Type();
+        bool Yes();
+        Tile Discard();
+        std::unique_ptr<Open> Open();
     private:
         std::unique_ptr<ActionResponse> action_response_;
     };

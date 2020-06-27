@@ -39,13 +39,15 @@ message ActionRequest {
     uint32 open = 2;
     repeated uint32 discard_candidates = 3;
   }
-  Observation observation = 3;
-  repeated PossibleAction possible_actions = 4;
+  uint32 who = 1;
+  Observation observation = 2;
+  repeated PossibleAction possible_actions = 3;
 }
 
 message ActionResponse {
-  uint32 type = 1;
-  bool yes = 2; // riichi_and_discard, tsumo, ron and kyusyu (九種九牌0)
-  uint32 discard = 3;  // discard, riichi_and_discard, chi and pon
-  uint32 open = 4;  // chi, pon, kan_opened, kan_closed, and kan_added
+  uint32 who = 1;
+  uint32 type = 2;
+  bool yes = 3; // riichi_and_discard, tsumo, ron and kyusyu (九種九牌0)
+  uint32 discard = 4;  // discard, riichi_and_discard, chi and pon
+  uint32 open = 5;  // chi, pon, kan_opened, kan_closed, and kan_added
 }
