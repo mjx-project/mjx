@@ -76,7 +76,6 @@ namespace mj
         }
         std::string ToMjlog() const;
     private:
-        friend class Environment;
         std::uint32_t seed_;
         Score score_;
         StateInRound state_in_round_;
