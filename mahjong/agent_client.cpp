@@ -8,14 +8,14 @@ namespace mj
     Action AgentClient::TakeAction(std::unique_ptr<Observation> observation) const {
         std::cout << "AgentClient::TakeAction() starts" << std::endl;
         const ActionRequest& request = observation->GetActionRequest();
-        auto action = Action();
-        auto response = action.MutableActionResponse();
+        ActionResponse response;
         grpc::ClientContext context;
-        grpc::Status status = stub_->TakeAction(&context, request, response);
+        grpc::Status status = stub_->TakeAction(&context, request, &response);
         if (!status.ok()) {
             std::cout << status.error_code() << ": " << status.error_message() << std::endl;
         }
         std::cout << "AgentClient::TakeAction() ends" << std::endl;
+        auto action = Action(std::move(response));
         return action;
     }
 }  // namespace mj
@@ -52,8 +52,8 @@ int main(int argc, char** argv) {
         delete common_observation;
     }
 
-    std::cout << "  type: " << action.MutableActionResponse()->type() << std::endl;
-    std::cout << "  action: " << action.MutableActionResponse()->discard() << std::endl;
+    std::cout << "  type: " << action.GetActionResponse().type() << std::endl;
+    std::cout << "  action: " << action.GetActionResponse().discard() << std::endl;
 
     return 0;
 }
