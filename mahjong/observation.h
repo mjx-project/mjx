@@ -5,10 +5,18 @@
 
 #include <utility>
 #include "hand.h"
-#include "state.h"
 
 namespace mj
 {
+    struct Score
+    {
+        Score(): round(0), honba(0), riichi(0), ten({250, 250, 250, 250}) {}
+        std::uint8_t round;  // 局
+        std::uint8_t honba;  // 本場
+        std::uint8_t riichi;  // リー棒
+        std::array<std::int16_t, 4> ten;  // 点 250 start
+    };
+
     struct TakenAction {
         AbsolutePos who;
         ActionType type;
