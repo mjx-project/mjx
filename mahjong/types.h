@@ -2,7 +2,10 @@
 #define MAHJONG_TYPES_H
 
 #include <cstdint>
-
+#include <vector>
+#include <set>
+#include <map>
+#include <unordered_map>
 
 namespace mj {
     using TileId = std::uint8_t;  // {0, ..., 135} corresponds to mjlog format of Tenhou
@@ -167,6 +170,18 @@ namespace mj {
         kEnd,  // Dummy
         kBegin = 0,
     };
+
+    std::uint8_t Num(TileType type) noexcept ;
+    bool Is(TileType type, TileSetType tile_set_type) noexcept;
+    TileSetType Color(TileType type) noexcept ;
+
+    using TileTypeCount = std::map<TileType, int>;
+
+    namespace win_cache {
+        using AbstructHand = std::string;
+        using SplitPattern = std::vector<std::vector<int>>;
+        using CacheType = std::unordered_map<AbstructHand, std::set<SplitPattern>>;
+    }
 
 }  // namespace mj
 

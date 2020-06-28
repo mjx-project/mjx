@@ -115,7 +115,7 @@ namespace mj
            hand_params.tsumo_, hand_params.ron_, hand_params.riichi_, hand_params.after_kan_)
     {}
 
-    HandStage Hand::Stage() {
+    HandStage Hand::Stage() const {
         return stage_;
     }
 
@@ -476,7 +476,7 @@ namespace mj
         return v;
     }
 
-    std::vector<Tile> Hand::ToVector(bool sorted) {
+    std::vector<Tile> Hand::ToVector(bool sorted) const {
         auto v = ToVectorClosed();
         auto opened = ToVectorOpened();
         v.insert(v.end(), opened.begin(), opened.end());
@@ -484,13 +484,13 @@ namespace mj
         return v;
     }
 
-    std::vector<Tile> Hand::ToVectorClosed(bool sorted) {
+    std::vector<Tile> Hand::ToVectorClosed(bool sorted) const {
         auto v = std::vector<Tile>(closed_tiles_.begin(), closed_tiles_.end());
         if (sorted) std::sort(v.begin(), v.end());
         return v;
     }
 
-    std::vector<Tile> Hand::ToVectorOpened(bool sorted) {
+    std::vector<Tile> Hand::ToVectorOpened(bool sorted) const {
         auto v = std::vector<Tile>();
         for (const auto &o : opens_) {
             auto tiles = o->Tiles();
@@ -528,7 +528,7 @@ namespace mj
         return a;
     }
 
-    bool Hand::IsMenzen() {
+    bool Hand::IsMenzen() const {
         if (opens_.empty()) return true;
         return std::all_of(opens_.begin(), opens_.end(),
                 [](const auto &x){ return x->Type() == OpenType::kKanClosed; });
@@ -565,7 +565,7 @@ namespace mj
         return false;
     }
 
-    std::optional<Tile> Hand::LastTileAdded() {
+    std::optional<Tile> Hand::LastTileAdded() const {
         return last_tile_added_;
     }
 
@@ -586,8 +586,8 @@ namespace mj
         assert(last_tile_added_);
     }
 
-    std::vector<Open*> Hand::Opens() {
-        std::vector<Open*> ret;
+    std::vector<const Open*> Hand::Opens() const {
+        std::vector<const Open*> ret;
         for (auto &o: opens_) {
             ret.push_back(o.get());
         }
