@@ -13,36 +13,34 @@ message Empty {
 // However, different from Tenhou, each request is state-less.
 // Each request has enough information to make decisions.
 message ActionRequest {
-  message Observation {
-    message Score {
-      uint32 round = 1;
-      uint32 honba = 2;
-      uint32 riichi = 3;
-      uint32 ten = 4;
-    }
-    message InitialHand {
-      repeated uint32 tiles = 1;
-    }
-    message Action {
-      uint32 who = 1;
-      uint32 type = 2;  // draw, discard, riichi_and_discard, chi, pon, kan_opened, kan_closed, kan_added, tsumo ,ron
-      uint32 draw = 3;
-      uint32 discard = 4;
-      bool tsumogiri = 5;  // discard the drawn tile
-      uint32 open = 6;
-    }
-    Score score = 1;
-    InitialHand initial_hand = 2;
-    repeated Action actions = 3;
+  message Score {
+    uint32 round = 1;
+    uint32 honba = 2;
+    uint32 riichi = 3;
+    uint32 ten = 4;
+  }
+  message TakenAction {
+    uint32 who = 1;
+    uint32 type = 2;  // draw, discard, riichi_and_discard, chi, pon, kan_opened, kan_closed, kan_added, tsumo ,ron
+    uint32 draw = 3;
+    uint32 discard = 4;
+    bool tsumogiri = 5;  // discard the drawn tile
+    uint32 open = 6;
+  }
+  message InitialHand {
+    repeated uint32 tiles = 1;
   }
   message PossibleAction {
     uint32 type = 1;
     uint32 open = 2;
     repeated uint32 discard_candidates = 3;
   }
+
   uint32 who = 1;
-  Observation observation = 2;
-  repeated PossibleAction possible_actions = 3;
+  Score score = 2;
+  repeated TakenAction taken_actions = 3;
+  InitialHand initial_hand = 4;
+  repeated PossibleAction possible_actions = 5;
 }
 
 message ActionResponse {
