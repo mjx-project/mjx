@@ -17,7 +17,7 @@ message ActionRequest {  // corresponds to mj::Observation in cpp
     uint32 round = 1;
     uint32 honba = 2;
     uint32 riichi = 3;
-    uint32 ten = 4;
+    repeated uint32 ten = 4;
   }
   message TakenAction {
     uint32 who = 1;

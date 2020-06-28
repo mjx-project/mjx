@@ -12,14 +12,15 @@ namespace mj
     class Action
     {
     public:
-        Action();
-        AbsolutePos Who();
-        ActionType Type();
-        bool Yes();
-        Tile Discard();
-        std::unique_ptr<Open> GetOpen();
+        Action() = default;
+        AbsolutePos GetWho() const;
+        ActionType GetType() const;
+        bool GetYes() const;
+        Tile GetDiscard() const;
+        std::unique_ptr<Open> GetOpen() const;
+        ActionResponse* MutableActionResponse() { return &action_response_; }
     private:
-        std::unique_ptr<ActionResponse> action_response_;
+        ActionResponse action_response_;
     };
 }  // namespace mj
 

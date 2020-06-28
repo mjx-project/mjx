@@ -3,13 +3,17 @@
 
 #include <mahjong.pb.h>
 
+#include <utility>
+
 namespace mj
 {
     class Observation
     {
     public:
         Observation() = default;
-        ActionRequest GetActionRequest();
+        Observation(ActionRequest action_request): action_request_(std::move(action_request)) {}
+        const ActionRequest& GetActionRequest() const { return action_request_; }
+        std::string ToString() const;
     private:
         ActionRequest action_request_;
     };
