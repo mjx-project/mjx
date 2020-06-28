@@ -12,7 +12,7 @@ message Empty {
 // Similar to Tenhou's mjlog format. Initial hand and action sequence are sent to each player.
 // However, different from Tenhou, each request is state-less.
 // Each request has enough information to make decisions.
-message ActionRequest {
+message ActionRequest {  // corresponds to mj::Observation in cpp
   message Score {
     uint32 round = 1;
     uint32 honba = 2;
@@ -43,7 +43,7 @@ message ActionRequest {
   repeated PossibleAction possible_actions = 5;
 }
 
-message ActionResponse {
+message ActionResponse {  // corresponds to mj::Action in cpp
   uint32 who = 1;
   uint32 type = 2;
   bool yes = 3; // riichi_and_discard, tsumo, ron and kyusyu (九種九牌)
