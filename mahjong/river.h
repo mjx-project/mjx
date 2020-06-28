@@ -5,10 +5,10 @@ namespace mj
 {
     struct DiscardedTile
     {
-        DiscardedTile(Tile tile, bool tsumogiri, std::optional<RelativePos> stolen_to = std::nullopt)
-        : tile(tile), tsumogiri(tsumogiri), stolen_to(stolen_to) {}
+        DiscardedTile(Tile tile, bool discard_drawn_tile, std::optional<RelativePos> stolen_to = std::nullopt)
+        : tile(tile), discard_drawn_tile(discard_drawn_tile), stolen_to(stolen_to) {}
         Tile tile;
-        bool tsumogiri;
+        bool discard_drawn_tile;  // ツモ切り
         std::optional<RelativePos> stolen_to;
     };
 

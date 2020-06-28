@@ -25,7 +25,7 @@ message ActionRequest {  // corresponds to mj::Observation in cpp
       uint32 type = 2;  // draw, discard, riichi_and_discard, chi, pon, kan_opened, kan_closed, kan_added, tsumo ,ron
       uint32 draw = 3;
       uint32 discard = 4;
-      bool tsumogiri = 5;  // discard the drawn tile
+      bool discard_drawn_tile= 5;  // discard the drawn tile
       uint32 open = 6;
     }
     Score score = 1;

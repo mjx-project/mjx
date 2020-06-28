@@ -4,9 +4,20 @@
 #include <mahjong.pb.h>
 
 #include <utility>
+#include "hand.h"
+#include "state.h"
 
 namespace mj
 {
+    struct TakenAction {
+        AbsolutePos who;
+        ActionType type;
+        Tile draw;
+        Tile discard;
+        bool discard_drawn_tile;
+        std::unique_ptr<Open> open;
+    };
+
     class Observation
     {
     public:
@@ -21,6 +32,13 @@ namespace mj
         : action_request_(action_request), common_observation_(common_observation) {
             action_request_.set_allocated_common_observation(common_observation_);
         }
+        std::uint32_t GetGameId() const;
+        AbsolutePos GetWho() const;
+        Hand GetInitialHand() const;
+        Hand GetCurrentHand() const;
+        std::vector<Action> GetPossibleActions() const;
+        Score GetScore() const;
+        std::vector<TakenAction> GetTakenActions() const;
         [[nodiscard]] const ActionRequest& GetActionRequest() const { return action_request_; }
         std::string ToString() const;
     private:

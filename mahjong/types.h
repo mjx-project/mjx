@@ -35,10 +35,14 @@ namespace mj {
     };
 
     enum class ActionType : std::uint8_t {
+        kDraw,
+        kDrawAfterKan,
         kDiscard,
         kRiichiAndDiscard,
         kTsumo,
+        kTsumoAfterKan,
         kRon,
+        kRonAfterKan,
         kChi,
         kPon,
         kKanClosed,
@@ -48,19 +52,19 @@ namespace mj {
     };
 
     enum class HandStage : std::uint8_t {
-        kAfterDiscards,
         kAfterDraw,
         kAfterDrawAfterKan,
+        kAfterDiscards,
         kAfterRiichi,
+        kAfterTsumo,
+        kAfterTsumoAfterKan,
+        kAfterRon,
+        kAfterRonAfterOthersKan,
         kAfterChi,
         kAfterPon,
         kAfterKanOpened,
         kAfterKanClosed,
         kAfterKanAdded,
-        kAfterTsumo,
-        kAfterTsumoAfterKan,
-        kAfterRon,
-        kAfterRonAfterOthersKan,
     };
 
     enum class AbsolutePos : std::uint8_t {
