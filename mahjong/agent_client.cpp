@@ -30,33 +30,24 @@ int main(int argc, char** argv) {
     auto common_observation = new mj::ActionRequest_CommonObservation();
 
     // action1 happens
-    auto taken_actions = common_observation->mutable_taken_actions();
     auto taken_action1 = mj::ActionRequest_CommonObservation_TakenAction();
-    taken_actions->Add(std::move(taken_action1));
+    common_observation->mutable_taken_actions()->Add(std::move(taken_action1));
 
     // take first action
     auto request1 = mj::ActionRequest();
     request1.set_who(1);
-    // use common observation
-    request1.set_allocated_common_observation(common_observation);
-    auto action = agent.TakeAction(mj::Observation(request1));
-    // return common observation
-    common_observation = request1.release_common_observation();
+    auto action = agent.TakeAction(mj::Observation(request1, common_observation));
 
     // action2 happens
-    taken_actions = common_observation->mutable_taken_actions();
     auto taken_action2 = mj::ActionRequest_CommonObservation_TakenAction();
-    taken_actions->Add(std::move(taken_action2));
+    common_observation->mutable_taken_actions()->Add(std::move(taken_action2));
 
     // take second action
     auto request2 = mj::ActionRequest();
     request2.set_who(2);
-    request2.set_allocated_common_observation(common_observation);
-    action = agent.TakeAction(mj::Observation(request2));
-    // return common observatoin
-    common_observation = request2.release_common_observation();
+    action = agent.TakeAction(mj::Observation(request2, common_observation));
 
-    if (common_observation) {
+    if (common_observation) {  // as we use release_common_observation, we should manually delete it.
         std::cout << "deleted" << std::endl;
         delete common_observation;
     }
