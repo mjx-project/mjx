@@ -21,13 +21,14 @@ namespace mj
         while (!state_.IsRoundOver()) {
             auto drawer = state_.UpdateStateByDraw();
             // discard, riichi_and_discard, tsumo, kan_closed or kan_added. (At the first draw, 9種9牌）
-            auto action = agents_[static_cast<int>(drawer)].TakeAction(state_.GetObservation(drawer));
+            auto action = agents_[static_cast<int>(drawer)].TakeAction(state_.NewObservation(drawer));
             state_.UpdateStateByAction(action);
             if (auto winners = RonCheck(); winners) {
                 std::vector<Action> action_candidates;
                 for (AbsolutePos winner: winners.value()) {
                     // only ron
-                    action_candidates.emplace_back(agents_[static_cast<int>(winner)].TakeAction(state_.GetObservation(winner)));
+                    action_candidates.emplace_back(agents_[static_cast<int>(winner)].TakeAction(
+                            state_.NewObservation(winner)));
                 }
                 state_.UpdateStateByActionCandidates(action_candidates);
             }
@@ -36,7 +37,8 @@ namespace mj
                 // TODO (sotetsuk): make gRPC async
                 for (AbsolutePos stealer: stealers.value()) {
                     // chi, pon and kan_opened
-                    action_candidates.emplace_back(agents_[static_cast<int>(stealer)].TakeAction(state_.GetObservation(stealer)));
+                    action_candidates.emplace_back(agents_[static_cast<int>(stealer)].TakeAction(
+                            state_.NewObservation(stealer)));
                 }
                 state_.UpdateStateByActionCandidates(action_candidates);
             }

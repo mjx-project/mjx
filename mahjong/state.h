@@ -59,6 +59,9 @@ namespace mj
     {
     public:
         State(std::uint32_t seed = 9999);
+        ~State() {
+            delete common_observation_;
+        }
 
         void Init(std::uint32_t seed);
         bool IsGameOver();
@@ -75,13 +78,21 @@ namespace mj
         void AddNewDora();
         Tile DrawRinshan();
 
-        Observation& GetObservation(AbsolutePos pos) const;
+        // This method cannot be const because it moves the ownership of CommonObservation to each ActionRequest
+        // One way to make this method const is to create new ActionRequest and use CopyFrom instead of set_allocated_common_observation
+        std::unique_ptr<Observation> NewObservation(AbsolutePos pos) {
+            return std::make_unique<Observation>(action_requests_[static_cast<int>(pos)], common_observation_);
+        }
         std::string ToMjlog() const;
     private:
         friend class Environment;
         std::uint32_t seed_;
         Score score_;
         StateInRound state_in_round_;
+
+        // gRPC
+        ActionRequest_CommonObservation *common_observation_ = new ActionRequest_CommonObservation();
+        std::array<ActionRequest, 4> action_requests_;
     };
 }  // namespace mj
 
