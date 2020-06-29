@@ -5,6 +5,7 @@
 #include <unordered_map>
 #include <numeric>
 #include <algorithm>
+#include <random>
 #include "tile.h"
 
 namespace mj
@@ -56,6 +57,17 @@ namespace mj
         auto ids = std::vector<TileId>(136);
         std::iota(ids.begin(), ids.end(), 0);
         auto tiles = Tile::Create(ids, sorted);
+        return tiles;
+    }
+
+    std::vector<Tile> Tile::CreateAllShuffled(std::uint32_t seed) noexcept {
+        auto ids = std::vector<TileId>(136);
+        std::iota(ids.begin(), ids.end(), 0);
+        auto tiles = Tile::Create(ids, true);
+        // TODO: use seed
+        std::random_device seed_gen;
+        std::mt19937 engine(seed_gen());
+        std::shuffle(tiles.begin(), tiles.end(), engine);
         return tiles;
     }
 
