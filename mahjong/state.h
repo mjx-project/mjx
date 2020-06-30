@@ -41,7 +41,10 @@ namespace mj
 
     struct StateInRound
     {
-        StateInRound(std::uint32_t seed = 9999);
+        StateInRound() = delete;
+        StateInRound(AbsolutePos dealer, std::uint32_t seed = 9999);
+        AbsolutePos dealer;
+        AbsolutePos drawer;
         Wall wall;
         std::array<River, 4> rivers;
         std::array<Hand, 4> hands;
