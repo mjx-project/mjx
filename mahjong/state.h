@@ -28,20 +28,27 @@ namespace mj
          */
         Wall(std::uint32_t seed = 9999)
         : seed(seed), tiles(Tile::CreateAllShuffled(seed)),
-          itr_curr_draw(tiles.cbegin()), itr_curr_kan_draw(tiles.cbegin() + 122),
+          itr_curr_draw(tiles.cbegin() + 52), itr_draw_end(tiles.cbegin() + 122),
+          itr_curr_kan_draw(tiles.cbegin() + 122), itr_kan_draw_end(tiles.cbegin() + 130),
           itr_dora_begin(tiles.cbegin() + 126), itr_ura_dora_begin(tiles.cbegin() + 131)
         {}
         std::uint32_t seed;
         std::vector<Tile> tiles;
         std::vector<Tile>::const_iterator itr_curr_draw;
+        std::vector<Tile>::const_iterator itr_draw_end;
         std::vector<Tile>::const_iterator itr_curr_kan_draw;
+        std::vector<Tile>::const_iterator itr_kan_draw_end;
         std::vector<Tile>::const_iterator itr_dora_begin;
         std::vector<Tile>::const_iterator itr_ura_dora_begin;
     };
 
     struct StateInRound
     {
-        StateInRound(std::uint32_t seed = 9999);
+        StateInRound() = delete;
+        StateInRound(AbsolutePos dealer, std::uint32_t seed = 9999);
+        InRoundStateStage stage;
+        AbsolutePos dealer;
+        AbsolutePos drawer;
         Wall wall;
         std::array<River, 4> rivers;
         std::array<Hand, 4> hands;
@@ -65,6 +72,7 @@ namespace mj
         Tile DrawRinshan();
 
         // accessors
+        InRoundStateStage Stage() const { return state_in_round_.stage; }
         AbsolutePos GetDealerPos();
         const Wall &GetWall() const;
         const std::array<Hand, 4> &GetHands() const;
