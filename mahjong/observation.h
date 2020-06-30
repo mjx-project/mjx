@@ -30,21 +30,22 @@ namespace mj
     {
     public:
         // As Observation should return the ownership of common observation. The life span of Observation should be short.
-        Observation() = default;
-        ~Observation() {
-            std::cout << "Observation destructor is called" << std::endl;
-            // Observation borrowed common observation when constructed. So it should return its ownership.
-            common_observation_ = action_request_.release_common_observation();
-        }
+        Observation() = delete;
         Observation(ActionRequest &action_request, ActionRequest_CommonObservation* common_observation)
         : action_request_(action_request), common_observation_(common_observation) {
             action_request_.set_allocated_common_observation(common_observation_);
+        }
+        ~Observation() {
+            std::cout << "Observation destructor is called" << std::endl;
+            // Observation borrowed common observation when constructed. So it should return its ownership.
+            // Calling release_common_observation prevent gRPC from deleting common_observation object
+            common_observation_ = action_request_.release_common_observation();
         }
         std::uint32_t GetGameId() const;
         AbsolutePos GetWho() const;
         Hand GetInitialHand() const;
         Hand GetCurrentHand() const;
-        std::vector<Action> GetPossibleActions() const;
+        // std::vector<Action> GetPossibleActions() const;
         Score GetScore() const;
         std::vector<TakenAction> GetTakenActions() const;
         [[nodiscard]] const ActionRequest& GetActionRequest() const { return action_request_; }

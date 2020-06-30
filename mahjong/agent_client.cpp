@@ -27,7 +27,7 @@ int main(int argc, char** argv) {
     );
 
     // Common observation over 4 players
-    auto common_observation = new mj::ActionRequest_CommonObservation();
+    auto common_observation = std::make_unique<mj::ActionRequest_CommonObservation>();
 
     // action1 happens
     auto taken_action1 = mj::ActionRequest_CommonObservation_TakenAction();
@@ -36,7 +36,8 @@ int main(int argc, char** argv) {
     // take first action
     auto request1 = mj::ActionRequest();
     request1.set_who(1);
-    auto action = agent.TakeAction(std::make_unique<mj::Observation>(request1, common_observation));
+    auto obs1 = std::make_unique<mj::Observation>(request1, common_observation.get());
+    auto action = agent.TakeAction(std::move(obs1));
 
     // action2 happens
     auto taken_action2 = mj::ActionRequest_CommonObservation_TakenAction();
@@ -45,12 +46,8 @@ int main(int argc, char** argv) {
     // take second action
     auto request2 = mj::ActionRequest();
     request2.set_who(2);
-    action = agent.TakeAction(std::make_unique<mj::Observation>(request2, common_observation));
-
-    if (common_observation) {  // as we use release_common_observation, we should manually delete it.
-        std::cout << "deleted" << std::endl;
-        delete common_observation;
-    }
+    auto obs2 = std::make_unique<mj::Observation>(request2, common_observation.get());
+    action = agent.TakeAction(std::move(obs2));
 
     std::cout << "  type: " << action.GetActionResponse().type() << std::endl;
     std::cout << "  action: " << action.GetActionResponse().discard() << std::endl;

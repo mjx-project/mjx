@@ -21,6 +21,11 @@ namespace mj
         assert(closed_tiles_.size() == 13);
     }
 
+    Hand::Hand(std::vector<Tile>::const_iterator begin, std::vector<Tile>::const_iterator end)
+    : closed_tiles_(begin, end), stage_(HandStage::kAfterDiscards), under_riichi_(false) {
+        assert(closed_tiles_.size() == 13);
+    }
+
     Hand::Hand(std::vector<std::string> closed, std::vector<std::vector<std::string>> chis,
                std::vector<std::vector<std::string>> pons,
                std::vector<std::vector<std::string>> kan_openeds,
@@ -603,7 +608,7 @@ namespace mj
         stage_ = HandStage::kAfterRiichi;
     }
 
-    std::string Hand::ToString(bool verbose) {
+    std::string Hand::ToString(bool verbose) const {
         std::string s = "";
         auto closed = ToVectorClosed(true);
         for (const auto &t: closed) {
@@ -653,7 +658,7 @@ namespace mj
         return win_cache.Has(Block::BlocksToString(blocks));
     }
 
-   HandParams::HandParams(const std::string &closed) {
+    HandParams::HandParams(const std::string &closed) {
         assert(closed.size() % 3 == 2);
         for (std::int32_t i = 0; i < closed.size(); i += 3) {
             closed_.emplace_back(closed.substr(i, 2));

@@ -27,40 +27,35 @@ namespace mj
          *  - [132, 135] (4): kan ura doras カンドラ裏
          */
         Wall(std::uint32_t seed = 9999)
-        : seed(seed), wall(Tile::CreateAllShuffled(seed)),
-        itr_curr_draw(wall.cbegin()), itr_curr_kan_draw(wall.cbegin() + 122),
-        itr_dora_begin(wall.cbegin() + 126), itr_ura_dora_begin(wall.cbegin() + 131)
+        : seed(seed), tiles(Tile::CreateAllShuffled(seed)),
+          itr_curr_draw(tiles.cbegin()), itr_curr_kan_draw(tiles.cbegin() + 122),
+          itr_dora_begin(tiles.cbegin() + 126), itr_ura_dora_begin(tiles.cbegin() + 131)
         {}
-        const std::uint32_t seed;
-        const std::vector<Tile> wall;
+        std::uint32_t seed;
+        std::vector<Tile> tiles;
         std::vector<Tile>::const_iterator itr_curr_draw;
         std::vector<Tile>::const_iterator itr_curr_kan_draw;
-        const std::vector<Tile>::const_iterator itr_dora_begin;
-        const std::vector<Tile>::const_iterator itr_ura_dora_begin;
+        std::vector<Tile>::const_iterator itr_dora_begin;
+        std::vector<Tile>::const_iterator itr_ura_dora_begin;
     };
 
     struct StateInRound
     {
+        StateInRound(std::uint32_t seed = 9999);
         Wall wall;
-        std::array<River, 4> river;
-        std::array<Hand, 4> hand;
+        std::array<River, 4> rivers;
+        std::array<Hand, 4> hands;
     };
 
     class State
     {
     public:
-        State(std::uint32_t seed = 9999);
-        ~State() {
-            delete common_observation_;
-        }
-
-        void Init(std::uint32_t seed);
+        explicit State(std::uint32_t seed = 9999);
         bool IsGameOver();
 
         // operate or access in-round state
         void InitRound();
         bool IsRoundOver();
-        AbsolutePos GetDealerPos();
         AbsolutePos UpdateStateByDraw();
         void UpdateStateByAction(const Action& action);
         Action& UpdateStateByActionCandidates(const std::vector<Action> &action_candidates);
@@ -69,20 +64,26 @@ namespace mj
         void AddNewDora();
         Tile DrawRinshan();
 
+        // accessors
+        AbsolutePos GetDealerPos();
+        const Wall &GetWall() const;
+        const std::array<Hand, 4> &GetHands() const;
+
         // This method cannot be const because it moves the ownership of CommonObservation to each ActionRequest
         // One way to make this method const is to create new ActionRequest and use CopyFrom instead of set_allocated_common_observation
         std::unique_ptr<Observation> NewObservation(AbsolutePos pos) {
-            return std::make_unique<Observation>(action_requests_[static_cast<int>(pos)], common_observation_);
+            return std::make_unique<Observation>(action_requests_[static_cast<int>(pos)], common_observation_.get());
         }
         std::string ToMjlog() const;
     private:
         std::uint32_t seed_;
         Score score_;
         StateInRound state_in_round_;
-
         // gRPC
-        ActionRequest_CommonObservation *common_observation_ = new ActionRequest_CommonObservation();
+        std::unique_ptr<ActionRequest_CommonObservation> common_observation_ = std::make_unique<ActionRequest_CommonObservation>();
         std::array<ActionRequest, 4> action_requests_;
+
+        std::uint32_t GenerateRoundSeed();
     };
 }  // namespace mj
 

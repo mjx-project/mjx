@@ -19,6 +19,7 @@ namespace mj
     public:
         explicit Hand(std::vector<Tile> tiles);
         Hand(std::vector<Tile>::iterator begin, std::vector<Tile>::iterator end);
+        Hand(std::vector<Tile>::const_iterator begin, std::vector<Tile>::const_iterator end);
         /*
          * Utility constructor only for test usage. This simplifies Chi/Pon/Kan information:
          *   - Tile ids are successive and always zero-indexed
@@ -49,7 +50,7 @@ namespace mj
         std::array<std::uint8_t, 34> ToArrayClosed();
         std::array<std::uint8_t, 34> ToArrayOpened();
         [[nodiscard]] std::vector<const Open*> Opens() const;  // TODO(sotetsuk): Should we avoid raw pointer?
-        std::string ToString(bool verbose = false);
+        std::string ToString(bool verbose = false) const;
 
         // action validators
         std::vector<Tile> PossibleDiscards();  // TODO(sotetsuk): Current implementation has the tiles with same type (e.g., 2m x 3). What is the Tenhou's implementation? Only first id? or any id?
