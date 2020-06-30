@@ -40,9 +40,9 @@ namespace mj
         [[nodiscard]] std::optional<Tile> LastTileAdded() const;
         [[nodiscard]] bool IsMenzen() const;
         bool IsUnderRiichi();
-        std::size_t Size();
-        std::size_t SizeOpened();
-        std::size_t SizeClosed();
+        [[nodiscard]] std::size_t Size() const;
+        [[nodiscard]] std::size_t SizeOpened() const;
+        [[nodiscard]] std::size_t SizeClosed() const;
         [[nodiscard]] std::vector<Tile> ToVector(bool sorted = false) const;
         [[nodiscard]] std::vector<Tile> ToVectorClosed(bool sorted = false) const;
         [[nodiscard]] std::vector<Tile> ToVectorOpened(bool sorted = false) const;
@@ -50,7 +50,7 @@ namespace mj
         std::array<std::uint8_t, 34> ToArrayClosed();
         std::array<std::uint8_t, 34> ToArrayOpened();
         [[nodiscard]] std::vector<const Open*> Opens() const;  // TODO(sotetsuk): Should we avoid raw pointer?
-        std::string ToString(bool verbose = false) const;
+        [[nodiscard]] std::string ToString(bool verbose = false) const;
 
         // action validators
         std::vector<Tile> PossibleDiscards();  // TODO(sotetsuk): Current implementation has the tiles with same type (e.g., 2m x 3). What is the Tenhou's implementation? Only first id? or any id?

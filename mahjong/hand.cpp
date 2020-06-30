@@ -1,6 +1,7 @@
 #include "hand.h"
 #include "open.h"
 #include "block.h"
+#include "utils.h"
 
 #include <utility>
 #include <unordered_map>
@@ -131,6 +132,7 @@ namespace mj
                stage_ == HandStage::kAfterKanClosed ||
                stage_ == HandStage::kAfterKanAdded);
         assert(SizeClosed() == 1 || SizeClosed() == 4 || SizeClosed() == 7 || SizeClosed() == 10 || SizeClosed() == 13);
+        assert(!any_of(tile, ToVector()));
         closed_tiles_.insert(tile);
         if (stage_ == HandStage::kAfterDiscards) stage_ = HandStage::kAfterDraw;
         else stage_ = HandStage::kAfterDrawAfterKan;
@@ -248,17 +250,17 @@ namespace mj
         return tile;
     }
 
-    std::size_t Hand::Size() {
+    std::size_t Hand::Size() const {
         return SizeOpened() + SizeClosed();
     }
 
-    std::size_t Hand::SizeOpened() {
+    std::size_t Hand::SizeOpened() const {
         std::uint8_t s = 0;
         for (const auto &o: opens_) s += o->Size();
         return s;
     }
 
-    std::size_t Hand::SizeClosed() {
+    std::size_t Hand::SizeClosed() const {
         return closed_tiles_.size();
     }
 

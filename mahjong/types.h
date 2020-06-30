@@ -52,10 +52,26 @@ namespace mj {
     };
 
     enum class HandStage : std::uint8_t {
+        kAfterDiscards,
         kAfterDraw,
         kAfterDrawAfterKan,
-        kAfterDiscards,
         kAfterRiichi,
+        kAfterTsumo,
+        kAfterTsumoAfterKan,
+        kAfterRon,
+        kAfterRonAfterOthersKan,
+        kAfterChi,
+        kAfterPon,
+        kAfterKanOpened,
+        kAfterKanClosed,
+        kAfterKanAdded,
+    };
+
+    enum class InRoundStateStage: std::uint8_t {
+        kAfterDiscards,
+        kAfterDraw,
+        kAfterDrawAfterKan,
+        kAfterRiichiAndDiscard,
         kAfterTsumo,
         kAfterTsumoAfterKan,
         kAfterRon,
