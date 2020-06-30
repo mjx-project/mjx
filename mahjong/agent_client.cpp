@@ -49,11 +49,6 @@ int main(int argc, char** argv) {
     auto obs2 = std::make_unique<mj::Observation>(request2, common_observation.get());
     action = agent.TakeAction(std::move(obs2));
 
-    // if (common_observation) {  // as we use release_common_observation, we should manually delete it.
-    //     std::cout << "deleted" << std::endl;
-    //     delete common_observation;
-    // }
-
     std::cout << "  type: " << action.GetActionResponse().type() << std::endl;
     std::cout << "  action: " << action.GetActionResponse().discard() << std::endl;
 
