@@ -51,14 +51,14 @@ namespace mj
             // Calling release_common_observation prevent gRPC from deleting common_observation object
             action_request_.release_common_observation();
         }
-        std::uint32_t GetGameId() const;
-        AbsolutePos GetWho() const;
-        Hand GetInitialHand() const;
-        Hand GetCurrentHand() const;
-        [[nodiscard]] std::vector<PossibleAction> GetPossibleActions() const;
-        Score GetScore() const;
-        std::vector<TakenAction> GetTakenActions() const;
-        [[nodiscard]] const ActionRequest& GetActionRequest() const { return action_request_; }
+        std::uint32_t game_id() const;
+        AbsolutePos who() const;
+        Hand initial_hand() const;
+        Hand current_hand() const;
+        [[nodiscard]] std::vector<PossibleAction> possible_actions() const;
+        Score score() const;
+        std::vector<TakenAction> taken_actions() const;
+        [[nodiscard]] const ActionRequest& action_request() const { return action_request_; }
         std::string ToString() const;
     private:
         ActionRequest &action_request_;

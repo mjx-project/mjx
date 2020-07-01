@@ -6,7 +6,7 @@ namespace mj
             : stub_(Agent::NewStub(channel)) {}
 
     Action AgentClient::TakeAction(std::unique_ptr<Observation> observation) const {
-        const ActionRequest& request = observation->GetActionRequest();
+        const ActionRequest& request = observation->action_request();
         ActionResponse response;
         grpc::ClientContext context;
         grpc::Status status = stub_->TakeAction(&context, request, &response);

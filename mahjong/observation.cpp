@@ -19,7 +19,7 @@ namespace mj
         return ret;
     }
 
-    std::vector<PossibleAction> Observation::GetPossibleActions() const {
+    std::vector<PossibleAction> Observation::possible_actions() const {
         std::vector<PossibleAction> ret;
         for (const auto& possible_action: action_request_.possible_actions()) {
             ret.emplace_back(PossibleAction{possible_action});
