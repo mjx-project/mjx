@@ -36,7 +36,6 @@ namespace mj
             action_request_.set_allocated_common_observation(common_observation);
         }
         ~Observation() {
-            std::cout << "Observation destructor is called" << std::endl;
             // Calling release_common_observation prevent gRPC from deleting common_observation object
             action_request_.release_common_observation();
         }

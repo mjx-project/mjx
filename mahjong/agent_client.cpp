@@ -6,7 +6,6 @@ namespace mj
             : stub_(Agent::NewStub(channel)) {}
 
     Action AgentClient::TakeAction(std::unique_ptr<Observation> observation) const {
-        std::cout << "AgentClient::TakeAction() starts" << std::endl;
         const ActionRequest& request = observation->GetActionRequest();
         ActionResponse response;
         grpc::ClientContext context;
@@ -14,7 +13,6 @@ namespace mj
         if (!status.ok()) {
             std::cout << status.error_code() << ": " << status.error_message() << std::endl;
         }
-        std::cout << "AgentClient::TakeAction() ends" << std::endl;
         auto action = Action(std::move(response));
         return action;
     }
