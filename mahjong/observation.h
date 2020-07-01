@@ -4,6 +4,7 @@
 #include <mahjong.pb.h>
 
 #include <utility>
+#include <array>
 #include "hand.h"
 #include "action.h"
 
