@@ -5,6 +5,7 @@
 
 #include <utility>
 #include "hand.h"
+#include "action.h"
 
 namespace mj
 {
@@ -26,6 +27,20 @@ namespace mj
         std::unique_ptr<Open> open;
     };
 
+    // TODO(sotetsuk): write implementation to different files
+    class PossibleAction {
+        explicit PossibleAction(ActionRequest_PossibleAction possible_action): possible_action_(std::move(possible_action)) {}
+        ActionType type() const { return ActionType(possible_action_.type()); }
+        std::unique_ptr<Open> open() const { return Open::NewOpen(possible_action_.open()); } ;
+        std::vector<Tile> discard_candidates() const {
+            std::vector<Tile> ret;
+            for (const auto& id: possible_action_.discard_candidates()) ret.emplace_back(Tile(id));
+            return ret;
+        };
+    private:
+        ActionRequest_PossibleAction possible_action_;
+    };
+
     class Observation
     {
     public:
@@ -43,7 +58,7 @@ namespace mj
         AbsolutePos GetWho() const;
         Hand GetInitialHand() const;
         Hand GetCurrentHand() const;
-        // std::vector<Action> GetPossibleActions() const;
+        std::vector<Action> GetPossibleActions() const;
         Score GetScore() const;
         std::vector<TakenAction> GetTakenActions() const;
         [[nodiscard]] const ActionRequest& GetActionRequest() const { return action_request_; }
