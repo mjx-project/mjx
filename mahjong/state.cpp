@@ -49,6 +49,16 @@ namespace mj
         auto &draw_itr = state_in_round_.wall.itr_curr_draw;
         drawer_hand.Draw(*draw_itr);
         ++draw_itr;
+        // set possible actions
+        auto possible_actions = action_requests_.at(static_cast<int>(drawer)).mutable_possible_actions();
+        ActionRequest_PossibleAction possible_action;
+        possible_action.set_type(static_cast<int>(ActionType::kDiscard));
+        auto discard_candidates = possible_action.mutable_discard_candidates();
+        for (const auto& tile: drawer_hand.PossibleDiscards()) {
+            discard_candidates->Add(tile.Id());
+        }
+        possible_actions->Add(std::move(possible_action));
+        // TODO(sotetsuk): set kan_added, kan_closed and riichi
         state_in_round_.stage = InRoundStateStage::kAfterDraw;
         return drawer;
     }
