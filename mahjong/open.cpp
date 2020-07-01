@@ -42,6 +42,24 @@ namespace mj
         return s;
     }
 
+    std::unique_ptr<Open> Open::NewOpen(std::uint16_t bits) {
+        if (bits&MASK_IS_CHI) {
+            return std::make_unique<Chi>(bits);
+        } else if (bits&MASK_IS_PON) {
+            if (!(bits&MASK_IS_KAN_ADDED)) {
+                return std::make_unique<Pon>(bits);
+            } else {
+                return std::make_unique<KanAdded>(bits);
+            }
+        } else {
+            if (RelativePos(static_cast<std::uint8_t>(bits & MASK_FROM)) == RelativePos::kSelf) {
+                return std::make_unique<KanClosed>(bits);
+            } else {
+                return std::make_unique<KanOpened>(bits);
+            }
+        }
+    }
+
     Chi::Chi(std::uint16_t bits) : Open(bits)
     {
         assert(bits_ & MASK_IS_CHI);
