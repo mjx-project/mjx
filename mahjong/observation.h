@@ -55,7 +55,7 @@ namespace mj
         AbsolutePos GetWho() const;
         Hand GetInitialHand() const;
         Hand GetCurrentHand() const;
-        std::vector<PossibleAction> GetPossibleActions() const;
+        [[nodiscard]] std::vector<PossibleAction> GetPossibleActions() const;
         Score GetScore() const;
         std::vector<TakenAction> GetTakenActions() const;
         [[nodiscard]] const ActionRequest& GetActionRequest() const { return action_request_; }
