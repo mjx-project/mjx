@@ -5,6 +5,7 @@
 
 #include "types.h"
 #include "win_score.h"
+#include "utils.h"
 
 namespace mj
 {
@@ -70,6 +71,8 @@ namespace mj
                 std::swap(best_yaku, yaku_in_this_pattern);
             }
         }
+
+        return best_yaku;
     }
 
     WinningScore YakuEvaluator::Eval(const Hand& hand) const noexcept {
@@ -80,12 +83,27 @@ namespace mj
 
         WinningScore score;
 
-        // // 役満の判定
-        // if (HasBigThreeDragons(all_tiles)) {
-        //     score.AddYakuman(Yaku::kBigThreeDragons);
-        // }
+        // 役満の判定
+        if (HasBigThreeDragons(all_tiles)) {
+            score.AddYakuman(Yaku::kBigThreeDragons);
+        }
+        if (HasAllHonours(all_tiles)) {
+            score.AddYakuman(Yaku::kAllHonours);
+        }
+        if (HasAllGreen(all_tiles)) {
+            score.AddYakuman(Yaku::kAllGreen);
+        }
+        if (HasAllTerminals(all_tiles)) {
+            score.AddYakuman(Yaku::kAllTerminals);
+        }
+        if (HasBigFourWinds(all_tiles)) {
+            score.AddYakuman(Yaku::kBigFourWinds);
+        }
+        if (HasLittleFourWinds(all_tiles)) {
+            score.AddYakuman(Yaku::kLittleFourWinds);
+        }
 
-        // if (!score.RequireFan()) return score;
+        if (!score.RequireFan()) return score;
 
 
         // 手牌の組み合わせ方によらない役
@@ -426,6 +444,7 @@ namespace mj
 
 
         bool has_honour = false;
+        bool all_yaochu = true;
 
         for (const std::vector<TileTypeCount>& blocks : {closed_sets, opened_sets, heads}) {
             for (const TileTypeCount& count : blocks) {
@@ -437,6 +456,8 @@ namespace mj
                     if (Is(tile_type, TileSetType::kYaocyu)) {
                         valid = true;
                         break;
+                    } else {
+                        all_yaochu = false;
                     }
                 }
                 if (!valid) {
@@ -445,7 +466,11 @@ namespace mj
             }
         }
 
+        // 純全帯幺とは複合しない
         if (!has_honour) return std::nullopt;
+
+        // 混老頭とは複合しない
+        if (all_yaochu) return std::nullopt;
 
         if (hand.IsMenzen()) return 2;
         else return 1;
@@ -534,61 +559,69 @@ namespace mj
         return 5;
     }
 
-    bool YakuEvaluator::HasBigThreeDragons(const TileTypeCount& count) const noexcept {
-        return 1;
-        //if (count.count(TileType::kWD) and count.at(TileType::kWD) >= 3 and
-        //        count.count(TileType::kGD) and count.at(TileType::kGD) >= 3 and
-        //        count.count(TileType::kRD) and count.at(TileType::kRD) >= 3) {
-        //    return 1;
-        //}
-        //return std::nullopt;
+    std::optional<int> YakuEvaluator::HasThreeKans(const Hand& hand) const noexcept {
+        int kans = 0;
+        for (const Open* open : hand.Opens()) {
+            if (any_of(open->Type(), {
+                    OpenType::kKanOpened, OpenType::kKanAdded, OpenType::kKanClosed})) {
+                ++kans;
+            }
+        }
+
+        if (kans < 3) return std::nullopt;
+        return 2;
     }
 
-    //std::optional<int> YakuEvaluator::HasAllHonours(const TileTypeCount& count) const noexcept {
-    //    for (auto& [tile_type, _] : count) {
-    //        if (!Is(tile_type, TileSetType::kHonours)) {
-    //            return std::nullopt;
-    //        }
-    //    }
-    //    return 1;
-    //}
+    bool YakuEvaluator::HasBigThreeDragons(const TileTypeCount& count) const noexcept {
+        return count.count(TileType::kWD) and count.at(TileType::kWD) >= 3 and
+               count.count(TileType::kGD) and count.at(TileType::kGD) >= 3 and
+               count.count(TileType::kRD) and count.at(TileType::kRD) >= 3;
+    }
 
-    //std::optional<int> YakuEvaluator::HasAllGreen(const TileTypeCount& count) const noexcept {
-    //    for (auto& [tile_type, _] : count) {
-    //        if (!Is(tile_type, TileSetType::kGreen)) {
-    //            return std::nullopt;
-    //        }
-    //    }
-    //    return 1;
-    //}
+    bool YakuEvaluator::HasAllHonours(const TileTypeCount& count) const noexcept {
+        for (auto& [tile_type, _] : count) {
+            if (!Is(tile_type, TileSetType::kHonours)) {
+                return false;
+            }
+        }
+        return true;
+    }
 
-    //std::optional<int> YakuEvaluator::HasAllTerminals(const TileTypeCount& count) const noexcept {
-    //    for (auto& [tile_type, _] : count) {
-    //        if (!Is(tile_type, TileSetType::kTerminals)) {
-    //            return std::nullopt;
-    //        }
-    //    }
-    //    return 1;
-    //}
+    bool YakuEvaluator::HasAllGreen(const TileTypeCount& count) const noexcept {
+        for (auto& [tile_type, _] : count) {
+            if (!Is(tile_type, TileSetType::kGreen)) {
+                return false;
+            }
+        }
+        return true;
+    }
 
-    //std::optional<int> YakuEvaluator::HasBigFourWinds(const TileTypeCount& count) const noexcept {
-    //    if (count.count(TileType::kEW) and count.at(TileType::kEW) >= 3 and
-    //        count.count(TileType::kSW) and count.at(TileType::kSW) >= 3 and
-    //        count.count(TileType::kWW) and count.at(TileType::kWW) >= 3 and
-    //        count.count(TileType::kNW) and count.at(TileType::kNW) >= 3) {
-    //        return 1;
-    //    }
-    //    return std::nullopt;
-    //}
+    bool YakuEvaluator::HasAllTerminals(const TileTypeCount& count) const noexcept {
+        for (auto& [tile_type, _] : count) {
+            if (!Is(tile_type, TileSetType::kTerminals)) {
+                return false;
+            }
+        }
+        return true;
+    }
 
-    //std::optional<int> YakuEvaluator::HasLittleFourWinds(const TileTypeCount& count) const noexcept {
-    //    int pons = 0, heads = 0;
-    //    for (const TileType tile_type : {TileType::kEW, TileType::kSW, TileType::kWW, TileType::kNW}) {
-    //        if (!count.count(tile_type)) return std::nullopt;
-    //        if (count.at(tile_type) >= 3) ++pons;
-    //        else if (count.at(tile_type) == 2) ++heads;
-    //    }
-    //    if (pons == 3 and heads == 1) return 1;
-    //    return std::nullopt;
-    //}
+    bool YakuEvaluator::HasBigFourWinds(const TileTypeCount& count) const noexcept {
+        if (count.count(TileType::kEW) and count.at(TileType::kEW) >= 3 and
+            count.count(TileType::kSW) and count.at(TileType::kSW) >= 3 and
+            count.count(TileType::kWW) and count.at(TileType::kWW) >= 3 and
+            count.count(TileType::kNW) and count.at(TileType::kNW) >= 3) {
+            return true;
+        }
+        return false;
+    }
+
+    bool YakuEvaluator::HasLittleFourWinds(const TileTypeCount& count) const noexcept {
+        int pons = 0, heads = 0;
+        for (const TileType tile_type : {TileType::kEW, TileType::kSW, TileType::kWW, TileType::kNW}) {
+            if (!count.count(tile_type)) return false;
+            if (count.at(tile_type) >= 3) ++pons;
+            else if (count.at(tile_type) == 2) ++heads;
+        }
+        return pons == 3 and heads == 1;
+    }
 }

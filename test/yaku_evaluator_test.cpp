@@ -90,9 +90,9 @@ TEST_F(YakuTest, Dragon) {
 
     auto yaku4 = evaluator.Eval(
             Hand(HandParams("m2,m3,m4,m5,m7,s2,s2,s6,s7,s8,p1,p2,p3").Tsumo("m6")));
-    EXPECT_EQ(yaku4.HasYaku(Yaku::kWhiteDragon), 0);
-    EXPECT_EQ(yaku4.HasYaku(Yaku::kGreenDragon), 0);
-    EXPECT_EQ(yaku4.HasYaku(Yaku::kRedDragon), 0);
+    EXPECT_EQ(yaku4.HasYaku(Yaku::kWhiteDragon), std::nullopt);
+    EXPECT_EQ(yaku4.HasYaku(Yaku::kGreenDragon), std::nullopt);
+    EXPECT_EQ(yaku4.HasYaku(Yaku::kRedDragon), std::nullopt);
 }
 
 TEST_F(YakuTest, AllTermsAndHonours)
@@ -124,6 +124,7 @@ TEST_F(YakuTest, HalfFlush)
             Hand(HandParams("m1,m2,m3,m4,m5,m7,m7,m7,m8,m8,m9,m9,m9").Tsumo("m6")));
     EXPECT_EQ(yaku4.HasYaku(Yaku::kHalfFlush), std::nullopt);
 
+    // 清一色とは複合しない
     auto yaku5 = evaluator.Eval(
             Hand(HandParams("m1,m2,m3,m4,m5,m7,m7,m7,m8,m8").Pon("m9,m9,m9").Tsumo("m6")));
     EXPECT_EQ(yaku5.HasYaku(Yaku::kHalfFlush), std::nullopt);
@@ -162,7 +163,7 @@ TEST_F(YakuTest, PureDoubleChis) {
             Hand(HandParams("m1,m1,m2,m2,m3,m3,s4,s5,s6,ew").Pon("p1,p1,p1").Tsumo("ew")));
     EXPECT_EQ(yaku2.HasYaku(Yaku::kPureDoubleChis), std::nullopt);
 
-    // 二盃口とは重複しない
+    // 二盃口とは複合しない
     auto yaku3 = evaluator.Eval(
             Hand(HandParams("m1,m1,m2,m2,m3,m3,s4,s4,s5,s5,s6,s6,ew").Tsumo("ew")));
     EXPECT_EQ(yaku3.HasYaku(Yaku::kPureDoubleChis), std::nullopt);
@@ -194,7 +195,7 @@ TEST_F(YakuTest, SevenPairs) {
             Hand(HandParams("m1,m1,m3,m3,m6,m6,s4,s4,s8,s8,p1,p1,ew").Tsumo("ew")));
     EXPECT_EQ(yaku1.HasYaku(Yaku::kSevenPairs), std::make_optional(2));
 
-    // 二盃口とは重複しない
+    // 二盃口とは複合しない
     auto yaku3 = evaluator.Eval(
             Hand(HandParams("m1,m1,m2,m2,m3,m3,s4,s4,s5,s5,s6,s6,ew").Tsumo("ew")));
     EXPECT_EQ(yaku3.HasYaku(Yaku::kSevenPairs), std::nullopt);
@@ -284,15 +285,15 @@ TEST_F(YakuTest, OutsideHand) {
             Hand(HandParams("m1,m2,m3,m4,m5,m6,s4,s5,s6,p1,p1,p1,ew").Tsumo("ew")));
     EXPECT_EQ(yaku3.HasYaku(Yaku::kOutsideHand), std::nullopt);
 
-    // 純全帯幺とは重複しない
+    // 純全帯幺とは複合しない
     auto yaku4 = evaluator.Eval(
             Hand(HandParams("m1,m2,m3,m9,m9,m9,s7,s8,s9,p1,p2,p3,p9").Tsumo("p9")));
     EXPECT_EQ(yaku4.HasYaku(Yaku::kOutsideHand), std::nullopt);
 
-    // TODO: 混老頭とは複合しない
-    // auto yaku5 = evaluator.Eval(
-    //         Hand(HandParams("m1,m1,m1,m9,m9,s1,s1,ew,ew,ew,rd,rd,rd").Tsumo("m9")));
-    // EXPECT_EQ(yaku5.HasYaku(Yaku::kOutsideHand), std::nullopt);
+    // 混老頭とは複合しない
+    auto yaku5 = evaluator.Eval(
+            Hand(HandParams("m1,m1,m1,m9,m9,s1,s1,ew,ew,ew,rd,rd,rd").Tsumo("m9")));
+    EXPECT_EQ(yaku5.HasYaku(Yaku::kOutsideHand), std::nullopt);
 }
 
 TEST_F(YakuTest, TerminalsInAllSets) {
@@ -309,4 +310,94 @@ TEST_F(YakuTest, TerminalsInAllSets) {
     auto yaku3 = evaluator.Eval(
             Hand(HandParams("m1,m2,m3,m4,m5,m6,s4,s5,s6,p1,p1,p1,ew").Tsumo("ew")));
     EXPECT_EQ(yaku3.HasYaku(Yaku::kTerminalsInAllSets), std::nullopt);
+}
+
+TEST_F(YakuTest, ThreeKans) {
+    auto yaku1 = evaluator.Eval(
+            Hand(HandParams("m1,m1,m5,m5").KanClosed("s1,s1,s1,s1")
+                    .KanClosed("p4,p4,p4,p4").KanOpened("wd,wd,wd,wd").Tsumo("m1"))
+            );
+    EXPECT_EQ(yaku1.HasYaku(Yaku::kThreeKans), std::make_optional(2));
+
+    // 三槓子要素なし
+    auto yaku2 = evaluator.Eval(
+            Hand(HandParams("m1,m2,m3,m4,m5,rd,rd,m7,m8,m9,p1,p1,p1").Tsumo("m6")));
+    EXPECT_EQ(yaku2.HasYaku(Yaku::kThreeKans), std::nullopt);
+}
+
+TEST_F(YakuTest, BigThreeDragons) {
+    auto yaku1 = evaluator.Eval(
+            Hand(HandParams("m1,m1,m5,m5,wd,wd,wd").KanClosed("gd,gd,gd,gd").Pon("rd,rd,rd").Tsumo("m1")));
+    EXPECT_EQ(yaku1.HasYakuman(Yaku::kBigThreeDragons), true);
+
+    // 大三元要素なし
+    auto yaku2 = evaluator.Eval(
+            Hand(HandParams("m1,m2,m3,m4,m5,rd,rd,m7,m8,m9,p1,p1,p1").Tsumo("m6")));
+    EXPECT_EQ(yaku2.HasYakuman(Yaku::kBigThreeDragons), false);
+}
+
+TEST_F(YakuTest, AllHonours) {
+    auto yaku1 = evaluator.Eval(
+            Hand(HandParams("ew,ew,ew,sw,sw,sw,wd")
+                .Pon("gd,gd,gd").Pon("rd,rd,rd").Tsumo("wd")));
+    EXPECT_EQ(yaku1.HasYakuman(Yaku::kAllHonours), true);
+
+    // 字一色要素なし
+    auto yaku2 = evaluator.Eval(
+            Hand(HandParams("m1,m2,m3,m4,m5,rd,rd,m7,m8,m9,p1,p1,p1").Tsumo("m6")));
+    EXPECT_EQ(yaku2.HasYakuman(Yaku::kAllHonours), false);
+}
+
+TEST_F(YakuTest, AllGreen) {
+    auto yaku1 = evaluator.Eval(
+            Hand(HandParams("s2,s2,s3,s3,s4,s4,s6")
+                         .Pon("s8,s8,s8").Pon("gd,gd,gd").Tsumo("s6")));
+    EXPECT_EQ(yaku1.HasYakuman(Yaku::kAllGreen), true);
+
+    // 緑一色要素なし
+    auto yaku2 = evaluator.Eval(
+            Hand(HandParams("m1,m2,m3,m4,m5,rd,rd,m7,m8,m9,p1,p1,p1").Tsumo("m6")));
+    EXPECT_EQ(yaku2.HasYakuman(Yaku::kAllGreen), false);
+}
+
+TEST_F(YakuTest, AllTerminals) {
+    auto yaku1 = evaluator.Eval(
+            Hand(HandParams("m1,m1,m1,m9,m9,m9,s1")
+                         .Pon("p1,p1,p1").Pon("p9,p9,p9").Tsumo("s1")));
+    EXPECT_EQ(yaku1.HasYakuman(Yaku::kAllTerminals), true);
+
+    // 緑一色要素なし
+    auto yaku2 = evaluator.Eval(
+            Hand(HandParams("m1,m2,m3,m4,m5,rd,rd,m7,m8,m9,p1,p1,p1").Tsumo("m6")));
+    EXPECT_EQ(yaku2.HasYakuman(Yaku::kAllTerminals), false);
+}
+
+TEST_F(YakuTest, HasBigFourWinds) {
+    auto yaku1 = evaluator.Eval(
+            Hand(HandParams("m1,m1,ew,ew,ew,sw,sw")
+                         .Pon("ww,ww,ww").Pon("nw,nw,nw").Tsumo("sw")));
+    EXPECT_EQ(yaku1.HasYakuman(Yaku::kBigFourWinds), true);
+
+    // 大四喜要素なし
+    auto yaku2 = evaluator.Eval(
+            Hand(HandParams("m1,m2,m3,m4,m5,rd,rd,m7,m8,m9,p1,p1,p1").Tsumo("m6")));
+    EXPECT_EQ(yaku2.HasYakuman(Yaku::kBigFourWinds), false);
+}
+
+TEST_F(YakuTest, HasLittleFourWinds) {
+    auto yaku1 = evaluator.Eval(
+            Hand(HandParams("m1,m2,m3,ew,ew,ew,sw")
+                         .Pon("ww,ww,ww").Pon("nw,nw,nw").Tsumo("sw")));
+    EXPECT_EQ(yaku1.HasYakuman(Yaku::kLittleFourWinds), true);
+
+    // 大四喜とは複合しない
+    auto yaku2 = evaluator.Eval(
+            Hand(HandParams("m1,m1,ew,ew,ew,sw,sw")
+                         .Pon("ww,ww,ww").Pon("nw,nw,nw").Tsumo("sw")));
+    EXPECT_EQ(yaku2.HasYakuman(Yaku::kLittleFourWinds), false);
+
+    // 小四喜要素なし
+    auto yaku3 = evaluator.Eval(
+            Hand(HandParams("m1,m2,m3,m4,m5,rd,rd,m7,m8,m9,p1,p1,p1").Tsumo("m6")));
+    EXPECT_EQ(yaku3.HasYakuman(Yaku::kLittleFourWinds), false);
 }
