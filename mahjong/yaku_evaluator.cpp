@@ -131,6 +131,9 @@ namespace mj
         if (std::optional<int> fan = HasFullFlush(hand, all_tiles); fan) {
             score.AddYaku(Yaku::kFullFlush, fan.value());
         }
+        if (std::optional<int> fan = HasThreeKans(hand); fan) {
+            score.AddYaku(Yaku::kThreeKans, fan.value());
+        }
 
         // 手牌の組み合わせ方に依存する役
         std::map<Yaku,int> best_yaku = MaximizeTotalFan(hand);
