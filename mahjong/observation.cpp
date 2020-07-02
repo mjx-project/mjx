@@ -26,4 +26,12 @@ namespace mj
         }
         return ret;
     }
+
+    std::uint32_t Observation::game_id() const {
+        return action_request_.game_id();
+    }
+
+    AbsolutePos Observation::who() const {
+        return AbsolutePos(action_request_.who());
+    }
 }
