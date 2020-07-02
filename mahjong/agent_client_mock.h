@@ -5,11 +5,11 @@
 
 namespace mj
 {
-    class AgentClientMock : AgentClient
+    class AgentClientMock
     {
     public:
-        AgentClientMock() : AgentClient(nullptr) { }
-        [[nodiscard]] Action TakeAction(std::unique_ptr<Observation> observation) const final ;
+        AgentClientMock() = default;
+        [[nodiscard]] Action TakeAction(std::unique_ptr<Observation> observation) const;
     };
 }
 
