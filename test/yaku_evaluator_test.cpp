@@ -315,9 +315,9 @@ TEST_F(YakuTest, OutsideHand) {
     EXPECT_EQ(yaku4.count(Yaku::kOutsideHand), 0);
 
     // TODO: 混老頭とは複合しない
-    // auto yaku5 = evaluator.Eval(
-    //         Hand(HandParams("m1,m1,m1,m9,m9,s1,s1,ew,ew,ew,rd,rd,rd").Tsumo("m9")));
-    // EXPECT_EQ(yaku5.count(Yaku::kOutsideHand), 0);
+    auto yaku5 = evaluator.Eval(
+            Hand(HandParams("m1,m1,m1,m9,m9,s1,s1,ew,ew,ew,rd,rd,rd").Tsumo("m9")));
+    EXPECT_EQ(yaku5.count(Yaku::kOutsideHand), 0);
 }
 
 TEST_F(YakuTest, TerminalsInAllSets) {

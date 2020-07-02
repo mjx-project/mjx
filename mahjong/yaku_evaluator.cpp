@@ -407,6 +407,7 @@ namespace mj
 
 
         bool has_honour = false;
+        bool all_yaochu = true;
 
         for (const std::vector<TileTypeCount>& blocks : {closed_sets, opened_sets, heads}) {
             for (const TileTypeCount& count : blocks) {
@@ -418,6 +419,8 @@ namespace mj
                     if (Is(tile_type, TileSetType::kYaocyu)) {
                         valid = true;
                         break;
+                    } else {
+                        all_yaochu = false;
                     }
                 }
                 if (!valid) {
@@ -426,7 +429,11 @@ namespace mj
             }
         }
 
+        // 純全帯幺とは重複しない
         if (!has_honour) return std::nullopt;
+
+        // 混老頭とは複合しない
+        if (all_yaochu) return std::nullopt;
 
         if (hand.IsMenzen()) return 2;
         else return 1;
