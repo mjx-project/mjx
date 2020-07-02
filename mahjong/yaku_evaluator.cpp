@@ -4,6 +4,7 @@
 #include <vector>
 
 #include "types.h"
+#include "utils.h"
 
 namespace mj
 {
@@ -521,9 +522,8 @@ namespace mj
     std::optional<int> YakuEvaluator::HasThreeKans(const Hand& hand) const noexcept {
         int kans = 0;
         for (const Open* open : hand.Opens()) {
-            if (open->Type() == OpenType::kKanOpened or
-                open->Type() == OpenType::kKanAdded or
-                open->Type() == OpenType::kKanClosed) {
+            if (any_of(open->Type(), {
+                OpenType::kKanOpened, OpenType::kKanAdded, OpenType::kKanClosed})) {
                 ++kans;
             }
         }
