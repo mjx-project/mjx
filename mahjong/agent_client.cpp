@@ -47,8 +47,8 @@ int main(int argc, char** argv) {
     auto obs2 = std::make_unique<mj::Observation>(request2, common_observation.get());
     action = agent.TakeAction(std::move(obs2));
 
-    std::cout << "  type: " << action.GetActionResponse().type() << std::endl;
-    std::cout << "  action: " << action.GetActionResponse().discard() << std::endl;
+    std::cout << "  type: " << action.action_response().type() << std::endl;
+    std::cout << "  action: " << action.action_response().discard() << std::endl;
 
     return 0;
 }

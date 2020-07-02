@@ -16,12 +16,12 @@ namespace mj
         Action() = default;
         Action(ActionResponse action_response)
         : action_response_(std::move(action_response)) {}
-        AbsolutePos GetWho() const;
-        ActionType GetType() const;
-        bool GetYes() const;
-        Tile GetDiscard() const;
-        std::unique_ptr<Open> GetOpen() const;
-        [[nodiscard]] const ActionResponse& GetActionResponse() const { return action_response_; }
+        AbsolutePos who() const;
+        ActionType type() const;
+        bool yes() const;
+        Tile discard() const;
+        std::unique_ptr<Open> open() const;
+        [[nodiscard]] const ActionResponse& action_response() const;
     private:
         ActionResponse action_response_;
     };
