@@ -429,7 +429,7 @@ namespace mj
             }
         }
 
-        // 純全帯幺とは重複しない
+        // 純全帯幺とは複合しない
         if (!has_honour) return std::nullopt;
 
         // 混老頭とは複合しない
