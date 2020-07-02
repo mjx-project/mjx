@@ -4,6 +4,7 @@
 #include <vector>
 
 #include "types.h"
+#include "win_score.h"
 
 namespace mj
 {
@@ -14,38 +15,7 @@ namespace mj
         return win_cache_.Has(ClosedHandTiles(hand));
     }
 
-    std::map<Yaku, int> YakuEvaluator::Eval(const Hand& hand) const noexcept {
-
-        assert(Has(hand));
-
-        std::map<Yaku,int> yaku;
-
-        // 手牌の組み合わせ方によらない役
-        TileTypeCount all_tiles = ClosedAndOpenedHandTiles(hand);
-        if (std::optional<int> score = HasFullyConcealdHand(hand); score) {
-            yaku[Yaku::kFullyConcealedHand] = score.value();
-        }
-        if (std::optional<int> score = HasAllSimples(all_tiles); score) {
-            yaku[Yaku::kAllSimples] = score.value();
-        }
-        if (std::optional<int> score = HasWhiteDragon(all_tiles); score) {
-            yaku[Yaku::kWhiteDragon] = score.value();
-        }
-        if (std::optional<int> score = HasGreenDragon(all_tiles); score) {
-            yaku[Yaku::kGreenDragon] = score.value();
-        }
-        if (std::optional<int> score = HasRedDragon(all_tiles); score) {
-            yaku[Yaku::kRedDragon] = score.value();
-        }
-        if (std::optional<int> score = HasAllTermsAndHonours(all_tiles); score) {
-            yaku[Yaku::kAllTermsAndHonours] = score.value();
-        }
-        if (std::optional<int> score = HasHalfFlush(hand, all_tiles); score) {
-            yaku[Yaku::kHalfFlush] = score.value();
-        }
-        if (std::optional<int> score = HasFullFlush(hand, all_tiles); score) {
-            yaku[Yaku::kFullFlush] = score.value();
-        }
+    std::map<Yaku,int> YakuEvaluator::MaximizeTotalFan(const Hand& hand) const noexcept {
 
         // 手牌の組み合わせ方に依存する役
         std::map<Yaku,int> best_yaku;
@@ -64,35 +34,35 @@ namespace mj
             std::map<Yaku,int> yaku_in_this_pattern;
 
             // 各役の判定
-            if (std::optional<int> score = HasPinfu(hand, closed_sets, opened_sets, heads); score) {
-                yaku_in_this_pattern[Yaku::kPinfu] = score.value();
+            if (std::optional<int> fan = HasPinfu(hand, closed_sets, opened_sets, heads); fan) {
+                yaku_in_this_pattern[Yaku::kPinfu] = fan.value();
             }
-            if (std::optional<int> score = HasPureDoubleChis(hand, closed_sets, opened_sets, heads); score) {
-                yaku_in_this_pattern[Yaku::kPureDoubleChis] = score.value();
+            if (std::optional<int> fan = HasPureDoubleChis(hand, closed_sets, opened_sets, heads); fan) {
+                yaku_in_this_pattern[Yaku::kPureDoubleChis] = fan.value();
             }
-            if (std::optional<int> score = HasTwicePureDoubleChis(hand, closed_sets, opened_sets, heads); score) {
-                yaku_in_this_pattern[Yaku::kTwicePureDoubleChis] = score.value();
+            if (std::optional<int> fan = HasTwicePureDoubleChis(hand, closed_sets, opened_sets, heads); fan) {
+                yaku_in_this_pattern[Yaku::kTwicePureDoubleChis] = fan.value();
             }
-            if (std::optional<int> score = HasSevenPairs(hand, closed_sets, opened_sets, heads); score) {
-                yaku_in_this_pattern[Yaku::kSevenPairs] = score.value();
+            if (std::optional<int> fan = HasSevenPairs(hand, closed_sets, opened_sets, heads); fan) {
+                yaku_in_this_pattern[Yaku::kSevenPairs] = fan.value();
             }
-            if (std::optional<int> score = HasAllPons(hand, closed_sets, opened_sets, heads); score) {
-                yaku_in_this_pattern[Yaku::kAllPons] = score.value();
+            if (std::optional<int> fan = HasAllPons(hand, closed_sets, opened_sets, heads); fan) {
+                yaku_in_this_pattern[Yaku::kAllPons] = fan.value();
             }
-            if (std::optional<int> score = HasPureStraight(hand, closed_sets, opened_sets, heads); score) {
-                yaku_in_this_pattern[Yaku::kPureStraight] = score.value();
+            if (std::optional<int> fan = HasPureStraight(hand, closed_sets, opened_sets, heads); fan) {
+                yaku_in_this_pattern[Yaku::kPureStraight] = fan.value();
             }
-            if (std::optional<int> score = HasMixedTripleChis(hand, closed_sets, opened_sets, heads); score) {
-                yaku_in_this_pattern[Yaku::kMixedTripleChis] = score.value();
+            if (std::optional<int> fan = HasMixedTripleChis(hand, closed_sets, opened_sets, heads); fan) {
+                yaku_in_this_pattern[Yaku::kMixedTripleChis] = fan.value();
             }
-            if (std::optional<int> score = HasTriplePons(hand, closed_sets, opened_sets, heads); score) {
-                yaku_in_this_pattern[Yaku::kTriplePons] = score.value();
+            if (std::optional<int> fan = HasTriplePons(hand, closed_sets, opened_sets, heads); fan) {
+                yaku_in_this_pattern[Yaku::kTriplePons] = fan.value();
             }
-            if (std::optional<int> score = HasOutsideHand(hand, closed_sets, opened_sets, heads); score) {
-                yaku_in_this_pattern[Yaku::kOutsideHand] = score.value();
+            if (std::optional<int> fan = HasOutsideHand(hand, closed_sets, opened_sets, heads); fan) {
+                yaku_in_this_pattern[Yaku::kOutsideHand] = fan.value();
             }
-            if (std::optional<int> score = HasTerminalsInAllSets(hand, closed_sets, opened_sets, heads); score) {
-                yaku_in_this_pattern[Yaku::kTerminalsInAllSets] = score.value();
+            if (std::optional<int> fan = HasTerminalsInAllSets(hand, closed_sets, opened_sets, heads); fan) {
+                yaku_in_this_pattern[Yaku::kTerminalsInAllSets] = fan.value();
             }
 
             // 今までに調べた組み合わせ方より役の総得点が高いなら採用する.
@@ -100,10 +70,59 @@ namespace mj
                 std::swap(best_yaku, yaku_in_this_pattern);
             }
         }
+    }
 
-        for (auto& [key, val] : best_yaku) yaku[key] = val;
+    WinningScore YakuEvaluator::Eval(const Hand& hand) const noexcept {
 
-        return yaku;
+        assert(Has(hand));
+
+        TileTypeCount all_tiles = ClosedAndOpenedHandTiles(hand);
+
+        WinningScore score;
+
+        // // 役満の判定
+        // if (HasBigThreeDragons(all_tiles)) {
+        //     score.AddYakuman(Yaku::kBigThreeDragons);
+        // }
+
+        // if (!score.RequireFan()) return score;
+
+
+        // 手牌の組み合わせ方によらない役
+        if (std::optional<int> fan = HasFullyConcealdHand(hand); fan) {
+            score.AddYaku(Yaku::kFullyConcealedHand, fan.value());
+        }
+        if (std::optional<int> fan = HasAllSimples(all_tiles); fan) {
+            score.AddYaku(Yaku::kAllSimples, fan.value());
+        }
+        if (std::optional<int> fan = HasWhiteDragon(all_tiles); fan) {
+            score.AddYaku(Yaku::kWhiteDragon, fan.value());
+        }
+        if (std::optional<int> fan = HasGreenDragon(all_tiles); fan) {
+            score.AddYaku(Yaku::kGreenDragon, fan.value());
+        }
+        if (std::optional<int> fan = HasRedDragon(all_tiles); fan) {
+            score.AddYaku(Yaku::kRedDragon, fan.value());
+        }
+        if (std::optional<int> fan = HasAllTermsAndHonours(all_tiles); fan) {
+            score.AddYaku(Yaku::kAllTermsAndHonours, fan.value());
+        }
+        if (std::optional<int> fan = HasHalfFlush(hand, all_tiles); fan) {
+            score.AddYaku(Yaku::kHalfFlush, fan.value());
+        }
+        if (std::optional<int> fan = HasFullFlush(hand, all_tiles); fan) {
+            score.AddYaku(Yaku::kFullFlush, fan.value());
+        }
+
+        // 手牌の組み合わせ方に依存する役
+        std::map<Yaku,int> best_yaku = MaximizeTotalFan(hand);
+
+        for (auto& [yaku, fan] : best_yaku) score.AddYaku(yaku, fan);
+
+        if (!score.RequireFu()) return score;
+
+        // TODO calculate fu;
+        return score;
     }
 
     TileTypeCount YakuEvaluator::ClosedHandTiles(const Hand& hand) noexcept {
@@ -514,4 +533,62 @@ namespace mj
         if (hand.IsMenzen()) return 6;
         return 5;
     }
+
+    bool YakuEvaluator::HasBigThreeDragons(const TileTypeCount& count) const noexcept {
+        return 1;
+        //if (count.count(TileType::kWD) and count.at(TileType::kWD) >= 3 and
+        //        count.count(TileType::kGD) and count.at(TileType::kGD) >= 3 and
+        //        count.count(TileType::kRD) and count.at(TileType::kRD) >= 3) {
+        //    return 1;
+        //}
+        //return std::nullopt;
+    }
+
+    //std::optional<int> YakuEvaluator::HasAllHonours(const TileTypeCount& count) const noexcept {
+    //    for (auto& [tile_type, _] : count) {
+    //        if (!Is(tile_type, TileSetType::kHonours)) {
+    //            return std::nullopt;
+    //        }
+    //    }
+    //    return 1;
+    //}
+
+    //std::optional<int> YakuEvaluator::HasAllGreen(const TileTypeCount& count) const noexcept {
+    //    for (auto& [tile_type, _] : count) {
+    //        if (!Is(tile_type, TileSetType::kGreen)) {
+    //            return std::nullopt;
+    //        }
+    //    }
+    //    return 1;
+    //}
+
+    //std::optional<int> YakuEvaluator::HasAllTerminals(const TileTypeCount& count) const noexcept {
+    //    for (auto& [tile_type, _] : count) {
+    //        if (!Is(tile_type, TileSetType::kTerminals)) {
+    //            return std::nullopt;
+    //        }
+    //    }
+    //    return 1;
+    //}
+
+    //std::optional<int> YakuEvaluator::HasBigFourWinds(const TileTypeCount& count) const noexcept {
+    //    if (count.count(TileType::kEW) and count.at(TileType::kEW) >= 3 and
+    //        count.count(TileType::kSW) and count.at(TileType::kSW) >= 3 and
+    //        count.count(TileType::kWW) and count.at(TileType::kWW) >= 3 and
+    //        count.count(TileType::kNW) and count.at(TileType::kNW) >= 3) {
+    //        return 1;
+    //    }
+    //    return std::nullopt;
+    //}
+
+    //std::optional<int> YakuEvaluator::HasLittleFourWinds(const TileTypeCount& count) const noexcept {
+    //    int pons = 0, heads = 0;
+    //    for (const TileType tile_type : {TileType::kEW, TileType::kSW, TileType::kWW, TileType::kNW}) {
+    //        if (!count.count(tile_type)) return std::nullopt;
+    //        if (count.at(tile_type) >= 3) ++pons;
+    //        else if (count.at(tile_type) == 2) ++heads;
+    //    }
+    //    if (pons == 3 and heads == 1) return 1;
+    //    return std::nullopt;
+    //}
 }

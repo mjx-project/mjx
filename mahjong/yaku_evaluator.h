@@ -6,6 +6,7 @@
 #include "types.h"
 #include "hand.h"
 #include "win_cache.h"
+#include "win_score.h"
 
 namespace mj
 {
@@ -13,12 +14,21 @@ namespace mj
     public:
         YakuEvaluator();
         [[nodiscard]] bool Has(const Hand& hand) const noexcept ;
-        [[nodiscard]] std::map<Yaku,int> Eval(const Hand& hand) const noexcept ;
+        [[nodiscard]] WinningScore Eval(const Hand& hand) const noexcept ;
 
     private:
         static TileTypeCount ClosedHandTiles(const Hand& hand) noexcept ;
         static TileTypeCount ClosedAndOpenedHandTiles(const Hand& hand) noexcept ;
         static int TotalFan(const std::map<Yaku,int>& yaku) noexcept ;
+        std::map<Yaku,int> MaximizeTotalFan(const Hand& hand) const noexcept ;
+
+        [[nodiscard]] bool HasBigThreeDragons(const TileTypeCount& count) const noexcept ;
+        [[nodiscard]] bool HasAllHonours(const TileTypeCount& count) const noexcept ;
+        [[nodiscard]] bool HasAllGreen(const TileTypeCount& count) const noexcept ;
+        [[nodiscard]] bool HasAllTerminals(const TileTypeCount& count) const noexcept ;
+        [[nodiscard]] bool HasBigFourWinds(const TileTypeCount& count) const noexcept ;
+        [[nodiscard]] bool HasLittleFourWinds(const TileTypeCount& count) const noexcept ;
+
         [[nodiscard]] std::optional<int> HasFullyConcealdHand(const Hand& hand) const noexcept ;
         [[nodiscard]] std::optional<int> HasAllSimples(const TileTypeCount& count) const noexcept ;
         [[nodiscard]] std::optional<int> HasWhiteDragon(const TileTypeCount& count) const noexcept ;

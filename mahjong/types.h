@@ -31,6 +31,7 @@ namespace mj {
         kHonours,
         kYaocyu,
         kRedFive,
+        kGreen,
         kEmpty
     };
 
