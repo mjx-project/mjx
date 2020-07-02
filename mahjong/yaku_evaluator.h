@@ -27,6 +27,7 @@ namespace mj
         [[nodiscard]] std::optional<int> HasAllTermsAndHonours(const TileTypeCount& count) const noexcept ;
         [[nodiscard]] std::optional<int> HasHalfFlush(const Hand& hand, const TileTypeCount& count) const noexcept ;
         [[nodiscard]] std::optional<int> HasFullFlush(const Hand& hand, const TileTypeCount& count) const noexcept ;
+        [[nodiscard]] std::optional<int> HasThreeKans(const Hand& hand) const noexcept ;
         [[nodiscard]] std::optional<int> HasPinfu(
                 const Hand &hand,
                 const std::vector<TileTypeCount>& closed_sets,
