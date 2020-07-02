@@ -34,27 +34,62 @@ namespace mj {
         kEmpty
     };
 
+    enum class ActionType : std::uint8_t {
+        kDraw,
+        kDrawAfterKan,
+        kDiscard,
+        kRiichiAndDiscard,
+        kTsumo,
+        kTsumoAfterKan,
+        kRon,
+        kRonAfterKan,
+        kChi,
+        kPon,
+        kKanClosed,
+        kKanOpened,
+        kKanAdded,
+        kKyushu
+    };
+
     enum class HandStage : std::uint8_t {
         kAfterDiscards,
         kAfterDraw,
         kAfterDrawAfterKan,
         kAfterRiichi,
+        kAfterTsumo,
+        kAfterTsumoAfterKan,
+        kAfterRon,
+        kAfterRonAfterOthersKan,
         kAfterChi,
         kAfterPon,
         kAfterKanOpened,
         kAfterKanClosed,
         kAfterKanAdded,
+    };
+
+    enum class InRoundStateStage: std::uint8_t {
+        kAfterDiscards,
+        kAfterDraw,
+        kAfterDrawAfterKan,
+        kAfterRiichiAndDiscard,
         kAfterTsumo,
         kAfterTsumoAfterKan,
         kAfterRon,
         kAfterRonAfterOthersKan,
+        kAfterChi,
+        kAfterPon,
+        kAfterKanOpened,
+        kAfterKanClosed,
+        kAfterKanAdded,
     };
 
     enum class AbsolutePos : std::uint8_t {
         kEast,
         kSouth,
         kWest,
-        kNorth
+        kNorth,
+        kEnd,  // Dummy
+        kBegin = 0
     };
 
     enum class RelativePos : std::uint8_t  // Order follows mjlog

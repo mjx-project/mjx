@@ -1,6 +1,7 @@
 #include "hand.h"
 #include "open.h"
 #include "block.h"
+#include "utils.h"
 
 #include <utility>
 #include <unordered_map>
@@ -17,6 +18,11 @@ namespace mj
     : Hand(tiles.begin(), tiles.end()) { }
 
     Hand::Hand(std::vector<Tile>::iterator begin, std::vector<Tile>::iterator end)
+    : closed_tiles_(begin, end), stage_(HandStage::kAfterDiscards), under_riichi_(false) {
+        assert(closed_tiles_.size() == 13);
+    }
+
+    Hand::Hand(std::vector<Tile>::const_iterator begin, std::vector<Tile>::const_iterator end)
     : closed_tiles_(begin, end), stage_(HandStage::kAfterDiscards), under_riichi_(false) {
         assert(closed_tiles_.size() == 13);
     }
@@ -126,6 +132,7 @@ namespace mj
                stage_ == HandStage::kAfterKanClosed ||
                stage_ == HandStage::kAfterKanAdded);
         assert(SizeClosed() == 1 || SizeClosed() == 4 || SizeClosed() == 7 || SizeClosed() == 10 || SizeClosed() == 13);
+        assert(!any_of(tile, ToVector()));
         closed_tiles_.insert(tile);
         if (stage_ == HandStage::kAfterDiscards) stage_ = HandStage::kAfterDraw;
         else stage_ = HandStage::kAfterDrawAfterKan;
@@ -243,17 +250,17 @@ namespace mj
         return tile;
     }
 
-    std::size_t Hand::Size() {
+    std::size_t Hand::Size() const {
         return SizeOpened() + SizeClosed();
     }
 
-    std::size_t Hand::SizeOpened() {
+    std::size_t Hand::SizeOpened() const {
         std::uint8_t s = 0;
         for (const auto &o: opens_) s += o->Size();
         return s;
     }
 
-    std::size_t Hand::SizeClosed() {
+    std::size_t Hand::SizeClosed() const {
         return closed_tiles_.size();
     }
 
@@ -603,7 +610,7 @@ namespace mj
         stage_ = HandStage::kAfterRiichi;
     }
 
-    std::string Hand::ToString(bool verbose) {
+    std::string Hand::ToString(bool verbose) const {
         std::string s = "";
         auto closed = ToVectorClosed(true);
         for (const auto &t: closed) {
@@ -653,7 +660,7 @@ namespace mj
         return win_cache.Has(Block::BlocksToString(blocks));
     }
 
-   HandParams::HandParams(const std::string &closed) {
+    HandParams::HandParams(const std::string &closed) {
         assert(closed.size() % 3 == 2);
         for (std::int32_t i = 0; i < closed.size(); i += 3) {
             closed_.emplace_back(closed.substr(i, 2));

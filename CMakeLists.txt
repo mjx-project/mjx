@@ -9,6 +9,7 @@ set(SOURCE_FILES main.cpp)
 add_executable(${CMAKE_PROJECT_NAME}.out ${SOURCE_FILES})
 
 include_directories(mahjong)
+include_directories(${CMAKE_BINARY_DIR}/mahjong)  # to include generated gRPC files
 
 add_subdirectory(mahjong)
 add_subdirectory(test)
