@@ -134,6 +134,7 @@ TEST_F(YakuTest, HalfFlush)
             Hand(HandParams("m1,m2,m3,m4,m5,m7,m7,m7,m8,m8,m9,m9,m9").Tsumo("m6")));
     EXPECT_EQ(yaku4.count(Yaku::kHalfFlush), 0);
 
+    // 清一色とは複合しない
     auto yaku5 = evaluator.Eval(
             Hand(HandParams("m1,m2,m3,m4,m5,m7,m7,m7,m8,m8").Pon("m9,m9,m9").Tsumo("m6")));
     EXPECT_EQ(yaku5.count(Yaku::kHalfFlush), 0);
@@ -175,7 +176,7 @@ TEST_F(YakuTest, PureDoubleChis) {
             Hand(HandParams("m1,m1,m2,m2,m3,m3,s4,s5,s6,ew").Pon("p1,p1,p1").Tsumo("ew")));
     EXPECT_EQ(yaku2.count(Yaku::kPureDoubleChis), 0);
 
-    // 二盃口とは重複しない
+    // 二盃口とは複合しない
     auto yaku3 = evaluator.Eval(
             Hand(HandParams("m1,m1,m2,m2,m3,m3,s4,s4,s5,s5,s6,s6,ew").Tsumo("ew")));
     EXPECT_EQ(yaku3.count(Yaku::kPureDoubleChis), 0);
@@ -209,7 +210,7 @@ TEST_F(YakuTest, SevenPairs) {
     EXPECT_EQ(yaku1.count(Yaku::kSevenPairs), 1);
     EXPECT_EQ(yaku1[Yaku::kSevenPairs], 2);
 
-    // 二盃口とは重複しない
+    // 二盃口とは複合しない
     auto yaku3 = evaluator.Eval(
             Hand(HandParams("m1,m1,m2,m2,m3,m3,s4,s4,s5,s5,s6,s6,ew").Tsumo("ew")));
     EXPECT_EQ(yaku3.count(Yaku::kSevenPairs), 0);
@@ -309,15 +310,15 @@ TEST_F(YakuTest, OutsideHand) {
             Hand(HandParams("m1,m2,m3,m4,m5,m6,s4,s5,s6,p1,p1,p1,ew").Tsumo("ew")));
     EXPECT_EQ(yaku3.count(Yaku::kOutsideHand), 0);
 
-    // 純全帯幺とは重複しない
+    // 純全帯幺とは複合しない
     auto yaku4 = evaluator.Eval(
             Hand(HandParams("m1,m2,m3,m9,m9,m9,s7,s8,s9,p1,p2,p3,p9").Tsumo("p9")));
     EXPECT_EQ(yaku4.count(Yaku::kOutsideHand), 0);
 
-    // TODO: 混老頭とは複合しない
-    // auto yaku5 = evaluator.Eval(
-    //         Hand(HandParams("m1,m1,m1,m9,m9,s1,s1,ew,ew,ew,rd,rd,rd").Tsumo("m9")));
-    // EXPECT_EQ(yaku5.count(Yaku::kOutsideHand), 0);
+    // 混老頭とは複合しない
+    auto yaku5 = evaluator.Eval(
+            Hand(HandParams("m1,m1,m1,m9,m9,s1,s1,ew,ew,ew,rd,rd,rd").Tsumo("m9")));
+    EXPECT_EQ(yaku5.count(Yaku::kOutsideHand), 0);
 }
 
 TEST_F(YakuTest, TerminalsInAllSets) {
