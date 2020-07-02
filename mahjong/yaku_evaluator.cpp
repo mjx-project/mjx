@@ -46,6 +46,9 @@ namespace mj
         if (std::optional<int> score = HasFullFlush(hand, all_tiles); score) {
             yaku[Yaku::kFullFlush] = score.value();
         }
+        if (std::optional<int> score = HasThreeKans(hand); score) {
+            yaku[Yaku::kThreeKans] = score.value();
+        }
 
         // 手牌の組み合わせ方に依存する役
         std::map<Yaku,int> best_yaku;
@@ -513,5 +516,19 @@ namespace mj
         if (set_types.count(TileSetType::kHonours) or set_types.size() > 1) return std::nullopt;
         if (hand.IsMenzen()) return 6;
         return 5;
+    }
+
+    std::optional<int> YakuEvaluator::HasThreeKans(const Hand& hand) const noexcept {
+        int kans = 0;
+        for (const Open* open : hand.Opens()) {
+            if (open->Type() == OpenType::kKanOpened or
+                open->Type() == OpenType::kKanAdded or
+                open->Type() == OpenType::kKanClosed) {
+                ++kans;
+            }
+        }
+
+        if (kans < 3) return std::nullopt;
+        return 2;
     }
 }

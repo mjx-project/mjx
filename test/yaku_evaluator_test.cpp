@@ -337,3 +337,17 @@ TEST_F(YakuTest, TerminalsInAllSets) {
             Hand(HandParams("m1,m2,m3,m4,m5,m6,s4,s5,s6,p1,p1,p1,ew").Tsumo("ew")));
     EXPECT_EQ(yaku3.count(Yaku::kTerminalsInAllSets), 0);
 }
+
+TEST_F(YakuTest, ThreeKans) {
+    auto yaku1 = evaluator.Eval(
+            Hand(HandParams("m1,m1,m5,m5").KanClosed("s1,s1,s1,s1")
+                    .KanClosed("p4,p4,p4,p4").KanOpened("wd,wd,wd,wd").Tsumo("m1"))
+            );
+    EXPECT_EQ(yaku1.count(Yaku::kThreeKans), 1);
+    EXPECT_EQ(yaku1[Yaku::kThreeKans], 2);
+
+    // 三槓子要素なし
+    auto yaku2 = evaluator.Eval(
+            Hand(HandParams("m1,m2,m3,m4,m5,rd,rd,m7,m8,m9,p1,p1,p1").Tsumo("m6")));
+    EXPECT_EQ(yaku2.count(Yaku::kThreeKans), 0);
+}
