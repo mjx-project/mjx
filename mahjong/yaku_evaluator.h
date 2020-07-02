@@ -28,6 +28,10 @@ namespace mj
         [[nodiscard]] bool HasAllTerminals(const TileTypeCount& count) const noexcept ;
         [[nodiscard]] bool HasBigFourWinds(const TileTypeCount& count) const noexcept ;
         [[nodiscard]] bool HasLittleFourWinds(const TileTypeCount& count) const noexcept ;
+        [[nodiscard]] bool HasThirteenOrphans(const Hand& hand, const TileTypeCount& count) const noexcept ;
+        [[nodiscard]] bool HasCompletedThirteenOrphans(const Hand& hand, const TileTypeCount& count) const noexcept ;
+        [[nodiscard]] bool HasNineGates(const Hand& hand, const TileTypeCount& count) const noexcept ;
+        [[nodiscard]] bool HasPureNineGates(const Hand& hand, const TileTypeCount& count) const noexcept ;
 
         [[nodiscard]] std::optional<int> HasFullyConcealdHand(const Hand& hand) const noexcept ;
         [[nodiscard]] std::optional<int> HasAllSimples(const TileTypeCount& count) const noexcept ;

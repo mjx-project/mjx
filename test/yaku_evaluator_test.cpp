@@ -372,7 +372,7 @@ TEST_F(YakuTest, AllTerminals) {
     EXPECT_EQ(yaku2.HasYakuman(Yaku::kAllTerminals), false);
 }
 
-TEST_F(YakuTest, HasBigFourWinds) {
+TEST_F(YakuTest, BigFourWinds) {
     auto yaku1 = evaluator.Eval(
             Hand(HandParams("m1,m1,ew,ew,ew,sw,sw")
                          .Pon("ww,ww,ww").Pon("nw,nw,nw").Tsumo("sw")));
@@ -384,7 +384,7 @@ TEST_F(YakuTest, HasBigFourWinds) {
     EXPECT_EQ(yaku2.HasYakuman(Yaku::kBigFourWinds), false);
 }
 
-TEST_F(YakuTest, HasLittleFourWinds) {
+TEST_F(YakuTest, LittleFourWinds) {
     auto yaku1 = evaluator.Eval(
             Hand(HandParams("m1,m2,m3,ew,ew,ew,sw")
                          .Pon("ww,ww,ww").Pon("nw,nw,nw").Tsumo("sw")));
@@ -400,4 +400,35 @@ TEST_F(YakuTest, HasLittleFourWinds) {
     auto yaku3 = evaluator.Eval(
             Hand(HandParams("m1,m2,m3,m4,m5,rd,rd,m7,m8,m9,p1,p1,p1").Tsumo("m6")));
     EXPECT_EQ(yaku3.HasYakuman(Yaku::kLittleFourWinds), false);
+}
+
+TEST_F(YakuTest, ThirteenOrphans) {
+    auto yaku1 = evaluator.Eval(
+            Hand(HandParams("m1,m9,s1,s9,p1,p9,ew,sw,ww,nw,wd,gd,gd").Tsumo("rd")));
+    EXPECT_EQ(yaku1.HasYakuman(Yaku::kThirteenOrphans), true);
+
+    // 国士無双十三面待ちとは複合しない
+    auto yaku2 = evaluator.Eval(
+            Hand(HandParams("m1,m9,s1,s9,p1,p9,ew,sw,ww,nw,wd,gd,rd").Tsumo("rd")));
+    EXPECT_EQ(yaku2.HasYakuman(Yaku::kThirteenOrphans), false);
+
+    // 国士無双要素なし
+    auto yaku3 = evaluator.Eval(
+            Hand(HandParams("m1,m2,m3,m4,m5,rd,rd,m7,m8,m9,p1,p1,p1").Tsumo("m6")));
+    EXPECT_EQ(yaku3.HasYakuman(Yaku::kThirteenOrphans), false);
+}
+
+TEST_F(YakuTest, CompletedThirteenOrphans) {
+    auto yaku1 = evaluator.Eval(
+            Hand(HandParams("m1,m9,s1,s9,p1,p9,ew,sw,ww,nw,wd,gd,rd").Tsumo("rd")));
+    EXPECT_EQ(yaku1.HasYakuman(Yaku::kCompletedThirteenOrphans), true);
+
+    auto yaku2 = evaluator.Eval(
+            Hand(HandParams("m1,m9,s1,s9,p1,p9,ew,sw,ww,nw,wd,gd,gd").Tsumo("rd")));
+    EXPECT_EQ(yaku2.HasYakuman(Yaku::kCompletedThirteenOrphans), false);
+
+    // 国士無双要素なし
+    auto yaku3 = evaluator.Eval(
+            Hand(HandParams("m1,m2,m3,m4,m5,rd,rd,m7,m8,m9,p1,p1,p1").Tsumo("m6")));
+    EXPECT_EQ(yaku3.HasYakuman(Yaku::kCompletedThirteenOrphans), false);
 }

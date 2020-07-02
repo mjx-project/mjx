@@ -12,8 +12,10 @@ namespace mj
     YakuEvaluator::YakuEvaluator() : win_cache_() {}
 
     bool YakuEvaluator::Has(const Hand& hand) const noexcept {
-        // TODO: 国士無双を判定する.
-        return win_cache_.Has(ClosedHandTiles(hand));
+        TileTypeCount all_tiles = ClosedAndOpenedHandTiles(hand);
+
+        return win_cache_.Has(all_tiles) or
+                HasThirteenOrphans(hand, all_tiles) or HasCompletedThirteenOrphans(hand, all_tiles);
     }
 
     std::map<Yaku,int> YakuEvaluator::MaximizeTotalFan(const Hand& hand) const noexcept {
@@ -101,6 +103,12 @@ namespace mj
         }
         if (HasLittleFourWinds(all_tiles)) {
             score.AddYakuman(Yaku::kLittleFourWinds);
+        }
+        if (HasThirteenOrphans(hand, all_tiles)) {
+            score.AddYakuman(Yaku::kThirteenOrphans);
+        }
+        if (HasCompletedThirteenOrphans(hand, all_tiles)) {
+            score.AddYakuman(Yaku::kCompletedThirteenOrphans);
         }
 
         if (!score.RequireFan()) return score;
@@ -626,5 +634,39 @@ namespace mj
             else if (count.at(tile_type) == 2) ++heads;
         }
         return pons == 3 and heads == 1;
+    }
+
+    bool YakuEvaluator::HasThirteenOrphans(const Hand& hand, const TileTypeCount& count) const noexcept {
+        std::map<TileType, int> yaocyu;
+        for (const auto& [tile_type, n] : count) {
+            if (Is(tile_type, TileSetType::kYaocyu)) {
+                yaocyu[tile_type] = n;
+            }
+        }
+        assert(hand.LastTileAdded().has_value());
+        const Tile tsumo = hand.LastTileAdded().value();
+
+        return yaocyu.size() == 13 and yaocyu[tsumo.Type()] == 1;
+    }
+
+    bool YakuEvaluator::HasCompletedThirteenOrphans(const Hand& hand, const TileTypeCount& count) const noexcept {
+        std::map<TileType, int> yaocyu;
+        for (const auto& [tile_type, n] : count) {
+            if (Is(tile_type, TileSetType::kYaocyu)) {
+                yaocyu[tile_type] = n;
+            }
+        }
+        assert(hand.LastTileAdded().has_value());
+        const Tile tsumo = hand.LastTileAdded().value();
+
+        return yaocyu.size() == 13 and yaocyu[tsumo.Type()] == 2;
+    }
+
+    bool YakuEvaluator::HasNineGates(const Hand& hand, const TileTypeCount& count) const noexcept {
+
+    }
+
+    bool YakuEvaluator::HasPureNineGates(const Hand& hand, const TileTypeCount& count) const noexcept {
+
     }
 }
