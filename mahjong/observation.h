@@ -28,7 +28,8 @@ namespace mj
         std::unique_ptr<Open> open;
     };
 
-    class PossibleAction {
+    class PossibleAction
+    {
     public:
         explicit PossibleAction(mjproto::ActionRequest_PossibleAction possible_action);
         ActionType type() const;
@@ -36,6 +37,21 @@ namespace mj
         std::vector<Tile> discard_candidates() const;
     private:
         mjproto::ActionRequest_PossibleAction possible_action_;
+    };
+
+    class CommonObservation
+    {
+    public:
+        CommonObservation() = default;
+        // getter
+        Score score();
+        std::vector<TakenAction> taken_actions();
+        // setter
+        void set_score(const Score &score);
+        void add_taken_action(const TakenAction &taken_action);
+    private:
+        friend class Observation;
+        mjproto::ActionRequest_CommonObservation common_observation_;
     };
 
     class Observation
