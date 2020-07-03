@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package mj;
+package mjproto;
 
 service Agent {
   rpc TakeAction (ActionRequest) returns (ActionResponse) {}

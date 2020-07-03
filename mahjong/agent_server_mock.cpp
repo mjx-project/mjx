@@ -26,7 +26,7 @@ namespace mj
     }
 
     grpc::Status
-    MockAgentServiceImpl::TakeAction(grpc::ServerContext *context, const ActionRequest *request, ActionResponse *reply) {
+    MockAgentServiceImpl::TakeAction(grpc::ServerContext *context, const mjproto::ActionRequest *request, mjproto::ActionResponse *reply) {
         std::cout << "==============================================" << std::endl;
         std::cout << "Received observation" << std::endl;
         std::cout << "==============================================" << std::endl;

@@ -5,7 +5,7 @@ namespace mj
 {
     Action AgentClientMock::TakeAction(std::unique_ptr<Observation> observation) const {
         // Currently this method only implements discard
-        ActionResponse response;
+        mjproto::ActionResponse response;
         for (const auto &possible_action: observation->possible_actions()) {
             if (possible_action.type() == ActionType::kDiscard) {
                 // random action

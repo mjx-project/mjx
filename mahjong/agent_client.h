@@ -16,7 +16,7 @@ namespace mj
         virtual ~AgentClient() = default;
         [[nodiscard]] virtual Action TakeAction(std::unique_ptr<Observation> observation) const;
     private:
-        std::unique_ptr<Agent::Stub> stub_;
+        std::unique_ptr<mjproto::Agent::Stub> stub_;
     };
 }  // namespace mj
 

@@ -55,7 +55,7 @@ namespace mj
         ++draw_itr;
         // set possible actions
         auto possible_actions = action_requests_.at(static_cast<int>(drawer)).mutable_possible_actions();
-        ActionRequest_PossibleAction possible_action;
+        mjproto::ActionRequest_PossibleAction possible_action;
         possible_action.set_type(static_cast<int>(ActionType::kDiscard));
         auto discard_candidates = possible_action.mutable_discard_candidates();
         for (const auto& tile: drawer_hand.PossibleDiscards()) {

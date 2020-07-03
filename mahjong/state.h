@@ -86,8 +86,8 @@ namespace mj
         Score score_;
         StateInRound state_in_round_;
         // gRPC
-        std::unique_ptr<ActionRequest_CommonObservation> common_observation_ = std::make_unique<ActionRequest_CommonObservation>();
-        std::array<ActionRequest, 4> action_requests_;
+        std::unique_ptr<mjproto::ActionRequest_CommonObservation> common_observation_ = std::make_unique<mjproto::ActionRequest_CommonObservation>();
+        std::array<mjproto::ActionRequest, 4> action_requests_;
 
         std::uint32_t GenerateRoundSeed();
     };
