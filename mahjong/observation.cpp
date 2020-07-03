@@ -2,7 +2,7 @@
 
 namespace mj
 {
-    PossibleAction::PossibleAction(ActionRequest_PossibleAction possible_action)
+    PossibleAction::PossibleAction(mjproto::ActionRequest_PossibleAction possible_action)
     : possible_action_(std::move(possible_action)) {}
 
     ActionType PossibleAction::type() const {

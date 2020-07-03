@@ -30,12 +30,12 @@ namespace mj
 
     class PossibleAction {
     public:
-        explicit PossibleAction(ActionRequest_PossibleAction possible_action);
+        explicit PossibleAction(mjproto::ActionRequest_PossibleAction possible_action);
         ActionType type() const;
         std::unique_ptr<Open> open() const;
         std::vector<Tile> discard_candidates() const;
     private:
-        ActionRequest_PossibleAction possible_action_;
+        mjproto::ActionRequest_PossibleAction possible_action_;
     };
 
     class Observation
@@ -43,7 +43,7 @@ namespace mj
     public:
         // As Observation should return the ownership of common observation. The life span of Observation should be short.
         Observation() = delete;
-        Observation(ActionRequest &action_request, ActionRequest_CommonObservation* common_observation)
+        Observation(mjproto::ActionRequest &action_request, mjproto::ActionRequest_CommonObservation* common_observation)
         : action_request_(action_request) {
             action_request_.set_allocated_common_observation(common_observation);
         }
@@ -58,11 +58,11 @@ namespace mj
         [[nodiscard]] std::vector<PossibleAction> possible_actions() const;
         Score score() const;
         std::vector<TakenAction> taken_actions() const;
-        [[nodiscard]] const ActionRequest& action_request() const { return action_request_; }
+        [[nodiscard]] const mjproto::ActionRequest& action_request() const { return action_request_; }
         void ClearPossibleActions();
         std::string ToString() const;
     private:
-        ActionRequest &action_request_;
+        mjproto::ActionRequest &action_request_;
     };
 }
 
