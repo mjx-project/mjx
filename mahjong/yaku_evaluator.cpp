@@ -2,6 +2,7 @@
 
 #include <cassert>
 #include <vector>
+#include <tuple>
 
 #include "types.h"
 #include "win_score.h"
@@ -29,26 +30,37 @@ namespace mj
 
         // 役満の判定
         JudgeYakuman(hand, all_tiles, score);
-
         if (!score.RequireFan()) return score;
 
         // 手牌の組み合わせ方によらない役
         JudgeSimpleYaku(hand, all_tiles, score);
 
         // 手牌の組み合わせ方に依存する役
-        const std::map<Yaku,int> best_yaku = MaximizeTotalFan(hand);
-
+        const auto& [best_yaku, closed_sets, heads] = MaximizeTotalFan(hand);
         for (auto& [yaku, fan] : best_yaku) score.AddYaku(yaku, fan);
 
         if (!score.RequireFu()) return score;
+
         // TODO calculate fu;
+        score.SetFu(CalculateFu(hand, closed_sets, heads));
+
         return score;
     }
 
+    int YakuEvaluator::CalculateFu(
+            const Hand& hand,
+            const std::vector<TileTypeCount>& closed_sets,
+            const std::vector<TileTypeCount>& heads) noexcept {
 
-    std::map<Yaku,int> YakuEvaluator::MaximizeTotalFan(const Hand& hand) const noexcept {
+        // TODO: implement
+        return 20;
+    }
+
+    std::tuple<std::map<Yaku,int>,std::vector<TileTypeCount>,std::vector<TileTypeCount>>
+    YakuEvaluator::MaximizeTotalFan(const Hand& hand) const noexcept {
 
         std::map<Yaku,int> best_yaku;
+        std::vector<TileTypeCount> best_closed_set, best_heads;
 
         std::vector<TileTypeCount> opened_sets;
         for (const Open* open : hand.Opens()) {
@@ -98,10 +110,12 @@ namespace mj
             // 今までに調べた組み合わせ方より役の総得点が高いなら採用する.
             if (TotalFan(best_yaku) < TotalFan(yaku_in_this_pattern)) {
                 std::swap(best_yaku, yaku_in_this_pattern);
+                best_closed_set = closed_sets;
+                best_heads = heads;
             }
         }
 
-        return best_yaku;
+        return {best_yaku, best_closed_set, best_heads};
     }
 
     void YakuEvaluator::JudgeYakuman(
