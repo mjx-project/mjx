@@ -4,7 +4,9 @@
 #include <mahjong.pb.h>
 
 #include <utility>
+#include <array>
 #include "hand.h"
+#include "action.h"
 
 namespace mj
 {
@@ -26,6 +28,16 @@ namespace mj
         std::unique_ptr<Open> open;
     };
 
+    class PossibleAction {
+    public:
+        explicit PossibleAction(ActionRequest_PossibleAction possible_action);
+        ActionType type() const;
+        std::unique_ptr<Open> open() const;
+        std::vector<Tile> discard_candidates() const;
+    private:
+        ActionRequest_PossibleAction possible_action_;
+    };
+
     class Observation
     {
     public:
@@ -36,18 +48,17 @@ namespace mj
             action_request_.set_allocated_common_observation(common_observation);
         }
         ~Observation() {
-            std::cout << "Observation destructor is called" << std::endl;
             // Calling release_common_observation prevent gRPC from deleting common_observation object
             action_request_.release_common_observation();
         }
-        std::uint32_t GetGameId() const;
-        AbsolutePos GetWho() const;
-        Hand GetInitialHand() const;
-        Hand GetCurrentHand() const;
-        // std::vector<Action> GetPossibleActions() const;
-        Score GetScore() const;
-        std::vector<TakenAction> GetTakenActions() const;
-        [[nodiscard]] const ActionRequest& GetActionRequest() const { return action_request_; }
+        std::uint32_t game_id() const;
+        AbsolutePos who() const;
+        Hand initial_hand() const;
+        Hand current_hand() const;
+        [[nodiscard]] std::vector<PossibleAction> possible_actions() const;
+        Score score() const;
+        std::vector<TakenAction> taken_actions() const;
+        [[nodiscard]] const ActionRequest& action_request() const { return action_request_; }
         std::string ToString() const;
     private:
         ActionRequest &action_request_;

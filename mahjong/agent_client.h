@@ -11,8 +11,10 @@ namespace mj
     class AgentClient
     {
     public:
-        AgentClient(std::shared_ptr<grpc::Channel> channel);
-        [[nodiscard]] Action TakeAction(std::unique_ptr<Observation> observation) const;
+        AgentClient() = default;
+        explicit AgentClient(std::shared_ptr<grpc::Channel> channel);
+        virtual ~AgentClient() = default;
+        [[nodiscard]] virtual Action TakeAction(std::unique_ptr<Observation> observation) const;
     private:
         std::unique_ptr<Agent::Stub> stub_;
     };
