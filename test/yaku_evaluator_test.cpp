@@ -443,7 +443,7 @@ TEST_F(YakuTest, NineGates) {
             Hand(HandParams("m1,m1,m1,m2,m3,m4,m5,m6,m7,m8,m9,m9,m9").Tsumo("m9")));
     EXPECT_EQ(yaku2.HasYakuman(Yaku::kNineGates), false);
 
-    // 九蓮宝燈とは複合しない
+    // 九蓮宝燈要素なし
     auto yaku3 = evaluator.Eval(
             Hand(HandParams("m1,m2,m3,m4,m5,rd,rd,m7,m8,m9,p1,p1,p1").Tsumo("m6")));
     EXPECT_EQ(yaku3.HasYakuman(Yaku::kNineGates), false);
@@ -454,12 +454,58 @@ TEST_F(YakuTest, PureNineGates) {
             Hand(HandParams("m1,m1,m1,m2,m3,m4,m5,m6,m7,m8,m9,m9,m9").Tsumo("m9")));
     EXPECT_EQ(yaku1.HasYakuman(Yaku::kPureNineGates), true);
 
+    // 九蓮宝燈とは複合しない
     auto yaku2 = evaluator.Eval(
             Hand(HandParams("m1,m1,m1,m2,m2,m3,m4,m5,m6,m7,m8,m9,m9").Tsumo("m9")));
     EXPECT_EQ(yaku2.HasYakuman(Yaku::kPureNineGates), false);
 
-    // 九蓮宝燈とは複合しない
+    // 九蓮宝燈要素なし
     auto yaku3 = evaluator.Eval(
             Hand(HandParams("m1,m2,m3,m4,m5,rd,rd,m7,m8,m9,p1,p1,p1").Tsumo("m6")));
     EXPECT_EQ(yaku3.HasYakuman(Yaku::kPureNineGates), false);
 }
+
+TEST_F(YakuTest, FourKans) {
+    auto yaku1 = evaluator.Eval(
+            Hand(HandParams("m1").KanClosed("m4,m4,m4,m4").KanOpened("s2,s2,s2,s2")
+                    .KanAdded("ew,ew,ew,ew").KanAdded("rd,rd,rd,rd").Tsumo("m1")));
+    EXPECT_EQ(yaku1.HasYakuman(Yaku::kFourKans), true);
+
+    // 四槓子要素なし
+    auto yaku2 = evaluator.Eval(
+            Hand(HandParams("m1,m2,m3,m4,m5,rd,rd,m7,m8,m9,p1,p1,p1").Tsumo("m6")));
+    EXPECT_EQ(yaku2.HasYakuman(Yaku::kFourKans), false);
+}
+
+TEST_F(YakuTest, FourConcealdPons) {
+    auto yaku1 = evaluator.Eval(
+            Hand(HandParams("m1,m1,m1,m4,m4,m4,m7,m7,m7,p2,p2,ew,ew").Tsumo("ew")));
+    EXPECT_EQ(yaku1.HasYakuman(Yaku::kFourConcealedPons), true);
+
+    // 四暗刻単騎とは複合しない
+    auto yaku2 = evaluator.Eval(
+            Hand(HandParams("m1,m1,m1,m4,m4,m4,m7,m7,m7,p2,p2,p2,ew").Tsumo("ew")));
+    EXPECT_EQ(yaku2.HasYakuman(Yaku::kFourConcealedPons), false);
+
+    // 四暗刻要素なし
+    auto yaku3 = evaluator.Eval(
+            Hand(HandParams("m1,m2,m3,m4,m5,rd,rd,m7,m8,m9,p1,p1,p1").Tsumo("m6")));
+    EXPECT_EQ(yaku3.HasYakuman(Yaku::kFourConcealedPons), false);
+}
+
+TEST_F(YakuTest, CompletedFourConcealdPons) {
+    auto yaku1 = evaluator.Eval(
+            Hand(HandParams("m1,m1,m1,m4,m4,m4,m7,m7,m7,p2,p2,p2,ew").Tsumo("ew")));
+    EXPECT_EQ(yaku1.HasYakuman(Yaku::kCompletedFourConcealedPons), true);
+
+    // 四暗刻とは複合しない
+    auto yaku2 = evaluator.Eval(
+            Hand(HandParams("m1,m1,m1,m4,m4,m4,m7,m7,m7,p2,p2,ew,ew").Tsumo("ew")));
+    EXPECT_EQ(yaku2.HasYakuman(Yaku::kCompletedFourConcealedPons), false);
+
+    // 四暗刻要素なし
+    auto yaku3 = evaluator.Eval(
+            Hand(HandParams("m1,m2,m3,m4,m5,rd,rd,m7,m8,m9,p1,p1,p1").Tsumo("m6")));
+    EXPECT_EQ(yaku3.HasYakuman(Yaku::kCompletedFourConcealedPons), false);
+}
+

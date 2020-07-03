@@ -32,6 +32,9 @@ namespace mj
         [[nodiscard]] static bool HasCompletedThirteenOrphans(const Hand& hand, const TileTypeCount& count) noexcept ;
         [[nodiscard]] static bool HasNineGates(const Hand& hand, const TileTypeCount& count) noexcept ;
         [[nodiscard]] static bool HasPureNineGates(const Hand& hand, const TileTypeCount& count) noexcept ;
+        [[nodiscard]] static bool HasFourKans(const Hand& hand) noexcept;
+        [[nodiscard]] static bool HasFourConcealedPons(const Hand& hand, const TileTypeCount& count) noexcept ;
+        [[nodiscard]] static bool HasCompletedFourConcealedPons(const Hand& hand, const TileTypeCount& count) noexcept ;
 
         [[nodiscard]] static std::optional<int> HasFullyConcealdHand(const Hand& hand) noexcept ;
         [[nodiscard]] static std::optional<int> HasAllSimples(const TileTypeCount& count) noexcept ;

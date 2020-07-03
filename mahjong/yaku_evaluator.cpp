@@ -117,6 +117,15 @@ namespace mj
         if (HasPureNineGates(hand, all_tiles)) {
             score.AddYakuman(Yaku::kPureNineGates);
         }
+        if (HasFourKans(hand)) {
+            score.AddYakuman(Yaku::kFourKans);
+        }
+        if (HasFourConcealedPons(hand, all_tiles)) {
+            score.AddYakuman(Yaku::kFourConcealedPons);
+        }
+        if (HasCompletedFourConcealedPons(hand, all_tiles)) {
+            score.AddYakuman(Yaku::kCompletedFourConcealedPons);
+        }
 
         if (!score.RequireFan()) return score;
 
@@ -707,5 +716,37 @@ namespace mj
         }
 
         return true;
+    }
+
+    bool YakuEvaluator::HasFourKans(const Hand& hand) noexcept {
+        int kans = 0;
+        for (const Open* open : hand.Opens()) {
+            if (any_of(open->Type(), {
+                    OpenType::kKanOpened, OpenType::kKanAdded, OpenType::kKanClosed})) {
+                ++kans;
+            }
+        }
+
+        return kans == 4;
+    }
+
+    bool YakuEvaluator::HasFourConcealedPons(const Hand& hand, const TileTypeCount& count) noexcept {
+        if (!hand.IsMenzen()) return false;
+        if (count.size() != 5) return false;
+
+        assert(hand.LastTileAdded().has_value());
+        const Tile tsumo = hand.LastTileAdded().value();
+
+        return count.at(tsumo.Type()) > 2;
+    }
+
+    bool YakuEvaluator::HasCompletedFourConcealedPons(const Hand& hand, const TileTypeCount& count) noexcept {
+        if (!hand.IsMenzen()) return false;
+        if (count.size() != 5) return false;
+
+        assert(hand.LastTileAdded().has_value());
+        const Tile tsumo = hand.LastTileAdded().value();
+
+        return count.at(tsumo.Type()) == 2;
     }
 }
