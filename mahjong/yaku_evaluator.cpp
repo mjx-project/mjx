@@ -680,8 +680,8 @@ namespace mj
         const Tile tsumo = hand.LastTileAdded().value();
 
         for (const auto& [tile_type, n] : count) {
-            if (required[Num(tile_type)] < n) return false;
-            if (required[Num(tile_type)] > n and tile_type == tsumo.Type()) return false;
+            if (required[Num(tile_type)] > n) return false;
+            if (required[Num(tile_type)] < n and tile_type == tsumo.Type()) return false;
         }
 
         return true;
@@ -702,7 +702,7 @@ namespace mj
         const Tile tsumo = hand.LastTileAdded().value();
 
         for (const auto& [tile_type, n] : count) {
-            if (required[Num(tile_type)] < n) return false;
+            if (required[Num(tile_type)] > n) return false;
             if (required[Num(tile_type)] == n and tile_type == tsumo.Type()) return false;
         }
 

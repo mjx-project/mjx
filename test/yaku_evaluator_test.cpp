@@ -314,8 +314,8 @@ TEST_F(YakuTest, TerminalsInAllSets) {
 
 TEST_F(YakuTest, ThreeKans) {
     auto yaku1 = evaluator.Eval(
-            Hand(HandParams("m1,m1,m5,m5").KanOpened("s1,s1,s1,s1")
-                    .KanOpened("p4,p4,p4,p4").KanOpened("wd,wd,wd,wd").Tsumo("m1"))
+            Hand(HandParams("m1,m1,m5,m5").KanClosed("s1,s1,s1,s1")
+                    .KanOpened("p4,p4,p4,p4").KanAdded("wd,wd,wd,wd").Tsumo("m1"))
             );
     EXPECT_EQ(yaku1.HasYaku(Yaku::kThreeKans), std::make_optional(2));
 
