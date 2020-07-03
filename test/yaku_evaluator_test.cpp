@@ -98,12 +98,17 @@ TEST_F(YakuTest, Dragon) {
 TEST_F(YakuTest, AllTermsAndHonours)
 {
     auto yaku1 = evaluator.Eval(
-            Hand(HandParams("m1,m1,m1,m9,m9,s1,s1,ew,ew,ew,rd,rd,rd").Tsumo("m9")));
+            Hand(HandParams("m1,m1,m1,m9,m9,s1,s1,ew,ew,ew").Pon("rd,rd,rd").Tsumo("m9")));
     EXPECT_EQ(yaku1.HasYaku(Yaku::kAllTermsAndHonours), std::make_optional(2));
 
     auto yaku2 = evaluator.Eval(
             Hand(HandParams("m1,m2,m3,m9,m9,s1,s1,ew,ew,ew,rd,rd,rd").Tsumo("m9")));
     EXPECT_EQ(yaku2.HasYaku(Yaku::kAllTermsAndHonours), std::nullopt);
+
+    // 四暗刻とは複合しない
+    auto yaku3 = evaluator.Eval(
+            Hand(HandParams("m1,m1,m1,m9,m9,s1,s1,ew,ew,ew,rd,rd,rd").Tsumo("m9")));
+    EXPECT_EQ(yaku3.HasYaku(Yaku::kAllTermsAndHonours), std::nullopt);
 }
 
 TEST_F(YakuTest, HalfFlush)
@@ -208,7 +213,7 @@ TEST_F(YakuTest, SevenPairs) {
 
 TEST_F(YakuTest, AllPons) {
     auto yaku1 = evaluator.Eval(
-            Hand(HandParams("m1,m1,m1,m3,m3,m3,s4,s4,s4,ew,ew,rd,rd").Tsumo("ew")));
+            Hand(HandParams("m1,m1,m1,m3,m3,m3,ew,ew,rd,rd").Pon("s4,s4,s4").Tsumo("ew")));
     EXPECT_EQ(yaku1.HasYaku(Yaku::kAllPons), std::make_optional(2));
 
     // 鳴いててもOK 喰い下がり無し
@@ -220,6 +225,11 @@ TEST_F(YakuTest, AllPons) {
     auto yaku3 = evaluator.Eval(
             Hand(HandParams("m1,m1,m1,m3,m4,m5,ew,ew,rd,rd").Pon("s4,s4,s4").Tsumo("ew")));
     EXPECT_EQ(yaku3.HasYaku(Yaku::kAllPons), std::nullopt);
+
+    // 四暗刻とは複合しない
+    auto yaku4 = evaluator.Eval(
+            Hand(HandParams("m1,m1,m1,m3,m3,m3,s4,s4,s4,ew,ew,rd,rd").Tsumo("ew")));
+    EXPECT_EQ(yaku4.HasYaku(Yaku::kAllPons), std::nullopt);
 }
 
 TEST_F(YakuTest, PureStraight) {

@@ -20,7 +20,7 @@ namespace mj
         static TileTypeCount ClosedHandTiles(const Hand& hand) noexcept ;
         static TileTypeCount ClosedAndOpenedHandTiles(const Hand& hand) noexcept ;
         static int TotalFan(const std::map<Yaku,int>& yaku) noexcept ;
-        std::map<Yaku,int> MaximizeTotalFan(const Hand& hand) const noexcept ;
+        [[nodiscard]] std::map<Yaku,int> MaximizeTotalFan(const Hand& hand) const noexcept ;
 
         [[nodiscard]] static bool HasBigThreeDragons(const TileTypeCount& count) noexcept ;
         [[nodiscard]] static bool HasAllHonours(const TileTypeCount& count) noexcept ;
