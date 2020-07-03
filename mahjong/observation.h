@@ -59,6 +59,7 @@ namespace mj
         Score score() const;
         std::vector<TakenAction> taken_actions() const;
         [[nodiscard]] const ActionRequest& action_request() const { return action_request_; }
+        void ClearPossibleActions();
         std::string ToString() const;
     private:
         ActionRequest &action_request_;

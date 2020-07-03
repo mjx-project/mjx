@@ -34,4 +34,8 @@ namespace mj
     AbsolutePos Observation::who() const {
         return AbsolutePos(action_request_.who());
     }
+
+    void Observation::ClearPossibleActions() {
+        action_request_.clear_possible_actions();
+    }
 }

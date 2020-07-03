@@ -79,9 +79,7 @@ namespace mj
 
         // This method cannot be const because it moves the ownership of CommonObservation to each ActionRequest
         // One way to make this method const is to create new ActionRequest and use CopyFrom instead of set_allocated_common_observation
-        std::unique_ptr<Observation> NewObservation(AbsolutePos pos) {
-            return std::make_unique<Observation>(action_requests_[static_cast<int>(pos)], common_observation_.get());
-        }
+        std::unique_ptr<Observation> NewObservation(AbsolutePos pos);
         std::string ToMjlog() const;
     private:
         std::uint32_t seed_;

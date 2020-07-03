@@ -5,8 +5,6 @@ namespace mj
 {
     Action AgentClientMock::TakeAction(std::unique_ptr<Observation> observation) const {
         // Currently this method only implements discard
-        std::cout << "AgentClientMock::TakeAction()" << std::endl;
-        assert(observation->possible_actions().size() == 1 && observation->possible_actions().front().type() == ActionType::kDiscard);
         ActionResponse response;
         for (const auto &possible_action: observation->possible_actions()) {
             if (possible_action.type() == ActionType::kDiscard) {
@@ -20,6 +18,7 @@ namespace mj
         }
         response.set_game_id(observation->game_id());
         response.set_who(static_cast<int>(observation->who()));
+        observation->ClearPossibleActions();
         auto action = Action(std::move(response));
         return action;
     }
