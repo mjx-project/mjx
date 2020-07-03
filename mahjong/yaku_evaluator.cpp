@@ -167,7 +167,6 @@ namespace mj
         for (auto& [yaku, fan] : best_yaku) score.AddYaku(yaku, fan);
 
         if (!score.RequireFu()) return score;
-
         // TODO calculate fu;
         return score;
     }
