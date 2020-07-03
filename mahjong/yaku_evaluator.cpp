@@ -2,6 +2,7 @@
 
 #include <cassert>
 #include <vector>
+#include <tuple>
 
 #include "types.h"
 #include "win_score.h"
@@ -12,17 +13,54 @@ namespace mj
     YakuEvaluator::YakuEvaluator() : win_cache_() {}
 
     bool YakuEvaluator::Has(const Hand& hand) const noexcept {
-        if (win_cache_.Has(ClosedHandTiles(hand))) return true;
+        if (win_cache_.Has(hand.ClosedHandTiles())) return true;
 
-        const TileTypeCount all_tiles = ClosedAndOpenedHandTiles(hand);
+        const TileTypeCount all_tiles = hand.ClosedAndOpenedHandTiles();
 
         return HasThirteenOrphans(hand, all_tiles) or HasCompletedThirteenOrphans(hand, all_tiles);
     }
 
-    std::map<Yaku,int> YakuEvaluator::MaximizeTotalFan(const Hand& hand) const noexcept {
+    WinningScore YakuEvaluator::Eval(const Hand& hand) const noexcept {
+
+        assert(Has(hand));
+
+        const TileTypeCount all_tiles = hand.ClosedAndOpenedHandTiles();
+
+        WinningScore score;
+
+        // 役満の判定
+        JudgeYakuman(hand, all_tiles, score);
+        if (!score.RequireFan()) return score;
+
+        // 手牌の組み合わせ方によらない役
+        JudgeSimpleYaku(hand, all_tiles, score);
 
         // 手牌の組み合わせ方に依存する役
+        const auto& [best_yaku, closed_sets, heads] = MaximizeTotalFan(hand);
+        for (auto& [yaku, fan] : best_yaku) score.AddYaku(yaku, fan);
+
+        if (!score.RequireFu()) return score;
+
+        // TODO calculate fu;
+        score.SetFu(CalculateFu(hand, closed_sets, heads));
+
+        return score;
+    }
+
+    int YakuEvaluator::CalculateFu(
+            const Hand& hand,
+            const std::vector<TileTypeCount>& closed_sets,
+            const std::vector<TileTypeCount>& heads) noexcept {
+
+        // TODO: implement
+        return 20;
+    }
+
+    std::tuple<std::map<Yaku,int>,std::vector<TileTypeCount>,std::vector<TileTypeCount>>
+    YakuEvaluator::MaximizeTotalFan(const Hand& hand) const noexcept {
+
         std::map<Yaku,int> best_yaku;
+        std::vector<TileTypeCount> best_closed_set, best_heads;
 
         std::vector<TileTypeCount> opened_sets;
         for (const Open* open : hand.Opens()) {
@@ -33,7 +71,7 @@ namespace mj
             opened_sets.push_back(count);
         }
 
-        for (const auto& [closed_sets, heads] : win_cache_.SetAndHeads(ClosedHandTiles(hand))) {
+        for (const auto& [closed_sets, heads] : win_cache_.SetAndHeads(hand.ClosedHandTiles())) {
 
             std::map<Yaku,int> yaku_in_this_pattern;
 
@@ -72,21 +110,19 @@ namespace mj
             // 今までに調べた組み合わせ方より役の総得点が高いなら採用する.
             if (TotalFan(best_yaku) < TotalFan(yaku_in_this_pattern)) {
                 std::swap(best_yaku, yaku_in_this_pattern);
+                best_closed_set = closed_sets;
+                best_heads = heads;
             }
         }
 
-        return best_yaku;
+        return {best_yaku, best_closed_set, best_heads};
     }
 
-    WinningScore YakuEvaluator::Eval(const Hand& hand) const noexcept {
+    void YakuEvaluator::JudgeYakuman(
+            const Hand& hand,
+            const TileTypeCount& all_tiles,
+            WinningScore& score) noexcept {
 
-        assert(Has(hand));
-
-        const TileTypeCount all_tiles = ClosedAndOpenedHandTiles(hand);
-
-        WinningScore score;
-
-        // 役満の判定
         if (HasBigThreeDragons(all_tiles)) {
             score.AddYakuman(Yaku::kBigThreeDragons);
         }
@@ -127,9 +163,13 @@ namespace mj
             score.AddYakuman(Yaku::kCompletedFourConcealedPons);
         }
 
-        if (!score.RequireFan()) return score;
+    }
 
-        // 手牌の組み合わせ方によらない役
+    void YakuEvaluator::JudgeSimpleYaku(
+            const Hand& hand,
+            const TileTypeCount& all_tiles,
+            WinningScore& score) noexcept {
+
         if (const std::optional<int> fan = HasFullyConcealdHand(hand); fan) {
             score.AddYaku(Yaku::kFullyConcealedHand, fan.value());
         }
@@ -160,30 +200,6 @@ namespace mj
         if (const std::optional<int> fan = HasLittleThreeDragons(all_tiles); fan) {
             score.AddYaku(Yaku::kLittleThreeDragons, fan.value());
         }
-
-        // 手牌の組み合わせ方に依存する役
-        const std::map<Yaku,int> best_yaku = MaximizeTotalFan(hand);
-
-        for (auto& [yaku, fan] : best_yaku) score.AddYaku(yaku, fan);
-
-        if (!score.RequireFu()) return score;
-        // TODO calculate fu;
-        return score;
-    }
-
-    TileTypeCount YakuEvaluator::ClosedHandTiles(const Hand& hand) noexcept {
-        TileTypeCount count;
-        for (const Tile& tile : hand.ToVectorClosed(true)) {
-            ++count[tile.Type()];
-        }
-        return count;
-    }
-    TileTypeCount YakuEvaluator::ClosedAndOpenedHandTiles(const Hand& hand) noexcept {
-        TileTypeCount count;
-        for (const Tile& tile : hand.ToVector(true)) {
-            ++count[tile.Type()];
-        }
-        return count;
     }
 
     int YakuEvaluator::TotalFan(const std::map<Yaku,int>& yaku) noexcept {

@@ -2,6 +2,7 @@
 #define MAHJONG_YAKU_EVALUATOR_H
 
 #include <vector>
+#include <tuple>
 
 #include "types.h"
 #include "hand.h"
@@ -17,10 +18,24 @@ namespace mj
         [[nodiscard]] WinningScore Eval(const Hand& hand) const noexcept ;
 
     private:
-        static TileTypeCount ClosedHandTiles(const Hand& hand) noexcept ;
-        static TileTypeCount ClosedAndOpenedHandTiles(const Hand& hand) noexcept ;
+        static void JudgeYakuman(
+                const Hand& hand,
+                const TileTypeCount& all_tiles,
+                WinningScore& score) noexcept ;
+
+        static void JudgeSimpleYaku(
+                const Hand& hand,
+                const TileTypeCount& all_tiles,
+                WinningScore& score) noexcept ;
+
         static int TotalFan(const std::map<Yaku,int>& yaku) noexcept ;
-        [[nodiscard]] std::map<Yaku,int> MaximizeTotalFan(const Hand& hand) const noexcept ;
+        std::tuple<std::map<Yaku,int>,std::vector<TileTypeCount>,std::vector<TileTypeCount>>
+        MaximizeTotalFan(const Hand& hand) const noexcept ;
+
+        [[nodiscard]] static int CalculateFu(
+                const Hand& hand,
+                const std::vector<TileTypeCount>& closed_sets,
+                const std::vector<TileTypeCount>& heads) noexcept ;
 
         [[nodiscard]] static bool HasBigThreeDragons(const TileTypeCount& count) noexcept ;
         [[nodiscard]] static bool HasAllHonours(const TileTypeCount& count) noexcept ;

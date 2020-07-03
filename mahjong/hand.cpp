@@ -535,6 +535,21 @@ namespace mj
         return a;
     }
 
+    TileTypeCount Hand::ClosedHandTiles() const noexcept {
+        TileTypeCount count;
+        for (const Tile& tile : ToVectorClosed(true)) {
+            ++count[tile.Type()];
+        }
+        return count;
+    }
+    TileTypeCount Hand::ClosedAndOpenedHandTiles() const noexcept {
+        TileTypeCount count;
+        for (const Tile& tile : ToVector(true)) {
+            ++count[tile.Type()];
+        }
+        return count;
+    }
+
     bool Hand::IsMenzen() const {
         if (opens_.empty()) return true;
         return std::all_of(opens_.begin(), opens_.end(),
