@@ -13,8 +13,8 @@ namespace mj
     class Action
     {
     public:
-        Action() = default;
-        Action(ActionResponse action_response) : action_response_(std::move(action_response)) {}
+        Action() = delete;
+        explicit Action(ActionResponse action_response) : action_response_(std::move(action_response)) {}
         AbsolutePos who() const { return AbsolutePos(action_response_.who()); }
         ActionType type() const { return ActionType(action_response_.type()); }
         bool yes() const { return action_response_.yes(); }
