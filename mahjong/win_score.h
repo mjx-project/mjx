@@ -15,11 +15,11 @@ namespace mj {
     public:
         void AddYaku(Yaku yaku, int fan) noexcept ;
         void AddYakuman(Yaku yaku) noexcept ;
-        bool RequireFan() const noexcept ;
-        bool RequireFu() const noexcept ;
+        [[nodiscard]] bool RequireFan() const noexcept ;
+        [[nodiscard]] bool RequireFu() const noexcept ;
         void SetFu(int fu) noexcept ;
-        std::optional<int> HasYaku(Yaku yaku) const noexcept ;
-        bool HasYakuman(Yaku yakuman) const noexcept ;
+        [[nodiscard]] std::optional<int> HasYaku(Yaku yaku) const noexcept ;
+        [[nodiscard]] bool HasYakuman(Yaku yakuman) const noexcept ;
     };
 
 } // namespace mj

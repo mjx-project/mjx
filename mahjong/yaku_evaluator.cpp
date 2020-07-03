@@ -12,10 +12,11 @@ namespace mj
     YakuEvaluator::YakuEvaluator() : win_cache_() {}
 
     bool YakuEvaluator::Has(const Hand& hand) const noexcept {
-        TileTypeCount all_tiles = ClosedAndOpenedHandTiles(hand);
+        if (win_cache_.Has(ClosedHandTiles(hand))) return true;
 
-        return win_cache_.Has(all_tiles) or
-                HasThirteenOrphans(hand, all_tiles) or HasCompletedThirteenOrphans(hand, all_tiles);
+        const TileTypeCount all_tiles = ClosedAndOpenedHandTiles(hand);
+
+        return HasThirteenOrphans(hand, all_tiles) or HasCompletedThirteenOrphans(hand, all_tiles);
     }
 
     std::map<Yaku,int> YakuEvaluator::MaximizeTotalFan(const Hand& hand) const noexcept {
@@ -32,39 +33,39 @@ namespace mj
             opened_sets.push_back(count);
         }
 
-        for (auto [closed_sets, heads] : win_cache_.SetAndHeads(ClosedHandTiles(hand))) {
+        for (const auto& [closed_sets, heads] : win_cache_.SetAndHeads(ClosedHandTiles(hand))) {
 
             std::map<Yaku,int> yaku_in_this_pattern;
 
             // 各役の判定
-            if (std::optional<int> fan = HasPinfu(hand, closed_sets, opened_sets, heads); fan) {
+            if (const std::optional<int> fan = HasPinfu(hand, closed_sets, opened_sets, heads); fan) {
                 yaku_in_this_pattern[Yaku::kPinfu] = fan.value();
             }
-            if (std::optional<int> fan = HasPureDoubleChis(hand, closed_sets, opened_sets, heads); fan) {
+            if (const std::optional<int> fan = HasPureDoubleChis(hand, closed_sets, opened_sets, heads); fan) {
                 yaku_in_this_pattern[Yaku::kPureDoubleChis] = fan.value();
             }
-            if (std::optional<int> fan = HasTwicePureDoubleChis(hand, closed_sets, opened_sets, heads); fan) {
+            if (const std::optional<int> fan = HasTwicePureDoubleChis(hand, closed_sets, opened_sets, heads); fan) {
                 yaku_in_this_pattern[Yaku::kTwicePureDoubleChis] = fan.value();
             }
-            if (std::optional<int> fan = HasSevenPairs(hand, closed_sets, opened_sets, heads); fan) {
+            if (const std::optional<int> fan = HasSevenPairs(hand, closed_sets, opened_sets, heads); fan) {
                 yaku_in_this_pattern[Yaku::kSevenPairs] = fan.value();
             }
-            if (std::optional<int> fan = HasAllPons(hand, closed_sets, opened_sets, heads); fan) {
+            if (const std::optional<int> fan = HasAllPons(hand, closed_sets, opened_sets, heads); fan) {
                 yaku_in_this_pattern[Yaku::kAllPons] = fan.value();
             }
-            if (std::optional<int> fan = HasPureStraight(hand, closed_sets, opened_sets, heads); fan) {
+            if (const std::optional<int> fan = HasPureStraight(hand, closed_sets, opened_sets, heads); fan) {
                 yaku_in_this_pattern[Yaku::kPureStraight] = fan.value();
             }
-            if (std::optional<int> fan = HasMixedTripleChis(hand, closed_sets, opened_sets, heads); fan) {
+            if (const std::optional<int> fan = HasMixedTripleChis(hand, closed_sets, opened_sets, heads); fan) {
                 yaku_in_this_pattern[Yaku::kMixedTripleChis] = fan.value();
             }
-            if (std::optional<int> fan = HasTriplePons(hand, closed_sets, opened_sets, heads); fan) {
+            if (const std::optional<int> fan = HasTriplePons(hand, closed_sets, opened_sets, heads); fan) {
                 yaku_in_this_pattern[Yaku::kTriplePons] = fan.value();
             }
-            if (std::optional<int> fan = HasOutsideHand(hand, closed_sets, opened_sets, heads); fan) {
+            if (const std::optional<int> fan = HasOutsideHand(hand, closed_sets, opened_sets, heads); fan) {
                 yaku_in_this_pattern[Yaku::kOutsideHand] = fan.value();
             }
-            if (std::optional<int> fan = HasTerminalsInAllSets(hand, closed_sets, opened_sets, heads); fan) {
+            if (const std::optional<int> fan = HasTerminalsInAllSets(hand, closed_sets, opened_sets, heads); fan) {
                 yaku_in_this_pattern[Yaku::kTerminalsInAllSets] = fan.value();
             }
 
@@ -81,7 +82,7 @@ namespace mj
 
         assert(Has(hand));
 
-        TileTypeCount all_tiles = ClosedAndOpenedHandTiles(hand);
+        const TileTypeCount all_tiles = ClosedAndOpenedHandTiles(hand);
 
         WinningScore score;
 
@@ -110,41 +111,46 @@ namespace mj
         if (HasCompletedThirteenOrphans(hand, all_tiles)) {
             score.AddYakuman(Yaku::kCompletedThirteenOrphans);
         }
+        if (HasNineGates(hand, all_tiles)) {
+            score.AddYakuman(Yaku::kNineGates);
+        }
+        if (HasPureNineGates(hand, all_tiles)) {
+            score.AddYakuman(Yaku::kPureNineGates);
+        }
 
         if (!score.RequireFan()) return score;
 
-
         // 手牌の組み合わせ方によらない役
-        if (std::optional<int> fan = HasFullyConcealdHand(hand); fan) {
+        if (const std::optional<int> fan = HasFullyConcealdHand(hand); fan) {
             score.AddYaku(Yaku::kFullyConcealedHand, fan.value());
         }
-        if (std::optional<int> fan = HasAllSimples(all_tiles); fan) {
+        if (const std::optional<int> fan = HasAllSimples(all_tiles); fan) {
             score.AddYaku(Yaku::kAllSimples, fan.value());
         }
-        if (std::optional<int> fan = HasWhiteDragon(all_tiles); fan) {
+        if (const std::optional<int> fan = HasWhiteDragon(all_tiles); fan) {
             score.AddYaku(Yaku::kWhiteDragon, fan.value());
         }
-        if (std::optional<int> fan = HasGreenDragon(all_tiles); fan) {
+        if (const std::optional<int> fan = HasGreenDragon(all_tiles); fan) {
             score.AddYaku(Yaku::kGreenDragon, fan.value());
         }
-        if (std::optional<int> fan = HasRedDragon(all_tiles); fan) {
+        if (const std::optional<int> fan = HasRedDragon(all_tiles); fan) {
             score.AddYaku(Yaku::kRedDragon, fan.value());
         }
-        if (std::optional<int> fan = HasAllTermsAndHonours(all_tiles); fan) {
+        if (const std::optional<int> fan = HasAllTermsAndHonours(all_tiles); fan) {
             score.AddYaku(Yaku::kAllTermsAndHonours, fan.value());
         }
-        if (std::optional<int> fan = HasHalfFlush(hand, all_tiles); fan) {
+        if (const std::optional<int> fan = HasHalfFlush(hand, all_tiles); fan) {
             score.AddYaku(Yaku::kHalfFlush, fan.value());
         }
-        if (std::optional<int> fan = HasFullFlush(hand, all_tiles); fan) {
+        if (const std::optional<int> fan = HasFullFlush(hand, all_tiles); fan) {
             score.AddYaku(Yaku::kFullFlush, fan.value());
         }
-        if (std::optional<int> fan = HasThreeKans(hand); fan) {
+        if (const std::optional<int> fan = HasThreeKans(hand); fan) {
             score.AddYaku(Yaku::kThreeKans, fan.value());
         }
 
         // 手牌の組み合わせ方に依存する役
-        std::map<Yaku,int> best_yaku = MaximizeTotalFan(hand);
+        const std::map<Yaku,int> best_yaku = MaximizeTotalFan(hand);
 
         for (auto& [yaku, fan] : best_yaku) score.AddYaku(yaku, fan);
 
@@ -179,7 +185,7 @@ namespace mj
             const Hand &hand,
             const std::vector<TileTypeCount>& closed_sets,
             const std::vector<TileTypeCount>& opened_sets,
-            const std::vector<TileTypeCount>& heads) const noexcept {
+            const std::vector<TileTypeCount>& heads) noexcept {
         if (!hand.IsMenzen()) return std::nullopt;
 
         if (closed_sets.size() != 4 or heads.size() != 1) {
@@ -225,7 +231,7 @@ namespace mj
             const Hand &hand,
             const std::vector<TileTypeCount>& closed_sets,
             const std::vector<TileTypeCount>& opened_sets,
-            const std::vector<TileTypeCount>& heads) const noexcept {
+            const std::vector<TileTypeCount>& heads) noexcept {
 
         // 鳴いているとNG
         if (!hand.IsMenzen()) return std::nullopt;
@@ -241,7 +247,7 @@ namespace mj
         }
 
         int pairs = 0;
-        for (auto& [pure_chie, n] : pure_chis) {
+        for (const auto& [pure_chie, n] : pure_chis) {
             if (n >= 2) ++pairs;
         }
 
@@ -255,7 +261,7 @@ namespace mj
             const Hand &hand,
             const std::vector<TileTypeCount>& closed_sets,
             const std::vector<TileTypeCount>& opened_sets,
-            const std::vector<TileTypeCount>& heads) const noexcept {
+            const std::vector<TileTypeCount>& heads) noexcept {
 
         // 鳴いているとNG
         if (!hand.IsMenzen()) return std::nullopt;
@@ -271,7 +277,7 @@ namespace mj
         }
 
         int pairs = 0;
-        for (auto& [pure_chie, n] : pure_chis) {
+        for (const auto& [pure_chie, n] : pure_chis) {
             if (n >= 2) ++pairs;
         }
 
@@ -285,7 +291,7 @@ namespace mj
             const Hand &hand,
             const std::vector<TileTypeCount>& closed_sets,
             const std::vector<TileTypeCount>& opened_sets,
-            const std::vector<TileTypeCount>& heads) const noexcept {
+            const std::vector<TileTypeCount>& heads) noexcept {
 
         if (heads.size() == 7) return 2;
         return std::nullopt;
@@ -295,7 +301,7 @@ namespace mj
             const Hand &hand,
             const std::vector<TileTypeCount>& closed_sets,
             const std::vector<TileTypeCount>& opened_sets,
-            const std::vector<TileTypeCount>& heads) const noexcept {
+            const std::vector<TileTypeCount>& heads) noexcept {
 
         if (closed_sets.size() + opened_sets.size() != 4 or heads.size() != 1) {
             // 基本形でなければNG.
@@ -318,7 +324,7 @@ namespace mj
             const Hand &hand,
             const std::vector<TileTypeCount>& closed_sets,
             const std::vector<TileTypeCount>& opened_sets,
-            const std::vector<TileTypeCount>& heads) const noexcept {
+            const std::vector<TileTypeCount>& heads) noexcept {
 
         if (opened_sets.size() + closed_sets.size() != 4 or heads.size() != 1) {
             // 基本形でなければNG.
@@ -364,7 +370,7 @@ namespace mj
             const Hand &hand,
             const std::vector<TileTypeCount>& closed_sets,
             const std::vector<TileTypeCount>& opened_sets,
-            const std::vector<TileTypeCount>& heads) const noexcept {
+            const std::vector<TileTypeCount>& heads) noexcept {
 
         if (opened_sets.size() + closed_sets.size() != 4 or heads.size() != 1) {
             // 基本形でなければNG.
@@ -410,7 +416,7 @@ namespace mj
             const Hand &hand,
             const std::vector<TileTypeCount>& closed_sets,
             const std::vector<TileTypeCount>& opened_sets,
-            const std::vector<TileTypeCount>& heads) const noexcept {
+            const std::vector<TileTypeCount>& heads) noexcept {
 
         if (opened_sets.size() + closed_sets.size() != 4 or heads.size() != 1) {
             // 基本形でなければNG.
@@ -451,7 +457,7 @@ namespace mj
             const Hand &hand,
             const std::vector<TileTypeCount>& closed_sets,
             const std::vector<TileTypeCount>& opened_sets,
-            const std::vector<TileTypeCount>& heads) const noexcept {
+            const std::vector<TileTypeCount>& heads) noexcept {
 
 
         bool has_honour = false;
@@ -491,12 +497,12 @@ namespace mj
             const Hand &hand,
             const std::vector<TileTypeCount>& closed_sets,
             const std::vector<TileTypeCount>& opened_sets,
-            const std::vector<TileTypeCount>& heads) const noexcept {
+            const std::vector<TileTypeCount>& heads) noexcept {
 
         for (const std::vector<TileTypeCount>& blocks : {closed_sets, opened_sets, heads}) {
             for (const TileTypeCount& count : blocks) {
                 bool valid = false;
-                for (auto& [tile_type, _] : count) {
+                for (const auto& [tile_type, _] : count) {
                     if (Is(tile_type, TileSetType::kTerminals)) {
                         valid = true;
                         break;
@@ -512,41 +518,41 @@ namespace mj
         else return 2;
     }
 
-    std::optional<int> YakuEvaluator::HasFullyConcealdHand(const Hand &hand) const noexcept {
+    std::optional<int> YakuEvaluator::HasFullyConcealdHand(const Hand &hand) noexcept {
         if (hand.IsMenzen() and hand.Stage() == HandStage::kAfterTsumo) return 1;
         return std::nullopt;
     }
 
-    std::optional<int> YakuEvaluator::HasAllSimples(const TileTypeCount& count) const noexcept {
+    std::optional<int> YakuEvaluator::HasAllSimples(const TileTypeCount& count) noexcept {
         for (const auto& [tile_type, _] : count) {
             if (Is(tile_type, TileSetType::kYaocyu)) return std::nullopt;
         }
         return 1;
     }
 
-    std::optional<int> YakuEvaluator::HasWhiteDragon(const TileTypeCount& count) const noexcept {
+    std::optional<int> YakuEvaluator::HasWhiteDragon(const TileTypeCount& count) noexcept {
         if (count.count(TileType::kWD) and count.at(TileType::kWD) >= 3) return 1;
         return std::nullopt;
     }
 
-    std::optional<int> YakuEvaluator::HasGreenDragon(const TileTypeCount& count) const noexcept {
+    std::optional<int> YakuEvaluator::HasGreenDragon(const TileTypeCount& count) noexcept {
         if (count.count(TileType::kGD) and count.at(TileType::kGD) >= 3) return 1;
         return std::nullopt;
     }
 
-    std::optional<int> YakuEvaluator::HasRedDragon(const TileTypeCount& count) const noexcept {
+    std::optional<int> YakuEvaluator::HasRedDragon(const TileTypeCount& count) noexcept {
         if (count.count(TileType::kRD) and count.at(TileType::kRD) >= 3) return 1;
         return std::nullopt;
     }
 
-    std::optional<int> YakuEvaluator::HasAllTermsAndHonours(const TileTypeCount& count) const noexcept {
+    std::optional<int> YakuEvaluator::HasAllTermsAndHonours(const TileTypeCount& count) noexcept {
         for (const auto& [tile_type, _] : count) {
             if (Is(tile_type, TileSetType::kTanyao)) return std::nullopt;
         }
         return 2;
     }
 
-    std::optional<int> YakuEvaluator::HasHalfFlush(const Hand& hand, const TileTypeCount& count) const noexcept {
+    std::optional<int> YakuEvaluator::HasHalfFlush(const Hand& hand, const TileTypeCount& count) noexcept {
         std::map<TileSetType,bool> set_types;
         for (const auto& [tile_type, _] : count) {
             if (Is(tile_type, TileSetType::kHonours)) set_types[TileSetType::kHonours] = true;
@@ -558,7 +564,7 @@ namespace mj
         return 2;
     }
 
-    std::optional<int> YakuEvaluator::HasFullFlush(const Hand& hand, const TileTypeCount& count) const noexcept {
+    std::optional<int> YakuEvaluator::HasFullFlush(const Hand& hand, const TileTypeCount& count) noexcept {
         std::map<TileSetType,bool> set_types;
         for (const auto& [tile_type, _] : count) {
             if (Is(tile_type, TileSetType::kHonours)) set_types[TileSetType::kHonours] = true;
@@ -570,7 +576,7 @@ namespace mj
         return 5;
     }
 
-    std::optional<int> YakuEvaluator::HasThreeKans(const Hand& hand) const noexcept {
+    std::optional<int> YakuEvaluator::HasThreeKans(const Hand& hand) noexcept {
         int kans = 0;
         for (const Open* open : hand.Opens()) {
             if (any_of(open->Type(), {
@@ -583,14 +589,14 @@ namespace mj
         return 2;
     }
 
-    bool YakuEvaluator::HasBigThreeDragons(const TileTypeCount& count) const noexcept {
+    bool YakuEvaluator::HasBigThreeDragons(const TileTypeCount& count) noexcept {
         return count.count(TileType::kWD) and count.at(TileType::kWD) >= 3 and
                count.count(TileType::kGD) and count.at(TileType::kGD) >= 3 and
                count.count(TileType::kRD) and count.at(TileType::kRD) >= 3;
     }
 
-    bool YakuEvaluator::HasAllHonours(const TileTypeCount& count) const noexcept {
-        for (auto& [tile_type, _] : count) {
+    bool YakuEvaluator::HasAllHonours(const TileTypeCount& count) noexcept {
+        for (const auto& [tile_type, _] : count) {
             if (!Is(tile_type, TileSetType::kHonours)) {
                 return false;
             }
@@ -598,8 +604,8 @@ namespace mj
         return true;
     }
 
-    bool YakuEvaluator::HasAllGreen(const TileTypeCount& count) const noexcept {
-        for (auto& [tile_type, _] : count) {
+    bool YakuEvaluator::HasAllGreen(const TileTypeCount& count) noexcept {
+        for (const auto& [tile_type, _] : count) {
             if (!Is(tile_type, TileSetType::kGreen)) {
                 return false;
             }
@@ -607,8 +613,8 @@ namespace mj
         return true;
     }
 
-    bool YakuEvaluator::HasAllTerminals(const TileTypeCount& count) const noexcept {
-        for (auto& [tile_type, _] : count) {
+    bool YakuEvaluator::HasAllTerminals(const TileTypeCount& count) noexcept {
+        for (const auto& [tile_type, _] : count) {
             if (!Is(tile_type, TileSetType::kTerminals)) {
                 return false;
             }
@@ -616,17 +622,14 @@ namespace mj
         return true;
     }
 
-    bool YakuEvaluator::HasBigFourWinds(const TileTypeCount& count) const noexcept {
-        if (count.count(TileType::kEW) and count.at(TileType::kEW) >= 3 and
-            count.count(TileType::kSW) and count.at(TileType::kSW) >= 3 and
-            count.count(TileType::kWW) and count.at(TileType::kWW) >= 3 and
-            count.count(TileType::kNW) and count.at(TileType::kNW) >= 3) {
-            return true;
-        }
-        return false;
+    bool YakuEvaluator::HasBigFourWinds(const TileTypeCount& count) noexcept {
+        return count.count(TileType::kEW) and count.at(TileType::kEW) >= 3 and
+               count.count(TileType::kSW) and count.at(TileType::kSW) >= 3 and
+               count.count(TileType::kWW) and count.at(TileType::kWW) >= 3 and
+               count.count(TileType::kNW) and count.at(TileType::kNW) >= 3;
     }
 
-    bool YakuEvaluator::HasLittleFourWinds(const TileTypeCount& count) const noexcept {
+    bool YakuEvaluator::HasLittleFourWinds(const TileTypeCount& count) noexcept {
         int pons = 0, heads = 0;
         for (const TileType tile_type : {TileType::kEW, TileType::kSW, TileType::kWW, TileType::kNW}) {
             if (!count.count(tile_type)) return false;
@@ -636,7 +639,7 @@ namespace mj
         return pons == 3 and heads == 1;
     }
 
-    bool YakuEvaluator::HasThirteenOrphans(const Hand& hand, const TileTypeCount& count) const noexcept {
+    bool YakuEvaluator::HasThirteenOrphans(const Hand& hand, const TileTypeCount& count) noexcept {
         std::map<TileType, int> yaocyu;
         for (const auto& [tile_type, n] : count) {
             if (Is(tile_type, TileSetType::kYaocyu)) {
@@ -649,8 +652,8 @@ namespace mj
         return yaocyu.size() == 13 and yaocyu[tsumo.Type()] == 1;
     }
 
-    bool YakuEvaluator::HasCompletedThirteenOrphans(const Hand& hand, const TileTypeCount& count) const noexcept {
-        std::map<TileType, int> yaocyu;
+    bool YakuEvaluator::HasCompletedThirteenOrphans(const Hand& hand, const TileTypeCount& count) noexcept {
+        TileTypeCount yaocyu;
         for (const auto& [tile_type, n] : count) {
             if (Is(tile_type, TileSetType::kYaocyu)) {
                 yaocyu[tile_type] = n;
@@ -662,11 +665,47 @@ namespace mj
         return yaocyu.size() == 13 and yaocyu[tsumo.Type()] == 2;
     }
 
-    bool YakuEvaluator::HasNineGates(const Hand& hand, const TileTypeCount& count) const noexcept {
+    bool YakuEvaluator::HasNineGates(const Hand& hand, const TileTypeCount& count) noexcept {
+        if (!hand.IsMenzen()) return false;
+        std::map<TileSetType, bool> colors;
+        for (const auto& [tile_type, n] : count) {
+            if (Is(tile_type, TileSetType::kHonours)) return false;
+            colors[Color(tile_type)] = true;
+        }
+        if (colors.size() > 1) return false;
 
+        std::vector<int> required{0,3,1,1,1,1,1,1,1,3};
+
+        assert(hand.LastTileAdded().has_value());
+        const Tile tsumo = hand.LastTileAdded().value();
+
+        for (const auto& [tile_type, n] : count) {
+            if (required[Num(tile_type)] < n) return false;
+            if (required[Num(tile_type)] > n and tile_type == tsumo.Type()) return false;
+        }
+
+        return true;
     }
 
-    bool YakuEvaluator::HasPureNineGates(const Hand& hand, const TileTypeCount& count) const noexcept {
+    bool YakuEvaluator::HasPureNineGates(const Hand& hand, const TileTypeCount& count) noexcept {
+        if (!hand.IsMenzen()) return false;
+        std::map<TileSetType, bool> colors;
+        for (const auto& [tile_type, n] : count) {
+            if (Is(tile_type, TileSetType::kHonours)) return false;
+            colors[Color(tile_type)] = true;
+        }
+        if (colors.size() > 1) return false;
 
+        std::vector<int> required{0,3,1,1,1,1,1,1,1,3};
+
+        assert(hand.LastTileAdded().has_value());
+        const Tile tsumo = hand.LastTileAdded().value();
+
+        for (const auto& [tile_type, n] : count) {
+            if (required[Num(tile_type)] < n) return false;
+            if (required[Num(tile_type)] == n and tile_type == tsumo.Type()) return false;
+        }
+
+        return true;
     }
 }

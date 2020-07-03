@@ -314,8 +314,8 @@ TEST_F(YakuTest, TerminalsInAllSets) {
 
 TEST_F(YakuTest, ThreeKans) {
     auto yaku1 = evaluator.Eval(
-            Hand(HandParams("m1,m1,m5,m5").KanClosed("s1,s1,s1,s1")
-                    .KanClosed("p4,p4,p4,p4").KanOpened("wd,wd,wd,wd").Tsumo("m1"))
+            Hand(HandParams("m1,m1,m5,m5").KanOpened("s1,s1,s1,s1")
+                    .KanOpened("p4,p4,p4,p4").KanOpened("wd,wd,wd,wd").Tsumo("m1"))
             );
     EXPECT_EQ(yaku1.HasYaku(Yaku::kThreeKans), std::make_optional(2));
 
@@ -431,4 +431,35 @@ TEST_F(YakuTest, CompletedThirteenOrphans) {
     auto yaku3 = evaluator.Eval(
             Hand(HandParams("m1,m2,m3,m4,m5,rd,rd,m7,m8,m9,p1,p1,p1").Tsumo("m6")));
     EXPECT_EQ(yaku3.HasYakuman(Yaku::kCompletedThirteenOrphans), false);
+}
+
+TEST_F(YakuTest, NineGates) {
+    auto yaku1 = evaluator.Eval(
+            Hand(HandParams("m1,m1,m1,m2,m2,m3,m4,m5,m6,m7,m8,m9,m9").Tsumo("m9")));
+    EXPECT_EQ(yaku1.HasYakuman(Yaku::kNineGates), true);
+
+    // 純正九蓮宝燈とは複合しない
+    auto yaku2 = evaluator.Eval(
+            Hand(HandParams("m1,m1,m1,m2,m3,m4,m5,m6,m7,m8,m9,m9,m9").Tsumo("m9")));
+    EXPECT_EQ(yaku2.HasYakuman(Yaku::kNineGates), false);
+
+    // 九蓮宝燈とは複合しない
+    auto yaku3 = evaluator.Eval(
+            Hand(HandParams("m1,m2,m3,m4,m5,rd,rd,m7,m8,m9,p1,p1,p1").Tsumo("m6")));
+    EXPECT_EQ(yaku3.HasYakuman(Yaku::kNineGates), false);
+}
+
+TEST_F(YakuTest, PureNineGates) {
+    auto yaku1 = evaluator.Eval(
+            Hand(HandParams("m1,m1,m1,m2,m3,m4,m5,m6,m7,m8,m9,m9,m9").Tsumo("m9")));
+    EXPECT_EQ(yaku1.HasYakuman(Yaku::kPureNineGates), true);
+
+    auto yaku2 = evaluator.Eval(
+            Hand(HandParams("m1,m1,m1,m2,m2,m3,m4,m5,m6,m7,m8,m9,m9").Tsumo("m9")));
+    EXPECT_EQ(yaku2.HasYakuman(Yaku::kPureNineGates), false);
+
+    // 九蓮宝燈とは複合しない
+    auto yaku3 = evaluator.Eval(
+            Hand(HandParams("m1,m2,m3,m4,m5,rd,rd,m7,m8,m9,p1,p1,p1").Tsumo("m6")));
+    EXPECT_EQ(yaku3.HasYakuman(Yaku::kPureNineGates), false);
 }
