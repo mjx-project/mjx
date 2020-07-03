@@ -22,10 +22,10 @@ namespace mj
         static bool Register(
                 const std::vector<TileTypeCount>& blocks,
                 const TileTypeCount& total,
-                win_cache::CacheType& cache) noexcept ;
+                WinningHandCache::CacheType& cache) noexcept ;
         static void Add(TileTypeCount& total, const TileTypeCount& block) noexcept ;
         static void Sub(TileTypeCount& total, const TileTypeCount& block) noexcept ;
-        static void ShowStatus(const win_cache::CacheType& cache) noexcept ;
+        static void ShowStatus(const WinningHandCache::CacheType& cache) noexcept ;
     };
 }  // namespace mj
 

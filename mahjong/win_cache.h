@@ -8,6 +8,7 @@
 #include <string>
 
 #include "types.h"
+#include "abstruct_hand.h"
 
 namespace mj
 {
@@ -15,14 +16,15 @@ namespace mj
     {
     public:
         WinningHandCache();
-        [[nodiscard]] static std::pair<win_cache::AbstructHand, std::vector<TileType>>
-        CreateAbstructHand(const TileTypeCount& count) noexcept ;
         [[nodiscard]] bool Has(const TileTypeCount& closed_hand) const noexcept ;
         [[nodiscard]] bool Has(const std::string& abstruct_hand) const noexcept ;
         [[nodiscard]] std::vector<std::pair<std::vector<TileTypeCount>, std::vector<TileTypeCount>>>
         SetAndHeads(const TileTypeCount& closed_hand) const noexcept ;
+
+        using SplitPattern = std::vector<std::vector<int>>;
+        using CacheType = std::unordered_map<AbstructHand, std::set<SplitPattern>>;
     private:
-        win_cache::CacheType cache_;
+        CacheType cache_;
         void LoadWinCache();
     };
 }  // namespace mj
