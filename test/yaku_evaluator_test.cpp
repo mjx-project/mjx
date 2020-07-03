@@ -376,7 +376,7 @@ TEST_F(YakuTest, AllTerminals) {
                          .Pon("p1,p1,p1").Pon("p9,p9,p9").Tsumo("s1")));
     EXPECT_EQ(yaku1.HasYakuman(Yaku::kAllTerminals), true);
 
-    // 緑一色要素なし
+    // 清老頭要素なし
     auto yaku2 = evaluator.Eval(
             Hand(HandParams("m1,m2,m3,m4,m5,rd,rd,m7,m8,m9,p1,p1,p1").Tsumo("m6")));
     EXPECT_EQ(yaku2.HasYakuman(Yaku::kAllTerminals), false);
@@ -518,4 +518,3 @@ TEST_F(YakuTest, CompletedFourConcealdPons) {
             Hand(HandParams("m1,m2,m3,m4,m5,rd,rd,m7,m8,m9,p1,p1,p1").Tsumo("m6")));
     EXPECT_EQ(yaku3.HasYakuman(Yaku::kCompletedFourConcealedPons), false);
 }
-
