@@ -198,12 +198,6 @@ namespace mj {
 
     using TileTypeCount = std::map<TileType, int>;
 
-    namespace win_cache {
-        using AbstructHand = std::string;
-        using SplitPattern = std::vector<std::vector<int>>;
-        using CacheType = std::unordered_map<AbstructHand, std::set<SplitPattern>>;
-    }
-
 }  // namespace mj
 
 #endif //MAHJONG_TYPES_H

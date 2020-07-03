@@ -6,6 +6,7 @@
 #include <boost/property_tree/json_parser.hpp>
 #include "types.h"
 #include "win_cache.h"
+#include "abstruct_hand.h"
 
 
 namespace mj {
@@ -44,20 +45,20 @@ namespace mj {
     }
 
     bool WinningHandCacheGenerator::Register(
-            const std::vector<TileTypeCount>& blocks, const TileTypeCount& total, win_cache::CacheType& cache) noexcept {
+            const std::vector<TileTypeCount>& blocks, const TileTypeCount& total, WinningHandCache::CacheType& cache) noexcept {
 
         for (const auto& [tile_type, count] : total) {
             if (count > 4) return false;
         }
 
-        auto [abstruct_hand, tile_types] = WinningHandCache::CreateAbstructHand(total);
+        auto [abstruct_hand, tile_types] = CreateAbstructHand(total);
 
         std::map<TileType, int> tile_index;
         for (int i = 0; i < tile_types.size(); ++i) {
             tile_index[tile_types[i]] = i;
         }
 
-        win_cache::SplitPattern pattern;
+        WinningHandCache::SplitPattern pattern;
         for (const TileTypeCount& s : blocks) {
             std::vector<int> set_index;
             for (const auto& [tile_type, count] : s) {
@@ -87,17 +88,17 @@ namespace mj {
         const std::vector<TileTypeCount> sets = CreateSets();
         const std::vector<TileTypeCount> heads = CreateHeads();
 
-        win_cache::CacheType cache;
+        WinningHandCache::CacheType cache;
         cache.reserve(9362);
 
         {
             // 七対子
-            win_cache::SplitPattern pattern;
+            WinningHandCache::SplitPattern pattern;
             for (int i = 0; i < 7; ++i) {
                 pattern.push_back({i, i});
             }
             for (int bit = 0; bit < 1<<6; ++bit) {
-                win_cache::AbstructHand hand = "2";
+                AbstructHand hand = "2";
                 for (int i = 0; i < 6; ++i) {
                     if (bit >> i & 1) hand += ',';
                     hand += '2';
@@ -170,7 +171,7 @@ namespace mj {
         for (const auto& [hand, patterns] : cache) {
             boost::property_tree::ptree patterns_pt;
 
-            for (const win_cache::SplitPattern& pattern : patterns) {
+            for (const WinningHandCache::SplitPattern& pattern : patterns) {
 
                 boost::property_tree::ptree pattern_pt;
 
@@ -199,7 +200,7 @@ namespace mj {
         ShowStatus(cache);
     }
 
-    void WinningHandCacheGenerator::ShowStatus(const win_cache::CacheType& cache) noexcept {
+    void WinningHandCacheGenerator::ShowStatus(const WinningHandCache::CacheType& cache) noexcept {
         std::cerr << "=====統計情報=====" << std::endl;
 
         std::cerr << "abstruct hand kinds: " << cache.size() << std::endl;
