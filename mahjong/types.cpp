@@ -39,6 +39,11 @@ namespace mj
                        type == TileType::kP1 || type == TileType::kP9 ||
                        type == TileType::kS1 || type == TileType::kS9 ||
                        (TileType::kEW <= type && type <= TileType::kRD);
+            case TileSetType::kGreen:
+                return type == TileType::kS2 || type == TileType::kS3 ||
+                       type == TileType::kS4 || type == TileType::kS6 ||
+                       type == TileType::kS8 || type == TileType::kGD;
+
             case TileSetType::kEmpty:
                 return false;
             default:
