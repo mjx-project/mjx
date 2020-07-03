@@ -157,6 +157,9 @@ namespace mj
         if (const std::optional<int> fan = HasThreeKans(hand); fan) {
             score.AddYaku(Yaku::kThreeKans, fan.value());
         }
+        if (const std::optional<int> fan = HasLittleThreeDragons(all_tiles); fan) {
+            score.AddYaku(Yaku::kLittleThreeDragons, fan.value());
+        }
 
         // 手牌の組み合わせ方に依存する役
         const std::map<Yaku,int> best_yaku = MaximizeTotalFan(hand);
@@ -164,7 +167,6 @@ namespace mj
         for (auto& [yaku, fan] : best_yaku) score.AddYaku(yaku, fan);
 
         if (!score.RequireFu()) return score;
-
         // TODO calculate fu;
         return score;
     }
@@ -596,6 +598,17 @@ namespace mj
 
         if (kans < 3) return std::nullopt;
         return 2;
+    }
+
+    std::optional<int> YakuEvaluator::HasLittleThreeDragons(const TileTypeCount& count) noexcept {
+        int pons = 0, heads = 0;
+        for (const TileType tile_type : {TileType::kWD, TileType::kGD, TileType::kRD}) {
+            if (!count.count(tile_type)) return std::nullopt;
+            if (count.at(tile_type) >= 3) ++pons;
+            else if (count.at(tile_type) == 2) ++heads;
+        }
+        if (pons == 2 and heads == 1) return 2;
+        return std::nullopt;
     }
 
     bool YakuEvaluator::HasBigThreeDragons(const TileTypeCount& count) noexcept {

@@ -232,6 +232,17 @@ TEST_F(YakuTest, AllPons) {
     EXPECT_EQ(yaku4.HasYaku(Yaku::kAllPons), std::nullopt);
 }
 
+TEST_F(YakuTest, LittleThreeDragons) {
+    auto yaku1 = evaluator.Eval(
+            Hand(HandParams("m1,m1,m5,m5,m5,wd,wd").KanClosed("gd,gd,gd,gd").Pon("rd,rd,rd").Tsumo("m1")));
+    EXPECT_EQ(yaku1.HasYaku(Yaku::kLittleThreeDragons), std::make_optional(2));
+
+    // 小三元要素なし
+    auto yaku2 = evaluator.Eval(
+            Hand(HandParams("m1,m2,m3,m4,m5,rd,rd,m7,m8,m9,p1,p1,p1").Tsumo("m6")));
+    EXPECT_EQ(yaku2.HasYaku(Yaku::kLittleThreeDragons), std::nullopt);
+}
+
 TEST_F(YakuTest, PureStraight) {
     auto yaku1 = evaluator.Eval(
             Hand(HandParams("m1,m2,m3,m4,m5,m6,m7,m8,m9,ew,ew,rd,rd").Tsumo("ew")));

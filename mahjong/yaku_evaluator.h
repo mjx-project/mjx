@@ -45,6 +45,8 @@ namespace mj
         [[nodiscard]] static std::optional<int> HasHalfFlush(const Hand& hand, const TileTypeCount& count) noexcept ;
         [[nodiscard]] static std::optional<int> HasFullFlush(const Hand& hand, const TileTypeCount& count) noexcept ;
         [[nodiscard]] static std::optional<int> HasThreeKans(const Hand& hand) noexcept ;
+        [[nodiscard]] static std::optional<int> HasLittleThreeDragons(const TileTypeCount& count) noexcept ;
+
         [[nodiscard]] static std::optional<int> HasPinfu(
                 const Hand &hand,
                 const std::vector<TileTypeCount>& closed_sets,
