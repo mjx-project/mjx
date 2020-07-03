@@ -21,6 +21,10 @@ namespace mj
     void State::InitRound() {
         auto dealer = AbsolutePos(score_.round % 4);
         state_in_round_ = StateInRound(dealer, GenerateRoundSeed());
+
+        for (int i = 0; i < 4; ++i) {
+            action_requests_.at(i).set_who(i);
+        }
     }
 
     std::uint32_t State::GenerateRoundSeed() {
@@ -57,9 +61,29 @@ namespace mj
         for (const auto& tile: drawer_hand.PossibleDiscards()) {
             discard_candidates->Add(tile.Id());
         }
+        assert(discard_candidates->size() <= 14);
         possible_actions->Add(std::move(possible_action));
         // TODO(sotetsuk): set kan_added, kan_closed and riichi
         state_in_round_.stage = InRoundStateStage::kAfterDraw;
         return drawer;
+    }
+
+    void State::UpdateStateByAction(const Action &action) {
+        auto &curr_hand = state_in_round_.hands.at(static_cast<int>(action.who()));
+        switch (action.type()) {
+            case ActionType::kDiscard:
+                curr_hand.Discard(action.discard());
+                state_in_round_.stage = InRoundStateStage::kAfterDiscards;
+                state_in_round_.drawer = AbsolutePos((static_cast<int>(action.who()) + 1) % 4);
+                break;
+            default:
+                static_assert(true, "Not implemented error.");
+        }
+    }
+
+    std::unique_ptr<Observation> State::NewObservation(AbsolutePos pos) {
+        auto& request = action_requests_[static_cast<int>(pos)];
+        assert(request.who() == static_cast<int>(pos));
+        return std::make_unique<Observation>(request, common_observation_.get());
     }
 }  // namespace mj

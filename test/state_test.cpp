@@ -1,5 +1,6 @@
 #include "gtest/gtest.h"
 #include "state.h"
+#include "agent_client_mock.h"
 
 using namespace mj;
 
@@ -24,4 +25,22 @@ TEST(state, UpdateStateByDraw) {
     EXPECT_EQ(state.Stage(), InRoundStateStage::kAfterDraw);
 
     // TODO(sotetsuk): add test for different round and turn
+}
+
+TEST(state, UpdateStateByAction) {
+    // すべてツモとランダムに切るだけでエラーを吐かないか（鳴きなし）
+    auto state = State(9999);
+    std::unique_ptr<AgentClient> agent = std::make_unique<AgentClientMock>();
+    state.InitRound();
+    const auto &hands = state.GetHands();
+    for (int i = 0; i < 50; ++i) {
+        auto drawer = state.UpdateStateByDraw();
+        EXPECT_EQ(drawer, AbsolutePos(i%4));
+        const auto &hand = hands.at(static_cast<int>(drawer));
+        EXPECT_EQ(hand.Size(), 14);
+        auto observation = state.NewObservation(drawer);
+        auto action = agent->TakeAction(std::move(observation));
+        state.UpdateStateByAction(action);
+        EXPECT_EQ(hand.Size(), 13);
+    }
 }
