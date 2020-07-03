@@ -17,8 +17,16 @@ namespace mj
         [[nodiscard]] WinningScore Eval(const Hand& hand) const noexcept ;
 
     private:
-        static TileTypeCount ClosedHandTiles(const Hand& hand) noexcept ;
-        static TileTypeCount ClosedAndOpenedHandTiles(const Hand& hand) noexcept ;
+        static void JudgeYakuman(
+                const Hand& hand,
+                const TileTypeCount& all_tiles,
+                WinningScore& score) noexcept ;
+
+        static void JudgeSimpleYaku(
+                const Hand& hand,
+                const TileTypeCount& all_tiles,
+                WinningScore& score) noexcept ;
+
         static int TotalFan(const std::map<Yaku,int>& yaku) noexcept ;
         [[nodiscard]] std::map<Yaku,int> MaximizeTotalFan(const Hand& hand) const noexcept ;
 

@@ -51,6 +51,8 @@ namespace mj
         std::array<std::uint8_t, 34> ToArrayOpened();
         [[nodiscard]] std::vector<const Open*> Opens() const;  // TODO(sotetsuk): Should we avoid raw pointer?
         [[nodiscard]] std::string ToString(bool verbose = false) const;
+        [[nodiscard]] TileTypeCount ClosedHandTiles() const noexcept ;
+        [[nodiscard]] TileTypeCount ClosedAndOpenedHandTiles() const noexcept ;
 
         // action validators
         std::vector<Tile> PossibleDiscards();  // TODO(sotetsuk): Current implementation has the tiles with same type (e.g., 2m x 3). What is the Tenhou's implementation? Only first id? or any id?
