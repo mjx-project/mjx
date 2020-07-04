@@ -10,7 +10,7 @@ namespace mj
             if (possible_action.type() == ActionType::kDiscard) {
                 // random action
                 const auto &discard_candidates = possible_action.discard_candidates();
-                auto discard_tile = *select_randomly(discard_candidates.begin(), discard_candidates.end());
+                auto discard_tile = *SelectRandomly(discard_candidates.begin(), discard_candidates.end());
                 response.set_type(static_cast<int>(ActionType::kDiscard));
                 response.set_discard(discard_tile.Id());
                 break;

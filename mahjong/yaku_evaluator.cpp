@@ -606,7 +606,7 @@ namespace mj
     std::optional<int> YakuEvaluator::HasThreeKans(const Hand& hand) noexcept {
         int kans = 0;
         for (const Open* open : hand.Opens()) {
-            if (any_of(open->Type(), {
+            if (Any(open->Type(), {
                     OpenType::kKanOpened, OpenType::kKanAdded, OpenType::kKanClosed})) {
                 ++kans;
             }
@@ -750,7 +750,7 @@ namespace mj
     bool YakuEvaluator::HasFourKans(const Hand& hand) noexcept {
         int kans = 0;
         for (const Open* open : hand.Opens()) {
-            if (any_of(open->Type(), {
+            if (Any(open->Type(), {
                     OpenType::kKanOpened, OpenType::kKanAdded, OpenType::kKanClosed})) {
                 ++kans;
             }
