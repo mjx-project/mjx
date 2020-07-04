@@ -132,7 +132,7 @@ namespace mj
                stage_ == HandStage::kAfterKanClosed ||
                stage_ == HandStage::kAfterKanAdded);
         assert(SizeClosed() == 1 || SizeClosed() == 4 || SizeClosed() == 7 || SizeClosed() == 10 || SizeClosed() == 13);
-        assert(!any_of(tile, ToVector()));
+        assert(!Any(tile, ToVector()));
         closed_tiles_.insert(tile);
         if (stage_ == HandStage::kAfterDiscards) stage_ = HandStage::kAfterDraw;
         else stage_ = HandStage::kAfterDrawAfterKan;

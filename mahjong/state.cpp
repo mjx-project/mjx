@@ -42,11 +42,11 @@ namespace mj
     }
 
     AbsolutePos State::UpdateStateByDraw() {
-        assert(any_of(state_in_round_.stage,
-                {InRoundStateStage::kAfterDiscards,
-                 InRoundStateStage::kAfterKanClosed,
-                 InRoundStateStage::kAfterKanOpened,
-                 InRoundStateStage::kAfterKanAdded}));
+        assert(Any(state_in_round_.stage,
+                   {InRoundStateStage::kAfterDiscards,
+                    InRoundStateStage::kAfterKanClosed,
+                    InRoundStateStage::kAfterKanOpened,
+                    InRoundStateStage::kAfterKanAdded}));
         assert(state_in_round_.wall.itr_curr_draw != state_in_round_.wall.itr_draw_end);
         auto drawer = state_in_round_.drawer;
         auto &drawer_hand = state_in_round_.hands[static_cast<int>(drawer)];
