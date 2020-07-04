@@ -32,6 +32,12 @@ namespace mj
         static std::mt19937 gen(rd());
         return select_randomly(start, end, gen);
     }
+
+    // From Effective Modern C++
+    template<typename E>
+    constexpr auto ToUType(E enumerator) noexcept {
+        return static_cast<std::underlying_type_t<E>>(enumerator);
+    }
 }
 
 #endif //MAHJONG_UTILS_H
