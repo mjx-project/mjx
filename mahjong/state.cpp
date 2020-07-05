@@ -13,8 +13,11 @@ namespace mj
     }) {}
 
     State::State(std::uint32_t seed)
-    : seed_(seed), score_(), state_in_round_(AbsolutePos::kEast, GenerateRoundSeed())
+    : seed_(seed), score_(), state_in_round_(AbsolutePos::kEast, GenerateRoundSeed()), common_observation_()
     {
+        for (int i = 0; i < 4; ++i) {
+            observations_.at(i) = Observation(AbsolutePos(i), common_observation_);
+        }
         // TODO (sotetsuk): shuffle seats
     }
 
@@ -23,7 +26,7 @@ namespace mj
         state_in_round_ = StateInRound(dealer, GenerateRoundSeed());
 
         for (int i = 0; i < 4; ++i) {
-            action_requests_.at(i).set_who(i);
+            observations_.at(i) = Observation(AbsolutePos(i), common_observation_);
         }
     }
 
@@ -54,7 +57,6 @@ namespace mj
         drawer_hand.Draw(*draw_itr);
         ++draw_itr;
         // set possible actions
-        auto possible_actions = action_requests_.at(static_cast<int>(drawer)).mutable_possible_actions();
         mjproto::ActionRequest_PossibleAction possible_action;
         possible_action.set_type(static_cast<int>(ActionType::kDiscard));
         auto discard_candidates = possible_action.mutable_discard_candidates();
@@ -62,7 +64,7 @@ namespace mj
             discard_candidates->Add(tile.Id());
         }
         assert(discard_candidates->size() <= 14);
-        possible_actions->Add(std::move(possible_action));
+        observations_.at(static_cast<int>(drawer)).add_possible_action(std::make_unique<PossibleAction>(possible_action));
         // TODO(sotetsuk): set kan_added, kan_closed and riichi
         state_in_round_.stage = InRoundStateStage::kAfterDraw;
         return drawer;
@@ -81,9 +83,7 @@ namespace mj
         }
     }
 
-    std::unique_ptr<Observation> State::NewObservation(AbsolutePos pos) {
-        auto& request = action_requests_[static_cast<int>(pos)];
-        assert(request.who() == static_cast<int>(pos));
-        return std::make_unique<Observation>(request, common_observation_.get());
+    Observation & State::observation(AbsolutePos who) {
+        return observations_.at(static_cast<int>(who));
     }
 }  // namespace mj
