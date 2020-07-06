@@ -52,6 +52,7 @@ namespace mj
         Wall wall;
         std::array<River, 4> rivers;
         std::array<Hand, 4> hands;
+        std::unique_ptr<ActionHistory> action_history;
     };
 
     class State
@@ -73,7 +74,7 @@ namespace mj
 
         // accessors
         Observation * mutable_observation(AbsolutePos who);
-        InRoundStateStage Stage() const { return rstate_.stage; }
+        InRoundStateStage Stage() const { return rstate_->stage; }
         AbsolutePos GetDealerPos();
         const Wall &GetWall() const;
         const std::array<Hand, 4> &GetHands() const;
@@ -82,8 +83,7 @@ namespace mj
     private:
         std::uint32_t seed_;
         std::unique_ptr<Score> score_;
-        RoundDependentState rstate_;
-        std::unique_ptr<ActionHistory> action_history_;
+        std::unique_ptr<RoundDependentState> rstate_;
         std::array<std::unique_ptr<Observation>, 4> observations_;
 
         std::uint32_t GenerateRoundSeed();
