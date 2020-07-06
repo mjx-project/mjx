@@ -48,11 +48,6 @@ namespace mj
         action_request_.release_action_history();
     }
 
-    const mjproto::ActionRequest &Observation::action_request() const {
-        assert(action_request_.has_action_history());
-        return action_request_;
-    }
-
     void Observation::add_possible_action(std::unique_ptr<PossibleAction> possible_action) {
         // TDOO (sotetsuk): add assertion. もしtypeがdiscardならすでにあるpossible_actionはdiscardではない
         auto mutable_possible_actions = action_request_.mutable_possible_actions();

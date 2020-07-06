@@ -67,13 +67,13 @@ namespace mj
         [[nodiscard]] std::vector<PossibleAction> possible_actions() const;
         Score score() const;
         std::vector<TakenAction> taken_actions() const;
-        [[nodiscard]] const mjproto::ActionRequest& action_request() const;
         // setter
         void add_possible_action(std::unique_ptr<PossibleAction> possible_action);
 
         void ClearPossibleActions();
         std::string ToString() const;
     private:
+        friend class AgentClient;
         mjproto::ActionRequest action_request_;
     };
 }

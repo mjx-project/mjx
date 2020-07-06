@@ -7,7 +7,7 @@ namespace mj
 
     Action AgentClient::TakeAction(Observation *observation) const {
         assert(stub_ != nullptr);
-        const mjproto::ActionRequest& request = observation->action_request();
+        const mjproto::ActionRequest& request = observation->action_request_;
         mjproto::ActionResponse response;
         grpc::ClientContext context;
         grpc::Status status = stub_->TakeAction(&context, request, &response);
