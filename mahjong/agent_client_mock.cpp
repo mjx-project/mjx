@@ -19,6 +19,7 @@ namespace mj
         response.set_game_id(observation.game_id());
         response.set_who(static_cast<int>(observation.who()));
         observation.ClearPossibleActions();
+        assert(observation.possible_actions().size() == 0);
         auto action = Action(std::move(response));
         return action;
     }

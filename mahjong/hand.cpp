@@ -235,6 +235,8 @@ namespace mj
     }
 
     Tile Hand::Discard(Tile tile) {
+        std::cout << "Discard: " << tile.ToString(true) << std::endl;
+        std::cout << ToString(true) << std::endl;
         assert(stage_ != HandStage::kAfterDiscards);
         assert(stage_ != HandStage::kAfterTsumo && stage_ != HandStage::kAfterTsumoAfterKan &&
                stage_ != HandStage::kAfterRon && stage_ != HandStage::kAfterRonAfterOthersKan);
