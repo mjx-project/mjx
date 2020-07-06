@@ -39,14 +39,10 @@ TEST(state, UpdateStateByAction) {
         auto drawer = state.UpdateStateByDraw();
         EXPECT_EQ(drawer, AbsolutePos(i%4));
         const auto &hand = hands.at(static_cast<int>(drawer));
-        std::cout << static_cast<int>(drawer) << std::endl;
-        std::cout << hand.ToString(true) << std::endl;
         EXPECT_EQ(hand.Size(), 14);
         auto observation = state.mutable_observation(drawer);
         auto action = agent->TakeAction(observation);
-        std::cout << action.discard().ToString(true) << std::endl;
         state.UpdateStateByAction(action);
         EXPECT_EQ(hand.Size(), 13);
-        std::cout << hand.ToString(true) << std::endl;
     }
 }

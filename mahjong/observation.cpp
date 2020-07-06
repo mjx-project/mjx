@@ -38,10 +38,7 @@ namespace mj
     }
 
     void Observation::ClearPossibleActions() {
-        std::cout << action_request_.possible_actions_size() << std::endl;
-        std::cout << "ClearPossibleActions()" << std::endl;
         action_request_.clear_possible_actions();
-        std::cout << action_request_.possible_actions_size() << std::endl;
     }
 
     Observation::Observation(AbsolutePos who, CommonObservation &common_observation) {
