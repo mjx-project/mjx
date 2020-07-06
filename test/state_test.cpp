@@ -8,16 +8,16 @@ TEST(state, InitRound) {
     auto state = State(9999);
 
     // Hands are different after initializations
-    state.InitRound();
+    state.InitRoundDependentState();
     auto hand_str1 = state.GetHands().at(0).ToString();
-    state.InitRound();
+    state.InitRoundDependentState();
     auto hand_str2 = state.GetHands().at(0).ToString();
     EXPECT_NE(hand_str1, hand_str2);
 }
 
 TEST(state, UpdateStateByDraw) {
     auto state = State(9999);
-    state.InitRound();
+    state.InitRoundDependentState();
     auto drawer = state.UpdateStateByDraw();
     const auto &hands = state.GetHands();
     EXPECT_EQ(drawer, AbsolutePos::kEast);
@@ -31,7 +31,7 @@ TEST(state, UpdateStateByAction) {
     // すべてツモとランダムに切るだけでエラーを吐かないか（鳴きなし）
     auto state = State(9999);
     std::unique_ptr<AgentClient> agent = std::make_unique<AgentClientMock>();
-    state.InitRound();
+    state.InitRoundDependentState();
     const auto &hands = state.GetHands();
     for (int i = 0; i < 50; ++i) {
         for (int j = 0; j < 4; ++j)

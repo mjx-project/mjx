@@ -18,7 +18,7 @@ namespace mj
     }
 
     void Environment::RunOneRound() {
-        state_.InitRound();
+        state_.InitRoundDependentState();
         while (!state_.IsRoundOver()) {
             auto drawer = state_.UpdateStateByDraw();
             // discard, riichi_and_discard, tsumo, kan_closed or kan_added. (At the first draw, 9種9牌）

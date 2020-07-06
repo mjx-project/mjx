@@ -42,10 +42,10 @@ namespace mj
         std::vector<Tile>::const_iterator itr_ura_dora_begin;
     };
 
-    struct StateInRound
+    struct RoundDependentState
     {
-        StateInRound() = delete;
-        StateInRound(AbsolutePos dealer, std::uint32_t seed = 9999);
+        RoundDependentState() = delete;
+        RoundDependentState(AbsolutePos dealer, std::uint32_t seed = 9999);
         InRoundStateStage stage;
         AbsolutePos dealer;
         AbsolutePos drawer;
@@ -61,7 +61,7 @@ namespace mj
         bool IsGameOver();
 
         // operate or access in-round state
-        void InitRound();
+        void InitRoundDependentState();
         bool IsRoundOver();
         AbsolutePos UpdateStateByDraw();
         void UpdateStateByAction(const Action& action);
@@ -73,7 +73,7 @@ namespace mj
 
         // accessors
         Observation * mutable_observation(AbsolutePos who);
-        InRoundStateStage Stage() const { return state_in_round_.stage; }
+        InRoundStateStage Stage() const { return rstate_.stage; }
         AbsolutePos GetDealerPos();
         const Wall &GetWall() const;
         const std::array<Hand, 4> &GetHands() const;
@@ -82,7 +82,7 @@ namespace mj
     private:
         std::uint32_t seed_;
         Score score_;
-        StateInRound state_in_round_;
+        RoundDependentState rstate_;
         std::unique_ptr<CommonObservation> common_observation_;
         std::array<std::unique_ptr<Observation>, 4> observations_;
 

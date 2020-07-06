@@ -3,7 +3,7 @@
 
 namespace mj
 {
-    StateInRound::StateInRound(AbsolutePos dealer, std::uint32_t seed)
+    RoundDependentState::RoundDependentState(AbsolutePos dealer, std::uint32_t seed)
     : stage(InRoundStateStage::kAfterDiscards), dealer(dealer), drawer(dealer), wall(seed), rivers(),
     hands({
                  Hand{wall.tiles.cbegin(), wall.tiles.cbegin() + 13},
@@ -13,7 +13,7 @@ namespace mj
     }) {}
 
     State::State(std::uint32_t seed)
-    : seed_(seed), score_(), state_in_round_(AbsolutePos::kEast, GenerateRoundSeed())
+    : seed_(seed), score_(), rstate_(AbsolutePos::kEast, GenerateRoundSeed())
     {
         common_observation_ = std::make_unique<CommonObservation>();
         for (int i = 0; i < 4; ++i) {
@@ -22,9 +22,9 @@ namespace mj
         // TODO (sotetsuk): shuffle seats
     }
 
-    void State::InitRound() {
+    void State::InitRoundDependentState() {
         auto dealer = AbsolutePos(score_.round % 4);
-        state_in_round_ = StateInRound(dealer, GenerateRoundSeed());
+        rstate_ = RoundDependentState(dealer, GenerateRoundSeed());
         common_observation_ = std::make_unique<CommonObservation>();
         for (int i = 0; i < 4; ++i) {
             observations_.at(i) = std::make_unique<Observation>(AbsolutePos(i), common_observation_.get());
@@ -38,23 +38,23 @@ namespace mj
     }
 
     const Wall &State::GetWall() const {
-        return state_in_round_.wall;
+        return rstate_.wall;
     }
 
     const std::array<Hand, 4> &State::GetHands() const {
-        return state_in_round_.hands;
+        return rstate_.hands;
     }
 
     AbsolutePos State::UpdateStateByDraw() {
-        assert(Any(state_in_round_.stage,
+        assert(Any(rstate_.stage,
                    {InRoundStateStage::kAfterDiscards,
                     InRoundStateStage::kAfterKanClosed,
                     InRoundStateStage::kAfterKanOpened,
                     InRoundStateStage::kAfterKanAdded}));
-        assert(state_in_round_.wall.itr_curr_draw != state_in_round_.wall.itr_draw_end);
-        auto drawer = state_in_round_.drawer;
-        auto &drawer_hand = state_in_round_.hands[static_cast<int>(drawer)];
-        auto &draw_itr = state_in_round_.wall.itr_curr_draw;
+        assert(rstate_.wall.itr_curr_draw != rstate_.wall.itr_draw_end);
+        auto drawer = rstate_.drawer;
+        auto &drawer_hand = rstate_.hands[static_cast<int>(drawer)];
+        auto &draw_itr = rstate_.wall.itr_curr_draw;
         drawer_hand.Draw(*draw_itr);
         ++draw_itr;
         // set possible actions
@@ -67,17 +67,17 @@ namespace mj
         assert(discard_candidates->size() <= 14);
         observations_.at(static_cast<int>(drawer))->add_possible_action(std::make_unique<PossibleAction>(possible_action));
         // TODO(sotetsuk): set kan_added, kan_closed and riichi
-        state_in_round_.stage = InRoundStateStage::kAfterDraw;
+        rstate_.stage = InRoundStateStage::kAfterDraw;
         return drawer;
     }
 
     void State::UpdateStateByAction(const Action &action) {
-        auto &curr_hand = state_in_round_.hands.at(static_cast<int>(action.who()));
+        auto &curr_hand = rstate_.hands.at(static_cast<int>(action.who()));
         switch (action.type()) {
             case ActionType::kDiscard:
                 curr_hand.Discard(action.discard());
-                state_in_round_.stage = InRoundStateStage::kAfterDiscards;
-                state_in_round_.drawer = AbsolutePos((static_cast<int>(action.who()) + 1) % 4);
+                rstate_.stage = InRoundStateStage::kAfterDiscards;
+                rstate_.drawer = AbsolutePos((static_cast<int>(action.who()) + 1) % 4);
                 break;
             default:
                 static_assert(true, "Not implemented error.");
