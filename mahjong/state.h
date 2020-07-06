@@ -83,7 +83,7 @@ namespace mj
         std::uint32_t seed_;
         Score score_;
         StateInRound state_in_round_;
-        CommonObservation common_observation_;
+        std::unique_ptr<CommonObservation> common_observation_;
         std::array<std::unique_ptr<Observation>, 4> observations_;
 
         std::uint32_t GenerateRoundSeed();

@@ -13,10 +13,11 @@ namespace mj
     }) {}
 
     State::State(std::uint32_t seed)
-    : seed_(seed), score_(), state_in_round_(AbsolutePos::kEast, GenerateRoundSeed()), common_observation_()
+    : seed_(seed), score_(), state_in_round_(AbsolutePos::kEast, GenerateRoundSeed())
     {
+        common_observation_ = std::make_unique<CommonObservation>();
         for (int i = 0; i < 4; ++i) {
-            observations_.at(i) = std::make_unique<Observation>(AbsolutePos(i), common_observation_);
+            observations_.at(i) = std::make_unique<Observation>(AbsolutePos(i), common_observation_.get());
         }
         // TODO (sotetsuk): shuffle seats
     }
@@ -24,9 +25,9 @@ namespace mj
     void State::InitRound() {
         auto dealer = AbsolutePos(score_.round % 4);
         state_in_round_ = StateInRound(dealer, GenerateRoundSeed());
-
+        common_observation_ = std::make_unique<CommonObservation>();
         for (int i = 0; i < 4; ++i) {
-            observations_.at(i) = std::make_unique<Observation>(AbsolutePos(i), common_observation_);
+            observations_.at(i) = std::make_unique<Observation>(AbsolutePos(i), common_observation_.get());
         }
     }
 

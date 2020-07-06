@@ -59,7 +59,7 @@ namespace mj
     {
     public:
         Observation() = default;
-        explicit Observation(AbsolutePos who, CommonObservation& common_observation);
+        explicit Observation(AbsolutePos who, CommonObservation *common_observation);
         ~Observation();
         // getter
         std::uint32_t game_id() const;

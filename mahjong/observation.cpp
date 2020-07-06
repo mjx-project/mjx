@@ -41,8 +41,8 @@ namespace mj
         action_request_.clear_possible_actions();
     }
 
-    Observation::Observation(AbsolutePos who, CommonObservation &common_observation) {
-        action_request_.set_allocated_common_observation(&common_observation.common_observation_);
+    Observation::Observation(AbsolutePos who, CommonObservation *common_observation) {
+        action_request_.set_allocated_common_observation(&(common_observation->common_observation_));
         action_request_.set_who(static_cast<int>(who));
     }
 
