@@ -50,7 +50,7 @@ namespace mj
                     InRoundStateStage::kAfterKanAdded}));
         assert(rstate_->wall->itr_curr_draw != rstate_->wall->itr_draw_end);
         auto drawer = rstate_->drawer;
-        auto &drawer_hand = rstate_->hands[static_cast<int>(drawer)];
+        auto drawer_hand = mutable_hand(drawer);
         auto &draw_itr = rstate_->wall->itr_curr_draw;
         drawer_hand->Draw(*draw_itr);
         ++draw_itr;
@@ -69,7 +69,7 @@ namespace mj
     }
 
     void State::UpdateStateByAction(const Action &action) {
-        auto &curr_hand = rstate_->hands.at(static_cast<int>(action.who()));
+        auto curr_hand = mutable_hand(action.who());
         switch (action.type()) {
             case ActionType::kDiscard:
                 curr_hand->Discard(action.discard());
@@ -97,5 +97,13 @@ namespace mj
 
     InRoundStateStage State::stage() const {
         return rstate_->stage;
+    }
+
+    const Observation *State::observation(AbsolutePos who) const {
+        return observations_.at(ToUType(who)).get();
+    }
+
+    Hand *State::mutable_hand(AbsolutePos pos) {
+        return rstate_->hands.at(ToUType(pos)).get();
     }
 }  // namespace mj
