@@ -81,9 +81,9 @@ namespace mj
         std::string ToMjlog() const;
     private:
         std::uint32_t seed_;
-        Score score_;
+        std::unique_ptr<Score> score_;
         RoundDependentState rstate_;
-        std::unique_ptr<CommonObservation> common_observation_;
+        std::unique_ptr<ActionHistory> action_history_;
         std::array<std::unique_ptr<Observation>, 4> observations_;
 
         std::uint32_t GenerateRoundSeed();

@@ -3,7 +3,7 @@
 
 namespace mj
 {
-    PossibleAction::PossibleAction(mjproto::ActionRequest_PossibleAction possible_action)
+    PossibleAction::PossibleAction(mjproto::PossibleAction possible_action)
     : possible_action_(std::move(possible_action)) {}
 
     ActionType PossibleAction::type() const {
@@ -21,7 +21,7 @@ namespace mj
     }
 
     std::vector<PossibleAction> Observation::possible_actions() const {
-        assert(action_request_.has_common_observation());
+        assert(action_request_.has_action_history());
         std::vector<PossibleAction> ret;
         for (const auto& possible_action: action_request_.possible_actions()) {
             ret.emplace_back(PossibleAction{possible_action});
@@ -41,19 +41,15 @@ namespace mj
         action_request_.clear_possible_actions();
     }
 
-    Observation::Observation(AbsolutePos who, CommonObservation *common_observation) {
-        action_request_.set_allocated_common_observation(&(common_observation->common_observation_));
-        action_request_.set_who(static_cast<int>(who));
-    }
-
     Observation::~Observation() {
-        // Calling release_common_observation prevent gRPC from deleting common_observation object
-        assert(action_request_.has_common_observation());
-        action_request_.release_common_observation();
+        // Calling release_xxx prevent gRPC from deleting objects after gRPC communication
+        assert(action_request_.has_action_history());
+        action_request_.release_score();
+        action_request_.release_action_history();
     }
 
     const mjproto::ActionRequest &Observation::action_request() const {
-        assert(action_request_.has_common_observation());
+        assert(action_request_.has_action_history());
         return action_request_;
     }
 
@@ -61,5 +57,11 @@ namespace mj
         // TDOO (sotetsuk): add assertion. もしtypeがdiscardならすでにあるpossible_actionはdiscardではない
         auto mutable_possible_actions = action_request_.mutable_possible_actions();
         mutable_possible_actions->Add(std::move(possible_action->possible_action_));
+    }
+
+    Observation::Observation(AbsolutePos who, Score *score, ActionHistory *action_history) {
+        action_request_.set_who(static_cast<int>(who));
+        action_request_.set_allocated_score(score->score_.get());
+        action_request_.set_allocated_action_history(action_history->action_history_.get());
     }
 }

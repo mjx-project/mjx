@@ -13,21 +13,22 @@ namespace mj
     }) {}
 
     State::State(std::uint32_t seed)
-    : seed_(seed), score_(), rstate_(AbsolutePos::kEast, GenerateRoundSeed())
+    : seed_(seed), rstate_(AbsolutePos::kEast, GenerateRoundSeed())
     {
-        common_observation_ = std::make_unique<CommonObservation>();
+        score_ = std::make_unique<Score>();
+        action_history_ = std::make_unique<ActionHistory>();
         for (int i = 0; i < 4; ++i) {
-            observations_.at(i) = std::make_unique<Observation>(AbsolutePos(i), common_observation_.get());
+            observations_.at(i) = std::make_unique<Observation>(AbsolutePos(i), score_.get(), action_history_.get());
         }
         // TODO (sotetsuk): shuffle seats
     }
 
     void State::InitRoundDependentState() {
-        auto dealer = AbsolutePos(score_.round % 4);
+        auto dealer = AbsolutePos(score_->round % 4);
         rstate_ = RoundDependentState(dealer, GenerateRoundSeed());
-        common_observation_ = std::make_unique<CommonObservation>();
+        action_history_ = std::make_unique<ActionHistory>();
         for (int i = 0; i < 4; ++i) {
-            observations_.at(i) = std::make_unique<Observation>(AbsolutePos(i), common_observation_.get());
+            observations_.at(i) = std::make_unique<Observation>(AbsolutePos(i), score_.get(), action_history_.get());
         }
     }
 
@@ -58,7 +59,7 @@ namespace mj
         drawer_hand.Draw(*draw_itr);
         ++draw_itr;
         // set possible actions
-        mjproto::ActionRequest_PossibleAction possible_action;
+        mjproto::PossibleAction possible_action;
         possible_action.set_type(static_cast<int>(ActionType::kDiscard));
         auto discard_candidates = possible_action.mutable_discard_candidates();
         for (const auto& tile: drawer_hand.PossibleDiscards()) {

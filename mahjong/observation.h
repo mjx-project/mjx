@@ -10,13 +10,17 @@
 
 namespace mj
 {
-    struct Score
+    class Score
     {
+    public:
         Score(): round(0), honba(0), riichi(0), ten({250, 250, 250, 250}) {}
         std::uint8_t round;  // 局
         std::uint8_t honba;  // 本場
         std::uint8_t riichi;  // リー棒
         std::array<std::int16_t, 4> ten;  // 点 250 start
+    private:
+        friend class Observation;
+        std::unique_ptr<mjproto::Score> score_ = std::make_unique<mjproto::Score>();
     };
 
     struct TakenAction {
@@ -31,35 +35,29 @@ namespace mj
     class PossibleAction
     {
     public:
-        explicit PossibleAction(mjproto::ActionRequest_PossibleAction possible_action);
+        explicit PossibleAction(mjproto::PossibleAction possible_action);
         ActionType type() const;
         std::unique_ptr<Open> open() const;
         std::vector<Tile> discard_candidates() const;
     private:
         friend class Observation;
-        mjproto::ActionRequest_PossibleAction possible_action_;
+        mjproto::PossibleAction possible_action_;
     };
 
-    class CommonObservation
+    class ActionHistory
     {
     public:
-        CommonObservation() = default;
-        // getter
-        Score score();
-        std::vector<TakenAction> taken_actions();
-        // setter
-        void set_score(const Score &score);
-        void add_taken_action(const TakenAction &taken_action);
+        ActionHistory() = default;
     private:
         friend class Observation;
-        mjproto::ActionRequest_CommonObservation common_observation_;
+        std::unique_ptr<mjproto::ActionHistory> action_history_ = std::make_unique<mjproto::ActionHistory>();
     };
 
     class Observation
     {
     public:
         Observation() = default;
-        explicit Observation(AbsolutePos who, CommonObservation *common_observation);
+        Observation(AbsolutePos who, Score* score, ActionHistory* action_history);
         ~Observation();
         // getter
         std::uint32_t game_id() const;

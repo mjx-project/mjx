@@ -7,6 +7,7 @@ using namespace mj;
 TEST(agent_client_mock, TakeAction) {
     // random discard
     auto state = State(9999);
+    state.InitRoundDependentState();
     std::unique_ptr<AgentClient> agent = std::make_unique<AgentClientMock>();
     auto drawer = state.UpdateStateByDraw();
     auto observation = state.mutable_observation(drawer);
