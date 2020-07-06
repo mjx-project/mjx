@@ -22,7 +22,7 @@ TEST(state, UpdateStateByDraw) {
     auto hands = state.hands();
     EXPECT_EQ(drawer, AbsolutePos::kEast);
     EXPECT_EQ(hands.at(static_cast<int>(drawer))->Size(), 14);
-    EXPECT_EQ(state.Stage(), InRoundStateStage::kAfterDraw);
+    EXPECT_EQ(state.stage(), InRoundStateStage::kAfterDraw);
 
     // TODO(sotetsuk): add test for different round and turn
 }

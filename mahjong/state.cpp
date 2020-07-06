@@ -94,4 +94,8 @@ namespace mj
         for (int i = 0; i < 4; ++i) ret.at(i) = hand(AbsolutePos(i));
         return ret;
     }
+
+    InRoundStateStage State::stage() const {
+        return rstate_->stage;
+    }
 }  // namespace mj

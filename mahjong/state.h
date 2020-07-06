@@ -74,10 +74,9 @@ namespace mj
 
         // accessors
         Observation * mutable_observation(AbsolutePos who);
-        InRoundStateStage Stage() const { return rstate_->stage; }
-        AbsolutePos GetDealerPos();
-        const Wall *wall() const;
-        const Hand *hand(AbsolutePos pos) const;
+        [[nodiscard]] InRoundStateStage stage() const;
+        [[nodiscard]] const Wall *wall() const;
+        [[nodiscard]] const Hand *hand(AbsolutePos pos) const;
         std::array<const Hand*, 4> hands() const;
 
         std::string ToMjlog() const;
