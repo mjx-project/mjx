@@ -72,7 +72,7 @@ namespace mj
         Tile DrawRinshan();
 
         // accessors
-        Observation & observation(AbsolutePos who);
+        Observation * mutable_observation(AbsolutePos who);
         InRoundStateStage Stage() const { return state_in_round_.stage; }
         AbsolutePos GetDealerPos();
         const Wall &GetWall() const;
@@ -84,7 +84,7 @@ namespace mj
         Score score_;
         StateInRound state_in_round_;
         CommonObservation common_observation_;
-        std::array<Observation, 4> observations_;
+        std::array<std::unique_ptr<Observation>, 4> observations_;
 
         std::uint32_t GenerateRoundSeed();
     };

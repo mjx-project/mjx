@@ -16,7 +16,7 @@ namespace mj
     : seed_(seed), score_(), state_in_round_(AbsolutePos::kEast, GenerateRoundSeed()), common_observation_()
     {
         for (int i = 0; i < 4; ++i) {
-            observations_.at(i) = Observation(AbsolutePos(i), common_observation_);
+            observations_.at(i) = std::make_unique<Observation>(AbsolutePos(i), common_observation_);
         }
         // TODO (sotetsuk): shuffle seats
     }
@@ -26,7 +26,7 @@ namespace mj
         state_in_round_ = StateInRound(dealer, GenerateRoundSeed());
 
         for (int i = 0; i < 4; ++i) {
-            observations_.at(i) = Observation(AbsolutePos(i), common_observation_);
+            observations_.at(i) = std::make_unique<Observation>(AbsolutePos(i), common_observation_);
         }
     }
 
@@ -64,7 +64,7 @@ namespace mj
             discard_candidates->Add(tile.Id());
         }
         assert(discard_candidates->size() <= 14);
-        observations_.at(static_cast<int>(drawer)).add_possible_action(std::make_unique<PossibleAction>(possible_action));
+        observations_.at(static_cast<int>(drawer))->add_possible_action(std::make_unique<PossibleAction>(possible_action));
         // TODO(sotetsuk): set kan_added, kan_closed and riichi
         state_in_round_.stage = InRoundStateStage::kAfterDraw;
         return drawer;
@@ -83,7 +83,7 @@ namespace mj
         }
     }
 
-    Observation & State::observation(AbsolutePos who) {
-        return observations_.at(static_cast<int>(who));
+    Observation * State::mutable_observation(AbsolutePos who) {
+        return observations_.at(static_cast<int>(who)).get();
     }
 }  // namespace mj
