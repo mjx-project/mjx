@@ -1,4 +1,5 @@
 #include "environment.h"
+#include "algorithm"
 
 namespace mj
 {
@@ -21,14 +22,15 @@ namespace mj
         while (!state_.IsRoundOver()) {
             auto drawer = state_.UpdateStateByDraw();
             // discard, riichi_and_discard, tsumo, kan_closed or kan_added. (At the first draw, 9種9牌）
-            auto action = agents_[static_cast<int>(drawer)].TakeAction(state_.NewObservation(drawer));
+            auto action = agents_[static_cast<int>(drawer)].TakeAction(state_.mutable_observation(drawer));
             state_.UpdateStateByAction(action);
+            // TODO(sotetsuk): assert that possbile_actions are empty
             if (auto winners = RonCheck(); winners) {
                 std::vector<Action> action_candidates;
                 for (AbsolutePos winner: winners.value()) {
                     // only ron
                     action_candidates.emplace_back(agents_[static_cast<int>(winner)].TakeAction(
-                            state_.NewObservation(winner)));
+                            state_.mutable_observation(winner)));
                 }
                 state_.UpdateStateByActionCandidates(action_candidates);
             }
@@ -38,7 +40,7 @@ namespace mj
                 for (AbsolutePos stealer: stealers.value()) {
                     // chi, pon and kan_opened
                     action_candidates.emplace_back(agents_[static_cast<int>(stealer)].TakeAction(
-                            state_.NewObservation(stealer)));
+                            state_.mutable_observation(stealer)));
                 }
                 state_.UpdateStateByActionCandidates(action_candidates);
             }

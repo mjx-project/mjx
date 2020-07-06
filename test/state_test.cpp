@@ -34,12 +34,14 @@ TEST(state, UpdateStateByAction) {
     state.InitRound();
     const auto &hands = state.GetHands();
     for (int i = 0; i < 50; ++i) {
+        for (int j = 0; j < 4; ++j)
+            EXPECT_EQ(state.mutable_observation(AbsolutePos(j))->possible_actions().size(), 0);
         auto drawer = state.UpdateStateByDraw();
         EXPECT_EQ(drawer, AbsolutePos(i%4));
         const auto &hand = hands.at(static_cast<int>(drawer));
         EXPECT_EQ(hand.Size(), 14);
-        auto observation = state.NewObservation(drawer);
-        auto action = agent->TakeAction(std::move(observation));
+        auto observation = state.mutable_observation(drawer);
+        auto action = agent->TakeAction(observation);
         state.UpdateStateByAction(action);
         EXPECT_EQ(hand.Size(), 13);
     }

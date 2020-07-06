@@ -72,22 +72,19 @@ namespace mj
         Tile DrawRinshan();
 
         // accessors
+        Observation * mutable_observation(AbsolutePos who);
         InRoundStateStage Stage() const { return state_in_round_.stage; }
         AbsolutePos GetDealerPos();
         const Wall &GetWall() const;
         const std::array<Hand, 4> &GetHands() const;
 
-        // This method cannot be const because it moves the ownership of CommonObservation to each ActionRequest
-        // One way to make this method const is to create new ActionRequest and use CopyFrom instead of set_allocated_common_observation
-        std::unique_ptr<Observation> NewObservation(AbsolutePos pos);
         std::string ToMjlog() const;
     private:
         std::uint32_t seed_;
         Score score_;
         StateInRound state_in_round_;
-        // gRPC
-        std::unique_ptr<mjproto::ActionRequest_CommonObservation> common_observation_ = std::make_unique<mjproto::ActionRequest_CommonObservation>();
-        std::array<mjproto::ActionRequest, 4> action_requests_;
+        std::unique_ptr<CommonObservation> common_observation_;
+        std::array<std::unique_ptr<Observation>, 4> observations_;
 
         std::uint32_t GenerateRoundSeed();
     };

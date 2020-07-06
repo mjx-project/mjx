@@ -14,7 +14,7 @@ namespace mj
         AgentClient() = default;
         explicit AgentClient(std::shared_ptr<grpc::Channel> channel);
         virtual ~AgentClient() = default;
-        [[nodiscard]] virtual Action TakeAction(std::unique_ptr<Observation> observation) const;
+        [[nodiscard]] virtual Action TakeAction(Observation *observation) const;
     private:
         std::unique_ptr<mjproto::Agent::Stub> stub_;
     };

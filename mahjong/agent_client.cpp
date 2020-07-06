@@ -5,7 +5,7 @@ namespace mj
     AgentClient::AgentClient(std::shared_ptr<grpc::Channel> channel)
             : stub_(mjproto::Agent::NewStub(channel)) {}
 
-    Action AgentClient::TakeAction(std::unique_ptr<Observation> observation) const {
+    Action AgentClient::TakeAction(Observation *observation) const {
         assert(stub_ != nullptr);
         const mjproto::ActionRequest& request = observation->action_request();
         mjproto::ActionResponse response;
@@ -26,26 +26,26 @@ namespace mj
 //     );
 //
 //     // Common observation over 4 players
-//     auto common_observation = std::make_unique<mj::ActionRequest_CommonObservation>();
+//     auto common_observation = std::make_unique<mjproto::ActionRequest_CommonObservation>();
+//     auto request1 = mjproto::ActionRequest();
+//     request1.set_who(1);
+//     auto obs1 = std::make_unique<mj::Observation>(request1, common_observation.get());
+//     auto request2 = mjproto::ActionRequest();
+//     request2.set_who(2);
+//     auto obs2 = std::make_unique<mj::Observation>(request2, common_observation.get());
 //
 //     // action1 happens
-//     auto taken_action1 = mj::ActionRequest_CommonObservation_TakenAction();
+//     auto taken_action1 = mjproto::ActionRequest_CommonObservation_TakenAction();
 //     common_observation->mutable_taken_actions()->Add(std::move(taken_action1));
 //
 //     // take first action
-//     auto request1 = mj::ActionRequest();
-//     request1.set_who(1);
-//     auto obs1 = std::make_unique<mj::Observation>(request1, common_observation.get());
 //     auto action = agent.TakeAction(std::move(obs1));
 //
 //     // action2 happens
-//     auto taken_action2 = mj::ActionRequest_CommonObservation_TakenAction();
+//     auto taken_action2 = mjproto::ActionRequest_CommonObservation_TakenAction();
 //     common_observation->mutable_taken_actions()->Add(std::move(taken_action2));
 //
 //     // take second action
-//     auto request2 = mj::ActionRequest();
-//     request2.set_who(2);
-//     auto obs2 = std::make_unique<mj::Observation>(request2, common_observation.get());
 //     action = agent.TakeAction(std::move(obs2));
 //
 //     std::cout << "  type: " << action.action_response().type() << std::endl;

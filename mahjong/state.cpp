@@ -15,15 +15,19 @@ namespace mj
     State::State(std::uint32_t seed)
     : seed_(seed), score_(), state_in_round_(AbsolutePos::kEast, GenerateRoundSeed())
     {
+        common_observation_ = std::make_unique<CommonObservation>();
+        for (int i = 0; i < 4; ++i) {
+            observations_.at(i) = std::make_unique<Observation>(AbsolutePos(i), common_observation_.get());
+        }
         // TODO (sotetsuk): shuffle seats
     }
 
     void State::InitRound() {
         auto dealer = AbsolutePos(score_.round % 4);
         state_in_round_ = StateInRound(dealer, GenerateRoundSeed());
-
+        common_observation_ = std::make_unique<CommonObservation>();
         for (int i = 0; i < 4; ++i) {
-            action_requests_.at(i).set_who(i);
+            observations_.at(i) = std::make_unique<Observation>(AbsolutePos(i), common_observation_.get());
         }
     }
 
@@ -54,7 +58,6 @@ namespace mj
         drawer_hand.Draw(*draw_itr);
         ++draw_itr;
         // set possible actions
-        auto possible_actions = action_requests_.at(static_cast<int>(drawer)).mutable_possible_actions();
         mjproto::ActionRequest_PossibleAction possible_action;
         possible_action.set_type(static_cast<int>(ActionType::kDiscard));
         auto discard_candidates = possible_action.mutable_discard_candidates();
@@ -62,7 +65,7 @@ namespace mj
             discard_candidates->Add(tile.Id());
         }
         assert(discard_candidates->size() <= 14);
-        possible_actions->Add(std::move(possible_action));
+        observations_.at(static_cast<int>(drawer))->add_possible_action(std::make_unique<PossibleAction>(possible_action));
         // TODO(sotetsuk): set kan_added, kan_closed and riichi
         state_in_round_.stage = InRoundStateStage::kAfterDraw;
         return drawer;
@@ -81,9 +84,7 @@ namespace mj
         }
     }
 
-    std::unique_ptr<Observation> State::NewObservation(AbsolutePos pos) {
-        auto& request = action_requests_[static_cast<int>(pos)];
-        assert(request.who() == static_cast<int>(pos));
-        return std::make_unique<Observation>(request, common_observation_.get());
+    Observation * State::mutable_observation(AbsolutePos who) {
+        return observations_.at(static_cast<int>(who)).get();
     }
 }  // namespace mj
