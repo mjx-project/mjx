@@ -49,9 +49,9 @@ namespace mj
         InRoundStateStage stage;
         AbsolutePos dealer;
         AbsolutePos drawer;
-        Wall wall;
-        std::array<River, 4> rivers;
-        std::array<Hand, 4> hands;
+        std::unique_ptr<Wall> wall;
+        std::array<std::unique_ptr<River>, 4> rivers;
+        std::array<std::unique_ptr<Hand>, 4> hands;
         std::unique_ptr<ActionHistory> action_history;
     };
 
@@ -76,8 +76,9 @@ namespace mj
         Observation * mutable_observation(AbsolutePos who);
         InRoundStateStage Stage() const { return rstate_->stage; }
         AbsolutePos GetDealerPos();
-        const Wall &GetWall() const;
-        const std::array<Hand, 4> &GetHands() const;
+        const Wall *wall() const;
+        const Hand *hand(AbsolutePos pos) const;
+        std::array<const Hand*, 4> hands() const;
 
         std::string ToMjlog() const;
     private:
