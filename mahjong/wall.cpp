@@ -1,3 +1,4 @@
+#include <cassert>
 #include <array>
 #include "wall.h"
 
