@@ -21,10 +21,10 @@ namespace mj
                 std::make_unique<River>()
         };
         hands_ = {
-                std::make_unique<Hand>(wall_->tiles.cbegin(), wall_->tiles.cbegin() + 13),
-                std::make_unique<Hand>(wall_->tiles.cbegin() + 13, wall_->tiles.cbegin() + 26),
-                std::make_unique<Hand>(wall_->tiles.cbegin() + 26, wall_->tiles.cbegin() + 39),
-                std::make_unique<Hand>(wall_->tiles.cbegin() + 39, wall_->tiles.cbegin() + 52)
+                std::make_unique<Hand>(wall_->tiles->cbegin(), wall_->tiles->cbegin() + 13),
+                std::make_unique<Hand>(wall_->tiles->cbegin() + 13, wall_->tiles->cbegin() + 26),
+                std::make_unique<Hand>(wall_->tiles->cbegin() + 26, wall_->tiles->cbegin() + 39),
+                std::make_unique<Hand>(wall_->tiles->cbegin() + 39, wall_->tiles->cbegin() + 52)
         };
         action_history_ = std::make_unique<ActionHistory>();
         for (int i = 0; i < 4; ++i) {
