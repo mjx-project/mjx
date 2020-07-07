@@ -78,7 +78,7 @@ namespace mj
         std::string ToString() const;
     private:
         friend class AgentClient;
-        mjproto::ActionRequest action_request_;
+        std::unique_ptr<mjproto::ActionRequest> action_request_ = std::make_unique<mjproto::ActionRequest>();
     };
 }
 
