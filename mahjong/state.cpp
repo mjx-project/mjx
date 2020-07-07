@@ -21,12 +21,7 @@ namespace mj
                 std::make_unique<River>(),
                 std::make_unique<River>()
         };
-        hands_ = {
-                std::make_unique<Hand>(wall_->tiles->cbegin(), wall_->tiles->cbegin() + 13),
-                std::make_unique<Hand>(wall_->tiles->cbegin() + 13, wall_->tiles->cbegin() + 26),
-                std::make_unique<Hand>(wall_->tiles->cbegin() + 26, wall_->tiles->cbegin() + 39),
-                std::make_unique<Hand>(wall_->tiles->cbegin() + 39, wall_->tiles->cbegin() + 52)
-        };
+        hands_ = wall_->initial_hands();
         action_history_ = std::make_unique<ActionHistory>();
         for (int i = 0; i < 4; ++i) {
             observations_.at(i) = std::make_unique<Observation>(AbsolutePos(i), score_.get(), action_history_.get());
@@ -51,10 +46,7 @@ namespace mj
                     RoundStage::kAfterKanClosed,
                     RoundStage::kAfterKanOpened,
                     RoundStage::kAfterKanAdded}));
-        assert(wall_->itr_curr_draw != wall_->itr_draw_end);
-        auto &draw_itr = wall_->itr_curr_draw;
-        mutable_hand(drawer_)->Draw(*draw_itr);
-        ++draw_itr;
+        mutable_hand(drawer_)->Draw(wall_->Draw());
         // set possible actions
         mutable_observation(drawer_)->add_possible_action(PossibleAction::NewDiscard(hand(drawer_)));
         // TODO(sotetsuk): set kan_added, kan_closed and riichi
