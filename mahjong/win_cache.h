@@ -20,7 +20,7 @@ namespace mj
         WinningHandCache(WinningHandCache&&) = delete;
         WinningHandCache operator=(WinningHandCache&&) = delete;
 
-        static const WinningHandCache& get_instance();
+        static const WinningHandCache& instance();
 
         [[nodiscard]] bool Has(const TileTypeCount& closed_hand) const noexcept ;
         [[nodiscard]] bool Has(const std::string& abstruct_hand) const noexcept ;

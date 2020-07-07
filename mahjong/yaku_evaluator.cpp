@@ -11,7 +11,7 @@
 namespace mj
 {
     const WinningHandCache &YakuEvaluator::win_cache() const {
-        return WinningHandCache::get_instance();
+        return WinningHandCache::instance();
     }
 
     bool YakuEvaluator::Has(const Hand& hand) const noexcept {
