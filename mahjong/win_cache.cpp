@@ -74,6 +74,11 @@ namespace mj {
             ret.emplace_back(sets, heads);
         }
         return ret;
+    }
+
+    const WinningHandCache &WinningHandCache::get_instance() {
+        static WinningHandCache instance;  // Thread safe from C++ 11  https://cpprefjp.github.io/lang/cpp11/static_initialization_thread_safely.html
+        return instance;
     };
 
 }  // namespace mj

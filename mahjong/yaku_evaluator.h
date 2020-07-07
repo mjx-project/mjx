@@ -13,11 +13,13 @@ namespace mj
 {
     class YakuEvaluator {
     public:
-        YakuEvaluator();
+        YakuEvaluator() = default;
         [[nodiscard]] bool Has(const Hand& hand) const noexcept ;
         [[nodiscard]] WinningScore Eval(const Hand& hand) const noexcept ;
 
     private:
+        [[nodiscard]] const WinningHandCache& win_cache() const;
+
         static void JudgeYakuman(
                 const Hand& hand,
                 const TileTypeCount& all_tiles,
@@ -112,7 +114,6 @@ namespace mj
                 const std::vector<TileTypeCount>& closed_sets,
                 const std::vector<TileTypeCount>& opened_sets,
                 const std::vector<TileTypeCount>& heads) noexcept ;
-        WinningHandCache win_cache_;
     };
 } // namespace mj
 
