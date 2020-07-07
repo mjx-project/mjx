@@ -495,7 +495,7 @@ TEST(hand, IsMenzen) {
 
 TEST(hand, CanRon) {
     auto h = Hand(HandParams("m1,m1,m1,m2,m3,m4,m5,m6,m7,m8,m9,m9,m9"));
-    const auto win_cache = WinningHandCache();
+    const auto &win_cache = WinningHandCache::instance();
     EXPECT_TRUE(h.CanRon(Tile("m1", 3), win_cache));
     EXPECT_TRUE(h.CanRon(Tile("m5", 3), win_cache));
     EXPECT_TRUE(h.CanRon(Tile("m9", 3), win_cache));
@@ -505,7 +505,7 @@ TEST(hand, CanRon) {
 
 TEST(hand, IsCompleted) {
     auto h = Hand(HandParams("m1,m1,m1,m2,m3,m4,m5,m6,m7,m8,m9,m9,m9"));
-    const auto win_cache = WinningHandCache();
+    const auto &win_cache = WinningHandCache::instance();
     h.Draw(Tile("m1", 3));
     EXPECT_TRUE(h.IsCompleted(win_cache));
     h = Hand(HandParams("m1,m1,m1,m2,m3,m4,m5,m6,m7,m8,m9,m9,m9"));
@@ -514,7 +514,7 @@ TEST(hand, IsCompleted) {
 }
 
 TEST(hand, CanRiichi) {
-    const auto win_cache = WinningHandCache();
+    const auto &win_cache = WinningHandCache::instance();
     auto h = Hand(HandParams("m1,m1,m1,m2,m3,m4,m5,m6,m7,m8,m9,m9,m9"));
     h.Draw(Tile("p1"));
     EXPECT_TRUE(h.CanRiichi(win_cache));
@@ -548,7 +548,7 @@ TEST(hand, Riichi) {
 
 TEST(hand, PossibleDiscardsAfterRiichi) {
     auto h = Hand(HandParams("m1,m1,m1,m2,m3,m4,m5,m6,m7,m8,m9,m9,m9"));
-    const auto win_cache = WinningHandCache();
+    const auto &win_cache = WinningHandCache::instance();
     h.Draw(Tile("rd"));
     h.Riichi();
     auto possible_discards = h.PossibleDiscardsAfterRiichi(win_cache);

@@ -10,10 +10,12 @@
 
 namespace mj
 {
-    YakuEvaluator::YakuEvaluator() : win_cache_() {}
+    const WinningHandCache &YakuEvaluator::win_cache() const {
+        return WinningHandCache::instance();
+    }
 
     bool YakuEvaluator::Has(const Hand& hand) const noexcept {
-        if (win_cache_.Has(hand.ClosedHandTiles())) return true;
+        if (win_cache().Has(hand.ClosedHandTiles())) return true;
 
         const TileTypeCount all_tiles = hand.ClosedAndOpenedHandTiles();
 
@@ -71,7 +73,7 @@ namespace mj
             opened_sets.push_back(count);
         }
 
-        for (const auto& [closed_sets, heads] : win_cache_.SetAndHeads(hand.ClosedHandTiles())) {
+        for (const auto& [closed_sets, heads] : win_cache().SetAndHeads(hand.ClosedHandTiles())) {
 
             std::map<Yaku,int> yaku_in_this_pattern;
 
