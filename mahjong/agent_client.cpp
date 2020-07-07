@@ -7,10 +7,10 @@ namespace mj
 
     Action AgentClient::TakeAction(Observation *observation) const {
         assert(stub_ != nullptr);
-        const mjproto::ActionRequest& request = observation->action_request();
+        const mjproto::ActionRequest* request = observation->action_request_.get();
         mjproto::ActionResponse response;
         grpc::ClientContext context;
-        grpc::Status status = stub_->TakeAction(&context, request, &response);
+        grpc::Status status = stub_->TakeAction(&context, *request, &response);
         if (!status.ok()) {
             std::cout << status.error_code() << ": " << status.error_message() << std::endl;
         }

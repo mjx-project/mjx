@@ -5,45 +5,46 @@ package mjproto;
 service Agent {
   rpc TakeAction (ActionRequest) returns (ActionResponse) {}
 }
+message Score {
+  uint32 round = 1;
+  uint32 honba = 2;
+  uint32 riichi = 3;
+  repeated uint32 ten = 4;
+}
 
-message Empty {
+message TakenAction {
+  uint32 who = 1;
+  uint32 type = 2;  // draw, discard, riichi_and_discard, chi, pon, kan_opened, kan_closed, kan_added, tsumo ,ron
+  uint32 draw = 3;
+  uint32 discard = 4;
+  bool discard_drawn_tile= 5;  // discard the drawn tile
+  uint32 open = 6;
+}
+
+message ActionHistory {
+  repeated TakenAction taken_actions = 1;
+}
+
+message InitialHand {
+  repeated uint32 tiles = 1;
+}
+
+message PossibleAction {
+  uint32 type = 1;
+  uint32 open = 2;
+  repeated uint32 discard_candidates = 3;
 }
 
 // Similar to Tenhou's mjlog format. Initial hand and action sequence are sent to each player.
-// However, different from Tenhou, each request is state-less.
+// However, different from Tenhou, each request is stateless.
 // Each request has enough information to make decisions.
 message ActionRequest {  // corresponds to mj::Observation in cpp
-  message CommonObservation {
-    message Score {
-      uint32 round = 1;
-      uint32 honba = 2;
-      uint32 riichi = 3;
-      repeated uint32 ten = 4;
-    }
-    message TakenAction {
-      uint32 who = 1;
-      uint32 type = 2;  // draw, discard, riichi_and_discard, chi, pon, kan_opened, kan_closed, kan_added, tsumo ,ron
-      uint32 draw = 3;
-      uint32 discard = 4;
-      bool discard_drawn_tile= 5;  // discard the drawn tile
-      uint32 open = 6;
-    }
-    Score score = 1;
-    repeated TakenAction taken_actions = 2;
-  }
-  message InitialHand {
-    repeated uint32 tiles = 1;
-  }
-  message PossibleAction {
-    uint32 type = 1;
-    uint32 open = 2;
-    repeated uint32 discard_candidates = 3;
-  }
   uint32 game_id = 1;
-  CommonObservation common_observation = 2;
-  uint32 who = 3;
-  InitialHand initial_hand = 4;
-  repeated PossibleAction possible_actions = 5;
+  Score score = 2;  // public info
+  ActionHistory action_history = 3;  // public info
+  uint32 who = 4;
+  InitialHand initial_hand = 5;  // private info
+  repeated PossibleAction possible_actions = 6;
 }
 
 message ActionResponse {  // corresponds to mj::Action in cpp

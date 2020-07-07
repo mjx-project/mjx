@@ -31,16 +31,16 @@ namespace mj
         std::cout << "Received observation" << std::endl;
         std::cout << "==============================================" << std::endl;
         std::cout << "who: " << request->who() << std::endl;
-        std::cout << "round: " << request->common_observation().score().round() << std::endl;
-        std::cout << "honba: " << request->common_observation().score().honba() << std::endl;
-        std::cout << "riichi: " << request->common_observation().score().riichi() << std::endl;
+        std::cout << "round: " << request->score().round() << std::endl;
+        std::cout << "honba: " << request->score().honba() << std::endl;
+        std::cout << "riichi: " << request->score().riichi() << std::endl;
         std::cout << "ten: ";
-        for (int i = 0; i < request->common_observation().score().ten_size(); ++i) {
-            std::cout << request->common_observation().score().ten(i) << " ";
+        for (int i = 0; i < request->score().ten_size(); ++i) {
+            std::cout << request->score().ten(i) << " ";
         }
         std::cout << std::endl;
         std::cout << "init hand size: " << request->initial_hand().tiles_size() << std::endl;
-        std::cout << "taken_action size: " << request->common_observation().taken_actions_size() << std::endl;
+        std::cout << "taken_action size: " << request->action_history().taken_actions_size() << std::endl;
         reply->set_type(999);
         reply->set_discard(2);
         return grpc::Status::OK;

@@ -3,31 +3,33 @@
 
 namespace mj
 {
-    StateInRound::StateInRound(AbsolutePos dealer, std::uint32_t seed)
-    : stage(InRoundStateStage::kAfterDiscards), dealer(dealer), drawer(dealer), wall(seed), rivers(),
-    hands({
-                 Hand{wall.tiles.cbegin(), wall.tiles.cbegin() + 13},
-                 Hand{wall.tiles.cbegin() + 13, wall.tiles.cbegin() + 26},
-                 Hand{wall.tiles.cbegin() + 26, wall.tiles.cbegin() + 39},
-                 Hand{wall.tiles.cbegin() + 39, wall.tiles.cbegin() + 52}
-    }) {}
-
     State::State(std::uint32_t seed)
-    : seed_(seed), score_(), state_in_round_(AbsolutePos::kEast, GenerateRoundSeed())
+    : seed_(seed), score_(std::make_unique<Score>())
     {
-        common_observation_ = std::make_unique<CommonObservation>();
-        for (int i = 0; i < 4; ++i) {
-            observations_.at(i) = std::make_unique<Observation>(AbsolutePos(i), common_observation_.get());
-        }
         // TODO (sotetsuk): shuffle seats
     }
 
     void State::InitRound() {
-        auto dealer = AbsolutePos(score_.round % 4);
-        state_in_round_ = StateInRound(dealer, GenerateRoundSeed());
-        common_observation_ = std::make_unique<CommonObservation>();
+        // TODO: use seed
+        stage_ = RoundStage::kAfterDiscards;
+        dealer_ = AbsolutePos(score_->round() % 4);
+        drawer_ = dealer_;
+        wall_ = std::make_unique<Wall>();  // TODO: use seed
+        rivers_ = {
+                std::make_unique<River>(),
+                std::make_unique<River>(),
+                std::make_unique<River>(),
+                std::make_unique<River>()
+        };
+        hands_ = {
+                std::make_unique<Hand>(wall_->tiles->cbegin(), wall_->tiles->cbegin() + 13),
+                std::make_unique<Hand>(wall_->tiles->cbegin() + 13, wall_->tiles->cbegin() + 26),
+                std::make_unique<Hand>(wall_->tiles->cbegin() + 26, wall_->tiles->cbegin() + 39),
+                std::make_unique<Hand>(wall_->tiles->cbegin() + 39, wall_->tiles->cbegin() + 52)
+        };
+        action_history_ = std::make_unique<ActionHistory>();
         for (int i = 0; i < 4; ++i) {
-            observations_.at(i) = std::make_unique<Observation>(AbsolutePos(i), common_observation_.get());
+            observations_.at(i) = std::make_unique<Observation>(AbsolutePos(i), score_.get(), action_history_.get());
         }
     }
 
@@ -37,47 +39,37 @@ namespace mj
         return seed_gen();
     }
 
-    const Wall &State::GetWall() const {
-        return state_in_round_.wall;
-    }
-
-    const std::array<Hand, 4> &State::GetHands() const {
-        return state_in_round_.hands;
+    const Wall * State::wall() const {
+        assert(NullCheck());
+        return wall_.get();
     }
 
     AbsolutePos State::UpdateStateByDraw() {
-        assert(Any(state_in_round_.stage,
-                   {InRoundStateStage::kAfterDiscards,
-                    InRoundStateStage::kAfterKanClosed,
-                    InRoundStateStage::kAfterKanOpened,
-                    InRoundStateStage::kAfterKanAdded}));
-        assert(state_in_round_.wall.itr_curr_draw != state_in_round_.wall.itr_draw_end);
-        auto drawer = state_in_round_.drawer;
-        auto &drawer_hand = state_in_round_.hands[static_cast<int>(drawer)];
-        auto &draw_itr = state_in_round_.wall.itr_curr_draw;
-        drawer_hand.Draw(*draw_itr);
+        assert(NullCheck());
+        assert(Any(stage_,
+                   {RoundStage::kAfterDiscards,
+                    RoundStage::kAfterKanClosed,
+                    RoundStage::kAfterKanOpened,
+                    RoundStage::kAfterKanAdded}));
+        assert(wall_->itr_curr_draw != wall_->itr_draw_end);
+        auto &draw_itr = wall_->itr_curr_draw;
+        mutable_hand(drawer_)->Draw(*draw_itr);
         ++draw_itr;
         // set possible actions
-        mjproto::ActionRequest_PossibleAction possible_action;
-        possible_action.set_type(static_cast<int>(ActionType::kDiscard));
-        auto discard_candidates = possible_action.mutable_discard_candidates();
-        for (const auto& tile: drawer_hand.PossibleDiscards()) {
-            discard_candidates->Add(tile.Id());
-        }
-        assert(discard_candidates->size() <= 14);
-        observations_.at(static_cast<int>(drawer))->add_possible_action(std::make_unique<PossibleAction>(possible_action));
+        mutable_observation(drawer_)->add_possible_action(PossibleAction::NewDiscard(hand(drawer_)));
         // TODO(sotetsuk): set kan_added, kan_closed and riichi
-        state_in_round_.stage = InRoundStateStage::kAfterDraw;
-        return drawer;
+        stage_ = RoundStage::kAfterDraw;
+        return drawer_;
     }
 
     void State::UpdateStateByAction(const Action &action) {
-        auto &curr_hand = state_in_round_.hands.at(static_cast<int>(action.who()));
+        assert(NullCheck());
+        auto curr_hand = mutable_hand(action.who());
         switch (action.type()) {
             case ActionType::kDiscard:
-                curr_hand.Discard(action.discard());
-                state_in_round_.stage = InRoundStateStage::kAfterDiscards;
-                state_in_round_.drawer = AbsolutePos((static_cast<int>(action.who()) + 1) % 4);
+                curr_hand->Discard(action.discard());
+                stage_ = RoundStage::kAfterDiscards;
+                drawer_ = AbsolutePos((static_cast<int>(action.who()) + 1) % 4);
                 break;
             default:
                 static_assert(true, "Not implemented error.");
@@ -85,6 +77,42 @@ namespace mj
     }
 
     Observation * State::mutable_observation(AbsolutePos who) {
+        assert(NullCheck());
         return observations_.at(static_cast<int>(who)).get();
+    }
+
+    const Hand *State::hand(AbsolutePos pos) const {
+        assert(NullCheck());
+        return hands_.at(ToUType(pos)).get();
+    }
+
+    std::array<const Hand *, 4> State::hands() const {
+        assert(NullCheck());
+        std::array<const Hand*, 4> ret{};
+        for (int i = 0; i < 4; ++i) ret.at(i) = hand(AbsolutePos(i));
+        return ret;
+    }
+
+    RoundStage State::stage() const {
+        assert(NullCheck());
+        return stage_;
+    }
+
+    const Observation *State::observation(AbsolutePos who) const {
+        assert(NullCheck());
+        return observations_.at(ToUType(who)).get();
+    }
+
+    Hand *State::mutable_hand(AbsolutePos pos) {
+        assert(NullCheck());
+        return hands_.at(ToUType(pos)).get();
+    }
+
+    bool State::NullCheck() const {
+        auto is_null = [](const auto &x){ return x == nullptr; };
+        if (!wall_ || !action_history_) return false;
+        if (std::any_of(hands_.begin(), hands_.end(), is_null)) return false;
+        if (std::any_of(rivers_.begin(), rivers_.end(), is_null)) return false;
+        return true;
     }
 }  // namespace mj
