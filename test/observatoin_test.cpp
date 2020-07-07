@@ -7,6 +7,7 @@ using namespace mj;
 TEST(observation, possible_actions) {
     // 第一ツモ後に可能なアクションはdiscardだけで、可能な捨て牌は手牌と一致
     auto state = State(9999);
+    state.InitRound();
     auto drawer = state.UpdateStateByDraw();
     auto observation = state.mutable_observation(drawer);
     auto possible_actions = observation->possible_actions();

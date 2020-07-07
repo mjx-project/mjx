@@ -42,19 +42,6 @@ namespace mj
         std::vector<Tile>::const_iterator itr_ura_dora_begin;
     };
 
-    struct RoundDependentState
-    {
-        RoundDependentState() = delete;
-        RoundDependentState(AbsolutePos dealer, std::uint32_t seed = 9999);
-        InRoundStateStage stage;
-        AbsolutePos dealer;
-        AbsolutePos drawer;
-        std::unique_ptr<Wall> wall;
-        std::array<std::unique_ptr<River>, 4> rivers;
-        std::array<std::unique_ptr<Hand>, 4> hands;
-        std::unique_ptr<ActionHistory> action_history;
-    };
-
     class State
     {
     public:
@@ -62,7 +49,7 @@ namespace mj
         bool IsGameOver();
 
         // operate or access in-round state
-        void InitRoundDependentState();
+        void InitRound();
         bool IsRoundOver();
         AbsolutePos UpdateStateByDraw();
         void UpdateStateByAction(const Action& action);
@@ -73,22 +60,32 @@ namespace mj
         Tile DrawRinshan();
 
         // accessors
-        const Observation * observation(AbsolutePos who) const;
+        [[nodiscard]] const Observation * observation(AbsolutePos who) const;
         Observation * mutable_observation(AbsolutePos who);
-        [[nodiscard]] InRoundStateStage stage() const;
+        [[nodiscard]] RoundStage stage() const;
         [[nodiscard]] const Wall *wall() const;
         [[nodiscard]] const Hand *hand(AbsolutePos pos) const;
         Hand *mutable_hand(AbsolutePos pos);
-        std::array<const Hand*, 4> hands() const;
+        [[nodiscard]] std::array<const Hand*, 4> hands() const;
 
         std::string ToMjlog() const;
     private:
         std::uint32_t seed_;
+        // public information
+        RoundStage stage_;
         std::unique_ptr<Score> score_;
-        std::unique_ptr<RoundDependentState> rstate_;
+        // Round dependent information. These members should be reset after each round.
+        AbsolutePos dealer_;
+        AbsolutePos drawer_;
+        std::unique_ptr<Wall> wall_;
+        std::array<std::unique_ptr<River>, 4> rivers_;
+        std::array<std::unique_ptr<Hand>, 4> hands_;
+        std::unique_ptr<ActionHistory> action_history_;
+        //
         std::array<std::unique_ptr<Observation>, 4> observations_;
 
         std::uint32_t GenerateRoundSeed();
+        [[nodiscard]] bool NullCheck() const;
     };
 }  // namespace mj
 

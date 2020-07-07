@@ -68,7 +68,7 @@ namespace mj {
         kAfterKanAdded,
     };
 
-    enum class InRoundStateStage: std::uint8_t {
+    enum class RoundStage: std::uint8_t {
         kAfterDiscards,
         kAfterDraw,
         kAfterDrawAfterKan,

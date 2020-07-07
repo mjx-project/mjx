@@ -30,6 +30,10 @@ namespace mj
         return possible_action;
     }
 
+    std::size_t ActionHistory::size() const {
+        return action_history_->taken_actions_size();
+    }
+
     std::vector<PossibleAction> Observation::possible_actions() const {
         assert(action_request_.has_action_history());
         std::vector<PossibleAction> ret;

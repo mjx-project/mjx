@@ -51,6 +51,7 @@ namespace mj
     {
     public:
         ActionHistory() = default;
+        [[nodiscard]] std::size_t size() const;
     private:
         friend class Observation;
         std::unique_ptr<mjproto::ActionHistory> action_history_ = std::make_unique<mjproto::ActionHistory>();
