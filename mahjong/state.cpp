@@ -39,6 +39,7 @@ namespace mj
     }
 
     const Wall * State::wall() const {
+        assert(NullCheck());
         return wall_.get();
     }
 
@@ -75,37 +76,42 @@ namespace mj
     }
 
     Observation * State::mutable_observation(AbsolutePos who) {
+        assert(NullCheck());
         return observations_.at(static_cast<int>(who)).get();
     }
 
     const Hand *State::hand(AbsolutePos pos) const {
+        assert(NullCheck());
         return hands_.at(ToUType(pos)).get();
     }
 
     std::array<const Hand *, 4> State::hands() const {
+        assert(NullCheck());
         std::array<const Hand*, 4> ret{};
         for (int i = 0; i < 4; ++i) ret.at(i) = hand(AbsolutePos(i));
         return ret;
     }
 
     RoundStage State::stage() const {
+        assert(NullCheck());
         return stage_;
     }
 
     const Observation *State::observation(AbsolutePos who) const {
+        assert(NullCheck());
         return observations_.at(ToUType(who)).get();
     }
 
     Hand *State::mutable_hand(AbsolutePos pos) {
+        assert(NullCheck());
         return hands_.at(ToUType(pos)).get();
     }
 
     bool State::NullCheck() const {
         auto is_null = [](const auto &x){ return x == nullptr; };
-        bool has_null = wall_ && action_history_;
-        has_null &= std::any_of(hands_.begin(), hands_.end(), is_null);
-        has_null &= std::any_of(rivers_.begin(), rivers_.end(), is_null);
-        if (has_null) std::cerr << "Please call State::InitRound()." << std::endl;
-        return !has_null;
+        if (!wall_ || !action_history_) return false;
+        if (std::any_of(hands_.begin(), hands_.end(), is_null)) return false;
+        if (std::any_of(rivers_.begin(), rivers_.end(), is_null)) return false;
+        return true;
     }
 }  // namespace mj
