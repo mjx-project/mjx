@@ -24,14 +24,14 @@ namespace mj
         [[nodiscard]] std::array<std::unique_ptr<Hand>, 4> initial_hands() const;
         Tile Draw();
     private:
-        std::uint32_t seed;
-        std::unique_ptr<std::vector<Tile>> tiles;
+        const std::uint32_t seed;
+        const std::unique_ptr<std::vector<Tile>> tiles;
         std::vector<Tile>::const_iterator itr_curr_draw;
-        std::vector<Tile>::const_iterator itr_draw_end;
+        const std::vector<Tile>::const_iterator itr_draw_end;
         std::vector<Tile>::const_iterator itr_curr_kan_draw;
-        std::vector<Tile>::const_iterator itr_kan_draw_end;
-        std::vector<Tile>::const_iterator itr_dora_begin;
-        std::vector<Tile>::const_iterator itr_ura_dora_begin;
+        const std::vector<Tile>::const_iterator itr_kan_draw_end;
+        const std::vector<Tile>::const_iterator itr_dora_begin;
+        const std::vector<Tile>::const_iterator itr_ura_dora_begin;
     };
 }  // namespace mj
 
