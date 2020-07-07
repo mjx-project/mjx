@@ -24,14 +24,20 @@ namespace mj
         [[nodiscard]] std::array<std::unique_ptr<Hand>, 4> initial_hands() const;
         Tile Draw();
     private:
-        const std::uint32_t seed;
-        const std::unique_ptr<std::vector<Tile>> tiles;
-        std::vector<Tile>::const_iterator itr_curr_draw;
-        const std::vector<Tile>::const_iterator itr_draw_end;
-        std::vector<Tile>::const_iterator itr_curr_kan_draw;
-        const std::vector<Tile>::const_iterator itr_kan_draw_end;
-        const std::vector<Tile>::const_iterator itr_dora_begin;
-        const std::vector<Tile>::const_iterator itr_ura_dora_begin;
+        const std::uint32_t seed_;
+        const std::unique_ptr<std::vector<Tile>> tiles_;
+        std::vector<Tile>::const_iterator itr_curr_draw_;
+        std::vector<Tile>::const_iterator itr_curr_kan_draw_;
+        [[nodiscard]] std::vector<Tile>::const_iterator initial_hand_begin(int pos) const;
+        [[nodiscard]] std::vector<Tile>::const_iterator initial_hand_end(int pos) const;
+        [[nodiscard]] std::vector<Tile>::const_iterator draw_begin() const;
+        [[nodiscard]] std::vector<Tile>::const_iterator draw_end() const;
+        [[nodiscard]] std::vector<Tile>::const_iterator kan_draw_begin() const;
+        [[nodiscard]] std::vector<Tile>::const_iterator kan_draw_end() const;
+        [[nodiscard]] std::vector<Tile>::const_iterator dora_begin() const;
+        [[nodiscard]] std::vector<Tile>::const_iterator dora_end() const;
+        [[nodiscard]] std::vector<Tile>::const_iterator ura_dora_begin() const;
+        [[nodiscard]] std::vector<Tile>::const_iterator ura_dora_end() const;
     };
 }  // namespace mj
 
