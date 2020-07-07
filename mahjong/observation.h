@@ -13,11 +13,11 @@ namespace mj
     class Score
     {
     public:
-        Score(): round(0), honba(0), riichi(0), ten({250, 250, 250, 250}) {}
-        std::uint8_t round;  // 局
-        std::uint8_t honba;  // 本場
-        std::uint8_t riichi;  // リー棒
-        std::array<std::int16_t, 4> ten;  // 点 250 start
+        Score();
+        [[nodiscard]] std::uint8_t round() const;  // 局
+        [[nodiscard]] std::uint8_t honba() const;  // 本場
+        [[nodiscard]] std::uint8_t riichi() const;  // リー棒
+        [[nodiscard]] std::array<std::int16_t, 4> ten() const;  // 点 250 start
     private:
         friend class Observation;
         std::unique_ptr<mjproto::Score> score_ = std::make_unique<mjproto::Score>();

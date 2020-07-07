@@ -11,7 +11,7 @@ namespace mj
 
     void State::InitRound() {
         // TODO: use seed
-        dealer_ = AbsolutePos(score_->round % 4);
+        dealer_ = AbsolutePos(score_->round() % 4);
         drawer_ = dealer_;
         wall_ = std::make_unique<Wall>();  // TODO: use seed
         rivers_ = {
