@@ -20,6 +20,16 @@ namespace mj
         return ret;
     }
 
+    std::unique_ptr<PossibleAction> PossibleAction::NewDiscard(const Hand *hand) {
+        assert(hand->Stage() != HandStage::kAfterDiscards);
+        auto possible_action = std::make_unique<PossibleAction>();
+        possible_action->possible_action_.set_type(static_cast<int>(ActionType::kDiscard));
+        auto discard_candidates = possible_action->possible_action_.mutable_discard_candidates();
+        for (auto tile: hand->PossibleDiscards()) discard_candidates->Add(tile.Id());
+        assert(discard_candidates->size() <= 14);
+        return possible_action;
+    }
+
     std::vector<PossibleAction> Observation::possible_actions() const {
         assert(action_request_.has_action_history());
         std::vector<PossibleAction> ret;

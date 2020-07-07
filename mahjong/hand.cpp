@@ -268,7 +268,7 @@ namespace mj
         return under_riichi_;
     }
 
-    std::vector<Tile> Hand::PossibleDiscards() {
+    std::vector<Tile> Hand::PossibleDiscards() const {
         assert(stage_ != HandStage::kAfterDiscards);
         assert(stage_ != HandStage::kAfterTsumo && stage_ != HandStage::kAfterTsumoAfterKan &&
                stage_ != HandStage::kAfterRon && stage_ != HandStage::kAfterRonAfterOthersKan);

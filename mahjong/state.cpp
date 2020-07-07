@@ -50,19 +50,11 @@ namespace mj
                     InRoundStateStage::kAfterKanAdded}));
         assert(rstate_->wall->itr_curr_draw != rstate_->wall->itr_draw_end);
         auto drawer = rstate_->drawer;
-        auto drawer_hand = mutable_hand(drawer);
         auto &draw_itr = rstate_->wall->itr_curr_draw;
-        drawer_hand->Draw(*draw_itr);
+        mutable_hand(drawer)->Draw(*draw_itr);
         ++draw_itr;
         // set possible actions
-        mjproto::PossibleAction possible_action;
-        possible_action.set_type(static_cast<int>(ActionType::kDiscard));
-        auto discard_candidates = possible_action.mutable_discard_candidates();
-        for (const auto& tile: drawer_hand->PossibleDiscards()) {
-            discard_candidates->Add(tile.Id());
-        }
-        assert(discard_candidates->size() <= 14);
-        observations_.at(static_cast<int>(drawer))->add_possible_action(std::make_unique<PossibleAction>(possible_action));
+        mutable_observation(drawer)->add_possible_action(PossibleAction::NewDiscard(hand(drawer)));
         // TODO(sotetsuk): set kan_added, kan_closed and riichi
         rstate_->stage = InRoundStateStage::kAfterDraw;
         return drawer;
