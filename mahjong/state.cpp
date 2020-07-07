@@ -11,6 +11,7 @@ namespace mj
 
     void State::InitRound() {
         // TODO: use seed
+        stage_ = RoundStage::kAfterDiscards;
         dealer_ = AbsolutePos(score_->round() % 4);
         drawer_ = dealer_;
         wall_ = std::make_unique<Wall>();  // TODO: use seed

@@ -72,17 +72,16 @@ namespace mj
         std::string ToMjlog() const;
     private:
         std::uint32_t seed_;
-        // public information
-        RoundStage stage_;
         std::unique_ptr<Score> score_;
         // Round dependent information. These members should be reset after each round.
+        RoundStage stage_;
         AbsolutePos dealer_;
         AbsolutePos drawer_;
         std::unique_ptr<Wall> wall_;
         std::array<std::unique_ptr<River>, 4> rivers_;
         std::array<std::unique_ptr<Hand>, 4> hands_;
         std::unique_ptr<ActionHistory> action_history_;
-        //
+
         std::array<std::unique_ptr<Observation>, 4> observations_;
 
         std::uint32_t GenerateRoundSeed();
