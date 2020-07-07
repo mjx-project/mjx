@@ -36,7 +36,7 @@ namespace mj
     {
     public:
         PossibleAction() = default;
-        explicit PossibleAction(mjproto::PossibleAction possible_action);
+        PossibleAction(const mjproto::PossibleAction &possible_action);
         ActionType type() const;
         std::unique_ptr<Open> open() const;
         std::vector<Tile> discard_candidates() const;
@@ -44,7 +44,7 @@ namespace mj
         static std::unique_ptr<PossibleAction> NewDiscard(const Hand* hand);
     private:
         friend class Observation;
-        mjproto::PossibleAction possible_action_;
+        std::unique_ptr<mjproto::PossibleAction> possible_action_ = std::make_unique<mjproto::PossibleAction>();
     };
 
     class ActionHistory
