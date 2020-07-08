@@ -17,3 +17,43 @@ TEST(wall, ToString) {
     }
     EXPECT_EQ(set.size(), 136);
 }
+
+TEST(wall, Draw) {
+    // カンなしで70回ツモが存在する
+    auto wall = Wall();
+    for (int i = 0; i < 70; ++i) {
+        EXPECT_TRUE(wall.HasDrawLeft());
+        wall.Draw();
+    }
+    EXPECT_FALSE(wall.HasDrawLeft());
+}
+
+TEST(wall, KanDraw) {
+    // カンがあると、その分ツモ数が減る
+    auto wall = Wall();
+    for (int i = 0; i < 35; ++i) {
+        EXPECT_TRUE(wall.HasDrawLeft());
+        wall.Draw();
+    }
+    for (int i = 0; i < 4; ++i) {
+        wall.KanDraw();
+        wall.AddKanDora();
+    }
+    for (int i = 0; i < 31; ++i) {
+        EXPECT_TRUE(wall.HasDrawLeft());
+        wall.Draw();
+    }
+    EXPECT_FALSE(wall.HasDrawLeft());
+}
+
+TEST(wall, doras) {
+    auto wall = Wall();
+    EXPECT_EQ(wall.doras().size(), 1);
+    EXPECT_EQ(wall.ura_doras().size(), 1);
+    for (int i = 0; i < 4; ++i) {
+        wall.KanDraw();
+        wall.AddKanDora();
+    }
+    EXPECT_EQ(wall.doras().size(), 5);
+    EXPECT_EQ(wall.ura_doras().size(), 5);
+}

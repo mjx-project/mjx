@@ -98,11 +98,15 @@ namespace mj
 
     Tile Wall::KanDraw() {
         assert(abs(num_kan_draw_ - num_kan_dora_) <= 1);
-        return *(kan_draw_begin() + num_kan_draw_);
+        assert(num_kan_draw_ <= 3);
+        auto drawn_tile = *(kan_draw_begin() + num_kan_draw_);
+        num_kan_draw_++;
+        return drawn_tile;
     }
 
     void Wall::AddKanDora() {
         assert(abs(num_kan_draw_ - num_kan_dora_) <= 1);
+        assert(num_kan_dora_ <= 3);
         num_kan_dora_++;
     }
 
