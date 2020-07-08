@@ -64,7 +64,7 @@ namespace mj
         auto ids = std::vector<TileId>(136);
         std::iota(ids.begin(), ids.end(), 0);
         auto tiles = Tile::Create(ids, true);
-        // TODO: use seed
+        // TODO: use seed_
         std::random_device seed_gen;
         std::mt19937 engine(seed_gen());
         std::shuffle(tiles.begin(), tiles.end(), engine);

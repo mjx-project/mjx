@@ -11,38 +11,10 @@
 #include "action.h"
 #include "hand.h"
 #include "river.h"
+#include "wall.h"
 
 namespace mj
 {
-    struct Wall
-    {
-        /*
-         * 136 tiles, indexed [0, 135]
-         *  - [0, 51] (13*4=52): initial hands of 4 players 配牌
-         *  - [52, 121] (70): draws ツモ
-         *  - [122, 125] (4): kan draws 嶺上牌
-         *  - [126] (1):  dora ドラ
-         *  - [127, 130] (4): kan doras カンドラ
-         *  - [131] (1): ura dora 裏ドラ
-         *  - [132, 135] (4): kan ura doras カンドラ裏
-         */
-        Wall(std::uint32_t seed = 9999)
-        : seed(seed),
-          tiles(std::make_unique<std::vector<Tile>>(Tile::CreateAllShuffled(seed))),
-          itr_curr_draw(tiles->cbegin() + 52), itr_draw_end(tiles->cbegin() + 122),
-          itr_curr_kan_draw(tiles->cbegin() + 122), itr_kan_draw_end(tiles->cbegin() + 130),
-          itr_dora_begin(tiles->cbegin() + 126), itr_ura_dora_begin(tiles->cbegin() + 131)
-        {}
-        std::uint32_t seed;
-        std::unique_ptr<std::vector<Tile>> tiles;
-        std::vector<Tile>::const_iterator itr_curr_draw;
-        std::vector<Tile>::const_iterator itr_draw_end;
-        std::vector<Tile>::const_iterator itr_curr_kan_draw;
-        std::vector<Tile>::const_iterator itr_kan_draw_end;
-        std::vector<Tile>::const_iterator itr_dora_begin;
-        std::vector<Tile>::const_iterator itr_ura_dora_begin;
-    };
-
     class State
     {
     public:
