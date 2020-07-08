@@ -94,4 +94,28 @@ namespace mj
         s.pop_back(); s += "\n";
         return s;
     }
+
+    Tile Wall::KanDraw() {
+        return *(kan_draw_begin() + num_kan_draw_);
+    }
+
+    void Wall::AddKanDora() {
+        num_kan_dora_++;
+    }
+
+    bool Wall::HasDrawLeft() {
+        return itr_curr_draw_ + num_kan_draw_ != draw_end();
+    }
+
+    std::vector<Tile> Wall::doras() const {
+        std::vector<Tile> ret;
+        for (auto it = dora_begin(); it != dora_begin() + num_kan_dora_ + 1; ++it) ret.emplace_back(*it);
+        return ret;
+    }
+
+    std::vector<Tile> Wall::ura_doras() const {
+        std::vector<Tile> ret;
+        for (auto it = ura_dora_begin(); it != ura_dora_begin() + num_kan_dora_ + 1; ++it) ret.emplace_back(*it);
+        return ret;
+    }
 }  // namespace mj
