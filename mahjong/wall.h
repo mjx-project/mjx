@@ -22,13 +22,20 @@ namespace mj
     public:
         explicit Wall(std::uint32_t seed = 9999);
         [[nodiscard]] std::array<std::unique_ptr<Hand>, 4> initial_hands() const;
+        [[nodiscard]] std::vector<Tile> doras() const;
+        [[nodiscard]] std::vector<Tile> ura_doras() const;
         Tile Draw();
+        Tile KanDraw();
+        void AddKanDora();
+        bool HasDrawLeft();
         [[nodiscard]] std::string ToString(bool verbose = false) const;
     private:
         const std::uint32_t seed_;
         const std::unique_ptr<std::vector<Tile>> tiles_;
         std::vector<Tile>::const_iterator itr_curr_draw_;
         std::vector<Tile>::const_iterator itr_curr_kan_draw_;
+        int num_kan_draw_ = 0;
+        int num_kan_dora_ = 0;
         [[nodiscard]] std::vector<Tile>::const_iterator initial_hand_begin(int pos) const;
         [[nodiscard]] std::vector<Tile>::const_iterator initial_hand_end(int pos) const;
         [[nodiscard]] std::vector<Tile>::const_iterator draw_begin() const;

@@ -107,4 +107,9 @@ namespace mj
         if (std::any_of(rivers_.begin(), rivers_.end(), is_null)) return false;
         return true;
     }
+
+    bool State::IsRoundOver() {
+        if (!wall_->HasDrawLeft()) return true;
+        return false;
+    }
 }  // namespace mj
