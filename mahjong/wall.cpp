@@ -12,7 +12,8 @@ namespace mj
     {}
 
     Tile Wall::Draw() {
-        assert(itr_curr_draw_ != draw_end());
+        assert(HasDrawLeft());
+        assert(abs(num_kan_draw_ - num_kan_dora_) <= 1);
         auto drawn_tile = *itr_curr_draw_;
         itr_curr_draw_++;
         return drawn_tile;
@@ -96,24 +97,29 @@ namespace mj
     }
 
     Tile Wall::KanDraw() {
+        assert(abs(num_kan_draw_ - num_kan_dora_) <= 1);
         return *(kan_draw_begin() + num_kan_draw_);
     }
 
     void Wall::AddKanDora() {
+        assert(abs(num_kan_draw_ - num_kan_dora_) <= 1);
         num_kan_dora_++;
     }
 
     bool Wall::HasDrawLeft() {
+        assert(abs(num_kan_draw_ - num_kan_dora_) <= 1);
         return itr_curr_draw_ + num_kan_draw_ != draw_end();
     }
 
     std::vector<Tile> Wall::doras() const {
+        assert(abs(num_kan_draw_ - num_kan_dora_) <= 1);
         std::vector<Tile> ret;
         for (auto it = dora_begin(); it != dora_begin() + num_kan_dora_ + 1; ++it) ret.emplace_back(*it);
         return ret;
     }
 
     std::vector<Tile> Wall::ura_doras() const {
+        assert(abs(num_kan_draw_ - num_kan_dora_) <= 1);
         std::vector<Tile> ret;
         for (auto it = ura_dora_begin(); it != ura_dora_begin() + num_kan_dora_ + 1; ++it) ret.emplace_back(*it);
         return ret;
