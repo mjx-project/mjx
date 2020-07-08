@@ -67,4 +67,31 @@ namespace mj
     std::vector<Tile>::const_iterator Wall::ura_dora_end() const {
         return tiles_->cbegin() + 136;
     }
+
+    std::string Wall::ToString(bool verbose) const {
+        std::string s;
+        for (auto it = initial_hand_begin(0); it != initial_hand_end(0); ++it) s += it->ToString(verbose) + ",";
+        s.pop_back(); s += "\n";
+        for (auto it = initial_hand_begin(1); it != initial_hand_end(1); ++it) s += it->ToString(verbose) + ",";
+        s.pop_back(); s += "\n";
+        for (auto it = initial_hand_begin(2); it != initial_hand_end(2); ++it) s += it->ToString(verbose) + ",";
+        s.pop_back(); s += "\n";
+        for (auto it = initial_hand_begin(3); it != initial_hand_end(3); ++it) s += it->ToString(verbose) + ",";
+        s.pop_back(); s += "\n";
+        for (auto it = draw_begin(); it != draw_end();) {
+            for (int i = 0; i < 6; ++i) {
+                s += it->ToString(verbose) + ",";
+                ++it;
+                if (it == draw_end()) break;
+            }
+            s.pop_back(); s += "\n";
+        }
+        for (auto it = kan_draw_begin(); it != kan_draw_end(); ++it) s += it->ToString(verbose) + ",";
+        s.pop_back(); s += "\n";
+        for (auto it = dora_begin(); it != dora_end(); ++it) s += it->ToString(verbose) + ",";
+        s.pop_back(); s += "\n";
+        for (auto it = ura_dora_begin(); it != ura_dora_end(); ++it) s += it->ToString(verbose) + ",";
+        s.pop_back(); s += "\n";
+        return s;
+    }
 }  // namespace mj

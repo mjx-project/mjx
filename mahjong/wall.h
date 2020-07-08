@@ -23,6 +23,7 @@ namespace mj
         explicit Wall(std::uint32_t seed = 9999);
         [[nodiscard]] std::array<std::unique_ptr<Hand>, 4> initial_hands() const;
         Tile Draw();
+        [[nodiscard]] std::string ToString(bool verbose = false) const;
     private:
         const std::uint32_t seed_;
         const std::unique_ptr<std::vector<Tile>> tiles_;
