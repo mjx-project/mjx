@@ -1,0 +1,125 @@
+@startuml
+
+set namespaceSeparator ::
+
+class mjproto::ActionRequest {
+
+}
+
+class mjproto::ActionResponse {
+
+}
+
+class mj::Environment {
+}
+
+class mj::YakuEvaluator {
+}
+
+class mj::WinningHandCache {
+}
+
+class mj::WinningScore {
+}
+
+class mj::State {
+
+}
+
+class mj::Player {
+    + hand : Hand
+    + river : River
+    - initial_hand : mjproto:: InitialHand
+}
+
+class mj::Observation {
+    - action_request mjproto::ActionRequest
+    - initial_hand mjproto::ActionHistory
+    - action_history mjproto::ActionHistory
+}
+
+class mj::ActionHistory {
+    - action_history mjproto::ActionHistory
+}
+
+class mj::AgentClient {
+
+}
+
+class mj::AgentServer {
+
+}
+
+class mj::Score {
+
+}
+
+class mj::Wall {
+
+}
+
+class mj::River {
+
+} 
+
+class mj::Action {
+    - action_response mjproto::ActionResponse
+}
+
+class mj::Hand {
+    + stage
+    + last_tile_added
+    + closed_tiles
+    + opens
+    + undiscardable_tiles
+    + under_riichi
+    + PossibleDiscards()
+    + PossibleDiscardsAfterRiichi()
+    + PossibleOpensAfterOthersDiscard()
+    + PossibleOpensAfterDraw()
+    + CanRon()
+    + IsCompleted()
+    + CanRiichi()
+    + Draw()
+    + Riichi()
+    + ApplyOpen()
+    + Ron()
+    + RonAfterOthersKan()
+    + Tsumo()
+    + Discard()
+}
+
+class mj::Open {
+
+}
+
+class mj::Tile {
+    + id
+    + type
+}
+
+
+mj::Environment "1" *-- "4" mj::AgentClient
+mj::Environment -- mj::State 
+
+mj::State <-- mj::Action : UpdateStateByAction
+mj::State *-- mj::Score 
+mj::State *-- mj::Wall
+mj::State *-- mj::ActionHistory
+mj::State "1" *-- "4" mj::Player
+mj::State --> mj::Observation : NewObservation
+
+mj::Observation --> mj::AgentClient : TakeAction
+
+mj::Player *-- mj::Hand
+mj::Player *-- mj::River 
+
+mj::Hand -- mj::Open
+
+mj::AgentClient --> mj::AgentServer : <<mjproto::ActionRequest>>
+mj::AgentClient --> mj::Action : TakeAction
+
+mj::AgentServer --> mj::AgentClient : <<mjproto::ActionResponse>>
+
+
+@enduml
