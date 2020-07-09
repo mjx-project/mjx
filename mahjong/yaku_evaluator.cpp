@@ -18,10 +18,19 @@ namespace mj
         WinningScore score;
 
         // closedな手牌が上がり形になっている or 国士無双かどうかを判定する.
+        return win_cache().Has(win_info.closed_tile_types) or
+               HasThirteenOrphans(win_info) or
+               HasCompletedThirteenOrphans(win_info);
+    }
+
+    bool YakuEvaluator::CanWin(const WinningInfo& win_info) const noexcept {
+        WinningScore score;
+
+        // closedな手牌が上がり形になっている or 国士無双かどうかを判定する.
         if (!win_cache().Has(win_info.closed_tile_types) and
             !HasThirteenOrphans(win_info) and
             !HasCompletedThirteenOrphans(win_info)
-            ) return false;
+                ) return false;
 
         // 役満の判定
         JudgeYakuman(win_info, score);

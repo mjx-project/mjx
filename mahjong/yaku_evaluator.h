@@ -15,7 +15,8 @@ namespace mj
     public:
         YakuEvaluator() = default;
         [[nodiscard]] WinningScore Eval(const WinningInfo& win_info) const noexcept ;
-        [[nodiscard]] bool Has(const WinningInfo& win_info) const noexcept ;
+        [[nodiscard]] bool Has(const WinningInfo& win_info) const noexcept ;    // 上がりの形になっていれば良い.
+        [[nodiscard]] bool CanWin(const WinningInfo& win_info) const noexcept ;    // 役がないとダメ.
 
     private:
         [[nodiscard]] const WinningHandCache& win_cache() const;

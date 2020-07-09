@@ -293,39 +293,19 @@ namespace mj
         assert(stage_ == HandStage::kAfterRiichi);
         assert(SizeClosed() == 2 || SizeClosed() == 5 || SizeClosed() == 8 || SizeClosed() == 11 || SizeClosed() == 14);
         std::vector<Tile> possible_discards;
-        std::unordered_set<TileType> possible_types;
 
-        auto base_win_info = ToWinningInfo();
-        for (const auto [discard_type, n] : base_win_info.closed_tile_types) {
+        YakuEvaluator yaku_evaluator;
+        for (const Tile discard_tile : closed_tiles_) {
+            bool discard_able = false;
             for (int i = 0; i < 34; ++i) {
                 auto tile_type = static_cast<TileType>(i);
-                if (discard_type == tile_type) continue;
-                if (base_win_info.all_tile_types.count(tile_type) and
-                    base_win_info.all_tile_types[tile_type] == 4) {
-
+                if (yaku_evaluator.Has(ToWinningInfo().Discard(discard_tile).Tsumo(tile_type))) {
+                    discard_able = true;
+                    break;
                 }
             }
-        }
-        auto arr = ToArray();
-        for (std::uint8_t i = 0; i < 34; ++i) {
-            if (arr.at(i) == 0) continue;
-            --arr.at(i);
-            bool ok = false;
-            for (std::uint8_t j = 0; j < 34; ++j) {
-                if (arr.at(j) == 4) continue;
-                ++arr.at(j);
-                auto blocks = Block::Build(arr);
-                if (win_cache.Has(Block::BlocksToString(blocks))) ok = true;
-                --arr.at(j);
-            }
-            ++arr.at(i);
-            if (ok) {
-                possible_types.insert(TileType(i));
-            }
-        }
-        for (const auto &tile: closed_tiles_) {
-            if (possible_types.find(tile.Type()) != possible_types.end()) {
-                possible_discards.push_back(tile);
+            if (discard_able) {
+                possible_discards.push_back(discard_tile);
             }
         }
         return possible_discards;
@@ -573,28 +553,25 @@ namespace mj
         assert(stage_ == HandStage::kAfterDiscards);
         assert(SizeClosed() == 1 || SizeClosed() == 4 || SizeClosed() == 7 || SizeClosed() == 10 || SizeClosed() == 13);
 
-        return YakuEvaluator().Has(ToWinningInfo().Ron(tile));
+        return YakuEvaluator().CanWin(ToWinningInfo().Ron(tile));
     }
 
     bool Hand::CanRiichi() {
         // TODO: use different cache might become faster
+
         assert(stage_ == HandStage::kAfterDraw || stage_ == HandStage::kAfterKanClosed);
         assert(SizeClosed() == 2 || SizeClosed() == 5 || SizeClosed() == 8 || SizeClosed() == 11 || SizeClosed() == 14);
         if (!IsMenzen()) return false;
-        const auto &win_cache = WinningHandCache::instance();
-        auto arr = ToArray();
-        // backtrack
-        for (std::uint8_t i = 0; i < 34; ++i) {
-            if (arr.at(i) == 0) continue;
-            --arr.at(i);
-            for (std::uint8_t j = 0; j < 34; ++j) {
-                if (arr.at(j) == 4) continue;
-                ++arr.at(j);
-                auto blocks = Block::Build(arr);
-                if (win_cache.Has(Block::BlocksToString(blocks))) return true;
-                --arr.at(j);
+
+        YakuEvaluator yaku_evaluator;
+        for (const Tile discard_tile : closed_tiles_) {
+            bool discard_able = false;
+            for (int i = 0; i < 34; ++i) {
+                auto tile_type = static_cast<TileType>(i);
+                if (yaku_evaluator.Has(ToWinningInfo().Discard(discard_tile).Tsumo(tile_type))) {
+                    return true;
+                }
             }
-            ++arr.at(i);
         }
         return false;
     }

@@ -27,7 +27,6 @@ namespace mj {
                 {}
 
     WinningInfo& WinningInfo::Ron(Tile tile) noexcept {
-        closed_tiles.insert(tile);
         ++closed_tile_types[tile.Type()];
         ++all_tile_types[tile.Type()];
         last_tile_added = tile;
@@ -35,44 +34,22 @@ namespace mj {
         return *this;
     }
 
-    WinningInfo& WinningInfo::Discard(TileType tile_type) noexcept {
-        int id = -1;
-        for (int i = 0; i < 4; ++i) {
-            if (closed_tiles.find(Tile(tile_type, i)) != closed_tiles.end()) {
-                id = i;
-                break;
-            }
-        }
-        assert(id != -1);
-
-        Tile tile(tile_type, id);
-        closed_tiles.erase(tile);
+    WinningInfo& WinningInfo::Discard(Tile tile) noexcept {
+        const auto tile_type = tile.Type();
         if (--closed_tile_types[tile_type] == 0) {
             closed_tile_types.erase(tile_type);
         }
         if (--all_tile_types[tile_type] == 0) {
             all_tile_types.erase(tile_type);
         }
-        last_tile_added = tile;
-        stage = HandStage::kAfterTsumo;
+        stage = HandStage::kAfterDiscards;
         return *this;
     }
 
     WinningInfo& WinningInfo::Tsumo(TileType tile_type) noexcept {
-        int id = -1;
-        for (int i = 0; i < 4; ++i) {
-            if (closed_tiles.find(Tile(tile_type, i)) != closed_tiles.end()) {
-                id = i;
-                break;
-            }
-        }
-        assert(id != -1);
-
-        Tile tile(tile_type, id);
-        closed_tiles.insert(tile);
         ++closed_tile_types[tile_type];
         ++all_tile_types[tile_type];
-        last_tile_added = tile;
+        last_tile_added = Tile(tile_type);  // WORNING: 実際にこの牌をツモしたとは限らない.
         stage = HandStage::kAfterTsumo;
         return *this;
     }
