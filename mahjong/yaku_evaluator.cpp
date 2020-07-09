@@ -41,8 +41,8 @@ namespace mj
 
         if (!score.RequireFu()) return score;
 
-        // TODO calculate fu;
-        score.SetFu(CalculateFu(hand, closed_sets, heads));
+        // 符を計算する
+        score.SetFu(CalculateFu(hand, closed_sets, heads, score));
 
         return score;
     }
@@ -50,10 +50,66 @@ namespace mj
     int YakuEvaluator::CalculateFu(
             const Hand& hand,
             const std::vector<TileTypeCount>& closed_sets,
-            const std::vector<TileTypeCount>& heads) noexcept {
+            const std::vector<TileTypeCount>& heads,
+            const WinningScore& win_score) noexcept {
 
-        // TODO: implement
-        return 20;
+        // 七対子:25
+        if (win_score.HasYaku(Yaku::kSevenPairs)) {
+            return 25;
+        }
+
+        // 平和ツモ:20, 平和ロン:30
+        if (win_score.HasYaku(Yaku::kPinfu)) {
+            if (hand.Stage() == HandStage::kAfterTsumo) {
+                return 20;
+            } else if (hand.Stage() == HandStage::kAfterRon) {
+                return 30;
+            } else {
+                assert(false);
+            }
+        }
+
+        int fu = 20;
+
+        for (const Open* open : hand.Opens()) {
+            OpenType open_type = open->Type();
+            if (open_type == OpenType::kChi) continue;
+
+            bool is_yaocyu = Is(open->At(0).Type(), TileSetType::kYaocyu);
+
+            switch (open->Type()) {
+                case OpenType::kPon:
+                    fu += is_yaocyu ? 4 : 2;
+                    break;
+                case OpenType::kKanOpened:
+                    fu += is_yaocyu ? 16 : 8;
+                    break;
+                case OpenType::kKanAdded:
+                    fu += is_yaocyu ? 16 : 8;
+                    break;
+                case OpenType::kKanClosed:
+                    fu += is_yaocyu ? 32 : 16;
+                    break;
+                case OpenType::kChi:
+                    assert(false);
+            }
+        }
+
+        for (const auto& closed_set : closed_sets) {
+            if (closed_set.size() > 1) continue;    // 順子は0
+
+            bool is_yaocyu = Is(closed_set.begin()->first, TileSetType::kYaocyu);
+            fu += is_yaocyu ? 8 : 4;    // 暗刻
+        }
+
+        if (fu == 20) {
+            // 鳴き平和は一律30
+            return 30;
+        }
+
+        // 切り上げ
+        if (fu % 10) fu += 10 - fu % 10;
+        return fu;
     }
 
     std::tuple<std::map<Yaku,int>,std::vector<TileTypeCount>,std::vector<TileTypeCount>>
@@ -107,7 +163,7 @@ namespace mj
                 yaku_in_this_pattern[Yaku::kTerminalsInAllSets] = fan.value();
             }
 
-            // 今までに調べた組み合わせ方より役の総得点が高いなら採用する.
+            // 今までに調べた組み合わせ方より役の総飜数が高いなら採用する.
             if (TotalFan(best_yaku) < TotalFan(yaku_in_this_pattern)) {
                 std::swap(best_yaku, yaku_in_this_pattern);
                 best_closed_set = closed_sets;

@@ -35,7 +35,8 @@ namespace mj
         [[nodiscard]] static int CalculateFu(
                 const Hand& hand,
                 const std::vector<TileTypeCount>& closed_sets,
-                const std::vector<TileTypeCount>& heads) noexcept ;
+                const std::vector<TileTypeCount>& heads,
+                const WinningScore& win_score) noexcept ;
 
         [[nodiscard]] static bool HasBigThreeDragons(const TileTypeCount& count) noexcept ;
         [[nodiscard]] static bool HasAllHonours(const TileTypeCount& count) noexcept ;
