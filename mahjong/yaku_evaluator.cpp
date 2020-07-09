@@ -15,6 +15,7 @@ namespace mj
     }
 
     bool YakuEvaluator::Has(const Hand& hand) const noexcept {
+
         // TODO: 役無しのときはfalseを返す.
         if (win_cache().Has(hand.ClosedHandTiles())) return true;
 
@@ -40,6 +41,7 @@ namespace mj
         const auto [best_yaku, closed_sets, heads] = MaximizeTotalFan(hand);
         for (auto& [yaku, fan] : best_yaku) score.AddYaku(yaku, fan);
 
+        // TODO: 役がないと上がれない.
         if (score.yaku().empty()) return score;
 
         if (!score.RequireFu()) return score;
