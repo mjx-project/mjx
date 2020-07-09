@@ -294,6 +294,18 @@ namespace mj
         assert(SizeClosed() == 2 || SizeClosed() == 5 || SizeClosed() == 8 || SizeClosed() == 11 || SizeClosed() == 14);
         std::vector<Tile> possible_discards;
         std::unordered_set<TileType> possible_types;
+
+        auto base_win_info = ToWinningInfo();
+        for (const auto [discard_type, n] : base_win_info.closed_tile_types) {
+            for (int i = 0; i < 34; ++i) {
+                auto tile_type = static_cast<TileType>(i);
+                if (discard_type == tile_type) continue;
+                if (base_win_info.all_tile_types.count(tile_type) and
+                    base_win_info.all_tile_types[tile_type] == 4) {
+
+                }
+            }
+        }
         auto arr = ToArray();
         for (std::uint8_t i = 0; i < 34; ++i) {
             if (arr.at(i) == 0) continue;

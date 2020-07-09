@@ -34,4 +34,46 @@ namespace mj {
         stage = HandStage::kAfterRon;
         return *this;
     }
+
+    WinningInfo& WinningInfo::Discard(TileType tile_type) noexcept {
+        int id = -1;
+        for (int i = 0; i < 4; ++i) {
+            if (closed_tiles.find(Tile(tile_type, i)) != closed_tiles.end()) {
+                id = i;
+                break;
+            }
+        }
+        assert(id != -1);
+
+        Tile tile(tile_type, id);
+        closed_tiles.erase(tile);
+        if (--closed_tile_types[tile_type] == 0) {
+            closed_tile_types.erase(tile_type);
+        }
+        if (--all_tile_types[tile_type] == 0) {
+            all_tile_types.erase(tile_type);
+        }
+        last_tile_added = tile;
+        stage = HandStage::kAfterTsumo;
+        return *this;
+    }
+
+    WinningInfo& WinningInfo::Tsumo(TileType tile_type) noexcept {
+        int id = -1;
+        for (int i = 0; i < 4; ++i) {
+            if (closed_tiles.find(Tile(tile_type, i)) != closed_tiles.end()) {
+                id = i;
+                break;
+            }
+        }
+        assert(id != -1);
+
+        Tile tile(tile_type, id);
+        closed_tiles.insert(tile);
+        ++closed_tile_types[tile_type];
+        ++all_tile_types[tile_type];
+        last_tile_added = tile;
+        stage = HandStage::kAfterTsumo;
+        return *this;
+    }
 }

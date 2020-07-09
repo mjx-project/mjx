@@ -29,6 +29,8 @@ namespace mj {
                 ) noexcept ;
 
         WinningInfo& Ron(Tile tile) noexcept ;
+        WinningInfo& Discard(TileType tile_type) noexcept ;
+        WinningInfo& Tsumo(TileType tile_type) noexcept ;
     };
 
 } // namespace mj
