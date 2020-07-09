@@ -31,13 +31,14 @@ namespace mj
                 WinningScore& score) noexcept ;
 
         static int TotalFan(const std::map<Yaku,int>& yaku) noexcept ;
-        std::tuple<std::map<Yaku,int>,std::vector<TileTypeCount>,std::vector<TileTypeCount>>
+        [[nodiscard]] std::tuple<std::map<Yaku,int>,std::vector<TileTypeCount>,std::vector<TileTypeCount>>
         MaximizeTotalFan(const Hand& hand) const noexcept ;
 
         [[nodiscard]] static int CalculateFu(
                 const Hand& hand,
                 const std::vector<TileTypeCount>& closed_sets,
-                const std::vector<TileTypeCount>& heads) noexcept ;
+                const std::vector<TileTypeCount>& heads,
+                const WinningScore& win_score) noexcept ;
 
         [[nodiscard]] static bool HasBigThreeDragons(const TileTypeCount& count) noexcept ;
         [[nodiscard]] static bool HasAllHonours(const TileTypeCount& count) noexcept ;

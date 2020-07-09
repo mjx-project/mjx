@@ -38,4 +38,15 @@ namespace mj {
         return yakuman_.count(yakuman);
     }
 
+    const std::map<Yaku,int>& WinningScore::yaku() const noexcept {
+        return yaku_;
+    }
+    const std::map<Yaku,bool>& WinningScore::yakuman() const noexcept {
+        return yakuman_;
+    }
+
+    std::optional<int> WinningScore::fu() const noexcept {
+        return fu_;
+    }
+
 } // namespace mj
