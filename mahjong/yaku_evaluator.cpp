@@ -14,17 +14,30 @@ namespace mj
         return WinningHandCache::instance();
     }
 
-    //bool YakuEvaluator::Has(const Hand& hand) const noexcept {
+    bool YakuEvaluator::Has(const WinningInfo& win_info) const noexcept {
+        WinningScore score;
 
-    //    // TODO: 役無しのときはfalseを返す.
-    //    if (win_cache().Has(hand.ClosedTileTypes())) return true;
+        // 役満の判定
+        JudgeYakuman(win_info, score);
+        if (!score.yakuman().empty()) return true;
 
-    //    const TileTypeCount all_tiles = hand.AllTileTypes();
+        // closedな手牌が上がり形になっていることを確認する.
+        if (!win_cache().Has(win_info.closed_tile_types)) return false;
 
-    //    return HasThirteenOrphans(hand, all_tiles) or HasCompletedThirteenOrphans(hand, all_tiles);
-    //}
+        // 手牌の組み合わせ方によらない役
+        JudgeSimpleYaku(win_info, score);
+        if (!score.yaku().empty()) return true;
+
+        // 手牌の組み合わせ方に依存する役
+        const auto [best_yaku, closed_sets, heads] = MaximizeTotalFan(win_info);
+        for (auto& [yaku, fan] : best_yaku) score.AddYaku(yaku, fan);
+
+        return !score.yaku().empty();
+    }
 
     WinningScore YakuEvaluator::Eval(const WinningInfo& win_info) const noexcept {
+
+        assert(Has(win_info));
 
         WinningScore score;
 
@@ -40,7 +53,7 @@ namespace mj
         for (auto& [yaku, fan] : best_yaku) score.AddYaku(yaku, fan);
 
         // TODO: 役がないと上がれない.
-        if (score.yaku().empty()) return score;
+        assert(!score.yaku().empty());
 
         if (!score.RequireFu()) return score;
 

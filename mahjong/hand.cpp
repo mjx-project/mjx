@@ -1,7 +1,8 @@
 #include "hand.h"
 #include "open.h"
-#include "block.h"
 #include "utils.h"
+#include "block.h"
+#include "yaku_evaluator.h"
 
 #include <utility>
 #include <unordered_map>
@@ -559,11 +560,8 @@ namespace mj
     bool Hand::CanRon(Tile tile) {
         assert(stage_ == HandStage::kAfterDiscards);
         assert(SizeClosed() == 1 || SizeClosed() == 4 || SizeClosed() == 7 || SizeClosed() == 10 || SizeClosed() == 13);
-        const auto &win_cache = WinningHandCache::instance();
-        auto arr = ToArray();
-        arr[tile.TypeUint()]++;
-        auto blocks = Block::Build(arr);
-        return win_cache.Has(Block::BlocksToString(blocks));
+
+        return YakuEvaluator().Has(ToWinningInfo().Ron(tile));
     }
 
     bool Hand::CanRiichi() {
@@ -680,7 +678,7 @@ namespace mj
 
     WinningInfo Hand::ToWinningInfo() const noexcept {
         return WinningInfo(
-                closed_tiles_, opens_, last_tile_added_, stage_, under_riichi_,
+                opens_, closed_tiles_, last_tile_added_, stage_, under_riichi_,
                 ClosedTileTypes(), AllTileTypes(), IsMenzen());
     }
 

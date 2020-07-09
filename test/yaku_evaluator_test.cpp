@@ -39,7 +39,7 @@ TEST_F(YakuTest, Pinfu)
 
     // 鳴きはダメ
     auto yaku2 = evaluator.Eval(
-            Hand(HandParams("m1,m2,m3,m4,m5,m9,m9,s7,s8,s9").Pon("p1,p1,p1").Tsumo("m6")).ToWinningInfo());
+            Hand(HandParams("m1,m2,m3,m4,m5,m7,m8,m9,s8,s8").Pon("p1,p1,p1").Tsumo("m6")).ToWinningInfo());
     EXPECT_EQ(yaku2.HasYaku(Yaku::kPinfu), std::nullopt);
 
     // 刻子はダメ
@@ -165,7 +165,7 @@ TEST_F(YakuTest, PureDoubleChis) {
 
     // 鳴いているとダメ
     auto yaku2 = evaluator.Eval(
-            Hand(HandParams("m1,m1,m2,m2,m3,m3,s4,s5,s6,ew").Pon("p1,p1,p1").Tsumo("ew")).ToWinningInfo());
+            Hand(HandParams("m1,m1,m2,m2,m3,m3,s4,s5,s6,ew").Pon("rd,rd,rd").Tsumo("ew")).ToWinningInfo());
     EXPECT_EQ(yaku2.HasYaku(Yaku::kPureDoubleChis), std::nullopt);
 
     // 二盃口とは複合しない
@@ -186,7 +186,7 @@ TEST_F(YakuTest, TwicePureDoubleChis) {
 
     // 鳴いているとダメ
     auto yaku2 = evaluator.Eval(
-            Hand(HandParams("m1,m1,m2,m2,m3,m3,s4,s5,s6,ew").Chi("s4,s5,s6").Tsumo("ew")).ToWinningInfo());
+            Hand(HandParams("m2,m2,m3,m3,m4,m4,s4,s5,s6,p2").Chi("s4,s5,s6").Tsumo("p2")).ToWinningInfo());
     EXPECT_EQ(yaku2.HasYaku(Yaku::kTwicePureDoubleChis), std::nullopt);
 
     // 二盃口要素無し
@@ -223,7 +223,7 @@ TEST_F(YakuTest, AllPons) {
 
     // 順子が含まれるとNG
     auto yaku3 = evaluator.Eval(
-            Hand(HandParams("m1,m1,m1,m3,m4,m5,ew,ew,rd,rd").Pon("s4,s4,s4").Tsumo("ew")).ToWinningInfo());
+            Hand(HandParams("m1,m1,m1,m3,m4,m5,ew,ew,rd,rd").Pon("wd,wd,wd").Tsumo("ew")).ToWinningInfo());
     EXPECT_EQ(yaku3.HasYaku(Yaku::kAllPons), std::nullopt);
 
     // 四暗刻とは複合しない
