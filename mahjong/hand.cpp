@@ -670,10 +670,7 @@ namespace mj
     bool Hand::IsCompleted() {
         assert(stage_ == HandStage::kAfterDraw || stage_ == HandStage::kAfterDrawAfterKan);
         assert(SizeClosed() == 2 || SizeClosed() == 5 || SizeClosed() == 8 || SizeClosed() == 11 || SizeClosed() == 14);
-        const auto &win_cache = WinningHandCache::instance();
-        auto arr = ToArray();
-        auto blocks = Block::Build(arr);
-        return win_cache.Has(Block::BlocksToString(blocks));
+        return YakuEvaluator().Has(ToWinningInfo());
     }
 
     WinningInfo Hand::ToWinningInfo() const noexcept {
