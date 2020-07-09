@@ -535,14 +535,14 @@ namespace mj
         return a;
     }
 
-    TileTypeCount Hand::ClosedHandTiles() const noexcept {
+    TileTypeCount Hand::ClosedTileTypes() const noexcept {
         TileTypeCount count;
         for (const Tile& tile : ToVectorClosed(true)) {
             ++count[tile.Type()];
         }
         return count;
     }
-    TileTypeCount Hand::ClosedAndOpenedHandTiles() const noexcept {
+    TileTypeCount Hand::AllTileTypes() const noexcept {
         TileTypeCount count;
         for (const Tile& tile : ToVector(true)) {
             ++count[tile.Type()];
@@ -678,6 +678,12 @@ namespace mj
         return win_cache.Has(Block::BlocksToString(blocks));
     }
 
+    WinningInfo Hand::ToWinningInfo() const noexcept {
+        return WinningInfo(
+                closed_tiles_, opens_, last_tile_added_, stage_, under_riichi_,
+                ClosedTileTypes(), AllTileTypes(), IsMenzen());
+    }
+
     HandParams::HandParams(const std::string &closed) {
         assert(closed.size() % 3 == 2);
         for (std::int32_t i = 0; i < closed.size(); i += 3) {
@@ -744,4 +750,5 @@ namespace mj
         }
         vec.emplace_back(tmp);
     }
+
 }  // namespace mj
