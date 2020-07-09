@@ -48,7 +48,7 @@ namespace mj {
             const std::vector<TileTypeCount>& blocks, const TileTypeCount& total, WinningHandCache::CacheType& cache) noexcept {
 
         for (const auto& [tile_type, count] : total) {
-            if (count > 4) return false;
+            if (count > 5) return false;
         }
 
         auto [abstruct_hand, tile_types] = CreateAbstructHand(total);
