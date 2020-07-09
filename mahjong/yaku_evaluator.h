@@ -31,7 +31,7 @@ namespace mj
                 WinningScore& score) noexcept ;
 
         static int TotalFan(const std::map<Yaku,int>& yaku) noexcept ;
-        std::tuple<std::map<Yaku,int>,std::vector<TileTypeCount>,std::vector<TileTypeCount>>
+        [[nodiscard]] std::tuple<std::map<Yaku,int>,std::vector<TileTypeCount>,std::vector<TileTypeCount>>
         MaximizeTotalFan(const Hand& hand) const noexcept ;
 
         [[nodiscard]] static int CalculateFu(
