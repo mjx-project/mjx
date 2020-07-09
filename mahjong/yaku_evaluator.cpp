@@ -17,12 +17,15 @@ namespace mj
     bool YakuEvaluator::Has(const WinningInfo& win_info) const noexcept {
         WinningScore score;
 
+        // closedな手牌が上がり形になっている or 国士無双かどうかを判定する.
+        if (!win_cache().Has(win_info.closed_tile_types) and
+            !HasThirteenOrphans(win_info) and
+            !HasCompletedThirteenOrphans(win_info)
+            ) return false;
+
         // 役満の判定
         JudgeYakuman(win_info, score);
         if (!score.yakuman().empty()) return true;
-
-        // closedな手牌が上がり形になっていることを確認する.
-        if (!win_cache().Has(win_info.closed_tile_types)) return false;
 
         // 手牌の組み合わせ方によらない役
         JudgeSimpleYaku(win_info, score);
