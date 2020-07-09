@@ -9,7 +9,7 @@
 #include <tile.h>
 #include <unordered_map>
 #include "open.h"
-#include "win_cache.h"
+#include "yaku_evaluator.h"
 
 namespace mj
 {

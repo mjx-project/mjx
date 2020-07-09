@@ -2,6 +2,7 @@
 #include "open.h"
 #include "block.h"
 #include "utils.h"
+#include "yaku_evaluator.h"
 
 #include <utility>
 #include <unordered_map>
@@ -559,11 +560,15 @@ namespace mj
     bool Hand::CanRon(Tile tile) {
         assert(stage_ == HandStage::kAfterDiscards);
         assert(SizeClosed() == 1 || SizeClosed() == 4 || SizeClosed() == 7 || SizeClosed() == 10 || SizeClosed() == 13);
-        const auto &win_cache = WinningHandCache::instance();
-        auto arr = ToArray();
-        arr[tile.TypeUint()]++;
-        auto blocks = Block::Build(arr);
-        return win_cache.Has(Block::BlocksToString(blocks));
+        //const auto &win_cache = WinningHandCache::instance();
+        //auto arr = ToArray();
+        //arr[tile.TypeUint()]++;
+        //auto blocks = Block::Build(arr);
+        //return win_cache.Has(Block::BlocksToString(blocks));
+
+        auto closed_hand_tiles = ClosedHandTiles();
+        ++closed_hand_tiles[tile.Type()];
+        return YakuEvaluator().Has(closed_hand_tiles);
     }
 
     bool Hand::CanRiichi() {
