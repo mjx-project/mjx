@@ -10,10 +10,13 @@
 
 namespace mj
 {
-    YakuEvaluator::YakuEvaluator() : win_cache_() {}
+    const WinningHandCache &YakuEvaluator::win_cache() const {
+        return WinningHandCache::instance();
+    }
 
     bool YakuEvaluator::Has(const Hand& hand) const noexcept {
-        if (win_cache_.Has(hand.ClosedHandTiles())) return true;
+        // TODO: 役無しのときはfalseを返す.
+        if (win_cache().Has(hand.ClosedHandTiles())) return true;
 
         const TileTypeCount all_tiles = hand.ClosedAndOpenedHandTiles();
 
@@ -21,8 +24,6 @@ namespace mj
     }
 
     WinningScore YakuEvaluator::Eval(const Hand& hand) const noexcept {
-
-        assert(Has(hand));
 
         const TileTypeCount all_tiles = hand.ClosedAndOpenedHandTiles();
 
@@ -36,8 +37,10 @@ namespace mj
         JudgeSimpleYaku(hand, all_tiles, score);
 
         // 手牌の組み合わせ方に依存する役
-        const auto& [best_yaku, closed_sets, heads] = MaximizeTotalFan(hand);
+        const auto [best_yaku, closed_sets, heads] = MaximizeTotalFan(hand);
         for (auto& [yaku, fan] : best_yaku) score.AddYaku(yaku, fan);
+
+        if (score.yaku().empty()) return score;
 
         if (!score.RequireFu()) return score;
 
@@ -71,6 +74,7 @@ namespace mj
 
         int fu = 20;
 
+        // 面子
         for (const Open* open : hand.Opens()) {
             OpenType open_type = open->Type();
             if (open_type == OpenType::kChi) continue;
@@ -94,16 +98,52 @@ namespace mj
                     assert(false);
             }
         }
-
         for (const auto& closed_set : closed_sets) {
             if (closed_set.size() > 1) continue;    // 順子は0
-
             bool is_yaocyu = Is(closed_set.begin()->first, TileSetType::kYaocyu);
             fu += is_yaocyu ? 8 : 4;    // 暗刻
         }
 
+        // 雀頭
+        assert(heads.size() == 1);
+        TileType head_type = heads[0].begin()->first;
+        if (Is(head_type, TileSetType::kDragons)) fu += 2;
+        // TODO: 場風,自風は2符.
+        // TODO: 連風牌は2符? 4符? 要確認.
+
+        // 待ち
+        assert(hand.LastTileAdded().has_value());
+        const TileType tsumo_type = hand.LastTileAdded().value().Type();
+        bool has_bad_machi = false;
+        if (tsumo_type == head_type) has_bad_machi = true;    // 単騎
+        for (const TileTypeCount& st : closed_sets) {
+            if (st.size() == 1) continue;   // 刻子は弾く
+            assert(st.size() == 3);
+            auto it = st.begin();
+            const TileType left = it->first; ++it;
+            const TileType center = it->first; ++it;
+            const TileType right = it->first;
+
+            if (tsumo_type == center) has_bad_machi = true;     // カンチャン
+            if ((tsumo_type == left and Num(right) == 9) or
+                (tsumo_type == right and Num(left) == 1)) {
+                has_bad_machi = true;                           // ペンチャン
+            }
+        }
+        if (has_bad_machi) fu += 2;
+
+        // 面前加符
+        if (hand.IsMenzen() and hand.Stage() == HandStage::kAfterRon) {
+            fu += 10;
+        }
+
+        // ツモ符
+        if (hand.Stage() == HandStage::kAfterTsumo) {
+            fu += 2;
+        }
+
         if (fu == 20) {
-            // 鳴き平和は一律30
+            // 平和は一律30
             return 30;
         }
 
@@ -127,7 +167,7 @@ namespace mj
             opened_sets.push_back(count);
         }
 
-        for (const auto& [closed_sets, heads] : win_cache_.SetAndHeads(hand.ClosedHandTiles())) {
+        for (const auto& [closed_sets, heads] : win_cache().SetAndHeads(hand.ClosedHandTiles())) {
 
             std::map<Yaku,int> yaku_in_this_pattern;
 
@@ -164,7 +204,7 @@ namespace mj
             }
 
             // 今までに調べた組み合わせ方より役の総飜数が高いなら採用する.
-            if (TotalFan(best_yaku) < TotalFan(yaku_in_this_pattern)) {
+            if (best_yaku.empty() or TotalFan(best_yaku) < TotalFan(yaku_in_this_pattern)) {
                 std::swap(best_yaku, yaku_in_this_pattern);
                 best_closed_set = closed_sets;
                 best_heads = heads;
@@ -662,7 +702,7 @@ namespace mj
     std::optional<int> YakuEvaluator::HasThreeKans(const Hand& hand) noexcept {
         int kans = 0;
         for (const Open* open : hand.Opens()) {
-            if (any_of(open->Type(), {
+            if (Any(open->Type(), {
                     OpenType::kKanOpened, OpenType::kKanAdded, OpenType::kKanClosed})) {
                 ++kans;
             }
@@ -806,7 +846,7 @@ namespace mj
     bool YakuEvaluator::HasFourKans(const Hand& hand) noexcept {
         int kans = 0;
         for (const Open* open : hand.Opens()) {
-            if (any_of(open->Type(), {
+            if (Any(open->Type(), {
                     OpenType::kKanOpened, OpenType::kKanAdded, OpenType::kKanClosed})) {
                 ++kans;
             }

@@ -7,10 +7,10 @@
 
 namespace mj
 {
-    class MockAgentServiceImpl final : public Agent::Service
+    class MockAgentServiceImpl final : public mjproto::Agent::Service
     {
     public:
-        grpc::Status TakeAction(grpc::ServerContext* context, const ActionRequest* request, ActionResponse* reply) final ;
+        grpc::Status TakeAction(grpc::ServerContext* context, const mjproto::ActionRequest* request, mjproto::ActionResponse* reply) final ;
     };
 
 

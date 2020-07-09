@@ -27,10 +27,12 @@ namespace mj
         virtual std::vector<TileType> UndiscardableTileTypes() = 0;
         virtual std::uint16_t GetBits();
         [[nodiscard]] virtual std::string ToString(bool verbose = false) const;  // TODO(sotetsuk): put more information
+        static std::unique_ptr<Open> NewOpen(std::uint16_t bits);
     protected:
         std::uint16_t bits_;  // follows tenhou format (see https://github.com/NegativeMjark/tenhou-log)
     };
 
+    // TODO(sotetsuk): delete this class (duplicate to NewOpen())
     class OpenGenerator
     {
     public:

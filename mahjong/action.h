@@ -13,17 +13,16 @@ namespace mj
     class Action
     {
     public:
-        Action() = default;
-        Action(ActionResponse action_response)
-        : action_response_(std::move(action_response)) {}
-        AbsolutePos GetWho() const;
-        ActionType GetType() const;
-        bool GetYes() const;
-        Tile GetDiscard() const;
-        std::unique_ptr<Open> GetOpen() const;
-        [[nodiscard]] const ActionResponse& GetActionResponse() const { return action_response_; }
+        Action() = delete;
+        explicit Action(mjproto::ActionResponse action_response) : action_response_(std::move(action_response)) {}
+        AbsolutePos who() const { return AbsolutePos(action_response_.who()); }
+        ActionType type() const { return ActionType(action_response_.type()); }
+        bool yes() const { return action_response_.yes(); }
+        Tile discard() const {return Tile(action_response_.discard()); }
+        std::unique_ptr<Open> open() const { return Open::NewOpen(action_response_.open()); }
+        [[nodiscard]] const mjproto::ActionResponse& action_response() const { return action_response_; }
     private:
-        ActionResponse action_response_;
+        mjproto::ActionResponse action_response_;
     };
 }  // namespace mj
 

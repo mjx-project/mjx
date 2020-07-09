@@ -4,17 +4,23 @@
 #include <mahjong.pb.h>
 
 #include <utility>
+#include <array>
 #include "hand.h"
+#include "action.h"
 
 namespace mj
 {
-    struct Score
+    class Score
     {
-        Score(): round(0), honba(0), riichi(0), ten({250, 250, 250, 250}) {}
-        std::uint8_t round;  // 局
-        std::uint8_t honba;  // 本場
-        std::uint8_t riichi;  // リー棒
-        std::array<std::int16_t, 4> ten;  // 点 250 start
+    public:
+        Score();
+        [[nodiscard]] std::uint8_t round() const;  // 局
+        [[nodiscard]] std::uint8_t honba() const;  // 本場
+        [[nodiscard]] std::uint8_t riichi() const;  // リー棒
+        [[nodiscard]] std::array<std::int16_t, 4> ten() const;  // 点 250 start
+    private:
+        friend class Observation;
+        std::unique_ptr<mjproto::Score> score_ = std::make_unique<mjproto::Score>();
     };
 
     struct TakenAction {
@@ -26,31 +32,53 @@ namespace mj
         std::unique_ptr<Open> open;
     };
 
+    class PossibleAction
+    {
+    public:
+        PossibleAction() = default;
+        PossibleAction(const mjproto::PossibleAction &possible_action);
+        ActionType type() const;
+        std::unique_ptr<Open> open() const;
+        std::vector<Tile> discard_candidates() const;
+
+        static std::unique_ptr<PossibleAction> NewDiscard(const Hand* hand);
+    private:
+        friend class Observation;
+        std::unique_ptr<mjproto::PossibleAction> possible_action_ = std::make_unique<mjproto::PossibleAction>();
+    };
+
+    class ActionHistory
+    {
+    public:
+        ActionHistory() = default;
+        [[nodiscard]] std::size_t size() const;
+    private:
+        friend class Observation;
+        std::unique_ptr<mjproto::ActionHistory> action_history_ = std::make_unique<mjproto::ActionHistory>();
+    };
+
     class Observation
     {
     public:
-        // As Observation should return the ownership of common observation. The life span of Observation should be short.
-        Observation() = delete;
-        Observation(ActionRequest &action_request, ActionRequest_CommonObservation* common_observation)
-        : action_request_(action_request) {
-            action_request_.set_allocated_common_observation(common_observation);
-        }
-        ~Observation() {
-            std::cout << "Observation destructor is called" << std::endl;
-            // Calling release_common_observation prevent gRPC from deleting common_observation object
-            action_request_.release_common_observation();
-        }
-        std::uint32_t GetGameId() const;
-        AbsolutePos GetWho() const;
-        Hand GetInitialHand() const;
-        Hand GetCurrentHand() const;
-        // std::vector<Action> GetPossibleActions() const;
-        Score GetScore() const;
-        std::vector<TakenAction> GetTakenActions() const;
-        [[nodiscard]] const ActionRequest& GetActionRequest() const { return action_request_; }
+        Observation() = default;
+        Observation(AbsolutePos who, Score* score, ActionHistory* action_history);
+        ~Observation();
+        // getter
+        std::uint32_t game_id() const;
+        AbsolutePos who() const;
+        Hand initial_hand() const;
+        Hand current_hand() const;
+        [[nodiscard]] std::vector<PossibleAction> possible_actions() const;
+        Score score() const;
+        std::vector<TakenAction> taken_actions() const;
+        // setter
+        void add_possible_action(std::unique_ptr<PossibleAction> possible_action);
+
+        void ClearPossibleActions();
         std::string ToString() const;
     private:
-        ActionRequest &action_request_;
+        friend class AgentClient;
+        std::unique_ptr<mjproto::ActionRequest> action_request_ = std::make_unique<mjproto::ActionRequest>();
     };
 }
 

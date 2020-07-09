@@ -55,13 +55,13 @@ namespace mj
         [[nodiscard]] TileTypeCount ClosedAndOpenedHandTiles() const noexcept ;
 
         // action validators
-        std::vector<Tile> PossibleDiscards();  // TODO(sotetsuk): Current implementation has the tiles with same type (e.g., 2m x 3). What is the Tenhou's implementation? Only first id? or any id?
+        std::vector<Tile> PossibleDiscards() const;  // TODO(sotetsuk): Current implementation has the tiles with same type (e.g., 2m x 3). What is the Tenhou's implementation? Only first id? or any id?
         std::vector<Tile> PossibleDiscardsAfterRiichi(const WinningHandCache &win_cache);
         std::vector<std::unique_ptr<Open>> PossibleOpensAfterOthersDiscard(Tile tile, RelativePos from);  // includes Chi, Pon, and KanOpened
         std::vector<std::unique_ptr<Open>> PossibleOpensAfterDraw();  // includes KanClosed and KanAdded
-        bool CanRon(Tile tile, const WinningHandCache &win_cache);  // This does not take furiten and fan into account.
-        bool IsCompleted(const WinningHandCache &win_cache);
-        bool CanRiichi(const WinningHandCache &win_cache);
+        bool CanRon(Tile tile);  // This does not take furiten and fan into account.
+        bool IsCompleted();
+        bool CanRiichi();
         bool CanNineTiles(bool IsDealer);  // 九種九牌
 
         // apply actions

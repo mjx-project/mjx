@@ -132,7 +132,7 @@ namespace mj
                stage_ == HandStage::kAfterKanClosed ||
                stage_ == HandStage::kAfterKanAdded);
         assert(SizeClosed() == 1 || SizeClosed() == 4 || SizeClosed() == 7 || SizeClosed() == 10 || SizeClosed() == 13);
-        assert(!any_of(tile, ToVector()));
+        assert(!Any(tile, ToVector()));
         closed_tiles_.insert(tile);
         if (stage_ == HandStage::kAfterDiscards) stage_ = HandStage::kAfterDraw;
         else stage_ = HandStage::kAfterDrawAfterKan;
@@ -268,7 +268,7 @@ namespace mj
         return under_riichi_;
     }
 
-    std::vector<Tile> Hand::PossibleDiscards() {
+    std::vector<Tile> Hand::PossibleDiscards() const {
         assert(stage_ != HandStage::kAfterDiscards);
         assert(stage_ != HandStage::kAfterTsumo && stage_ != HandStage::kAfterTsumoAfterKan &&
                stage_ != HandStage::kAfterRon && stage_ != HandStage::kAfterRonAfterOthersKan);
@@ -556,20 +556,22 @@ namespace mj
                 [](const auto &x){ return x->Type() == OpenType::kKanClosed; });
     }
 
-    bool Hand::CanRon(Tile tile, const WinningHandCache &win_cache) {
+    bool Hand::CanRon(Tile tile) {
         assert(stage_ == HandStage::kAfterDiscards);
         assert(SizeClosed() == 1 || SizeClosed() == 4 || SizeClosed() == 7 || SizeClosed() == 10 || SizeClosed() == 13);
+        const auto &win_cache = WinningHandCache::instance();
         auto arr = ToArray();
         arr[tile.TypeUint()]++;
         auto blocks = Block::Build(arr);
         return win_cache.Has(Block::BlocksToString(blocks));
     }
 
-    bool Hand::CanRiichi(const WinningHandCache &win_cache) {
+    bool Hand::CanRiichi() {
         // TODO: use different cache might become faster
         assert(stage_ == HandStage::kAfterDraw || stage_ == HandStage::kAfterKanClosed);
         assert(SizeClosed() == 2 || SizeClosed() == 5 || SizeClosed() == 8 || SizeClosed() == 11 || SizeClosed() == 14);
         if (!IsMenzen()) return false;
+        const auto &win_cache = WinningHandCache::instance();
         auto arr = ToArray();
         // backtrack
         for (std::uint8_t i = 0; i < 34; ++i) {
@@ -667,9 +669,10 @@ namespace mj
         assert(last_tile_added_);
     }
 
-    bool Hand::IsCompleted(const WinningHandCache &win_cache) {
+    bool Hand::IsCompleted() {
         assert(stage_ == HandStage::kAfterDraw || stage_ == HandStage::kAfterDrawAfterKan);
         assert(SizeClosed() == 2 || SizeClosed() == 5 || SizeClosed() == 8 || SizeClosed() == 11 || SizeClosed() == 14);
+        const auto &win_cache = WinningHandCache::instance();
         auto arr = ToArray();
         auto blocks = Block::Build(arr);
         return win_cache.Has(Block::BlocksToString(blocks));

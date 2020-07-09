@@ -495,38 +495,35 @@ TEST(hand, IsMenzen) {
 
 TEST(hand, CanRon) {
     auto h = Hand(HandParams("m1,m1,m1,m2,m3,m4,m5,m6,m7,m8,m9,m9,m9"));
-    const auto win_cache = WinningHandCache();
-    EXPECT_TRUE(h.CanRon(Tile("m1", 3), win_cache));
-    EXPECT_TRUE(h.CanRon(Tile("m5", 3), win_cache));
-    EXPECT_TRUE(h.CanRon(Tile("m9", 3), win_cache));
+    EXPECT_TRUE(h.CanRon(Tile("m1", 3)));
+    EXPECT_TRUE(h.CanRon(Tile("m5", 3)));
+    EXPECT_TRUE(h.CanRon(Tile("m9", 3)));
     h = Hand(HandParams("m1,m1,m1,m2,m3,m4,m5,m6,m7,m8,m9,m9,rd"));
-    EXPECT_FALSE(h.CanRon(Tile("m1", 3), win_cache));
+    EXPECT_FALSE(h.CanRon(Tile("m1", 3)));
 }
 
 TEST(hand, IsCompleted) {
     auto h = Hand(HandParams("m1,m1,m1,m2,m3,m4,m5,m6,m7,m8,m9,m9,m9"));
-    const auto win_cache = WinningHandCache();
     h.Draw(Tile("m1", 3));
-    EXPECT_TRUE(h.IsCompleted(win_cache));
+    EXPECT_TRUE(h.IsCompleted());
     h = Hand(HandParams("m1,m1,m1,m2,m3,m4,m5,m6,m7,m8,m9,m9,m9"));
     h.Draw(Tile("rd", 0));
-    EXPECT_FALSE(h.IsCompleted(win_cache));
+    EXPECT_FALSE(h.IsCompleted());
 }
 
 TEST(hand, CanRiichi) {
-    const auto win_cache = WinningHandCache();
     auto h = Hand(HandParams("m1,m1,m1,m2,m3,m4,m5,m6,m7,m8,m9,m9,m9"));
     h.Draw(Tile("p1"));
-    EXPECT_TRUE(h.CanRiichi(win_cache));
+    EXPECT_TRUE(h.CanRiichi());
     h = Hand(HandParams("m1,m1,m1,m2,m3,m4,m5,m6,m7,m8,m9,m9,p9"));
     h.Draw(Tile("p1"));
-    EXPECT_FALSE(h.CanRiichi(win_cache));
+    EXPECT_FALSE(h.CanRiichi());
     h = Hand(HandParams("m1,m1,m1,m2,m3,m4,m5,m6,m7,m8,m9,m9,m9"));
     auto chis = h.PossibleOpensAfterOthersDiscard(Tile("m1", 2), RelativePos::kLeft);
     h.ApplyOpen(std::move(chis.at(0)));
     h.Discard(Tile("m9"));
     h.Draw(Tile("p1"));
-    EXPECT_FALSE(h.CanRiichi(win_cache));
+    EXPECT_FALSE(h.CanRiichi());
 }
 
 TEST(hand, Opens) {
@@ -548,7 +545,7 @@ TEST(hand, Riichi) {
 
 TEST(hand, PossibleDiscardsAfterRiichi) {
     auto h = Hand(HandParams("m1,m1,m1,m2,m3,m4,m5,m6,m7,m8,m9,m9,m9"));
-    const auto win_cache = WinningHandCache();
+    const auto &win_cache = WinningHandCache::instance();
     h.Draw(Tile("rd"));
     h.Riichi();
     auto possible_discards = h.PossibleDiscardsAfterRiichi(win_cache);
