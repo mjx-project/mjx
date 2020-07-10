@@ -10,6 +10,7 @@
 #include <unordered_map>
 #include "open.h"
 #include "win_cache.h"
+#include "win_info.h"
 
 namespace mj
 {
@@ -52,8 +53,8 @@ namespace mj
         std::array<std::uint8_t, 34> ToArrayOpened();
         [[nodiscard]] std::vector<const Open*> Opens() const;  // TODO(sotetsuk): Should we avoid raw pointer?
         [[nodiscard]] std::string ToString(bool verbose = false) const;
-        [[nodiscard]] TileTypeCount ClosedHandTiles() const noexcept ;
-        [[nodiscard]] TileTypeCount ClosedAndOpenedHandTiles() const noexcept ;
+        [[nodiscard]] TileTypeCount ClosedTileTypes() const noexcept ;
+        [[nodiscard]] TileTypeCount AllTileTypes() const noexcept ;
 
         // action validators
         std::vector<Tile> PossibleDiscards() const;  // TODO(sotetsuk): Current implementation has the tiles with same type (e.g., 2m x 3). What is the Tenhou's implementation? Only first id? or any id?
@@ -73,6 +74,9 @@ namespace mj
         void RonAfterOthersKan(Tile tile);
         void Tsumo();  // should be called after draw like h.Draw(tile); if (h.IsCompleted(w)) h.Tsumo();
         Tile Discard(Tile tile);
+
+        // get winning info
+        WinningInfo ToWinningInfo() const noexcept ;
     private:
         std::unordered_set<Tile, HashTile> closed_tiles_;
         std::vector<std::unique_ptr<Open>> opens_;  // Though open only uses 16 bits, to handle different open types, we need to use pointer
