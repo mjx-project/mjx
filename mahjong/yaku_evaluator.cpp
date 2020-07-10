@@ -307,6 +307,9 @@ namespace mj
         if (const std::optional<int> fan = HasBottomOfTheRiver(win_info); fan) {
             score.AddYaku(Yaku::kBottomOfTheRiver, fan.value());
         }
+        if (const std::optional<int> fan = HasIppatsu(win_info); fan) {
+            score.AddYaku(Yaku::kIppatsu, fan.value());
+        }
         if (const std::optional<int> fan = HasAllSimples(win_info); fan) {
             score.AddYaku(Yaku::kAllSimples, fan.value());
         }
@@ -730,6 +733,11 @@ namespace mj
 
     std::optional<int> YakuEvaluator::HasBottomOfTheRiver(const WinningInfo& win_info) noexcept {
         if (win_info.is_bottom and win_info.stage == HandStage::kAfterRon) return 1;
+        return std::nullopt;
+    }
+
+    std::optional<int> YakuEvaluator::HasIppatsu(const WinningInfo& win_info) noexcept {
+        if (win_info.is_ippatsu) return 1;
         return std::nullopt;
     }
 

@@ -27,7 +27,8 @@ namespace mj {
                 is_menzen(is_menzen),
                 seat_wind(Wind::kEast),
                 prevalent_wind(Wind::kEast),
-                is_bottom(false)
+                is_bottom(false),
+                is_ippatsu(false)
             {}
 
     WinningInfo& WinningInfo::Ron(Tile tile) noexcept {
@@ -87,6 +88,11 @@ namespace mj {
 
     WinningInfo& WinningInfo::IsBottom(bool is_bottom) noexcept {
         this->is_bottom = is_bottom;
+        return *this;
+    }
+
+    WinningInfo& WinningInfo::IsIppatsu(bool is_ippatsu) noexcept {
+        this->is_ippatsu = is_ippatsu;
         return *this;
     }
 }
