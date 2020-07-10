@@ -39,6 +39,8 @@ namespace mj
                 const std::vector<TileTypeCount>& heads,
                 const WinningScore& win_score) noexcept ;
 
+        [[nodiscard]] static bool HasBlessingOfHeaven(const WinningInfo& win_info) noexcept ;
+        [[nodiscard]] static bool HasBlessingOfEarth(const WinningInfo& win_info) noexcept ;
         [[nodiscard]] static bool HasBigThreeDragons(const WinningInfo& win_info) noexcept ;
         [[nodiscard]] static bool HasAllHonours(const WinningInfo& win_info) noexcept ;
         [[nodiscard]] static bool HasAllGreen(const WinningInfo& win_info) noexcept ;

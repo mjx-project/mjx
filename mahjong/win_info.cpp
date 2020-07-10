@@ -29,7 +29,9 @@ namespace mj {
                 prevalent_wind(Wind::kEast),
                 is_bottom(false),
                 is_ippatsu(false),
-                is_double_riichi(false)
+                is_double_riichi(false),
+                is_first_tsumo(false),
+                is_leader(false)
             {}
 
     WinningInfo& WinningInfo::Ron(Tile tile) noexcept {
@@ -101,6 +103,17 @@ namespace mj {
     WinningInfo& WinningInfo::IsDoubleRiichi(bool is_double_riichi) noexcept {
         assert(under_riichi);
         this->is_double_riichi = is_double_riichi;
+        return *this;
+    }
+
+    WinningInfo& WinningInfo::IsFirstTsumo(bool is_first_tsumo) noexcept {
+        assert(stage == HandStage::kAfterTsumo);
+        this->is_first_tsumo = is_first_tsumo;
+        return *this;
+    }
+
+    WinningInfo& WinningInfo::IsLeader(bool is_leader) noexcept {
+        this->is_leader = is_leader;
         return *this;
     }
 }

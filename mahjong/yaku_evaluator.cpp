@@ -243,6 +243,12 @@ namespace mj
             const WinningInfo& win_info,
             WinningScore& score) noexcept {
 
+        if (HasBlessingOfHeaven(win_info)) {
+            score.AddYakuman(Yaku::kBlessingOfHeaven);
+        }
+        if (HasBlessingOfEarth(win_info)) {
+            score.AddYakuman(Yaku::kBlessingOfEarth);
+        }
         if (HasBigThreeDragons(win_info)) {
             score.AddYakuman(Yaku::kBigThreeDragons);
         }
@@ -886,6 +892,14 @@ namespace mj
         }
         if (pons == 2 and heads == 1) return 2;
         return std::nullopt;
+    }
+
+    bool YakuEvaluator::HasBlessingOfHeaven(const WinningInfo& win_info) noexcept {
+        return win_info.is_first_tsumo and win_info.is_leader;
+    }
+
+    bool YakuEvaluator::HasBlessingOfEarth(const WinningInfo& win_info) noexcept {
+        return win_info.is_first_tsumo and !win_info.is_leader;
     }
 
     bool YakuEvaluator::HasBigThreeDragons(const WinningInfo& win_info) noexcept {
