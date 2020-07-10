@@ -43,7 +43,7 @@ namespace mj
         // 手牌の組み合わせ方に依存する役
         const auto [best_yaku, closed_sets, heads] = MaximizeTotalFan(win_info);
         for (auto& [yaku, fan] : best_yaku) score.AddYaku(yaku, fan);
-
+//  TODO: Yakuがdoraのみの場合をはじく
         return !score.yaku().empty();
     }
 
