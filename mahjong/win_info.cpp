@@ -23,8 +23,10 @@ namespace mj {
                 under_riichi(under_riichi),
                 closed_tile_types(std::move(closed_tile_types)),
                 all_tile_types(std::move(all_tile_types)),
-                is_menzen(is_menzen)
-                {}
+                is_menzen(is_menzen),
+                seat_wind(Wind::kEast),
+                prevalent_wind(Wind::kEast)
+            {}
 
     WinningInfo& WinningInfo::Ron(Tile tile) noexcept {
         // WARNING: closed_tiles との整合性は取れていない. 上がりの判定だけに使うこと.
@@ -54,6 +56,16 @@ namespace mj {
         ++all_tile_types[tile_type];
         last_tile_added = Tile(tile_type);  // WARNING: 適当にTileを生成している. 既に使用している牌の可能性もある. 空聴のためなのでやむなし.
         stage = HandStage::kAfterTsumo;
+        return *this;
+    }
+
+    WinningInfo& WinningInfo::Seat(Wind wind) noexcept {
+        seat_wind = wind;
+        return *this;
+    }
+
+    WinningInfo& WinningInfo::Prevalent(Wind wind) noexcept {
+        prevalent_wind = wind;
         return *this;
     }
 }

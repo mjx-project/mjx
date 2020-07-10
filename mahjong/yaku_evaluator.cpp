@@ -303,6 +303,30 @@ namespace mj
         if (const std::optional<int> fan = HasRedDragon(win_info); fan) {
             score.AddYaku(Yaku::kRedDragon, fan.value());
         }
+        if (const std::optional<int> fan = HasSeatWindEast(win_info); fan) {
+            score.AddYaku(Yaku::kSeatWindEast, fan.value());
+        }
+        if (const std::optional<int> fan = HasSeatWindSouth(win_info); fan) {
+            score.AddYaku(Yaku::kSeatWindSouth, fan.value());
+        }
+        if (const std::optional<int> fan = HasSeatWindWest(win_info); fan) {
+            score.AddYaku(Yaku::kSeatWindWest, fan.value());
+        }
+        if (const std::optional<int> fan = HasSeatWindNorth(win_info); fan) {
+            score.AddYaku(Yaku::kSeatWindNorth, fan.value());
+        }
+        if (const std::optional<int> fan = HasPrevalentWindEast(win_info); fan) {
+            score.AddYaku(Yaku::kPrevalentWindEast, fan.value());
+        }
+        if (const std::optional<int> fan = HasPrevalentWindSouth(win_info); fan) {
+            score.AddYaku(Yaku::kPrevalentWindSouth, fan.value());
+        }
+        if (const std::optional<int> fan = HasPrevalentWindWest(win_info); fan) {
+            score.AddYaku(Yaku::kPrevalentWindWest, fan.value());
+        }
+        if (const std::optional<int> fan = HasPrevalentWindNorth(win_info); fan) {
+            score.AddYaku(Yaku::kPrevalentWindNorth, fan.value());
+        }
         if (const std::optional<int> fan = HasAllTermsAndHonours(win_info); fan) {
             score.AddYaku(Yaku::kAllTermsAndHonours, fan.value());
         }
@@ -689,6 +713,62 @@ namespace mj
     std::optional<int> YakuEvaluator::HasRedDragon(const WinningInfo& win_info) noexcept {
         const auto& all_tile_types = win_info.all_tile_types;
         if (all_tile_types.count(TileType::kRD) and all_tile_types.at(TileType::kRD) >= 3) return 1;
+        return std::nullopt;
+    }
+
+    std::optional<int> YakuEvaluator::HasSeatWindEast(const WinningInfo& win_info) noexcept {
+        if (win_info.seat_wind != Wind::kEast) return std::nullopt;
+        const auto& all_tile_types = win_info.all_tile_types;
+        if (all_tile_types.count(TileType::kEW) and all_tile_types.at(TileType::kEW) >= 3) return 1;
+        return std::nullopt;
+    }
+
+    std::optional<int> YakuEvaluator::HasSeatWindSouth(const WinningInfo& win_info) noexcept {
+        if (win_info.seat_wind != Wind::kSouth) return std::nullopt;
+        const auto& all_tile_types = win_info.all_tile_types;
+        if (all_tile_types.count(TileType::kSW) and all_tile_types.at(TileType::kSW) >= 3) return 1;
+        return std::nullopt;
+    }
+
+    std::optional<int> YakuEvaluator::HasSeatWindWest(const WinningInfo& win_info) noexcept {
+        if (win_info.seat_wind != Wind::kWest) return std::nullopt;
+        const auto& all_tile_types = win_info.all_tile_types;
+        if (all_tile_types.count(TileType::kWW) and all_tile_types.at(TileType::kWW) >= 3) return 1;
+        return std::nullopt;
+    }
+
+    std::optional<int> YakuEvaluator::HasSeatWindNorth(const WinningInfo& win_info) noexcept {
+        if (win_info.seat_wind != Wind::kNorth) return std::nullopt;
+        const auto& all_tile_types = win_info.all_tile_types;
+        if (all_tile_types.count(TileType::kNW) and all_tile_types.at(TileType::kNW) >= 3) return 1;
+        return std::nullopt;
+    }
+
+    std::optional<int> YakuEvaluator::HasPrevalentWindEast(const WinningInfo& win_info) noexcept {
+        if (win_info.prevalent_wind != Wind::kEast) return std::nullopt;
+        const auto& all_tile_types = win_info.all_tile_types;
+        if (all_tile_types.count(TileType::kEW) and all_tile_types.at(TileType::kEW) >= 3) return 1;
+        return std::nullopt;
+    }
+
+    std::optional<int> YakuEvaluator::HasPrevalentWindSouth(const WinningInfo& win_info) noexcept {
+        if (win_info.prevalent_wind != Wind::kSouth) return std::nullopt;
+        const auto& all_tile_types = win_info.all_tile_types;
+        if (all_tile_types.count(TileType::kSW) and all_tile_types.at(TileType::kSW) >= 3) return 1;
+        return std::nullopt;
+    }
+
+    std::optional<int> YakuEvaluator::HasPrevalentWindWest(const WinningInfo& win_info) noexcept {
+        if (win_info.prevalent_wind != Wind::kWest) return std::nullopt;
+        const auto& all_tile_types = win_info.all_tile_types;
+        if (all_tile_types.count(TileType::kWW) and all_tile_types.at(TileType::kWW) >= 3) return 1;
+        return std::nullopt;
+    }
+
+    std::optional<int> YakuEvaluator::HasPrevalentWindNorth(const WinningInfo& win_info) noexcept {
+        if (win_info.prevalent_wind != Wind::kNorth) return std::nullopt;
+        const auto& all_tile_types = win_info.all_tile_types;
+        if (all_tile_types.count(TileType::kNW) and all_tile_types.at(TileType::kNW) >= 3) return 1;
         return std::nullopt;
     }
 

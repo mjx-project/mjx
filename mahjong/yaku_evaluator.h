@@ -58,6 +58,14 @@ namespace mj
         [[nodiscard]] static std::optional<int> HasWhiteDragon(const WinningInfo& win_info) noexcept ;
         [[nodiscard]] static std::optional<int> HasGreenDragon(const WinningInfo& win_info) noexcept ;
         [[nodiscard]] static std::optional<int> HasRedDragon(const WinningInfo& win_info) noexcept ;
+        [[nodiscard]] static std::optional<int> HasSeatWindEast(const WinningInfo& win_info) noexcept ;
+        [[nodiscard]] static std::optional<int> HasSeatWindSouth(const WinningInfo& win_info) noexcept ;
+        [[nodiscard]] static std::optional<int> HasSeatWindWest(const WinningInfo& win_info) noexcept ;
+        [[nodiscard]] static std::optional<int> HasSeatWindNorth(const WinningInfo& win_info) noexcept ;
+        [[nodiscard]] static std::optional<int> HasPrevalentWindEast(const WinningInfo& win_info) noexcept ;
+        [[nodiscard]] static std::optional<int> HasPrevalentWindSouth(const WinningInfo& win_info) noexcept ;
+        [[nodiscard]] static std::optional<int> HasPrevalentWindWest(const WinningInfo& win_info) noexcept ;
+        [[nodiscard]] static std::optional<int> HasPrevalentWindNorth(const WinningInfo& win_info) noexcept ;
         [[nodiscard]] static std::optional<int> HasAllTermsAndHonours(const WinningInfo& win_info) noexcept ;
         [[nodiscard]] static std::optional<int> HasHalfFlush(const WinningInfo& win_info) noexcept ;
         [[nodiscard]] static std::optional<int> HasFullFlush(const WinningInfo& win_info) noexcept ;
