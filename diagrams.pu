@@ -2,14 +2,14 @@
 
 set namespaceSeparator ::
 
-class mjproto::Score {
+class mjproto::Score <<(D,yellow) Data>> {
   + round
   + honba 
   + riichi 
   + ten 
 }
 
-class mjproto::TakenAction {
+class mjproto::TakenAction <<(D,yellow) Data>> {
   + who
   + type 
   + draw 
@@ -18,21 +18,21 @@ class mjproto::TakenAction {
   + open
 }
 
-class mjproto::ActionHistory {
+class mjproto::ActionHistory <<(D,yellow) Data>> {
   + taken_actions 
 }
 
-class mjproto::InitialHand {
+class mjproto::InitialHand <<(D,yellow) Data>> {
   + tiles
 }
 
-class mjproto::PossibleAction {
+class mjproto::PossibleAction <<(D,yellow) Data>> {
   + type
   + open 
   + discard_candidates
 }
 
-class mjproto::ActionRequest {
+class mjproto::ActionRequest <<(D,yellow) Data>> {
   + game_id
   + score
   + action_history
@@ -41,7 +41,7 @@ class mjproto::ActionRequest {
   + possible_actions
 }
 
-class mjproto::ActionResponse { 
+class mjproto::ActionResponse <<(D,yellow) Data>> { 
   + game_id 
   + who
   + type
@@ -66,12 +66,12 @@ class mj::Environment {
     + RunOneRound()
 }
 
-class mj::YakuEvaluator {
+class mj::YakuEvaluator <<(S,orange) Static>> {
     + Has(): bool
     + Eval(): mj::WinningScore
 }
 
-class mj::WinningHandCache <<Singleton>> {
+class mj::WinningHandCache <<(S,orchid) Singleton>> {
     + Has(): bool
 }
 
@@ -81,7 +81,7 @@ class mj::WinningScore {
     + fu: optional<int>
 }
 
-class mj::WinningInfo {
+class mj::WinningInfo <<(D,yellow) Data>> {
     + opens: vector<unique_ptr<mj::Open>>& 
     + closed_tiles: unordered_set<mj::Tile, HashTile> 
     + last_tile_added: std::optional<Tile> 
@@ -103,6 +103,11 @@ class mj::State {
     + wall: Wall
     + action_history ActionHistory 
     + player: array<Player, 4>
+    + InitRound(): void
+    + IsRoundOver(): bool
+    + UpdateStateByDraw: mj::Tile
+    + UpdateStateByAction: void
+    + UpdateStateByActionCandidates: void
 }
 
 class mj::Player {
@@ -111,7 +116,7 @@ class mj::Player {
     - initial_hand : mjproto:: InitialHand
 }
 
-class mj::Observation {
+class mj::Observation <<(D,yellow) Data>> {
     - action_request mjproto::ActionRequest
 }
 note left
@@ -119,7 +124,7 @@ mjproto::InitialHand refers to mj::Player
 mjproto::ActionHistory refers to mj::ActionHistory
 end note
 
-class mj::ActionHistory {
+class mj::ActionHistory <<(D,yellow) Data>> {
     - action_history mjproto::ActionHistory
 }
 
@@ -131,7 +136,7 @@ class mj::AgentServer {
     + RunServer(): void
 }
 
-class mj::Score {
+class mj::Score <<(D,yellow) Data>> {
     - score mjproto::Score
 }
 
@@ -150,7 +155,7 @@ class mj::River {
 
 } 
 
-class mj::Action {
+class mj::Action <<(D,yellow) Data>> {
     - action_response mjproto::ActionResponse
 }
 
@@ -177,7 +182,38 @@ class mj::Hand {
     + Discard()
 }
 
-class mj::Open {
+abstract class mj::Open {
+    - bits
+    + {static} NewOpen(): unique_ptr<Open>
+    + <<get>> type()
+    + <<get>> from()
+    + <<get>> at()
+    + <<get>> size()
+    + <<get>> tiles()
+    + <<get>> tiles_from_hand()
+    + <<get>> stolen_tile()
+    + <<get>> last_tile()
+    + <<get>> undiscardable_tile_types
+    + <<get>> bits
+}
+
+class mj::Chi {
+
+}
+
+class mj::Pon {
+
+}
+
+class mj::KanOpened {
+
+}
+
+class mj::KanClosed {
+
+}
+
+class mj::KanAdded {
 
 }
 
@@ -202,8 +238,14 @@ mj::Observation --> mj::AgentClient : TakeAction
 mj::Player *-- mj::Hand
 mj::Player *-- mj::River 
 
-mj::Hand "1" *-- "1..4" mj::Open
+mj::Hand "0" *-- "1..4" mj::Open
 mj::Hand --> mj::WinningInfo
+
+mj::Open <|-- mj::Chi
+mj::Open <|-- mj::Pon
+mj::Open <|-- mj::KanClosed
+mj::Open <|-- mj::KanOpened
+mj::Open <|-- mj::KanAdded
 
 mj::WinningInfo --> mj::YakuEvaluator
 
