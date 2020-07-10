@@ -45,6 +45,19 @@ TEST_F(YakuTest, Riichi)
     EXPECT_EQ(yaku3.HasYaku(Yaku::kRiichi), std::nullopt);
 }
 
+TEST_F(YakuTest, AfterKan)
+{
+    auto yaku1 = YakuEvaluator::Eval(
+            Hand(HandParams("m1,m2,m3,m4,m5,m6,m7,m8,s1,s1").KanClosed("p1,p1,p1,p1").Tsumo("m9")).
+                ToWinningInfo().AfterKan());
+    EXPECT_EQ(yaku1.HasYaku(Yaku::kAfterKan), std::make_optional(1));
+
+    auto yaku1 = YakuEvaluator::Eval(
+            Hand(HandParams("m1,m2,m3,m4,m5,m6,m7,m8,s1,s1").KanClosed("p1,p1,p1,p1").Tsumo("m9")).
+                    ToWinningInfo());
+    EXPECT_EQ(yaku1.HasYaku(Yaku::kAfterKan), std::nullopt);
+}
+
 TEST_F(YakuTest, Pinfu)
 {
     auto yaku1 = YakuEvaluator::Eval(
