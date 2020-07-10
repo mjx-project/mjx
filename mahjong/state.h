@@ -47,14 +47,14 @@ namespace mj
         std::string ToMjlog() const;
     private:
         std::uint32_t seed_;
-        std::unique_ptr<Score> score_;
+        Score score_;
         // Round dependent information. These members should be reset after each round.
         RoundStage stage_;
         AbsolutePos dealer_;
         AbsolutePos drawer_;
         Wall wall_;
         std::array<Player, 4> players_;
-        std::unique_ptr<ActionHistory> action_history_;
+        ActionHistory action_history_;
 
         std::array<Observation, 4> observations_;
 

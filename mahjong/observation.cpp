@@ -5,28 +5,28 @@ namespace mj
 {
     Score::Score()
     {
-        score_->set_round(0);
-        score_->set_honba(0);
-        score_->set_riichi(0);
-        for (int i = 0; i < 4; ++i) score_->add_ten(250);
+        score_.set_round(0);
+        score_.set_honba(0);
+        score_.set_riichi(0);
+        for (int i = 0; i < 4; ++i) score_.add_ten(250);
     }
 
     std::uint8_t Score::round() const {
-        return score_->round();
+        return score_.round();
     }
 
     std::uint8_t Score::honba() const {
-        return score_->honba();
+        return score_.honba();
     }
 
     std::uint8_t Score::riichi() const {
-        return score_->riichi();
+        return score_.riichi();
     }
 
     std::array<std::int16_t, 4> Score::ten() const {
-        assert(score_->ten_size() == 4);
+        assert(score_.ten_size() == 4);
         auto ret = std::array<std::int16_t, 4>();
-        for (int i = 0; i < 4; ++i) ret[i] = score_->ten(i);
+        for (int i = 0; i < 4; ++i) ret[i] = score_.ten(i);
         return ret;
     }
 
@@ -59,7 +59,7 @@ namespace mj
     }
 
     std::size_t ActionHistory::size() const {
-        return action_history_->taken_actions_size();
+        return action_history_.taken_actions_size();
     }
 
     std::vector<PossibleAction> Observation::possible_actions() const {
@@ -96,9 +96,9 @@ namespace mj
         mutable_possible_actions->Add(std::move(*possible_action->possible_action_));
     }
 
-    Observation::Observation(AbsolutePos who, Score *score, ActionHistory *action_history) {
+    Observation::Observation(AbsolutePos who, Score &score, ActionHistory &action_history) {
         action_request_.set_who(static_cast<int>(who));
-        action_request_.set_allocated_score(score->score_.get());
-        action_request_.set_allocated_action_history(action_history->action_history_.get());
+        action_request_.set_allocated_score(&score.score_);
+        action_request_.set_allocated_action_history(&action_history.action_history_);
     }
 }

@@ -4,7 +4,7 @@
 namespace mj
 {
     State::State(std::uint32_t seed)
-    : seed_(seed), score_(std::make_unique<Score>())
+    : seed_(seed), score_(Score())
     {
         // TODO (sotetsuk): shuffle seats
     }
@@ -12,7 +12,7 @@ namespace mj
     void State::InitRound() {
         // TODO: use seed_
         stage_ = RoundStage::kAfterDiscards;
-        dealer_ = AbsolutePos(score_->round() % 4);
+        dealer_ = AbsolutePos(score_.round() % 4);
         drawer_ = dealer_;
         wall_ = Wall();  // TODO: use seed_
         players_ = {
@@ -21,9 +21,9 @@ namespace mj
                 Player{AbsolutePos::kWest, River(), wall_.initial_hand(AbsolutePos::kWest)},
                 Player{AbsolutePos::kNorth, River(), wall_.initial_hand(AbsolutePos::kNorth)}
         };
-        action_history_ = std::make_unique<ActionHistory>();
+        action_history_ = ActionHistory();
         for (int i = 0; i < 4; ++i) {
-            observations_.at(i) = Observation(AbsolutePos(i), score_.get(), action_history_.get());
+            observations_.at(i) = Observation(AbsolutePos(i), score_, action_history_);
         }
     }
 
