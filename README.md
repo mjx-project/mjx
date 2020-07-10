@@ -2,6 +2,9 @@
 
 # Open Mahjong
 
+
+![](./img/diagram.png)
+
 [![](./img/architecture.png)](https://docs.google.com/presentation/d/1lhb_sNix02Iyp0DI0Be5uuQub1W7CVbFiUdiDazG6tY/edit?usp=sharing)
 
 ## Build

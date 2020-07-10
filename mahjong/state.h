@@ -9,6 +9,7 @@
 #include "tile.h"
 #include "observation.h"
 #include "action.h"
+#include "player.h"
 #include "hand.h"
 #include "river.h"
 #include "wall.h"
@@ -33,6 +34,8 @@ namespace mj
         Tile DrawRinshan();
 
         // accessors
+        [[nodiscard]] const Player& player(AbsolutePos pos) const;
+        Player& mutable_player(AbsolutePos pos);
         [[nodiscard]] const Observation * observation(AbsolutePos who) const;
         Observation * mutable_observation(AbsolutePos who);
         [[nodiscard]] RoundStage stage() const;
@@ -50,8 +53,7 @@ namespace mj
         AbsolutePos dealer_;
         AbsolutePos drawer_;
         std::unique_ptr<Wall> wall_;
-        std::array<std::unique_ptr<River>, 4> rivers_;
-        std::array<std::unique_ptr<Hand>, 4> hands_;
+        std::array<Player, 4> players_;
         std::unique_ptr<ActionHistory> action_history_;
 
         std::array<std::unique_ptr<Observation>, 4> observations_;
