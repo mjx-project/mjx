@@ -137,8 +137,9 @@ namespace mj
         // TODO: 連風牌は2符? 4符? 要確認.
 
         // 待ち
-        const TileType tsumo_type = win_info.last_tile_added.value().Type();
         bool has_bad_machi = false;
+        assert(win_info.last_added_tile_type);
+        const TileType tsumo_type = win_info.last_added_tile_type.value();
         if (tsumo_type == head_type) has_bad_machi = true;    // 単騎
         for (const TileTypeCount& st : closed_sets) {
             if (st.size() == 1) continue;   // 刻子は弾く
@@ -354,13 +355,14 @@ namespace mj
             return std::nullopt;
         }
 
-        const Tile tsumo = win_info.last_tile_added.value();
+        assert(win_info.last_added_tile_type);
+        const TileType tsumo_type = win_info.last_added_tile_type.value();
 
         for (const TileTypeCount& st : closed_sets) {
             const TileType left = st.begin()->first,
                            right = st.rbegin()->first;
-            if ((tsumo.Type() == left and Num(right) != 9) or
-                (tsumo.Type() == right and Num(left) != 1)) {
+            if ((tsumo_type == left and Num(right) != 9) or
+                (tsumo_type == right and Num(left) != 1)) {
 
                 // いずれかの順子のリャンメン待ちをツモっていたらOK
                 return 1;
@@ -809,7 +811,8 @@ namespace mj
 
     bool YakuEvaluator::HasThirteenOrphans(const WinningInfo& win_info) noexcept {
         const auto& all_tile_types = win_info.all_tile_types;
-        const auto last_tile_added = win_info.last_tile_added.value();
+        assert(win_info.last_added_tile_type);
+        const TileType tsumo_type = win_info.last_added_tile_type.value();
         std::map<TileType, int> yaocyu;
         for (const auto& [tile_type, n] : all_tile_types) {
             if (Is(tile_type, TileSetType::kYaocyu)) {
@@ -817,12 +820,13 @@ namespace mj
             }
         }
 
-        return yaocyu.size() == 13 and yaocyu[last_tile_added.Type()] == 1;
+        return yaocyu.size() == 13 and yaocyu[tsumo_type] == 1;
     }
 
     bool YakuEvaluator::HasCompletedThirteenOrphans(const WinningInfo& win_info) noexcept {
         const auto& all_tile_types = win_info.all_tile_types;
-        const auto last_tile_added = win_info.last_tile_added.value();
+        assert(win_info.last_added_tile_type);
+        const TileType tsumo_type = win_info.last_added_tile_type.value();
         TileTypeCount yaocyu;
         for (const auto& [tile_type, n] : all_tile_types) {
             if (Is(tile_type, TileSetType::kYaocyu)) {
@@ -830,7 +834,7 @@ namespace mj
             }
         }
 
-        return yaocyu.size() == 13 and yaocyu[last_tile_added.Type()] == 2;
+        return yaocyu.size() == 13 and yaocyu[tsumo_type] == 2;
     }
 
     bool YakuEvaluator::HasNineGates(const WinningInfo& win_info) noexcept {
@@ -845,11 +849,12 @@ namespace mj
 
         std::vector<int> required{0,3,1,1,1,1,1,1,1,3};
 
-        const Tile tsumo = win_info.last_tile_added.value();
+        assert(win_info.last_added_tile_type);
+        const TileType tsumo_type = win_info.last_added_tile_type.value();
 
         for (const auto& [tile_type, n] : all_tile_types) {
             if (required[Num(tile_type)] > n) return false;
-            if (required[Num(tile_type)] < n and tile_type == tsumo.Type()) return false;
+            if (required[Num(tile_type)] < n and tile_type == tsumo_type) return false;
         }
 
         return true;
@@ -867,11 +872,12 @@ namespace mj
 
         std::vector<int> required{0,3,1,1,1,1,1,1,1,3};
 
-        const Tile tsumo = win_info.last_tile_added.value();
+        assert(win_info.last_added_tile_type);
+        const TileType tsumo_type = win_info.last_added_tile_type.value();
 
         for (const auto& [tile_type, n] : all_tile_types) {
             if (required[Num(tile_type)] > n) return false;
-            if (required[Num(tile_type)] == n and tile_type == tsumo.Type()) return false;
+            if (required[Num(tile_type)] == n and tile_type == tsumo_type) return false;
         }
 
         return true;
@@ -894,9 +900,10 @@ namespace mj
         if (!win_info.is_menzen) return false;
         if (all_tile_types.size() != 5) return false;
 
-        const Tile tsumo = win_info.last_tile_added.value();
+        assert(win_info.last_added_tile_type);
+        const TileType tsumo_type = win_info.last_added_tile_type.value();
 
-        return all_tile_types.at(tsumo.Type()) > 2;
+        return all_tile_types.at(tsumo_type) > 2;
     }
 
     bool YakuEvaluator::HasCompletedFourConcealedPons(const WinningInfo& win_info) noexcept {
@@ -904,8 +911,9 @@ namespace mj
         if (!win_info.is_menzen) return false;
         if (all_tile_types.size() != 5) return false;
 
-        const Tile tsumo = win_info.last_tile_added.value();
+        assert(win_info.last_added_tile_type);
+        const TileType tsumo_type = win_info.last_added_tile_type.value();
 
-        return all_tile_types.at(tsumo.Type()) == 2;
+        return all_tile_types.at(tsumo_type) == 2;
     }
 }
