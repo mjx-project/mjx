@@ -55,6 +55,7 @@ namespace mj
 
         [[nodiscard]] static std::optional<int> HasFullyConcealdHand(const WinningInfo& win_info) noexcept ;
         [[nodiscard]] static std::optional<int> HasRiichi(const WinningInfo& win_info) noexcept ;
+        [[nodiscard]] static std::optional<int> HasDoubleRiichi(const WinningInfo& win_info) noexcept ;
         [[nodiscard]] static std::optional<int> HasAfterKan(const WinningInfo& win_info) noexcept ;
         [[nodiscard]] static std::optional<int> HasRobbingKan(const WinningInfo& win_info) noexcept ;
         [[nodiscard]] static std::optional<int> HasBottomOfTheSea(const WinningInfo& win_info) noexcept ;

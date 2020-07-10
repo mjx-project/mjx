@@ -295,6 +295,9 @@ namespace mj
         if (const std::optional<int> fan = HasRiichi(win_info); fan) {
             score.AddYaku(Yaku::kRiichi, fan.value());
         }
+        if (const std::optional<int> fan = HasDoubleRiichi(win_info); fan) {
+            score.AddYaku(Yaku::kDoubleRiichi, fan.value());
+        }
         if (const std::optional<int> fan = HasAfterKan(win_info); fan) {
             score.AddYaku(Yaku::kAfterKan, fan.value());
         }
@@ -713,6 +716,10 @@ namespace mj
 
     std::optional<int> YakuEvaluator::HasRiichi(const WinningInfo& win_info) noexcept {
         if (win_info.under_riichi) return 1;
+        return std::nullopt;
+    }
+    std::optional<int> YakuEvaluator::HasDoubleRiichi(const WinningInfo& win_info) noexcept {
+        if (win_info.is_double_riichi) return 1;
         return std::nullopt;
     }
 

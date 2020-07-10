@@ -28,7 +28,8 @@ namespace mj {
                 seat_wind(Wind::kEast),
                 prevalent_wind(Wind::kEast),
                 is_bottom(false),
-                is_ippatsu(false)
+                is_ippatsu(false),
+                is_double_riichi(false)
             {}
 
     WinningInfo& WinningInfo::Ron(Tile tile) noexcept {
@@ -92,7 +93,14 @@ namespace mj {
     }
 
     WinningInfo& WinningInfo::IsIppatsu(bool is_ippatsu) noexcept {
+        assert(under_riichi);
         this->is_ippatsu = is_ippatsu;
+        return *this;
+    }
+
+    WinningInfo& WinningInfo::IsDoubleRiichi(bool is_double_riichi) noexcept {
+        assert(under_riichi);
+        this->is_double_riichi = is_double_riichi;
         return *this;
     }
 }
