@@ -29,6 +29,10 @@ namespace mj
                 const WinningInfo& win_info,
                 WinningScore& score) noexcept ;
 
+        static void JudgeDora(
+                const WinningInfo& win_info,
+                WinningScore& score) noexcept ;
+
         static int TotalFan(const std::map<Yaku,int>& yaku) noexcept ;
         [[nodiscard]] static std::tuple<std::map<Yaku,int>,std::vector<TileTypeCount>,std::vector<TileTypeCount>>
         MaximizeTotalFan(const WinningInfo& win_info) noexcept ;
@@ -54,6 +58,8 @@ namespace mj
         [[nodiscard]] static bool HasFourKans(const WinningInfo& win_info) noexcept;
         [[nodiscard]] static bool HasFourConcealedPons(const WinningInfo& win_info) noexcept ;
         [[nodiscard]] static bool HasCompletedFourConcealedPons(const WinningInfo& win_info) noexcept ;
+
+        [[nodiscard]] static std::optional<int> HasRedDora(const WinningInfo& win_info) noexcept ;
 
         [[nodiscard]] static std::optional<int> HasFullyConcealdHand(const WinningInfo& win_info) noexcept ;
         [[nodiscard]] static std::optional<int> HasRiichi(const WinningInfo& win_info) noexcept ;

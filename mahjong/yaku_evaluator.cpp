@@ -43,7 +43,7 @@ namespace mj
         // 手牌の組み合わせ方に依存する役
         const auto [best_yaku, closed_sets, heads] = MaximizeTotalFan(win_info);
         for (auto& [yaku, fan] : best_yaku) score.AddYaku(yaku, fan);
-//  TODO: Yakuがdoraのみの場合をはじく
+
         return !score.yaku().empty();
     }
 
@@ -64,8 +64,11 @@ namespace mj
         const auto [best_yaku, closed_sets, heads] = MaximizeTotalFan(win_info);
         for (auto& [yaku, fan] : best_yaku) score.AddYaku(yaku, fan);
 
-        // TODO: 役がないと上がれない.
+        // 役がないと上がれない.
         assert(!score.yaku().empty());
+
+        // ドラ
+        JudgeDora(win_info, score);
 
         if (!score.RequireFu()) return score;
 
@@ -372,10 +375,33 @@ namespace mj
         }
     }
 
+    void YakuEvaluator::JudgeDora(
+            const WinningInfo& win_info,
+            WinningScore& score) noexcept {
+
+        if (const std::optional<int> fan = HasRedDora(win_info); fan) {
+            score.AddYaku(Yaku::kRedDora, fan.value());
+        }
+    }
+
     int YakuEvaluator::TotalFan(const std::map<Yaku,int>& yaku) noexcept {
         int total = 0;
         for (const auto& [key, val] : yaku) total += val;
         return total;
+    }
+
+    std::optional<int> YakuEvaluator::HasRedDora(const WinningInfo& win_info) noexcept {
+        int reds = 0;
+        for (const Tile tile : win_info.closed_tiles) {
+            reds += tile.Is(TileSetType::kRedFive);
+        }
+        for (const std::unique_ptr<Open>& open : win_info.opens) {
+            for (const Tile tile : open->Tiles()) {
+                reds += tile.Is(TileSetType::kRedFive);
+            }
+        }
+        if (reds) return reds;
+        return std::nullopt;
     }
 
     std::optional<int> YakuEvaluator::HasPinfu(
