@@ -564,7 +564,6 @@ namespace mj
 
         YakuEvaluator yaku_evaluator;
         for (const Tile discard_tile : closed_tiles_) {
-            bool discard_able = false;
             for (int i = 0; i < 34; ++i) {
                 auto tile_type = static_cast<TileType>(i);
                 if (yaku_evaluator.Has(ToWinningInfo().Discard(discard_tile).Tsumo(tile_type))) {
