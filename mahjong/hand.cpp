@@ -1,7 +1,6 @@
 #include "hand.h"
 #include "open.h"
 #include "utils.h"
-#include "block.h"
 #include "yaku_evaluator.h"
 
 #include <utility>

@@ -27,7 +27,7 @@ namespace mj {
                 {}
 
     WinningInfo& WinningInfo::Ron(Tile tile) noexcept {
-        // WARNING: closed_tile との整合性は取れていない. 上がりの判定だけに使うこと.
+        // WARNING: closed_tiles との整合性は取れていない. 上がりの判定だけに使うこと.
         ++closed_tile_types[tile.Type()];
         ++all_tile_types[tile.Type()];
         last_tile_added = tile;
@@ -36,7 +36,7 @@ namespace mj {
     }
 
     WinningInfo& WinningInfo::Discard(Tile tile) noexcept {
-        // WARNING: closed_tile との整合性は取れていない. 上がりの判定だけに使うこと.
+        // WARNING: closed_tiles との整合性は取れていない. 上がりの判定だけに使うこと.
         const auto tile_type = tile.Type();
         if (--closed_tile_types[tile_type] == 0) {
             closed_tile_types.erase(tile_type);
@@ -49,10 +49,10 @@ namespace mj {
     }
 
     WinningInfo& WinningInfo::Tsumo(TileType tile_type) noexcept {
-        // WARNING: closed_tile との整合性は取れていない. 上がりの判定だけに使うこと.
+        // WARNING: closed_tiles との整合性は取れていない. 上がりの判定だけに使うこと.
         ++closed_tile_types[tile_type];
         ++all_tile_types[tile_type];
-        last_tile_added = Tile(tile_type);  // WARNING: 実際にこの牌をツモしたとは限らない.
+        last_tile_added = Tile(tile_type);  // WARNING: 適当にTileを生成している. 既に使用している牌の可能性もある. 空聴のためなのでやむなし.
         stage = HandStage::kAfterTsumo;
         return *this;
     }
