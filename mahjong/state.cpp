@@ -15,13 +15,12 @@ namespace mj
         dealer_ = AbsolutePos(score_->round() % 4);
         drawer_ = dealer_;
         wall_ = std::make_unique<Wall>();  // TODO: use seed_
-        rivers_ = {
-                std::make_unique<River>(),
-                std::make_unique<River>(),
-                std::make_unique<River>(),
-                std::make_unique<River>()
+        players_ = {
+                Player{AbsolutePos::kEast, River(), wall_->initial_hand(AbsolutePos::kEast)},
+                Player{AbsolutePos::kSouth, River(), wall_->initial_hand(AbsolutePos::kSouth)},
+                Player{AbsolutePos::kWest, River(), wall_->initial_hand(AbsolutePos::kWest)},
+                Player{AbsolutePos::kNorth, River(), wall_->initial_hand(AbsolutePos::kNorth)}
         };
-        hands_ = wall_->initial_hands();
         action_history_ = std::make_unique<ActionHistory>();
         for (int i = 0; i < 4; ++i) {
             observations_.at(i) = std::make_unique<Observation>(AbsolutePos(i), score_.get(), action_history_.get());
@@ -75,7 +74,7 @@ namespace mj
 
     const Hand *State::hand(AbsolutePos pos) const {
         assert(NullCheck());
-        return hands_.at(ToUType(pos)).get();
+        return &player(pos).hand();
     }
 
     std::array<const Hand *, 4> State::hands() const {
@@ -97,19 +96,24 @@ namespace mj
 
     Hand *State::mutable_hand(AbsolutePos pos) {
         assert(NullCheck());
-        return hands_.at(ToUType(pos)).get();
+        return &mutable_player(pos).mutable_hand();
     }
 
     bool State::NullCheck() const {
-        auto is_null = [](const auto &x){ return x == nullptr; };
         if (!wall_ || !action_history_) return false;
-        if (std::any_of(hands_.begin(), hands_.end(), is_null)) return false;
-        if (std::any_of(rivers_.begin(), rivers_.end(), is_null)) return false;
         return true;
     }
 
     bool State::IsRoundOver() {
         if (!wall_->HasDrawLeft()) return true;
         return false;
+    }
+
+    const Player &State::player(AbsolutePos pos) const {
+        return players_.at(ToUType(pos));
+    }
+
+    Player &State::mutable_player(AbsolutePos pos) {
+        return players_.at(ToUType(pos));
     }
 }  // namespace mj

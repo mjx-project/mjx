@@ -19,14 +19,9 @@ namespace mj
         return drawn_tile;
     }
 
-    std::array<std::unique_ptr<Hand>, 4> Wall::initial_hands() const {
-        std::array<std::unique_ptr<Hand>, 4> hands = {
-                std::make_unique<Hand>(initial_hand_begin(0), initial_hand_end(0)),
-                std::make_unique<Hand>(initial_hand_begin(1), initial_hand_end(1)),
-                std::make_unique<Hand>(initial_hand_begin(2), initial_hand_end(2)),
-                std::make_unique<Hand>(initial_hand_begin(3), initial_hand_end(3))
-        };
-        return hands;
+    Hand Wall::initial_hand(AbsolutePos pos) const {
+        auto i = ToUType(pos);
+        return Hand(initial_hand_begin(i), initial_hand_end(i));
     }
 
     std::vector<Tile>::const_iterator Wall::initial_hand_begin(int pos) const {
