@@ -92,6 +92,7 @@ TEST_F(YakuTest, Dragon) {
     EXPECT_EQ(yaku4.HasYaku(Yaku::kGreenDragon), std::nullopt);
     EXPECT_EQ(yaku4.HasYaku(Yaku::kRedDragon), std::nullopt);
 }
+
 TEST_F(YakuTest, SeatWind) {
     auto yaku1 = YakuEvaluator::Eval(
             Hand(HandParams("m1,m1,m2,m2,m3,m3,m4,m5,m6,m8,ew,ew,ew").Tsumo("m8")).
@@ -115,8 +116,39 @@ TEST_F(YakuTest, SeatWind) {
 
     auto yaku5 = YakuEvaluator::Eval(
             Hand(HandParams("m1,m2,m3,m3,m4,m5,s3,s3,p7,p7,p8,p8,p9").Tsumo("p9")).ToWinningInfo());
-    EXPECT_EQ(yaku5.HasYaku(Yaku::kSeatWindNorth), std::make_optional(1));
+    EXPECT_EQ(yaku5.HasYaku(Yaku::kSeatWindEast), std::nullopt);
+    EXPECT_EQ(yaku5.HasYaku(Yaku::kSeatWindSouth), std::nullopt);
+    EXPECT_EQ(yaku5.HasYaku(Yaku::kSeatWindWest), std::nullopt);
+    EXPECT_EQ(yaku5.HasYaku(Yaku::kSeatWindNorth), std::nullopt);
+}
 
+TEST_F(YakuTest, PrevalentWind) {
+    auto yaku1 = YakuEvaluator::Eval(
+            Hand(HandParams("m1,m1,m2,m2,m3,m3,m4,m5,m6,m8,ew,ew,ew").Tsumo("m8")).
+                    ToWinningInfo().Prevalent(Wind::kEast));
+    EXPECT_EQ(yaku1.HasYaku(Yaku::kPrevalentWindEast), std::make_optional(1));
+
+    auto yaku2 = YakuEvaluator::Eval(
+            Hand(HandParams("m1,m1,m2,m2,m3,m3,m4,m5,m6,m8").Pon("sw,sw,sw").Tsumo("m8")).
+                    ToWinningInfo().Prevalent(Wind::kSouth));
+    EXPECT_EQ(yaku2.HasYaku(Yaku::kPrevalentWindSouth), std::make_optional(1));
+
+    auto yaku3 = YakuEvaluator::Eval(
+            Hand(HandParams("m1,m1,m2,m2,m3,m3,m4,m5,m6,m8").KanClosed("ww,ww,ww,ww").Tsumo("m8")).
+                    ToWinningInfo().Prevalent(Wind::kWest));
+    EXPECT_EQ(yaku3.HasYaku(Yaku::kPrevalentWindWest), std::make_optional(1));
+
+    auto yaku4 = YakuEvaluator::Eval(
+            Hand(HandParams("m1,m1,m2,m2,m3,m3,m4,m5,m6,m8,nw,nw,nw").Tsumo("m8")).
+                    ToWinningInfo().Prevalent(Wind::kNorth));
+    EXPECT_EQ(yaku4.HasYaku(Yaku::kPrevalentWindNorth), std::make_optional(1));
+
+    auto yaku5 = YakuEvaluator::Eval(
+            Hand(HandParams("m1,m2,m3,m3,m4,m5,s3,s3,p7,p7,p8,p8,p9").Tsumo("p9")).ToWinningInfo());
+    EXPECT_EQ(yaku5.HasYaku(Yaku::kPrevalentWindEast), std::nullopt);
+    EXPECT_EQ(yaku5.HasYaku(Yaku::kPrevalentWindSouth), std::nullopt);
+    EXPECT_EQ(yaku5.HasYaku(Yaku::kPrevalentWindWest), std::nullopt);
+    EXPECT_EQ(yaku5.HasYaku(Yaku::kPrevalentWindNorth), std::nullopt);
 }
 
 TEST_F(YakuTest, AllTermsAndHonours)
