@@ -13,13 +13,13 @@ namespace mj
 {
     class YakuEvaluator {
     public:
-        YakuEvaluator() = default;
-        [[nodiscard]] WinningScore Eval(const WinningInfo& win_info) const noexcept ;
-        [[nodiscard]] bool Has(const WinningInfo& win_info) const noexcept ;    // 上がりの形になっていれば良い.
-        [[nodiscard]] bool CanWin(const WinningInfo& win_info) const noexcept ;    // 役がないとダメ.
+        YakuEvaluator() = delete;
+        [[nodiscard]] static WinningScore Eval(const WinningInfo& win_info) noexcept ;
+        [[nodiscard]] static bool Has(const WinningInfo& win_info) noexcept ;    // 上がりの形になっていれば良い.
+        [[nodiscard]] static bool CanWin(const WinningInfo& win_info) noexcept ;    // 役がないとダメ.
 
     private:
-        [[nodiscard]] const WinningHandCache& win_cache() const;
+        [[nodiscard]] static const WinningHandCache& win_cache();
 
         static void JudgeYakuman(
                 const WinningInfo& win_info,
@@ -30,8 +30,8 @@ namespace mj
                 WinningScore& score) noexcept ;
 
         static int TotalFan(const std::map<Yaku,int>& yaku) noexcept ;
-        [[nodiscard]] std::tuple<std::map<Yaku,int>,std::vector<TileTypeCount>,std::vector<TileTypeCount>>
-        MaximizeTotalFan(const WinningInfo& win_info) const noexcept ;
+        [[nodiscard]] static std::tuple<std::map<Yaku,int>,std::vector<TileTypeCount>,std::vector<TileTypeCount>>
+        MaximizeTotalFan(const WinningInfo& win_info) noexcept ;
 
         [[nodiscard]] static int CalculateFu(
                 const WinningInfo& win_info,

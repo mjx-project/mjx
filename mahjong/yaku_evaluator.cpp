@@ -10,11 +10,11 @@
 
 namespace mj
 {
-    const WinningHandCache &YakuEvaluator::win_cache() const {
+    const WinningHandCache &YakuEvaluator::win_cache() {
         return WinningHandCache::instance();
     }
 
-    bool YakuEvaluator::Has(const WinningInfo& win_info) const noexcept {
+    bool YakuEvaluator::Has(const WinningInfo& win_info) noexcept {
         WinningScore score;
 
         // closedな手牌が上がり形になっている or 国士無双かどうかを判定する.
@@ -23,7 +23,7 @@ namespace mj
                HasCompletedThirteenOrphans(win_info);
     }
 
-    bool YakuEvaluator::CanWin(const WinningInfo& win_info) const noexcept {
+    bool YakuEvaluator::CanWin(const WinningInfo& win_info) noexcept {
         WinningScore score;
 
         // closedな手牌が上がり形になっている or 国士無双かどうかを判定する.
@@ -43,11 +43,13 @@ namespace mj
         // 手牌の組み合わせ方に依存する役
         const auto [best_yaku, closed_sets, heads] = MaximizeTotalFan(win_info);
         for (auto& [yaku, fan] : best_yaku) score.AddYaku(yaku, fan);
-//  TODO: Yakuがdoraのみの場合をはじく
+
+        //  TODO: Yakuがdoraのみの場合をはじく
+
         return !score.yaku().empty();
     }
 
-    WinningScore YakuEvaluator::Eval(const WinningInfo& win_info) const noexcept {
+    WinningScore YakuEvaluator::Eval(const WinningInfo& win_info) noexcept {
 
         assert(Has(win_info));
 
@@ -178,7 +180,7 @@ namespace mj
     }
 
     std::tuple<std::map<Yaku,int>,std::vector<TileTypeCount>,std::vector<TileTypeCount>>
-    YakuEvaluator::MaximizeTotalFan(const WinningInfo& win_info) const noexcept {
+    YakuEvaluator::MaximizeTotalFan(const WinningInfo& win_info) noexcept {
 
         std::map<Yaku,int> best_yaku;
         std::vector<TileTypeCount> best_closed_set, best_heads;

@@ -293,12 +293,11 @@ namespace mj
         assert(SizeClosed() == 2 || SizeClosed() == 5 || SizeClosed() == 8 || SizeClosed() == 11 || SizeClosed() == 14);
         std::vector<Tile> possible_discards;
 
-        YakuEvaluator yaku_evaluator;
         for (const Tile discard_tile : closed_tiles_) {
             bool discard_able = false;
             for (int i = 0; i < 34; ++i) {
                 auto tile_type = static_cast<TileType>(i);
-                if (yaku_evaluator.Has(ToWinningInfo().Discard(discard_tile).Tsumo(tile_type))) {
+                if (YakuEvaluator::Has(ToWinningInfo().Discard(discard_tile).Tsumo(tile_type))) {
                     discard_able = true;
                     break;
                 }
@@ -552,7 +551,7 @@ namespace mj
         assert(stage_ == HandStage::kAfterDiscards);
         assert(SizeClosed() == 1 || SizeClosed() == 4 || SizeClosed() == 7 || SizeClosed() == 10 || SizeClosed() == 13);
 
-        return YakuEvaluator().CanWin(ToWinningInfo().Ron(tile));
+        return YakuEvaluator::CanWin(ToWinningInfo().Ron(tile));
     }
 
     bool Hand::CanRiichi() {
@@ -562,11 +561,10 @@ namespace mj
         assert(SizeClosed() == 2 || SizeClosed() == 5 || SizeClosed() == 8 || SizeClosed() == 11 || SizeClosed() == 14);
         if (!IsMenzen()) return false;
 
-        YakuEvaluator yaku_evaluator;
         for (const Tile discard_tile : closed_tiles_) {
             for (int i = 0; i < 34; ++i) {
                 auto tile_type = static_cast<TileType>(i);
-                if (yaku_evaluator.Has(ToWinningInfo().Discard(discard_tile).Tsumo(tile_type))) {
+                if (YakuEvaluator::Has(ToWinningInfo().Discard(discard_tile).Tsumo(tile_type))) {
                     return true;
                 }
             }
@@ -657,7 +655,7 @@ namespace mj
     bool Hand::IsCompleted() {
         assert(stage_ == HandStage::kAfterDraw || stage_ == HandStage::kAfterDrawAfterKan);
         assert(SizeClosed() == 2 || SizeClosed() == 5 || SizeClosed() == 8 || SizeClosed() == 11 || SizeClosed() == 14);
-        return YakuEvaluator().Has(ToWinningInfo());
+        return YakuEvaluator::Has(ToWinningInfo());
     }
 
     WinningInfo Hand::ToWinningInfo() const noexcept {
