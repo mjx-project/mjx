@@ -292,6 +292,9 @@ namespace mj
         if (const std::optional<int> fan = HasFullyConcealdHand(win_info); fan) {
             score.AddYaku(Yaku::kFullyConcealedHand, fan.value());
         }
+        if (const std::optional<int> fan = HasRiichi(win_info); fan) {
+            score.AddYaku(Yaku::kRiichi, fan.value());
+        }
         if (const std::optional<int> fan = HasAllSimples(win_info); fan) {
             score.AddYaku(Yaku::kAllSimples, fan.value());
         }
@@ -690,6 +693,11 @@ namespace mj
 
     std::optional<int> YakuEvaluator::HasFullyConcealdHand(const WinningInfo& win_info) noexcept {
         if (win_info.is_menzen and win_info.stage == HandStage::kAfterTsumo) return 1;
+        return std::nullopt;
+    }
+
+    std::optional<int> YakuEvaluator::HasRiichi(const WinningInfo& win_info) noexcept {
+        if (win_info.under_riichi) return 1;
         return std::nullopt;
     }
 
