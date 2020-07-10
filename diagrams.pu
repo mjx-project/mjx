@@ -61,14 +61,14 @@ mjproto::ActionHistory "1" *-- "1..*" mjproto::TakenAction
 class mj::Environment {
     - agents: mj::AgentClient
     - state: mj::State
-    + Run()
-    + RunOneGame()
-    + RunOneRound()
+    + Run(): void
+    + RunOneGame(): void
+    + RunOneRound(): void
 }
 
 class mj::YakuEvaluator <<(S,orange) Static>> {
-    + Has(): bool
-    + Eval(): mj::WinningScore
+    + {static} Has(): bool
+    + {static} Eval(): mj::WinningScore
 }
 
 class mj::WinningHandCache <<(S,orchid) Singleton>> {
@@ -92,7 +92,7 @@ class mj::WinningInfo <<(D,yellow) Data>> {
     + is_menzen: bool
     + Ron(): WinningInfo&
     + Discard(): WinningInfor&
-    + Tsumo: WinningInfo&
+    + Tsumo(): WinningInfo&
 }
 
 class mj::State {
@@ -102,12 +102,12 @@ class mj::State {
     + drawer: mj::AbsolutePos
     + wall: Wall
     + action_history ActionHistory 
-    + player: array<Player, 4>
+    + players: array<Player, 4>
     + InitRound(): void
     + IsRoundOver(): bool
-    + UpdateStateByDraw: mj::Tile
-    + UpdateStateByAction: void
-    + UpdateStateByActionCandidates: void
+    + UpdateStateByDraw(): mj::Tile
+    + UpdateStateByAction(): void
+    + UpdateStateByActionCandidates(): void
 }
 
 class mj::Player {
@@ -183,7 +183,7 @@ class mj::Hand {
 }
 
 abstract class mj::Open {
-    - bits
+    - bits: int
     + {static} NewOpen(): unique_ptr<Open>
     + <<get>> type()
     + <<get>> from()
@@ -193,8 +193,8 @@ abstract class mj::Open {
     + <<get>> tiles_from_hand()
     + <<get>> stolen_tile()
     + <<get>> last_tile()
-    + <<get>> undiscardable_tile_types
-    + <<get>> bits
+    + <<get>> undiscardable_tile_types()
+    + <<get>> bits()
 }
 
 class mj::Chi {
@@ -239,7 +239,7 @@ mj::Player *-- mj::Hand
 mj::Player *-- mj::River 
 
 mj::Hand "0" *-- "1..4" mj::Open
-mj::Hand --> mj::WinningInfo
+mj::Hand --> mj::WinningInfo : ToWinningInfo
 
 mj::Open <|-- mj::Chi
 mj::Open <|-- mj::Pon
@@ -247,10 +247,10 @@ mj::Open <|-- mj::KanClosed
 mj::Open <|-- mj::KanOpened
 mj::Open <|-- mj::KanAdded
 
-mj::WinningInfo --> mj::YakuEvaluator
+mj::WinningInfo --> mj::YakuEvaluator : Has, Eval
 
 mj::YakuEvaluator -- mj::WinningHandCache
-mj::YakuEvaluator --> mj::WinningScore
+mj::YakuEvaluator --> mj::WinningScore : Eval
 
 mj::WinningScore --> mj::Hand
 
