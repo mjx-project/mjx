@@ -2,13 +2,61 @@
 
 set namespaceSeparator ::
 
+class mjproto::Score {
+  + round
+  + honba 
+  + riichi 
+  + ten 
+}
+
+class mjproto::TakenAction {
+  + who
+  + type 
+  + draw 
+  + discard 
+  + discard_drawn_tile
+  + open
+}
+
+class mjproto::ActionHistory {
+  + taken_actions 
+}
+
+class mjproto::InitialHand {
+  + tiles
+}
+
+class mjproto::PossibleAction {
+  + type
+  + open 
+  + discard_candidates
+}
+
 class mjproto::ActionRequest {
-
+  + game_id
+  + score
+  + action_history
+  + who
+  + initial_hand 
+  + possible_actions
 }
 
-class mjproto::ActionResponse {
-
+class mjproto::ActionResponse { 
+  + game_id 
+  + who
+  + type
+  + yes
+  + discard
+  + open
 }
+
+mjproto::ActionRequest *-- mjproto::Score
+mjproto::ActionRequest *-- mjproto::ActionHistory
+mjproto::ActionRequest *-- mjproto::InitialHand
+mjproto::ActionRequest "1" *-- "1..*" mjproto::PossibleAction
+
+mjproto::ActionHistory "1" *-- "1..*" mjproto::TakenAction
+
 
 class mj::Environment {
 }
@@ -20,6 +68,9 @@ class mj::WinningHandCache {
 }
 
 class mj::WinningScore {
+}
+
+class mj::WinningInfo {
 }
 
 class mj::State {
@@ -34,9 +85,11 @@ class mj::Player {
 
 class mj::Observation {
     - action_request mjproto::ActionRequest
-    - initial_hand mjproto::ActionHistory
-    - action_history mjproto::ActionHistory
 }
+note left
+mjproto::InitialHand refers to mj::Player
+mjproto::ActionHistory refers to mj::ActionHistory
+end note
 
 class mj::ActionHistory {
     - action_history mjproto::ActionHistory
@@ -51,7 +104,7 @@ class mj::AgentServer {
 }
 
 class mj::Score {
-
+    - score mjproto::Score
 }
 
 class mj::Wall {
@@ -114,7 +167,15 @@ mj::Observation --> mj::AgentClient : TakeAction
 mj::Player *-- mj::Hand
 mj::Player *-- mj::River 
 
-mj::Hand -- mj::Open
+mj::Hand "1" *-- "1..4" mj::Open
+mj::Hand --> mj::WinningInfo
+
+mj::WinningInfo --> mj::YakuEvaluator
+
+mj::YakuEvaluator -- mj::WinningHandCache
+mj::YakuEvaluator --> mj::WinningScore
+
+mj::WinningScore --> mj::Hand
 
 mj::AgentClient --> mj::AgentServer : <<mjproto::ActionRequest>>
 mj::AgentClient --> mj::Action : TakeAction
