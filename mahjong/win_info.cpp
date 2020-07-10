@@ -1,5 +1,6 @@
 #include "win_info.h"
 
+#include <cassert>
 #include <utility>
 
 #include "types.h"
