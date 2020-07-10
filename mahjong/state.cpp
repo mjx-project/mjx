@@ -14,12 +14,12 @@ namespace mj
         stage_ = RoundStage::kAfterDiscards;
         dealer_ = AbsolutePos(score_->round() % 4);
         drawer_ = dealer_;
-        wall_ = std::make_unique<Wall>();  // TODO: use seed_
+        wall_ = Wall();  // TODO: use seed_
         players_ = {
-                Player{AbsolutePos::kEast, River(), wall_->initial_hand(AbsolutePos::kEast)},
-                Player{AbsolutePos::kSouth, River(), wall_->initial_hand(AbsolutePos::kSouth)},
-                Player{AbsolutePos::kWest, River(), wall_->initial_hand(AbsolutePos::kWest)},
-                Player{AbsolutePos::kNorth, River(), wall_->initial_hand(AbsolutePos::kNorth)}
+                Player{AbsolutePos::kEast, River(), wall_.initial_hand(AbsolutePos::kEast)},
+                Player{AbsolutePos::kSouth, River(), wall_.initial_hand(AbsolutePos::kSouth)},
+                Player{AbsolutePos::kWest, River(), wall_.initial_hand(AbsolutePos::kWest)},
+                Player{AbsolutePos::kNorth, River(), wall_.initial_hand(AbsolutePos::kNorth)}
         };
         action_history_ = std::make_unique<ActionHistory>();
         for (int i = 0; i < 4; ++i) {
@@ -33,9 +33,9 @@ namespace mj
         return seed_gen();
     }
 
-    const Wall * State::wall() const {
+    const Wall & State::wall() const {
         assert(NullCheck());
-        return wall_.get();
+        return wall_;
     }
 
     AbsolutePos State::UpdateStateByDraw() {
@@ -45,7 +45,7 @@ namespace mj
                     RoundStage::kAfterKanClosed,
                     RoundStage::kAfterKanOpened,
                     RoundStage::kAfterKanAdded}));
-        mutable_hand(drawer_)->Draw(wall_->Draw());
+        mutable_hand(drawer_)->Draw(wall_.Draw());
         // set possible actions
         mutable_observation(drawer_).add_possible_action(PossibleAction::NewDiscard(hand(drawer_)));
         // TODO(sotetsuk): set kan_added, kan_closed and riichi
@@ -100,12 +100,11 @@ namespace mj
     }
 
     bool State::NullCheck() const {
-        if (!wall_ || !action_history_) return false;
         return true;
     }
 
     bool State::IsRoundOver() {
-        if (!wall_->HasDrawLeft()) return true;
+        if (!wall_.HasDrawLeft()) return true;
         return false;
     }
 

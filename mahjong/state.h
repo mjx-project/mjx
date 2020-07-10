@@ -39,7 +39,7 @@ namespace mj
         [[nodiscard]] const Observation& observation(AbsolutePos who) const;
         Observation& mutable_observation(AbsolutePos who);
         [[nodiscard]] RoundStage stage() const;
-        [[nodiscard]] const Wall *wall() const;
+        [[nodiscard]] const Wall & wall() const;
         [[nodiscard]] const Hand *hand(AbsolutePos pos) const;
         Hand *mutable_hand(AbsolutePos pos);
         [[nodiscard]] std::array<const Hand*, 4> hands() const;
@@ -52,7 +52,7 @@ namespace mj
         RoundStage stage_;
         AbsolutePos dealer_;
         AbsolutePos drawer_;
-        std::unique_ptr<Wall> wall_;
+        Wall wall_;
         std::array<Player, 4> players_;
         std::unique_ptr<ActionHistory> action_history_;
 
