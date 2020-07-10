@@ -57,6 +57,8 @@ namespace mj
         [[nodiscard]] static std::optional<int> HasRiichi(const WinningInfo& win_info) noexcept ;
         [[nodiscard]] static std::optional<int> HasAfterKan(const WinningInfo& win_info) noexcept ;
         [[nodiscard]] static std::optional<int> HasRobbingKan(const WinningInfo& win_info) noexcept ;
+        [[nodiscard]] static std::optional<int> HasBottomOfTheSea(const WinningInfo& win_info) noexcept ;
+        [[nodiscard]] static std::optional<int> HasBottomOfTheRiver(const WinningInfo& win_info) noexcept ;
         [[nodiscard]] static std::optional<int> HasAllSimples(const WinningInfo& win_info) noexcept ;
         [[nodiscard]] static std::optional<int> HasWhiteDragon(const WinningInfo& win_info) noexcept ;
         [[nodiscard]] static std::optional<int> HasGreenDragon(const WinningInfo& win_info) noexcept ;

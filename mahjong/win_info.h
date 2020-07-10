@@ -19,6 +19,7 @@ namespace mj {
         bool is_menzen;
 
         Wind seat_wind, prevalent_wind;
+        bool is_bottom;
         WinningInfo(
                 const std::vector<std::unique_ptr<Open>>& opens,
                 std::unordered_set<Tile, HashTile>  closed_tiles,
@@ -36,6 +37,7 @@ namespace mj {
         WinningInfo& Seat(Wind wind) noexcept ;
         WinningInfo& Prevalent(Wind wind) noexcept ;
         WinningInfo& Stage(HandStage stage) noexcept ;
+        WinningInfo& IsBottom(bool is_bottom) noexcept ;
     };
 
 } // namespace mj

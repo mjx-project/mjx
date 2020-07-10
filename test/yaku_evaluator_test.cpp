@@ -71,6 +71,42 @@ TEST_F(YakuTest, RobbingKan)
     EXPECT_EQ(yaku2.HasYaku(Yaku::kRobbingKan), std::nullopt);
 }
 
+TEST_F(YakuTest, BottomOfTheSea)
+{
+    auto yaku1 = YakuEvaluator::Eval(
+            Hand(HandParams("m1,m2,m3,m4,m5,m6,m7,m8,s1,s1,p1,p1,p1").Tsumo("m9")).
+                    ToWinningInfo().IsBottom(true));
+    EXPECT_EQ(yaku1.HasYaku(Yaku::kBottomOfTheSea), std::make_optional(1));
+
+    auto yaku2 = YakuEvaluator::Eval(
+            Hand(HandParams("m1,m2,m3,m4,m5,m6,m7,m8,s1,s1,p1,p1,p1").Tsumo("m9")).
+                    ToWinningInfo());
+    EXPECT_EQ(yaku2.HasYaku(Yaku::kBottomOfTheSea), std::nullopt);
+
+    auto yaku3 = YakuEvaluator::Eval(
+            Hand(HandParams("m1,m2,m3,m4,m5,m6,m7,m8,s1,s1,p1,p1,p1").Ron("m9")).
+                    ToWinningInfo().IsBottom(true));
+    EXPECT_EQ(yaku3.HasYaku(Yaku::kBottomOfTheSea), std::nullopt);
+}
+
+TEST_F(YakuTest, BottomOfTheRiver)
+{
+    auto yaku1 = YakuEvaluator::Eval(
+            Hand(HandParams("m1,m2,m3,m4,m5,m6,m7,m8,s1,s1,p1,p1,p1").Ron("m9")).
+                    ToWinningInfo().IsBottom(true));
+    EXPECT_EQ(yaku1.HasYaku(Yaku::kBottomOfTheRiver), std::make_optional(1));
+
+    auto yaku2 = YakuEvaluator::Eval(
+            Hand(HandParams("m1,m2,m3,m4,m5,m6,m7,m8,s1,s1,p1,p1,p1").Ron("m9")).
+                    ToWinningInfo());
+    EXPECT_EQ(yaku2.HasYaku(Yaku::kBottomOfTheRiver), std::nullopt);
+
+    auto yaku3 = YakuEvaluator::Eval(
+            Hand(HandParams("m1,m2,m3,m4,m5,m6,m7,m8,s1,s1,p1,p1,p1").Tsumo("m9")).
+                    ToWinningInfo().IsBottom(true));
+    EXPECT_EQ(yaku3.HasYaku(Yaku::kBottomOfTheRiver), std::nullopt);
+}
+
 TEST_F(YakuTest, Pinfu)
 {
     auto yaku1 = YakuEvaluator::Eval(

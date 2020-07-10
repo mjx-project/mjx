@@ -26,7 +26,8 @@ namespace mj {
                 all_tile_types(std::move(all_tile_types)),
                 is_menzen(is_menzen),
                 seat_wind(Wind::kEast),
-                prevalent_wind(Wind::kEast)
+                prevalent_wind(Wind::kEast),
+                is_bottom(false)
             {}
 
     WinningInfo& WinningInfo::Ron(Tile tile) noexcept {
@@ -81,6 +82,11 @@ namespace mj {
 
     WinningInfo& WinningInfo::Stage(HandStage stage) noexcept {
         this->stage = stage;
+        return *this;
+    }
+
+    WinningInfo& WinningInfo::IsBottom(bool is_bottom) noexcept {
+        this->is_bottom = is_bottom;
         return *this;
     }
 }
