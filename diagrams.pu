@@ -59,22 +59,50 @@ mjproto::ActionHistory "1" *-- "1..*" mjproto::TakenAction
 
 
 class mj::Environment {
+    - agents: mj::AgentClient
+    - state: mj::State
+    + Run()
+    + RunOneGame()
+    + RunOneRound()
 }
 
 class mj::YakuEvaluator {
+    + Has(): bool
+    + Eval(): mj::WinningScore
 }
 
-class mj::WinningHandCache {
+class mj::WinningHandCache <<Singleton>> {
+    + Has(): bool
 }
 
 class mj::WinningScore {
+    + yakuman: map<mj::Yaku, int>
+    + yaku: map<mj::Yaku, bool>
+    + fu: optional<int>
 }
 
 class mj::WinningInfo {
+    + opens: vector<unique_ptr<mj::Open>>& 
+    + closed_tiles: unordered_set<mj::Tile, HashTile> 
+    + last_tile_added: std::optional<Tile> 
+    + stage: HandStage 
+    + under_riichi bool 
+    + closed_tile_types: TileTypeCount 
+    + all_tile_types: TileTypeCount 
+    + is_menzen: bool
+    + Ron(): WinningInfo&
+    + Discard(): WinningInfor&
+    + Tsumo: WinningInfo&
 }
 
 class mj::State {
-
+    + score: mj::Score
+    + stage: mj::RoundStage
+    + dealer: mj::AbsolutePos
+    + drawer: mj::AbsolutePos
+    + wall: Wall
+    + action_history ActionHistory 
+    + player: array<Player, 4>
 }
 
 class mj::Player {
@@ -96,11 +124,11 @@ class mj::ActionHistory {
 }
 
 class mj::AgentClient {
-
+    + TakeAction(): mj::Action
 }
 
 class mj::AgentServer {
-
+    + RunServer(): void
 }
 
 class mj::Score {
@@ -108,7 +136,14 @@ class mj::Score {
 }
 
 class mj::Wall {
-
+    - tiles: vector<mj::Tile>
+    + <<get>> initial_hands(): array<mj::Hand, 4>
+    + <<get>> doras(): vector<mj::Tile>
+    + <<get>> ura_doras(): vector<mj::Tile>
+    + Draw(): mj::Tile
+    + KanDraw(): mj::Tile
+    + AddKanDora()
+    + HasDrawLeft(): bool
 }
 
 class mj::River {
