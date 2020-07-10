@@ -12,7 +12,7 @@ namespace mj {
     struct WinningInfo {
         const std::vector<std::unique_ptr<Open>>& opens;
         std::unordered_set<Tile, HashTile> closed_tiles;
-        std::optional<Tile> last_tile_added;
+        std::optional<TileType> last_added_tile_type;
         HandStage stage;
         bool under_riichi;
         TileTypeCount closed_tile_types, all_tile_types;
@@ -22,7 +22,7 @@ namespace mj {
         WinningInfo(
                 const std::vector<std::unique_ptr<Open>>& opens,
                 std::unordered_set<Tile, HashTile>  closed_tiles,
-                std::optional<Tile> last_tile_added,
+                std::optional<TileType> last_added_tile_type,
                 HandStage stage,
                 bool under_riichi,
                 TileTypeCount closed_tile_types,
