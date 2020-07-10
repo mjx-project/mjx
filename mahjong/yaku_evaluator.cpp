@@ -298,6 +298,9 @@ namespace mj
         if (const std::optional<int> fan = HasAfterKan(win_info); fan) {
             score.AddYaku(Yaku::kAfterKan, fan.value());
         }
+        if (const std::optional<int> fan = HasRobbingKan(win_info); fan) {
+            score.AddYaku(Yaku::kRobbingKan, fan.value());
+        }
         if (const std::optional<int> fan = HasAllSimples(win_info); fan) {
             score.AddYaku(Yaku::kAllSimples, fan.value());
         }
@@ -706,6 +709,11 @@ namespace mj
 
     std::optional<int> YakuEvaluator::HasAfterKan(const WinningInfo& win_info) noexcept {
         if (win_info.stage == HandStage::kAfterTsumoAfterKan) return 1;
+        return std::nullopt;
+    }
+
+    std::optional<int> YakuEvaluator::HasRobbingKan(const WinningInfo& win_info) noexcept {
+        if (win_info.stage == HandStage::kAfterRonAfterOthersKan) return 1;
         return std::nullopt;
     }
 

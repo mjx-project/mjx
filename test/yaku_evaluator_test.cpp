@@ -58,6 +58,19 @@ TEST_F(YakuTest, AfterKan)
     EXPECT_EQ(yaku2.HasYaku(Yaku::kAfterKan), std::nullopt);
 }
 
+TEST_F(YakuTest, RobbingKan)
+{
+    auto yaku1 = YakuEvaluator::Eval(
+            Hand(HandParams("m1,m2,m3,m4,m5,m6,m7,m8,s1,s1,p1,p1,p1").Ron("m9")).
+                    ToWinningInfo().Stage(HandStage::kAfterRonAfterOthersKan));
+    EXPECT_EQ(yaku1.HasYaku(Yaku::kRobbingKan), std::make_optional(1));
+
+    auto yaku2 = YakuEvaluator::Eval(
+            Hand(HandParams("m1,m2,m3,m4,m5,m6,m7,m8,s1,s1,p1,p1,p1").Ron("m9")).
+                    ToWinningInfo());
+    EXPECT_EQ(yaku2.HasYaku(Yaku::kRobbingKan), std::nullopt);
+}
+
 TEST_F(YakuTest, Pinfu)
 {
     auto yaku1 = YakuEvaluator::Eval(
