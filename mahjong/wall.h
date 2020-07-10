@@ -21,7 +21,7 @@ namespace mj
          */
     public:
         explicit Wall(std::uint32_t seed = 9999);
-        [[nodiscard]] std::array<std::unique_ptr<Hand>, 4> initial_hands() const;
+        [[nodiscard]] Hand initial_hand(AbsolutePos pos) const;
         [[nodiscard]] std::vector<Tile> doras() const;
         [[nodiscard]] std::vector<Tile> ura_doras() const;
         Tile Draw();

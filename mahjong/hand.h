@@ -17,6 +17,7 @@ namespace mj
     class Hand
     {
     public:
+        Hand() = default;
         explicit Hand(std::vector<Tile> tiles);
         Hand(std::vector<Tile>::iterator begin, std::vector<Tile>::iterator end);
         Hand(std::vector<Tile>::const_iterator begin, std::vector<Tile>::const_iterator end);
@@ -78,7 +79,7 @@ namespace mj
         std::unordered_set<Tile, HashTile> undiscardable_tiles_;
         std::optional<Tile> last_tile_added_;
         HandStage stage_;
-        bool under_riichi_;
+        bool under_riichi_{};
 
         // possible actions
         std::vector<std::unique_ptr<Open>> PossibleChis(Tile tile);  // E.g., 2m 3m [4m] vs 3m [4m] 5m

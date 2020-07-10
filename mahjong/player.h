@@ -8,15 +8,18 @@ namespace mj
 {
     class Player
     {
-        AbsolutePos position() const;
-        const Hand* hand() const;
-        Hand* mutable_hand();
-        const River river() const;
-        River* mutable_river();
+    public:
+        Player() = default;
+        Player(AbsolutePos position, River river, Hand hand);
+        [[nodiscard]] AbsolutePos position() const;
+        [[nodiscard]] const Hand& hand() const;
+        Hand& mutable_hand();
+        [[nodiscard]] const River& river() const;
+        River& mutable_river();
     private:
         AbsolutePos position_;
-        std::unique_ptr<River> river_;
-        std::unique_ptr<Hand> hand_;
+        River river_;
+        Hand hand_;
     };
 }  // namespace mj
 
