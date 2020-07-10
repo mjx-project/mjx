@@ -78,4 +78,9 @@ namespace mj {
         prevalent_wind = wind;
         return *this;
     }
+
+    WinningInfo& WinningInfo::Stage(HandStage stage) noexcept {
+        this->stage = stage;
+        return *this;
+    }
 }

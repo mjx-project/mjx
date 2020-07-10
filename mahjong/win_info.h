@@ -35,6 +35,7 @@ namespace mj {
         WinningInfo& Tsumo(TileType tile_type) noexcept ;
         WinningInfo& Seat(Wind wind) noexcept ;
         WinningInfo& Prevalent(Wind wind) noexcept ;
+        WinningInfo& Stage(HandStage stage) noexcept ;
     };
 
 } // namespace mj
