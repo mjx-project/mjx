@@ -10,7 +10,7 @@ namespace mj
     public:
         AgentClientMock() = default;
         ~AgentClientMock() final = default;
-        [[nodiscard]] Action TakeAction(Observation *observation) const final ;
+        [[nodiscard]] Action TakeAction(Observation &observation) const final ;
     };
 }
 

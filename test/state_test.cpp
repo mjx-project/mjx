@@ -34,13 +34,12 @@ TEST(state, UpdateStateByAction) {
     state.InitRound();
     for (int i = 0; i < 50; ++i) {
         for (int j = 0; j < 4; ++j)
-            EXPECT_EQ(state.mutable_observation(AbsolutePos(j))->possible_actions().size(), 0);
+            EXPECT_EQ(state.mutable_observation(AbsolutePos(j)).possible_actions().size(), 0);
         auto drawer = state.UpdateStateByDraw();
         EXPECT_EQ(drawer, AbsolutePos(i%4));
         auto hand = state.hand(drawer);
         EXPECT_EQ(hand->Size(), 14);
-        auto observation = state.mutable_observation(drawer);
-        auto action = agent->TakeAction(observation);
+        auto action = agent->TakeAction(state.mutable_observation(drawer));
         state.UpdateStateByAction(action);
         EXPECT_EQ(hand->Size(), 13);
     }

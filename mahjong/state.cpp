@@ -23,7 +23,7 @@ namespace mj
         };
         action_history_ = std::make_unique<ActionHistory>();
         for (int i = 0; i < 4; ++i) {
-            observations_.at(i) = std::make_unique<Observation>(AbsolutePos(i), score_.get(), action_history_.get());
+            observations_.at(i) = Observation(AbsolutePos(i), score_.get(), action_history_.get());
         }
     }
 
@@ -47,7 +47,7 @@ namespace mj
                     RoundStage::kAfterKanAdded}));
         mutable_hand(drawer_)->Draw(wall_->Draw());
         // set possible actions
-        mutable_observation(drawer_)->add_possible_action(PossibleAction::NewDiscard(hand(drawer_)));
+        mutable_observation(drawer_).add_possible_action(PossibleAction::NewDiscard(hand(drawer_)));
         // TODO(sotetsuk): set kan_added, kan_closed and riichi
         stage_ = RoundStage::kAfterDraw;
         return drawer_;
@@ -67,9 +67,9 @@ namespace mj
         }
     }
 
-    Observation * State::mutable_observation(AbsolutePos who) {
+    Observation& State::mutable_observation(AbsolutePos who) {
         assert(NullCheck());
-        return observations_.at(static_cast<int>(who)).get();
+        return observations_.at(static_cast<int>(who));
     }
 
     const Hand *State::hand(AbsolutePos pos) const {
@@ -89,9 +89,9 @@ namespace mj
         return stage_;
     }
 
-    const Observation *State::observation(AbsolutePos who) const {
+    const Observation& State::observation(AbsolutePos who) const {
         assert(NullCheck());
-        return observations_.at(ToUType(who)).get();
+        return observations_.at(ToUType(who));
     }
 
     Hand *State::mutable_hand(AbsolutePos pos) {
