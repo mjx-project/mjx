@@ -5,7 +5,7 @@
 #include <tuple>
 
 #include "types.h"
-#include "hand.h"
+#include "win_info.h"
 #include "win_cache.h"
 #include "win_score.h"
 
@@ -13,105 +13,127 @@ namespace mj
 {
     class YakuEvaluator {
     public:
-        YakuEvaluator() = default;
-        [[nodiscard]] bool Has(const Hand& hand) const noexcept ;
-        [[nodiscard]] WinningScore Eval(const Hand& hand) const noexcept ;
+        YakuEvaluator() = delete;
+        [[nodiscard]] static WinningScore Eval(const WinningInfo& win_info) noexcept ;
+        [[nodiscard]] static bool Has(const WinningInfo& win_info) noexcept ;    // 上がりの形になっていれば良い.
+        [[nodiscard]] static bool CanWin(const WinningInfo& win_info) noexcept ;    // 役がないとダメ.
 
     private:
-        [[nodiscard]] const WinningHandCache& win_cache() const;
+        [[nodiscard]] static const WinningHandCache& win_cache();
 
         static void JudgeYakuman(
-                const Hand& hand,
-                const TileTypeCount& all_tiles,
+                const WinningInfo& win_info,
                 WinningScore& score) noexcept ;
 
         static void JudgeSimpleYaku(
-                const Hand& hand,
-                const TileTypeCount& all_tiles,
+                const WinningInfo& win_info,
+                WinningScore& score) noexcept ;
+
+        static void JudgeDora(
+                const WinningInfo& win_info,
                 WinningScore& score) noexcept ;
 
         static int TotalFan(const std::map<Yaku,int>& yaku) noexcept ;
-        [[nodiscard]] std::tuple<std::map<Yaku,int>,std::vector<TileTypeCount>,std::vector<TileTypeCount>>
-        MaximizeTotalFan(const Hand& hand) const noexcept ;
+        [[nodiscard]] static std::tuple<std::map<Yaku,int>,std::vector<TileTypeCount>,std::vector<TileTypeCount>>
+        MaximizeTotalFan(const WinningInfo& win_info) noexcept ;
 
         [[nodiscard]] static int CalculateFu(
-                const Hand& hand,
+                const WinningInfo& win_info,
                 const std::vector<TileTypeCount>& closed_sets,
                 const std::vector<TileTypeCount>& heads,
                 const WinningScore& win_score) noexcept ;
 
-        [[nodiscard]] static bool HasBigThreeDragons(const TileTypeCount& count) noexcept ;
-        [[nodiscard]] static bool HasAllHonours(const TileTypeCount& count) noexcept ;
-        [[nodiscard]] static bool HasAllGreen(const TileTypeCount& count) noexcept ;
-        [[nodiscard]] static bool HasAllTerminals(const TileTypeCount& count) noexcept ;
-        [[nodiscard]] static bool HasBigFourWinds(const TileTypeCount& count) noexcept ;
-        [[nodiscard]] static bool HasLittleFourWinds(const TileTypeCount& count) noexcept ;
-        [[nodiscard]] static bool HasThirteenOrphans(const Hand& hand, const TileTypeCount& count) noexcept ;
-        [[nodiscard]] static bool HasCompletedThirteenOrphans(const Hand& hand, const TileTypeCount& count) noexcept ;
-        [[nodiscard]] static bool HasNineGates(const Hand& hand, const TileTypeCount& count) noexcept ;
-        [[nodiscard]] static bool HasPureNineGates(const Hand& hand, const TileTypeCount& count) noexcept ;
-        [[nodiscard]] static bool HasFourKans(const Hand& hand) noexcept;
-        [[nodiscard]] static bool HasFourConcealedPons(const Hand& hand, const TileTypeCount& count) noexcept ;
-        [[nodiscard]] static bool HasCompletedFourConcealedPons(const Hand& hand, const TileTypeCount& count) noexcept ;
+        [[nodiscard]] static bool HasBlessingOfHeaven(const WinningInfo& win_info) noexcept ;
+        [[nodiscard]] static bool HasBlessingOfEarth(const WinningInfo& win_info) noexcept ;
+        [[nodiscard]] static bool HasBigThreeDragons(const WinningInfo& win_info) noexcept ;
+        [[nodiscard]] static bool HasAllHonours(const WinningInfo& win_info) noexcept ;
+        [[nodiscard]] static bool HasAllGreen(const WinningInfo& win_info) noexcept ;
+        [[nodiscard]] static bool HasAllTerminals(const WinningInfo& win_info) noexcept ;
+        [[nodiscard]] static bool HasBigFourWinds(const WinningInfo& win_info) noexcept ;
+        [[nodiscard]] static bool HasLittleFourWinds(const WinningInfo& win_info) noexcept ;
+        [[nodiscard]] static bool HasThirteenOrphans(const WinningInfo& win_info) noexcept ;
+        [[nodiscard]] static bool HasCompletedThirteenOrphans(const WinningInfo& win_info) noexcept ;
+        [[nodiscard]] static bool HasNineGates(const WinningInfo& win_info) noexcept ;
+        [[nodiscard]] static bool HasPureNineGates(const WinningInfo& win_info) noexcept ;
+        [[nodiscard]] static bool HasFourKans(const WinningInfo& win_info) noexcept;
+        [[nodiscard]] static bool HasFourConcealedPons(const WinningInfo& win_info) noexcept ;
+        [[nodiscard]] static bool HasCompletedFourConcealedPons(const WinningInfo& win_info) noexcept ;
 
-        [[nodiscard]] static std::optional<int> HasFullyConcealdHand(const Hand& hand) noexcept ;
-        [[nodiscard]] static std::optional<int> HasAllSimples(const TileTypeCount& count) noexcept ;
-        [[nodiscard]] static std::optional<int> HasWhiteDragon(const TileTypeCount& count) noexcept ;
-        [[nodiscard]] static std::optional<int> HasGreenDragon(const TileTypeCount& count) noexcept ;
-        [[nodiscard]] static std::optional<int> HasRedDragon(const TileTypeCount& count) noexcept ;
-        [[nodiscard]] static std::optional<int> HasAllTermsAndHonours(const TileTypeCount& count) noexcept ;
-        [[nodiscard]] static std::optional<int> HasHalfFlush(const Hand& hand, const TileTypeCount& count) noexcept ;
-        [[nodiscard]] static std::optional<int> HasFullFlush(const Hand& hand, const TileTypeCount& count) noexcept ;
-        [[nodiscard]] static std::optional<int> HasThreeKans(const Hand& hand) noexcept ;
-        [[nodiscard]] static std::optional<int> HasLittleThreeDragons(const TileTypeCount& count) noexcept ;
+        [[nodiscard]] static std::optional<int> HasRedDora(const WinningInfo& win_info) noexcept ;
+
+        [[nodiscard]] static std::optional<int> HasFullyConcealdHand(const WinningInfo& win_info) noexcept ;
+        [[nodiscard]] static std::optional<int> HasRiichi(const WinningInfo& win_info) noexcept ;
+        [[nodiscard]] static std::optional<int> HasDoubleRiichi(const WinningInfo& win_info) noexcept ;
+        [[nodiscard]] static std::optional<int> HasAfterKan(const WinningInfo& win_info) noexcept ;
+        [[nodiscard]] static std::optional<int> HasRobbingKan(const WinningInfo& win_info) noexcept ;
+        [[nodiscard]] static std::optional<int> HasBottomOfTheSea(const WinningInfo& win_info) noexcept ;
+        [[nodiscard]] static std::optional<int> HasBottomOfTheRiver(const WinningInfo& win_info) noexcept ;
+        [[nodiscard]] static std::optional<int> HasIppatsu(const WinningInfo& win_info) noexcept ;
+        [[nodiscard]] static std::optional<int> HasAllSimples(const WinningInfo& win_info) noexcept ;
+        [[nodiscard]] static std::optional<int> HasWhiteDragon(const WinningInfo& win_info) noexcept ;
+        [[nodiscard]] static std::optional<int> HasGreenDragon(const WinningInfo& win_info) noexcept ;
+        [[nodiscard]] static std::optional<int> HasRedDragon(const WinningInfo& win_info) noexcept ;
+        [[nodiscard]] static std::optional<int> HasSeatWindEast(const WinningInfo& win_info) noexcept ;
+        [[nodiscard]] static std::optional<int> HasSeatWindSouth(const WinningInfo& win_info) noexcept ;
+        [[nodiscard]] static std::optional<int> HasSeatWindWest(const WinningInfo& win_info) noexcept ;
+        [[nodiscard]] static std::optional<int> HasSeatWindNorth(const WinningInfo& win_info) noexcept ;
+        [[nodiscard]] static std::optional<int> HasPrevalentWindEast(const WinningInfo& win_info) noexcept ;
+        [[nodiscard]] static std::optional<int> HasPrevalentWindSouth(const WinningInfo& win_info) noexcept ;
+        [[nodiscard]] static std::optional<int> HasPrevalentWindWest(const WinningInfo& win_info) noexcept ;
+        [[nodiscard]] static std::optional<int> HasPrevalentWindNorth(const WinningInfo& win_info) noexcept ;
+        [[nodiscard]] static std::optional<int> HasAllTermsAndHonours(const WinningInfo& win_info) noexcept ;
+        [[nodiscard]] static std::optional<int> HasHalfFlush(const WinningInfo& win_info) noexcept ;
+        [[nodiscard]] static std::optional<int> HasFullFlush(const WinningInfo& win_info) noexcept ;
+        [[nodiscard]] static std::optional<int> HasThreeKans(const WinningInfo& win_info) noexcept ;
+        [[nodiscard]] static std::optional<int> HasLittleThreeDragons(const WinningInfo& win_info) noexcept ;
 
         [[nodiscard]] static std::optional<int> HasPinfu(
-                const Hand &hand,
+                const WinningInfo& win_info,
                 const std::vector<TileTypeCount>& closed_sets,
                 const std::vector<TileTypeCount>& opened_sets,
                 const std::vector<TileTypeCount>& heads) noexcept ;
         [[nodiscard]] static std::optional<int> HasPureDoubleChis(
-                const Hand &hand,
+                const WinningInfo& win_info,
                 const std::vector<TileTypeCount>& closed_sets,
                 const std::vector<TileTypeCount>& opened_sets,
                 const std::vector<TileTypeCount>& heads) noexcept ;
         [[nodiscard]] static std::optional<int> HasTwicePureDoubleChis(
-                const Hand &hand,
+                const WinningInfo& win_info,
                 const std::vector<TileTypeCount>& closed_sets,
                 const std::vector<TileTypeCount>& opened_sets,
                 const std::vector<TileTypeCount>& heads) noexcept ;
         [[nodiscard]] static std::optional<int> HasSevenPairs(
-                const Hand &hand,
+                const WinningInfo& win_info,
                 const std::vector<TileTypeCount>& closed_sets,
                 const std::vector<TileTypeCount>& opened_sets,
                 const std::vector<TileTypeCount>& heads) noexcept ;
         [[nodiscard]] static std::optional<int> HasAllPons(
-                const Hand &hand,
+                const WinningInfo& win_info,
                 const std::vector<TileTypeCount>& closed_sets,
                 const std::vector<TileTypeCount>& opened_sets,
                 const std::vector<TileTypeCount>& heads) noexcept ;
         [[nodiscard]] static std::optional<int> HasPureStraight(
-                const Hand &hand,
+                const WinningInfo& win_info,
                 const std::vector<TileTypeCount>& closed_sets,
                 const std::vector<TileTypeCount>& opened_sets,
                 const std::vector<TileTypeCount>& heads) noexcept ;
         [[nodiscard]] static std::optional<int> HasMixedTripleChis(
-                const Hand &hand,
+                const WinningInfo& win_info,
                 const std::vector<TileTypeCount>& closed_sets,
                 const std::vector<TileTypeCount>& opened_sets,
                 const std::vector<TileTypeCount>& heads) noexcept ;
         [[nodiscard]] static std::optional<int> HasTriplePons(
-                const Hand &hand,
+                const WinningInfo& win_info,
                 const std::vector<TileTypeCount>& closed_sets,
                 const std::vector<TileTypeCount>& opened_sets,
                 const std::vector<TileTypeCount>& heads) noexcept ;
         [[nodiscard]] static std::optional<int> HasOutsideHand(
-                const Hand &hand,
+                const WinningInfo& win_info,
                 const std::vector<TileTypeCount>& closed_sets,
                 const std::vector<TileTypeCount>& opened_sets,
                 const std::vector<TileTypeCount>& heads) noexcept ;
         [[nodiscard]] static std::optional<int> HasTerminalsInAllSets(
-                const Hand &hand,
+                const WinningInfo& win_info,
                 const std::vector<TileTypeCount>& closed_sets,
                 const std::vector<TileTypeCount>& opened_sets,
                 const std::vector<TileTypeCount>& heads) noexcept ;

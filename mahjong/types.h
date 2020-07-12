@@ -123,6 +123,13 @@ namespace mj {
 
     using Minipoint = std::uint8_t;
 
+    enum class Wind : std::uint8_t {
+        kEast,
+        kSouth,
+        kWest,
+        kNorth
+    };
+
     // The order follows: http://tenhou.net/1/script/tenhou.js
     // The terminology basically follows: http://mahjong-europe.org/portal/images/docs/riichi_scoresheet_EN.pdf
     enum class Yaku : std::uint8_t {
