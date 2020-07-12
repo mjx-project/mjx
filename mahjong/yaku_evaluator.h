@@ -29,6 +29,10 @@ namespace mj
                 const WinningInfo& win_info,
                 WinningScore& score) noexcept ;
 
+        static void JudgeDora(
+                const WinningInfo& win_info,
+                WinningScore& score) noexcept ;
+
         static int TotalFan(const std::map<Yaku,int>& yaku) noexcept ;
         [[nodiscard]] static std::tuple<std::map<Yaku,int>,std::vector<TileTypeCount>,std::vector<TileTypeCount>>
         MaximizeTotalFan(const WinningInfo& win_info) noexcept ;
@@ -39,6 +43,8 @@ namespace mj
                 const std::vector<TileTypeCount>& heads,
                 const WinningScore& win_score) noexcept ;
 
+        [[nodiscard]] static bool HasBlessingOfHeaven(const WinningInfo& win_info) noexcept ;
+        [[nodiscard]] static bool HasBlessingOfEarth(const WinningInfo& win_info) noexcept ;
         [[nodiscard]] static bool HasBigThreeDragons(const WinningInfo& win_info) noexcept ;
         [[nodiscard]] static bool HasAllHonours(const WinningInfo& win_info) noexcept ;
         [[nodiscard]] static bool HasAllGreen(const WinningInfo& win_info) noexcept ;
@@ -53,11 +59,28 @@ namespace mj
         [[nodiscard]] static bool HasFourConcealedPons(const WinningInfo& win_info) noexcept ;
         [[nodiscard]] static bool HasCompletedFourConcealedPons(const WinningInfo& win_info) noexcept ;
 
+        [[nodiscard]] static std::optional<int> HasRedDora(const WinningInfo& win_info) noexcept ;
+
         [[nodiscard]] static std::optional<int> HasFullyConcealdHand(const WinningInfo& win_info) noexcept ;
+        [[nodiscard]] static std::optional<int> HasRiichi(const WinningInfo& win_info) noexcept ;
+        [[nodiscard]] static std::optional<int> HasDoubleRiichi(const WinningInfo& win_info) noexcept ;
+        [[nodiscard]] static std::optional<int> HasAfterKan(const WinningInfo& win_info) noexcept ;
+        [[nodiscard]] static std::optional<int> HasRobbingKan(const WinningInfo& win_info) noexcept ;
+        [[nodiscard]] static std::optional<int> HasBottomOfTheSea(const WinningInfo& win_info) noexcept ;
+        [[nodiscard]] static std::optional<int> HasBottomOfTheRiver(const WinningInfo& win_info) noexcept ;
+        [[nodiscard]] static std::optional<int> HasIppatsu(const WinningInfo& win_info) noexcept ;
         [[nodiscard]] static std::optional<int> HasAllSimples(const WinningInfo& win_info) noexcept ;
         [[nodiscard]] static std::optional<int> HasWhiteDragon(const WinningInfo& win_info) noexcept ;
         [[nodiscard]] static std::optional<int> HasGreenDragon(const WinningInfo& win_info) noexcept ;
         [[nodiscard]] static std::optional<int> HasRedDragon(const WinningInfo& win_info) noexcept ;
+        [[nodiscard]] static std::optional<int> HasSeatWindEast(const WinningInfo& win_info) noexcept ;
+        [[nodiscard]] static std::optional<int> HasSeatWindSouth(const WinningInfo& win_info) noexcept ;
+        [[nodiscard]] static std::optional<int> HasSeatWindWest(const WinningInfo& win_info) noexcept ;
+        [[nodiscard]] static std::optional<int> HasSeatWindNorth(const WinningInfo& win_info) noexcept ;
+        [[nodiscard]] static std::optional<int> HasPrevalentWindEast(const WinningInfo& win_info) noexcept ;
+        [[nodiscard]] static std::optional<int> HasPrevalentWindSouth(const WinningInfo& win_info) noexcept ;
+        [[nodiscard]] static std::optional<int> HasPrevalentWindWest(const WinningInfo& win_info) noexcept ;
+        [[nodiscard]] static std::optional<int> HasPrevalentWindNorth(const WinningInfo& win_info) noexcept ;
         [[nodiscard]] static std::optional<int> HasAllTermsAndHonours(const WinningInfo& win_info) noexcept ;
         [[nodiscard]] static std::optional<int> HasHalfFlush(const WinningInfo& win_info) noexcept ;
         [[nodiscard]] static std::optional<int> HasFullFlush(const WinningInfo& win_info) noexcept ;

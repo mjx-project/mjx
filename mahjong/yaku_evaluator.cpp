@@ -44,8 +44,6 @@ namespace mj
         const auto [best_yaku, closed_sets, heads] = MaximizeTotalFan(win_info);
         for (auto& [yaku, fan] : best_yaku) score.AddYaku(yaku, fan);
 
-        //  TODO: Yakuがdoraのみの場合をはじく
-
         return !score.yaku().empty();
     }
 
@@ -66,8 +64,11 @@ namespace mj
         const auto [best_yaku, closed_sets, heads] = MaximizeTotalFan(win_info);
         for (auto& [yaku, fan] : best_yaku) score.AddYaku(yaku, fan);
 
-        // TODO: 役がないと上がれない.
+        // 役がないと上がれない.
         assert(!score.yaku().empty());
+
+        // ドラ
+        JudgeDora(win_info, score);
 
         if (!score.RequireFu()) return score;
 
@@ -245,6 +246,12 @@ namespace mj
             const WinningInfo& win_info,
             WinningScore& score) noexcept {
 
+        if (HasBlessingOfHeaven(win_info)) {
+            score.AddYakuman(Yaku::kBlessingOfHeaven);
+        }
+        if (HasBlessingOfEarth(win_info)) {
+            score.AddYakuman(Yaku::kBlessingOfEarth);
+        }
         if (HasBigThreeDragons(win_info)) {
             score.AddYakuman(Yaku::kBigThreeDragons);
         }
@@ -294,6 +301,27 @@ namespace mj
         if (const std::optional<int> fan = HasFullyConcealdHand(win_info); fan) {
             score.AddYaku(Yaku::kFullyConcealedHand, fan.value());
         }
+        if (const std::optional<int> fan = HasRiichi(win_info); fan) {
+            score.AddYaku(Yaku::kRiichi, fan.value());
+        }
+        if (const std::optional<int> fan = HasDoubleRiichi(win_info); fan) {
+            score.AddYaku(Yaku::kDoubleRiichi, fan.value());
+        }
+        if (const std::optional<int> fan = HasAfterKan(win_info); fan) {
+            score.AddYaku(Yaku::kAfterKan, fan.value());
+        }
+        if (const std::optional<int> fan = HasRobbingKan(win_info); fan) {
+            score.AddYaku(Yaku::kRobbingKan, fan.value());
+        }
+        if (const std::optional<int> fan = HasBottomOfTheSea(win_info); fan) {
+            score.AddYaku(Yaku::kBottomOfTheSea, fan.value());
+        }
+        if (const std::optional<int> fan = HasBottomOfTheRiver(win_info); fan) {
+            score.AddYaku(Yaku::kBottomOfTheRiver, fan.value());
+        }
+        if (const std::optional<int> fan = HasIppatsu(win_info); fan) {
+            score.AddYaku(Yaku::kIppatsu, fan.value());
+        }
         if (const std::optional<int> fan = HasAllSimples(win_info); fan) {
             score.AddYaku(Yaku::kAllSimples, fan.value());
         }
@@ -305,6 +333,30 @@ namespace mj
         }
         if (const std::optional<int> fan = HasRedDragon(win_info); fan) {
             score.AddYaku(Yaku::kRedDragon, fan.value());
+        }
+        if (const std::optional<int> fan = HasSeatWindEast(win_info); fan) {
+            score.AddYaku(Yaku::kSeatWindEast, fan.value());
+        }
+        if (const std::optional<int> fan = HasSeatWindSouth(win_info); fan) {
+            score.AddYaku(Yaku::kSeatWindSouth, fan.value());
+        }
+        if (const std::optional<int> fan = HasSeatWindWest(win_info); fan) {
+            score.AddYaku(Yaku::kSeatWindWest, fan.value());
+        }
+        if (const std::optional<int> fan = HasSeatWindNorth(win_info); fan) {
+            score.AddYaku(Yaku::kSeatWindNorth, fan.value());
+        }
+        if (const std::optional<int> fan = HasPrevalentWindEast(win_info); fan) {
+            score.AddYaku(Yaku::kPrevalentWindEast, fan.value());
+        }
+        if (const std::optional<int> fan = HasPrevalentWindSouth(win_info); fan) {
+            score.AddYaku(Yaku::kPrevalentWindSouth, fan.value());
+        }
+        if (const std::optional<int> fan = HasPrevalentWindWest(win_info); fan) {
+            score.AddYaku(Yaku::kPrevalentWindWest, fan.value());
+        }
+        if (const std::optional<int> fan = HasPrevalentWindNorth(win_info); fan) {
+            score.AddYaku(Yaku::kPrevalentWindNorth, fan.value());
         }
         if (const std::optional<int> fan = HasAllTermsAndHonours(win_info); fan) {
             score.AddYaku(Yaku::kAllTermsAndHonours, fan.value());
@@ -323,10 +375,33 @@ namespace mj
         }
     }
 
+    void YakuEvaluator::JudgeDora(
+            const WinningInfo& win_info,
+            WinningScore& score) noexcept {
+
+        if (const std::optional<int> fan = HasRedDora(win_info); fan) {
+            score.AddYaku(Yaku::kRedDora, fan.value());
+        }
+    }
+
     int YakuEvaluator::TotalFan(const std::map<Yaku,int>& yaku) noexcept {
         int total = 0;
         for (const auto& [key, val] : yaku) total += val;
         return total;
+    }
+
+    std::optional<int> YakuEvaluator::HasRedDora(const WinningInfo& win_info) noexcept {
+        int reds = 0;
+        for (const Tile tile : win_info.closed_tiles) {
+            reds += tile.Is(TileSetType::kRedFive);
+        }
+        for (const std::unique_ptr<Open>& open : win_info.opens) {
+            for (const Tile tile : open->Tiles()) {
+                reds += tile.Is(TileSetType::kRedFive);
+            }
+        }
+        if (reds) return reds;
+        return std::nullopt;
     }
 
     std::optional<int> YakuEvaluator::HasPinfu(
@@ -671,6 +746,40 @@ namespace mj
         return std::nullopt;
     }
 
+    std::optional<int> YakuEvaluator::HasRiichi(const WinningInfo& win_info) noexcept {
+        if (win_info.under_riichi) return 1;
+        return std::nullopt;
+    }
+    std::optional<int> YakuEvaluator::HasDoubleRiichi(const WinningInfo& win_info) noexcept {
+        if (win_info.is_double_riichi) return 1;
+        return std::nullopt;
+    }
+
+    std::optional<int> YakuEvaluator::HasAfterKan(const WinningInfo& win_info) noexcept {
+        if (win_info.stage == HandStage::kAfterTsumoAfterKan) return 1;
+        return std::nullopt;
+    }
+
+    std::optional<int> YakuEvaluator::HasRobbingKan(const WinningInfo& win_info) noexcept {
+        if (win_info.stage == HandStage::kAfterRonAfterOthersKan) return 1;
+        return std::nullopt;
+    }
+
+    std::optional<int> YakuEvaluator::HasBottomOfTheSea(const WinningInfo& win_info) noexcept {
+        if (win_info.is_bottom and win_info.stage == HandStage::kAfterTsumo) return 1;
+        return std::nullopt;
+    }
+
+    std::optional<int> YakuEvaluator::HasBottomOfTheRiver(const WinningInfo& win_info) noexcept {
+        if (win_info.is_bottom and win_info.stage == HandStage::kAfterRon) return 1;
+        return std::nullopt;
+    }
+
+    std::optional<int> YakuEvaluator::HasIppatsu(const WinningInfo& win_info) noexcept {
+        if (win_info.is_ippatsu) return 1;
+        return std::nullopt;
+    }
+
     std::optional<int> YakuEvaluator::HasAllSimples(const WinningInfo& win_info) noexcept {
         for (const auto& [tile_type, _] : win_info.all_tile_types) {
             if (Is(tile_type, TileSetType::kYaocyu)) return std::nullopt;
@@ -693,6 +802,62 @@ namespace mj
     std::optional<int> YakuEvaluator::HasRedDragon(const WinningInfo& win_info) noexcept {
         const auto& all_tile_types = win_info.all_tile_types;
         if (all_tile_types.count(TileType::kRD) and all_tile_types.at(TileType::kRD) >= 3) return 1;
+        return std::nullopt;
+    }
+
+    std::optional<int> YakuEvaluator::HasSeatWindEast(const WinningInfo& win_info) noexcept {
+        if (win_info.seat_wind != Wind::kEast) return std::nullopt;
+        const auto& all_tile_types = win_info.all_tile_types;
+        if (all_tile_types.count(TileType::kEW) and all_tile_types.at(TileType::kEW) >= 3) return 1;
+        return std::nullopt;
+    }
+
+    std::optional<int> YakuEvaluator::HasSeatWindSouth(const WinningInfo& win_info) noexcept {
+        if (win_info.seat_wind != Wind::kSouth) return std::nullopt;
+        const auto& all_tile_types = win_info.all_tile_types;
+        if (all_tile_types.count(TileType::kSW) and all_tile_types.at(TileType::kSW) >= 3) return 1;
+        return std::nullopt;
+    }
+
+    std::optional<int> YakuEvaluator::HasSeatWindWest(const WinningInfo& win_info) noexcept {
+        if (win_info.seat_wind != Wind::kWest) return std::nullopt;
+        const auto& all_tile_types = win_info.all_tile_types;
+        if (all_tile_types.count(TileType::kWW) and all_tile_types.at(TileType::kWW) >= 3) return 1;
+        return std::nullopt;
+    }
+
+    std::optional<int> YakuEvaluator::HasSeatWindNorth(const WinningInfo& win_info) noexcept {
+        if (win_info.seat_wind != Wind::kNorth) return std::nullopt;
+        const auto& all_tile_types = win_info.all_tile_types;
+        if (all_tile_types.count(TileType::kNW) and all_tile_types.at(TileType::kNW) >= 3) return 1;
+        return std::nullopt;
+    }
+
+    std::optional<int> YakuEvaluator::HasPrevalentWindEast(const WinningInfo& win_info) noexcept {
+        if (win_info.prevalent_wind != Wind::kEast) return std::nullopt;
+        const auto& all_tile_types = win_info.all_tile_types;
+        if (all_tile_types.count(TileType::kEW) and all_tile_types.at(TileType::kEW) >= 3) return 1;
+        return std::nullopt;
+    }
+
+    std::optional<int> YakuEvaluator::HasPrevalentWindSouth(const WinningInfo& win_info) noexcept {
+        if (win_info.prevalent_wind != Wind::kSouth) return std::nullopt;
+        const auto& all_tile_types = win_info.all_tile_types;
+        if (all_tile_types.count(TileType::kSW) and all_tile_types.at(TileType::kSW) >= 3) return 1;
+        return std::nullopt;
+    }
+
+    std::optional<int> YakuEvaluator::HasPrevalentWindWest(const WinningInfo& win_info) noexcept {
+        if (win_info.prevalent_wind != Wind::kWest) return std::nullopt;
+        const auto& all_tile_types = win_info.all_tile_types;
+        if (all_tile_types.count(TileType::kWW) and all_tile_types.at(TileType::kWW) >= 3) return 1;
+        return std::nullopt;
+    }
+
+    std::optional<int> YakuEvaluator::HasPrevalentWindNorth(const WinningInfo& win_info) noexcept {
+        if (win_info.prevalent_wind != Wind::kNorth) return std::nullopt;
+        const auto& all_tile_types = win_info.all_tile_types;
+        if (all_tile_types.count(TileType::kNW) and all_tile_types.at(TileType::kNW) >= 3) return 1;
         return std::nullopt;
     }
 
@@ -753,6 +918,14 @@ namespace mj
         }
         if (pons == 2 and heads == 1) return 2;
         return std::nullopt;
+    }
+
+    bool YakuEvaluator::HasBlessingOfHeaven(const WinningInfo& win_info) noexcept {
+        return win_info.is_first_tsumo and win_info.is_leader;
+    }
+
+    bool YakuEvaluator::HasBlessingOfEarth(const WinningInfo& win_info) noexcept {
+        return win_info.is_first_tsumo and !win_info.is_leader;
     }
 
     bool YakuEvaluator::HasBigThreeDragons(const WinningInfo& win_info) noexcept {

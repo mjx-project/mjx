@@ -24,8 +24,15 @@ namespace mj {
                 under_riichi(under_riichi),
                 closed_tile_types(std::move(closed_tile_types)),
                 all_tile_types(std::move(all_tile_types)),
-                is_menzen(is_menzen)
-                {}
+                is_menzen(is_menzen),
+                seat_wind(Wind::kEast),
+                prevalent_wind(Wind::kEast),
+                is_bottom(false),
+                is_ippatsu(false),
+                is_double_riichi(false),
+                is_first_tsumo(false),
+                is_leader(false)
+            {}
 
     WinningInfo& WinningInfo::Ron(Tile tile) noexcept {
         assert(closed_tiles.find(tile) == closed_tiles.end());
@@ -64,6 +71,49 @@ namespace mj {
         ++all_tile_types[tile_type];
         last_added_tile_type = tile_type;
         stage = HandStage::kAfterTsumo;
+        return *this;
+    }
+
+    WinningInfo& WinningInfo::Seat(Wind wind) noexcept {
+        seat_wind = wind;
+        return *this;
+    }
+
+    WinningInfo& WinningInfo::Prevalent(Wind wind) noexcept {
+        prevalent_wind = wind;
+        return *this;
+    }
+
+    WinningInfo& WinningInfo::Stage(HandStage stage) noexcept {
+        this->stage = stage;
+        return *this;
+    }
+
+    WinningInfo& WinningInfo::IsBottom(bool is_bottom) noexcept {
+        this->is_bottom = is_bottom;
+        return *this;
+    }
+
+    WinningInfo& WinningInfo::IsIppatsu(bool is_ippatsu) noexcept {
+        assert(under_riichi);
+        this->is_ippatsu = is_ippatsu;
+        return *this;
+    }
+
+    WinningInfo& WinningInfo::IsDoubleRiichi(bool is_double_riichi) noexcept {
+        assert(under_riichi);
+        this->is_double_riichi = is_double_riichi;
+        return *this;
+    }
+
+    WinningInfo& WinningInfo::IsFirstTsumo(bool is_first_tsumo) noexcept {
+        assert(stage == HandStage::kAfterTsumo);
+        this->is_first_tsumo = is_first_tsumo;
+        return *this;
+    }
+
+    WinningInfo& WinningInfo::IsLeader(bool is_leader) noexcept {
+        this->is_leader = is_leader;
         return *this;
     }
 }
