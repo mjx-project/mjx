@@ -10,7 +10,6 @@ TEST(agent_client_mock, TakeAction) {
     state.InitRound();
     std::unique_ptr<AgentClient> agent = std::make_unique<AgentClientMock>();
     auto drawer = state.UpdateStateByDraw();
-    auto observation = state.mutable_observation(drawer);
-    auto action = agent->TakeAction(observation);
+    auto action = agent->TakeAction(state.CreateObservation(drawer));
     EXPECT_EQ(action.type(), ActionType::kDiscard);
 }

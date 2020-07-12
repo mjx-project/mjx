@@ -1,5 +1,6 @@
 #include "environment.h"
 #include "algorithm"
+#include "utils.h"
 
 namespace mj
 {
@@ -22,15 +23,14 @@ namespace mj
         while (!state_.IsRoundOver()) {
             auto drawer = state_.UpdateStateByDraw();
             // discard, riichi_and_discard, tsumo, kan_closed or kan_added. (At the first draw, 9種9牌）
-            auto action = agents_[static_cast<int>(drawer)].TakeAction(state_.mutable_observation(drawer));
+            auto action = agent(drawer).TakeAction(state_.CreateObservation(drawer));
             state_.UpdateStateByAction(action);
             // TODO(sotetsuk): assert that possbile_actions are empty
             if (auto winners = RonCheck(); winners) {
                 std::vector<Action> action_candidates;
                 for (AbsolutePos winner: winners.value()) {
                     // only ron
-                    action_candidates.emplace_back(agents_[static_cast<int>(winner)].TakeAction(
-                            state_.mutable_observation(winner)));
+                    action_candidates.emplace_back(agent(winner).TakeAction(state_.CreateObservation(winner)));
                 }
                 state_.UpdateStateByActionCandidates(action_candidates);
             }
@@ -39,11 +39,14 @@ namespace mj
                 // TODO (sotetsuk): make gRPC async
                 for (AbsolutePos stealer: stealers.value()) {
                     // chi, pon and kan_opened
-                    action_candidates.emplace_back(agents_[static_cast<int>(stealer)].TakeAction(
-                            state_.mutable_observation(stealer)));
+                    action_candidates.emplace_back(agent(stealer).TakeAction(state_.CreateObservation(stealer)));
                 }
                 state_.UpdateStateByActionCandidates(action_candidates);
             }
         }
+    }
+
+    const AgentClient &Environment::agent(AbsolutePos pos) const {
+        return agents_.at(ToUType(pos));
     }
 }

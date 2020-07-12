@@ -5,7 +5,7 @@ namespace mj
     AgentClient::AgentClient(std::shared_ptr<grpc::Channel> channel)
             : stub_(mjproto::Agent::NewStub(channel)) {}
 
-    Action AgentClient::TakeAction(Observation &observation) const {
+    Action AgentClient::TakeAction(Observation&& observation) const {
         assert(stub_ != nullptr);
         const mjproto::ActionRequest request = observation.action_request_;
         mjproto::ActionResponse response;
