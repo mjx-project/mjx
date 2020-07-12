@@ -75,7 +75,7 @@ class mj::WinningHandCache <<(S,orchid) Singleton>> {
     + Has(): bool
 }
 
-class mj::WinningScore {
+class mj::WinningScore <<(D,yellow) Data>> {
     + yakuman: map<mj::Yaku, int>
     + yaku: map<mj::Yaku, bool>
     + fu: optional<int>
@@ -128,12 +128,21 @@ class mj::ActionHistory <<(D,yellow) Data>> {
     - action_history mjproto::ActionHistory
 }
 
-class mj::AgentClient {
+abstract class mj::AgentClient {
     + TakeAction(): mj::Action
 }
 
-class mj::AgentServer {
+class mj::AgentClientMock {
+
+}
+
+
+abstract class mj::AgentServer {
     + RunServer(): void
+}
+
+class mj::AgentServerMock{
+
 }
 
 class mj::Score <<(D,yellow) Data>> {
@@ -256,8 +265,10 @@ mj::WinningScore --> mj::Hand
 
 mj::AgentClient --> mj::AgentServer : <<mjproto::ActionRequest>>
 mj::AgentClient --> mj::Action : TakeAction
+mj::AgentClient <|-- mj::AgentClientMock
 
 mj::AgentServer --> mj::AgentClient : <<mjproto::ActionResponse>>
+mj::AgentServer <|-- mj::AgentServerMock
 
 
 @enduml
