@@ -31,7 +31,7 @@ namespace mj
         [[nodiscard]] std::string ToString(bool verbose = false) const;
     private:
         std::uint32_t seed_;
-        std::unique_ptr<std::vector<Tile>> tiles_;
+        std::vector<Tile> tiles_;
         std::vector<Tile>::const_iterator itr_curr_draw_;
         std::vector<Tile>::const_iterator itr_curr_kan_draw_;
         int num_kan_draw_ = 0;
