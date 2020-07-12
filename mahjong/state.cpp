@@ -45,7 +45,7 @@ namespace mj
                     RoundStage::kAfterKanClosed,
                     RoundStage::kAfterKanOpened,
                     RoundStage::kAfterKanAdded}));
-        mutable_hand(drawer_)->Draw(wall_.Draw());
+        mutable_hand(drawer_).Draw(wall_.Draw());
         // set possible actions
         mutable_observation(drawer_).add_possible_action(PossibleAction::NewDiscard(hand(drawer_)));
         // TODO(sotetsuk): set kan_added, kan_closed and riichi
@@ -55,10 +55,10 @@ namespace mj
 
     void State::UpdateStateByAction(const Action &action) {
         assert(NullCheck());
-        auto curr_hand = mutable_hand(action.who());
+        auto &curr_hand = mutable_hand(action.who());
         switch (action.type()) {
             case ActionType::kDiscard:
-                curr_hand->Discard(action.discard());
+                curr_hand.Discard(action.discard());
                 stage_ = RoundStage::kAfterDiscards;
                 drawer_ = AbsolutePos((static_cast<int>(action.who()) + 1) % 4);
                 break;
@@ -87,9 +87,9 @@ namespace mj
         return observations_.at(ToUType(who));
     }
 
-    Hand *State::mutable_hand(AbsolutePos pos) {
+    Hand & State::mutable_hand(AbsolutePos pos) {
         assert(NullCheck());
-        return &mutable_player(pos).mutable_hand();
+        return mutable_player(pos).mutable_hand();
     }
 
     bool State::NullCheck() const {

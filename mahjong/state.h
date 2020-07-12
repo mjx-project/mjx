@@ -41,7 +41,7 @@ namespace mj
         [[nodiscard]] RoundStage stage() const;
         [[nodiscard]] const Wall & wall() const;
         [[nodiscard]] const Hand & hand(AbsolutePos pos) const;
-        Hand *mutable_hand(AbsolutePos pos);
+        Hand & mutable_hand(AbsolutePos pos);
 
         std::string ToMjlog() const;
     private:
