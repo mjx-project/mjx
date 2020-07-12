@@ -36,15 +36,15 @@ namespace mj
     {
     public:
         PossibleAction() = default;
-        PossibleAction(const mjproto::PossibleAction &possible_action);
+        PossibleAction(mjproto::PossibleAction possible_action);
         ActionType type() const;
         std::unique_ptr<Open> open() const;
         std::vector<Tile> discard_candidates() const;
 
-        static std::unique_ptr<PossibleAction> NewDiscard(const Hand& hand);
+        static PossibleAction CreateDiscard(const Hand& hand);
     private:
         friend class Observation;
-        std::unique_ptr<mjproto::PossibleAction> possible_action_ = std::make_unique<mjproto::PossibleAction>();
+        mjproto::PossibleAction possible_action_{};
     };
 
     class ActionHistory
@@ -72,7 +72,7 @@ namespace mj
         Score score() const;
         std::vector<TakenAction> taken_actions() const;
         // setter
-        void add_possible_action(std::unique_ptr<PossibleAction> possible_action);
+        void add_possible_action(PossibleAction&& possible_action);
 
         void ClearPossibleActions();
         std::string ToString() const;

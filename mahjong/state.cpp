@@ -47,7 +47,7 @@ namespace mj
                     RoundStage::kAfterKanAdded}));
         mutable_hand(drawer_).Draw(wall_.Draw());
         // set possible actions
-        mutable_observation(drawer_).add_possible_action(PossibleAction::NewDiscard(hand(drawer_)));
+        mutable_observation(drawer_).add_possible_action(PossibleAction::CreateDiscard(hand(drawer_)));
         // TODO(sotetsuk): set kan_added, kan_closed and riichi
         stage_ = RoundStage::kAfterDraw;
         return drawer_;
