@@ -4,7 +4,7 @@
 namespace mj
 {
     State::State(std::uint32_t seed)
-    : seed_(seed), score_(std::make_unique<Score>())
+    : seed_(seed), score_(Score())
     {
         // TODO (sotetsuk): shuffle seats
     }
@@ -12,18 +12,18 @@ namespace mj
     void State::InitRound() {
         // TODO: use seed_
         stage_ = RoundStage::kAfterDiscards;
-        dealer_ = AbsolutePos(score_->round() % 4);
+        dealer_ = AbsolutePos(score_.round() % 4);
         drawer_ = dealer_;
-        wall_ = std::make_unique<Wall>();  // TODO: use seed_
+        wall_ = Wall();  // TODO: use seed_
         players_ = {
-                Player{AbsolutePos::kEast, River(), wall_->initial_hand(AbsolutePos::kEast)},
-                Player{AbsolutePos::kSouth, River(), wall_->initial_hand(AbsolutePos::kSouth)},
-                Player{AbsolutePos::kWest, River(), wall_->initial_hand(AbsolutePos::kWest)},
-                Player{AbsolutePos::kNorth, River(), wall_->initial_hand(AbsolutePos::kNorth)}
+                Player{AbsolutePos::kEast, River(), wall_.initial_hand(AbsolutePos::kEast)},
+                Player{AbsolutePos::kSouth, River(), wall_.initial_hand(AbsolutePos::kSouth)},
+                Player{AbsolutePos::kWest, River(), wall_.initial_hand(AbsolutePos::kWest)},
+                Player{AbsolutePos::kNorth, River(), wall_.initial_hand(AbsolutePos::kNorth)}
         };
-        action_history_ = std::make_unique<ActionHistory>();
+        action_history_ = ActionHistory();
         for (int i = 0; i < 4; ++i) {
-            observations_.at(i) = std::make_unique<Observation>(AbsolutePos(i), score_.get(), action_history_.get());
+            observations_.at(i) = Observation(AbsolutePos(i), score_, action_history_);
         }
     }
 
@@ -33,9 +33,9 @@ namespace mj
         return seed_gen();
     }
 
-    const Wall * State::wall() const {
+    const Wall & State::wall() const {
         assert(NullCheck());
-        return wall_.get();
+        return wall_;
     }
 
     AbsolutePos State::UpdateStateByDraw() {
@@ -45,9 +45,9 @@ namespace mj
                     RoundStage::kAfterKanClosed,
                     RoundStage::kAfterKanOpened,
                     RoundStage::kAfterKanAdded}));
-        mutable_hand(drawer_)->Draw(wall_->Draw());
+        mutable_hand(drawer_).Draw(wall_.Draw());
         // set possible actions
-        mutable_observation(drawer_)->add_possible_action(PossibleAction::NewDiscard(hand(drawer_)));
+        mutable_observation(drawer_).add_possible_action(PossibleAction::CreateDiscard(hand(drawer_)));
         // TODO(sotetsuk): set kan_added, kan_closed and riichi
         stage_ = RoundStage::kAfterDraw;
         return drawer_;
@@ -55,10 +55,10 @@ namespace mj
 
     void State::UpdateStateByAction(const Action &action) {
         assert(NullCheck());
-        auto curr_hand = mutable_hand(action.who());
+        auto &curr_hand = mutable_hand(action.who());
         switch (action.type()) {
             case ActionType::kDiscard:
-                curr_hand->Discard(action.discard());
+                curr_hand.Discard(action.discard());
                 stage_ = RoundStage::kAfterDiscards;
                 drawer_ = AbsolutePos((static_cast<int>(action.who()) + 1) % 4);
                 break;
@@ -67,21 +67,14 @@ namespace mj
         }
     }
 
-    Observation * State::mutable_observation(AbsolutePos who) {
+    Observation& State::mutable_observation(AbsolutePos who) {
         assert(NullCheck());
-        return observations_.at(static_cast<int>(who)).get();
+        return observations_.at(static_cast<int>(who));
     }
 
-    const Hand *State::hand(AbsolutePos pos) const {
+    const Hand & State::hand(AbsolutePos pos) const {
         assert(NullCheck());
-        return &player(pos).hand();
-    }
-
-    std::array<const Hand *, 4> State::hands() const {
-        assert(NullCheck());
-        std::array<const Hand*, 4> ret{};
-        for (int i = 0; i < 4; ++i) ret.at(i) = hand(AbsolutePos(i));
-        return ret;
+        return player(pos).hand();
     }
 
     RoundStage State::stage() const {
@@ -89,23 +82,22 @@ namespace mj
         return stage_;
     }
 
-    const Observation *State::observation(AbsolutePos who) const {
+    const Observation& State::observation(AbsolutePos who) const {
         assert(NullCheck());
-        return observations_.at(ToUType(who)).get();
+        return observations_.at(ToUType(who));
     }
 
-    Hand *State::mutable_hand(AbsolutePos pos) {
+    Hand & State::mutable_hand(AbsolutePos pos) {
         assert(NullCheck());
-        return &mutable_player(pos).mutable_hand();
+        return mutable_player(pos).mutable_hand();
     }
 
     bool State::NullCheck() const {
-        if (!wall_ || !action_history_) return false;
         return true;
     }
 
     bool State::IsRoundOver() {
-        if (!wall_->HasDrawLeft()) return true;
+        if (!wall_.HasDrawLeft()) return true;
         return false;
     }
 

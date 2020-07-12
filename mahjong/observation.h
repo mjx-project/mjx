@@ -20,7 +20,7 @@ namespace mj
         [[nodiscard]] std::array<std::int16_t, 4> ten() const;  // 点 250 start
     private:
         friend class Observation;
-        std::unique_ptr<mjproto::Score> score_ = std::make_unique<mjproto::Score>();
+        mjproto::Score score_{};
     };
 
     struct TakenAction {
@@ -36,15 +36,15 @@ namespace mj
     {
     public:
         PossibleAction() = default;
-        PossibleAction(const mjproto::PossibleAction &possible_action);
+        PossibleAction(mjproto::PossibleAction possible_action);
         ActionType type() const;
         std::unique_ptr<Open> open() const;
         std::vector<Tile> discard_candidates() const;
 
-        static std::unique_ptr<PossibleAction> NewDiscard(const Hand* hand);
+        static PossibleAction CreateDiscard(const Hand& hand);
     private:
         friend class Observation;
-        std::unique_ptr<mjproto::PossibleAction> possible_action_ = std::make_unique<mjproto::PossibleAction>();
+        mjproto::PossibleAction possible_action_{};
     };
 
     class ActionHistory
@@ -54,14 +54,14 @@ namespace mj
         [[nodiscard]] std::size_t size() const;
     private:
         friend class Observation;
-        std::unique_ptr<mjproto::ActionHistory> action_history_ = std::make_unique<mjproto::ActionHistory>();
+        mjproto::ActionHistory action_history_{};
     };
 
     class Observation
     {
     public:
         Observation() = default;
-        Observation(AbsolutePos who, Score* score, ActionHistory* action_history);
+        Observation(AbsolutePos who, Score& score, ActionHistory& action_history);
         ~Observation();
         // getter
         std::uint32_t game_id() const;
@@ -72,13 +72,13 @@ namespace mj
         Score score() const;
         std::vector<TakenAction> taken_actions() const;
         // setter
-        void add_possible_action(std::unique_ptr<PossibleAction> possible_action);
+        void add_possible_action(PossibleAction&& possible_action);
 
         void ClearPossibleActions();
         std::string ToString() const;
     private:
         friend class AgentClient;
-        std::unique_ptr<mjproto::ActionRequest> action_request_ = std::make_unique<mjproto::ActionRequest>();
+        mjproto::ActionRequest action_request_ = mjproto::ActionRequest();
     };
 }
 

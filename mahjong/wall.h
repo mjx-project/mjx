@@ -30,8 +30,8 @@ namespace mj
         bool HasDrawLeft();
         [[nodiscard]] std::string ToString(bool verbose = false) const;
     private:
-        const std::uint32_t seed_;
-        const std::unique_ptr<std::vector<Tile>> tiles_;
+        std::uint32_t seed_;
+        std::vector<Tile> tiles_;
         std::vector<Tile>::const_iterator itr_curr_draw_;
         std::vector<Tile>::const_iterator itr_curr_kan_draw_;
         int num_kan_draw_ = 0;

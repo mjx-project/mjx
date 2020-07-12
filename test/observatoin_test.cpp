@@ -10,10 +10,10 @@ TEST(observation, possible_actions) {
     state.InitRound();
     auto drawer = state.UpdateStateByDraw();
     auto observation = state.mutable_observation(drawer);
-    auto possible_actions = observation->possible_actions();
+    auto possible_actions = observation.possible_actions();
     EXPECT_EQ(possible_actions.size(), 1);
     EXPECT_EQ(possible_actions.front().type(), ActionType::kDiscard);
-    auto hand = state.hand(drawer)->ToVector();
+    auto hand = state.hand(drawer).ToVector();
     auto possible_discards = possible_actions.front().discard_candidates();
     EXPECT_EQ(hand, possible_discards);
 
