@@ -87,6 +87,7 @@ namespace mj
         assert(action_request_.has_action_history());
         action_request_.release_score();
         action_request_.release_action_history();
+        action_request_.release_initial_hand();
     }
 
     void Observation::add_possible_action(PossibleAction&& possible_action) {
@@ -95,9 +96,10 @@ namespace mj
         mutable_possible_actions->Add(std::move(possible_action.possible_action_));
     }
 
-    Observation::Observation(AbsolutePos who, Score &score, ActionHistory &action_history) {
+    Observation::Observation(AbsolutePos who, Score &score, ActionHistory &action_history, Player& player) {
         action_request_.set_who(ToUType(who));
         action_request_.set_allocated_score(&score.score_);
         action_request_.set_allocated_action_history(&action_history.action_history_);
+        action_request_.set_allocated_initial_hand(&player.initial_hand_);
     }
 }

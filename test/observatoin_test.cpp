@@ -9,7 +9,7 @@ TEST(observation, possible_actions) {
     auto state = State(9999);
     state.InitRound();
     auto drawer = state.UpdateStateByDraw();
-    auto observation = state.mutable_observation(drawer);
+    auto observation = state.CreateObservation(drawer);
     auto possible_actions = observation.possible_actions();
     EXPECT_EQ(possible_actions.size(), 1);
     EXPECT_EQ(possible_actions.front().type(), ActionType::kDiscard);

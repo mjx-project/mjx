@@ -32,12 +32,11 @@ namespace mj
         Tile Draw();
         void AddNewDora();
         Tile DrawRinshan();
+        Observation CreateObservation(AbsolutePos pos);
 
         // accessors
         [[nodiscard]] const Player& player(AbsolutePos pos) const;
         Player& mutable_player(AbsolutePos pos);
-        [[nodiscard]] const Observation& observation(AbsolutePos who) const;
-        Observation& mutable_observation(AbsolutePos who);
         [[nodiscard]] RoundStage stage() const;
         [[nodiscard]] const Wall & wall() const;
         [[nodiscard]] const Hand & hand(AbsolutePos pos) const;
@@ -54,8 +53,6 @@ namespace mj
         Wall wall_;
         std::array<Player, 4> players_;
         ActionHistory action_history_;
-
-        std::array<Observation, 4> observations_;
 
         std::uint32_t GenerateRoundSeed();
         [[nodiscard]] bool NullCheck() const;

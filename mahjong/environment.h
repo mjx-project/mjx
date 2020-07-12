@@ -17,6 +17,8 @@ namespace mj
     private:
         const std::vector<AgentClient> &agents_;
         State state_ = State();
+
+        const AgentClient& agent(AbsolutePos pos) const;
         std::optional<std::vector<AbsolutePos>> RonCheck();
         std::optional<std::vector<AbsolutePos>> StealCheck();
     };

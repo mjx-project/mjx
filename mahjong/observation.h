@@ -7,6 +7,7 @@
 #include <array>
 #include "hand.h"
 #include "action.h"
+#include "player.h"
 
 namespace mj
 {
@@ -61,7 +62,7 @@ namespace mj
     {
     public:
         Observation() = default;
-        Observation(AbsolutePos who, Score& score, ActionHistory& action_history);
+        Observation(AbsolutePos who, Score& score, ActionHistory& action_history, Player& player);
         ~Observation();
         // getter
         std::uint32_t game_id() const;

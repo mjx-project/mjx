@@ -22,9 +22,6 @@ namespace mj
                 Player{AbsolutePos::kNorth, River(), wall_.initial_hand(AbsolutePos::kNorth)}
         };
         action_history_ = ActionHistory();
-        for (int i = 0; i < 4; ++i) {
-            observations_.at(i) = Observation(AbsolutePos(i), score_, action_history_);
-        }
     }
 
     std::uint32_t State::GenerateRoundSeed() {
@@ -46,9 +43,7 @@ namespace mj
                     RoundStage::kAfterKanOpened,
                     RoundStage::kAfterKanAdded}));
         mutable_hand(drawer_).Draw(wall_.Draw());
-        // set possible actions
-        mutable_observation(drawer_).add_possible_action(PossibleAction::CreateDiscard(hand(drawer_)));
-        // TODO(sotetsuk): set kan_added, kan_closed and riichi
+        // TODO (sotetsuk): update action history
         stage_ = RoundStage::kAfterDraw;
         return drawer_;
     }
@@ -67,11 +62,6 @@ namespace mj
         }
     }
 
-    Observation& State::mutable_observation(AbsolutePos who) {
-        assert(NullCheck());
-        return observations_.at(static_cast<int>(who));
-    }
-
     const Hand & State::hand(AbsolutePos pos) const {
         assert(NullCheck());
         return player(pos).hand();
@@ -80,11 +70,6 @@ namespace mj
     RoundStage State::stage() const {
         assert(NullCheck());
         return stage_;
-    }
-
-    const Observation& State::observation(AbsolutePos who) const {
-        assert(NullCheck());
-        return observations_.at(ToUType(who));
     }
 
     Hand & State::mutable_hand(AbsolutePos pos) {
@@ -107,5 +92,19 @@ namespace mj
 
     Player &State::mutable_player(AbsolutePos pos) {
         return players_.at(ToUType(pos));
+    }
+
+    Observation State::CreateObservation(AbsolutePos pos) {
+        auto observation = Observation(pos, score_, action_history_, mutable_player(pos));
+        switch (stage()) {
+            case RoundStage::kAfterDraw:
+                assert(hand(pos).Stage() == HandStage::kAfterDraw);
+                observation.add_possible_action(PossibleAction::CreateDiscard(hand(pos)));
+                // TODO(sotetsuk): add kan_added, kan_closed and riichi
+                break;
+            default:
+                break;
+        }
+        return observation;
     }
 }  // namespace mj
