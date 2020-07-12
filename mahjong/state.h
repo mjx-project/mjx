@@ -40,9 +40,8 @@ namespace mj
         Observation& mutable_observation(AbsolutePos who);
         [[nodiscard]] RoundStage stage() const;
         [[nodiscard]] const Wall & wall() const;
-        [[nodiscard]] const Hand *hand(AbsolutePos pos) const;
+        [[nodiscard]] const Hand & hand(AbsolutePos pos) const;
         Hand *mutable_hand(AbsolutePos pos);
-        [[nodiscard]] std::array<const Hand*, 4> hands() const;
 
         std::string ToMjlog() const;
     private:

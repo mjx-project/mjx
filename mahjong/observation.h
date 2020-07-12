@@ -41,7 +41,7 @@ namespace mj
         std::unique_ptr<Open> open() const;
         std::vector<Tile> discard_candidates() const;
 
-        static std::unique_ptr<PossibleAction> NewDiscard(const Hand* hand);
+        static std::unique_ptr<PossibleAction> NewDiscard(const Hand& hand);
     private:
         friend class Observation;
         std::unique_ptr<mjproto::PossibleAction> possible_action_ = std::make_unique<mjproto::PossibleAction>();

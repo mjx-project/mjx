@@ -72,16 +72,9 @@ namespace mj
         return observations_.at(static_cast<int>(who));
     }
 
-    const Hand *State::hand(AbsolutePos pos) const {
+    const Hand & State::hand(AbsolutePos pos) const {
         assert(NullCheck());
-        return &player(pos).hand();
-    }
-
-    std::array<const Hand *, 4> State::hands() const {
-        assert(NullCheck());
-        std::array<const Hand*, 4> ret{};
-        for (int i = 0; i < 4; ++i) ret.at(i) = hand(AbsolutePos(i));
-        return ret;
+        return player(pos).hand();
     }
 
     RoundStage State::stage() const {
