@@ -61,7 +61,7 @@ namespace mj
         std::vector<Tile> PossibleDiscardsAfterRiichi(const WinningHandCache &win_cache);
         std::vector<std::unique_ptr<Open>> PossibleOpensAfterOthersDiscard(Tile tile, RelativePos from);  // includes Chi, Pon, and KanOpened
         std::vector<std::unique_ptr<Open>> PossibleOpensAfterDraw();  // includes KanClosed and KanAdded
-        bool CanRon(Tile tile);  // This does not take furiten and fan into account.
+        bool CanRon(Tile tile) const;  // This does not take furiten and fan into account.
         bool IsCompleted();
         bool CanRiichi();
         bool CanNineTiles(bool IsDealer);  // 九種九牌

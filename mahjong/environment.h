@@ -19,8 +19,6 @@ namespace mj
         State state_ = State();
 
         const AgentClient& agent(AbsolutePos pos) const;
-        std::optional<std::vector<AbsolutePos>> RonCheck();
-        std::optional<std::vector<AbsolutePos>> StealCheck();
     };
 }  // namespace mj
 
