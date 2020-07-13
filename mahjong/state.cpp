@@ -31,12 +31,10 @@ namespace mj
     }
 
     const Wall & State::wall() const {
-        assert(NullCheck());
         return wall_;
     }
 
     AbsolutePos State::UpdateStateByDraw() {
-        assert(NullCheck());
         assert(Any(stage_,
                    {RoundStage::kAfterDiscards,
                     RoundStage::kAfterKanClosed,
@@ -49,7 +47,6 @@ namespace mj
     }
 
     void State::UpdateStateByAction(const Action &action) {
-        assert(NullCheck());
         auto &curr_hand = mutable_hand(action.who());
         switch (action.type()) {
             case ActionType::kDiscard:
@@ -63,22 +60,15 @@ namespace mj
     }
 
     const Hand & State::hand(AbsolutePos pos) const {
-        assert(NullCheck());
         return player(pos).hand();
     }
 
     RoundStage State::stage() const {
-        assert(NullCheck());
         return stage_;
     }
 
     Hand & State::mutable_hand(AbsolutePos pos) {
-        assert(NullCheck());
         return mutable_player(pos).mutable_hand();
-    }
-
-    bool State::NullCheck() const {
-        return true;
     }
 
     bool State::IsRoundOver() {
