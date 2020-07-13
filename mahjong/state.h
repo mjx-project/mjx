@@ -55,7 +55,6 @@ namespace mj
         ActionHistory action_history_;
 
         std::uint32_t GenerateRoundSeed();
-        [[nodiscard]] bool NullCheck() const;
     };
 }  // namespace mj
 
