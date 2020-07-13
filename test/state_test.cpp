@@ -40,3 +40,7 @@ TEST(state, UpdateStateByAction) {
         EXPECT_EQ(state.hand(drawer).Size(), 13);
     }
 }
+
+TEST(state, RonCheck) {
+    // TODO(sotetsuk): write here
+}
