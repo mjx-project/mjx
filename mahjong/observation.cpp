@@ -90,7 +90,7 @@ namespace mj
         action_request_.release_initial_hand();
     }
 
-    void Observation::add_possible_action(PossibleAction&& possible_action) {
+    void Observation::add_possible_action(PossibleAction possible_action) {
         // TDOO (sotetsuk): add assertion. もしtypeがdiscardならすでにあるpossible_actionはdiscardではない
         auto mutable_possible_actions = action_request_.mutable_possible_actions();
         mutable_possible_actions->Add(std::move(possible_action.possible_action_));

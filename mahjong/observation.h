@@ -73,7 +73,7 @@ namespace mj
         Score score() const;
         std::vector<TakenAction> taken_actions() const;
         // setter
-        void add_possible_action(PossibleAction&& possible_action);
+        void add_possible_action(PossibleAction possible_action);
 
         void ClearPossibleActions();
         std::string ToString() const;
