@@ -14,6 +14,7 @@ namespace mj
         stage_ = RoundStage::kAfterDiscards;
         dealer_ = AbsolutePos(score_.round() % 4);
         drawer_ = dealer_;
+        latest_discarder_ = AbsolutePos::kNorth;
         wall_ = Wall();  // TODO: use seed_
         players_ = {
                 Player{AbsolutePos::kEast, River(), wall_.initial_hand(AbsolutePos::kEast)},
@@ -53,6 +54,7 @@ namespace mj
                 curr_hand.Discard(action.discard());
                 stage_ = RoundStage::kAfterDiscards;
                 drawer_ = AbsolutePos((static_cast<int>(action.who()) + 1) % 4);
+                latest_discarder_ = action.who();
                 break;
             default:
                 static_assert(true, "Not implemented error.");
@@ -96,5 +98,25 @@ namespace mj
                 break;
         }
         return observation;
+    }
+
+    std::optional<std::vector<AbsolutePos>> State::RonCheck() {
+        auto possible_winners = std::make_optional<std::vector<AbsolutePos>>();
+        auto position = AbsolutePos((ToUType(latest_discarder_) + 1) % 4);
+        auto discarded_tile = river(latest_discarder_).latest_discard();
+        while (position != latest_discarder_) {
+            if (hand(position).CanRon(discarded_tile)) possible_winners->emplace_back(position);
+            position = AbsolutePos((ToUType(position) + 1) % 4);
+        }
+        if (possible_winners.value().empty()) possible_winners = std::nullopt;
+        return possible_winners;
+    }
+
+    const River &State::river(AbsolutePos pos) const {
+        return players_.at(ToUType(pos)).river();
+    }
+
+    River &State::mutable_river(AbsolutePos pos) {
+        return players_.at(ToUType(pos)).mutable_river();
     }
 }  // namespace mj

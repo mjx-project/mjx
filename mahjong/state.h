@@ -33,6 +33,8 @@ namespace mj
         void AddNewDora();
         Tile DrawRinshan();
         Observation CreateObservation(AbsolutePos pos);
+        std::optional<std::vector<AbsolutePos>> RonCheck();  // 牌を捨てたプレイヤーの下家から順に
+        std::optional<std::vector<AbsolutePos>> StealCheck();
 
         // accessors
         [[nodiscard]] const Player& player(AbsolutePos pos) const;
@@ -41,6 +43,8 @@ namespace mj
         [[nodiscard]] const Wall & wall() const;
         [[nodiscard]] const Hand & hand(AbsolutePos pos) const;
         Hand & mutable_hand(AbsolutePos pos);
+        [[nodiscard]] const River & river(AbsolutePos pos) const;
+        River & mutable_river(AbsolutePos pos);
 
         std::string ToMjlog() const;
     private:
@@ -50,6 +54,7 @@ namespace mj
         RoundStage stage_;
         AbsolutePos dealer_;
         AbsolutePos drawer_;
+        AbsolutePos latest_discarder_;
         Wall wall_;
         std::array<Player, 4> players_;
         ActionHistory action_history_;

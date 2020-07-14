@@ -26,7 +26,7 @@ namespace mj
             auto action = agent(drawer).TakeAction(state_.CreateObservation(drawer));
             state_.UpdateStateByAction(action);
             // TODO(sotetsuk): assert that possbile_actions are empty
-            if (auto winners = RonCheck(); winners) {
+            if (auto winners = state_.RonCheck(); winners) {
                 std::vector<Action> action_candidates;
                 for (AbsolutePos winner: winners.value()) {
                     // only ron
@@ -34,7 +34,7 @@ namespace mj
                 }
                 state_.UpdateStateByActionCandidates(action_candidates);
             }
-            if (auto stealers = StealCheck(); stealers) {
+            if (auto stealers = state_.StealCheck(); stealers) {
                 std::vector<Action> action_candidates;
                 // TODO (sotetsuk): make gRPC async
                 for (AbsolutePos stealer: stealers.value()) {

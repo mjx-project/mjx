@@ -547,7 +547,7 @@ namespace mj
                 [](const auto &x){ return x->Type() == OpenType::kKanClosed; });
     }
 
-    bool Hand::CanRon(Tile tile) {
+    bool Hand::CanRon(Tile tile) const {
         assert(stage_ == HandStage::kAfterDiscards);
         assert(SizeClosed() == 1 || SizeClosed() == 4 || SizeClosed() == 7 || SizeClosed() == 10 || SizeClosed() == 13);
 

@@ -5,18 +5,25 @@ namespace mj
 {
     struct DiscardedTile
     {
-        DiscardedTile(Tile tile, bool discard_drawn_tile, std::optional<RelativePos> stolen_to = std::nullopt)
-        : tile(tile), discard_drawn_tile(discard_drawn_tile), stolen_to(stolen_to) {}
+        DiscardedTile(Tile tile, bool tsumogiri, std::optional<RelativePos> stolen_to = std::nullopt)
+        : tile(tile), tsumogiri(tsumogiri), stolen_to(stolen_to) {}
         Tile tile;
-        bool discard_drawn_tile;  // ツモ切り
+        bool tsumogiri;  // whether the discarded tile is the tile just drawn now ツモ切り
         std::optional<RelativePos> stolen_to;
     };
 
-    struct River
+    class River
     {
+    public:
         River() = default;
-        std::vector<DiscardedTile> discarded_tiles;
-        std::optional<std::vector<DiscardedTile>::iterator> itr_riichi_pos = std::nullopt;
+        void Discard(Tile tile, bool tsumogiri) { discarded_tiles_.emplace_back(tile, tsumogiri, std::nullopt); }
+
+        // accessors
+        [[nodiscard]] Tile latest_discard() const { return discarded_tiles_.back().tile; }
+        [[nodiscard]] std::size_t size() const { return discarded_tiles_.size(); }
+    private:
+        std::vector<DiscardedTile> discarded_tiles_;
+        std::optional<std::vector<DiscardedTile>::iterator> itr_riichi_pos_ = std::nullopt;
     };
 }  // namespace mj
 
