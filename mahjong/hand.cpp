@@ -309,7 +309,7 @@ namespace mj
         return possible_discards;
     }
 
-    std::vector<std::unique_ptr<Open>> Hand::PossibleKanOpened(Tile tile, RelativePos from) {
+    std::vector<std::unique_ptr<Open>> Hand::PossibleKanOpened(Tile tile, RelativePos from) const {
         assert(Stage() == HandStage::kAfterDiscards);
         assert(SizeClosed() == 1 || SizeClosed() == 4 || SizeClosed() == 7 || SizeClosed() == 10 || SizeClosed() == 13);
         std::size_t c = std::count_if(closed_tiles_.begin(), closed_tiles_.end(),
@@ -345,7 +345,7 @@ namespace mj
         return v;
     }
 
-    std::vector<std::unique_ptr<Open>> Hand::PossiblePons(Tile tile, RelativePos from) {
+    std::vector<std::unique_ptr<Open>> Hand::PossiblePons(Tile tile, RelativePos from) const {
         assert(Stage() == HandStage::kAfterDiscards);
         assert(SizeClosed() == 1 || SizeClosed() == 4 || SizeClosed() == 7 || SizeClosed() == 10 || SizeClosed() == 13);
         std::size_t counter = 0, sum = 0;
@@ -375,7 +375,7 @@ namespace mj
         return v;
     }
 
-    std::vector<std::unique_ptr<Open>> Hand::PossibleChis(Tile tile) {
+    std::vector<std::unique_ptr<Open>> Hand::PossibleChis(Tile tile) const {
         assert(Stage() == HandStage::kAfterDiscards);
         assert(SizeClosed() == 1 || SizeClosed() == 4 || SizeClosed() == 7 || SizeClosed() == 10 || SizeClosed() == 13);
         auto v = std::vector<std::unique_ptr<Open>>();
@@ -449,7 +449,7 @@ namespace mj
     }
 
     std::vector<std::unique_ptr<Open>>
-    Hand::PossibleOpensAfterOthersDiscard(Tile tile, RelativePos from) {
+    Hand::PossibleOpensAfterOthersDiscard(Tile tile, RelativePos from) const {
         assert(stage_ == HandStage::kAfterDiscards);
         assert(SizeClosed() == 1 || SizeClosed() == 4 || SizeClosed() == 7 || SizeClosed() == 10 || SizeClosed() == 13);
         auto v = std::vector<std::unique_ptr<Open>>();
