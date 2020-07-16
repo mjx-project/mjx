@@ -20,7 +20,7 @@ namespace mj {
 
         Wind seat_wind, prevalent_wind;
         bool is_bottom, is_ippatsu, is_double_riichi, is_first_tsumo;
-        bool is_leader;     // 親:true, 子:false (default:false)
+        bool is_dealer;     // 親:true, 子:false (default:false)
         WinningInfo(
                 const std::vector<std::unique_ptr<Open>>& opens,
                 std::unordered_set<Tile, HashTile>  closed_tiles,

@@ -921,11 +921,11 @@ namespace mj
     }
 
     bool YakuEvaluator::HasBlessingOfHeaven(const WinningInfo& win_info) noexcept {
-        return win_info.is_first_tsumo and win_info.is_leader;
+        return win_info.is_first_tsumo and win_info.is_dealer;
     }
 
     bool YakuEvaluator::HasBlessingOfEarth(const WinningInfo& win_info) noexcept {
-        return win_info.is_first_tsumo and !win_info.is_leader;
+        return win_info.is_first_tsumo and !win_info.is_dealer;
     }
 
     bool YakuEvaluator::HasBigThreeDragons(const WinningInfo& win_info) noexcept {
