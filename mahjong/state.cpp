@@ -127,10 +127,23 @@ namespace mj
         auto discarded_tile = river(latest_discarder_).latest_discard();
         while (position != latest_discarder_) {
             auto stealer = AbsolutePos(position);
-            auto possible_opens = hand(stealer).PossibleOpensAfterOthersDiscard(discarded_tile, RelativePos::kLeft);
+            auto possible_opens = hand(stealer).PossibleOpensAfterOthersDiscard(discarded_tile, ToRelativePos(position, latest_discarder_));
             possible_steals->emplace_back(std::make_pair(stealer, std::move(possible_opens)));
             position = AbsolutePos((ToUType(position) + 1) % 4);
         }
         return possible_steals;
+    }
+
+    RelativePos State::ToRelativePos(AbsolutePos origin, AbsolutePos target) {
+        assert(origin != target);
+        switch ((ToUType(target) - ToUType(origin) + 4) % 4) {
+            case 1:
+                return RelativePos::kRight;
+            case 2:
+                return RelativePos::kMid;
+            case 3:
+                return RelativePos::kLeft;
+        }
+        assert(false);
     }
 }  // namespace mj

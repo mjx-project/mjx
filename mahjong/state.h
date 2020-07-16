@@ -47,6 +47,8 @@ namespace mj
         River & mutable_river(AbsolutePos pos);
 
         std::string ToMjlog() const;
+
+        static RelativePos ToRelativePos(AbsolutePos origin, AbsolutePos target);
     private:
         std::uint32_t seed_;
         Score score_;
