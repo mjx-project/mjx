@@ -37,7 +37,7 @@ namespace mj
             if (auto stealers = state_.StealCheck(); stealers) {
                 std::vector<Action> action_candidates;
                 // TODO (sotetsuk): make gRPC async
-                for (AbsolutePos stealer: stealers.value()) {
+                for (auto &[stealer, possible_opens]: stealers.value()) {
                     // chi, pon and kan_opened
                     action_candidates.emplace_back(agent(stealer).TakeAction(state_.CreateObservation(stealer)));
                 }

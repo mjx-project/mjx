@@ -34,7 +34,7 @@ namespace mj
         Tile DrawRinshan();
         Observation CreateObservation(AbsolutePos pos);
         std::optional<std::vector<AbsolutePos>> RonCheck();  // 牌を捨てたプレイヤーの下家から順に
-        std::optional<std::vector<AbsolutePos>> StealCheck();
+        std::optional<std::vector<std::pair<AbsolutePos, std::vector<std::unique_ptr<Open>>>>> StealCheck();
 
         // accessors
         [[nodiscard]] const Player& player(AbsolutePos pos) const;

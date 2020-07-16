@@ -119,4 +119,16 @@ namespace mj
     River &State::mutable_river(AbsolutePos pos) {
         return players_.at(ToUType(pos)).mutable_river();
     }
+
+    std::optional<std::vector<std::pair<AbsolutePos, std::vector<std::unique_ptr<Open>>>>> State::StealCheck() {
+        auto possible_steals = std::make_optional<std::vector<std::pair<AbsolutePos, std::vector<std::unique_ptr<Open>>>>>();
+        auto position = AbsolutePos((ToUType(latest_discarder_) + 1) % 4);
+        while (position != latest_discarder_) {
+            auto stealer = AbsolutePos(position);
+            auto possible_opens = std::vector<std::unique_ptr<Open>>();
+            possible_steals->emplace_back(std::make_pair(stealer, std::move(possible_opens)));
+            position = AbsolutePos((ToUType(position) + 1) % 4);
+        }
+        return possible_steals;
+    }
 }  // namespace mj

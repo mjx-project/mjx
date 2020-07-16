@@ -44,3 +44,7 @@ TEST(state, UpdateStateByAction) {
 TEST(state, RonCheck) {
     // TODO(sotetsuk): write here
 }
+
+TEST(state, StealCheck) {
+    // TODO(sotetsuk): write here
+}
