@@ -116,4 +116,14 @@ namespace mj {
         this->is_dealer = is_leader;
         return *this;
     }
+
+    WinningInfo& WinningInfo::Dora(std::set<TileType> dora) noexcept {
+        this->dora = dora;
+        return *this;
+    }
+    WinningInfo& WinningInfo::ReversedDora(std::set<TileType> reversed_dora) noexcept {
+        assert(under_riichi);
+        this->reversed_dora = reversed_dora;
+        return *this;
+    }
 }

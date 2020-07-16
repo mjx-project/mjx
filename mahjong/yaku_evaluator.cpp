@@ -382,6 +382,12 @@ namespace mj
         if (const std::optional<int> fan = HasRedDora(win_info); fan) {
             score.AddYaku(Yaku::kRedDora, fan.value());
         }
+        if (const std::optional<int> fan = HasDora(win_info); fan) {
+            score.AddYaku(Yaku::kDora, fan.value());
+        }
+        if (const std::optional<int> fan = HasReversedDora(win_info); fan) {
+            score.AddYaku(Yaku::kReversedDora, fan.value());
+        }
     }
 
     int YakuEvaluator::TotalFan(const std::map<Yaku,int>& yaku) noexcept {
@@ -402,6 +408,45 @@ namespace mj
         }
         if (reds) return reds;
         return std::nullopt;
+    }
+
+    std::optional<int> YakuEvaluator::HasDora(const WinningInfo& win_info) noexcept {
+        int dora_count = 0;
+        for (const auto& [tile_type, n] : win_info.closed_tile_types) {
+            if (win_info.dora.find(tile_type) != win_info.dora.end()) {
+                dora_count += n;
+            }
+        }
+        for (const std::unique_ptr<Open>& open : win_info.opens) {
+            for (const Tile tile : open->Tiles()) {
+                auto tile_type = tile.Type();
+                if (win_info.dora.find(tile_type) != win_info.dora.end()) {
+                    dora_count += 1;
+                }
+            }
+        }
+        if (dora_count > 0) return dora_count;
+        return std::nullopt;
+    }
+
+    std::optional<int> YakuEvaluator::HasReversedDora(const WinningInfo& win_info) noexcept {
+        if (!win_info.under_riichi) return std::nullopt;
+
+        int dora_count = 0;
+        for (const auto& [tile_type, n] : win_info.closed_tile_types) {
+            if (win_info.reversed_dora.find(tile_type) != win_info.reversed_dora.end()) {
+                dora_count += n;
+            }
+        }
+        for (const std::unique_ptr<Open>& open : win_info.opens) {
+            for (const Tile tile : open->Tiles()) {
+                auto tile_type = tile.Type();
+                if (win_info.reversed_dora.find(tile_type) != win_info.reversed_dora.end()) {
+                    dora_count += 1;
+                }
+            }
+        }
+        return dora_count;
     }
 
     std::optional<int> YakuEvaluator::HasPinfu(
