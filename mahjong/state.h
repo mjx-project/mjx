@@ -34,7 +34,7 @@ namespace mj
         Tile DrawRinshan();
         Observation CreateObservation(AbsolutePos pos);
         std::optional<std::vector<AbsolutePos>> RonCheck();  // 牌を捨てたプレイヤーの下家から順に
-        std::optional<std::vector<AbsolutePos>> StealCheck();
+        std::optional<std::vector<std::pair<AbsolutePos, std::vector<std::unique_ptr<Open>>>>> StealCheck();
 
         // accessors
         [[nodiscard]] const Player& player(AbsolutePos pos) const;
@@ -47,6 +47,8 @@ namespace mj
         River & mutable_river(AbsolutePos pos);
 
         std::string ToMjlog() const;
+
+        static RelativePos ToRelativePos(AbsolutePos origin, AbsolutePos target);
     private:
         std::uint32_t seed_;
         Score score_;

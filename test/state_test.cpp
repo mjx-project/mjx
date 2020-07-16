@@ -44,3 +44,22 @@ TEST(state, UpdateStateByAction) {
 TEST(state, RonCheck) {
     // TODO(sotetsuk): write here
 }
+
+TEST(state, StealCheck) {
+    // TODO(sotetsuk): write here
+}
+
+TEST(state, ToRelativePos) {
+    EXPECT_EQ(State::ToRelativePos(mj::AbsolutePos::kEast, mj::AbsolutePos::kSouth), RelativePos::kRight);
+    EXPECT_EQ(State::ToRelativePos(mj::AbsolutePos::kEast, mj::AbsolutePos::kWest), RelativePos::kMid);
+    EXPECT_EQ(State::ToRelativePos(mj::AbsolutePos::kEast, mj::AbsolutePos::kNorth), RelativePos::kLeft);
+    EXPECT_EQ(State::ToRelativePos(mj::AbsolutePos::kSouth, mj::AbsolutePos::kEast), RelativePos::kLeft);
+    EXPECT_EQ(State::ToRelativePos(mj::AbsolutePos::kSouth, mj::AbsolutePos::kWest), RelativePos::kRight);
+    EXPECT_EQ(State::ToRelativePos(mj::AbsolutePos::kSouth, mj::AbsolutePos::kNorth), RelativePos::kMid);
+    EXPECT_EQ(State::ToRelativePos(mj::AbsolutePos::kWest, mj::AbsolutePos::kEast), RelativePos::kMid);
+    EXPECT_EQ(State::ToRelativePos(mj::AbsolutePos::kWest, mj::AbsolutePos::kSouth), RelativePos::kLeft);
+    EXPECT_EQ(State::ToRelativePos(mj::AbsolutePos::kWest, mj::AbsolutePos::kNorth), RelativePos::kRight);
+    EXPECT_EQ(State::ToRelativePos(mj::AbsolutePos::kNorth, mj::AbsolutePos::kEast), RelativePos::kRight);
+    EXPECT_EQ(State::ToRelativePos(mj::AbsolutePos::kNorth, mj::AbsolutePos::kSouth), RelativePos::kMid);
+    EXPECT_EQ(State::ToRelativePos(mj::AbsolutePos::kNorth, mj::AbsolutePos::kWest), RelativePos::kLeft);
+}
