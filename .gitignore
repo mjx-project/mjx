@@ -7,3 +7,4 @@ tenhou/mahjong_pb2.py
 tenhou/mahjong_pb2_grpc.py
 tenhou/.idea
 tenhou/venv
+tenhou/__pycache__
