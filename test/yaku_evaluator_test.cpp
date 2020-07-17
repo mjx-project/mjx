@@ -25,25 +25,25 @@ TEST_F(YakuTest, RedDora) {
 TEST_F(YakuTest, Dora) {
     auto yaku1 = YakuEvaluator::Eval(
             Hand(HandParams("m1,m2,m3,m4,m5,rd,rd,rd,p1,p1").Chi("s5,s6,s7").Tsumo("m6")).ToWinningInfo()
-                .Dora({TileType::kRD, TileType::kM6, TileType::kS6}));
-    EXPECT_EQ(yaku1.HasYaku(Yaku::kDora), std::make_optional(5));
+                .Dora({{TileType::kRD,1}, {TileType::kM6,1}, {TileType::kS6,2}}));
+    EXPECT_EQ(yaku1.HasYaku(Yaku::kDora), std::make_optional(6));
 
     auto yaku2 = YakuEvaluator::Eval(
             Hand(HandParams("m1,m2,m3,m7,m8,rd,rd,rd,p1,p1").Chi("s7,s8,s9").Tsumo("m6")).ToWinningInfo()
-                .Dora({TileType::kGD}));
+                .Dora({{TileType::kGD,1}}));
     EXPECT_EQ(yaku2.HasYaku(Yaku::kDora), std::nullopt);
 }
 
 TEST_F(YakuTest, ReversedDora) {
     auto yaku1 = YakuEvaluator::Eval(
             Hand(HandParams("m1,m2,m3,m4,m5,s5,s6,s7,rd,rd,rd,p1,p1").Riichi().Tsumo("m6")).ToWinningInfo()
-                    .ReversedDora({TileType::kRD, TileType::kM6, TileType::kS6}));
-    EXPECT_EQ(yaku1.HasYaku(Yaku::kReversedDora), std::make_optional(5));
+                .ReversedDora({{TileType::kRD,1}, {TileType::kM6,1}, {TileType::kS6,2}}));
+    EXPECT_EQ(yaku1.HasYaku(Yaku::kReversedDora), std::make_optional(6));
 
     auto yaku2 = YakuEvaluator::Eval(
             Hand(HandParams("m1,m2,m3,m4,m5,s5,s6,s7,rd,rd,rd,p1,p1").Riichi().Tsumo("m6")).ToWinningInfo()
-                    .ReversedDora({TileType::kGD}));
-    // リーチしていたら裏ドラがなくても「裏ドラ0」
+                .ReversedDora({{TileType::kGD,1}}));
+    // リーチしていても裏ドラが乗っていなければ裏ドラゼロ
     EXPECT_EQ(yaku2.HasYaku(Yaku::kReversedDora), std::make_optional(0));
 
     // リーチしていなければ裏ドラなし

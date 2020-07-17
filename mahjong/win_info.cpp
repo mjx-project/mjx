@@ -21,11 +21,11 @@ namespace mj {
         this->is_first_tsumo = is_first_tsumo;
         return *this;
     }
-    WinningStateInfo& WinningStateInfo::Dora(std::set<TileType> dora) noexcept {
+    WinningStateInfo& WinningStateInfo::Dora(std::map<TileType,int> dora) noexcept {
         this->dora = dora;
         return *this;
     }
-    WinningStateInfo& WinningStateInfo::ReversedDora(std::set<TileType> reversed_dora) noexcept {
+    WinningStateInfo& WinningStateInfo::ReversedDora(std::map<TileType,int> reversed_dora) noexcept {
         this->reversed_dora = reversed_dora;
         return *this;
     }
@@ -153,11 +153,11 @@ namespace mj {
         return *this;
     }
 
-    WinningInfo& WinningInfo::Dora(std::set<TileType> dora) noexcept {
+    WinningInfo& WinningInfo::Dora(std::map<TileType,int> dora) noexcept {
         this->dora = dora;
         return *this;
     }
-    WinningInfo& WinningInfo::ReversedDora(std::set<TileType> reversed_dora) noexcept {
+    WinningInfo& WinningInfo::ReversedDora(std::map<TileType,int> reversed_dora) noexcept {
         assert(under_riichi);
         this->reversed_dora = reversed_dora;
         return *this;
