@@ -136,7 +136,7 @@ namespace mj {
         };
     }
 
-    std::array<int,4> WinningScore::Payment(int player, int dealer, std::optional<int> catched) const noexcept {
+    std::array<int,4> WinningScore::Payment(int winner, int dealer, std::optional<int> catched) const noexcept {
         static ScoreTable table;
 
         int fan = total_fan();
@@ -145,7 +145,7 @@ namespace mj {
         if (catched) {
             int payment;
 
-            if (player == dealer) {
+            if (winner == dealer) {
                 // 親に振り込んだとき
 
                 if (!yakuman_.empty()) payment = 48000 * yakuman_.size();
@@ -181,8 +181,9 @@ namespace mj {
         }
 
         else {
-            if (player == dealer) {
+            if (winner == dealer) {
                 // 親がツモ上がりしたとき
+
                 int payment;
                 if (!yakuman_.empty()) payment = 16000 * yakuman_.size();
                 else if (table.dealer_tsumo.count({fan, fu})) {
@@ -197,7 +198,7 @@ namespace mj {
                 }
 
                 std::array<int,4> ret{payment, payment, payment, payment};
-                ret[player] = 0;
+                ret[winner] = 0;
                 return ret;
             }
             else {
@@ -222,7 +223,7 @@ namespace mj {
 
                 std::array<int,4> ret{};
                 for (int i = 0; i < 4; ++i) {
-                    if (i == player) ret[i] = 0;
+                    if (i == winner) ret[i] = 0;
                     else if (i == dealer) ret[i] = dealer_payment;
                     else ret[i] = non_dealer_payment;
                 }
@@ -273,7 +274,7 @@ namespace mj {
 
     int WinningScore::total_fan() const noexcept {
         int total_fan = 0;
-        for (auto& [yaku, fan] : yaku_) {
+        for (const auto& [yaku, fan] : yaku_) {
             total_fan += fan;
         }
         return total_fan;

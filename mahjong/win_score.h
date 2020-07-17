@@ -12,7 +12,7 @@ namespace mj {
         using Fan = int;
         using Fu = int;
     public:
-        std::map<std::tuple<Fan,Fu>, int> dealer_tsumo, dealer_ron, non_dealer_ron;
+        std::map<std::pair<Fan,Fu>, int> dealer_tsumo, dealer_ron, non_dealer_ron;
         std::map<std::pair<Fan,Fu>, std::pair<int,int>> non_dealer_tsumo;
         ScoreTable();
     };
