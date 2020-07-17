@@ -663,20 +663,18 @@ namespace mj
         if (last_tile_added_) {
             last_added_tile_type = last_tile_added_.value().Type();
         }
-        return WinningInfo(
-                opens_, closed_tiles_, last_added_tile_type, stage_, under_riichi_,
-                ClosedTileTypes(), AllTileTypes(), IsMenzen());
+        return WinningInfo(opens_).ClosedTiles(closed_tiles_)
+                .LastAddedTileType(last_added_tile_type).Stage(stage_)
+                .UnderRiichi(under_riichi_).ClosedTileTypes(ClosedTileTypes())
+                .AllTileTypes(AllTileTypes()).IsMenzen(IsMenzen());
     }
 
     WinningInfo Hand::ToWinningInfo(const WinningStateInfo& win_state_info) const noexcept {
-        std::optional<TileType> last_added_tile_type = std::nullopt;
-        if (last_tile_added_) {
-            last_added_tile_type = last_tile_added_.value().Type();
-        }
-        return WinningInfo(
-                win_state_info,
-                opens_, closed_tiles_, last_added_tile_type, stage_, under_riichi_,
-                ClosedTileTypes(), AllTileTypes(), IsMenzen());
+        return ToWinningInfo().ApplyStateInfo(win_state_info);
+    }
+
+    WinningScore Hand::EvalScore(const WinningStateInfo& win_state_info) const noexcept {
+        return YakuEvaluator::Eval(ToWinningInfo(win_state_info));
     }
 
     HandParams::HandParams(const std::string &closed) {

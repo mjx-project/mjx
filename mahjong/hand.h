@@ -11,6 +11,7 @@
 #include "open.h"
 #include "win_cache.h"
 #include "win_info.h"
+#include "win_score.h"
 
 namespace mj
 {
@@ -78,6 +79,7 @@ namespace mj
         // get winning info
         WinningInfo ToWinningInfo() const noexcept ;
         WinningInfo ToWinningInfo(const WinningStateInfo& win_state_info) const noexcept ;
+        WinningScore EvalScore(const WinningStateInfo& win_state_info) const noexcept ;
     private:
         std::unordered_set<Tile, HashTile> closed_tiles_;
         std::vector<std::unique_ptr<Open>> opens_;  // Though open only uses 16 bits, to handle different open types, we need to use pointer
