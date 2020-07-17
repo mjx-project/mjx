@@ -1,7 +1,8 @@
 from typing import List, Tuple, Dict, Iterator
-import xml.etree.ElementTree as ET
 import json
+import copy
 import urllib.parse
+import xml.etree.ElementTree as ET
 from xml.etree.ElementTree import Element
 from google.protobuf import json_format
 
@@ -22,7 +23,7 @@ class MjlogParser:
         assert (root.attrib['ver'] == "2.3")
         shuffle = root.iter("SHUFFLE")
         go = root.iter("GO")
-        un = root.iter("UN")
+        un = root.iter("UN")  # TODO(sotetsuk): if there are > 2 "UN", some user became offline
         # print(urllib.parse.unquote(child.attrib["n0"]))
         taikyoku = root.iter("TAIKYOKU")
 
@@ -56,14 +57,18 @@ class MjlogParser:
         - <AGARI ba="1,3" hai="1,6,9,24,25,37,42,44,45,49,52,58,60,64" machi="44" ten="30,8000,1" yaku="1,1,7,1,52,1,54,1,53,1" doraHai="69" doraHaiUra="59" who="2" fromWho="3" sc="240,0,260,0,230,113,240,-83" />
           - key = "AGARI" val = {'ba': '1,3', 'hai': '1,6,9,24,25,37,42,44,45,49,52,58,60,64', 'machi': '44', 'ten': '30,8000,1', 'yaku': '1,1,7,1,52,1,54,1,53,1', 'doraHai': '69', 'doraHaiUra': '59', 'who': '2', 'fromWho': '3', 'sc': '240,0,260,0,230,113,240,-83'}
         """
+        state = mahjong_pb2.State()
         print(kv[0])
         for key, val in kv:
-            yield mahjong_pb2.State()
+            if key[0] in ["T", "U", "V", "W"]:  # draw
+                state.action_history.taken_actions.append(mahjong_pb2.TakenAction(who=3, type=3))
+            elif key[0] in ["D", "E", "F", "G"]:  # discard
+                pass
+            yield copy.deepcopy(state)
 
 
 if __name__ == "__main__":
-    # print(json.dumps(json_format.MessageToDict(s)))
     parser = MjlogParser()
     for state in parser.parse("resources/2011020417gm-00a9-0000-b67fcaa3.mjlog"):
-        pass
+        print(json.dumps(json_format.MessageToDict(state)))
 
