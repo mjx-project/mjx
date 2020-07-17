@@ -16,9 +16,9 @@ RUN apt-get update && apt-get install -y \
 # install gRPC
 RUN cd / && \
   git clone --recurse-submodules -b v1.28.1 https://github.com/grpc/grpc && \
-  cd /grpc/third_party/cares/cares && mkdir build && cd build && cmake -DCMAKE_BUILD_TYPE=Release .. && make -j && sudo make install && sudo ldconfig && \
-  cd /grpc/third_party/zlib && mkdir build && cd build && cmake -DCMAKE_BUILD_TYPE=Release .. && make -j && sudo make install && sudo ldconfig && \
-  cd /grpc/third_party/protobuf/cmake && mkdir build && cd build && cmake -Dprotobuf_BUILD_TESTS=OFF -DBUILD_SHARED_LIBS=ON -DCMAKE_BUILD_TYPE=Release .. && make -j && sudo make install && sudo ldconfig && \
+  cd /grpc/third_party/cares/cares && mkdir build && cd build && cmake -DCMAKE_BUILD_TYPE=Release .. && make -j && make install && ldconfig && \
+  cd /grpc/third_party/zlib && mkdir build && cd build && cmake -DCMAKE_BUILD_TYPE=Release .. && make -j && make install && ldconfig && \
+  cd /grpc/third_party/protobuf/cmake && mkdir build && cd build && cmake -Dprotobuf_BUILD_TESTS=OFF -DBUILD_SHARED_LIBS=ON -DCMAKE_BUILD_TYPE=Release .. && make -j && make install && ldconfig && \
   cd /grpc && \
   mkdir -p cmake/build && \
   cd cmake/build && \
