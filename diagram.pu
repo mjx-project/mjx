@@ -75,6 +75,12 @@ class mj::WinningHandCache <<(S,orchid) Singleton>> {
     + Has(): bool
 }
 
+class mj::WinningStateInfo {
+  + dora
+  + tenhou
+  + haitei
+}
+
 class mj::WinningScore <<(D,yellow) Data>> {
     + yakuman: map<mj::Yaku, int>
     + yaku: map<mj::Yaku, bool>
@@ -114,6 +120,20 @@ class mj::Player {
     + hand : Hand
     + river : River
     - initial_hand : mjproto:: InitialHand
+    + PossibleDiscards()
+    + PossibleDiscardsAfterRiichi()
+    + PossibleOpensAfterOthersDiscard()
+    + PossibleOpensAfterDraw()
+    + CanRon()
+    + IsCompleted()
+    + CanRiichi()
+    + Draw()
+    + Riichi()
+    + ApplyOpen()
+    + Ron()
+    + RonAfterOthersKan()
+    + Tsumo()
+    + Discard()
 }
 
 class mj::Observation <<(D,yellow) Data>> {
@@ -175,20 +195,6 @@ class mj::Hand {
     + opens
     + undiscardable_tiles
     + under_riichi
-    + PossibleDiscards()
-    + PossibleDiscardsAfterRiichi()
-    + PossibleOpensAfterOthersDiscard()
-    + PossibleOpensAfterDraw()
-    + CanRon()
-    + IsCompleted()
-    + CanRiichi()
-    + Draw()
-    + Riichi()
-    + ApplyOpen()
-    + Ron()
-    + RonAfterOthersKan()
-    + Tsumo()
-    + Discard()
 }
 
 abstract class mj::Open {
@@ -241,14 +247,17 @@ mj::State *-- mj::Wall
 mj::State *-- mj::ActionHistory
 mj::State "1" *-- "4" mj::Player
 mj::State --> mj::Observation : NewObservation
+mj::State --> mj::WinningStateInfo
+
+mj::WinningStateInfo --> mj::Player
 
 mj::Observation --> mj::AgentClient : TakeAction
 
 mj::Player *-- mj::Hand
 mj::Player *-- mj::River 
+mj::Player --> mj::WinningInfo : ToWinningInfo
 
 mj::Hand "0" *-- "1..4" mj::Open
-mj::Hand --> mj::WinningInfo : ToWinningInfo
 
 mj::Open <|-- mj::Chi
 mj::Open <|-- mj::Pon
@@ -261,7 +270,7 @@ mj::WinningInfo --> mj::YakuEvaluator : Has, Eval
 mj::YakuEvaluator -- mj::WinningHandCache
 mj::YakuEvaluator --> mj::WinningScore : Eval
 
-mj::WinningScore --> mj::Hand
+mj::WinningScore --> mj::Player
 
 mj::AgentClient --> mj::AgentServer : <<mjproto::Observation>>
 mj::AgentClient --> mj::Action : TakeAction

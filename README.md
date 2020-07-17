@@ -13,6 +13,15 @@
 $ ./build.sh
 ```
 で`build` ディレクトリにビルドされる。
+Dockerを使ってビルドする場合、
+
+```
+$ docker run -it -v <path-to-github-repo>/mahjong:/mahjong sotetsuk/ubuntu-gcc-grpc:v0.0.2 /bin/bash
+$ cd /mahjong
+$ ./build.sh
+```
+
+のようにできる。
 
 ```
 $ ./build/test/mahjong_test
