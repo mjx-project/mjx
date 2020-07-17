@@ -3,7 +3,7 @@ syntax = "proto3";
 package mjproto;
 
 service Agent {
-  rpc TakeAction (ActionRequest) returns (ActionResponse) {}
+  rpc TakeAction (Observation) returns (Action) {}
 }
 message Score {
   uint32 round = 1;
@@ -36,9 +36,9 @@ message PossibleAction {
 }
 
 // Similar to Tenhou's mjlog format. Initial hand and action sequence are sent to each player.
-// However, different from Tenhou, each request is stateless.
+// However, different from Tenhou, each observation request is stateless.
 // Each request has enough information to make decisions.
-message ActionRequest {  // corresponds to mj::Observation in cpp
+message Observation {
   uint32 game_id = 1;
   Score score = 2;  // public info
   ActionHistory action_history = 3;  // public info
@@ -47,7 +47,7 @@ message ActionRequest {  // corresponds to mj::Observation in cpp
   repeated PossibleAction possible_actions = 6;
 }
 
-message ActionResponse {  // corresponds to mj::Action in cpp
+message Action {  // corresponds to mj::Action in cpp
   uint32 game_id = 1;
   uint32 who = 2;
   uint32 type = 3;

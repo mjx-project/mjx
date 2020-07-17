@@ -32,7 +32,7 @@ class mjproto::PossibleAction <<(D,yellow) Data>> {
   + discard_candidates
 }
 
-class mjproto::ActionRequest <<(D,yellow) Data>> {
+class mjproto::Observation <<(D,yellow) Data>> {
   + game_id
   + score
   + action_history
@@ -41,7 +41,7 @@ class mjproto::ActionRequest <<(D,yellow) Data>> {
   + possible_actions
 }
 
-class mjproto::ActionResponse <<(D,yellow) Data>> { 
+class mjproto::Action <<(D,yellow) Data>> { 
   + game_id 
   + who
   + type
@@ -50,10 +50,10 @@ class mjproto::ActionResponse <<(D,yellow) Data>> {
   + open
 }
 
-mjproto::ActionRequest *-- mjproto::Score
-mjproto::ActionRequest *-- mjproto::ActionHistory
-mjproto::ActionRequest *-- mjproto::InitialHand
-mjproto::ActionRequest "1" *-- "1..*" mjproto::PossibleAction
+mjproto::Observation *-- mjproto::Score
+mjproto::Observation *-- mjproto::ActionHistory
+mjproto::Observation *-- mjproto::InitialHand
+mjproto::Observation "1" *-- "1..*" mjproto::PossibleAction
 
 mjproto::ActionHistory "1" *-- "1..*" mjproto::TakenAction
 
@@ -117,7 +117,7 @@ class mj::Player {
 }
 
 class mj::Observation <<(D,yellow) Data>> {
-    - action_request mjproto::ActionRequest
+    - observation mjproto::Observation
 }
 note left
 mjproto::InitialHand refers to mj::Player
@@ -165,7 +165,7 @@ class mj::River {
 } 
 
 class mj::Action <<(D,yellow) Data>> {
-    - action_response mjproto::ActionResponse
+    - action_response mjproto::Action
 }
 
 class mj::Hand {
@@ -263,11 +263,11 @@ mj::YakuEvaluator --> mj::WinningScore : Eval
 
 mj::WinningScore --> mj::Hand
 
-mj::AgentClient --> mj::AgentServer : <<mjproto::ActionRequest>>
+mj::AgentClient --> mj::AgentServer : <<mjproto::Observation>>
 mj::AgentClient --> mj::Action : TakeAction
 mj::AgentClient <|-- mj::AgentClientMock
 
-mj::AgentServer --> mj::AgentClient : <<mjproto::ActionResponse>>
+mj::AgentServer --> mj::AgentClient : <<mjproto::Action>>
 mj::AgentServer <|-- mj::AgentServerMock
 
 
