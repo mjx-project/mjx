@@ -42,7 +42,7 @@ namespace mj {
 
         AbstructHand abstruct_hand;
 
-        for (int i = 0; i < hands.size(); ++i) {
+        for (std::size_t i = 0; i < hands.size(); ++i) {
             if (i) abstruct_hand += ',';
             abstruct_hand += hands[i];
         }

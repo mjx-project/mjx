@@ -452,7 +452,7 @@ namespace mj
     std::optional<int> YakuEvaluator::HasPinfu(
             const WinningInfo& win_info,
             const std::vector<TileTypeCount>& closed_sets,
-            const std::vector<TileTypeCount>& opened_sets,
+            [[maybe_unused]] const std::vector<TileTypeCount>& opened_sets,
             const std::vector<TileTypeCount>& heads) noexcept {
         if (!win_info.is_menzen) return std::nullopt;
 
@@ -498,7 +498,7 @@ namespace mj
     std::optional<int> YakuEvaluator::HasPureDoubleChis(
             const WinningInfo& win_info,
             const std::vector<TileTypeCount>& closed_sets,
-            const std::vector<TileTypeCount>& opened_sets,
+            [[maybe_unused]] const std::vector<TileTypeCount>& opened_sets,
             const std::vector<TileTypeCount>& heads) noexcept {
 
         // 鳴いているとNG
@@ -528,7 +528,7 @@ namespace mj
     std::optional<int> YakuEvaluator::HasTwicePureDoubleChis(
             const WinningInfo& win_info,
             const std::vector<TileTypeCount>& closed_sets,
-            const std::vector<TileTypeCount>& opened_sets,
+            [[maybe_unused]] const std::vector<TileTypeCount>& opened_sets,
             const std::vector<TileTypeCount>& heads) noexcept {
 
         // 鳴いているとNG
@@ -556,9 +556,9 @@ namespace mj
     }
 
     std::optional<int> YakuEvaluator::HasSevenPairs(
-            const WinningInfo& win_info,
-            const std::vector<TileTypeCount>& closed_sets,
-            const std::vector<TileTypeCount>& opened_sets,
+            [[maybe_unused]] const WinningInfo& win_info,
+            [[maybe_unused]] const std::vector<TileTypeCount>& closed_sets,
+            [[maybe_unused]] const std::vector<TileTypeCount>& opened_sets,
             const std::vector<TileTypeCount>& heads) noexcept {
 
         if (heads.size() == 7) return 2;
@@ -566,7 +566,7 @@ namespace mj
     }
 
     std::optional<int> YakuEvaluator::HasAllPons(
-            const WinningInfo& win_info,
+            [[maybe_unused]] const WinningInfo& win_info,
             const std::vector<TileTypeCount>& closed_sets,
             const std::vector<TileTypeCount>& opened_sets,
             const std::vector<TileTypeCount>& heads) noexcept {
@@ -681,7 +681,7 @@ namespace mj
     }
 
     std::optional<int> YakuEvaluator::HasTriplePons(
-            const WinningInfo& win_info,
+            [[maybe_unused]] const WinningInfo& win_info,
             const std::vector<TileTypeCount>& closed_sets,
             const std::vector<TileTypeCount>& opened_sets,
             const std::vector<TileTypeCount>& heads) noexcept {

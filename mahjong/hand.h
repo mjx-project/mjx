@@ -59,7 +59,7 @@ namespace mj
 
         // action validators
         std::vector<Tile> PossibleDiscards() const;  // TODO(sotetsuk): Current implementation has the tiles with same type (e.g., 2m x 3). What is the Tenhou's implementation? Only first id? or any id?
-        std::vector<Tile> PossibleDiscardsAfterRiichi(const WinningHandCache &win_cache);
+        std::vector<Tile> PossibleDiscardsAfterRiichi();
         std::vector<std::unique_ptr<Open>> PossibleOpensAfterOthersDiscard(Tile tile, RelativePos from) const;  // includes Chi, Pon, and KanOpened
         std::vector<std::unique_ptr<Open>> PossibleOpensAfterDraw();  // includes KanClosed and KanAdded
         bool CanRon(Tile tile) const;  // This does not take furiten and fan into account.

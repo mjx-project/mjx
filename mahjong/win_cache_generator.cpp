@@ -54,7 +54,7 @@ namespace mj {
         auto [abstruct_hand, tile_types] = CreateAbstructHand(total);
 
         std::map<TileType, int> tile_index;
-        for (int i = 0; i < tile_types.size(); ++i) {
+        for (std::size_t i = 0; i < tile_types.size(); ++i) {
             tile_index[tile_types[i]] = i;
         }
 
@@ -111,7 +111,7 @@ namespace mj {
         TileTypeCount total;
 
         // 基本形
-        for (int h = 0; h < heads.size(); ++h)
+        for (std::size_t h = 0; h < heads.size(); ++h)
         {
             std::cerr << h << '/' << heads.size() << std::endl;
 
@@ -121,7 +121,7 @@ namespace mj {
                 continue;
             }
 
-            for (int s1 = 0; s1 < sets.size(); ++s1)
+            for (std::size_t s1 = 0; s1 < sets.size(); ++s1)
             {
                 Add(total, sets[s1]);
                 if (!Register({heads[h], sets[s1]}, total, cache)) {
@@ -129,7 +129,7 @@ namespace mj {
                     continue;
                 }
 
-                for (int s2 = s1; s2 < sets.size(); ++s2)
+                for (std::size_t s2 = s1; s2 < sets.size(); ++s2)
                 {
                     Add(total, sets[s2]);
                     if (!Register({heads[h], sets[s1], sets[s2]}, total, cache)) {
@@ -137,7 +137,7 @@ namespace mj {
                         continue;
                     }
 
-                    for (int s3 = s2; s3 < sets.size(); ++s3)
+                    for (std::size_t s3 = s2; s3 < sets.size(); ++s3)
                     {
                         Add(total, sets[s3]);
                         if (!Register({heads[h], sets[s1], sets[s2], sets[s3]}, total, cache)) {
@@ -145,7 +145,7 @@ namespace mj {
                             continue;
                         }
 
-                        for (int s4 = s3; s4 < sets.size(); ++s4)
+                        for (std::size_t s4 = s3; s4 < sets.size(); ++s4)
                         {
                             Add(total, sets[s4]);
                             Register({heads[h], sets[s1], sets[s2], sets[s3], sets[s4]}, total, cache);
@@ -205,7 +205,7 @@ namespace mj {
 
         std::cerr << "abstruct hand kinds: " << cache.size() << std::endl;
 
-        int max_size = 0, size_total = 0;
+        std::size_t max_size = 0, size_total = 0;
         for (const auto& [hand, patterns] : cache) {
             size_total += patterns.size();
             if (max_size < patterns.size()) {
@@ -226,7 +226,7 @@ namespace mj {
     }
 }  // namespace mj
 
-int main(int argc, char** argv) {
+int main() {
     mj::WinningHandCacheGenerator::GenerateCache();
     return 0;
 }

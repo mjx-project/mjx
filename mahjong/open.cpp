@@ -320,9 +320,9 @@ namespace mj
     }
 
     std::vector<Tile> KanOpened::TilesFromHand() {
-        auto v = std::vector<Tile>();
-        auto type = (bits_ >> 8) / 4;
-        auto stolen_offset = (bits_ >> 8) % 4;
+        std::vector<Tile> v;
+        unsigned type = (bits_ >> 8) >> 2;
+        unsigned stolen_offset = (bits_ >> 8) & 0b11;
         for (std::size_t i = 0; i < 4; ++i)
             if (i != stolen_offset) v.push_back(Tile(static_cast<std::uint8_t>(type * 4 + i)));
         return v;

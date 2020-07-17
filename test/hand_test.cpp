@@ -545,10 +545,9 @@ TEST(hand, Riichi) {
 
 TEST(hand, PossibleDiscardsAfterRiichi) {
     auto h = Hand(HandParams("m1,m1,m1,m2,m3,m4,m5,m6,m7,m8,m9,m9,m9"));
-    const auto &win_cache = WinningHandCache::instance();
     h.Draw(Tile("rd"));
     h.Riichi();
-    auto possible_discards = h.PossibleDiscardsAfterRiichi(win_cache);
+    auto possible_discards = h.PossibleDiscardsAfterRiichi();
     EXPECT_EQ(possible_discards.size(), 4);
     auto HasType = [&](TileType tt) {
         return std::find_if(possible_discards.begin(), possible_discards.end(),

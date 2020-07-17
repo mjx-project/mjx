@@ -286,7 +286,7 @@ namespace mj
         return possible_discards;
     }
 
-    std::vector<Tile> Hand::PossibleDiscardsAfterRiichi(const WinningHandCache &win_cache) {
+    std::vector<Tile> Hand::PossibleDiscardsAfterRiichi() {
         assert(IsMenzen());
         assert(under_riichi_);
         assert(stage_ == HandStage::kAfterRiichi);
@@ -679,7 +679,7 @@ namespace mj
 
     HandParams::HandParams(const std::string &closed) {
         assert(closed.size() % 3 == 2);
-        for (std::int32_t i = 0; i < closed.size(); i += 3) {
+        for (std::size_t i = 0; i < closed.size(); i += 3) {
             closed_.emplace_back(closed.substr(i, 2));
         }
        assert(closed_.size() == 1 || closed_.size() == 4 || closed_.size() == 7 || closed_.size() == 10 || closed_.size() == 13);
@@ -738,7 +738,7 @@ namespace mj
 
     void HandParams::Push(const std::string &input, std::vector<std::vector<std::string>> &vec) {
         std::vector<std::string> tmp;
-        for (std::int32_t i = 0; i < input.size(); i += 3) {
+        for (std::size_t i = 0; i < input.size(); i += 3) {
             tmp.emplace_back(input.substr(i, 2));
         }
         vec.emplace_back(tmp);

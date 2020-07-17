@@ -141,6 +141,10 @@ namespace mj
             case TileSetType::kRedFive:
                 return (tt == TileType::kM5 || tt == TileType::kP5 || tt == TileType::kS5) &&
                         tile_id_ % 4 == 0;
+            case TileSetType::kGreen:
+                return tt == TileType::kS2 || tt == TileType::kS3 ||
+                       tt == TileType::kS4 || tt == TileType::kS6 ||
+                       tt == TileType::kS8 || tt == TileType::kGD;
             case TileSetType::kEmpty:
                 return false;
         }

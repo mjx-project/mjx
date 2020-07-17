@@ -6,7 +6,7 @@ using namespace mj;
 
 using tt = TileType;
 auto vec_type_eq = [] (std::vector<Tile> v1, std::vector<tt> v2) {
-    for (int i = 0; i < v1.size(); ++i)
+    for (std::size_t i = 0; i < v1.size(); ++i)
         if (v1.at(i).Type() != v2.at(i)) return false;
     return true;
 };
@@ -194,7 +194,7 @@ TEST(open, OpenGenerator)
 {
     auto check = [] (Open *o, std::vector<tt> v, tt t, RelativePos f) {
         auto tiles = o->Tiles();
-        for (int i = 0; i < v.size(); ++i)
+        for (std::size_t i = 0; i < v.size(); ++i)
             if (o->At(i).Type() != v.at(i)) return false;
         if (o->StolenTile().Type() != t) return false;
         if (o->From() != f) return false;
