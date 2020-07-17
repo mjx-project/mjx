@@ -6,33 +6,69 @@
 #include "types.h"
 
 namespace mj {
+    WinningStateInfo::WinningStateInfo() noexcept :
+            prevalent_wind(Wind::kEast), is_bottom(false), is_first_tsumo(false) {}
 
-    WinningInfo::WinningInfo(
-            const std::vector<std::unique_ptr<Open>>& opens,
-            std::unordered_set<Tile, HashTile> closed_tiles,
-            std::optional<TileType> last_added_tile_type,
-            HandStage stage,
-            bool under_riichi,
-            TileTypeCount closed_tile_types,
-            TileTypeCount all_tile_types,
-            bool is_menzen
-            ) noexcept :
-            opens(opens),
-            closed_tiles(std::move(closed_tiles)),
-            last_added_tile_type(last_added_tile_type),
-            stage(stage),
-            under_riichi(under_riichi),
-            closed_tile_types(std::move(closed_tile_types)),
-            all_tile_types(std::move(all_tile_types)),
-            is_menzen(is_menzen),
-            seat_wind(Wind::kEast),
-            prevalent_wind(Wind::kEast),
-            is_bottom(false),
-            is_ippatsu(false),
-            is_double_riichi(false),
-            is_first_tsumo(false),
-            is_dealer(false)
+    WinningStateInfo& WinningStateInfo::PrevalentWind(Wind prevalent_wind) noexcept {
+        this->prevalent_wind = prevalent_wind;
+        return *this;
+    }
+    WinningStateInfo& WinningStateInfo::IsBottom(bool is_bottom) noexcept {
+        this->is_bottom = is_bottom;
+        return *this;
+    }
+    WinningStateInfo& WinningStateInfo::IsFirstTsumo(bool is_first_tsumo) noexcept {
+        this->is_first_tsumo = is_first_tsumo;
+        return *this;
+    }
+    WinningStateInfo& WinningStateInfo::Dora(std::set<TileType> dora) noexcept {
+        this->dora = dora;
+        return *this;
+    }
+    WinningStateInfo& WinningStateInfo::ReversedDora(std::set<TileType> reversed_dora) noexcept {
+        this->reversed_dora = reversed_dora;
+        return *this;
+    }
+
+    WinningInfo::WinningInfo(const std::vector<std::unique_ptr<Open>>& opens) noexcept :
+            opens(opens), stage(HandStage::kAfterTsumo), under_riichi(false),
+            is_menzen(false), is_bottom(false), is_ippatsu(false),
+            is_double_riichi(false), is_first_tsumo(false), is_dealer(false)
             {}
+
+    WinningInfo& WinningInfo::ClosedTiles(std::unordered_set<Tile, HashTile> closed_tiles) noexcept {
+        this->closed_tiles = closed_tiles;
+        return *this;
+    }
+    WinningInfo& WinningInfo::LastAddedTileType(std::optional<TileType> last_added_tile_type) noexcept {
+        this->last_added_tile_type = last_added_tile_type;
+        return *this;
+    }
+    WinningInfo& WinningInfo::ClosedTileTypes(TileTypeCount closed_tile_types) noexcept {
+        this->closed_tile_types = closed_tile_types;
+        return *this;
+    }
+    WinningInfo& WinningInfo::AllTileTypes(TileTypeCount all_tile_types) noexcept {
+        this->all_tile_types = all_tile_types;
+        return *this;
+    }
+    WinningInfo& WinningInfo::IsMenzen(bool is_menzen) noexcept {
+        this->is_menzen = is_menzen;
+        return *this;
+    }
+    WinningInfo& WinningInfo::UnderRiichi(bool under_riichi) noexcept {
+        this->under_riichi = under_riichi;
+        return *this;
+    }
+
+    WinningInfo& WinningInfo::ApplyStateInfo(WinningStateInfo win_state_info) noexcept {
+        this->prevalent_wind = win_state_info.prevalent_wind;
+        this->is_bottom = win_state_info.is_bottom;
+        this->is_first_tsumo = win_state_info.is_first_tsumo;
+        this->dora = win_state_info.dora;
+        this->reversed_dora = win_state_info.reversed_dora;
+        return *this;
+    }
 
     WinningInfo& WinningInfo::Ron(Tile tile) noexcept {
         assert(closed_tiles.find(tile) == closed_tiles.end());
