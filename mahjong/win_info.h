@@ -43,7 +43,7 @@ namespace mj {
         WinningInfo& IsIppatsu(bool is_ippatsu) noexcept ;
         WinningInfo& IsDoubleRiichi(bool is_double_riichi) noexcept ;
         WinningInfo& IsFirstTsumo(bool is_first_tsumo) noexcept ;
-        WinningInfo& IsLeader(bool is_leader) noexcept ;
+        WinningInfo& IsDealer(bool is_dealer) noexcept ;
         WinningInfo& Dora(std::set<TileType> dora) noexcept ;
         WinningInfo& ReversedDora(std::set<TileType> reversed_dora) noexcept ;
     };

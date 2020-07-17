@@ -558,7 +558,7 @@ TEST_F(YakuTest, ThreeKans) {
 TEST_F(YakuTest, BlessingOfHeaven) {
     auto yaku1 = YakuEvaluator::Eval(
             Hand(HandParams("m1,m2,m3,m4,m5,rd,rd,m7,m8,m9,p1,p1,p1").Tsumo("m6")).
-                ToWinningInfo().IsFirstTsumo(true).IsLeader(true));
+                    ToWinningInfo().IsFirstTsumo(true).IsDealer(true));
     EXPECT_EQ(yaku1.HasYakuman(Yaku::kBlessingOfHeaven), true);
 
     auto yaku2 = YakuEvaluator::Eval(
@@ -568,7 +568,7 @@ TEST_F(YakuTest, BlessingOfHeaven) {
 
     auto yaku3 = YakuEvaluator::Eval(
             Hand(HandParams("m1,m2,m3,m4,m5,rd,rd,m7,m8,m9,p1,p1,p1").Tsumo("m6")).
-                    ToWinningInfo().IsLeader(true));
+                    ToWinningInfo().IsDealer(true));
     EXPECT_EQ(yaku3.HasYakuman(Yaku::kBlessingOfHeaven), false);
 }
 
@@ -580,7 +580,7 @@ TEST_F(YakuTest, BlessingOfEarth) {
 
     auto yaku2 = YakuEvaluator::Eval(
             Hand(HandParams("m1,m2,m3,m4,m5,rd,rd,m7,m8,m9,p1,p1,p1").Tsumo("m6")).
-                    ToWinningInfo().IsFirstTsumo(true).IsLeader(true));
+                    ToWinningInfo().IsFirstTsumo(true).IsDealer(true));
     EXPECT_EQ(yaku2.HasYakuman(Yaku::kBlessingOfEarth), false);
 
     auto yaku3 = YakuEvaluator::Eval(

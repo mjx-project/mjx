@@ -112,8 +112,8 @@ namespace mj {
         return *this;
     }
 
-    WinningInfo& WinningInfo::IsLeader(bool is_leader) noexcept {
-        this->is_dealer = is_leader;
+    WinningInfo& WinningInfo::IsDealer(bool is_dealer) noexcept {
+        this->is_dealer = is_dealer;
         return *this;
     }
 
