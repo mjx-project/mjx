@@ -43,7 +43,7 @@ TEST_F(YakuTest, ReversedDora) {
     auto yaku2 = YakuEvaluator::Eval(
             Hand(HandParams("m1,m2,m3,m4,m5,s5,s6,s7,rd,rd,rd,p1,p1").Riichi().Tsumo("m6")).ToWinningInfo()
                 .ReversedDora({{TileType::kGD,1}}));
-    // リーチしていたら裏ドラがなくても「裏ドラ0」
+    // リーチしていても裏ドラが乗っていなければ裏ドラゼロ
     EXPECT_EQ(yaku2.HasYaku(Yaku::kReversedDora), std::make_optional(0));
 
     // リーチしていなければ裏ドラなし
