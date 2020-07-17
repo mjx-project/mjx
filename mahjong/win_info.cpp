@@ -6,6 +6,9 @@
 #include "types.h"
 
 namespace mj {
+    WinningStateInfo::WinningStateInfo() noexcept :
+            prevalent_wind(Wind::kEast), is_bottom(false), is_first_tsumo(false) {}
+
     WinningStateInfo& WinningStateInfo::PrevalentWind(Wind prevalent_wind) noexcept {
         this->prevalent_wind = prevalent_wind;
         return *this;
@@ -27,7 +30,11 @@ namespace mj {
         return *this;
     }
 
-    WinningInfo::WinningInfo(const std::vector<std::unique_ptr<Open>>& opens) noexcept : opens(opens) {}
+    WinningInfo::WinningInfo(const std::vector<std::unique_ptr<Open>>& opens) noexcept :
+            opens(opens), stage(HandStage::kAfterTsumo), under_riichi(false),
+            is_menzen(false), is_bottom(false), is_ippatsu(false),
+            is_double_riichi(false), is_first_tsumo(false), is_dealer(false)
+            {}
 
     WinningInfo& WinningInfo::ClosedTiles(std::unordered_set<Tile, HashTile> closed_tiles) noexcept {
         this->closed_tiles = closed_tiles;

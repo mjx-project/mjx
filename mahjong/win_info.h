@@ -10,6 +10,7 @@
 namespace mj {
 
     struct WinningStateInfo {
+        WinningStateInfo() noexcept;
         Wind prevalent_wind;
         bool is_bottom, is_first_tsumo;
         std::set<TileType> dora, reversed_dora;
@@ -24,7 +25,7 @@ namespace mj {
         const std::vector<std::unique_ptr<Open>>& opens;
         std::unordered_set<Tile, HashTile> closed_tiles;
         std::optional<TileType> last_added_tile_type;
-        HandStage stage;
+        HandStage stage;    // default: kAfterTsumo
         bool under_riichi;
         TileTypeCount closed_tile_types, all_tile_types;
         bool is_menzen;
