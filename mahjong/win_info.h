@@ -13,12 +13,12 @@ namespace mj {
         WinningStateInfo() noexcept;
         Wind prevalent_wind;
         bool is_bottom, is_first_tsumo;
-        std::set<TileType> dora, reversed_dora;
+        std::map<TileType,int> dora, reversed_dora;
         WinningStateInfo& PrevalentWind(Wind prevalent_wind) noexcept ;
         WinningStateInfo& IsBottom(bool is_bottom) noexcept ;
         WinningStateInfo& IsFirstTsumo(bool is_first_tsumo) noexcept ;
-        WinningStateInfo& Dora(std::set<TileType> dora) noexcept ;
-        WinningStateInfo& ReversedDora(std::set<TileType> reversed_dora) noexcept ;
+        WinningStateInfo& Dora(std::map<TileType,int> dora) noexcept ;
+        WinningStateInfo& ReversedDora(std::map<TileType,int> reversed_dora) noexcept ;
     };
 
     struct WinningInfo {
@@ -33,7 +33,7 @@ namespace mj {
         Wind seat_wind, prevalent_wind;
         bool is_bottom, is_ippatsu, is_double_riichi, is_first_tsumo;
         bool is_dealer;     // 親:true, 子:false (default:false)
-        std::set<TileType> dora, reversed_dora;
+        std::map<TileType,int> dora, reversed_dora;
 
         WinningInfo(const std::vector<std::unique_ptr<Open>>& opens) noexcept ;
         WinningInfo& ClosedTiles(std::unordered_set<Tile, HashTile> closed_tiles) noexcept ;
@@ -56,8 +56,8 @@ namespace mj {
         WinningInfo& IsDoubleRiichi(bool is_double_riichi) noexcept ;
         WinningInfo& IsFirstTsumo(bool is_first_tsumo) noexcept ;
         WinningInfo& IsDealer(bool is_dealer) noexcept ;
-        WinningInfo& Dora(std::set<TileType> dora) noexcept ;
-        WinningInfo& ReversedDora(std::set<TileType> reversed_dora) noexcept ;
+        WinningInfo& Dora(std::map<TileType,int> dora) noexcept ;
+        WinningInfo& ReversedDora(std::map<TileType,int> reversed_dora) noexcept ;
     };
 
 } // namespace mj

@@ -413,15 +413,15 @@ namespace mj
     std::optional<int> YakuEvaluator::HasDora(const WinningInfo& win_info) noexcept {
         int dora_count = 0;
         for (const auto& [tile_type, n] : win_info.closed_tile_types) {
-            if (win_info.dora.find(tile_type) != win_info.dora.end()) {
-                dora_count += n;
+            if (win_info.dora.count(tile_type)) {
+                dora_count += n * win_info.dora.at(tile_type);
             }
         }
         for (const std::unique_ptr<Open>& open : win_info.opens) {
             for (const Tile tile : open->Tiles()) {
                 auto tile_type = tile.Type();
-                if (win_info.dora.find(tile_type) != win_info.dora.end()) {
-                    dora_count += 1;
+                if (win_info.dora.count(tile_type)) {
+                    dora_count += win_info.dora.at(tile_type);
                 }
             }
         }
@@ -434,15 +434,15 @@ namespace mj
 
         int dora_count = 0;
         for (const auto& [tile_type, n] : win_info.closed_tile_types) {
-            if (win_info.reversed_dora.find(tile_type) != win_info.reversed_dora.end()) {
-                dora_count += n;
+            if (win_info.reversed_dora.count(tile_type)) {
+                dora_count += n * win_info.reversed_dora.at(tile_type);
             }
         }
         for (const std::unique_ptr<Open>& open : win_info.opens) {
             for (const Tile tile : open->Tiles()) {
                 auto tile_type = tile.Type();
-                if (win_info.reversed_dora.find(tile_type) != win_info.reversed_dora.end()) {
-                    dora_count += 1;
+                if (win_info.reversed_dora.count(tile_type)) {
+                    dora_count += win_info.reversed_dora.at(tile_type);
                 }
             }
         }
