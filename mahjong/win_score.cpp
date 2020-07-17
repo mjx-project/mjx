@@ -136,13 +136,13 @@ namespace mj {
         };
     }
 
-    std::array<int,4> WinningScore::Payment(int winner, int dealer, std::optional<int> catched) const noexcept {
+    std::array<int,4> WinningScore::Payment(int winner, int dealer, std::optional<int> debtor) const noexcept {
         static ScoreTable table;
 
         int fan = total_fan();
         int fu = this->fu() ? this->fu().value() : 0;
 
-        if (catched) {
+        if (debtor) {
             int payment;
 
             if (winner == dealer) {
@@ -176,7 +176,7 @@ namespace mj {
                 }
             }
             std::array<int,4> ret{0,0,0,0};
-            ret[catched.value()] = payment;
+            ret[debtor.value()] = payment;
             return ret;
         }
 

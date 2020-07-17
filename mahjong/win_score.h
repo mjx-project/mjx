@@ -34,7 +34,7 @@ namespace mj {
         void set_fu(int fu) noexcept ;
         [[nodiscard]] bool RequireFan() const noexcept ;
         [[nodiscard]] bool RequireFu() const noexcept ;
-        [[nodiscard]] std::array<int,4> Payment(int winner, int dealer, std::optional<int> catched) const noexcept ;
+        [[nodiscard]] std::array<int,4> Payment(int winner, int dealer, std::optional<int> debtor) const noexcept ;
     };
 
 } // namespace mj
