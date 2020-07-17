@@ -32,7 +32,7 @@ class mjproto::PossibleAction <<(D,yellow) Data>> {
   + discard_candidates
 }
 
-class mjproto::ActionRequest <<(D,yellow) Data>> {
+class mjproto::Observation <<(D,yellow) Data>> {
   + game_id
   + score
   + action_history
@@ -41,7 +41,7 @@ class mjproto::ActionRequest <<(D,yellow) Data>> {
   + possible_actions
 }
 
-class mjproto::ActionResponse <<(D,yellow) Data>> { 
+class mjproto::Action <<(D,yellow) Data>> { 
   + game_id 
   + who
   + type
@@ -50,10 +50,10 @@ class mjproto::ActionResponse <<(D,yellow) Data>> {
   + open
 }
 
-mjproto::ActionRequest *-- mjproto::Score
-mjproto::ActionRequest *-- mjproto::ActionHistory
-mjproto::ActionRequest *-- mjproto::InitialHand
-mjproto::ActionRequest "1" *-- "1..*" mjproto::PossibleAction
+mjproto::Observation *-- mjproto::Score
+mjproto::Observation *-- mjproto::ActionHistory
+mjproto::Observation *-- mjproto::InitialHand
+mjproto::Observation "1" *-- "1..*" mjproto::PossibleAction
 
 mjproto::ActionHistory "1" *-- "1..*" mjproto::TakenAction
 
@@ -73,6 +73,12 @@ class mj::YakuEvaluator <<(S,orange) Static>> {
 
 class mj::WinningHandCache <<(S,orchid) Singleton>> {
     + Has(): bool
+}
+
+class mj::WinningStateInfo {
+  + dora
+  + tenhou
+  + haitei
 }
 
 class mj::WinningScore <<(D,yellow) Data>> {
@@ -114,10 +120,24 @@ class mj::Player {
     + hand : Hand
     + river : River
     - initial_hand : mjproto:: InitialHand
+    + PossibleDiscards()
+    + PossibleDiscardsAfterRiichi()
+    + PossibleOpensAfterOthersDiscard()
+    + PossibleOpensAfterDraw()
+    + CanRon()
+    + IsCompleted()
+    + CanRiichi()
+    + Draw()
+    + Riichi()
+    + ApplyOpen()
+    + Ron()
+    + RonAfterOthersKan()
+    + Tsumo()
+    + Discard()
 }
 
 class mj::Observation <<(D,yellow) Data>> {
-    - action_request mjproto::ActionRequest
+    - observation mjproto::Observation
 }
 note left
 mjproto::InitialHand refers to mj::Player
@@ -165,7 +185,7 @@ class mj::River {
 } 
 
 class mj::Action <<(D,yellow) Data>> {
-    - action_response mjproto::ActionResponse
+    - action_response mjproto::Action
 }
 
 class mj::Hand {
@@ -175,20 +195,6 @@ class mj::Hand {
     + opens
     + undiscardable_tiles
     + under_riichi
-    + PossibleDiscards()
-    + PossibleDiscardsAfterRiichi()
-    + PossibleOpensAfterOthersDiscard()
-    + PossibleOpensAfterDraw()
-    + CanRon()
-    + IsCompleted()
-    + CanRiichi()
-    + Draw()
-    + Riichi()
-    + ApplyOpen()
-    + Ron()
-    + RonAfterOthersKan()
-    + Tsumo()
-    + Discard()
 }
 
 abstract class mj::Open {
@@ -241,14 +247,17 @@ mj::State *-- mj::Wall
 mj::State *-- mj::ActionHistory
 mj::State "1" *-- "4" mj::Player
 mj::State --> mj::Observation : NewObservation
+mj::State --> mj::WinningStateInfo
+
+mj::WinningStateInfo --> mj::Player
 
 mj::Observation --> mj::AgentClient : TakeAction
 
 mj::Player *-- mj::Hand
 mj::Player *-- mj::River 
+mj::Player --> mj::WinningInfo : ToWinningInfo
 
 mj::Hand "0" *-- "1..4" mj::Open
-mj::Hand --> mj::WinningInfo : ToWinningInfo
 
 mj::Open <|-- mj::Chi
 mj::Open <|-- mj::Pon
@@ -261,13 +270,13 @@ mj::WinningInfo --> mj::YakuEvaluator : Has, Eval
 mj::YakuEvaluator -- mj::WinningHandCache
 mj::YakuEvaluator --> mj::WinningScore : Eval
 
-mj::WinningScore --> mj::Hand
+mj::WinningScore --> mj::Player
 
-mj::AgentClient --> mj::AgentServer : <<mjproto::ActionRequest>>
+mj::AgentClient --> mj::AgentServer : <<mjproto::Observation>>
 mj::AgentClient --> mj::Action : TakeAction
 mj::AgentClient <|-- mj::AgentClientMock
 
-mj::AgentServer --> mj::AgentClient : <<mjproto::ActionResponse>>
+mj::AgentServer --> mj::AgentClient : <<mjproto::Action>>
 mj::AgentServer <|-- mj::AgentServerMock
 
 
