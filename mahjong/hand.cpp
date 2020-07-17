@@ -668,6 +668,17 @@ namespace mj
                 ClosedTileTypes(), AllTileTypes(), IsMenzen());
     }
 
+    WinningInfo Hand::ToWinningInfo(const WinningStateInfo& win_state_info) const noexcept {
+        std::optional<TileType> last_added_tile_type = std::nullopt;
+        if (last_tile_added_) {
+            last_added_tile_type = last_tile_added_.value().Type();
+        }
+        return WinningInfo(
+                win_state_info,
+                opens_, closed_tiles_, last_added_tile_type, stage_, under_riichi_,
+                ClosedTileTypes(), AllTileTypes(), IsMenzen());
+    }
+
     HandParams::HandParams(const std::string &closed) {
         assert(closed.size() % 3 == 2);
         for (std::int32_t i = 0; i < closed.size(); i += 3) {

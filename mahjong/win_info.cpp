@@ -6,6 +6,18 @@
 #include "types.h"
 
 namespace mj {
+    WinningStateInfo::WinningStateInfo(
+            Wind prevalent_wind,
+            bool is_bottom,
+            bool is_first_tsumo,
+            std::set<TileType> dora,
+            std::set<TileType> reversed_dora
+    ) noexcept :
+            prevalent_wind(prevalent_wind),
+            is_bottom(is_bottom),
+            is_first_tsumo(is_first_tsumo),
+            dora(std::move(dora)),
+            reversed_dora(std::move(reversed_dora)) {}
 
     WinningInfo::WinningInfo(
             const std::vector<std::unique_ptr<Open>>& opens,
@@ -16,7 +28,7 @@ namespace mj {
             TileTypeCount closed_tile_types,
             TileTypeCount all_tile_types,
             bool is_menzen
-            ) noexcept :
+    ) noexcept :
             opens(opens),
             closed_tiles(std::move(closed_tiles)),
             last_added_tile_type(last_added_tile_type),
@@ -32,7 +44,37 @@ namespace mj {
             is_double_riichi(false),
             is_first_tsumo(false),
             is_dealer(false)
-            {}
+    {}
+
+    WinningInfo::WinningInfo(
+            const WinningStateInfo& win_state_info,
+            const std::vector<std::unique_ptr<Open>>& opens,
+            std::unordered_set<Tile, HashTile> closed_tiles,
+            std::optional<TileType> last_added_tile_type,
+            HandStage stage,
+            bool under_riichi,
+            TileTypeCount closed_tile_types,
+            TileTypeCount all_tile_types,
+            bool is_menzen
+    ) noexcept :
+            opens(opens),
+            closed_tiles(std::move(closed_tiles)),
+            last_added_tile_type(last_added_tile_type),
+            stage(stage),
+            under_riichi(under_riichi),
+            closed_tile_types(std::move(closed_tile_types)),
+            all_tile_types(std::move(all_tile_types)),
+            is_menzen(is_menzen),
+            seat_wind(Wind::kEast),
+            prevalent_wind(win_state_info.prevalent_wind),
+            is_bottom(win_state_info.is_bottom),
+            is_ippatsu(false),
+            is_double_riichi(false),
+            is_first_tsumo(win_state_info.is_first_tsumo),
+            is_dealer(false),
+            dora(win_state_info.dora),
+            reversed_dora(win_state_info.reversed_dora)
+    {}
 
     WinningInfo& WinningInfo::Ron(Tile tile) noexcept {
         assert(closed_tiles.find(tile) == closed_tiles.end());

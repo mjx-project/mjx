@@ -9,6 +9,19 @@
 
 namespace mj {
 
+    struct WinningStateInfo {
+        Wind prevalent_wind;
+        bool is_bottom, is_first_tsumo;
+        std::set<TileType> dora, reversed_dora;
+        WinningStateInfo(
+                Wind prevalent_wind,
+                bool is_bottom,
+                bool is_first_tsumo,
+                std::set<TileType> dora,
+                std::set<TileType> reversed_dora
+                ) noexcept ;
+    };
+
     struct WinningInfo {
         const std::vector<std::unique_ptr<Open>>& opens;
         std::unordered_set<Tile, HashTile> closed_tiles;
@@ -25,6 +38,18 @@ namespace mj {
         WinningInfo(
                 const std::vector<std::unique_ptr<Open>>& opens,
                 std::unordered_set<Tile, HashTile>  closed_tiles,
+                std::optional<TileType> last_added_tile_type,
+                HandStage stage,
+                bool under_riichi,
+                TileTypeCount closed_tile_types,
+                TileTypeCount all_tile_types,
+                bool is_menzen
+                ) noexcept ;
+
+        WinningInfo(
+                const WinningStateInfo& win_state_info,
+                const std::vector<std::unique_ptr<Open>>& opens,
+                std::unordered_set<Tile, HashTile> closed_tiles,
                 std::optional<TileType> last_added_tile_type,
                 HandStage stage,
                 bool under_riichi,
