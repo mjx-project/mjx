@@ -34,6 +34,24 @@ TEST_F(YakuTest, Dora) {
     EXPECT_EQ(yaku2.HasYaku(Yaku::kDora), std::nullopt);
 }
 
+TEST_F(YakuTest, ReversedDora) {
+    auto yaku1 = YakuEvaluator::Eval(
+            Hand(HandParams("m1,m2,m3,m4,m5,s5,s6,s7,rd,rd,rd,p1,p1").Riichi().Tsumo("m6")).ToWinningInfo()
+                    .ReversedDora({TileType::kRD, TileType::kM6, TileType::kS6}));
+    EXPECT_EQ(yaku1.HasYaku(Yaku::kReversedDora), std::make_optional(5));
+
+    auto yaku2 = YakuEvaluator::Eval(
+            Hand(HandParams("m1,m2,m3,m4,m5,s5,s6,s7,rd,rd,rd,p1,p1").Riichi().Tsumo("m6")).ToWinningInfo()
+                    .ReversedDora({TileType::kGD}));
+    // リーチしていたら裏ドラがなくても「裏ドラ0」
+    EXPECT_EQ(yaku2.HasYaku(Yaku::kReversedDora), std::make_optional(0));
+
+    // リーチしていなければ裏ドラなし
+    auto yaku3 = YakuEvaluator::Eval(
+            Hand(HandParams("m1,m2,m3,m7,m8,rd,rd,rd,p1,p1").Chi("s7,s8,s9").Tsumo("m6")).ToWinningInfo());
+    EXPECT_EQ(yaku3.HasYaku(Yaku::kReversedDora), std::nullopt);
+}
+
 TEST_F(YakuTest, FullyConcealdHand)
 {
     auto yaku1 = YakuEvaluator::Eval(
