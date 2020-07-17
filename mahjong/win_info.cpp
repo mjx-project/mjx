@@ -17,21 +17,21 @@ namespace mj {
             TileTypeCount all_tile_types,
             bool is_menzen
             ) noexcept :
-                opens(opens),
-                closed_tiles(std::move(closed_tiles)),
-                last_added_tile_type(last_added_tile_type),
-                stage(stage),
-                under_riichi(under_riichi),
-                closed_tile_types(std::move(closed_tile_types)),
-                all_tile_types(std::move(all_tile_types)),
-                is_menzen(is_menzen),
-                seat_wind(Wind::kEast),
-                prevalent_wind(Wind::kEast),
-                is_bottom(false),
-                is_ippatsu(false),
-                is_double_riichi(false),
-                is_first_tsumo(false),
-                is_leader(false)
+            opens(opens),
+            closed_tiles(std::move(closed_tiles)),
+            last_added_tile_type(last_added_tile_type),
+            stage(stage),
+            under_riichi(under_riichi),
+            closed_tile_types(std::move(closed_tile_types)),
+            all_tile_types(std::move(all_tile_types)),
+            is_menzen(is_menzen),
+            seat_wind(Wind::kEast),
+            prevalent_wind(Wind::kEast),
+            is_bottom(false),
+            is_ippatsu(false),
+            is_double_riichi(false),
+            is_first_tsumo(false),
+            is_dealer(false)
             {}
 
     WinningInfo& WinningInfo::Ron(Tile tile) noexcept {
@@ -112,8 +112,18 @@ namespace mj {
         return *this;
     }
 
-    WinningInfo& WinningInfo::IsLeader(bool is_leader) noexcept {
-        this->is_leader = is_leader;
+    WinningInfo& WinningInfo::IsDealer(bool is_dealer) noexcept {
+        this->is_dealer = is_dealer;
+        return *this;
+    }
+
+    WinningInfo& WinningInfo::Dora(std::set<TileType> dora) noexcept {
+        this->dora = dora;
+        return *this;
+    }
+    WinningInfo& WinningInfo::ReversedDora(std::set<TileType> reversed_dora) noexcept {
+        assert(under_riichi);
+        this->reversed_dora = reversed_dora;
         return *this;
     }
 }

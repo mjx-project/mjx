@@ -20,7 +20,8 @@ namespace mj {
 
         Wind seat_wind, prevalent_wind;
         bool is_bottom, is_ippatsu, is_double_riichi, is_first_tsumo;
-        bool is_leader;     // 親:true, 子:false (default:false)
+        bool is_dealer;     // 親:true, 子:false (default:false)
+        std::set<TileType> dora, reversed_dora;
         WinningInfo(
                 const std::vector<std::unique_ptr<Open>>& opens,
                 std::unordered_set<Tile, HashTile>  closed_tiles,
@@ -42,7 +43,9 @@ namespace mj {
         WinningInfo& IsIppatsu(bool is_ippatsu) noexcept ;
         WinningInfo& IsDoubleRiichi(bool is_double_riichi) noexcept ;
         WinningInfo& IsFirstTsumo(bool is_first_tsumo) noexcept ;
-        WinningInfo& IsLeader(bool is_leader) noexcept ;
+        WinningInfo& IsDealer(bool is_dealer) noexcept ;
+        WinningInfo& Dora(std::set<TileType> dora) noexcept ;
+        WinningInfo& ReversedDora(std::set<TileType> reversed_dora) noexcept ;
     };
 
 } // namespace mj

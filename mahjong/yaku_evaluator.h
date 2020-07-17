@@ -60,6 +60,8 @@ namespace mj
         [[nodiscard]] static bool HasCompletedFourConcealedPons(const WinningInfo& win_info) noexcept ;
 
         [[nodiscard]] static std::optional<int> HasRedDora(const WinningInfo& win_info) noexcept ;
+        [[nodiscard]] static std::optional<int> HasDora(const WinningInfo& win_info) noexcept ;
+        [[nodiscard]] static std::optional<int> HasReversedDora(const WinningInfo& win_info) noexcept ;
 
         [[nodiscard]] static std::optional<int> HasFullyConcealdHand(const WinningInfo& win_info) noexcept ;
         [[nodiscard]] static std::optional<int> HasRiichi(const WinningInfo& win_info) noexcept ;
