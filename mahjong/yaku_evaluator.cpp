@@ -73,7 +73,7 @@ namespace mj
         if (!score.RequireFu()) return score;
 
         // 符を計算する
-        score.SetFu(CalculateFu(win_info, closed_sets, heads, score));
+        score.set_fu(CalculateFu(win_info, closed_sets, heads, score));
 
         return score;
     }
