@@ -47,6 +47,15 @@ message Observation {
   repeated PossibleAction possible_actions = 6;
 }
 
+message State {
+  uint32 game_id = 1;
+  Score score = 2;
+  repeated int32 wall = 3;
+  ActionHistory action_history = 4;
+  repeated InitialHand initial_hands = 5;
+  repeated PossibleAction possible_actions = 6;
+}
+
 message Action {  // corresponds to mj::Action in cpp
   uint32 game_id = 1;
   uint32 who = 2;
