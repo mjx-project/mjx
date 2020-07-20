@@ -8,3 +8,5 @@ tenhou/mahjong_pb2_grpc.py
 tenhou/.idea
 tenhou/venv
 tenhou/__pycache__
+tenhou/resources/*
+!tenhou/resources/.gitkeep
