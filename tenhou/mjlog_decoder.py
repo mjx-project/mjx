@@ -12,7 +12,7 @@ import mahjong_pb2
 
 class MjlogParser:
     def __init__(self):
-        pass
+        self.state = None
 
     def parse(self, path_to_mjlog: str) -> Iterator[mahjong_pb2.State]:
         tree = ET.parse(path_to_mjlog)
@@ -28,6 +28,7 @@ class MjlogParser:
         # print(urllib.parse.unquote(child.attrib["n0"]))
         taikyoku = root.iter("TAIKYOKU")
 
+        self.state = mahjong_pb2.State()
         kv: List[Tuple[str, Dict[str, str]]] = []
         for child in root:
             if child.tag in ["SHUFFLE", "GO", "UN", "TAIKYOKU"]:
@@ -35,6 +36,7 @@ class MjlogParser:
             if child.tag == "INIT":
                 if kv:
                     yield from self._parse_each_round(kv)
+                self.state = mahjong_pb2.State()
                 kv = []
             kv.append((child.tag, child.attrib))
         if kv:
@@ -58,14 +60,21 @@ class MjlogParser:
         - <AGARI ba="1,3" hai="1,6,9,24,25,37,42,44,45,49,52,58,60,64" machi="44" ten="30,8000,1" yaku="1,1,7,1,52,1,54,1,53,1" doraHai="69" doraHaiUra="59" who="2" fromWho="3" sc="240,0,260,0,230,113,240,-83" />
           - key = "AGARI" val = {'ba': '1,3', 'hai': '1,6,9,24,25,37,42,44,45,49,52,58,60,64', 'machi': '44', 'ten': '30,8000,1', 'yaku': '1,1,7,1,52,1,54,1,53,1', 'doraHai': '69', 'doraHaiUra': '59', 'who': '2', 'fromWho': '3', 'sc': '240,0,260,0,230,113,240,-83'}
         """
-        state = mahjong_pb2.State()
-        print(kv[0])
+        assert(kv[0][0] == 'INIT')
         for key, val in kv:
             if key[0] in ["T", "U", "V", "W"]:  # draw
-                state.action_history.taken_actions.append(mahjong_pb2.TakenAction(who=3, type=3))
+                self.state.action_history.taken_actions.append(mahjong_pb2.TakenAction(who=3, type=3))
             elif key[0] in ["D", "E", "F", "G"]:  # discard
                 pass
-            yield copy.deepcopy(state)
+            elif key == "N":
+                pass
+            elif key == "REACH":
+                pass
+            elif key == "RYUUKYOKU":
+                pass
+            elif key == "AGARI":
+                pass
+            yield copy.deepcopy(self.state)
 
 
 if __name__ == "__main__":
