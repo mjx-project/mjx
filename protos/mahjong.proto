@@ -5,6 +5,31 @@ package mjproto;
 service Agent {
   rpc TakeAction (Observation) returns (Action) {}
 }
+
+enum Wind {
+  WIND_EAST = 0;
+  WIND_SOUTH = 1;
+  WIND_WEST = 2;
+  WIND_NORTH = 3;
+}
+
+enum ActionType {
+    ACTION_TYPE_DRAW = 0;
+    ACTION_TYPE_DRAW_AFTER_KAN = 1;
+    ACTION_TYPE_DISCARD = 2;
+    ACTION_TYPE_RIICHI_AND_DISCARD = 3;
+    ACTION_TYPE_TSUMO = 4;
+    ACTION_TYPE_TSUMO_AFTER_KAN = 5;
+    ACTION_TYPE_RON = 6;
+    ACTION_TYPE_RON_AFTER_KAN = 7;
+    ACTION_TYPE_CHI = 8;
+    ACTION_TYPE_PON = 9;
+    ACTION_TYPE_KAN_CLOSED = 10;
+    ACTION_TYPE_KAN_OPENED = 11;
+    ACTION_TYPE_KAN_ADDED = 12;
+    ACTION_TYPE_KYUSYU = 13;
+}
+
 message Score {
   uint32 round = 1;
   uint32 honba = 2;
