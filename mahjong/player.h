@@ -17,6 +17,28 @@ namespace mj
         Hand& mutable_hand();
         [[nodiscard]] const River& river() const;
         River& mutable_river();
+
+        // action validators
+        std::vector<Tile> PossibleDiscards() const;  // TODO(sotetsuk): Current implementation has the tiles with same type (e.g., 2m x 3). What is the Tenhou's implementation? Only first id? or any id?
+        std::vector<Tile> PossibleDiscardsAfterRiichi(const WinningHandCache &win_cache);
+        std::vector<std::unique_ptr<Open>> PossibleOpensAfterOthersDiscard(Tile tile, RelativePos from) const;  // includes Chi, Pon, and KanOpened
+        std::vector<std::unique_ptr<Open>> PossibleOpensAfterDraw();  // includes KanClosed and KanAdded
+        bool CanRon(Tile tile) const;  // This does not take furiten and fan into account.
+        bool IsCompleted();
+        bool CanRiichi();
+        bool CanNineTiles(bool IsDealer);  // 九種九牌
+
+        // apply actions
+        void Draw(Tile tile);
+        void Riichi();  // After riichi, hand is fixed
+        void ApplyOpen(std::unique_ptr<Open> open);  // TODO: (sotetsuk) current implementation switch private method depending on OpenType. This is not smart way to do dynamic polymorphism.
+        void Ron(Tile tile);
+        void RonAfterOthersKan(Tile tile);
+        void Tsumo();  // should be called after draw like h.Draw(tile); if (h.IsCompleted(w)) h.Tsumo();
+        Tile Discard(Tile tile);
+
+        // get winning info
+        WinningScore EvalScore() const noexcept ;
     private:
         friend class Observation;  // refers to initial_hand_
         AbsolutePos position_;
