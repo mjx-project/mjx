@@ -1,0 +1,36 @@
+set namespaceSeparator ::
+
+
+class cpp::mjproto::State <<(D,yellow) Data>> {
+
+}
+
+class python::mjproto::State <<(D,yellow) Data>> {
+
+}
+
+class json <<(D,lightblue) SerializedData>> {
+
+}
+
+class Tenhou::mjlog <<(D,lightblue) SerializedData>> {
+
+}
+
+cpp::mj::State -> cpp::mjproto::State
+cpp::mj::State -> cpp::mj::Observation
+
+cpp::mj::Observation -> cpp::mjproto::Observation
+
+cpp::mjproto::State -> cpp::mj::State
+cpp::mjproto::State -> json
+
+cpp::mjproto::Observation -> cpp::mj::Observation
+
+python::mjproto::State -> Tenhou::mjlog
+python::mjproto::State -> json
+
+Tenhou::mjlog-> python::mjproto::State
+
+json -> python::mjproto::State
+json -> cpp::mjproto::State
