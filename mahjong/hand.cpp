@@ -286,7 +286,7 @@ namespace mj
         return possible_discards;
     }
 
-    std::vector<Tile> Hand::PossibleDiscardsAfterRiichi(const WinningHandCache &win_cache) {
+    std::vector<Tile> Hand::PossibleDiscardsAfterRiichi() {
         assert(IsMenzen());
         assert(under_riichi_);
         assert(stage_ == HandStage::kAfterRiichi);

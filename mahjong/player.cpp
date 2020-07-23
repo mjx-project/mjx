@@ -38,12 +38,12 @@ namespace mj
         return hand_.PossibleDiscards();
     }
 
-    std::vector<Tile> Player::PossibleDiscardsAfterRiichi(const WinningHandCache &win_cache) {
+    std::vector<Tile> Player::PossibleDiscardsAfterRiichi() {
         return hand_.PossibleDiscardsAfterRiichi();
     }
 
     std::vector<std::unique_ptr<Open>> Player::PossibleOpensAfterOthersDiscard(Tile tile, RelativePos from) const {
-        return hand_.PossibleOpensAfterOthersDiscard();
+        return hand_.PossibleOpensAfterOthersDiscard(tile, from);
     }
 
     std::vector<std::unique_ptr<Open>> Player::PossibleOpensAfterDraw() {
@@ -64,9 +64,9 @@ namespace mj
         return hand_.CanRiichi();
     }
 
-    bool Player::CanNineTiles(bool IsDealer) {
-        return hand_.CanNineTiles();
-    }
+    //bool Player::CanNineTiles(bool IsDealer) {
+    //    return hand_.CanNineTiles(IsDealer);
+    //}
 
     // apply actions
     void Player::Draw(Tile tile) {
