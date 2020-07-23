@@ -7,8 +7,8 @@ namespace mj
 
     Action AgentClient::TakeAction(Observation observation) const {
         assert(stub_ != nullptr);
-        const mjproto::ActionRequest request = observation.action_request_;
-        mjproto::ActionResponse response;
+        const mjproto::Observation request = observation.proto_;
+        mjproto::Action response;
         grpc::ClientContext context;
         grpc::Status status = stub_->TakeAction(&context, request, &response);
         if (!status.ok()) {
@@ -26,23 +26,23 @@ namespace mj
 //     );
 //
 //     // Common observation over 4 players
-//     auto common_observation = std::make_unique<mjproto::ActionRequest_CommonObservation>();
-//     auto request1 = mjproto::ActionRequest();
+//     auto common_observation = std::make_unique<mjproto::Observation_CommonObservation>();
+//     auto request1 = mjproto::Observation();
 //     request1.set_who(1);
 //     auto obs1 = std::make_unique<mj::Observation>(request1, common_observation.get());
-//     auto request2 = mjproto::ActionRequest();
+//     auto request2 = mjproto::Observation();
 //     request2.set_who(2);
 //     auto obs2 = std::make_unique<mj::Observation>(request2, common_observation.get());
 //
 //     // action1 happens
-//     auto taken_action1 = mjproto::ActionRequest_CommonObservation_TakenAction();
+//     auto taken_action1 = mjproto::Observation_CommonObservation_TakenAction();
 //     common_observation->mutable_taken_actions()->Add(std::move(taken_action1));
 //
 //     // take first action
 //     auto action = agent.TakeAction(std::move(obs1));
 //
 //     // action2 happens
-//     auto taken_action2 = mjproto::ActionRequest_CommonObservation_TakenAction();
+//     auto taken_action2 = mjproto::Observation_CommonObservation_TakenAction();
 //     common_observation->mutable_taken_actions()->Add(std::move(taken_action2));
 //
 //     // take second action

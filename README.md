@@ -51,6 +51,7 @@ $ ./build/test/mahjong_test
   - [NegativeMjark/tenhou-log](https://github.com/NegativeMjark/tenhou-log)
   - [mthrok/tenhou-log-utils](https://github.com/mthrok/tenhou-log-utils) mjlongのコンソールでの表示などができる
   - [天鳳牌譜(.mjlog形式)をXMLに直す](http://rausumaru.hatenablog.com/entry/2019/08/30/021154)
+  - [github.com/tomohxx/tenhou-tile-wall](https://github.com/tomohxx/tenhou-tile-wall) 天鳳における牌山の生成プログラム
 - Play at tenhou
   - [MahjongRepository/tenhou-python-bot](https://github.com/MahjongRepository/tenhou-python-bot)
   

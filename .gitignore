@@ -3,3 +3,10 @@ mahjong/cmake-build-debug/*
 cmake-build-debug/*
 build/*
 test/lib/*
+tenhou/mahjong_pb2.py
+tenhou/mahjong_pb2_grpc.py
+tenhou/.idea
+tenhou/venv
+tenhou/__pycache__
+tenhou/resources/*
+!tenhou/resources/.gitkeep

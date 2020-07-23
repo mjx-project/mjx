@@ -14,15 +14,14 @@ namespace mj
     {
     public:
         Action() = delete;
-        explicit Action(mjproto::ActionResponse action_response) : action_response_(std::move(action_response)) {}
-        AbsolutePos who() const { return AbsolutePos(action_response_.who()); }
-        ActionType type() const { return ActionType(action_response_.type()); }
-        bool yes() const { return action_response_.yes(); }
-        Tile discard() const {return Tile(action_response_.discard()); }
-        std::unique_ptr<Open> open() const { return Open::NewOpen(action_response_.open()); }
-        [[nodiscard]] const mjproto::ActionResponse& action_response() const { return action_response_; }
+        explicit Action(mjproto::Action action_response) : proto_(std::move(action_response)) {}
+        AbsolutePos who() const { return AbsolutePos(proto_.who()); }
+        ActionType type() const { return ActionType(proto_.type()); }
+        bool yes() const { return proto_.yes(); }
+        Tile discard() const {return Tile(proto_.discard()); }
+        std::unique_ptr<Open> open() const { return Open::NewOpen(proto_.open()); }
     private:
-        mjproto::ActionResponse action_response_;
+        mjproto::Action proto_;
     };
 }  // namespace mj
 

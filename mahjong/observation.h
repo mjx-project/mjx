@@ -79,7 +79,7 @@ namespace mj
         std::string ToString() const;
     private:
         friend class AgentClient;
-        mjproto::ActionRequest action_request_ = mjproto::ActionRequest();
+        mjproto::Observation proto_ = mjproto::Observation{};
     };
 }
 

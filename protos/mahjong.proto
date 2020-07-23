@@ -3,8 +3,40 @@ syntax = "proto3";
 package mjproto;
 
 service Agent {
-  rpc TakeAction (ActionRequest) returns (ActionResponse) {}
+  rpc TakeAction (Observation) returns (Action) {}
 }
+
+enum Wind {
+  WIND_EAST = 0;
+  WIND_SOUTH = 1;
+  WIND_WEST = 2;
+  WIND_NORTH = 3;
+}
+
+enum RelativePos {
+    RELATIVE_POS_SELF = 0;
+    RELATIVE_POS_RIGHT = 1;  // 下家
+    RELATIVE_POS_MID = 2;    // 対面
+    RELATIVE_POS_LEFT = 3;   // 上家
+}
+
+enum ActionType {
+    ACTION_TYPE_DRAW = 0;
+    ACTION_TYPE_DRAW_AFTER_KAN = 1;
+    ACTION_TYPE_DISCARD = 2;
+    ACTION_TYPE_RIICHI = 3;
+    ACTION_TYPE_TSUMO = 4;
+    ACTION_TYPE_TSUMO_AFTER_KAN = 5;
+    ACTION_TYPE_RON = 6;
+    ACTION_TYPE_RON_AFTER_KAN = 7;
+    ACTION_TYPE_CHI = 8;
+    ACTION_TYPE_PON = 9;
+    ACTION_TYPE_KAN_CLOSED = 10;
+    ACTION_TYPE_KAN_OPENED = 11;
+    ACTION_TYPE_KAN_ADDED = 12;
+    ACTION_TYPE_KYUSYU = 13;
+}
+
 message Score {
   uint32 round = 1;
   uint32 honba = 2;
@@ -36,9 +68,9 @@ message PossibleAction {
 }
 
 // Similar to Tenhou's mjlog format. Initial hand and action sequence are sent to each player.
-// However, different from Tenhou, each request is stateless.
+// However, different from Tenhou, each observation request is stateless.
 // Each request has enough information to make decisions.
-message ActionRequest {  // corresponds to mj::Observation in cpp
+message Observation {
   uint32 game_id = 1;
   Score score = 2;  // public info
   ActionHistory action_history = 3;  // public info
@@ -47,7 +79,47 @@ message ActionRequest {  // corresponds to mj::Observation in cpp
   repeated PossibleAction possible_actions = 6;
 }
 
-message ActionResponse {  // corresponds to mj::Action in cpp
+message Win {  // only for Tenhou visualization
+  uint32 who = 1;
+  uint32 from_who = 2;
+  repeated uint32 tiles = 3;
+  repeated uint32 opens = 4;
+  uint32 win_tile = 5;
+  repeated uint32 dora = 6;
+  repeated uint32 ura_dora = 7;
+  uint32 fu = 8;
+  uint32 ten = 9;
+  repeated uint32 yakus = 10;
+  repeated uint32 fans = 11;
+  repeated uint32 yakumans = 12;
+}
+
+message TenpaiHand {  // only for Tenhou visualization
+  uint32 who = 1;
+  repeated uint32 closed_tiles = 2;
+}
+
+message StateEndInfo {  // only for Tenhou visualization
+  repeated Win wins = 1;
+  repeated TenpaiHand tenpais = 2;
+  repeated uint32 scores_before = 3;
+  repeated uint32 scores_after = 4;
+  repeated int32 score_changes = 5;
+  uint32 ryukyoku_type = 6;  // 九種九牌, 四家立直, 三家和了, 四槓散了, 四風連打, 流し満貫
+  bool is_game_over = 7;
+}
+
+message State {  // For Tenhou visualization and unit test
+  uint32 game_id = 1;
+  Score score = 2;
+  repeated uint32 wall = 3;
+  repeated uint32 dora = 4;
+  ActionHistory action_history = 5;
+  repeated InitialHand initial_hands = 6;
+  StateEndInfo end_info = 7;
+}
+
+message Action {  // corresponds to mj::Action in cpp
   uint32 game_id = 1;
   uint32 who = 2;
   uint32 type = 3;

@@ -62,44 +62,44 @@ namespace mj
     }
 
     std::vector<PossibleAction> Observation::possible_actions() const {
-        assert(action_request_.has_action_history());
+        assert(proto_.has_action_history());
         std::vector<PossibleAction> ret;
-        for (const auto& possible_action: action_request_.possible_actions()) {
+        for (const auto& possible_action: proto_.possible_actions()) {
             ret.emplace_back(PossibleAction{possible_action});
         }
         return ret;
     }
 
     std::uint32_t Observation::game_id() const {
-        return action_request_.game_id();
+        return proto_.game_id();
     }
 
     AbsolutePos Observation::who() const {
-        return AbsolutePos(action_request_.who());
+        return AbsolutePos(proto_.who());
     }
 
     void Observation::ClearPossibleActions() {
-        action_request_.clear_possible_actions();
+        proto_.clear_possible_actions();
     }
 
     Observation::~Observation() {
         // Calling release_xxx prevent gRPC from deleting objects after gRPC communication
-        assert(action_request_.has_action_history());
-        action_request_.release_score();
-        action_request_.release_action_history();
-        action_request_.release_initial_hand();
+        assert(proto_.has_action_history());
+        proto_.release_score();
+        proto_.release_action_history();
+        proto_.release_initial_hand();
     }
 
     void Observation::add_possible_action(PossibleAction possible_action) {
         // TDOO (sotetsuk): add assertion. もしtypeがdiscardならすでにあるpossible_actionはdiscardではない
-        auto mutable_possible_actions = action_request_.mutable_possible_actions();
+        auto mutable_possible_actions = proto_.mutable_possible_actions();
         mutable_possible_actions->Add(std::move(possible_action.possible_action_));
     }
 
     Observation::Observation(AbsolutePos who, Score &score, ActionHistory &action_history, Player& player) {
-        action_request_.set_who(ToUType(who));
-        action_request_.set_allocated_score(&score.score_);
-        action_request_.set_allocated_action_history(&action_history.action_history_);
-        action_request_.set_allocated_initial_hand(&player.initial_hand_);
+        proto_.set_who(ToUType(who));
+        proto_.set_allocated_score(&score.score_);
+        proto_.set_allocated_action_history(&action_history.action_history_);
+        proto_.set_allocated_initial_hand(&player.initial_hand_);
     }
 }

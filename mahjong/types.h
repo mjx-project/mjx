@@ -7,6 +7,8 @@
 #include <map>
 #include <unordered_map>
 
+#include <mahjong.pb.h>
+
 namespace mj {
     using TileId = std::uint8_t;  // {0, ..., 135} corresponds to mjlog format of Tenhou
 
@@ -36,20 +38,20 @@ namespace mj {
     };
 
     enum class ActionType : std::uint8_t {
-        kDraw,
-        kDrawAfterKan,
-        kDiscard,
-        kRiichiAndDiscard,
-        kTsumo,
-        kTsumoAfterKan,
-        kRon,
-        kRonAfterKan,
-        kChi,
-        kPon,
-        kKanClosed,
-        kKanOpened,
-        kKanAdded,
-        kKyushu
+        kDraw = mjproto::ACTION_TYPE_DRAW,
+        kDrawAfterKan = mjproto::ACTION_TYPE_DRAW_AFTER_KAN,
+        kDiscard = mjproto::ACTION_TYPE_DISCARD,
+        kRiichi = mjproto::ACTION_TYPE_RIICHI,
+        kTsumo = mjproto::ACTION_TYPE_TSUMO,
+        kTsumoAfterKan = mjproto::ACTION_TYPE_TSUMO_AFTER_KAN,
+        kRon = mjproto::ACTION_TYPE_RON,
+        kRonAfterKan = mjproto::ACTION_TYPE_RON_AFTER_KAN,
+        kChi = mjproto::ACTION_TYPE_CHI,
+        kPon = mjproto::ACTION_TYPE_PON,
+        kKanClosed = mjproto::ACTION_TYPE_KAN_CLOSED,
+        kKanOpened = mjproto::ACTION_TYPE_KAN_OPENED,
+        kKanAdded = mjproto::ACTION_TYPE_KAN_ADDED,
+        kKyushu = mjproto::ACTION_TYPE_KYUSYU,
     };
 
     enum class HandStage : std::uint8_t {
@@ -95,10 +97,10 @@ namespace mj {
 
     enum class RelativePos : std::uint8_t  // Order follows mjlog
     {
-        kSelf,
-        kRight,  // 下家
-        kMid,    // 対面
-        kLeft    // 上家
+        kSelf = mjproto::RELATIVE_POS_SELF,
+        kRight = mjproto::RELATIVE_POS_RIGHT,  // 下家
+        kMid = mjproto::RELATIVE_POS_MID,      // 対面
+        kLeft = mjproto::RELATIVE_POS_LEFT     // 上家
     };
 
     enum class OpenType : std::uint8_t {
@@ -124,10 +126,10 @@ namespace mj {
     using Minipoint = std::uint8_t;
 
     enum class Wind : std::uint8_t {
-        kEast,
-        kSouth,
-        kWest,
-        kNorth
+        kEast = mjproto::WIND_EAST,
+        kSouth = mjproto::WIND_SOUTH,
+        kWest = mjproto::WIND_WEST,
+        kNorth = mjproto::WIND_NORTH,
     };
 
     // The order follows: http://tenhou.net/1/script/tenhou.js
