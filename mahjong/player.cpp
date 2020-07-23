@@ -21,15 +21,8 @@ namespace mj
         return hand_;
     }
 
-    Hand &Player::mutable_hand() {
-        return hand_;
-    }
 
     const River &Player::river() const {
-        return river_;
-    }
-
-    River &Player::mutable_river() {
         return river_;
     }
 
@@ -101,5 +94,14 @@ namespace mj
         // TODO: 場風, 自風, 海底, 一発, 両立直, 天和・地和, 親・子, ドラ, 裏ドラ の情報を追加する
         WinningStateInfo win_state_info;
         return hand_.EvalScore(win_state_info);
+    }
+
+    // river
+    void Player::Discard(Tile tile, bool tsumogiri) {
+        river_.Discard(tile, tsumogiri);
+    }
+
+    Tile Player::latest_discard() const {
+        return river_.latest_discard();
     }
 }  // namespace mj

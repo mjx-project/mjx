@@ -42,9 +42,7 @@ namespace mj
         [[nodiscard]] RoundStage stage() const;
         [[nodiscard]] const Wall & wall() const;
         [[nodiscard]] const Hand & hand(AbsolutePos pos) const;
-        Hand & mutable_hand(AbsolutePos pos);
         [[nodiscard]] const River & river(AbsolutePos pos) const;
-        River & mutable_river(AbsolutePos pos);
 
         std::string ToMjlog() const;
 
