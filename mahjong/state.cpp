@@ -41,17 +41,17 @@ namespace mj
                     RoundStage::kAfterKanClosed,
                     RoundStage::kAfterKanOpened,
                     RoundStage::kAfterKanAdded}));
-        mutable_hand(drawer_).Draw(wall_.Draw());
+
+        mutable_player(drawer_).Draw(wall_.Draw());
         // TODO (sotetsuk): update action history
         stage_ = RoundStage::kAfterDraw;
         return drawer_;
     }
 
     void State::UpdateStateByAction(const Action &action) {
-        auto &curr_hand = mutable_hand(action.who());
         switch (action.type()) {
             case ActionType::kDiscard:
-                curr_hand.Discard(action.discard());
+                mutable_player(action.who()).Discard(action.discard());
                 stage_ = RoundStage::kAfterDiscards;
                 drawer_ = AbsolutePos((static_cast<int>(action.who()) + 1) % 4);
                 latest_discarder_ = action.who();
@@ -61,16 +61,8 @@ namespace mj
         }
     }
 
-    const Hand & State::hand(AbsolutePos pos) const {
-        return player(pos).hand();
-    }
-
     RoundStage State::stage() const {
         return stage_;
-    }
-
-    Hand & State::mutable_hand(AbsolutePos pos) {
-        return mutable_player(pos).mutable_hand();
     }
 
     bool State::IsRoundOver() {
@@ -82,8 +74,16 @@ namespace mj
         return players_.at(ToUType(pos));
     }
 
-    Player &State::mutable_player(AbsolutePos pos) {
+    Player& State::mutable_player(AbsolutePos pos) {
         return players_.at(ToUType(pos));
+    }
+
+    const Hand & State::hand(AbsolutePos pos) const {
+        return player(pos).hand();
+    }
+
+    const River &State::river(AbsolutePos pos) const {
+        return players_.at(ToUType(pos)).river();
     }
 
     Observation State::CreateObservation(AbsolutePos pos) {
@@ -103,31 +103,23 @@ namespace mj
     std::optional<std::vector<AbsolutePos>> State::RonCheck() {
         auto possible_winners = std::make_optional<std::vector<AbsolutePos>>();
         auto position = AbsolutePos((ToUType(latest_discarder_) + 1) % 4);
-        auto discarded_tile = river(latest_discarder_).latest_discard();
+        auto discarded_tile = player(latest_discarder_).latest_discard();
         while (position != latest_discarder_) {
-            if (hand(position).CanRon(discarded_tile)) possible_winners->emplace_back(position);
+            if (player(position).CanRon(discarded_tile)) possible_winners->emplace_back(position);
             position = AbsolutePos((ToUType(position) + 1) % 4);
         }
         if (possible_winners.value().empty()) possible_winners = std::nullopt;
         return possible_winners;
     }
 
-    const River &State::river(AbsolutePos pos) const {
-        return players_.at(ToUType(pos)).river();
-    }
-
-    River &State::mutable_river(AbsolutePos pos) {
-        return players_.at(ToUType(pos)).mutable_river();
-    }
-
     std::optional<std::vector<std::pair<AbsolutePos, std::vector<std::unique_ptr<Open>>>>> State::StealCheck() {
         assert(stage() == RoundStage::kAfterDiscards);
         auto possible_steals = std::make_optional<std::vector<std::pair<AbsolutePos, std::vector<std::unique_ptr<Open>>>>>();
         auto position = AbsolutePos((ToUType(latest_discarder_) + 1) % 4);
-        auto discarded_tile = river(latest_discarder_).latest_discard();
+        auto discarded_tile = player(latest_discarder_).latest_discard();
         while (position != latest_discarder_) {
             auto stealer = AbsolutePos(position);
-            auto possible_opens = hand(stealer).PossibleOpensAfterOthersDiscard(discarded_tile, ToRelativePos(position, latest_discarder_));
+            auto possible_opens = player(stealer).PossibleOpensAfterOthersDiscard(discarded_tile, ToRelativePos(position, latest_discarder_));
             possible_steals->emplace_back(std::make_pair(stealer, std::move(possible_opens)));
             position = AbsolutePos((ToUType(position) + 1) % 4);
         }
