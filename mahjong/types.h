@@ -41,7 +41,7 @@ namespace mj {
         kDraw = mjproto::ACTION_TYPE_DRAW,
         kDrawAfterKan = mjproto::ACTION_TYPE_DRAW_AFTER_KAN,
         kDiscard = mjproto::ACTION_TYPE_DISCARD,
-        kRiichiAndDiscard = mjproto::ACTION_TYPE_RIICHI_AND_DISCARD,
+        kRiichi = mjproto::ACTION_TYPE_RIICHI,
         kTsumo = mjproto::ACTION_TYPE_TSUMO,
         kTsumoAfterKan = mjproto::ACTION_TYPE_TSUMO_AFTER_KAN,
         kRon = mjproto::ACTION_TYPE_RON,
@@ -97,10 +97,10 @@ namespace mj {
 
     enum class RelativePos : std::uint8_t  // Order follows mjlog
     {
-        kSelf,
-        kRight,  // 下家
-        kMid,    // 対面
-        kLeft    // 上家
+        kSelf = mjproto::RELATIVE_POS_SELF,
+        kRight = mjproto::RELATIVE_POS_RIGHT,  // 下家
+        kMid = mjproto::RELATIVE_POS_MID,      // 対面
+        kLeft = mjproto::RELATIVE_POS_LEFT     // 上家
     };
 
     enum class OpenType : std::uint8_t {

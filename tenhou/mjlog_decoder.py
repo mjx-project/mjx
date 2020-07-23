@@ -55,6 +55,8 @@ class MjlogParser:
           - key = "REACH", val = {'who': '1', 'ten': '250,240,250,250', 'step': '2'}
         - <N who="3" m="42031" />
           - key = "N", val = {'who': '3', 'm': '42031'}
+        - <DORA hai="8" />
+          - key = "DORA", val = {'hai': '8'}
         - <RYUUKYOKU ba="0,1" sc="250,-10,240,30,250,-10,250,-10" hai1="43,47,49,51,52,54,56,57,62,79,82,101,103" />
           - key = "RYUUKYOKU" val = {'ba': '0,1', 'sc': '250,-10,240,30,250,-10,250,-10', 'hai1': '43,47,49,51,52,54,56,57,62,79,82,101,103'}
         - <AGARI ba="1,3" hai="1,6,9,24,25,37,42,44,45,49,52,58,60,64" machi="44" ten="30,8000,1" yaku="1,1,7,1,52,1,54,1,53,1" doraHai="69" doraHaiUra="59" who="2" fromWho="3" sc="240,0,260,0,230,113,240,-83" />
@@ -63,7 +65,17 @@ class MjlogParser:
         assert (kv[0][0] == 'INIT')
         last_drawer, last_draw = None, None
         taken_action = None
-        for key, val in kv:
+
+        key, val = kv[0]
+        assert(key == "INIT")
+        round_, honba, riichi, dice1, dice2, dora = [int(x) for x in val["seed"].split(",")]
+        self.state.score.round = round_
+        self.state.score.honba = honba
+        self.state.score.riichi = riichi
+        self.state.dora.append(dora)
+        self.state.score.ten[:] = [int(x) for x in val["ten"].split(",")]
+
+        for key, val in kv[1:]:
             if key[0] in ["T", "U", "V", "W"]:  # draw
                 # TODO (sotetsuk): consider draw after kan case
                 who = MjlogParser._to_wind(key[0])
@@ -82,7 +94,7 @@ class MjlogParser:
                 taken_action = mahjong_pb2.TakenAction(
                     who=who,
                     type=mahjong_pb2.ACTION_TYPE_DISCARD,
-                    draw=discard,
+                    discard=discard,
                     discard_drawn_tile=discard_drawn_tile,
                 )
             elif key == "N":
@@ -90,20 +102,81 @@ class MjlogParser:
                 open = int(val["m"])
                 taken_action = mahjong_pb2.TakenAction(
                     who=who,
-                    # type=mahjong_pb2.ACTION_TYPE_DISCARD,
+                    type=MjlogParser._open_type(open),
                     open=open,
                 )
                 continue
             elif key == "REACH":
-                pass
+                if int(val["step"]) == 1:
+                    who = int(val["who"])
+                    taken_action = mahjong_pb2.TakenAction(
+                        who=who,
+                        type=mahjong_pb2.ACTION_TYPE_RIICHI
+                    )
+                else:
+                    self.state.score.ten[:] = [int(x) for x in val["ten"].split(",")]
+                    continue
+            elif key == "DORA":
+                dora = int(val["hai"])
+                self.state.dora.append(dora)
+                continue
             elif key == "RYUUKYOKU":
-                pass
+                self.state.end_info.scores_before[:] = [int(x) for i, x in enumerate(val["sc"].split(",")) if i % 2 == 0]
+                self.state.end_info.score_changes[:] = [int(x) for i, x in enumerate(val["sc"].split(",")) if i % 2 == 1]
+                self.state.end_info.scores_after[:] = [x + y for x, y in zip(self.state.end_info.scores_before, self.state.end_info.score_changes)]
+                for i in range(4):
+                    hai_key = "hai" + str(i)
+                    if hai_key not in val:
+                        continue
+                    self.state.end_info.tenpais.append(mahjong_pb2.TenpaiHand(
+                            who=i,
+                            closed_tiles=[int(x) for x in val[hai_key].split(",")],
+                    ))
+                if "owari" in val:
+                    self.state.end_info.is_game_over = True
             elif key == "AGARI":
+                who = int(val["who"])
+                from_who = int(val["fromWho"])
+                # set taken_action
+                taken_action = mahjong_pb2.TakenAction(
+                    who=who,
+                    type=mahjong_pb2.ACTION_TYPE_TSUMO if who == from_who else mahjong_pb2.ACTION_TYPE_RON
+                )
+                # set win info
+                # TODO(sotetsuk): yakuman
+                # TODO(sotetsuk): check double ron behavior
+                self.state.end_info.scores_before[:] = [int(x) for i, x in enumerate(val["sc"].split(",")) if i % 2 == 0]
+                self.state.end_info.score_changes[:] = [int(x) for i, x in enumerate(val["sc"].split(",")) if i % 2 == 1]
+                self.state.end_info.scores_after[:] = [x + y for x, y in zip(self.state.end_info.scores_before, self.state.end_info.score_changes)]
+                win = mahjong_pb2.Win(
+                    who=who,
+                    from_who=from_who,
+                    tiles=[int(x) for x in val["hai"].split(",")],
+                    win_tile=int(val["machi"])
+                )
+                if "m" in val:
+                    win.opens[:] = [int(x) for x in val["m"].split(",")]
+                win.dora[:] = [int(x) for x in val["doraHai"].split(",")]
+                if "doraHaiUra" in val:
+                    win.ura_dora[:] = [int(x) for x in val["doraHaiUra"].split(",")]
+                win.fu, win.ten, _ = [int(x) for x in val["ten"].split(",")]
+                win.yakus[:] = [int(x) for i, x in enumerate(val["yaku"].split(",")) if i % 2 == 0]
+                win.fans[:] = [int(x) for i, x in enumerate(val["yaku"].split(",")) if i % 2 == 1]
+                if "yakuman" in val:
+                    win.yakumans[:] = [int(x) for i, x in enumerate(val["yakuman"].split(",")) if i % 2 == 0]
+                self.state.end_info.wins.append(win)
+                if "owari" in val:
+                    self.state.end_info.is_game_over = True
+            elif key == "BYE":  # 接続切れ
+                pass
+            elif key == "UN":  # 再接続
                 pass
             else:
-                raise KeyError()
+                raise KeyError(key)
             self.state.action_history.taken_actions.append(taken_action)
-            yield copy.deepcopy(self.state)
+            # yield copy.deepcopy(self.state)
+
+        yield copy.deepcopy(self.state)
 
     @staticmethod
     def _to_wind(wind_str: str) -> mahjong_pb2.Wind:
@@ -117,6 +190,21 @@ class MjlogParser:
         elif wind_str in ["W", "G"]:
             return mahjong_pb2.WIND_NORTH
 
+    @staticmethod
+    def _open_type(bits: int) -> mahjong_pb2.ActionType:
+        if 1 << 2 & bits:
+            return mahjong_pb2.ACTION_TYPE_CHI
+        elif 1 << 3 & bits:
+            if 1 << 4 & bits:
+                return mahjong_pb2.ACTION_TYPE_KAN_ADDED
+            else:
+                return mahjong_pb2.ACTION_TYPE_PON
+        else:
+            if mahjong_pb2.RelativePos(bits & 3) == mahjong_pb2.RELATIVE_POS_SELF:
+                return mahjong_pb2.ACTION_TYPE_KAN_CLOSED
+            else:
+                return mahjong_pb2.ACTION_TYPE_KAN_OPENED
+
 
 if __name__ == "__main__":
     out = subprocess.run(
@@ -125,4 +213,4 @@ if __name__ == "__main__":
     print(out.stdout.decode('utf-8'))
     parser = MjlogParser()
     for state in parser.parse("resources/2011020417gm-00a9-0000-b67fcaa3.mjlog"):
-        print(json.dumps(json_format.MessageToDict(state)))
+        print(json.dumps(json_format.MessageToDict(state, including_default_value_fields=False)))
