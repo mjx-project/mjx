@@ -11,15 +11,15 @@ test: build
 all: clean test
 
 docker-build:
-	docker run -it -v ${CURDIR}:/mahjong sotetsuk/ubuntu-gcc-grpc:v0.0.2  /bin/bash -c "cd /mahjong && mkdir -p docker-build && cd docker-build && cmake .. && make -j"
+	docker run -it -v ${CURDIR}:/mahjong sotetsuk/ubuntu-gcc-grpc:latest  /bin/bash -c "cd /mahjong && mkdir -p docker-build && cd docker-build && cmake .. && make -j"
 
 docker-test: docker-build
-	docker run -it -v ${CURDIR}:/mahjong sotetsuk/ubuntu-gcc-grpc:v0.0.2  /bin/bash -c "/mahjong/docker-build/test/mahjong_test"
+	docker run -it -v ${CURDIR}:/mahjong sotetsuk/ubuntu-gcc-grpc:latest  /bin/bash -c "/mahjong/docker-build/test/mahjong_test"
 
 docker-all: clean docker-test
 
 docker-clion-start: docker-clion-stop
-	docker run -d --cap-add sys_ptrace -p 127.0.0.1:2222:22 --name mahjong-remote-clion sotetsuk/ubuntu-gcc-grpc-clion:v0.0.1
+	docker run -d --cap-add sys_ptrace -p 127.0.0.1:2222:22 --name mahjong-remote-clion sotetsuk/ubuntu-gcc-grpc-clion:latest
 	ssh-keygen -f "${HOME}/.ssh/known_hosts" -R "[localhost]:2222"
 
 docker-clion-stop:

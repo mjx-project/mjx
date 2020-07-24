@@ -5,7 +5,7 @@ on: [push]
 jobs:
   build:
     runs-on: ubuntu-latest
-    container: sotetsuk/ubuntu-gcc-grpc:v0.0.2
+    container: sotetsuk/ubuntu-gcc-grpc:latest
     steps:
     - uses: actions/checkout@v2
     - name: Build
