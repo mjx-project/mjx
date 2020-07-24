@@ -50,13 +50,31 @@ class MjlogEncoder:
                                 mahjong_pb2.EVENT_TYPE_KAN_ADDED]:
                 ret += f"<N who=\"{event.who}\" "
                 ret += f"m=\"{event.open}\" />"
-            if event.type == mahjong_pb2.EVENT_TYPE_RIICHI:
+            elif event.type == mahjong_pb2.EVENT_TYPE_RIICHI:
                 ret += f"<REACH who=\"{event.who}\" step=\"1\"/>"
-            if event.type == mahjong_pb2.EVENT_TYPE_RIICHI_SCORE_CHANGE:
+            elif event.type == mahjong_pb2.EVENT_TYPE_RIICHI_SCORE_CHANGE:
                 ten[event.who] -= 10
                 ret += f"<REACH who=\"{event.who}\" ten=\"{ten[0]},{ten[1]},{ten[2]},{ten[3]}\" step=\"2\"/>"
-            if event.type == mahjong_pb2.EVENT_TYPE_NEW_DORA:
+            elif event.type == mahjong_pb2.EVENT_TYPE_NEW_DORA:
                 ret += "<DORA hai=\"{event.tile}\" />"
+            elif event.type in [mahjong_pb2.EVENT_TYPE_TSUMO, mahjong_pb2.EVENT_TYPE_RON]:
+                break
+
+        if len(state.end_info.wins) == 0:
+            ret += "<RYUUKYOKU "
+            ret += f"ba=\"{state.curr_score.honba},{state.curr_score.riichi}\" "
+            sc = []
+            for i in range(4):
+                sc.append(state.end_info.ten_before[i])
+                sc.append(state.end_info.ten_changes[i])
+            sc = ",".join([str(x) for x in sc])
+            ret += f"sc=\"{sc}\" "
+            for tenpai in state.end_info.tenpais:
+                closed_tiles = ",".join([str(x) for x in tenpai.closed_tiles])
+                ret += f"hai{tenpai.who}=\"{closed_tiles}\" "
+            ret += "/>"
+        else:
+            pass
 
         return ret
 
