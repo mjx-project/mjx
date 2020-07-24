@@ -112,13 +112,14 @@ message StateEndInfo {  // only for Tenhou visualization
 
 message State {  // For Tenhou visualization and unit test
   uint32 game_id = 1;
-  Score init_score = 2;
-  Score curr_score = 3;
-  repeated uint32 wall = 4;
-  repeated uint32 dora = 5;
-  repeated InitialHand initial_hands = 6;
-  ActionHistory action_history = 7;
-  StateEndInfo end_info = 8;
+  repeated string player_ids = 2;
+  Score init_score = 3;
+  Score curr_score = 4;
+  repeated uint32 wall = 5;
+  repeated uint32 dora = 6;
+  repeated InitialHand initial_hands = 7;
+  ActionHistory action_history = 8;
+  StateEndInfo end_info = 9;
 }
 
 message Action {  // corresponds to mj::Action in cpp

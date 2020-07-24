@@ -33,15 +33,22 @@ class MjlogParser:
         yield from self._parse_each_game(root, wall_dices)
 
     def _parse_each_game(self, root: Element, wall_dices: List[Tuple[List[int], List[int]]]) -> Iterator[mahjong_pb2.State]:
+        state_ = mahjong_pb2.State()
+
         assert root.tag == "mjloggm"
         assert root.attrib['ver'] == "2.3"
+
         shuffle = root.iter("SHUFFLE")
         go = root.iter("GO")
         un = root.iter("UN")  # TODO(sotetsuk): if there are > 2 "UN", some user became offline
-        # print(urllib.parse.unquote(child.attrib["n0"]))
+        for child in un:
+            state_.player_ids.append(urllib.parse.unquote(child.attrib["n0"]))
+            state_.player_ids.append(urllib.parse.unquote(child.attrib["n1"]))
+            state_.player_ids.append(urllib.parse.unquote(child.attrib["n2"]))
+            state_.player_ids.append(urllib.parse.unquote(child.attrib["n3"]))
+            break
         taikyoku = root.iter("TAIKYOKU")
 
-        self.state = mahjong_pb2.State()
         kv: List[Tuple[str, Dict[str, str]]] = []
         i = 0
         for child in root:
@@ -52,7 +59,7 @@ class MjlogParser:
                     wall, dices = wall_dices[i]
                     yield from self._parse_each_round(kv, wall, dices)
                     i += 1
-                self.state = mahjong_pb2.State()
+                self.state = copy.deepcopy(state_)
                 kv = []
             kv.append((child.tag, child.attrib))
         if kv:
