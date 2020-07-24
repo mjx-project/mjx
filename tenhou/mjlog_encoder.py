@@ -40,10 +40,15 @@ class MjlogEncoder:
                 who = MjlogEncoder._encode_wind_for_draw(action.who)
                 draw = action.draw
                 ret += f"<{who}{draw}/>"
-            if action.type == mahjong_pb2.ACTION_TYPE_DISCARD:
+            elif action.type == mahjong_pb2.ACTION_TYPE_DISCARD:
                 who = MjlogEncoder._encode_wind_for_discard(action.who)
                 discard = action.discard
                 ret += f"<{who}{discard}/>"
+            elif action.type in [mahjong_pb2.ACTION_TYPE_CHI, mahjong_pb2.ACTION_TYPE_PON,
+                               mahjong_pb2.ACTION_TYPE_KAN_CLOSED, mahjong_pb2.ACTION_TYPE_KAN_OPENED,
+                               mahjong_pb2.ACTION_TYPE_KAN_ADDED]:
+                ret += f"<N who=\"{action.who}\" "
+                ret += f"m=\"{action.open}\" />"
 
         return ret
 

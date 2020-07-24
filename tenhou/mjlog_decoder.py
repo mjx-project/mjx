@@ -140,7 +140,6 @@ class MjlogDecoder:
                     type=MjlogDecoder._open_type(open),
                     open=open,
                 )
-                continue
             elif key == "REACH":
                 if int(val["step"]) == 1:
                     who = int(val["who"])
@@ -211,7 +210,10 @@ class MjlogDecoder:
                 pass
             else:
                 raise KeyError(key)
-            self.state.action_history.taken_actions.append(taken_action)
+
+            if taken_action is not None:
+                self.state.action_history.taken_actions.append(taken_action)
+            taken_action = None
             # yield copy.deepcopy(self.state)
 
         yield copy.deepcopy(self.state)
