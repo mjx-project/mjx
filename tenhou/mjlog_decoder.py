@@ -23,7 +23,7 @@ parser.add_argument('json_dir', help='Path to json outputs')    # 必須の引�
 args = parser.parse_args()
 
 
-class MjlogParser:
+class MjlogDecoder:
     def __init__(self):
         self.state = None
 
@@ -113,7 +113,7 @@ class MjlogParser:
         for key, val in kv[1:]:
             if key[0] in ["T", "U", "V", "W"]:  # draw
                 # TODO (sotetsuk): consider draw after kan case
-                who = MjlogParser._to_wind(key[0])
+                who = MjlogDecoder._to_wind(key[0])
                 draw = int(key[1:])
                 taken_action = mahjong_pb2.TakenAction(
                     who=who,
@@ -123,7 +123,7 @@ class MjlogParser:
                 last_drawer, last_draw = who, draw
             elif key[0] in ["D", "E", "F", "G"]:  # discard
                 # TDOO (sotetsuk): riichi
-                who = MjlogParser._to_wind(key[0])
+                who = MjlogDecoder._to_wind(key[0])
                 discard = int(key[1:])
                 discard_drawn_tile = last_drawer == who and last_draw == discard
                 taken_action = mahjong_pb2.TakenAction(
@@ -137,7 +137,7 @@ class MjlogParser:
                 open = int(val["m"])
                 taken_action = mahjong_pb2.TakenAction(
                     who=who,
-                    type=MjlogParser._open_type(open),
+                    type=MjlogDecoder._open_type(open),
                     open=open,
                 )
                 continue
@@ -272,7 +272,7 @@ def reproduce_wall(path_to_mjlog: str) -> List[Tuple[List[int], List[int]]]:
 
 
 if __name__ == "__main__":
-    parser = MjlogParser()
+    parser = MjlogDecoder()
     os.makedirs(args.json_dir, exist_ok=True)
     for mjlog in os.listdir(args.mjlog_dir):
         if not mjlog.endswith("mjlog"):
