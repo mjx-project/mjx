@@ -30,11 +30,10 @@ namespace mj {
         return *this;
     }
 
-    WinningInfo::WinningInfo(const std::vector<std::unique_ptr<Open>>& opens) noexcept :
-            opens(opens), stage(HandStage::kAfterTsumo), under_riichi(false),
-            is_menzen(false), is_bottom(false), is_ippatsu(false),
-            is_double_riichi(false), is_first_tsumo(false), is_dealer(false)
-            {}
+    WinningInfo& WinningInfo::Opens(std::vector<Open> opens) noexcept {
+        this->opens = opens;
+        return *this;
+    }
 
     WinningInfo& WinningInfo::ClosedTiles(std::unordered_set<Tile, HashTile> closed_tiles) noexcept {
         this->closed_tiles = closed_tiles;

@@ -375,6 +375,7 @@ namespace mj
         std::uint16_t bits = 0;
         bits |= static_cast<std::uint16_t>(RelativePos::kSelf);
         bits |= (static_cast<std::uint16_t>(tile.Id()) << 8);
+        return Open(bits);
     }
 
     RelativePos KanClosed::From(std::uint16_t bits) {

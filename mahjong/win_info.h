@@ -22,20 +22,20 @@ namespace mj {
     };
 
     struct WinningInfo {
-        const std::vector<std::unique_ptr<Open>>& opens;
+        std::vector<Open> opens;
         std::unordered_set<Tile, HashTile> closed_tiles;
         std::optional<TileType> last_added_tile_type;
-        HandStage stage;    // default: kAfterTsumo
-        bool under_riichi;
+        HandStage stage = HandStage::kAfterTsumo;    // default: kAfterTsumo
+        bool under_riichi = false;
         TileTypeCount closed_tile_types, all_tile_types;
-        bool is_menzen;
+        bool is_menzen = false;
 
-        Wind seat_wind, prevalent_wind;
-        bool is_bottom, is_ippatsu, is_double_riichi, is_first_tsumo;
-        bool is_dealer;     // 親:true, 子:false (default:false)
+        Wind seat_wind = Wind::kEast, prevalent_wind = Wind::kEast;
+        bool is_bottom = false, is_ippatsu = false, is_double_riichi = false, is_first_tsumo = false;
+        bool is_dealer = false;     // 親:true, 子:false (default:false)
         std::map<TileType,int> dora, reversed_dora;
 
-        WinningInfo(const std::vector<std::unique_ptr<Open>>& opens) noexcept ;
+        WinningInfo& Opens(std::vector<Open> opens) noexcept ;
         WinningInfo& ClosedTiles(std::unordered_set<Tile, HashTile> closed_tiles) noexcept ;
         WinningInfo& LastAddedTileType(std::optional<TileType> last_added_tile_type) noexcept ;
         WinningInfo& ClosedTileTypes(TileTypeCount closed_tile_types) noexcept ;

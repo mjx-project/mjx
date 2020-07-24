@@ -112,9 +112,9 @@ namespace mj
         return possible_winners;
     }
 
-    std::optional<std::vector<std::pair<AbsolutePos, std::vector<std::unique_ptr<Open>>>>> State::StealCheck() {
+    std::optional<std::vector<std::pair<AbsolutePos, std::vector<Open>>>> State::StealCheck() {
         assert(stage() == RoundStage::kAfterDiscards);
-        auto possible_steals = std::make_optional<std::vector<std::pair<AbsolutePos, std::vector<std::unique_ptr<Open>>>>>();
+        auto possible_steals = std::make_optional<std::vector<std::pair<AbsolutePos, std::vector<Open>>>>();
         auto position = AbsolutePos((ToUType(latest_discarder_) + 1) % 4);
         auto discarded_tile = player(latest_discarder_).latest_discard();
         while (position != latest_discarder_) {

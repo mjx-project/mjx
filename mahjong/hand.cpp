@@ -50,7 +50,7 @@ namespace mj
             auto it_end = it + chi.size();
             auto chi_tiles = std::vector<Tile>(it, it_end);
             auto stolen = *std::min_element(chi_tiles.begin(), chi_tiles.end());
-            auto chi_ = std::make_unique<Chi>(chi_tiles, stolen);
+            auto chi_ = Chi::Create(chi_tiles, stolen);
             opens_.emplace_back(std::move(chi_));
             it = it_end;
         }
@@ -58,7 +58,7 @@ namespace mj
             auto it_end = it + pon.size();
             auto pon_tiles = std::vector<Tile>(it, it_end);
             auto stolen = *std::min_element(pon_tiles.begin(), pon_tiles.end());
-            auto pon_ = std::make_unique<Pon>(stolen, Tile(pon_tiles[0].Type(), 3), RelativePos::kLeft);
+            auto pon_ = Pon::Create(stolen, Tile(pon_tiles[0].Type(), 3), RelativePos::kLeft);
             opens_.emplace_back(std::move(pon_));
             it = it_end;
         }
@@ -66,7 +66,7 @@ namespace mj
             auto it_end = it + kan.size();
             auto kan_tiles = std::vector<Tile>(it, it_end);
             auto stolen = *std::min_element(kan_tiles.begin(), kan_tiles.end());
-            auto kan_ = std::make_unique<KanOpened>(stolen, RelativePos::kLeft);
+            auto kan_ = KanOpened::Create(stolen, RelativePos::kLeft);
             opens_.emplace_back(std::move(kan_));
             it = it_end;
         }
@@ -75,7 +75,7 @@ namespace mj
             undiscardable_tiles_.clear();
             auto it_end = it + kan.size();
             auto kan_tiles = std::vector<Tile>(it, it_end);
-            auto kan_ = std::make_unique<KanClosed>(*std::min_element(kan_tiles.begin(), kan_tiles.end()));
+            auto kan_ = KanClosed::Create(*std::min_element(kan_tiles.begin(), kan_tiles.end()));
             opens_.emplace_back(std::move(kan_));
             it = it_end;
         }
@@ -85,17 +85,17 @@ namespace mj
             auto it_end = it + kan.size();
             auto pon_tiles = std::vector<Tile>(it, it_end-1);
             auto stolen = *std::min_element(pon_tiles.begin(), pon_tiles.end());
-            auto pon_ = std::make_unique<Pon>(stolen, Tile(pon_tiles[0].Type(), 3), RelativePos::kLeft);
-            auto kan_ = std::make_unique<KanAdded>(pon_.get());
+            auto pon_ = Pon::Create(stolen, Tile(pon_tiles[0].Type(), 3), RelativePos::kLeft);
+            auto kan_ = KanAdded::Create(pon_);
             opens_.emplace_back(std::move(kan_));
             it = it_end;
         }
         stage_ = HandStage::kAfterDiscards;
         under_riichi_ = false;
         assert(Size() - std::count_if(opens_.begin(), opens_.end(),
-                [](const auto &x){ return x->Type() == OpenType::kKanClosed
-                                    || x->Type() == OpenType::kKanOpened
-                                    || x->Type() == OpenType::kKanAdded; }) == 13);
+                [](const auto &x){ return x.Type() == OpenType::kKanClosed
+                                    || x.Type() == OpenType::kKanOpened
+                                    || x.Type() == OpenType::kKanAdded; }) == 13);
         if (riichi) {
             auto dummy_tile = Tile(0);
             while(std::any_of(closed_tiles_.begin(), closed_tiles_.end(),
@@ -139,76 +139,76 @@ namespace mj
         last_tile_added_ = tile;
     }
 
-    void Hand::ApplyChi(std::unique_ptr<Open> open)
+    void Hand::ApplyChi(Open open)
     {
         assert(stage_ == HandStage::kAfterDiscards);
-        assert(open->Type() == OpenType::kChi);
-        assert(open->Size() == 3);
+        assert(open.Type() == OpenType::kChi);
+        assert(open.Size() == 3);
         assert(undiscardable_tiles_.empty());
         assert(SizeClosed() == 1 || SizeClosed() == 4 || SizeClosed() == 7 || SizeClosed() == 10 || SizeClosed() == 13);
-        auto tiles_from_hand = open->TilesFromHand();
+        auto tiles_from_hand = open.TilesFromHand();
         for (const auto t : tiles_from_hand) {
             assert(closed_tiles_.find(t) != closed_tiles_.end());
             closed_tiles_.erase(t);
         }
-        auto undiscardable_tile_types = open->UndiscardableTileTypes();
+        auto undiscardable_tile_types = open.UndiscardableTileTypes();
         for (const auto undiscardable_tt : undiscardable_tile_types)
             for (const auto tile : closed_tiles_)
                 if (tile.Is(undiscardable_tt)) undiscardable_tiles_.insert(tile);
-        last_tile_added_ = open->LastTile();
+        last_tile_added_ = open.LastTile();
         opens_.emplace_back(std::move(open));
         stage_ = HandStage::kAfterChi;
     }
 
-    void Hand::ApplyPon(std::unique_ptr<Open> open)
+    void Hand::ApplyPon(Open open)
     {
         assert(stage_ == HandStage::kAfterDiscards);
-        assert(open->Type() == OpenType::kPon);
+        assert(open.Type() == OpenType::kPon);
         assert(undiscardable_tiles_.empty());
         assert(SizeClosed() == 1 || SizeClosed() == 4 || SizeClosed() == 7 || SizeClosed() == 10 || SizeClosed() == 13);
-        auto tiles_from_hand = open->TilesFromHand();
+        auto tiles_from_hand = open.TilesFromHand();
         for (const auto t : tiles_from_hand) {
             assert(closed_tiles_.find(t) != closed_tiles_.end());
             closed_tiles_.erase(t);
         }
-        auto undiscardable_tile_types = open->UndiscardableTileTypes();
+        auto undiscardable_tile_types = open.UndiscardableTileTypes();
         for (const auto undiscardable_tt : undiscardable_tile_types)
             for (auto tile : closed_tiles_)
                 if (tile.Is(undiscardable_tt)) undiscardable_tiles_.insert(tile);
-        last_tile_added_ = open->LastTile();
+        last_tile_added_ = open.LastTile();
         opens_.emplace_back(std::move(open));
         stage_ = HandStage::kAfterPon;
     }
 
-    void Hand::ApplyKanOpened(std::unique_ptr<Open> open)
+    void Hand::ApplyKanOpened(Open open)
     {
         assert(stage_ == HandStage::kAfterDiscards);
-        assert(open->Type() == OpenType::kKanOpened);
+        assert(open.Type() == OpenType::kKanOpened);
         assert(undiscardable_tiles_.empty());
         assert(SizeClosed() == 4 || SizeClosed() == 7 || SizeClosed() == 10 || SizeClosed() == 13);
-        auto tiles_from_hand = open->TilesFromHand();
+        auto tiles_from_hand = open.TilesFromHand();
         for (const auto t : tiles_from_hand) {
             assert(closed_tiles_.find(t) != closed_tiles_.end());
             closed_tiles_.erase(t);
         }
-        last_tile_added_ = open->LastTile();
+        last_tile_added_ = open.LastTile();
         opens_.emplace_back(std::move(open));
         stage_ = HandStage::kAfterKanOpened;
     }
 
-    void Hand::ApplyKanClosed(std::unique_ptr<Open> open)
+    void Hand::ApplyKanClosed(Open open)
     {
         // TODO: implement undiscardable_tiles after kan_closed during riichi
         assert(stage_ == HandStage::kAfterDraw);
-        assert(open->Type() == OpenType::kKanClosed);
+        assert(open.Type() == OpenType::kKanClosed);
         assert(undiscardable_tiles_.empty());
         assert(SizeClosed() == 5 || SizeClosed() == 8 || SizeClosed() == 11 || SizeClosed() == 14);
-        auto tiles_from_hand = open->TilesFromHand();
+        auto tiles_from_hand = open.TilesFromHand();
         for (const auto t : tiles_from_hand) {
             assert(closed_tiles_.find(t) != closed_tiles_.end());
             closed_tiles_.erase(t);
         }
-        last_tile_added_ = open->LastTile();
+        last_tile_added_ = open.LastTile();
         opens_.emplace_back(std::move(open));
         if (IsUnderRiichi()) {
             // TODO: add undiscardable_tiles here
@@ -216,20 +216,20 @@ namespace mj
         stage_ = HandStage::kAfterKanClosed;
     }
 
-    void Hand::ApplyKanAdded(std::unique_ptr<Open> open)
+    void Hand::ApplyKanAdded(Open open)
     {
         assert(stage_ == HandStage::kAfterDraw);
-        assert(open->Type() == OpenType::kKanAdded);
+        assert(open.Type() == OpenType::kKanAdded);
         assert(undiscardable_tiles_.empty());
-        assert(closed_tiles_.find(open->LastTile()) != closed_tiles_.end());
+        assert(closed_tiles_.find(open.LastTile()) != closed_tiles_.end());
         assert(SizeClosed() == 2 || SizeClosed() == 5 || SizeClosed() == 8 || SizeClosed() == 11 || SizeClosed() == 14);
-        closed_tiles_.erase(open->LastTile());
+        closed_tiles_.erase(open.LastTile());
         // change pon to extended kan
-        const auto stolen = open->StolenTile();
+        const auto stolen = open.StolenTile();
         auto it = std::find_if(opens_.begin(), opens_.end(),
-                               [&stolen](const auto &x){ return x->Type() == OpenType::kPon && x->StolenTile() == stolen; });
+                               [&stolen](const auto &x){ return x.Type() == OpenType::kPon && x.StolenTile() == stolen; });
         if (it != opens_.end()) opens_.erase(it);
-        last_tile_added_ = open->LastTile();
+        last_tile_added_ = open.LastTile();
         opens_.emplace_back(std::move(open));
         stage_ = HandStage::kAfterKanAdded;
     }
@@ -256,7 +256,7 @@ namespace mj
 
     std::size_t Hand::SizeOpened() const {
         std::uint8_t s = 0;
-        for (const auto &o: opens_) s += o->Size();
+        for (const auto &o: opens_) s += o.Size();
         return s;
     }
 
@@ -309,43 +309,47 @@ namespace mj
         return possible_discards;
     }
 
-    std::vector<std::unique_ptr<Open>> Hand::PossibleKanOpened(Tile tile, RelativePos from) const {
+    std::vector<Open> Hand::PossibleKanOpened(Tile tile, RelativePos from) const {
         assert(Stage() == HandStage::kAfterDiscards);
         assert(SizeClosed() == 1 || SizeClosed() == 4 || SizeClosed() == 7 || SizeClosed() == 10 || SizeClosed() == 13);
         std::size_t c = std::count_if(closed_tiles_.begin(), closed_tiles_.end(),
                 [&tile](Tile x){ return x.Is(tile.Type()); });
-        auto v = std::vector<std::unique_ptr<Open>>();
-        if (c >= 3) v.push_back(std::make_unique<KanOpened>(tile, from));
+        auto v = std::vector<Open>();
+        if (c >= 3) v.push_back(KanOpened::Create(tile, from));
         return v;
     }
 
-    std::vector<std::unique_ptr<Open>> Hand::PossibleKanClosed() {
+    std::vector<Open> Hand::PossibleKanClosed() {
         assert(Stage() == HandStage::kAfterDraw);
         assert(SizeClosed() == 2 || SizeClosed() == 5 || SizeClosed() == 8 || SizeClosed() == 11 || SizeClosed() == 14);
         std::unordered_map<TileType, std::uint8_t> m;
         for (const auto t : closed_tiles_) ++m[t.Type()];
-        auto v = std::vector<std::unique_ptr<Open>>();
-        for (auto it = m.begin(); it != m.end(); ++it)
-            if (it->second == 4) v.push_back(std::make_unique<KanClosed>(Tile(static_cast<std::uint8_t>(it->first) * 4)));
+        auto v = std::vector<Open>();
+        for (auto it = m.begin(); it != m.end(); ++it) {
+            if (it->second == 4) {
+                v.push_back(KanClosed::Create(Tile(static_cast<std::uint8_t>(it->first) * 4)));
+            }
+        }
         return v;
     }
 
-    std::vector<std::unique_ptr<Open>> Hand::PossibleKanAdded() {
+    std::vector<Open> Hand::PossibleKanAdded() {
         assert(Stage() == HandStage::kAfterDraw);
         assert(SizeClosed() == 2 || SizeClosed() == 5 || SizeClosed() == 8 || SizeClosed() == 11 || SizeClosed() == 14);
-        auto v = std::vector<std::unique_ptr<Open>>();
-        for (const auto &o : opens_)
-            if (o->Type() == OpenType::kPon) {
-                const auto type = o->At(0).Type();
+        auto v = std::vector<Open>();
+        for (const auto &o : opens_) {
+            if (o.Type() == OpenType::kPon) {
+                const auto type = o.At(0).Type();
                 if(std::find_if(closed_tiles_.begin(), closed_tiles_.end(),
                         [&type](Tile x){ return x.Type() == type; }) != closed_tiles_.end()) {
-                    v.push_back(std::make_unique<KanAdded>(o.get()));
+                    v.push_back(KanAdded::Create(o));
                 }
             }
+        }
         return v;
     }
 
-    std::vector<std::unique_ptr<Open>> Hand::PossiblePons(Tile tile, RelativePos from) const {
+    std::vector<Open> Hand::PossiblePons(Tile tile, RelativePos from) const {
         assert(Stage() == HandStage::kAfterDiscards);
         assert(SizeClosed() == 1 || SizeClosed() == 4 || SizeClosed() == 7 || SizeClosed() == 10 || SizeClosed() == 13);
         std::size_t counter = 0, sum = 0;
@@ -355,10 +359,10 @@ namespace mj
                 sum += t.Id() % 4;
             }
         }
-        auto v = std::vector<std::unique_ptr<Open>>();
+        auto v = std::vector<Open>();
         if (counter == 2) {
             Tile unused_tile = Tile(tile.Type(), 6 - sum - tile.Id() % 4);
-            v.push_back(std::make_unique<Pon>(tile, unused_tile, from));
+            v.push_back(Pon::Create(tile, unused_tile, from));
         }
         if (counter == 3) {
             // stolen 0 => 1, 2  unused: 3
@@ -366,19 +370,20 @@ namespace mj
             // stolen 2 => 0, 1  unused: 3
             // stolen 3 => 0, 1  unused: 2
             std::uint8_t unused_offset = tile.Id() % 4 == 3 ? 2 : 3;
-            v.push_back(std::make_unique<Pon>(tile, Tile(tile.Type(), unused_offset), from));
+            v.push_back(Pon::Create(tile, Tile(tile.Type(), unused_offset), from));
             // if closed tiles has red 5
             if ((tile.Is(TileType::kM5) || tile.Is(TileType::kP5) || tile.Is(TileType::kS5)) &&
-                !tile.IsRedFive())
-                v.push_back(std::make_unique<Pon>(tile, Tile(tile.Type(), 0), from));
+                !tile.IsRedFive()) {
+                v.push_back(Pon::Create(tile, Tile(tile.Type(), 0), from));
+            }
         }
         return v;
     }
 
-    std::vector<std::unique_ptr<Open>> Hand::PossibleChis(Tile tile) const {
+    std::vector<Open> Hand::PossibleChis(Tile tile) const {
         assert(Stage() == HandStage::kAfterDiscards);
         assert(SizeClosed() == 1 || SizeClosed() == 4 || SizeClosed() == 7 || SizeClosed() == 10 || SizeClosed() == 13);
-        auto v = std::vector<std::unique_ptr<Open>>();
+        auto v = std::vector<Open>();
         if (!tile.Is(TileSetType::kHonours)) {
             using tt = TileType;
             auto type_uint = static_cast<std::uint8_t>(tile.Type());
@@ -394,16 +399,16 @@ namespace mj
             if (!(tile.Is(8) || tile.Is(9))) {
                 if (!m[tt_p1].empty() && !m[tt_p2].empty()) {
                     std::vector<Tile> c = {tile, m[tt_p1].at(0), m[tt_p2].at(0)};
-                    v.push_back(std::make_unique<Chi>(c, tile));
+                    v.push_back(Chi::Create(c, tile));
                     // if tt_p1 is red five, add another
                     if (m[tt_p1].size() > 1 && m[tt_p1].at(0).IsRedFive()) {
                         c = {tile, m[tt_p1].at(1), m[tt_p2].at(0)};
-                        v.push_back(std::make_unique<Chi>(c, tile));
+                        v.push_back(Chi::Create(c, tile));
                     }
                     // if tt_p2 is red five add another
                     if (m[tt_p2].size() > 1 && m[tt_p2].at(0).IsRedFive()) {
                         c = {tile, m[tt_p1].at(0), m[tt_p2].at(1)};
-                        v.push_back(std::make_unique<Chi>(c, tile));
+                        v.push_back(Chi::Create(c, tile));
                     }
                 }
             }
@@ -412,17 +417,17 @@ namespace mj
             if (!(tile.Is(1) || tile.Is(9))) {
                 if (!m[tt_p1].empty() && !m[tt_m1].empty()) {
                     std::vector<Tile> c = {m[tt_m1].at(0), tile, m[tt_p1].at(0)};
-                    v.push_back(std::make_unique<Chi>(c, tile));
+                    v.push_back(Chi::Create(c, tile));
                     // if tt_m1 is red five add another
                     if (m[tt_m1].size() > 1 && m[tt_m1].at(0).IsRedFive()) {
                         c = {m[tt_m1].at(1), tile, m[tt_p1].at(0)};
-                        v.push_back(std::make_unique<Chi>(c, tile));
+                        v.push_back(Chi::Create(c, tile));
                     }
                     // if tt_p1 is red five, add another
                     if ((tt_p1 == tt::kM5 || tt_p1 == tt::kP5 || tt_p1 == tt::kS5) &&
                         m[tt_p1].size() > 1 && m[tt_p1].at(0).IsRedFive()) {
                         c = {m[tt_m1].at(0), tile, m[tt_p1].at(1)};
-                        v.push_back(std::make_unique<Chi>(c, tile));
+                        v.push_back(Chi::Create(c, tile));
                     }
                 }
             }
@@ -431,16 +436,16 @@ namespace mj
             if (!(tile.Is(1) || tile.Is(2))) {
                 if (!m[tt_m1].empty() && !m[tt_m2].empty()) {
                     std::vector<Tile> c = {m[tt_m2].at(0), m[tt_m1].at(0), tile};
-                    v.push_back(std::make_unique<Chi>(c, tile));
+                    v.push_back(Chi::Create(c, tile));
                     // if tt_m2 is red five, add another
                     if (m[tt_m2].size() > 1 && m[tt_m2].at(0).IsRedFive()) {
                         c = {tile, m[tt_m2].at(1), m[tt_m1].at(0)};
-                        v.push_back(std::make_unique<Chi>(c, tile));
+                        v.push_back(Chi::Create(c, tile));
                     }
                     // if tt_m1 is red five, add another
                     if (m[tt_m1].size() > 1 && m[tt_m1].at(0).IsRedFive()) {
                         c = {tile, m[tt_m2].at(0), m[tt_m1].at(1)};
-                        v.push_back(std::make_unique<Chi>(c, tile));
+                        v.push_back(Chi::Create(c, tile));
                     }
                 }
             }
@@ -448,11 +453,11 @@ namespace mj
         return v;
     }
 
-    std::vector<std::unique_ptr<Open>>
+    std::vector<Open>
     Hand::PossibleOpensAfterOthersDiscard(Tile tile, RelativePos from) const {
         assert(stage_ == HandStage::kAfterDiscards);
         assert(SizeClosed() == 1 || SizeClosed() == 4 || SizeClosed() == 7 || SizeClosed() == 10 || SizeClosed() == 13);
-        auto v = std::vector<std::unique_ptr<Open>>();
+        auto v = std::vector<Open>();
         if (under_riichi_) return v;
         if (from == RelativePos::kLeft) {
             auto chis = PossibleChis(tile);
@@ -465,7 +470,7 @@ namespace mj
         return v;
     }
 
-    std::vector<std::unique_ptr<Open>> Hand::PossibleOpensAfterDraw() {
+    std::vector<Open> Hand::PossibleOpensAfterDraw() {
         assert(stage_ == HandStage::kAfterDraw);
         assert(SizeClosed() == 2 || SizeClosed() == 5 || SizeClosed() == 8 || SizeClosed() == 11 || SizeClosed() == 14);
         auto v = PossibleKanClosed();
@@ -491,7 +496,7 @@ namespace mj
     std::vector<Tile> Hand::ToVectorOpened(bool sorted) const {
         auto v = std::vector<Tile>();
         for (const auto &o : opens_) {
-            auto tiles = o->Tiles();
+            auto tiles = o.Tiles();
             for (const auto t : tiles) v.push_back(t);
         }
         if (sorted) std::sort(v.begin(), v.end());
@@ -503,7 +508,7 @@ namespace mj
         std::fill(a.begin(), a.end(), 0);
         for(const auto t: closed_tiles_) a.at(t.TypeUint())++;
         for (const auto &o : opens_)  {
-            auto tiles = o->Tiles();
+            auto tiles = o.Tiles();
             for (const auto t : tiles) a.at(t.TypeUint())++;
         }
         return a;
@@ -520,7 +525,7 @@ namespace mj
         auto a = std::array<std::uint8_t, 34>();
         std::fill(a.begin(), a.end(), 0);
         for (const auto &o : opens_)  {
-            auto tiles = o->Tiles();
+            auto tiles = o.Tiles();
             for (const auto t : tiles) a.at(t.TypeUint())++;
         }
         return a;
@@ -544,7 +549,7 @@ namespace mj
     bool Hand::IsMenzen() const {
         if (opens_.empty()) return true;
         return std::all_of(opens_.begin(), opens_.end(),
-                [](const auto &x){ return x->Type() == OpenType::kKanClosed; });
+                [](const auto &x){ return x.Type() == OpenType::kKanClosed; });
     }
 
     bool Hand::CanRon(Tile tile) const {
@@ -593,12 +598,13 @@ namespace mj
         assert(last_tile_added_);
     }
 
-    std::vector<const Open*> Hand::Opens() const {
-        std::vector<const Open*> ret;
-        for (auto &o: opens_) {
-            ret.push_back(o.get());
-        }
-        return ret;
+    std::vector<Open> Hand::Opens() const {
+        return opens_;
+        //std::vector<const Open*> ret;
+        //for (auto &o: opens_) {
+        //    ret.push_back(o.get());
+        //}
+        //return ret;
     }
 
     void Hand::Riichi() {
@@ -619,13 +625,13 @@ namespace mj
         s.pop_back();
         auto opens = Opens();
         for (const auto &o: opens) {
-            s += "," + o->ToString(verbose);
+            s += "," + o.ToString(verbose);
         }
         return s;
     }
 
-    void Hand::ApplyOpen(std::unique_ptr<Open> open) {
-        switch (open->Type()) {
+    void Hand::ApplyOpen(Open open) {
+        switch (open.Type()) {
             case OpenType::kChi:
                 ApplyChi(std::move(open));
                 break;
@@ -663,7 +669,7 @@ namespace mj
         if (last_tile_added_) {
             last_added_tile_type = last_tile_added_.value().Type();
         }
-        return WinningInfo(opens_).ClosedTiles(closed_tiles_)
+        return WinningInfo().Opens(opens_).ClosedTiles(closed_tiles_)
                 .LastAddedTileType(last_added_tile_type).Stage(stage_)
                 .UnderRiichi(under_riichi_).ClosedTileTypes(ClosedTileTypes())
                 .AllTileTypes(AllTileTypes()).IsMenzen(IsMenzen());
