@@ -21,20 +21,31 @@ enum RelativePos {
 }
 
 enum ActionType {
-    ACTION_TYPE_DRAW = 0;
-    ACTION_TYPE_DRAW_AFTER_KAN = 1;
-    ACTION_TYPE_DISCARD = 2;
-    ACTION_TYPE_RIICHI = 3;
-    ACTION_TYPE_TSUMO = 4;
-    ACTION_TYPE_TSUMO_AFTER_KAN = 5;
-    ACTION_TYPE_RON = 6;
-    ACTION_TYPE_RON_AFTER_KAN = 7;
-    ACTION_TYPE_CHI = 8;
-    ACTION_TYPE_PON = 9;
-    ACTION_TYPE_KAN_CLOSED = 10;
-    ACTION_TYPE_KAN_OPENED = 11;
-    ACTION_TYPE_KAN_ADDED = 12;
-    ACTION_TYPE_KYUSYU = 13;
+    ACTION_TYPE_DISCARD = 0;
+    ACTION_TYPE_RIICHI = 1;
+    ACTION_TYPE_TSUMO = 2;
+    ACTION_TYPE_RON = 3;
+    ACTION_TYPE_CHI = 4;
+    ACTION_TYPE_PON = 5;
+    ACTION_TYPE_KAN_CLOSED = 6;
+    ACTION_TYPE_KAN_OPENED = 7;
+    ACTION_TYPE_KAN_ADDED = 8;
+    ACTION_TYPE_KYUSYU = 9;
+}
+
+enum EventType {
+  EVENT_TYPE_DRAW = 0;
+  EVENT_TYPE_DISCARD = 1;
+  EVENT_TYPE_RIICHI = 2;
+  EVENT_TYPE_TSUMO = 3;
+  EVENT_TYPE_RON = 4;
+  EVENT_TYPE_CHI = 5;
+  EVENT_TYPE_PON = 6;
+  EVENT_TYPE_KAN_CLOSED = 7;
+  EVENT_TYPE_KAN_OPENED = 8;
+  EVENT_TYPE_KAN_ADDED = 9;
+  EVENT_TYPE_NEW_DORA = 10;
+  EVENT_TYPE_RIICHI_SCORE_CHANGE = 11;
 }
 
 message Score {
@@ -44,20 +55,18 @@ message Score {
   repeated uint32 ten = 4;
 }
 
-message TakenAction {
+message Event {
   uint32 who = 1;
-  uint32 type = 2;  // draw, discard, riichi_and_discard, chi, pon, kan_opened, kan_closed, kan_added, tsumo ,ron
-  uint32 draw = 3;
-  uint32 discard = 4;
-  bool discard_drawn_tile= 5;  // discard the drawn tile
-  uint32 open = 6;
+  uint32 type = 2;  // draw, discard, riichi, riichi_score_change, chi, pon, kan_opened, kan_closed, kan_added, tsumo, ron, new_dora
+  uint32 tile = 3;
+  uint32 open = 4;
 }
 
-message ActionHistory {
-  repeated TakenAction taken_actions = 1;
+message EventHistory {
+  repeated Event events = 1;
 }
 
-message InitialHand {
+message InitHand {
   uint32 who = 1;
   repeated uint32 tiles = 2;
 }
@@ -74,9 +83,9 @@ message PossibleAction {
 message Observation {
   uint32 game_id = 1;
   Score score = 2;  // public info
-  ActionHistory action_history = 3;  // public info
+  EventHistory event_history = 3;  // public info
   uint32 who = 4;
-  InitialHand initial_hand = 5;  // private info
+  InitHand init_hand = 5;  // private info
   repeated PossibleAction possible_actions = 6;
 }
 
@@ -117,8 +126,8 @@ message State {  // For Tenhou visualization and unit test
   Score curr_score = 4;
   repeated uint32 wall = 5;
   repeated uint32 dora = 6;
-  repeated InitialHand initial_hands = 7;
-  ActionHistory action_history = 8;
+  repeated InitHand init_hands = 7;
+  EventHistory event_history = 8;
   StateEndInfo end_info = 9;
 }
 

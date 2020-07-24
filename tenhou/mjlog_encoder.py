@@ -36,7 +36,6 @@ class MjlogEncoder:
         ret += "/>"
 
         ten = state.init_score.ten[:]
-        is_just_after_riichi = False
         for event in state.event_history.events:
             if event.type == mahjong_pb2.EVENT_TYPE_DRAW:
                 who = MjlogEncoder._encode_wind_for_draw(event.who)
@@ -46,20 +45,18 @@ class MjlogEncoder:
                 who = MjlogEncoder._encode_wind_for_discard(event.who)
                 discard = event.tile
                 ret += f"<{who}{discard}/>"
-                if is_just_after_riichi:
-                    ten[event.who] -= 10
-                    ret += f"<REACH who=\"{who}\" ten=\"{ten[0]},{ten[1]},{ten[2]},{ten[3]}\" step=\"2\"/>"
             elif event.type in [mahjong_pb2.EVENT_TYPE_CHI, mahjong_pb2.EVENT_TYPE_PON,
-                               mahjong_pb2.EVENT_TYPE_KAN_CLOSED, mahjong_pb2.EVENT_TYPE_KAN_OPENED,
-                               mahjong_pb2.EVENT_TYPE_KAN_ADDED]:
+                                mahjong_pb2.EVENT_TYPE_KAN_CLOSED, mahjong_pb2.EVENT_TYPE_KAN_OPENED,
+                                mahjong_pb2.EVENT_TYPE_KAN_ADDED]:
                 ret += f"<N who=\"{event.who}\" "
                 ret += f"m=\"{event.open}\" />"
             if event.type == mahjong_pb2.EVENT_TYPE_RIICHI:
                 ret += f"<REACH who=\"{event.who}\" step=\"1\"/>"
-                is_just_after_riichi = True
-                continue
-
-            is_just_after_riichi = False
+            if event.type == mahjong_pb2.EVENT_TYPE_RIICHI_SCORE_CHANGE:
+                ten[event.who] -= 10
+                ret += f"<REACH who=\"{event.who}\" ten=\"{ten[0]},{ten[1]},{ten[2]},{ten[3]}\" step=\"2\"/>"
+            if event.type == mahjong_pb2.EVENT_TYPE_NEW_DORA:
+                ret += "<DORA hai=\"{event.tile}\" />"
 
         return ret
 

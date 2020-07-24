@@ -139,8 +139,8 @@ class MjlogDecoder:
                     open=open,
                 )
             elif key == "REACH":
+                who = int(val["who"])
                 if int(val["step"]) == 1:
-                    who = int(val["who"])
                     event = mahjong_pb2.Event(
                         who=who,
                         type=mahjong_pb2.EVENT_TYPE_RIICHI
@@ -148,11 +148,17 @@ class MjlogDecoder:
                 else:
                     self.state.curr_score.riichi += 1
                     self.state.curr_score.ten[:] = [int(x) for x in val["ten"].split(",")]
-                    continue
+                    event = mahjong_pb2.Event(
+                        who=who,
+                        type=mahjong_pb2.EVENT_TYPE_RIICHI_SCORE_CHANGE
+                    )
             elif key == "DORA":
                 dora = int(val["hai"])
                 self.state.dora.append(dora)
-                continue
+                event = mahjong_pb2.Event(
+                    type=mahjong_pb2.EVENT_TYPE_NEW_DORA,
+                    tile=dora
+                )
             elif key == "RYUUKYOKU":
                 self.state.end_info.ten_before[:] = [int(x) for i, x in enumerate(val["sc"].split(",")) if i % 2 == 0]
                 self.state.end_info.ten_changes[:] = [int(x) for i, x in enumerate(val["sc"].split(",")) if i % 2 == 1]
