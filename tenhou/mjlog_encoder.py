@@ -33,14 +33,32 @@ class MjlogEncoder:
         ret += f"hai1=\"{hai[1]}\" "
         ret += f"hai2=\"{hai[2]}\" "
         ret += f"hai3=\"{hai[3]}\" "
-
         ret += "/>"
+
+        for action in state.action_history.taken_actions:
+            if action.type == mahjong_pb2.ACTION_TYPE_DRAW:
+                who = MjlogEncoder._encode_wind_for_draw(action.who)
+                draw = action.draw
+                ret += f"<{who}{draw}/>"
+            if action.type == mahjong_pb2.ACTION_TYPE_DISCARD:
+                who = MjlogEncoder._encode_wind_for_discard(action.who)
+                discard = action.discard
+                ret += f"<{who}{discard}/>"
+
         return ret
 
     @staticmethod
     def _parse_player_id(state: mahjong_pb2.State) -> str:
         players = [urllib.parse.quote(player) for player in state.player_ids]
         return f"<UN n0=\"{players[0]}\" n1=\"{players[1]}\" n2=\"{players[2]}\" n3=\"{players[3]}\"/>"
+
+    @staticmethod
+    def _encode_wind_for_draw(who: mahjong_pb2.Wind) -> str:
+        return ["T", "U", "V", "W"][int(who)]
+
+    @staticmethod
+    def _encode_wind_for_discard(who: mahjong_pb2.Wind) -> str:
+        return ["D", "E", "F", "G"][int(who)]
 
 
 if __name__ == "__main__":
