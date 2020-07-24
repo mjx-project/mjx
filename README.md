@@ -27,7 +27,7 @@ $ make docker-test
 
 ## Development
 
-Clionを使ってDockerコンテナ内で開発ができる。
+Clionを使ってローカル環境に依存せずにDockerコンテナ内で開発ができる。
 まずコンテナを立ち上げる。このコマンドではポート2222を使用する。
 
 ```
