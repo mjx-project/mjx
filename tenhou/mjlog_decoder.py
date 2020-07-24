@@ -285,5 +285,5 @@ if __name__ == "__main__":
         wall_dices = reproduce_wall(path_to_mjlog)
         with open(path_to_json, 'w') as f:
             for state in parser.parse(path_to_mjlog, wall_dices):
-                f.write(json.dumps(json_format.MessageToDict(state, including_default_value_fields=False)) + "\n")
+                f.write(json.dumps(json_format.MessageToDict(state, including_default_value_fields=False), ensure_ascii=False) + "\n")
         print(f"done:\t{path_to_json}")
