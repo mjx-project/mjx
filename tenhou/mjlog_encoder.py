@@ -28,7 +28,7 @@ class MjlogEncoder:
         ret = "<INIT "
         ret += f"seed=\"{state.init_score.round},{state.init_score.honba},{state.init_score.riichi},,,{state.dora[0]}\" "
         ret += f"ten=\"{state.init_score.ten[0]},{state.init_score.ten[1]},{state.init_score.ten[2]},{state.init_score.ten[3]}\" oya=\"{state.init_score.round % 4}\" "
-        hai = [",".join([str(t) for t in x.tiles]) for x in state.initial_hands]
+        hai = [",".join([str(t) for t in x.tiles]) for x in state.init_hands]
         ret += f"hai0=\"{hai[0]}\" "
         ret += f"hai1=\"{hai[1]}\" "
         ret += f"hai2=\"{hai[2]}\" "
@@ -37,25 +37,25 @@ class MjlogEncoder:
 
         ten = state.init_score.ten[:]
         is_just_after_riichi = False
-        for action in state.action_history.taken_actions:
-            if action.type == mahjong_pb2.ACTION_TYPE_DRAW:
-                who = MjlogEncoder._encode_wind_for_draw(action.who)
-                draw = action.draw
+        for event in state.event_history.events:
+            if event.type == mahjong_pb2.EVENT_TYPE_DRAW:
+                who = MjlogEncoder._encode_wind_for_draw(event.who)
+                draw = event.tile
                 ret += f"<{who}{draw}/>"
-            elif action.type == mahjong_pb2.ACTION_TYPE_DISCARD:
-                who = MjlogEncoder._encode_wind_for_discard(action.who)
-                discard = action.discard
+            elif event.type == mahjong_pb2.EVENT_TYPE_DISCARD:
+                who = MjlogEncoder._encode_wind_for_discard(event.who)
+                discard = event.tile
                 ret += f"<{who}{discard}/>"
                 if is_just_after_riichi:
-                    ten[action.who] -= 10
+                    ten[event.who] -= 10
                     ret += f"<REACH who=\"{who}\" ten=\"{ten[0]},{ten[1]},{ten[2]},{ten[3]}\" step=\"2\"/>"
-            elif action.type in [mahjong_pb2.ACTION_TYPE_CHI, mahjong_pb2.ACTION_TYPE_PON,
-                               mahjong_pb2.ACTION_TYPE_KAN_CLOSED, mahjong_pb2.ACTION_TYPE_KAN_OPENED,
-                               mahjong_pb2.ACTION_TYPE_KAN_ADDED]:
-                ret += f"<N who=\"{action.who}\" "
-                ret += f"m=\"{action.open}\" />"
-            if action.type == mahjong_pb2.ACTION_TYPE_RIICHI:
-                ret += f"<REACH who=\"{action.who}\" step=\"1\"/>"
+            elif event.type in [mahjong_pb2.EVENT_TYPE_CHI, mahjong_pb2.EVENT_TYPE_PON,
+                               mahjong_pb2.EVENT_TYPE_KAN_CLOSED, mahjong_pb2.EVENT_TYPE_KAN_OPENED,
+                               mahjong_pb2.EVENT_TYPE_KAN_ADDED]:
+                ret += f"<N who=\"{event.who}\" "
+                ret += f"m=\"{event.open}\" />"
+            if event.type == mahjong_pb2.EVENT_TYPE_RIICHI:
+                ret += f"<REACH who=\"{event.who}\" step=\"1\"/>"
                 is_just_after_riichi = True
                 continue
 

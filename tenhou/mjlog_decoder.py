@@ -101,41 +101,39 @@ class MjlogDecoder:
         self.state.wall[:] = wall
         self.state.dora.append(dora)
         for i in range(4):
-            self.state.initial_hands.append(mahjong_pb2.InitialHand(who=i, tiles=[int(x) for x in val["hai" + str(i)].split(",")]))
+            self.state.init_hands.append(mahjong_pb2.InitHand(who=i, tiles=[int(x) for x in val["hai" + str(i)].split(",")]))
         for i in range(4 * 12):
-            assert wall[i] in self.state.initial_hands[((i // 4) + round_) % 4].tiles
+            assert wall[i] in self.state.init_hands[((i // 4) + round_) % 4].tiles
         for i in range(4 * 12, 4 * 13):
-            assert wall[i] in self.state.initial_hands[(i + round_ ) % 4].tiles
+            assert wall[i] in self.state.init_hands[(i + round_ ) % 4].tiles
         assert dora == wall[130]
 
         last_drawer, last_draw = None, None
-        taken_action = None
+        event = None
         for key, val in kv[1:]:
             if key[0] in ["T", "U", "V", "W"]:  # draw
                 # TODO (sotetsuk): consider draw after kan case
                 who = MjlogDecoder._to_wind(key[0])
                 draw = int(key[1:])
-                taken_action = mahjong_pb2.TakenAction(
+                event = mahjong_pb2.Event(
                     who=who,
-                    type=mahjong_pb2.ACTION_TYPE_DRAW,
-                    draw=draw,
+                    type=mahjong_pb2.EVENT_TYPE_DRAW,
+                    tile=draw,
                 )
                 last_drawer, last_draw = who, draw
             elif key[0] in ["D", "E", "F", "G"]:  # discard
                 # TDOO (sotetsuk): riichi
                 who = MjlogDecoder._to_wind(key[0])
                 discard = int(key[1:])
-                discard_drawn_tile = last_drawer == who and last_draw == discard
-                taken_action = mahjong_pb2.TakenAction(
+                event = mahjong_pb2.Event(
                     who=who,
-                    type=mahjong_pb2.ACTION_TYPE_DISCARD,
-                    discard=discard,
-                    discard_drawn_tile=discard_drawn_tile,
+                    type=mahjong_pb2.EVENT_TYPE_DISCARD,
+                    tile=discard,
                 )
             elif key == "N":
                 who = int(val["who"])
                 open = int(val["m"])
-                taken_action = mahjong_pb2.TakenAction(
+                event = mahjong_pb2.Event(
                     who=who,
                     type=MjlogDecoder._open_type(open),
                     open=open,
@@ -143,9 +141,9 @@ class MjlogDecoder:
             elif key == "REACH":
                 if int(val["step"]) == 1:
                     who = int(val["who"])
-                    taken_action = mahjong_pb2.TakenAction(
+                    event = mahjong_pb2.Event(
                         who=who,
-                        type=mahjong_pb2.ACTION_TYPE_RIICHI
+                        type=mahjong_pb2.EVENT_TYPE_RIICHI
                     )
                 else:
                     self.state.curr_score.riichi += 1
@@ -173,10 +171,10 @@ class MjlogDecoder:
             elif key == "AGARI":
                 who = int(val["who"])
                 from_who = int(val["fromWho"])
-                # set taken_action
-                taken_action = mahjong_pb2.TakenAction(
+                # set event
+                event = mahjong_pb2.Event(
                     who=who,
-                    type=mahjong_pb2.ACTION_TYPE_TSUMO if who == from_who else mahjong_pb2.ACTION_TYPE_RON
+                    type=mahjong_pb2.EVENT_TYPE_TSUMO if who == from_who else mahjong_pb2.EVENT_TYPE_RON
                 )
                 # set win info
                 # TODO(sotetsuk): yakuman
@@ -211,9 +209,9 @@ class MjlogDecoder:
             else:
                 raise KeyError(key)
 
-            if taken_action is not None:
-                self.state.action_history.taken_actions.append(taken_action)
-            taken_action = None
+            if event is not None:
+                self.state.event_history.events.append(event)
+            event = None
             # yield copy.deepcopy(self.state)
 
         yield copy.deepcopy(self.state)
@@ -231,19 +229,19 @@ class MjlogDecoder:
             return mahjong_pb2.WIND_NORTH
 
     @staticmethod
-    def _open_type(bits: int) -> mahjong_pb2.ActionType:
+    def _open_type(bits: int) -> mahjong_pb2.EventType:
         if 1 << 2 & bits:
-            return mahjong_pb2.ACTION_TYPE_CHI
+            return mahjong_pb2.EVENT_TYPE_CHI
         elif 1 << 3 & bits:
             if 1 << 4 & bits:
-                return mahjong_pb2.ACTION_TYPE_KAN_ADDED
+                return mahjong_pb2.EVENT_TYPE_KAN_ADDED
             else:
-                return mahjong_pb2.ACTION_TYPE_PON
+                return mahjong_pb2.EVENT_TYPE_PON
         else:
             if mahjong_pb2.RelativePos(bits & 3) == mahjong_pb2.RELATIVE_POS_SELF:
-                return mahjong_pb2.ACTION_TYPE_KAN_CLOSED
+                return mahjong_pb2.EVENT_TYPE_KAN_CLOSED
             else:
-                return mahjong_pb2.ACTION_TYPE_KAN_OPENED
+                return mahjong_pb2.EVENT_TYPE_KAN_OPENED
 
 
 # TODO: remove docker dependency

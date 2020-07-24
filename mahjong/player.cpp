@@ -9,7 +9,7 @@ namespace mj
         assert(hand_.Size() == 13);
         assert(hand_.Opens().empty());
         for (auto tile: hand_.ToVector()) {
-            initial_hand_.add_tiles(tile.Id());
+            init_hand_.add_tiles(tile.Id());
         }
     }
 

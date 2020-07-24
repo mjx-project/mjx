@@ -48,21 +48,21 @@ namespace mj
         mjproto::PossibleAction possible_action_{};
     };
 
-    class ActionHistory
+    class Events
     {
     public:
-        ActionHistory() = default;
+        Events() = default;
         [[nodiscard]] std::size_t size() const;
     private:
         friend class Observation;
-        mjproto::ActionHistory action_history_{};
+        mjproto::EventHistory event_history_{};
     };
 
     class Observation
     {
     public:
         Observation() = default;
-        Observation(AbsolutePos who, Score& score, ActionHistory& action_history, Player& player);
+        Observation(AbsolutePos who, Score& score, Events& action_history, Player& player);
         ~Observation();
         // getter
         std::uint32_t game_id() const;

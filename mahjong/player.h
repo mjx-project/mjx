@@ -22,7 +22,7 @@ namespace mj
         AbsolutePos position_;
         River river_;
         Hand hand_;
-        mjproto::InitialHand initial_hand_;
+        mjproto::InitHand init_hand_;
     };
 }  // namespace mj
 
