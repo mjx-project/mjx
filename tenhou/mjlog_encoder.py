@@ -35,6 +35,8 @@ class MjlogEncoder:
         ret += f"hai3=\"{hai[3]}\" "
         ret += "/>"
 
+        ten = state.init_score.ten[:]
+        is_just_after_riichi = False
         for action in state.action_history.taken_actions:
             if action.type == mahjong_pb2.ACTION_TYPE_DRAW:
                 who = MjlogEncoder._encode_wind_for_draw(action.who)
@@ -44,11 +46,20 @@ class MjlogEncoder:
                 who = MjlogEncoder._encode_wind_for_discard(action.who)
                 discard = action.discard
                 ret += f"<{who}{discard}/>"
+                if is_just_after_riichi:
+                    ten[action.who] -= 10
+                    ret += f"<REACH who=\"{who}\" ten=\"{ten[0]},{ten[1]},{ten[2]},{ten[3]}\" step=\"2\"/>"
             elif action.type in [mahjong_pb2.ACTION_TYPE_CHI, mahjong_pb2.ACTION_TYPE_PON,
                                mahjong_pb2.ACTION_TYPE_KAN_CLOSED, mahjong_pb2.ACTION_TYPE_KAN_OPENED,
                                mahjong_pb2.ACTION_TYPE_KAN_ADDED]:
                 ret += f"<N who=\"{action.who}\" "
                 ret += f"m=\"{action.open}\" />"
+            if action.type == mahjong_pb2.ACTION_TYPE_RIICHI:
+                ret += f"<REACH who=\"{action.who}\" step=\"1\"/>"
+                is_just_after_riichi = True
+                continue
+
+            is_just_after_riichi = False
 
         return ret
 
