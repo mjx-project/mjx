@@ -1,6 +1,8 @@
 from typing import List, Tuple, Dict, Iterator
+import os
 import json
 import copy
+import argparse
 import subprocess
 import urllib.parse
 import xml.etree.ElementTree as ET
@@ -8,6 +10,17 @@ from xml.etree.ElementTree import Element
 from google.protobuf import json_format
 
 import mahjong_pb2
+
+
+parser = argparse.ArgumentParser(description="""Convert Tenhou's mjlog format into json, which is readable as protocol buffer.
+
+Example:
+
+  $ python mjlog_decoder.py resources/mjlog resources/json
+""")
+parser.add_argument('mjlog_dir', help='Path to mjlogs')    # 必須の引数を追加
+parser.add_argument('json_dir', help='Path to json outputs')    # 必須の引数を追加
+args = parser.parse_args()
 
 
 class MjlogParser:
@@ -233,7 +246,6 @@ def reproduce_wall(path_to_mjlog: str) -> List[Tuple[List[int], List[int]]]:
     for i, child in enumerate(shuffle):
         assert i == 0
         x = child.attrib["seed"].split(",")
-        print(x[0])
         assert x[0] == "mt19937ar-sha512-n288-base64"
         assert len(x) == 2
         seed = repr(x[1])[1:-1]
@@ -254,7 +266,17 @@ def reproduce_wall(path_to_mjlog: str) -> List[Tuple[List[int], List[int]]]:
 
 if __name__ == "__main__":
     parser = MjlogParser()
-    path_to_mjlog = "resources/2011020417gm-00a9-0000-b67fcaa3.mjlog"
-    wall_dices = reproduce_wall(path_to_mjlog)
-    for state in parser.parse(path_to_mjlog, wall_dices):
-        print(json.dumps(json_format.MessageToDict(state, including_default_value_fields=False)))
+    os.makedirs(args.json_dir, exist_ok=True)
+    for mjlog in os.listdir(args.mjlog_dir):
+        if not mjlog.endswith("mjlog"):
+            continue
+
+        path_to_mjlog = os.path.join(args.mjlog_dir, mjlog)
+        path_to_json = os.path.join(args.json_dir, os.path.splitext(os.path.basename(path_to_mjlog))[0] + '.json')
+
+        print(f"converting:\t{path_to_mjlog}")
+        wall_dices = reproduce_wall(path_to_mjlog)
+        with open(path_to_json, 'w') as f:
+            for state in parser.parse(path_to_mjlog, wall_dices):
+                f.write(json.dumps(json_format.MessageToDict(state, including_default_value_fields=False)) + "\n")
+        print(f"done:\t{path_to_json}")
