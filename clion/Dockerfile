@@ -1,3 +1,5 @@
+# from https://github.com/JetBrains/clion-remote/blob/master/Dockerfile.remote-cpp-env
+
 FROM sotetsuk/ubuntu-gcc-grpc:v0.0.2
 
 RUN apt-get update \
