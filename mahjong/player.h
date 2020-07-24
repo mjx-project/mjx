@@ -19,8 +19,8 @@ namespace mj
         // action validators
         std::vector<Tile> PossibleDiscards() const;  // TODO(sotetsuk): Current implementation has the tiles with same type (e.g., 2m x 3). What is the Tenhou's implementation? Only first id? or any id?
         std::vector<Tile> PossibleDiscardsAfterRiichi();
-        std::vector<std::unique_ptr<Open>> PossibleOpensAfterOthersDiscard(Tile tile, RelativePos from) const;  // includes Chi, Pon, and KanOpened
-        std::vector<std::unique_ptr<Open>> PossibleOpensAfterDraw();  // includes KanClosed and KanAdded
+        std::vector<Open> PossibleOpensAfterOthersDiscard(Tile tile, RelativePos from) const;  // includes Chi, Pon, and KanOpened
+        std::vector<Open> PossibleOpensAfterDraw();  // includes KanClosed and KanAdded
         bool CanRon(Tile tile) const;  // This does not take furiten and fan into account.
         bool IsCompleted();
         bool CanRiichi();
@@ -29,7 +29,7 @@ namespace mj
         // apply actions
         void Draw(Tile tile);
         void Riichi();  // After riichi, hand is fixed
-        void ApplyOpen(std::unique_ptr<Open> open);  // TODO: (sotetsuk) current implementation switch private method depending on OpenType. This is not smart way to do dynamic polymorphism.
+        void ApplyOpen(Open open);  // TODO: (sotetsuk) current implementation switch private method depending on OpenType. This is not smart way to do dynamic polymorphism.
         void Ron(Tile tile);
         void RonAfterOthersKan(Tile tile);
         void Tsumo();  // should be called after draw like h.Draw(tile); if (h.IsCompleted(w)) h.Tsumo();

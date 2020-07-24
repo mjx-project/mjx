@@ -52,7 +52,7 @@ namespace mj
         std::array<std::uint8_t, 34> ToArray();
         std::array<std::uint8_t, 34> ToArrayClosed();
         std::array<std::uint8_t, 34> ToArrayOpened();
-        [[nodiscard]] std::vector<const Open*> Opens() const;  // TODO(sotetsuk): Should we avoid raw pointer?
+        [[nodiscard]] std::vector<Open> Opens() const;  // TODO(sotetsuk): Should we avoid raw pointer?
         [[nodiscard]] std::string ToString(bool verbose = false) const;
         [[nodiscard]] TileTypeCount ClosedTileTypes() const noexcept ;
         [[nodiscard]] TileTypeCount AllTileTypes() const noexcept ;
@@ -60,8 +60,8 @@ namespace mj
         // action validators
         std::vector<Tile> PossibleDiscards() const;  // TODO(sotetsuk): Current implementation has the tiles with same type (e.g., 2m x 3). What is the Tenhou's implementation? Only first id? or any id?
         std::vector<Tile> PossibleDiscardsAfterRiichi();
-        std::vector<std::unique_ptr<Open>> PossibleOpensAfterOthersDiscard(Tile tile, RelativePos from) const;  // includes Chi, Pon, and KanOpened
-        std::vector<std::unique_ptr<Open>> PossibleOpensAfterDraw();  // includes KanClosed and KanAdded
+        std::vector<Open> PossibleOpensAfterOthersDiscard(Tile tile, RelativePos from) const;  // includes Chi, Pon, and KanOpened
+        std::vector<Open> PossibleOpensAfterDraw();  // includes KanClosed and KanAdded
         bool CanRon(Tile tile) const;  // This does not take furiten and fan into account.
         bool IsCompleted();
         bool CanRiichi();
@@ -70,7 +70,7 @@ namespace mj
         // apply actions
         void Draw(Tile tile);
         void Riichi();  // After riichi, hand is fixed
-        void ApplyOpen(std::unique_ptr<Open> open);  // TODO: (sotetsuk) current implementation switch private method depending on OpenType. This is not smart way to do dynamic polymorphism.
+        void ApplyOpen(Open open);  // TODO: (sotetsuk) current implementation switch private method depending on OpenType. This is not smart way to do dynamic polymorphism.
         void Ron(Tile tile);
         void RonAfterOthersKan(Tile tile);
         void Tsumo();  // should be called after draw like h.Draw(tile); if (h.IsCompleted(w)) h.Tsumo();
@@ -82,25 +82,25 @@ namespace mj
         WinningScore EvalScore(const WinningStateInfo& win_state_info) const noexcept ;
     private:
         std::unordered_set<Tile, HashTile> closed_tiles_;
-        std::vector<std::unique_ptr<Open>> opens_;  // Though open only uses 16 bits, to handle different open types, we need to use pointer
+        std::vector<Open> opens_;  // Though open only uses 16 bits, to handle different open types, we need to use pointer
         std::unordered_set<Tile, HashTile> undiscardable_tiles_;
         std::optional<Tile> last_tile_added_;
         HandStage stage_;
         bool under_riichi_{};
 
         // possible actions
-        std::vector<std::unique_ptr<Open>> PossibleChis(Tile tile) const;  // E.g., 2m 3m [4m] vs 3m [4m] 5m
-        std::vector<std::unique_ptr<Open>> PossiblePons(Tile tile, RelativePos from) const;  // E.g., with red or not  TODO: check the id choice strategy of tenhou (smalelr one) when it has 2 identical choices.
-        std::vector<std::unique_ptr<Open>> PossibleKanOpened(Tile tile, RelativePos from) const;
-        std::vector<std::unique_ptr<Open>> PossibleKanClosed();  // TODO: which tile id should be used to represent farleft left bits? (current is type * 4 + 0)
-        std::vector<std::unique_ptr<Open>> PossibleKanAdded();
-        void ApplyKanAdded(std::unique_ptr<Open> open);
+        std::vector<Open> PossibleChis(Tile tile) const;  // E.g., 2m 3m [4m] vs 3m [4m] 5m
+        std::vector<Open> PossiblePons(Tile tile, RelativePos from) const;  // E.g., with red or not  TODO: check the id choice strategy of tenhou (smalelr one) when it has 2 identical choices.
+        std::vector<Open> PossibleKanOpened(Tile tile, RelativePos from) const;
+        std::vector<Open> PossibleKanClosed();  // TODO: which tile id should be used to represent farleft left bits? (current is type * 4 + 0)
+        std::vector<Open> PossibleKanAdded();
+        void ApplyKanAdded(Open open);
 
         // apply actions
-        void ApplyChi(std::unique_ptr<Open> open);
-        void ApplyPon(std::unique_ptr<Open> open);
-        void ApplyKanOpened(std::unique_ptr<Open> open);
-        void ApplyKanClosed(std::unique_ptr<Open> open);
+        void ApplyChi(Open open);
+        void ApplyPon(Open open);
+        void ApplyKanOpened(Open open);
+        void ApplyKanClosed(Open open);
 
         explicit Hand(std::vector<std::string> closed,
              std::vector<std::vector<std::string>> chis = {},

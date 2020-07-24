@@ -19,7 +19,7 @@ namespace mj
         ActionType type() const { return ActionType(proto_.type()); }
         bool yes() const { return proto_.yes(); }
         Tile discard() const {return Tile(proto_.discard()); }
-        std::unique_ptr<Open> open() const { return Open::NewOpen(proto_.open()); }
+        Open open() const { return Open(proto_.open()); }
     private:
         mjproto::Action proto_;
     };

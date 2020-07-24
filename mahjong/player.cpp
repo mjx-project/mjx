@@ -35,11 +35,11 @@ namespace mj
         return hand_.PossibleDiscardsAfterRiichi();
     }
 
-    std::vector<std::unique_ptr<Open>> Player::PossibleOpensAfterOthersDiscard(Tile tile, RelativePos from) const {
+    std::vector<Open> Player::PossibleOpensAfterOthersDiscard(Tile tile, RelativePos from) const {
         return hand_.PossibleOpensAfterOthersDiscard(tile, from);
     }
 
-    std::vector<std::unique_ptr<Open>> Player::PossibleOpensAfterDraw() {
+    std::vector<Open> Player::PossibleOpensAfterDraw() {
         return hand_.PossibleOpensAfterDraw();
     }
 
@@ -69,7 +69,7 @@ namespace mj
         hand_.Riichi();
     }
 
-    void Player::ApplyOpen(std::unique_ptr<Open> open) {
+    void Player::ApplyOpen(Open open) {
         hand_.ApplyOpen(std::move(open));
     }
 
