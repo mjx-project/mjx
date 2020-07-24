@@ -4,17 +4,15 @@
 FROM sotetsuk/ubuntu-gcc-grpc:v0.0.2
 
 RUN apt-get update \
-  && apt-get install -y ssh \
-      build-essential \
-      gcc \
-      g++ \
-      gdb \
-      clang \
-      cmake \
-      rsync \
-      tar \
-      python
-  && apt-get clean
+    && apt-get install -y ssh rsync
+
+# install gdb-8.3
+RUN wget https://ftp.gnu.org/gnu/gdb/gdb-8.3.tar.gz \
+    && tar -xvzf gdb-8.3.tar.gz \
+    && cd gdb-8.3 \
+    && .configure \
+    && make -j4 \
+    && make install
 
 RUN ( \
     echo 'LogLevel DEBUG2'; \
