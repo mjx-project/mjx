@@ -1,5 +1,6 @@
 from typing import List
-import math
+import os
+import argparse
 import json
 import urllib.parse
 from google.protobuf import json_format
@@ -7,26 +8,37 @@ from google.protobuf import json_format
 import mahjong_pb2
 
 
-class MjlogEncoder:
-    def __init__(self):
-        self.xml = ""
+parser = argparse.ArgumentParser(description="""Convert json files (protobuf serialization) into Tenhou's mjlog format.
 
-    def parse(self, path_to_json) -> str:
-        self.xml = """<mjloggm ver="2.3"><SHUFFLE seed="" ref=""/><GO type="169" lobby="0"/>"""
+Example:
+
+  $ python mjlog_encoder.py resources/decoded_json resources/encoded_mjlog 
+""")
+parser.add_argument('json_dir', help='Path to input json.')
+parser.add_argument('mjlog_dir', help='Path to output mjlogs.')
+args = parser.parse_args()
+
+
+class MjlogEncoder:
+
+    @staticmethod
+    def encode(path_to_json) -> str:
+        xml = """<mjloggm ver="2.3"><SHUFFLE seed="" ref=""/><GO type="169" lobby="0"/>"""
         is_init_round = True
         with open(path_to_json, 'r') as fp:
             for line in fp:
                 d = json.loads(line)
                 state = json_format.ParseDict(d, mahjong_pb2.State())
                 if is_init_round:
-                    self.xml += MjlogEncoder._parse_player_id(state)
-                    self.xml += """<TAIKYOKU oya="0"/>"""
+                    xml += MjlogEncoder._parse_player_id(state)
+                    xml += """<TAIKYOKU oya="0"/>"""
                     is_init_round = False
-                self.xml += self._parse_each_round(state)
-        self.xml += """</mjloggm>"""
-        return self.xml
+                xml += MjlogEncoder._parse_each_round(state)
+        xml += """</mjloggm>"""
+        return xml
 
-    def _parse_each_round(self, state: mahjong_pb2.State) -> str:
+    @staticmethod
+    def _parse_each_round(state: mahjong_pb2.State) -> str:
         ret = "<INIT "
         ret += f"seed=\"{state.init_score.round},{state.init_score.honba},{state.init_score.riichi},,,{state.doras[0]}\" "
         ret += f"ten=\"{state.init_score.ten[0]},{state.init_score.ten[1]},{state.init_score.ten[2]},{state.init_score.ten[3]}\" oya=\"{state.init_score.round % 4}\" "
@@ -185,9 +197,16 @@ class MjlogEncoder:
 
 
 if __name__ == "__main__":
-    path_to_json = "resources/json/2011020417gm-00a9-0000-b67fcaa3.json"
-    encoder = MjlogEncoder()
-    with open("/Users/sotetsuk/Desktop/mjlog_test/test.mjlog", "w") as f:
-        s = encoder.parse(path_to_json)
-        f.write(s)
-        print(s)
+    os.makedirs(args.mjlog_dir, exist_ok=True)
+    for json_file in os.listdir(args.json_dir):
+        if not json_file.endswith("json"):
+            continue
+
+        path_to_json = os.path.join(args.json_dir, json_file)
+        path_to_mjlog = os.path.join(args.mjlog_dir, os.path.splitext(os.path.basename(path_to_json))[0] + '.mjlog')
+
+        print(f"converting:\t{path_to_json}")
+        with open(path_to_mjlog, 'w') as fp:
+            s = MjlogEncoder.encode(path_to_json)
+            fp.write(s + "\n")
+        print(f"done:\t{path_to_mjlog}")
