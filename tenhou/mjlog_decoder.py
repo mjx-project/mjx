@@ -166,6 +166,9 @@ class MjlogDecoder:
                     tile=dora
                 )
             elif key == "RYUUKYOKU":
+                ba, riichi = [int(x) for x in val["ba"].split(",")]
+                assert ba == self.state.curr_score.honba
+                assert riichi == self.state.curr_score.riichi
                 self.state.end_info.ten_before[:] = [int(x) for i, x in enumerate(val["sc"].split(",")) if i % 2 == 0]
                 self.state.end_info.ten_changes[:] = [int(x) for i, x in enumerate(val["sc"].split(",")) if i % 2 == 1]
                 self.state.end_info.ten_after[:] = [x + y for x, y in zip(self.state.end_info.ten_before, self.state.end_info.ten_changes)]
@@ -178,9 +181,14 @@ class MjlogDecoder:
                             who=i,
                             closed_tiles=[int(x) for x in val[hai_key].split(",")],
                     ))
+                if "type" in val:
+                    self.state.no_winner_end_type = val["type"]
                 if "owari" in val:
                     self.state.end_info.is_game_over = True
             elif key == "AGARI":
+                ba, riichi = [int(x) for x in val["ba"].split(",")]
+                assert ba == self.state.curr_score.honba
+                assert riichi == self.state.curr_score.riichi
                 who = int(val["who"])
                 from_who = int(val["fromWho"])
                 # set event

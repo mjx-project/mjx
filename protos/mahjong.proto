@@ -48,6 +48,16 @@ enum EventType {
   EVENT_TYPE_RIICHI_SCORE_CHANGE = 11;
 }
 
+enum NoWinnerEndType {  // 流局
+  NO_WINNER_END_TYPE_NORMAL = 0;
+  NO_WINNER_END_TYPE_KYUUSYU = 1; // 九種九牌  // TODO(sotetsuk): rename
+  NO_WINNER_END_TYPE_FOUR_RIICHI = 2;  // 四家立直
+  NO_WINNER_END_TYPE_THREE_RONS = 3;  // 三家和了
+  NO_WINNER_END_TYPE_FOUR_KANS = 4;  // 四槓散了
+  NO_WINNER_END_TYPE_FOUR_WINDS = 5;  // 四風連打
+  NO_WINNER_END_TYPE_NM = 6;  // 流し満貫  # TODO(sotetsuk): rename
+}
+
 message Score {
   uint32 round = 1;
   uint32 honba = 2;
@@ -110,18 +120,18 @@ message TenpaiHand {  // only for Tenhou visualization
 message StateEndInfo {  // only for Tenhou visualization
   repeated Win wins = 1;
   repeated TenpaiHand tenpais = 2;
-  repeated uint32 ten_before = 3;  // e.g., [250, 240, 250, 250] if player 1 declared riichi during initial round
+  repeated uint32 ten_before = 3;  // Required for Tenhou mjlog. E.g., [250, 240, 250, 250] if player 1 declared riichi during initial round
   repeated uint32 ten_after = 4;
   repeated int32 ten_changes = 5;
-  uint32 ryukyoku_type = 6;  // 九種九牌, 四家立直, 三家和了, 四槓散了, 四風連打, 流し満貫
+  uint32 no_winner_end_type = 6;  // Following Tenhou mjlog format. 0, normal. 九種九牌, 四家立直, 三家和了, 四槓散了, 四風連打, 流し満貫
   bool is_game_over = 7;
 }
 
 message State {  // For Tenhou visualization and unit test
   uint32 game_id = 1;
   repeated string player_ids = 2;
-  Score init_score = 3;
-  Score curr_score = 4;
+  Score init_score = 3;  // Required for Tenhou mjlog.
+  Score curr_score = 4;  // includes the changes due to riichi, win and ryukyoku up to this step (including the last event)
   repeated uint32 wall = 5;
   repeated uint32 doras = 6;
   repeated uint32 ura_doras = 7;

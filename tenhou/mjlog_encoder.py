@@ -1,3 +1,5 @@
+from typing import List
+import math
 import json
 import urllib.parse
 from google.protobuf import json_format
@@ -72,9 +74,75 @@ class MjlogEncoder:
             for tenpai in state.end_info.tenpais:
                 closed_tiles = ",".join([str(x) for x in tenpai.closed_tiles])
                 ret += f"hai{tenpai.who}=\"{closed_tiles}\" "
+            if state.end_info.no_winner_end_type != mahjong_pb2.NO_WINNER_END_TYPE_NORMAL:
+                no_winner_end_type = ""
+                if state.end_info.no_winner_end_type == mahjong_pb2.NO_WINNER_END_TYPE_KYUUSYU:
+                    no_winner_end_type = "yao9"
+                elif state.end_info.no_winner_end_type == mahjong_pb2.NO_WINNER_END_TYPE_FOUR_RIICHI:
+                    no_winner_end_type = "reach4"
+                elif state.end_info.no_winner_end_type == mahjong_pb2.NO_WINNER_END_TYPE_THREE_RONS:
+                    no_winner_end_type = "ron3"
+                elif state.end_info.no_winner_end_type == mahjong_pb2.NO_WINNER_END_TYPE_FOUR_KANS:
+                    no_winner_end_type = "kan4"
+                elif state.end_info.no_winner_end_type == mahjong_pb2.NO_WINNER_END_TYPE_FOUR_WINDS:
+                    no_winner_end_type = "kaze4"
+                elif state.end_info.no_winner_end_type == mahjong_pb2.NO_WINNER_END_TYPE_NM:
+                    no_winner_end_type = "nm"
+                assert no_winner_end_type
+                ret += f"type=\"{no_winner_end_type}\" "
+            if state.end_info.is_game_over:
+                final_scores = MjlogEncoder._calc_final_score(state.curr_score.ten)
+                ret += f"owari=\"{state.curr_score.ten[0]},{final_scores[0]:.1f},{state.curr_score.ten[1]},{final_scores[1]:.1f},{state.curr_score.ten[2]},{final_scores[2]:.1f},{state.curr_score.ten[3]},{final_scores[3]:.1f}\" "
             ret += "/>"
         else:
-            pass
+            for win in state.end_info.wins:
+                ret += "<AGARI "
+                ret += f"ba=\"{state.curr_score.honba},{state.curr_score.riichi}\" "
+                hai = ",".join([str(x) for x in win.closed_tiles])
+                ret += f"hai=\"{hai}\" "
+                if len(win.opens) > 0:
+                    m = ",".join([str(x) for x in win.opens])
+                    ret += f"m=\"{m}\" "
+                ret += f"machi=\"{win.win_tile}\" "
+                win_rank = 0
+                if (win.fu >= 70 and sum(win.fans) >= 3) or (win.fu >= 40 and sum(win.fans) >= 4) or sum(win.fans) >= 5:
+                    win_rank = 1
+                elif sum(win.fans) >= 6:
+                    win_rank = 2
+                elif sum(win.fans) >= 8:
+                    win_rank = 3
+                elif sum(win.fans) >= 10:
+                    win_rank = 4
+                elif sum(win.fans) >= 13:
+                    win_rank = 5
+                if len(win.yakumans) > 0:
+                    win_rank = 5
+                ret += f"ten=\"{win.fu},{win.ten},{win_rank}\" "
+                yaku_fan = []
+                for yaku, fan in zip(win.yakus, win.fans):
+                    yaku_fan.append(yaku)
+                    yaku_fan.append(fan)
+                yaku_fan = ",".join([str(x) for x in yaku_fan])
+                ret += f"yaku=\"{yaku_fan}\" "
+                if len(win.yakumans) > 0:
+                    yakuman = ",".join(win.yakumans)
+                    ret += f"yakuman=\"{yakuman}\" "
+                doras = ",".join([str(x) for x in state.doras])
+                ret += f"doraHai=\"{doras}\" "
+                if 1 in win.yakus:  # if under riichi
+                    ura_doras = ",".join([str(x) for x in state.ura_doras])
+                    ret += f"doraHaiUra=\"{ura_doras}\" "
+                ret += f"who=\"{win.who}\" fromWho=\"{win.from_who}\" "
+                sc = []
+                for prev, change in zip(state.end_info.ten_before, state.end_info.ten_changes):
+                    sc.append(prev)
+                    sc.append(change)
+                sc = ",".join([str(x) for x in sc])
+                ret += f"sc=\"{sc}\" "
+                if state.end_info.is_game_over:
+                    final_scores = MjlogEncoder._calc_final_score(state.curr_score.ten)
+                    ret += f"owari=\"{state.curr_score.ten[0]},{final_scores[0]:.1f},{state.curr_score.ten[1]},{final_scores[1]:.1f},{state.curr_score.ten[2]},{final_scores[2]:.1f},{state.curr_score.ten[3]},{final_scores[3]:.1f}\" "
+                ret += "/>"
 
         return ret
 
@@ -90,6 +158,30 @@ class MjlogEncoder:
     @staticmethod
     def _encode_wind_for_discard(who: mahjong_pb2.Wind) -> str:
         return ["D", "E", "F", "G"][int(who)]
+
+    @staticmethod
+    def _calc_final_score(ten: List[int]) -> List[int]:
+        # 10-20の3万点返し
+        ixs = list(reversed(sorted(range(4), key=lambda i: ten[i])))
+        final_score = [0 for _ in range(4)]
+        for i in range(1, 4):
+            j = ixs[i]
+            score = ten[j]
+            score = score - 300
+            if 1 <= score % 10 <= 4:
+                score = (score // 10) * 10
+            elif 5 <= score % 10 <= 9:
+                score = (score // 10) * 10 + 10
+            score //= 10
+            if i == 1:
+                score += 10
+            elif i == 2:
+                score -= 10
+            else:
+                score -= 20
+            final_score[j] = score
+        final_score[ixs[0]] = - sum(final_score)
+        return final_score
 
 
 if __name__ == "__main__":
