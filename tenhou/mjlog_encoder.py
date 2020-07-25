@@ -26,7 +26,7 @@ class MjlogEncoder:
 
     def _parse_each_round(self, state: mahjong_pb2.State) -> str:
         ret = "<INIT "
-        ret += f"seed=\"{state.init_score.round},{state.init_score.honba},{state.init_score.riichi},,,{state.dora[0]}\" "
+        ret += f"seed=\"{state.init_score.round},{state.init_score.honba},{state.init_score.riichi},,,{state.doras[0]}\" "
         ret += f"ten=\"{state.init_score.ten[0]},{state.init_score.ten[1]},{state.init_score.ten[2]},{state.init_score.ten[3]}\" oya=\"{state.init_score.round % 4}\" "
         hai = [",".join([str(t) for t in x.tiles]) for x in state.init_hands]
         ret += f"hai0=\"{hai[0]}\" "

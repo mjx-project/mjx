@@ -92,16 +92,14 @@ message Observation {
 message Win {  // only for Tenhou visualization
   uint32 who = 1;
   uint32 from_who = 2;
-  repeated uint32 tiles = 3;
+  repeated uint32 closed_tiles = 3;
   repeated uint32 opens = 4;
   uint32 win_tile = 5;
-  repeated uint32 dora = 6;
-  repeated uint32 ura_dora = 7;
-  uint32 fu = 8;
-  uint32 ten = 9;
-  repeated uint32 yakus = 10;
-  repeated uint32 fans = 11;
-  repeated uint32 yakumans = 12;
+  uint32 fu = 6;
+  uint32 ten = 7;
+  repeated uint32 yakus = 8;
+  repeated uint32 fans = 9;
+  repeated uint32 yakumans = 10;
 }
 
 message TenpaiHand {  // only for Tenhou visualization
@@ -125,10 +123,11 @@ message State {  // For Tenhou visualization and unit test
   Score init_score = 3;
   Score curr_score = 4;
   repeated uint32 wall = 5;
-  repeated uint32 dora = 6;
-  repeated InitHand init_hands = 7;
-  EventHistory event_history = 8;
-  StateEndInfo end_info = 9;
+  repeated uint32 doras = 6;
+  repeated uint32 ura_doras = 7;
+  repeated InitHand init_hands = 8;
+  EventHistory event_history = 9;
+  StateEndInfo end_info = 10;
 }
 
 message Action {  // corresponds to mj::Action in cpp

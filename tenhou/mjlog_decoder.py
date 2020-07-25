@@ -99,17 +99,19 @@ class MjlogDecoder:
         self.state.curr_score.riichi = riichi
         self.state.curr_score.ten[:] = [int(x) for x in val["ten"].split(",")]
         self.state.wall[:] = wall
-        self.state.dora.append(dora)
+        self.state.doras.append(dora)
+        self.state.ura_doras.append(wall[131])
+        assert dora == wall[130]
         for i in range(4):
             self.state.init_hands.append(mahjong_pb2.InitHand(who=i, tiles=[int(x) for x in val["hai" + str(i)].split(",")]))
         for i in range(4 * 12):
             assert wall[i] in self.state.init_hands[((i // 4) + round_) % 4].tiles
         for i in range(4 * 12, 4 * 13):
             assert wall[i] in self.state.init_hands[(i + round_ ) % 4].tiles
-        assert dora == wall[130]
 
         last_drawer, last_draw = None, None
         event = None
+        num_kan_dora = 0
         for key, val in kv[1:]:
             if key[0] in ["T", "U", "V", "W"]:  # draw
                 # TODO (sotetsuk): consider draw after kan case
@@ -153,8 +155,12 @@ class MjlogDecoder:
                         type=mahjong_pb2.EVENT_TYPE_RIICHI_SCORE_CHANGE
                     )
             elif key == "DORA":
-                dora = int(val["hai"])
-                self.state.dora.append(dora)
+                dora = wall[129 - 2 * num_kan_dora]
+                assert dora == int(val["hai"])
+                ura_dora = wall[128 - 2 * num_kan_dora]
+                num_kan_dora += 1
+                self.state.doras.append(dora)
+                self.state.ura_doras.append(ura_dora)
                 event = mahjong_pb2.Event(
                     type=mahjong_pb2.EVENT_TYPE_NEW_DORA,
                     tile=dora
@@ -192,14 +198,14 @@ class MjlogDecoder:
                 win = mahjong_pb2.Win(
                     who=who,
                     from_who=from_who,
-                    tiles=[int(x) for x in val["hai"].split(",")],
+                    closed_tiles=[int(x) for x in val["hai"].split(",")],
                     win_tile=int(val["machi"])
                 )
                 if "m" in val:
                     win.opens[:] = [int(x) for x in val["m"].split(",")]
-                win.dora[:] = [int(x) for x in val["doraHai"].split(",")]
+                assert self.state.doras == [int(x) for x in val["doraHai"].split(",")]
                 if "doraHaiUra" in val:
-                    win.ura_dora[:] = [int(x) for x in val["doraHaiUra"].split(",")]
+                    assert self.state.ura_doras == [int(x) for x in val["doraHaiUra"].split(",")]
                 win.fu, win.ten, _ = [int(x) for x in val["ten"].split(",")]
                 win.yakus[:] = [int(x) for i, x in enumerate(val["yaku"].split(",")) if i % 2 == 0]
                 win.fans[:] = [int(x) for i, x in enumerate(val["yaku"].split(",")) if i % 2 == 1]
