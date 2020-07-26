@@ -14,13 +14,13 @@ namespace mj
         stage_ = RoundStage::kAfterDiscards;
         dealer_ = AbsolutePos(score_.round() % 4);
         drawer_ = dealer_;
-        latest_discarder_ = AbsolutePos::kNorth;
+        latest_discarder_ = AbsolutePos::kInitNorth;
         wall_ = Wall(score_.round());  // TODO: use seed_
         players_ = {
-                Player{AbsolutePos::kEast, River(), wall_.initial_hand(AbsolutePos::kEast)},
-                Player{AbsolutePos::kSouth, River(), wall_.initial_hand(AbsolutePos::kSouth)},
-                Player{AbsolutePos::kWest, River(), wall_.initial_hand(AbsolutePos::kWest)},
-                Player{AbsolutePos::kNorth, River(), wall_.initial_hand(AbsolutePos::kNorth)}
+                Player{AbsolutePos::kInitEast, River(), wall_.initial_hand(AbsolutePos::kInitEast)},
+                Player{AbsolutePos::kInitSouth, River(), wall_.initial_hand(AbsolutePos::kInitSouth)},
+                Player{AbsolutePos::kInitWest, River(), wall_.initial_hand(AbsolutePos::kInitWest)},
+                Player{AbsolutePos::kInitNorth, River(), wall_.initial_hand(AbsolutePos::kInitNorth)}
         };
         action_history_ = Events();
     }

@@ -11,13 +11,13 @@ namespace mj
                 // random action
                 const auto &discard_candidates = possible_action.discard_candidates();
                 auto discard_tile = *SelectRandomly(discard_candidates.begin(), discard_candidates.end());
-                response.set_type(static_cast<int>(ActionType::kDiscard));
+                response.set_type(mjproto::ActionType(ToUType(ActionType::kDiscard)));
                 response.set_discard(discard_tile.Id());
                 break;
             }
         }
         response.set_game_id(observation.game_id());
-        response.set_who(static_cast<int>(observation.who()));
+        response.set_who(mjproto::AbsolutePos(observation.who()));
         auto action = Action(std::move(response));
         return action;
     }

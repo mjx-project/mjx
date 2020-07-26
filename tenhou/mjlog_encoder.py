@@ -52,11 +52,11 @@ class MjlogEncoder:
         ten = state.init_score.ten[:]
         for event in state.event_history.events:
             if event.type == mahjong_pb2.EVENT_TYPE_DRAW:
-                who = MjlogEncoder._encode_wind_for_draw(event.who)
+                who = MjlogEncoder._encode_absolute_pos_for_draw(event.who)
                 draw = event.tile
                 ret += f"<{who}{draw}/>"
             elif event.type == mahjong_pb2.EVENT_TYPE_DISCARD:
-                who = MjlogEncoder._encode_wind_for_discard(event.who)
+                who = MjlogEncoder._encode_absolute_pos_for_discard(event.who)
                 discard = event.tile
                 ret += f"<{who}{discard}/>"
             elif event.type in [mahjong_pb2.EVENT_TYPE_CHI, mahjong_pb2.EVENT_TYPE_PON,
@@ -164,11 +164,11 @@ class MjlogEncoder:
         return f"<UN n0=\"{players[0]}\" n1=\"{players[1]}\" n2=\"{players[2]}\" n3=\"{players[3]}\"/>"
 
     @staticmethod
-    def _encode_wind_for_draw(who: mahjong_pb2.Wind) -> str:
+    def _encode_absolute_pos_for_draw(who: mahjong_pb2.AbsolutePos) -> str:
         return ["T", "U", "V", "W"][int(who)]
 
     @staticmethod
-    def _encode_wind_for_discard(who: mahjong_pb2.Wind) -> str:
+    def _encode_absolute_pos_for_discard(who: mahjong_pb2.AbsolutePos) -> str:
         return ["D", "E", "F", "G"][int(who)]
 
     @staticmethod

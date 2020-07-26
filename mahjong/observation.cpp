@@ -97,7 +97,7 @@ namespace mj
     }
 
     Observation::Observation(AbsolutePos who, Score &score, Events &event_history, Player& player) {
-        proto_.set_who(ToUType(who));
+        proto_.set_who(mjproto::AbsolutePos(ToUType(who)));
         proto_.set_allocated_score(&score.score_);
         proto_.set_allocated_event_history(&event_history.event_history_);
         proto_.set_allocated_init_hand(&player.init_hand_);

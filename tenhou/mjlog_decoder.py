@@ -115,7 +115,7 @@ class MjlogDecoder:
         for key, val in kv[1:]:
             if key != "UN" and key[0] in ["T", "U", "V", "W"]:  # draw
                 # TODO (sotetsuk): consider draw after kan case
-                who = MjlogDecoder._to_wind(key[0])
+                who = MjlogDecoder._to_absolute_pos(key[0])
                 draw = int(key[1:])
                 event = mahjong_pb2.Event(
                     who=who,
@@ -125,7 +125,7 @@ class MjlogDecoder:
                 last_drawer, last_draw = who, draw
             elif key != "DORA" and key[0] in ["D", "E", "F", "G"]:  # discard
                 # TDOO (sotetsuk): riichi
-                who = MjlogDecoder._to_wind(key[0])
+                who = MjlogDecoder._to_absolute_pos(key[0])
                 discard = int(key[1:])
                 event = mahjong_pb2.Event(
                     who=who,
@@ -251,16 +251,16 @@ class MjlogDecoder:
         yield copy.deepcopy(self.state)
 
     @staticmethod
-    def _to_wind(wind_str: str) -> mahjong_pb2.Wind:
-        assert wind_str in ["T", "U", "V", "W", "D", "E", "F", "G"]
-        if wind_str in ["T", "D"]:
-            return mahjong_pb2.WIND_EAST
-        elif wind_str in ["U", "E"]:
-            return mahjong_pb2.WIND_SOUTH
-        elif wind_str in ["V", "F"]:
-            return mahjong_pb2.WIND_WEST
-        elif wind_str in ["W", "G"]:
-            return mahjong_pb2.WIND_NORTH
+    def _to_absolute_pos(pos_str: str) -> mahjong_pb2.AbsolutePos:
+        assert pos_str in ["T", "U", "V", "W", "D", "E", "F", "G"]
+        if pos_str in ["T", "D"]:
+            return mahjong_pb2.ABSOLUTE_POS_INIT_EAST
+        elif pos_str in ["U", "E"]:
+            return mahjong_pb2.ABSOLUTE_POS_INIT_SOUTH
+        elif pos_str in ["V", "F"]:
+            return mahjong_pb2.ABSOLUTE_POS_INIT_WEST
+        elif pos_str in ["W", "G"]:
+            return mahjong_pb2.ABSOLUTE_POS_INIT_NORTH
 
     @staticmethod
     def _open_type(bits: int) -> mahjong_pb2.EventType:
