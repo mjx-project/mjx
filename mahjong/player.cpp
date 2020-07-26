@@ -54,6 +54,7 @@ namespace mj
 
     bool Player::CanRiichi() {
         // TODO: ツモ番があるかどうかをここで確認
+        // TODO: 点数が1000点あるかどうかも確認する必要がある。
         return hand_.CanRiichi();
     }
 
