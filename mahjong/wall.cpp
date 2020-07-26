@@ -5,9 +5,16 @@
 
 namespace mj
 {
-    Wall::Wall(std::uint32_t seed)
-            : seed_(seed),
+    Wall::Wall(std::uint32_t round, std::uint32_t seed)
+            : round_(round), seed_(seed),
               tiles_(Tile::CreateAllShuffled(seed)),
+              itr_curr_draw_(draw_begin()), itr_curr_kan_draw_(kan_draw_begin())
+    {}
+
+
+    Wall::Wall(std::uint32_t round, std::vector<Tile> tiles)
+            : round_(round), seed_(-1),
+              tiles_(std::move(tiles)),
               itr_curr_draw_(draw_begin()), itr_curr_kan_draw_(kan_draw_begin())
     {}
 
@@ -20,16 +27,23 @@ namespace mj
     }
 
     Hand Wall::initial_hand(AbsolutePos pos) const {
-        auto i = ToUType(pos);
-        return Hand(initial_hand_begin(i), initial_hand_end(i));
-    }
-
-    std::vector<Tile>::const_iterator Wall::initial_hand_begin(int pos) const {
-        return tiles_.cbegin() + (13 * pos);
-    }
-
-    std::vector<Tile>::const_iterator Wall::initial_hand_end(int pos) const {
-        return tiles_.cbegin() + (13 * (pos + 1));
+        auto pos_ix = ToUType(pos);
+        auto ix = ((pos_ix % 4 - round_ % 4 + 4) % 4) * 4;
+        std::vector<Tile> tiles;
+        tiles.reserve(13);
+        for (int i = 0; i < 3; ++i) {
+            for (int j = 0; j < 4; ++j) {
+                std::cout << ix << std::endl;
+                tiles.emplace_back(tiles_.at(ix++));
+            }
+            ix += 12;
+        }
+        ix = (pos_ix % 4 - round_ % 4 + 4) % 4 + 48;
+        std::cout << ix << std::endl;
+        std::cout << " --- " << std::endl;
+        tiles.emplace_back(tiles_.at(ix));
+        assert(tiles.size() == 13);
+        return Hand(tiles);
     }
 
     std::vector<Tile>::const_iterator Wall::draw_begin() const {
@@ -66,13 +80,13 @@ namespace mj
 
     std::string Wall::ToString(bool verbose) const {
         std::string s;
-        for (auto it = initial_hand_begin(0); it != initial_hand_end(0); ++it) s += it->ToString(verbose) + ",";
+        for (int i = 0; i < 13; ++i) s += tiles_[i].ToString(verbose) + ",";
         s.pop_back(); s += "\n";
-        for (auto it = initial_hand_begin(1); it != initial_hand_end(1); ++it) s += it->ToString(verbose) + ",";
+        for (int i = 13; i < 26; ++i) s += tiles_[i].ToString(verbose) + ",";
         s.pop_back(); s += "\n";
-        for (auto it = initial_hand_begin(2); it != initial_hand_end(2); ++it) s += it->ToString(verbose) + ",";
+        for (int i = 26; i < 39; ++i) s += tiles_[i].ToString(verbose) + ",";
         s.pop_back(); s += "\n";
-        for (auto it = initial_hand_begin(3); it != initial_hand_end(3); ++it) s += it->ToString(verbose) + ",";
+        for (int i = 39; i < 52; ++i) s += tiles_[i].ToString(verbose) + ",";
         s.pop_back(); s += "\n";
         for (auto it = draw_begin(); it != draw_end();) {
             for (int i = 0; i < 6; ++i) {

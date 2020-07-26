@@ -107,7 +107,7 @@ class MjlogDecoder:
         for i in range(4 * 12):
             assert wall[i] in self.state.init_hands[((i // 4) + round_) % 4].tiles
         for i in range(4 * 12, 4 * 13):
-            assert wall[i] in self.state.init_hands[(i + round_ ) % 4].tiles
+            assert wall[i] in self.state.init_hands[(i + round_) % 4].tiles
 
         last_drawer, last_draw = None, None
         event = None

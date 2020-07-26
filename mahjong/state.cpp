@@ -4,7 +4,7 @@
 namespace mj
 {
     State::State(std::uint32_t seed)
-    : seed_(seed), score_(Score())
+    : seed_(seed), score_(Score()), wall_(0)
     {
         // TODO (sotetsuk): shuffle seats
     }
@@ -15,7 +15,7 @@ namespace mj
         dealer_ = AbsolutePos(score_.round() % 4);
         drawer_ = dealer_;
         latest_discarder_ = AbsolutePos::kNorth;
-        wall_ = Wall();  // TODO: use seed_
+        wall_ = Wall(score_.round());  // TODO: use seed_
         players_ = {
                 Player{AbsolutePos::kEast, River(), wall_.initial_hand(AbsolutePos::kEast)},
                 Player{AbsolutePos::kSouth, River(), wall_.initial_hand(AbsolutePos::kSouth)},
