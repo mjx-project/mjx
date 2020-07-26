@@ -93,11 +93,11 @@ class MjlogDecoder:
         self.state.init_score.round = round_
         self.state.init_score.honba = honba
         self.state.init_score.riichi = riichi
-        self.state.init_score.ten[:] = [int(x) for x in val["ten"].split(",")]
+        self.state.init_score.ten[:] = [int(x) * 100 for x in val["ten"].split(",")]
         self.state.curr_score.round = round_
         self.state.curr_score.honba = honba
         self.state.curr_score.riichi = riichi
-        self.state.curr_score.ten[:] = [int(x) for x in val["ten"].split(",")]
+        self.state.curr_score.ten[:] = [int(x) * 100 for x in val["ten"].split(",")]
         self.state.wall[:] = wall
         self.state.doras.append(dora)
         self.state.ura_doras.append(wall[131])
@@ -149,7 +149,7 @@ class MjlogDecoder:
                     )
                 else:
                     self.state.curr_score.riichi += 1
-                    self.state.curr_score.ten[:] = [int(x) for x in val["ten"].split(",")]
+                    self.state.curr_score.ten[:] = [int(x) * 100 for x in val["ten"].split(",")]
                     event = mahjong_pb2.Event(
                         who=who,
                         type=mahjong_pb2.EVENT_TYPE_RIICHI_SCORE_CHANGE
@@ -169,10 +169,9 @@ class MjlogDecoder:
                 ba, riichi = [int(x) for x in val["ba"].split(",")]
                 assert ba == self.state.curr_score.honba
                 assert riichi == self.state.curr_score.riichi
-                self.state.end_info.ten_before[:] = [int(x) for i, x in enumerate(val["sc"].split(",")) if i % 2 == 0]
-                self.state.end_info.ten_changes[:] = [int(x) for i, x in enumerate(val["sc"].split(",")) if i % 2 == 1]
-                self.state.end_info.ten_after[:] = [x + y for x, y in zip(self.state.end_info.ten_before, self.state.end_info.ten_changes)]
-                self.state.curr_score.ten[:] = self.state.end_info.ten_after[:]
+                self.state.end_info.ten_before[:] = [int(x) * 100 for i, x in enumerate(val["sc"].split(",")) if i % 2 == 0]
+                self.state.end_info.ten_changes[:] = [int(x) * 100 for i, x in enumerate(val["sc"].split(",")) if i % 2 == 1]
+                self.state.curr_score.ten[:] = [x + y for x, y in zip(self.state.end_info.ten_before, self.state.end_info.ten_changes)]
                 for i in range(4):
                     hai_key = "hai" + str(i)
                     if hai_key not in val:
@@ -199,10 +198,9 @@ class MjlogDecoder:
                 # set win info
                 # TODO(sotetsuk): yakuman
                 # TODO(sotetsuk): check double ron behavior
-                self.state.end_info.ten_before[:] = [int(x) for i, x in enumerate(val["sc"].split(",")) if i % 2 == 0]
-                self.state.end_info.ten_changes[:] = [int(x) for i, x in enumerate(val["sc"].split(",")) if i % 2 == 1]
-                self.state.end_info.ten_after[:] = [x + y for x, y in zip(self.state.end_info.ten_before, self.state.end_info.ten_changes)]
-                self.state.curr_score.ten[:] = self.state.end_info.ten_after[:]
+                self.state.end_info.ten_before[:] = [int(x) * 100 for i, x in enumerate(val["sc"].split(",")) if i % 2 == 0]
+                self.state.end_info.ten_changes[:] = [int(x) * 100 for i, x in enumerate(val["sc"].split(",")) if i % 2 == 1]
+                self.state.curr_score.ten[:] = [x + y for x, y in zip(self.state.end_info.ten_before, self.state.end_info.ten_changes)]
                 win = mahjong_pb2.Win(
                     who=who,
                     from_who=from_who,

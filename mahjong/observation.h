@@ -18,7 +18,7 @@ namespace mj
         [[nodiscard]] std::uint8_t round() const;  // 局
         [[nodiscard]] std::uint8_t honba() const;  // 本場
         [[nodiscard]] std::uint8_t riichi() const;  // リー棒
-        [[nodiscard]] std::array<std::int16_t, 4> ten() const;  // 点 250 start
+        [[nodiscard]] std::array<std::int32_t, 4> ten() const;  // 点 25000 start
     private:
         friend class Observation;
         mjproto::Score score_{};
