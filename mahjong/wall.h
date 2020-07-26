@@ -31,7 +31,7 @@ namespace mj
          *  - [123, 125, 127, 129] Kan ura Dora 3, 2, 1, 0
          *  - [130] Dora
          *  - [131] Ura dora
-         *  - [132, ..., 135]  Kan draw 3, 2, 1, 0
+         *  - [132, ..., 135]  Kan draw 2, 3, 0, 1  TODO (sotetsuk) check and test this.
          */
     public:
         explicit Wall(std::uint32_t round, std::uint32_t seed = 9999);  // round info is necessary due to Tenhou's implementation
@@ -48,13 +48,10 @@ namespace mj
         std::uint32_t seed_;
         std::vector<Tile> tiles_;
         std::vector<Tile>::const_iterator itr_curr_draw_;
-        std::vector<Tile>::const_iterator itr_curr_kan_draw_;
         int num_kan_draw_ = 0;
         int num_kan_dora_ = 0;
         [[nodiscard]] std::vector<Tile>::const_iterator draw_begin() const;
         [[nodiscard]] std::vector<Tile>::const_iterator draw_end() const;
-        [[nodiscard]] std::vector<Tile>::const_iterator kan_draw_begin() const;
-        [[nodiscard]] std::vector<Tile>::const_iterator kan_draw_end() const;
     };
 }  // namespace mj
 

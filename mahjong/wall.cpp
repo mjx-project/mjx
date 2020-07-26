@@ -8,14 +8,14 @@ namespace mj
     Wall::Wall(std::uint32_t round, std::uint32_t seed)
             : round_(round), seed_(seed),
               tiles_(Tile::CreateAllShuffled(seed)),
-              itr_curr_draw_(draw_begin()), itr_curr_kan_draw_(kan_draw_begin())
+              itr_curr_draw_(draw_begin())
     {}
 
 
     Wall::Wall(std::uint32_t round, std::vector<Tile> tiles)
             : round_(round), seed_(-1),
               tiles_(std::move(tiles)),
-              itr_curr_draw_(draw_begin()), itr_curr_kan_draw_(kan_draw_begin())
+              itr_curr_draw_(draw_begin())
     {}
 
     Tile Wall::Draw() {
@@ -33,14 +33,11 @@ namespace mj
         tiles.reserve(13);
         for (int i = 0; i < 3; ++i) {
             for (int j = 0; j < 4; ++j) {
-                std::cout << ix << std::endl;
                 tiles.emplace_back(tiles_.at(ix++));
             }
             ix += 12;
         }
         ix = (pos_ix % 4 - round_ % 4 + 4) % 4 + 48;
-        std::cout << ix << std::endl;
-        std::cout << " --- " << std::endl;
         tiles.emplace_back(tiles_.at(ix));
         assert(tiles.size() == 13);
         return Hand(tiles);
@@ -54,19 +51,11 @@ namespace mj
         return tiles_.cbegin() + 122;
     }
 
-    std::vector<Tile>::const_iterator Wall::kan_draw_begin() const {
-        return tiles_.cbegin() + 122;
-    }
-
-    std::vector<Tile>::const_iterator Wall::kan_draw_end() const {
-        return tiles_.cbegin() + 126;
-    }
-
     Tile Wall::KanDraw() {
         assert(abs(num_kan_draw_ - num_kan_dora_) <= 1);
         assert(num_kan_draw_ <= 3);
-        auto drawn_tile = *(kan_draw_begin() + num_kan_draw_);
-        num_kan_draw_++;
+        auto kan_ixs = std::vector<int>{134, 135, 132, 133};
+        auto drawn_tile = tiles_[kan_ixs[num_kan_draw_++]];
         return drawn_tile;
     }
 
