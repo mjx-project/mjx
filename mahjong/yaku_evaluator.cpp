@@ -103,13 +103,13 @@ namespace mj
         int fu = 20;
 
         // 面子
-        for (const std::unique_ptr<Open>& open : win_info.opens) {
-            OpenType open_type = open->Type();
+        for (const Open& open : win_info.opens) {
+            OpenType open_type = open.Type();
             if (open_type == OpenType::kChi) continue;
 
-            bool is_yaocyu = Is(open->At(0).Type(), TileSetType::kYaocyu);
+            bool is_yaocyu = Is(open.At(0).Type(), TileSetType::kYaocyu);
 
-            switch (open->Type()) {
+            switch (open.Type()) {
                 case OpenType::kPon:
                     fu += is_yaocyu ? 4 : 2;
                     break;
@@ -187,9 +187,9 @@ namespace mj
         std::vector<TileTypeCount> best_closed_set, best_heads;
 
         std::vector<TileTypeCount> opened_sets;
-        for (const std::unique_ptr<Open>& open : win_info.opens) {
+        for (const Open& open : win_info.opens) {
             TileTypeCount count;
-            for (const Tile tile : open->Tiles()) {
+            for (const Tile tile : open.Tiles()) {
                 ++count[tile.Type()];
             }
             opened_sets.push_back(count);
@@ -401,8 +401,8 @@ namespace mj
         for (const Tile tile : win_info.closed_tiles) {
             reds += tile.Is(TileSetType::kRedFive);
         }
-        for (const std::unique_ptr<Open>& open : win_info.opens) {
-            for (const Tile tile : open->Tiles()) {
+        for (const Open& open : win_info.opens) {
+            for (const Tile tile : open.Tiles()) {
                 reds += tile.Is(TileSetType::kRedFive);
             }
         }
@@ -417,8 +417,8 @@ namespace mj
                 dora_count += n * win_info.dora.at(tile_type);
             }
         }
-        for (const std::unique_ptr<Open>& open : win_info.opens) {
-            for (const Tile tile : open->Tiles()) {
+        for (const Open& open : win_info.opens) {
+            for (const Tile tile : open.Tiles()) {
                 auto tile_type = tile.Type();
                 if (win_info.dora.count(tile_type)) {
                     dora_count += win_info.dora.at(tile_type);
@@ -438,8 +438,8 @@ namespace mj
                 dora_count += n * win_info.reversed_dora.at(tile_type);
             }
         }
-        for (const std::unique_ptr<Open>& open : win_info.opens) {
-            for (const Tile tile : open->Tiles()) {
+        for (const Open& open : win_info.opens) {
+            for (const Tile tile : open.Tiles()) {
                 auto tile_type = tile.Type();
                 if (win_info.reversed_dora.count(tile_type)) {
                     dora_count += win_info.reversed_dora.at(tile_type);
@@ -942,8 +942,8 @@ namespace mj
 
     std::optional<int> YakuEvaluator::HasThreeKans(const WinningInfo& win_info) noexcept {
         int kans = 0;
-        for (const std::unique_ptr<Open>& open : win_info.opens) {
-            if (Any(open->Type(), {
+        for (const Open& open : win_info.opens) {
+            if (Any(open.Type(), {
                     OpenType::kKanOpened, OpenType::kKanAdded, OpenType::kKanClosed})) {
                 ++kans;
             }
@@ -1105,8 +1105,8 @@ namespace mj
 
     bool YakuEvaluator::HasFourKans(const WinningInfo& win_info) noexcept {
         int kans = 0;
-        for (const std::unique_ptr<Open>& open : win_info.opens) {
-            if (Any(open->Type(), {
+        for (const Open& open : win_info.opens) {
+            if (Any(open.Type(), {
                     OpenType::kKanOpened, OpenType::kKanAdded, OpenType::kKanClosed})) {
                 ++kans;
             }

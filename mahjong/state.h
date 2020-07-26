@@ -34,7 +34,7 @@ namespace mj
         Tile DrawRinshan();
         Observation CreateObservation(AbsolutePos pos);
         std::optional<std::vector<AbsolutePos>> RonCheck();  // 牌を捨てたプレイヤーの下家から順に
-        std::optional<std::vector<std::pair<AbsolutePos, std::vector<std::unique_ptr<Open>>>>> StealCheck();
+        std::optional<std::vector<std::pair<AbsolutePos, std::vector<Open>>>> StealCheck();
 
         // accessors
         [[nodiscard]] const Player& player(AbsolutePos pos) const;
@@ -42,9 +42,7 @@ namespace mj
         [[nodiscard]] RoundStage stage() const;
         [[nodiscard]] const Wall & wall() const;
         [[nodiscard]] const Hand & hand(AbsolutePos pos) const;
-        Hand & mutable_hand(AbsolutePos pos);
         [[nodiscard]] const River & river(AbsolutePos pos) const;
-        River & mutable_river(AbsolutePos pos);
 
         std::string ToMjlog() const;
 

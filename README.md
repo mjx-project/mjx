@@ -11,24 +11,30 @@
 
 ## Build
 
-```
-$ ./build.sh
-```
-で`build` ディレクトリにビルドされる。
-Dockerを使ってビルドする場合、
+ローカルの環境でビルド、テストする場合:
 
 ```
-$ docker run -it -v <path-to-github-repo>/mahjong:/mahjong sotetsuk/ubuntu-gcc-grpc:v0.0.2 /bin/bash
-$ cd /mahjong
-$ ./build.sh
+$ make build
+$ make test
 ```
 
-のようにできる。
+Dockerを使ってビルドする場合:
 
 ```
-$ ./build/test/mahjong_test
+$ make docker-build
+$ make docker-test
 ```
-でテストが実行できる。
+
+## Development
+
+Clionを使ってローカル環境に依存せずにDockerコンテナ内で開発ができる。
+まずコンテナを立ち上げる。このコマンドではポート2222を使用する。
+
+```
+$ make docker-clion-start
+```
+
+Clion側の設定は [clion/README.md](./clion/README.md) を参照。
 
 ## Tenhou/mjlog
 天鳳から天鳳位などの牌譜をダウンロードすると、基本的に `.mjlog` という拡張子のファイルが得られる。これはそのままWindows版の天鳳で観戦することができる。このファイルの中身をテキストエディタ等で直接編集したい場合は、一度 `.gz` 形式になおしてから解凍する必要がある[[1](http://rausumaru.hatenablog.com/entry/2019/08/30/021154)]。名前の匿名表示のオンオフはプレミアム版で設定可能らしい（要確認）。

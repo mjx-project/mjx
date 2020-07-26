@@ -30,7 +30,7 @@ namespace mj
         Tile draw;
         Tile discard;
         bool discard_drawn_tile;
-        std::unique_ptr<Open> open;
+        Open open;
     };
 
     class PossibleAction
@@ -39,7 +39,7 @@ namespace mj
         PossibleAction() = default;
         PossibleAction(mjproto::PossibleAction possible_action);
         ActionType type() const;
-        std::unique_ptr<Open> open() const;
+        Open open() const;
         std::vector<Tile> discard_candidates() const;
 
         static PossibleAction CreateDiscard(const Hand& hand);

@@ -2,7 +2,6 @@
 #include "gtest/gtest.h"
 #include "tile.h"
 #include "hand.h"
-#include "win_cache.h"
 
 using namespace mj;
 
@@ -120,7 +119,7 @@ TEST(hand, Draw) {
 TEST(hand, ApplyChi) {
     auto h = Hand(HandParams("m1,m1,m1,m2,m3,m4,m5,m6,m7,m8,m9,m9,m9"));
     std::vector<Tile> t = {Tile("m2"), Tile("m3"), Tile("m4", 3)};
-    auto c = std::make_unique<Chi>(t, Tile("m4", 3));
+    auto c = Chi::Create(t, Tile("m4", 3));
     EXPECT_EQ(h.Stage(), HandStage::kAfterDiscards);
     EXPECT_EQ(h.Size(), 13);
     h.ApplyOpen(std::move(c));
@@ -141,7 +140,7 @@ TEST(hand, ApplyChi) {
 TEST(hand, ApplyPon)
 {
     auto h = Hand(HandParams("m1,m1,m1,m2,m3,m4,m5,m6,m7,m8,m9,m9,m9"));
-    auto p = std::make_unique<Pon>(Tile("m9", 3), Tile("m9", 0), RelativePos::kLeft);
+    auto p = Pon::Create(Tile("m9", 3), Tile("m9", 0), RelativePos::kLeft);
     EXPECT_EQ(h.Stage(), HandStage::kAfterDiscards);
     EXPECT_EQ(h.Size(), 13);
     h.ApplyOpen(std::move(p));
@@ -160,7 +159,7 @@ TEST(hand, ApplyPon)
 TEST(hand, ApplyKanOpened)
 {
     auto h = Hand(HandParams("m1,m1,m1,m2,m3,m4,m5,m6,m7,m8,m9,m9,m9"));
-    auto k = std::make_unique<KanOpened>(Tile("m9", 3), RelativePos::kMid);
+    auto k = KanOpened::Create(Tile("m9", 3), RelativePos::kMid);
     EXPECT_EQ(h.Stage(), HandStage::kAfterDiscards);
     EXPECT_EQ(h.Size(), 13);
     h.ApplyOpen(std::move(k));
@@ -177,7 +176,7 @@ TEST(hand, ApplyKanClosed)
 {
     auto h = Hand(HandParams("m1,m1,m1,m2,m3,m4,m5,m6,m7,m8,m9,m9,m9"));
     h.Draw(Tile("m9", 3));
-    auto k = std::make_unique<KanClosed>(Tile("m9", 0));
+    auto k = KanClosed::Create(Tile("m9", 0));
     EXPECT_EQ(h.Stage(), HandStage::kAfterDraw);
     EXPECT_EQ(h.Size(), 14);
     h.ApplyOpen(std::move(k));
@@ -193,8 +192,8 @@ TEST(hand, ApplyKanClosed)
 TEST(hand, ApplyKanAdded)
 {
     auto h = Hand(HandParams("m1,m1,m1,m2,m3,m4,m5,m6,m7,m8,m8,m9,m9"));
-    auto p = std::make_unique<Pon>(Tile("m9", 2), Tile("m9", 3), RelativePos::kLeft);
-    auto k = std::make_unique<KanAdded>(p.get());
+    auto p = Pon::Create(Tile("m9", 2), Tile("m9", 3), RelativePos::kLeft);
+    auto k = KanAdded::Create(p);
     EXPECT_EQ(h.Size(), 13);
     h.ApplyOpen(std::move(p));
     EXPECT_EQ(h.Size(), 14);
@@ -230,7 +229,7 @@ TEST(hand, Discard)
 TEST(hand, PossibleDiscards) {
     auto h = Hand(HandParams("m1,m2,m3,p9,s1,s9,ew,sw,ww,nw,wd,gd,rd"));
     auto t = Tile::Create({"m1", "m2", "m3"});
-    auto c = std::make_unique<Chi>(t, Tile("m3", 0));
+    auto c = Chi::Create(t, Tile("m3", 0));
     h.ApplyOpen(std::move(c));
     auto possible_discards = h.PossibleDiscards();
     EXPECT_EQ(possible_discards.size(), 10);
@@ -241,7 +240,7 @@ TEST(hand, PossibleDiscards) {
 TEST(hand, PossibleOpensAfterOthersDiscard) { // TODO: add more detailed test
     auto num_of_opens = [](const auto &opens, const auto &open_type) {
         return std::count_if(opens.begin(), opens.end(),
-                             [&open_type](const auto &x){ return x->Type() == open_type; });
+                             [&open_type](const auto &x){ return x.Type() == open_type; });
     };
 
     // Chi
@@ -309,16 +308,16 @@ TEST(hand, PossibleOpensAfterOthersDiscard) { // TODO: add more detailed test
     h = Hand(HandParams("m1,m1,m1,m2,m3,m5,m5,m6,m7,m8,m9,m9,m9"));
     opens = h.PossibleOpensAfterOthersDiscard(Tile("m5", 3), RelativePos::kMid);
     EXPECT_EQ(num_of_opens(opens, OpenType::kPon), 1);
-    EXPECT_EQ(opens[0]->Type(), OpenType::kPon);
-    EXPECT_EQ(opens[0]->At(0).Type(), TileType::kM5);
+    EXPECT_EQ(opens[0].Type(), OpenType::kPon);
+    EXPECT_EQ(opens[0].At(0).Type(), TileType::kM5);
     // Two possible pons are expected (w/ red 5 and w/o red 5)
     h = Hand(HandParams("m1,m1,m1,m2,m5,m5,m5,m6,m7,m8,m9,m9,m9"));
     opens = h.PossibleOpensAfterOthersDiscard(Tile("m5", 3), RelativePos::kMid);
     EXPECT_EQ(num_of_opens(opens, OpenType::kPon), 2);
-    EXPECT_TRUE(opens[0]->At(0).Is(TileType::kM5));
-    EXPECT_TRUE(opens[0]->At(0).IsRedFive());
-    EXPECT_TRUE(opens[1]->At(0).Is(TileType::kM5));
-    EXPECT_FALSE(opens[1]->At(0).IsRedFive());
+    EXPECT_TRUE(opens[0].At(0).Is(TileType::kM5));
+    EXPECT_TRUE(opens[0].At(0).IsRedFive());
+    EXPECT_TRUE(opens[1].At(0).Is(TileType::kM5));
+    EXPECT_FALSE(opens[1].At(0).IsRedFive());
     // One possible pon is expected
     h = Hand(HandParams("m1,m1,m1,m2,m4,m4,m4,m6,m7,m8,m9,m9,m9"));
     opens = h.PossibleOpensAfterOthersDiscard(Tile("m4", 3), RelativePos::kMid);
@@ -330,19 +329,19 @@ TEST(hand, PossibleOpensAfterOthersDiscard) { // TODO: add more detailed test
     opens = h.PossibleOpensAfterOthersDiscard(Tile("m1", 3), RelativePos::kMid);
     EXPECT_EQ(opens.size(), 2);
     EXPECT_EQ(num_of_opens(opens, OpenType::kKanOpened), 1);
-    EXPECT_EQ(opens.back()->Type(), OpenType::kKanOpened);
-    EXPECT_EQ(opens.back()->At(0).Type(), TileType::kM1);
-    EXPECT_EQ(opens.back()->StolenTile(), Tile("m1", 3));
-    EXPECT_EQ(opens.back()->LastTile(), Tile("m1", 3));
+    EXPECT_EQ(opens.back().Type(), OpenType::kKanOpened);
+    EXPECT_EQ(opens.back().At(0).Type(), TileType::kM1);
+    EXPECT_EQ(opens.back().StolenTile(), Tile("m1", 3));
+    EXPECT_EQ(opens.back().LastTile(), Tile("m1", 3));
     opens = h.PossibleOpensAfterOthersDiscard(Tile("m2", 3), RelativePos::kMid);
     EXPECT_EQ(num_of_opens(opens, OpenType::kKanOpened), 0);
     opens = h.PossibleOpensAfterOthersDiscard(Tile("m9", 3), RelativePos::kMid);
     EXPECT_EQ(opens.size(), 2);
     EXPECT_EQ(num_of_opens(opens, OpenType::kKanOpened), 1);
-    EXPECT_EQ(opens.back()->Type(), OpenType::kKanOpened);
-    EXPECT_EQ(opens.back()->At(0).Type(), TileType::kM9);
-    EXPECT_EQ(opens.back()->StolenTile(), Tile("m9", 3));
-    EXPECT_EQ(opens.back()->LastTile(), Tile("m9", 3));
+    EXPECT_EQ(opens.back().Type(), OpenType::kKanOpened);
+    EXPECT_EQ(opens.back().At(0).Type(), TileType::kM9);
+    EXPECT_EQ(opens.back().StolenTile(), Tile("m9", 3));
+    EXPECT_EQ(opens.back().LastTile(), Tile("m9", 3));
 
     // Mixed
     h = Hand(HandParams("m2,m3,m4,m4,m4,m5,m5,m6,m7,m8,m9,m9,m9"));
@@ -351,22 +350,22 @@ TEST(hand, PossibleOpensAfterOthersDiscard) { // TODO: add more detailed test
     // pon m4m4m4
     // kan m4m4m4m4
     EXPECT_EQ(possible_opens.size(), 7);
-    EXPECT_EQ(possible_opens.at(0)->Type(), OpenType::kChi);
-    EXPECT_EQ(possible_opens.at(0)->At(0).Type(), TileType::kM4);
-    EXPECT_TRUE(possible_opens.at(0)->At(1).IsRedFive());
-    EXPECT_EQ(possible_opens.at(1)->Type(), OpenType::kChi);
-    EXPECT_EQ(possible_opens.at(1)->At(0).Type(), TileType::kM4);
-    EXPECT_TRUE(!possible_opens.at(1)->At(1).IsRedFive());
-    EXPECT_EQ(possible_opens.at(2)->Type(), OpenType::kChi);
-    EXPECT_EQ(possible_opens.at(2)->At(0).Type(), TileType::kM3);
-    EXPECT_TRUE(possible_opens.at(2)->At(2).IsRedFive());
-    EXPECT_EQ(possible_opens.at(3)->Type(), OpenType::kChi);
-    EXPECT_EQ(possible_opens.at(3)->At(0).Type(), TileType::kM3);
-    EXPECT_TRUE(!possible_opens.at(3)->At(2).IsRedFive());
-    EXPECT_EQ(possible_opens.at(4)->Type(), OpenType::kChi);
-    EXPECT_EQ(possible_opens.at(4)->At(0).Type(), TileType::kM2);
-    EXPECT_EQ(possible_opens.at(5)->Type(), OpenType::kPon);
-    EXPECT_EQ(possible_opens.at(6)->Type(), OpenType::kKanOpened);
+    EXPECT_EQ(possible_opens.at(0).Type(), OpenType::kChi);
+    EXPECT_EQ(possible_opens.at(0).At(0).Type(), TileType::kM4);
+    EXPECT_TRUE(possible_opens.at(0).At(1).IsRedFive());
+    EXPECT_EQ(possible_opens.at(1).Type(), OpenType::kChi);
+    EXPECT_EQ(possible_opens.at(1).At(0).Type(), TileType::kM4);
+    EXPECT_TRUE(!possible_opens.at(1).At(1).IsRedFive());
+    EXPECT_EQ(possible_opens.at(2).Type(), OpenType::kChi);
+    EXPECT_EQ(possible_opens.at(2).At(0).Type(), TileType::kM3);
+    EXPECT_TRUE(possible_opens.at(2).At(2).IsRedFive());
+    EXPECT_EQ(possible_opens.at(3).Type(), OpenType::kChi);
+    EXPECT_EQ(possible_opens.at(3).At(0).Type(), TileType::kM3);
+    EXPECT_TRUE(!possible_opens.at(3).At(2).IsRedFive());
+    EXPECT_EQ(possible_opens.at(4).Type(), OpenType::kChi);
+    EXPECT_EQ(possible_opens.at(4).At(0).Type(), TileType::kM2);
+    EXPECT_EQ(possible_opens.at(5).Type(), OpenType::kPon);
+    EXPECT_EQ(possible_opens.at(6).Type(), OpenType::kKanOpened);
 }
 
 TEST(hand, PossibleOpensAfterDraw) {
@@ -375,36 +374,36 @@ TEST(hand, PossibleOpensAfterDraw) {
     h.Draw(Tile("m9", 3));
     EXPECT_EQ(h.Size(), 14);
     EXPECT_EQ(h.PossibleOpensAfterDraw().size(), 1);
-    EXPECT_EQ((*h.PossibleOpensAfterDraw().begin())->Type(), OpenType::kKanClosed);
-    EXPECT_EQ((*h.PossibleOpensAfterDraw().begin())->At(0).Type(), TileType::kM9);
-    EXPECT_EQ((*h.PossibleOpensAfterDraw().begin())->StolenTile(), Tile("m9", 0));
-    EXPECT_EQ((*h.PossibleOpensAfterDraw().begin())->LastTile(), Tile("m9", 0));
+    EXPECT_EQ((*h.PossibleOpensAfterDraw().begin()).Type(), OpenType::kKanClosed);
+    EXPECT_EQ((*h.PossibleOpensAfterDraw().begin()).At(0).Type(), TileType::kM9);
+    EXPECT_EQ((*h.PossibleOpensAfterDraw().begin()).StolenTile(), Tile("m9", 0));
+    EXPECT_EQ((*h.PossibleOpensAfterDraw().begin()).LastTile(), Tile("m9", 0));
 
     // PossibleKanAdded
     h = Hand(HandParams("m1,m1,m1,m2,m3,m4,m5,m6,m7,m8,m9,m9,m9"));
-    h.ApplyOpen(std::make_unique<Pon>(Tile("m9", 3), Tile("m9", 2), RelativePos::kMid));
+    h.ApplyOpen(Pon::Create(Tile("m9", 3), Tile("m9", 2), RelativePos::kMid));
     h.Discard(Tile("m1", 0));
     h.Draw(Tile("m8", 2));
     EXPECT_EQ(h.Size(), 14);
     EXPECT_EQ(h.SizeClosed(), 11);
     EXPECT_EQ(h.SizeOpened(), 3);
     EXPECT_EQ(h.PossibleOpensAfterDraw().size(), 1);
-    EXPECT_EQ((*h.PossibleOpensAfterDraw().begin())->Type(), OpenType::kKanAdded);
-    EXPECT_EQ((*h.PossibleOpensAfterDraw().begin())->At(0).Type(), TileType::kM9);
-    EXPECT_EQ((*h.PossibleOpensAfterDraw().begin())->StolenTile(), Tile("m9", 3));
-    EXPECT_EQ((*h.PossibleOpensAfterDraw().begin())->LastTile(), Tile("m9", 2));
+    EXPECT_EQ((*h.PossibleOpensAfterDraw().begin()).Type(), OpenType::kKanAdded);
+    EXPECT_EQ((*h.PossibleOpensAfterDraw().begin()).At(0).Type(), TileType::kM9);
+    EXPECT_EQ((*h.PossibleOpensAfterDraw().begin()).StolenTile(), Tile("m9", 3));
+    EXPECT_EQ((*h.PossibleOpensAfterDraw().begin()).LastTile(), Tile("m9", 2));
 
     // mixed
     h = Hand(HandParams("m1,m1,m1,m2,m3,m4,m5,m6,m7,m8,m9,m9,m9"));
-    h.ApplyOpen(std::make_unique<Pon>(Tile("m9", 3), Tile("m9", 2), RelativePos::kMid));
+    h.ApplyOpen(Pon::Create(Tile("m9", 3), Tile("m9", 2), RelativePos::kMid));
     h.Discard(Tile("m3", 0));
     h.Draw(Tile("m1", 3));
     auto possible_opens = h.PossibleOpensAfterDraw();
     EXPECT_EQ(possible_opens.size(), 2);
-    EXPECT_EQ(possible_opens.at(0)->Type(), OpenType::kKanClosed);
-    EXPECT_EQ(possible_opens.at(0)->At(0).Type(), TileType::kM1);
-    EXPECT_EQ(possible_opens.at(1)->Type(), OpenType::kKanAdded);
-    EXPECT_EQ(possible_opens.at(1)->At(0).Type(), TileType::kM9);
+    EXPECT_EQ(possible_opens.at(0).Type(), OpenType::kKanClosed);
+    EXPECT_EQ(possible_opens.at(0).At(0).Type(), TileType::kM1);
+    EXPECT_EQ(possible_opens.at(1).Type(), OpenType::kKanAdded);
+    EXPECT_EQ(possible_opens.at(1).At(0).Type(), TileType::kM9);
 }
 
 TEST(hand, Size) {
@@ -532,7 +531,7 @@ TEST(hand, Opens) {
     h.ApplyOpen(std::move(chis.at(0)));
     const auto opens = h.Opens();
     EXPECT_EQ(opens.size(), 1);
-    EXPECT_EQ(opens.front()->Type(), OpenType::kChi);
+    EXPECT_EQ(opens.front().Type(), OpenType::kChi);
 }
 
 TEST(hand, Riichi) {
@@ -545,10 +544,9 @@ TEST(hand, Riichi) {
 
 TEST(hand, PossibleDiscardsAfterRiichi) {
     auto h = Hand(HandParams("m1,m1,m1,m2,m3,m4,m5,m6,m7,m8,m9,m9,m9"));
-    const auto &win_cache = WinningHandCache::instance();
     h.Draw(Tile("rd"));
     h.Riichi();
-    auto possible_discards = h.PossibleDiscardsAfterRiichi(win_cache);
+    auto possible_discards = h.PossibleDiscardsAfterRiichi();
     EXPECT_EQ(possible_discards.size(), 4);
     auto HasType = [&](TileType tt) {
         return std::find_if(possible_discards.begin(), possible_discards.end(),

@@ -1,7 +1,8 @@
 .idea/*
 mahjong/cmake-build-debug/*
-cmake-build-debug/*
+cmake-build-*/*
 build/*
+docker-build/*
 test/lib/*
 tenhou/mahjong_pb2.py
 tenhou/mahjong_pb2_grpc.py

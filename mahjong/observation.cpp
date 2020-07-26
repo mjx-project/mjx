@@ -37,8 +37,8 @@ namespace mj
         return ActionType(possible_action_.type());
     }
 
-    std::unique_ptr<Open> PossibleAction::open() const {
-        return Open::NewOpen(possible_action_.open());
+    Open PossibleAction::open() const {
+        return Open(possible_action_.open());
     }
 
     std::vector<Tile> PossibleAction::discard_candidates() const {
