@@ -25,5 +25,11 @@ docker-clion-start: docker-clion-stop
 docker-clion-stop:
 	docker rm -f mahjong-remote-clion || true
 
+docker-plantuml-start: docker-plantuml-stop
+	docker run -d -p 8080:8080 --name mahjong-plantuml plantuml/plantuml-server:jetty
 
-.PHONY: clean test all docker-test docker-all docker-clion-stop docker-clion-start
+docker-plantuml-stop:
+	docker rm -f mahjong-plantuml || true
+
+
+.PHONY: clean test all docker-test docker-all docker-clion-stop docker-clion-start docker-plantuml-start docker-plantuml-stop
