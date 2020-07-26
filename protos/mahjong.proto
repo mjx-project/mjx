@@ -21,20 +21,41 @@ enum RelativePos {
 }
 
 enum ActionType {
-    ACTION_TYPE_DRAW = 0;
-    ACTION_TYPE_DRAW_AFTER_KAN = 1;
-    ACTION_TYPE_DISCARD = 2;
-    ACTION_TYPE_RIICHI = 3;
-    ACTION_TYPE_TSUMO = 4;
-    ACTION_TYPE_TSUMO_AFTER_KAN = 5;
-    ACTION_TYPE_RON = 6;
-    ACTION_TYPE_RON_AFTER_KAN = 7;
-    ACTION_TYPE_CHI = 8;
-    ACTION_TYPE_PON = 9;
-    ACTION_TYPE_KAN_CLOSED = 10;
-    ACTION_TYPE_KAN_OPENED = 11;
-    ACTION_TYPE_KAN_ADDED = 12;
-    ACTION_TYPE_KYUSYU = 13;
+    ACTION_TYPE_DISCARD = 0;
+    ACTION_TYPE_RIICHI = 1;
+    ACTION_TYPE_TSUMO = 2;
+    ACTION_TYPE_RON = 3;
+    ACTION_TYPE_CHI = 4;
+    ACTION_TYPE_PON = 5;
+    ACTION_TYPE_KAN_CLOSED = 6;
+    ACTION_TYPE_KAN_OPENED = 7;
+    ACTION_TYPE_KAN_ADDED = 8;
+    ACTION_TYPE_KYUSYU = 9;
+}
+
+enum EventType {
+  EVENT_TYPE_DRAW = 0;
+  EVENT_TYPE_DISCARD = 1;
+  EVENT_TYPE_RIICHI = 2;
+  EVENT_TYPE_TSUMO = 3;
+  EVENT_TYPE_RON = 4;
+  EVENT_TYPE_CHI = 5;
+  EVENT_TYPE_PON = 6;
+  EVENT_TYPE_KAN_CLOSED = 7;
+  EVENT_TYPE_KAN_OPENED = 8;
+  EVENT_TYPE_KAN_ADDED = 9;
+  EVENT_TYPE_NEW_DORA = 10;
+  EVENT_TYPE_RIICHI_SCORE_CHANGE = 11;
+}
+
+enum NoWinnerEndType {  // 流局
+  NO_WINNER_END_TYPE_NORMAL = 0;
+  NO_WINNER_END_TYPE_KYUUSYU = 1; // 九種九牌  // TODO(sotetsuk): rename
+  NO_WINNER_END_TYPE_FOUR_RIICHI = 2;  // 四家立直
+  NO_WINNER_END_TYPE_THREE_RONS = 3;  // 三家和了
+  NO_WINNER_END_TYPE_FOUR_KANS = 4;  // 四槓散了
+  NO_WINNER_END_TYPE_FOUR_WINDS = 5;  // 四風連打
+  NO_WINNER_END_TYPE_NM = 6;  // 流し満貫  # TODO(sotetsuk): rename
 }
 
 message Score {
@@ -44,21 +65,20 @@ message Score {
   repeated uint32 ten = 4;
 }
 
-message TakenAction {
+message Event {
   uint32 who = 1;
-  uint32 type = 2;  // draw, discard, riichi_and_discard, chi, pon, kan_opened, kan_closed, kan_added, tsumo ,ron
-  uint32 draw = 3;
-  uint32 discard = 4;
-  bool discard_drawn_tile= 5;  // discard the drawn tile
-  uint32 open = 6;
+  uint32 type = 2;  // draw, discard, riichi, riichi_score_change, chi, pon, kan_opened, kan_closed, kan_added, tsumo, ron, new_dora
+  uint32 tile = 3;
+  uint32 open = 4;
 }
 
-message ActionHistory {
-  repeated TakenAction taken_actions = 1;
+message EventHistory {
+  repeated Event events = 1;
 }
 
-message InitialHand {
-  repeated uint32 tiles = 1;
+message InitHand {
+  uint32 who = 1;
+  repeated uint32 tiles = 2;
 }
 
 message PossibleAction {
@@ -73,25 +93,23 @@ message PossibleAction {
 message Observation {
   uint32 game_id = 1;
   Score score = 2;  // public info
-  ActionHistory action_history = 3;  // public info
+  EventHistory event_history = 3;  // public info
   uint32 who = 4;
-  InitialHand initial_hand = 5;  // private info
+  InitHand init_hand = 5;  // private info
   repeated PossibleAction possible_actions = 6;
 }
 
 message Win {  // only for Tenhou visualization
   uint32 who = 1;
   uint32 from_who = 2;
-  repeated uint32 tiles = 3;
+  repeated uint32 closed_tiles = 3;
   repeated uint32 opens = 4;
   uint32 win_tile = 5;
-  repeated uint32 dora = 6;
-  repeated uint32 ura_dora = 7;
-  uint32 fu = 8;
-  uint32 ten = 9;
-  repeated uint32 yakus = 10;
-  repeated uint32 fans = 11;
-  repeated uint32 yakumans = 12;
+  uint32 fu = 6;
+  uint32 ten = 7;
+  repeated uint32 yakus = 8;
+  repeated uint32 fans = 9;
+  repeated uint32 yakumans = 10;
 }
 
 message TenpaiHand {  // only for Tenhou visualization
@@ -102,21 +120,24 @@ message TenpaiHand {  // only for Tenhou visualization
 message StateEndInfo {  // only for Tenhou visualization
   repeated Win wins = 1;
   repeated TenpaiHand tenpais = 2;
-  repeated uint32 scores_before = 3;
-  repeated uint32 scores_after = 4;
-  repeated int32 score_changes = 5;
-  uint32 ryukyoku_type = 6;  // 九種九牌, 四家立直, 三家和了, 四槓散了, 四風連打, 流し満貫
+  repeated uint32 ten_before = 3;  // Required for Tenhou mjlog. E.g., [250, 240, 250, 250] if player 1 declared riichi during initial round
+  repeated uint32 ten_after = 4;
+  repeated int32 ten_changes = 5;
+  uint32 no_winner_end_type = 6;  // Following Tenhou mjlog format. 0, normal. 九種九牌, 四家立直, 三家和了, 四槓散了, 四風連打, 流し満貫
   bool is_game_over = 7;
 }
 
 message State {  // For Tenhou visualization and unit test
   uint32 game_id = 1;
-  Score score = 2;
-  repeated uint32 wall = 3;
-  repeated uint32 dora = 4;
-  ActionHistory action_history = 5;
-  repeated InitialHand initial_hands = 6;
-  StateEndInfo end_info = 7;
+  repeated string player_ids = 2;
+  Score init_score = 3;  // Required for Tenhou mjlog.
+  Score curr_score = 4;  // includes the changes due to riichi, win and ryukyoku up to this step (including the last event)
+  repeated uint32 wall = 5;
+  repeated uint32 doras = 6;
+  repeated uint32 ura_doras = 7;
+  repeated InitHand init_hands = 8;
+  EventHistory event_history = 9;
+  StateEndInfo end_info = 10;
 }
 
 message Action {  // corresponds to mj::Action in cpp

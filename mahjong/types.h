@@ -38,14 +38,10 @@ namespace mj {
     };
 
     enum class ActionType : std::uint8_t {
-        kDraw = mjproto::ACTION_TYPE_DRAW,
-        kDrawAfterKan = mjproto::ACTION_TYPE_DRAW_AFTER_KAN,
         kDiscard = mjproto::ACTION_TYPE_DISCARD,
         kRiichi = mjproto::ACTION_TYPE_RIICHI,
         kTsumo = mjproto::ACTION_TYPE_TSUMO,
-        kTsumoAfterKan = mjproto::ACTION_TYPE_TSUMO_AFTER_KAN,
         kRon = mjproto::ACTION_TYPE_RON,
-        kRonAfterKan = mjproto::ACTION_TYPE_RON_AFTER_KAN,
         kChi = mjproto::ACTION_TYPE_CHI,
         kPon = mjproto::ACTION_TYPE_PON,
         kKanClosed = mjproto::ACTION_TYPE_KAN_CLOSED,
