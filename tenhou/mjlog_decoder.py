@@ -113,7 +113,7 @@ class MjlogDecoder:
         event = None
         num_kan_dora = 0
         for key, val in kv[1:]:
-            if key[0] in ["T", "U", "V", "W"]:  # draw
+            if key != "UN" and key[0] in ["T", "U", "V", "W"]:  # draw
                 # TODO (sotetsuk): consider draw after kan case
                 who = MjlogDecoder._to_wind(key[0])
                 draw = int(key[1:])
@@ -123,7 +123,7 @@ class MjlogDecoder:
                     tile=draw,
                 )
                 last_drawer, last_draw = who, draw
-            elif key[0] in ["D", "E", "F", "G"]:  # discard
+            elif key != "DORA" and key[0] in ["D", "E", "F", "G"]:  # discard
                 # TDOO (sotetsuk): riichi
                 who = MjlogDecoder._to_wind(key[0])
                 discard = int(key[1:])
@@ -155,9 +155,9 @@ class MjlogDecoder:
                         type=mahjong_pb2.EVENT_TYPE_RIICHI_SCORE_CHANGE
                     )
             elif key == "DORA":
-                dora = wall[129 - 2 * num_kan_dora]
+                dora = wall[128 - 2 * num_kan_dora]
                 assert dora == int(val["hai"])
-                ura_dora = wall[128 - 2 * num_kan_dora]
+                ura_dora = wall[129 - 2 * num_kan_dora]
                 num_kan_dora += 1
                 self.state.doras.append(dora)
                 self.state.ura_doras.append(ura_dora)
@@ -181,7 +181,23 @@ class MjlogDecoder:
                             closed_tiles=[int(x) for x in val[hai_key].split(",")],
                     ))
                 if "type" in val:
-                    self.state.no_winner_end_type = val["type"]
+                    no_winner_end_type = None
+                    if val["type"] == "yao9":
+                        no_winner_end_type = mahjong_pb2.NO_WINNER_END_TYPE_KYUUSYU
+                    elif val["type"] == "reach4":
+                        no_winner_end_type = mahjong_pb2.NO_WINNER_END_TYPE_FOUR_RIICHI
+                    elif val["type"] == "ron3":
+                        no_winner_end_type = mahjong_pb2.NO_WINNER_END_TYPE_THREE_RONS
+                    elif val["type"] == "kan4":
+                        no_winner_end_type = mahjong_pb2.NO_WINNER_END_TYPE_FOUR_KANS
+                    elif val["type"] == "kan4":
+                        no_winner_end_type = mahjong_pb2.NO_WINNER_END_TYPE_FOUR_KANS
+                    elif val["type"] == "kaze4":
+                        no_winner_end_type = mahjong_pb2.NO_WINNER_END_TYPE_FOUR_WINDS
+                    elif val["type"] == "nm":
+                        no_winner_end_type = mahjong_pb2.NO_WINNER_END_TYPE_NM
+                    assert no_winner_end_type is not None
+                    self.state.end_info.no_winner_end_type = no_winner_end_type
                 if "owari" in val:
                     self.state.end_info.is_game_over = True
             elif key == "AGARI":
@@ -256,7 +272,7 @@ class MjlogDecoder:
             else:
                 return mahjong_pb2.EVENT_TYPE_PON
         else:
-            if mahjong_pb2.RelativePos(bits & 3) == mahjong_pb2.RELATIVE_POS_SELF:
+            if mahjong_pb2.RELATIVE_POS_SELF == bits & 3:
                 return mahjong_pb2.EVENT_TYPE_KAN_CLOSED
             else:
                 return mahjong_pb2.EVENT_TYPE_KAN_OPENED
