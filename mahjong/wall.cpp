@@ -62,49 +62,6 @@ namespace mj
         return tiles_.cbegin() + 126;
     }
 
-    std::vector<Tile>::const_iterator Wall::dora_begin() const {
-        return tiles_.cbegin() + 126;
-    }
-
-    std::vector<Tile>::const_iterator Wall::dora_end() const {
-        return tiles_.cbegin() + 131;
-    }
-
-    std::vector<Tile>::const_iterator Wall::ura_dora_begin() const {
-        return tiles_.cbegin() + 131;
-    }
-
-    std::vector<Tile>::const_iterator Wall::ura_dora_end() const {
-        return tiles_.cbegin() + 136;
-    }
-
-    std::string Wall::ToString(bool verbose) const {
-        std::string s;
-        for (int i = 0; i < 13; ++i) s += tiles_[i].ToString(verbose) + ",";
-        s.pop_back(); s += "\n";
-        for (int i = 13; i < 26; ++i) s += tiles_[i].ToString(verbose) + ",";
-        s.pop_back(); s += "\n";
-        for (int i = 26; i < 39; ++i) s += tiles_[i].ToString(verbose) + ",";
-        s.pop_back(); s += "\n";
-        for (int i = 39; i < 52; ++i) s += tiles_[i].ToString(verbose) + ",";
-        s.pop_back(); s += "\n";
-        for (auto it = draw_begin(); it != draw_end();) {
-            for (int i = 0; i < 6; ++i) {
-                s += it->ToString(verbose) + ",";
-                ++it;
-                if (it == draw_end()) break;
-            }
-            s.pop_back(); s += "\n";
-        }
-        for (auto it = kan_draw_begin(); it != kan_draw_end(); ++it) s += it->ToString(verbose) + ",";
-        s.pop_back(); s += "\n";
-        for (auto it = dora_begin(); it != dora_end(); ++it) s += it->ToString(verbose) + ",";
-        s.pop_back(); s += "\n";
-        for (auto it = ura_dora_begin(); it != ura_dora_end(); ++it) s += it->ToString(verbose) + ",";
-        s.pop_back(); s += "\n";
-        return s;
-    }
-
     Tile Wall::KanDraw() {
         assert(abs(num_kan_draw_ - num_kan_dora_) <= 1);
         assert(num_kan_draw_ <= 3);
@@ -126,15 +83,15 @@ namespace mj
 
     std::vector<Tile> Wall::doras() const {
         assert(abs(num_kan_draw_ - num_kan_dora_) <= 1);
-        std::vector<Tile> ret;
-        for (auto it = dora_begin(); it != dora_begin() + num_kan_dora_ + 1; ++it) ret.emplace_back(*it);
+        std::vector<Tile> ret = {tiles_[130]};
+        for (int i = 0; i < num_kan_dora_; ++i) ret.emplace_back(tiles_[128 - 2 * i]);
         return ret;
     }
 
     std::vector<Tile> Wall::ura_doras() const {
         assert(abs(num_kan_draw_ - num_kan_dora_) <= 1);
-        std::vector<Tile> ret;
-        for (auto it = ura_dora_begin(); it != ura_dora_begin() + num_kan_dora_ + 1; ++it) ret.emplace_back(*it);
+        std::vector<Tile> ret = {tiles_[131]};
+        for (int i = 0; i < num_kan_dora_; ++i) ret.emplace_back(tiles_[129 - 2 * i]);
         return ret;
     }
 }  // namespace mj

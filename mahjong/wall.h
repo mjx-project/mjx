@@ -34,7 +34,7 @@ namespace mj
          *  - [132, ..., 135]  Kan draw 3, 2, 1, 0
          */
     public:
-        Wall(std::uint32_t round, std::uint32_t seed = 9999);  // round info is necessary due to Tenhou's implementation
+        explicit Wall(std::uint32_t round, std::uint32_t seed = 9999);  // round info is necessary due to Tenhou's implementation
         Wall(std::uint32_t round, std::vector<Tile> tiles);
         [[nodiscard]] Hand initial_hand(AbsolutePos pos) const;
         [[nodiscard]] std::vector<Tile> doras() const;
@@ -43,7 +43,6 @@ namespace mj
         Tile KanDraw();
         void AddKanDora();
         bool HasDrawLeft();
-        [[nodiscard]] std::string ToString(bool verbose = false) const;
     private:
         std::uint32_t round_;
         std::uint32_t seed_;
@@ -56,10 +55,6 @@ namespace mj
         [[nodiscard]] std::vector<Tile>::const_iterator draw_end() const;
         [[nodiscard]] std::vector<Tile>::const_iterator kan_draw_begin() const;
         [[nodiscard]] std::vector<Tile>::const_iterator kan_draw_end() const;
-        [[nodiscard]] std::vector<Tile>::const_iterator dora_begin() const;
-        [[nodiscard]] std::vector<Tile>::const_iterator dora_end() const;
-        [[nodiscard]] std::vector<Tile>::const_iterator ura_dora_begin() const;
-        [[nodiscard]] std::vector<Tile>::const_iterator ura_dora_end() const;
     };
 }  // namespace mj
 
