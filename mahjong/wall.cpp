@@ -65,7 +65,7 @@ namespace mj
         num_kan_dora_++;
     }
 
-    bool Wall::HasDrawLeft() {
+    bool Wall::HasDrawLeft() const {
         assert(abs(num_kan_draw_ - num_kan_dora_) <= 1);
         return itr_curr_draw_ + num_kan_draw_ != draw_end();
     }

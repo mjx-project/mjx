@@ -10,17 +10,6 @@ namespace mj
     class Wall
     {
         /*
-         * 136 tiles, indexed [0, 135]
-         *  - [0, 51] (13*4=52): initial hands of 4 players 配牌
-         *  - [52, 121] (70): draws ツモ
-         *  - [122, 125] (4): kan draws 嶺上牌
-         *  - [126] (1):  dora ドラ
-         *  - [127, 130] (4): kan doras カンドラ
-         *  - [131] (1): ura dora 裏ドラ
-         *  - [132, 135] (4): kan ura doras カンドラ裏
-         */
-
-        /*
          * This wall class implementation follows Tenhou's wall implementation:
          *
          *  136 tiles, indexed [0, ..., 135]
@@ -39,10 +28,10 @@ namespace mj
         [[nodiscard]] Hand initial_hand(AbsolutePos pos) const;
         [[nodiscard]] std::vector<Tile> doras() const;
         [[nodiscard]] std::vector<Tile> ura_doras() const;
+        [[nodiscard]] bool HasDrawLeft() const;
         Tile Draw();
         Tile KanDraw();
         void AddKanDora();
-        bool HasDrawLeft();
     private:
         std::uint32_t round_;
         std::uint32_t seed_;
