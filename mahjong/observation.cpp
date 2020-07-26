@@ -8,7 +8,7 @@ namespace mj
         score_.set_round(0);
         score_.set_honba(0);
         score_.set_riichi(0);
-        for (int i = 0; i < 4; ++i) score_.add_ten(250);
+        for (int i = 0; i < 4; ++i) score_.add_ten(25000);
     }
 
     std::uint8_t Score::round() const {
@@ -23,7 +23,7 @@ namespace mj
         return score_.riichi();
     }
 
-    std::array<std::int16_t, 4> Score::ten() const {
+    std::array<std::int32_t, 4> Score::ten() const {
         assert(score_.ten_size() == 4);
         auto ret = std::array<std::int16_t, 4>();
         for (int i = 0; i < 4; ++i) ret[i] = score_.ten(i);

@@ -41,7 +41,7 @@ class MjlogEncoder:
     def _parse_each_round(state: mahjong_pb2.State) -> str:
         ret = "<INIT "
         ret += f"seed=\"{state.init_score.round},{state.init_score.honba},{state.init_score.riichi},,,{state.doras[0]}\" "
-        ret += f"ten=\"{state.init_score.ten[0]},{state.init_score.ten[1]},{state.init_score.ten[2]},{state.init_score.ten[3]}\" oya=\"{state.init_score.round % 4}\" "
+        ret += f"ten=\"{state.init_score.ten[0] // 100},{state.init_score.ten[1] // 100},{state.init_score.ten[2] // 100},{state.init_score.ten[3] // 100}\" oya=\"{state.init_score.round % 4}\" "
         hai = [",".join([str(t) for t in x.tiles]) for x in state.init_hands]
         ret += f"hai0=\"{hai[0]}\" "
         ret += f"hai1=\"{hai[1]}\" "
@@ -67,8 +67,8 @@ class MjlogEncoder:
             elif event.type == mahjong_pb2.EVENT_TYPE_RIICHI:
                 ret += f"<REACH who=\"{event.who}\" step=\"1\"/>"
             elif event.type == mahjong_pb2.EVENT_TYPE_RIICHI_SCORE_CHANGE:
-                ten[event.who] -= 10
-                ret += f"<REACH who=\"{event.who}\" ten=\"{ten[0]},{ten[1]},{ten[2]},{ten[3]}\" step=\"2\"/>"
+                ten[event.who] -= 1000
+                ret += f"<REACH who=\"{event.who}\" ten=\"{ten[0] // 100},{ten[1] // 100},{ten[2] // 100},{ten[3] // 100}\" step=\"2\"/>"
             elif event.type == mahjong_pb2.EVENT_TYPE_NEW_DORA:
                 ret += "<DORA hai=\"{event.tile}\" />"
             elif event.type in [mahjong_pb2.EVENT_TYPE_TSUMO, mahjong_pb2.EVENT_TYPE_RON]:
@@ -79,8 +79,8 @@ class MjlogEncoder:
             ret += f"ba=\"{state.curr_score.honba},{state.curr_score.riichi}\" "
             sc = []
             for i in range(4):
-                sc.append(state.end_info.ten_before[i])
-                sc.append(state.end_info.ten_changes[i])
+                sc.append(state.end_info.ten_before[i] // 100)
+                sc.append(state.end_info.ten_changes[i] // 100)
             sc = ",".join([str(x) for x in sc])
             ret += f"sc=\"{sc}\" "
             for tenpai in state.end_info.tenpais:
@@ -104,7 +104,7 @@ class MjlogEncoder:
                 ret += f"type=\"{no_winner_end_type}\" "
             if state.end_info.is_game_over:
                 final_scores = MjlogEncoder._calc_final_score(state.curr_score.ten)
-                ret += f"owari=\"{state.curr_score.ten[0]},{final_scores[0]:.1f},{state.curr_score.ten[1]},{final_scores[1]:.1f},{state.curr_score.ten[2]},{final_scores[2]:.1f},{state.curr_score.ten[3]},{final_scores[3]:.1f}\" "
+                ret += f"owari=\"{state.curr_score.ten[0] // 100},{final_scores[0]:.1f},{state.curr_score.ten[1] // 100},{final_scores[1]:.1f},{state.curr_score.ten[2] // 100},{final_scores[2]:.1f},{state.curr_score.ten[3] // 100},{final_scores[3]:.1f}\" "
             ret += "/>"
         else:
             for win in state.end_info.wins:
@@ -147,13 +147,13 @@ class MjlogEncoder:
                 ret += f"who=\"{win.who}\" fromWho=\"{win.from_who}\" "
                 sc = []
                 for prev, change in zip(state.end_info.ten_before, state.end_info.ten_changes):
-                    sc.append(prev)
-                    sc.append(change)
+                    sc.append(prev // 100)
+                    sc.append(change // 100)
                 sc = ",".join([str(x) for x in sc])
                 ret += f"sc=\"{sc}\" "
                 if state.end_info.is_game_over:
                     final_scores = MjlogEncoder._calc_final_score(state.curr_score.ten)
-                    ret += f"owari=\"{state.curr_score.ten[0]},{final_scores[0]:.1f},{state.curr_score.ten[1]},{final_scores[1]:.1f},{state.curr_score.ten[2]},{final_scores[2]:.1f},{state.curr_score.ten[3]},{final_scores[3]:.1f}\" "
+                    ret += f"owari=\"{state.curr_score.ten[0] // 100},{final_scores[0]:.1f},{state.curr_score.ten[1] // 100},{final_scores[1]:.1f},{state.curr_score.ten[2] // 100},{final_scores[2]:.1f},{state.curr_score.ten[3] // 100},{final_scores[3]:.1f}\" "
                 ret += "/>"
 
         return ret
@@ -179,7 +179,8 @@ class MjlogEncoder:
         for i in range(1, 4):
             j = ixs[i]
             score = ten[j]
-            score = score - 300
+            score -= 30000
+            score //= 100
             if 1 <= score % 10 <= 4:
                 score = (score // 10) * 10
             elif 5 <= score % 10 <= 9:
