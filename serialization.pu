@@ -5,7 +5,15 @@ class cpp::mjproto::State <<(D,yellow) Data>> {
 
 }
 
+class cpp::mjproto::Observation <<(D,yellow) Data>> {
+
+}
+
 class python::mjproto::State <<(D,yellow) Data>> {
+
+}
+
+class python::mjproto::Observation <<(D,yellow) Data>> {
 
 }
 
@@ -16,21 +24,34 @@ class json <<(D,lightblue) SerializedData>> {
 class Tenhou::mjlog <<(D,lightblue) SerializedData>> {
 
 }
+note right
+Visualizable in Tenhou Windows app
+end note
 
-cpp::mj::State -> cpp::mjproto::State
+object Features
+
+cpp::mj::State -down-> cpp::mjproto::State
 cpp::mj::State -> cpp::mj::Observation
 
-cpp::mj::Observation -> cpp::mjproto::Observation
+cpp::mj::Observation -down-> cpp::mjproto::Observation
 
-cpp::mjproto::State -> cpp::mj::State
-cpp::mjproto::State -> json
+cpp::mjproto::State -up-> cpp::mj::State
+cpp::mjproto::State -down-> json
 
-cpp::mjproto::Observation -> cpp::mj::Observation
+cpp::mjproto::Observation -up-> cpp::mj::Observation
+cpp::mjproto::Observation -down-> json
+cpp::mjproto::Observation -> Features
 
-python::mjproto::State -> Tenhou::mjlog
-python::mjproto::State -> json
+python::mjproto::State -down-> Tenhou::mjlog
+python::mjproto::State -up-> json
 
-Tenhou::mjlog-> python::mjproto::State
+python::mjproto::Observation -down-> Tenhou::mjlog
+python::mjproto::Observation -up-> json
 
-json -> python::mjproto::State
-json -> cpp::mjproto::State
+Tenhou::mjlog -up-> python::mjproto::State
+Tenhou::mjlog -up-> python::mjproto::Observation
+
+json -down-> python::mjproto::State
+json -down-> python::mjproto::Observation
+json -up-> cpp::mjproto::State
+json -up-> cpp::mjproto::Observation
