@@ -25,7 +25,7 @@ namespace mj
 
     std::array<std::int32_t, 4> Score::ten() const {
         assert(score_.ten_size() == 4);
-        auto ret = std::array<std::int16_t, 4>();
+        auto ret = std::array<std::int32_t, 4>();
         for (int i = 0; i < 4; ++i) ret[i] = score_.ten(i);
         return ret;
     }
