@@ -9,9 +9,9 @@ TEST(state, InitRound) {
 
     // Hands are different after initializations
     state.InitRound();
-    auto hand_str1 = state.hand(AbsolutePos::kEast).ToString();
+    auto hand_str1 = state.hand(AbsolutePos::kInitEast).ToString();
     state.InitRound();
-    auto hand_str2 = state.hand(AbsolutePos::kEast).ToString();
+    auto hand_str2 = state.hand(AbsolutePos::kInitEast).ToString();
     EXPECT_NE(hand_str1, hand_str2);
 }
 
@@ -19,7 +19,7 @@ TEST(state, UpdateStateByDraw) {
     auto state = State(9999);
     state.InitRound();
     auto drawer = state.UpdateStateByDraw();
-    EXPECT_EQ(drawer, AbsolutePos::kEast);
+    EXPECT_EQ(drawer, AbsolutePos::kInitEast);
     EXPECT_EQ(state.hand(drawer).Size(), 14);
     EXPECT_EQ(state.stage(), RoundStage::kAfterDraw);
 
@@ -50,16 +50,16 @@ TEST(state, StealCheck) {
 }
 
 TEST(state, ToRelativePos) {
-    EXPECT_EQ(State::ToRelativePos(mj::AbsolutePos::kEast, mj::AbsolutePos::kSouth), RelativePos::kRight);
-    EXPECT_EQ(State::ToRelativePos(mj::AbsolutePos::kEast, mj::AbsolutePos::kWest), RelativePos::kMid);
-    EXPECT_EQ(State::ToRelativePos(mj::AbsolutePos::kEast, mj::AbsolutePos::kNorth), RelativePos::kLeft);
-    EXPECT_EQ(State::ToRelativePos(mj::AbsolutePos::kSouth, mj::AbsolutePos::kEast), RelativePos::kLeft);
-    EXPECT_EQ(State::ToRelativePos(mj::AbsolutePos::kSouth, mj::AbsolutePos::kWest), RelativePos::kRight);
-    EXPECT_EQ(State::ToRelativePos(mj::AbsolutePos::kSouth, mj::AbsolutePos::kNorth), RelativePos::kMid);
-    EXPECT_EQ(State::ToRelativePos(mj::AbsolutePos::kWest, mj::AbsolutePos::kEast), RelativePos::kMid);
-    EXPECT_EQ(State::ToRelativePos(mj::AbsolutePos::kWest, mj::AbsolutePos::kSouth), RelativePos::kLeft);
-    EXPECT_EQ(State::ToRelativePos(mj::AbsolutePos::kWest, mj::AbsolutePos::kNorth), RelativePos::kRight);
-    EXPECT_EQ(State::ToRelativePos(mj::AbsolutePos::kNorth, mj::AbsolutePos::kEast), RelativePos::kRight);
-    EXPECT_EQ(State::ToRelativePos(mj::AbsolutePos::kNorth, mj::AbsolutePos::kSouth), RelativePos::kMid);
-    EXPECT_EQ(State::ToRelativePos(mj::AbsolutePos::kNorth, mj::AbsolutePos::kWest), RelativePos::kLeft);
+    EXPECT_EQ(State::ToRelativePos(mj::AbsolutePos::kInitEast, mj::AbsolutePos::kInitSouth), RelativePos::kRight);
+    EXPECT_EQ(State::ToRelativePos(mj::AbsolutePos::kInitEast, mj::AbsolutePos::kInitWest), RelativePos::kMid);
+    EXPECT_EQ(State::ToRelativePos(mj::AbsolutePos::kInitEast, mj::AbsolutePos::kInitNorth), RelativePos::kLeft);
+    EXPECT_EQ(State::ToRelativePos(mj::AbsolutePos::kInitSouth, mj::AbsolutePos::kInitEast), RelativePos::kLeft);
+    EXPECT_EQ(State::ToRelativePos(mj::AbsolutePos::kInitSouth, mj::AbsolutePos::kInitWest), RelativePos::kRight);
+    EXPECT_EQ(State::ToRelativePos(mj::AbsolutePos::kInitSouth, mj::AbsolutePos::kInitNorth), RelativePos::kMid);
+    EXPECT_EQ(State::ToRelativePos(mj::AbsolutePos::kInitWest, mj::AbsolutePos::kInitEast), RelativePos::kMid);
+    EXPECT_EQ(State::ToRelativePos(mj::AbsolutePos::kInitWest, mj::AbsolutePos::kInitSouth), RelativePos::kLeft);
+    EXPECT_EQ(State::ToRelativePos(mj::AbsolutePos::kInitWest, mj::AbsolutePos::kInitNorth), RelativePos::kRight);
+    EXPECT_EQ(State::ToRelativePos(mj::AbsolutePos::kInitNorth, mj::AbsolutePos::kInitEast), RelativePos::kRight);
+    EXPECT_EQ(State::ToRelativePos(mj::AbsolutePos::kInitNorth, mj::AbsolutePos::kInitSouth), RelativePos::kMid);
+    EXPECT_EQ(State::ToRelativePos(mj::AbsolutePos::kInitNorth, mj::AbsolutePos::kInitWest), RelativePos::kLeft);
 }

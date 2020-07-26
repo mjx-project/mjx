@@ -41,7 +41,7 @@ namespace mj
         std::cout << std::endl;
         std::cout << "init hand size: " << request->init_hand().tiles_size() << std::endl;
         std::cout << "taken_action size: " << request->event_history().events_size() << std::endl;
-        reply->set_type(999);
+        reply->set_type(mjproto::ActionType(2));
         reply->set_discard(2);
         return grpc::Status::OK;
     }

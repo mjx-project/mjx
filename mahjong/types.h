@@ -83,10 +83,10 @@ namespace mj {
     };
 
     enum class AbsolutePos : std::uint8_t {
-        kEast,
-        kSouth,
-        kWest,
-        kNorth,
+        kInitEast = mjproto::ABSOLUTE_POS_INIT_EAST,  // 起家
+        kInitSouth = mjproto::ABSOLUTE_POS_INIT_SOUTH,
+        kInitWest = mjproto::ABSOLUTE_POS_INIT_WEST,
+        kInitNorth = mjproto::ABSOLUTE_POS_INIT_NORTH,  // ラス親
         kEnd,  // Dummy
         kBegin = 0
     };
