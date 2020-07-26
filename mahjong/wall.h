@@ -19,6 +19,20 @@ namespace mj
          *  - [131] (1): ura dora 裏ドラ
          *  - [132, 135] (4): kan ura doras カンドラ裏
          */
+
+        /*
+         * Tenhou's wall
+         *
+         *  136 tiles, indexed [0, 135]
+         *  - [0, 51] (13*4=52): initial hands of 4 players 配牌
+         *    - Depends on round.
+         *  - [52, 121] (70): draws ツモ
+         *  - [122, 124, 126, 128] Kan dora 3, 2, 1, 0
+         *  - [123, 125, 127, 129] Kan ura Dora 3, 2, 1, 0
+         *  - [130] Dora
+         *  - [131] Ura dora
+         *  - [132, ..., 135]  Kan draw 3, 2, 1, 0
+         */
     public:
         explicit Wall(std::uint32_t seed = 9999);
         [[nodiscard]] Hand initial_hand(AbsolutePos pos) const;

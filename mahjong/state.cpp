@@ -22,7 +22,7 @@ namespace mj
                 Player{AbsolutePos::kWest, River(), wall_.initial_hand(AbsolutePos::kWest)},
                 Player{AbsolutePos::kNorth, River(), wall_.initial_hand(AbsolutePos::kNorth)}
         };
-        action_history_ = ActionHistory();
+        action_history_ = Events();
     }
 
     std::uint32_t State::GenerateRoundSeed() {

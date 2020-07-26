@@ -39,8 +39,8 @@ namespace mj
             std::cout << request->score().ten(i) << " ";
         }
         std::cout << std::endl;
-        std::cout << "init hand size: " << request->initial_hand().tiles_size() << std::endl;
-        std::cout << "taken_action size: " << request->action_history().taken_actions_size() << std::endl;
+        std::cout << "init hand size: " << request->init_hand().tiles_size() << std::endl;
+        std::cout << "taken_action size: " << request->event_history().events_size() << std::endl;
         reply->set_type(999);
         reply->set_discard(2);
         return grpc::Status::OK;

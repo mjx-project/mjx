@@ -57,12 +57,12 @@ namespace mj
         return possible_action;
     }
 
-    std::size_t ActionHistory::size() const {
-        return action_history_.taken_actions_size();
+    std::size_t Events::size() const {
+        return event_history_.events_size();
     }
 
     std::vector<PossibleAction> Observation::possible_actions() const {
-        assert(proto_.has_action_history());
+        assert(proto_.has_event_history());
         std::vector<PossibleAction> ret;
         for (const auto& possible_action: proto_.possible_actions()) {
             ret.emplace_back(PossibleAction{possible_action});
@@ -84,10 +84,10 @@ namespace mj
 
     Observation::~Observation() {
         // Calling release_xxx prevent gRPC from deleting objects after gRPC communication
-        assert(proto_.has_action_history());
+        assert(proto_.has_event_history());
         proto_.release_score();
-        proto_.release_action_history();
-        proto_.release_initial_hand();
+        proto_.release_event_history();
+        proto_.release_init_hand();
     }
 
     void Observation::add_possible_action(PossibleAction possible_action) {
@@ -96,10 +96,10 @@ namespace mj
         mutable_possible_actions->Add(std::move(possible_action.possible_action_));
     }
 
-    Observation::Observation(AbsolutePos who, Score &score, ActionHistory &action_history, Player& player) {
+    Observation::Observation(AbsolutePos who, Score &score, Events &event_history, Player& player) {
         proto_.set_who(ToUType(who));
         proto_.set_allocated_score(&score.score_);
-        proto_.set_allocated_action_history(&action_history.action_history_);
-        proto_.set_allocated_initial_hand(&player.initial_hand_);
+        proto_.set_allocated_event_history(&event_history.event_history_);
+        proto_.set_allocated_init_hand(&player.init_hand_);
     }
 }

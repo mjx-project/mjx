@@ -57,7 +57,7 @@ namespace mj
         AbsolutePos latest_discarder_;
         Wall wall_;
         std::array<Player, 4> players_;
-        ActionHistory action_history_;
+        Events action_history_;
 
         std::uint32_t GenerateRoundSeed();
     };
