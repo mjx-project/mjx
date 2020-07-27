@@ -38,18 +38,15 @@ cpp::mj::Observation -down-> cpp::mjproto::Observation
 cpp::mjproto::State -up-> cpp::mj::State
 cpp::mjproto::State -down-> json
 
-cpp::mjproto::Observation -up-> cpp::mj::Observation
 cpp::mjproto::Observation -down-> json
 cpp::mjproto::Observation -> Features
 
 python::mjproto::State -down-> Tenhou::mjlog
 python::mjproto::State -up-> json
 
-python::mjproto::Observation -down-> Tenhou::mjlog
 python::mjproto::Observation -up-> json
 
 Tenhou::mjlog -up-> python::mjproto::State
-Tenhou::mjlog -up-> python::mjproto::Observation
 
 json -down-> python::mjproto::State
 json -down-> python::mjproto::Observation

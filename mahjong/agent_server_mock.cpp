@@ -31,12 +31,12 @@ namespace mj
         std::cout << "Received observation" << std::endl;
         std::cout << "==============================================" << std::endl;
         std::cout << "who: " << request->who() << std::endl;
-        std::cout << "round: " << request->score().round() << std::endl;
-        std::cout << "honba: " << request->score().honba() << std::endl;
-        std::cout << "riichi: " << request->score().riichi() << std::endl;
+        std::cout << "round: " << request->init_score().round() << std::endl;
+        std::cout << "honba: " << request->init_score().honba() << std::endl;
+        std::cout << "riichi: " << request->init_score().riichi() << std::endl;
         std::cout << "ten: ";
-        for (int i = 0; i < request->score().ten_size(); ++i) {
-            std::cout << request->score().ten(i) << " ";
+        for (int i = 0; i < request->init_score().ten_size(); ++i) {
+            std::cout << request->init_score().ten(i) << " ";
         }
         std::cout << std::endl;
         std::cout << "init hand size: " << request->init_hand().tiles_size() << std::endl;

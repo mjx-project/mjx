@@ -9,20 +9,19 @@ class mjproto::Score <<(D,yellow) Data>> {
   + ten 
 }
 
-class mjproto::TakenAction <<(D,yellow) Data>> {
+class mjproto::Event <<(D,yellow) Data>> {
   + who
   + type 
-  + draw 
-  + discard 
-  + discard_drawn_tile
+  + tile
   + open
 }
 
-class mjproto::ActionHistory <<(D,yellow) Data>> {
-  + taken_actions 
+class mjproto::EventHistory <<(D,yellow) Data>> {
+  + type: EventHistoryType
+  + events: repeated Event
 }
 
-class mjproto::InitialHand <<(D,yellow) Data>> {
+class mjproto::InitHand <<(D,yellow) Data>> {
   + tiles
 }
 
@@ -32,12 +31,35 @@ class mjproto::PossibleAction <<(D,yellow) Data>> {
   + discard_candidates
 }
 
+class mjproto::State <<(D,yellow) Data>> {
+  + game_id
+  + player_ids
+  + init_score
+  + doras
+  + init_hands
+  + event_history
+  + wall
+  + ura_dora
+  + end_info
+} 
+
+class mjproto::StateEndInfo <<(D,yellow) Data>> {
+  + end_score
+  + wins
+  + tenpais 
+  + no_winner_end_type
+  + is_game_over
+}
+
 class mjproto::Observation <<(D,yellow) Data>> {
   + game_id
-  + score
-  + action_history
+  + player_ids
+  + init_score
+  + doras
   + who
-  + initial_hand 
+  + init_hand
+  + draws
+  + event_history
   + possible_actions
 }
 
@@ -51,16 +73,21 @@ class mjproto::Action <<(D,yellow) Data>> {
 }
 
 mjproto::Observation *-- mjproto::Score
-mjproto::Observation *-- mjproto::ActionHistory
-mjproto::Observation *-- mjproto::InitialHand
+mjproto::Observation *-- mjproto::EventHistory
+mjproto::Observation *-- mjproto::InitHand
 mjproto::Observation "1" *-- "1..*" mjproto::PossibleAction
 
-mjproto::ActionHistory "1" *-- "1..*" mjproto::TakenAction
+mjproto::State *-- mjproto::Score
+mjproto::State *-- mjproto::EventHistory
+mjproto::State "1" *-- "4" mjproto::InitHand
+mjproto::State *-- mjproto::StateEndInfo
+
+mjproto::EventHistory "1" *-- "1..*" mjproto::Event
 
 
 class mj::Environment {
-    - agents: mj::AgentClient
-    - state: mj::State
+    - agents: AgentClient
+    - state: State
     + Run(): void
     + RunOneGame(): void
     + RunOneRound(): void
@@ -75,7 +102,7 @@ class mj::WinningHandCache <<(S,orchid) Singleton>> {
     + Has(): bool
 }
 
-class mj::WinningStateInfo {
+class mj::WinningStateInfo <<(D,yellow) Data>> {
   + dora
   + tenhou
   + haitei
@@ -88,7 +115,7 @@ class mj::WinningScore <<(D,yellow) Data>> {
 }
 
 class mj::WinningInfo <<(D,yellow) Data>> {
-    + opens: vector<unique_ptr<mj::Open>>& 
+    + opens: vector<Open>
     + closed_tiles: unordered_set<mj::Tile, HashTile> 
     + last_tile_added: std::optional<Tile> 
     + stage: HandStage 
@@ -102,24 +129,27 @@ class mj::WinningInfo <<(D,yellow) Data>> {
 }
 
 class mj::State {
-    + score: mj::Score
-    + stage: mj::RoundStage
-    + dealer: mj::AbsolutePos
-    + drawer: mj::AbsolutePos
-    + wall: Wall
-    + action_history ActionHistory 
-    + players: array<Player, 4>
+    - score: Score
+    - stage: RoundStage
+    - dealer: AbsolutePos
+    - drawer: AbsolutePos
+    - wall: Wall
+    - event_history: EventHistory
+    - players: array<Player, 4>
+    - init_hands : vector<mjproto::InitHand>
     + InitRound(): void
+    + CreateObservation(): pair<AbsolutePos, Observation>
+    + UpdateState(Action): void
     + IsRoundOver(): bool
-    + UpdateStateByDraw(): mj::Tile
-    + UpdateStateByAction(): void
-    + UpdateStateByActionCandidates(): void
+    - PossibleActions(): vector<Action>
+    - UpdateStateByDraw(): mj::Tile
+    - UpdateStateByAction(): void
+    - UpdateStateByActionCandidates(): void
 }
 
 class mj::Player {
-    + hand : Hand
-    + river : River
-    - initial_hand : mjproto:: InitialHand
+    - hand : Hand
+    - river : River
     + PossibleDiscards()
     + PossibleDiscardsAfterRiichi()
     + PossibleOpensAfterOthersDiscard()
@@ -140,16 +170,19 @@ class mj::Observation <<(D,yellow) Data>> {
     - observation mjproto::Observation
 }
 note left
-mjproto::InitialHand refers to mj::Player
-mjproto::ActionHistory refers to mj::ActionHistory
+mjproto::InitHand refers to State
+mjproto::EventHistory refers to EventHistory
 end note
 
-class mj::ActionHistory <<(D,yellow) Data>> {
-    - action_history mjproto::ActionHistory
+class mj::EventHistory <<(D,yellow) Data>> {
+    - state_event_history: EventHistory
+    - observation_event_history mjproto::EventHistory
+    - draw_history: array<draws, 4>
+    + Add(): void
 }
 
 abstract class mj::AgentClient {
-    + TakeAction(): mj::Action
+    + TakeAction(): Action
 }
 
 class mj::AgentClientMock {
@@ -170,12 +203,12 @@ class mj::Score <<(D,yellow) Data>> {
 }
 
 class mj::Wall {
-    - tiles: vector<mj::Tile>
-    + <<get>> initial_hands(): array<mj::Hand, 4>
-    + <<get>> doras(): vector<mj::Tile>
-    + <<get>> ura_doras(): vector<mj::Tile>
-    + Draw(): mj::Tile
-    + KanDraw(): mj::Tile
+    - tiles: vector<Tile>
+    + <<get>> initial_hands(): array<Hand, 4>
+    + <<get>> doras(): vector<Tile>
+    + <<get>> ura_doras(): vector<Tile>
+    + Draw(): Tile
+    + KanDraw(): Tile
     + AddKanDora()
     + HasDrawLeft(): bool
 }
@@ -189,17 +222,31 @@ class mj::Action <<(D,yellow) Data>> {
 }
 
 class mj::Hand {
-    + stage
-    + last_tile_added
-    + closed_tiles
-    + opens
-    + undiscardable_tiles
-    + under_riichi
+    - stage
+    - last_tile_added
+    - closed_tiles
+    - opens
+    - undiscardable_tiles
+    - under_riichi
+    + PossibleDiscards()
+    + PossibleDiscardsAfterRiichi()
+    + PossibleOpensAfterOthersDiscard()
+    + PossibleOpensAfterDraw()
+    + CanRon()
+    + IsCompleted()
+    + CanRiichi()
+    + Draw()
+    + Riichi()
+    + ApplyOpen()
+    + Ron()
+    + RonAfterOthersKan()
+    + Tsumo()
+    + Discard()
+
 }
 
-abstract class mj::Open {
+class mj::Open {
     - bits: int
-    + {static} NewOpen(): unique_ptr<Open>
     + <<get>> type()
     + <<get>> from()
     + <<get>> at()
@@ -212,24 +259,24 @@ abstract class mj::Open {
     + <<get>> bits()
 }
 
-class mj::Chi {
-
+class mj::Chi <<(S,orange) Static>> {
+    + Create(): Open
 }
 
-class mj::Pon {
-
+class mj::Pon <<(S,orange) Static>> {
+    + Create(): Open
 }
 
-class mj::KanOpened {
-
+class mj::KanOpened <<(S,orange) Static>> {
+    + Create(): Open
 }
 
-class mj::KanClosed {
-
+class mj::KanClosed <<(S,orange) Static>> {
+    + Create(): Open
 }
 
-class mj::KanAdded {
-
+class mj::KanAdded <<(S,orange) Static>> {
+    + Create(): Open
 }
 
 class mj::Tile {
@@ -239,14 +286,14 @@ class mj::Tile {
 
 
 mj::Environment "1" *-- "4" mj::AgentClient
-mj::Environment -- mj::State 
+mj::Environment *-- mj::State 
 
 mj::State <-- mj::Action : UpdateStateByAction
 mj::State *-- mj::Score 
 mj::State *-- mj::Wall
-mj::State *-- mj::ActionHistory
+mj::State *-- mj::EventHistory
 mj::State "1" *-- "4" mj::Player
-mj::State --> mj::Observation : NewObservation
+mj::State --> mj::Observation : CreateObservation
 mj::State --> mj::WinningStateInfo
 
 mj::WinningStateInfo --> mj::Player
@@ -259,11 +306,11 @@ mj::Player --> mj::WinningInfo : ToWinningInfo
 
 mj::Hand "0" *-- "1..4" mj::Open
 
-mj::Open <|-- mj::Chi
-mj::Open <|-- mj::Pon
-mj::Open <|-- mj::KanClosed
-mj::Open <|-- mj::KanOpened
-mj::Open <|-- mj::KanAdded
+mj::Open <-- mj::Chi : Create
+mj::Open <-- mj::Pon : Create
+mj::Open <-- mj::KanClosed : Create
+mj::Open <-- mj::KanOpened : Create
+mj::Open <-- mj::KanAdded : Create
 
 mj::WinningInfo --> mj::YakuEvaluator : Has, Eval
 
