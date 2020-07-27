@@ -85,7 +85,7 @@ namespace mj
     Observation::~Observation() {
         // Calling release_xxx prevent gRPC from deleting objects after gRPC communication
         assert(proto_.has_event_history());
-        proto_.release_score();
+        proto_.release_init_score();
         proto_.release_event_history();
         proto_.release_init_hand();
     }
@@ -98,7 +98,7 @@ namespace mj
 
     Observation::Observation(AbsolutePos who, Score &score, Events &event_history, Player& player) {
         proto_.set_who(mjproto::AbsolutePos(ToUType(who)));
-        proto_.set_allocated_score(&score.score_);
+        proto_.set_allocated_init_score(&score.score_);
         proto_.set_allocated_event_history(&event_history.event_history_);
         proto_.set_allocated_init_hand(&player.init_hand_);
     }
