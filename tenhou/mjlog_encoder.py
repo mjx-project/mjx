@@ -51,6 +51,7 @@ class MjlogEncoder:
         ret += "/>"
 
         curr_score = copy.deepcopy(state.init_score)
+        assert state.event_history.type == mahjong_pb2.EVENT_HISTORY_TYPE_STATE
         for event in state.event_history.events:
             if event.type == mahjong_pb2.EVENT_TYPE_DRAW:
                 who = MjlogEncoder._encode_absolute_pos_for_draw(event.who)

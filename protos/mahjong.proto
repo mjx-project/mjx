@@ -65,6 +65,11 @@ enum NoWinnerEndType {  // 流局
   NO_WINNER_END_TYPE_NM = 6;  // 流し満貫  # TODO(sotetsuk): rename
 }
 
+enum EventHistoryType {
+  EVENT_HISTORY_TYPE_STATE = 0;
+  EVENT_HISTORY_TYPE_OBSERVATION = 1;
+}
+
 message Score {
   uint32 round = 1;
   uint32 honba = 2;
@@ -80,7 +85,8 @@ message Event {
 }
 
 message EventHistory {
-  repeated Event events = 1;
+  EventHistoryType type = 1;
+  repeated Event events = 2;
 }
 
 message InitHand {

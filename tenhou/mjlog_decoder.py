@@ -105,9 +105,9 @@ class MjlogDecoder:
         for i in range(4 * 12, 4 * 13):
             assert wall[i] in self.state.init_hands[(i + round_) % 4].tiles
 
-        last_drawer, last_draw = None, None
         event = None
         num_kan_dora = 0
+        self.state.event_history.type = mahjong_pb2.EVENT_HISTORY_TYPE_STATE
         for key, val in kv[1:]:
             if key != "UN" and key[0] in ["T", "U", "V", "W"]:  # draw
                 # TODO (sotetsuk): consider draw after kan case
