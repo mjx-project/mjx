@@ -1,6 +1,8 @@
 #include "state.h"
 #include "utils.h"
 
+#include <google/protobuf/util/json_util.h>
+
 namespace mj
 {
     State::State(std::uint32_t seed)
@@ -137,5 +139,19 @@ namespace mj
                 return RelativePos::kLeft;
         }
         assert(false);
+    }
+
+    State::State(const std::string &json_str): State() {
+        std::unique_ptr<mjproto::State> state = std::make_unique<mjproto::State>();
+        auto status = google::protobuf::util::JsonStringToMessage(json_str, state.get());
+        assert(status.ok());
+    }
+
+    std::string State::ToJson() const {
+        std::string serialized;
+        std::unique_ptr<mjproto::State> state = std::make_unique<mjproto::State>();
+        auto status = google::protobuf::util::MessageToJsonString(*state, &serialized);
+        assert(status.ok());
+        return serialized;
     }
 }  // namespace mj

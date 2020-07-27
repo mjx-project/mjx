@@ -20,6 +20,7 @@ namespace mj
     {
     public:
         explicit State(std::uint32_t seed = 9999);
+        explicit State(const std::string &json_str);
         bool IsGameOver();
 
         // operate or access in-round state
@@ -44,7 +45,7 @@ namespace mj
         [[nodiscard]] const Hand & hand(AbsolutePos pos) const;
         [[nodiscard]] const River & river(AbsolutePos pos) const;
 
-        std::string ToMjlog() const;
+        std::string ToJson() const;
 
         static RelativePos ToRelativePos(AbsolutePos origin, AbsolutePos target);
     private:
