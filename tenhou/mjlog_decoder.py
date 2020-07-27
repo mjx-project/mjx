@@ -94,10 +94,6 @@ class MjlogDecoder:
         self.state.init_score.honba = honba
         self.state.init_score.riichi = riichi
         self.state.init_score.ten[:] = [int(x) * 100 for x in val["ten"].split(",")]
-        self.state.curr_score.round = round_
-        self.state.curr_score.honba = honba
-        self.state.curr_score.riichi = riichi
-        self.state.curr_score.ten[:] = [int(x) * 100 for x in val["ten"].split(",")]
         self.state.wall[:] = wall
         self.state.doras.append(dora)
         self.state.ura_doras.append(wall[131])
@@ -148,8 +144,6 @@ class MjlogDecoder:
                         type=mahjong_pb2.EVENT_TYPE_RIICHI
                     )
                 else:
-                    self.state.curr_score.riichi += 1
-                    self.state.curr_score.ten[:] = [int(x) * 100 for x in val["ten"].split(",")]
                     event = mahjong_pb2.Event(
                         who=who,
                         type=mahjong_pb2.EVENT_TYPE_RIICHI_SCORE_CHANGE
@@ -167,16 +161,12 @@ class MjlogDecoder:
                 )
             elif key == "RYUUKYOKU":
                 ba, riichi = [int(x) for x in val["ba"].split(",")]
-                assert ba == self.state.curr_score.honba
-                assert riichi == self.state.curr_score.riichi
-                self.state.end_info.ten_before[:] = [int(x) * 100 for i, x in enumerate(val["sc"].split(",")) if i % 2 == 0]
-                self.state.end_info.ten_changes[:] = [int(x) * 100 for i, x in enumerate(val["sc"].split(",")) if i % 2 == 1]
-                self.state.curr_score.ten[:] = [x + y for x, y in zip(self.state.end_info.ten_before, self.state.end_info.ten_changes)]
+                self.state.end_info.no_winner_end.ten_changes[:] = [int(x) * 100 for i, x in enumerate(val["sc"].split(",")) if i % 2 == 1]
                 for i in range(4):
                     hai_key = "hai" + str(i)
                     if hai_key not in val:
                         continue
-                    self.state.end_info.tenpais.append(mahjong_pb2.TenpaiHand(
+                    self.state.end_info.no_winner_end.tenpais.append(mahjong_pb2.TenpaiHand(
                             who=i,
                             closed_tiles=[int(x) for x in val[hai_key].split(",")],
                     ))
@@ -197,13 +187,11 @@ class MjlogDecoder:
                     elif val["type"] == "nm":
                         no_winner_end_type = mahjong_pb2.NO_WINNER_END_TYPE_NM
                     assert no_winner_end_type is not None
-                    self.state.end_info.no_winner_end_type = no_winner_end_type
+                    self.state.end_info.no_winner_end.type = no_winner_end_type
                 if "owari" in val:
                     self.state.end_info.is_game_over = True
             elif key == "AGARI":
                 ba, riichi = [int(x) for x in val["ba"].split(",")]
-                assert ba == self.state.curr_score.honba
-                assert riichi == self.state.curr_score.riichi
                 who = int(val["who"])
                 from_who = int(val["fromWho"])
                 # set event
@@ -214,15 +202,13 @@ class MjlogDecoder:
                 # set win info
                 # TODO(sotetsuk): yakuman
                 # TODO(sotetsuk): check double ron behavior
-                self.state.end_info.ten_before[:] = [int(x) * 100 for i, x in enumerate(val["sc"].split(",")) if i % 2 == 0]
-                self.state.end_info.ten_changes[:] = [int(x) * 100 for i, x in enumerate(val["sc"].split(",")) if i % 2 == 1]
-                self.state.curr_score.ten[:] = [x + y for x, y in zip(self.state.end_info.ten_before, self.state.end_info.ten_changes)]
                 win = mahjong_pb2.Win(
                     who=who,
                     from_who=from_who,
                     closed_tiles=[int(x) for x in val["hai"].split(",")],
                     win_tile=int(val["machi"])
                 )
+                win.ten_changes[:] = [int(x) * 100 for i, x in enumerate(val["sc"].split(",")) if i % 2 == 1]
                 if "m" in val:
                     win.opens[:] = [int(x) for x in val["m"].split(",")]
                 assert self.state.doras == [int(x) for x in val["doraHai"].split(",")]

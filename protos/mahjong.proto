@@ -108,7 +108,7 @@ message Observation {
   repeated PossibleAction possible_actions = 8;
 }
 
-message WinInfo {  // only for Tenhou visualization
+message Win {  // only for Tenhou visualization
   AbsolutePos who = 1;
   AbsolutePos from_who = 2;
   repeated uint32 closed_tiles = 3;
@@ -122,10 +122,10 @@ message WinInfo {  // only for Tenhou visualization
   repeated uint32 yakumans = 11;
 }
 
-message NoWinnerEndInfo {  // only for Tenhou visualization
+message NoWinnerEnd {  // only for Tenhou visualization
   repeated TenpaiHand tenpais = 1;
   repeated int32 ten_changes = 2;  // Required for Tenhou mjlog.
-  NoWinnerEndType no_winner_end_type = 3;  // Following Tenhou mjlog format. 0, normal. 九種九牌, 四家立直, 三家和了, 四槓散了, 四風連打, 流し満貫
+  NoWinnerEndType type = 3;  // Following Tenhou mjlog format. 0, normal. 九種九牌, 四家立直, 三家和了, 四槓散了, 四風連打, 流し満貫
 }
 
 message TenpaiHand {  // only for Tenhou visualization
@@ -134,9 +134,8 @@ message TenpaiHand {  // only for Tenhou visualization
 }
 
 message StateEndInfo {  // only for Tenhou visualization
-  Score end_score = 1;
-  repeated WinInfo win_infos = 2;
-  NoWinnerEndInfo no_winner_end_info = 3;  // Empty if someone wins
+  repeated Win wins = 2;
+  NoWinnerEnd no_winner_end = 3;  // Empty if someone wins
   bool is_game_over = 4;
 }
 
