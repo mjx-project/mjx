@@ -99,11 +99,13 @@ message PossibleAction {
 // Each request has enough information to make decisions.
 message Observation {
   uint32 game_id = 1;
-  AbsolutePos who = 2;
-  Score score = 3;  // public info
-  EventHistory event_history = 4;  // public info
-  InitHand init_hand = 5;  // private info
-  repeated PossibleAction possible_actions = 6;
+  repeated string player_ids = 2;
+  Score init_score = 3;  // public info
+  repeated uint32 doras = 4;
+  AbsolutePos who = 5;
+  InitHand init_hand = 6;  // private info
+  EventHistory event_history = 7;  // public info
+  repeated PossibleAction possible_actions = 8;
 }
 
 message Win {  // only for Tenhou visualization
@@ -114,9 +116,10 @@ message Win {  // only for Tenhou visualization
   uint32 win_tile = 5;
   uint32 fu = 6;
   uint32 ten = 7;
-  repeated uint32 yakus = 8;
-  repeated uint32 fans = 9;
-  repeated uint32 yakumans = 10;
+  repeated int32 ten_changes = 8;  // Required for Tenhou mjlog.
+  repeated uint32 yakus = 9;
+  repeated uint32 fans = 10;
+  repeated uint32 yakumans = 11;
 }
 
 message TenpaiHand {  // only for Tenhou visualization
@@ -125,25 +128,26 @@ message TenpaiHand {  // only for Tenhou visualization
 }
 
 message StateEndInfo {  // only for Tenhou visualization
-  repeated Win wins = 1;
-  repeated TenpaiHand tenpais = 2;
-  repeated uint32 ten_before = 3;  // Required for Tenhou mjlog. E.g., [25000, 24000, 25000, 25000] if player 1 declared riichi during initial round
-  repeated int32 ten_changes = 4;  // Required for Tenhou mjlog.
-  uint32 no_winner_end_type = 5;  // Following Tenhou mjlog format. 0, normal. 九種九牌, 四家立直, 三家和了, 四槓散了, 四風連打, 流し満貫
-  bool is_game_over = 6;
+  Score end_score = 1;
+  repeated Win wins = 2;
+  repeated TenpaiHand tenpais = 3;  // Empty if someone wins
+  NoWinnerEndType no_winner_end_type = 6;  // Following Tenhou mjlog format. 0, normal. 九種九牌, 四家立直, 三家和了, 四槓散了, 四風連打, 流し満貫
+  bool is_game_over = 7;
 }
 
 message State {  // For Tenhou visualization and unit test
+  // public info
   uint32 game_id = 1;
   repeated string player_ids = 2;
   Score init_score = 3;  // Required for Tenhou mjlog.
-  Score curr_score = 4;  // includes the changes due to riichi, win and ryukyoku up to this step (including the last event)
-  repeated uint32 wall = 5;
-  repeated uint32 doras = 6;
-  repeated uint32 ura_doras = 7;
-  repeated InitHand init_hands = 8;
-  EventHistory event_history = 9;
-  StateEndInfo end_info = 10;
+  repeated uint32 doras = 4;
+  // private info
+  repeated InitHand init_hands = 5;
+  EventHistory event_history = 6;
+  repeated uint32 wall = 7;
+  repeated uint32 ura_doras = 8;
+  // game end info
+  StateEndInfo end_info = 9;
 }
 
 message Action {  // corresponds to mj::Action in cpp
