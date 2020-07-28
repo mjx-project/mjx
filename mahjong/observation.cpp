@@ -30,6 +30,10 @@ namespace mj
         return ret;
     }
 
+    Score::Score(mjproto::Score score) {
+        score_ = score;
+    }
+
     PossibleAction::PossibleAction(mjproto::PossibleAction possible_action)
     : possible_action_(std::move(possible_action)) {}
 

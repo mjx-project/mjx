@@ -152,17 +152,16 @@ message StateEndInfo {  // only for Tenhou visualization
 
 message State {  // For Tenhou visualization and unit test
   // public info
-  uint32 game_id = 1;
-  repeated string player_ids = 2;
-  Score init_score = 3;  // Required for Tenhou mjlog.
-  repeated uint32 doras = 4;
+  repeated string player_ids = 1;
+  Score init_score = 2;  // Required for Tenhou mjlog.
+  repeated uint32 doras = 3;
   // private info
-  repeated InitHand init_hands = 5;
-  EventHistory event_history = 6;
-  repeated uint32 wall = 7;
-  repeated uint32 ura_doras = 8;
+  repeated InitHand init_hands = 4;
+  EventHistory event_history = 5;
+  repeated uint32 wall = 6;
+  repeated uint32 ura_doras = 7;
   // game end info
-  StateEndInfo end_info = 9;
+  StateEndInfo end_info = 8;
 }
 
 message Action {  // corresponds to mj::Action in cpp

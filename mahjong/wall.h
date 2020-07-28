@@ -3,7 +3,6 @@
 
 #include "vector"
 #include "tile.h"
-#include "hand.h"
 
 namespace mj
 {
@@ -25,9 +24,10 @@ namespace mj
     public:
         explicit Wall(std::uint32_t round, std::uint32_t seed = 9999);  // round info is necessary due to Tenhou's implementation
         Wall(std::uint32_t round, std::vector<Tile> tiles);
-        [[nodiscard]] Hand initial_hand(AbsolutePos pos) const;
+        [[nodiscard]] std::vector<Tile> initial_hand_tiles(AbsolutePos pos) const;
         [[nodiscard]] std::vector<Tile> doras() const;
         [[nodiscard]] std::vector<Tile> ura_doras() const;
+        [[nodiscard]] const std::vector<Tile>& tiles() const;
         [[nodiscard]] bool HasDrawLeft() const;
         Tile Draw();
         Tile KanDraw();

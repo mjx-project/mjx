@@ -49,6 +49,7 @@ namespace mj
 
         static RelativePos ToRelativePos(AbsolutePos origin, AbsolutePos target);
     private:
+        std::array<std::string, 4> player_ids_;
         std::uint32_t seed_;
         Score score_;
         // Round dependent information. These members should be reset after each round.

@@ -18,12 +18,7 @@ namespace mj
         drawer_ = dealer_;
         latest_discarder_ = AbsolutePos::kInitNorth;
         wall_ = Wall(score_.round());  // TODO: use seed_
-        players_ = {
-                Player{AbsolutePos::kInitEast, River(), wall_.initial_hand(AbsolutePos::kInitEast)},
-                Player{AbsolutePos::kInitSouth, River(), wall_.initial_hand(AbsolutePos::kInitSouth)},
-                Player{AbsolutePos::kInitWest, River(), wall_.initial_hand(AbsolutePos::kInitWest)},
-                Player{AbsolutePos::kInitNorth, River(), wall_.initial_hand(AbsolutePos::kInitNorth)}
-        };
+        for (int i = 0; i < 4; ++i) players_[i] = Player{AbsolutePos(i), River(), Hand(wall_.initial_hand_tiles(AbsolutePos(i)))};
         action_history_ = Events();
     }
 
@@ -145,11 +140,37 @@ namespace mj
         std::unique_ptr<mjproto::State> state = std::make_unique<mjproto::State>();
         auto status = google::protobuf::util::JsonStringToMessage(json_str, state.get());
         assert(status.ok());
+
+        for (int i = 0; i < 4; ++i) player_ids_[i] = state->player_ids(i);
+        // Set scores
+        score_ = Score(state->init_score());
+        // Set walls
+        auto wall_tiles = std::vector<Tile>();
+        for (auto tile_id: state->wall()) wall_tiles.emplace_back(Tile(tile_id));
+        wall_ = Wall(score_.round(), wall_tiles);
+        // Set initial hands
+        for (int i = 0; i < 4; ++i) players_[i] = Player{AbsolutePos(i), River(),
+                                                         Hand(wall_.initial_hand_tiles(AbsolutePos(i)))};
     }
 
     std::string State::ToJson() const {
         std::string serialized;
         std::unique_ptr<mjproto::State> state = std::make_unique<mjproto::State>();
+        // Set scores
+        state->mutable_init_score()->set_round(score_.round());
+        state->mutable_init_score()->set_honba(score_.honba());
+        state->mutable_init_score()->set_riichi(score_.riichi());
+        for (int i = 0; i < 4; ++i) state->mutable_init_score()->mutable_ten()->Add(score_.ten()[i]);
+        // Set walls
+        for(auto t: wall_.tiles())state->mutable_wall()->Add(t.Id());
+        // Set initial hands
+        for(int i = 0; i < 4; ++i) {
+            state->add_init_hands();
+            for (auto t: wall_.initial_hand_tiles(AbsolutePos(i))) {
+                state->mutable_init_hands(i)->add_tiles(t.Id());
+            }
+        }
+
         auto status = google::protobuf::util::MessageToJsonString(*state, &serialized);
         assert(status.ok());
         return serialized;

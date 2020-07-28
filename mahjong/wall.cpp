@@ -26,7 +26,7 @@ namespace mj
         return drawn_tile;
     }
 
-    Hand Wall::initial_hand(AbsolutePos pos) const {
+    std::vector<Tile> Wall::initial_hand_tiles(AbsolutePos pos) const {
         auto pos_ix = ToUType(pos);
         auto ix = ((pos_ix % 4 - round_ % 4 + 4) % 4) * 4;
         std::vector<Tile> tiles;
@@ -40,7 +40,7 @@ namespace mj
         ix = (pos_ix % 4 - round_ % 4 + 4) % 4 + 48;
         tiles.emplace_back(tiles_.at(ix));
         assert(tiles.size() == 13);
-        return Hand(tiles);
+        return tiles;
     }
 
     std::vector<Tile>::const_iterator Wall::draw_begin() const {
@@ -82,5 +82,9 @@ namespace mj
         std::vector<Tile> ret = {tiles_[131]};
         for (int i = 0; i < num_kan_dora_; ++i) ret.emplace_back(tiles_[129 - 2 * i]);
         return ret;
+    }
+
+    const std::vector<Tile>& Wall::tiles() const {
+        return tiles_;
     }
 }  // namespace mj

@@ -15,6 +15,7 @@ namespace mj
     {
     public:
         Score();
+        explicit Score(mjproto::Score score);
         [[nodiscard]] std::uint8_t round() const;  // 局
         [[nodiscard]] std::uint8_t honba() const;  // 本場
         [[nodiscard]] std::uint8_t riichi() const;  // リー棒
