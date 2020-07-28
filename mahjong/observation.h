@@ -21,16 +21,14 @@ namespace mj
         [[nodiscard]] std::uint8_t riichi() const;  // リー棒
         [[nodiscard]] std::array<std::int32_t, 4> ten() const;  // 点 25000 start
     private:
-        friend class Observation;
+        friend class Observation;  // mjproto::Observation needs to refer to mutable mjproto::Score
         mjproto::Score score_{};
     };
 
-    struct TakenAction {
+    struct Event {
         AbsolutePos who;
         ActionType type;
-        Tile draw;
-        Tile discard;
-        bool discard_drawn_tile;
+        Tile tile;
         Open open;
     };
 
@@ -49,21 +47,22 @@ namespace mj
         mjproto::PossibleAction possible_action_{};
     };
 
-    class Events
+    class EventHistory
     {
     public:
-        Events() = default;
+        EventHistory() = default;
         [[nodiscard]] std::size_t size() const;
     private:
-        friend class Observation;
-        mjproto::EventHistory event_history_{};
+        friend class Observation;  // mjproto::Observation needs to refer to mutable mjproto::EventHistory
+        mjproto::EventHistory state_event_history_{};
+        mjproto::EventHistory observation_event_history_{};
     };
 
     class Observation
     {
     public:
         Observation() = default;
-        Observation(AbsolutePos who, Score& score, Events& action_history, Player& player);
+        Observation(AbsolutePos who, Score& score, EventHistory& action_history, Player& player);
         ~Observation();
         // getter
         std::uint32_t game_id() const;
@@ -72,7 +71,7 @@ namespace mj
         Hand current_hand() const;
         [[nodiscard]] std::vector<PossibleAction> possible_actions() const;
         Score score() const;
-        std::vector<TakenAction> taken_actions() const;
+        std::vector<Event> taken_actions() const;
         // setter
         void add_possible_action(PossibleAction possible_action);
 

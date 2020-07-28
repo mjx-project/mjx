@@ -19,7 +19,7 @@ namespace mj
         latest_discarder_ = AbsolutePos::kInitNorth;
         wall_ = Wall(score_.round());  // TODO: use seed_
         for (int i = 0; i < 4; ++i) players_[i] = Player{AbsolutePos(i), River(), Hand(wall_.initial_hand_tiles(AbsolutePos(i)))};
-        action_history_ = Events();
+        event_history_ = EventHistory();
     }
 
     std::uint32_t State::GenerateRoundSeed() {
@@ -84,7 +84,7 @@ namespace mj
     }
 
     Observation State::CreateObservation(AbsolutePos pos) {
-        auto observation = Observation(pos, score_, action_history_, mutable_player(pos));
+        auto observation = Observation(pos, score_, event_history_, mutable_player(pos));
         switch (stage()) {
             case RoundStage::kAfterDraw:
                 assert(hand(pos).Stage() == HandStage::kAfterDraw);

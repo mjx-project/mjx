@@ -61,8 +61,8 @@ namespace mj
         return possible_action;
     }
 
-    std::size_t Events::size() const {
-        return event_history_.events_size();
+    std::size_t EventHistory::size() const {
+        return state_event_history_.events_size();
     }
 
     std::vector<PossibleAction> Observation::possible_actions() const {
@@ -100,10 +100,10 @@ namespace mj
         mutable_possible_actions->Add(std::move(possible_action.possible_action_));
     }
 
-    Observation::Observation(AbsolutePos who, Score &score, Events &event_history, Player& player) {
+    Observation::Observation(AbsolutePos who, Score &score, EventHistory &event_history, Player& player) {
         proto_.set_who(mjproto::AbsolutePos(ToUType(who)));
         proto_.set_allocated_init_score(&score.score_);
-        proto_.set_allocated_event_history(&event_history.event_history_);
+        proto_.set_allocated_event_history(&event_history.state_event_history_);
         proto_.set_allocated_init_hand(&player.init_hand_);
     }
 }
