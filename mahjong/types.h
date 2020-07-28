@@ -38,22 +38,22 @@ namespace mj {
     };
 
     enum class EventType : std::uint8_t {
-        kDraw = mjproto::EVENT_TYPE_DRAW;
-        kDiscard = mjproto::EVENT_TYPE_DISCARD;
+        kDraw = mjproto::EVENT_TYPE_DRAW,
+        kDiscard = mjproto::EVENT_TYPE_DISCARD,
         // Only for observation event history
-        kDrawAndDiscardFromHand = mjproto::EVENT_TYPE_DRAW_AND_DISCARD_FROM_HAND;
-        kDrawAndDiscardDrawnTile = mjproto::EVENT_TYPE_DRAW_AND_DISCARD_DRAWN_TILE;  // ツモ切り, Tsumogiri
+        kDrawAndDiscardFromHand = mjproto::EVENT_TYPE_DRAW_AND_DISCARD_FROM_HAND,
+        kDrawAndDiscardDrawnTile = mjproto::EVENT_TYPE_DRAW_AND_DISCARD_DRAWN_TILE,  // ツモ切り, Tsumogiri
         // Common
-        kRiichi = mjproto::EVENT_TYPE_RIICHI;
-        kTsumo = mjproto::EVENT_TYPE_TSUMO;
-        kRon = mjproto::EVENT_TYPE_RON;
-        kChi = mjproto::EVENT_TYPE_CHI;
-        kPon = mjproto::EVENT_TYPE_PON;
-        kKanClosed = mjproto::EVENT_TYPE_KAN_CLOSED;
-        kKanOpened = mjproto::EVENT_TYPE_KAN_OPENED;
-        kKanAdded = mjproto::EVENT_TYPE_KAN_ADDED;
-        kNewDora = mjproto::EVENT_TYPE_NEW_DORA;
-        kRiichiScoreChange = mjproto::EVENT_TYPE_RIICHI_SCORE_CHANGE;
+        kRiichi = mjproto::EVENT_TYPE_RIICHI,
+        kTsumo = mjproto::EVENT_TYPE_TSUMO,
+        kRon = mjproto::EVENT_TYPE_RON,
+        kChi = mjproto::EVENT_TYPE_CHI,
+        kPon = mjproto::EVENT_TYPE_PON,
+        kKanClosed = mjproto::EVENT_TYPE_KAN_CLOSED,
+        kKanOpened = mjproto::EVENT_TYPE_KAN_OPENED,
+        kKanAdded = mjproto::EVENT_TYPE_KAN_ADDED,
+        kNewDora = mjproto::EVENT_TYPE_NEW_DORA,
+        kRiichiScoreChange = mjproto::EVENT_TYPE_RIICHI_SCORE_CHANGE,
     };
 
     enum class ActionType : std::uint8_t {
