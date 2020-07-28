@@ -19,7 +19,8 @@ namespace mj
         latest_discarder_ = AbsolutePos::kInitNorth;
         wall_ = Wall(score_.round());  // TODO: use seed_
         for (int i = 0; i < 4; ++i) players_[i] = Player{AbsolutePos(i), River(), Hand(wall_.initial_hand_tiles(AbsolutePos(i)))};
-        event_history_ = EventHistory();
+
+        event_history_ = mjproto::EventHistory();
     }
 
     std::uint32_t State::GenerateRoundSeed() {
@@ -84,7 +85,7 @@ namespace mj
     }
 
     Observation State::CreateObservation(AbsolutePos pos) {
-        auto observation = Observation(pos, score_, event_history_, mutable_player(pos));
+        auto observation = Observation(pos, score_, mutable_player(pos));
         switch (stage()) {
             case RoundStage::kAfterDraw:
                 assert(hand(pos).Stage() == HandStage::kAfterDraw);
@@ -148,9 +149,12 @@ namespace mj
         auto wall_tiles = std::vector<Tile>();
         for (auto tile_id: state->wall()) wall_tiles.emplace_back(Tile(tile_id));
         wall_ = Wall(score_.round(), wall_tiles);
-        // Set initial hands
-        for (int i = 0; i < 4; ++i) players_[i] = Player{AbsolutePos(i), River(),
-                                                         Hand(wall_.initial_hand_tiles(AbsolutePos(i)))};
+        // Set init hands
+        for (int i = 0; i < 4; ++i) {
+            players_[i] = Player{AbsolutePos(i), River(), Hand(wall_.initial_hand_tiles(AbsolutePos(i)))};
+            for (auto t: wall_.initial_hand_tiles(AbsolutePos(i))) private_infos_[i].add_init_hand(t.Id());
+        };
+
         // TODO: set protobuf of init_hand
     }
 
@@ -162,14 +166,16 @@ namespace mj
         state->mutable_init_score()->set_honba(score_.honba());
         state->mutable_init_score()->set_riichi(score_.riichi());
         for (int i = 0; i < 4; ++i) state->mutable_init_score()->mutable_ten()->Add(score_.ten()[i]);
-        // // Set walls
+        // Set walls
         for(auto t: wall_.tiles())state->mutable_wall()->Add(t.Id());
         // Set initial hands
-        // for(int i = 0; i < 4; ++i) {
-        //     for (auto t: wall_.initial_hand_tiles(AbsolutePos(i))) {
-        //         state->mutable_private_infos(i)->add_init_hand(t.Id());
-        //     }
-        // }
+        for(int i = 0; i < 4; ++i) {
+            state->add_private_infos();
+            state->mutable_private_infos(i)->set_who(mjproto::AbsolutePos(i));
+            for (auto t: wall_.initial_hand_tiles(AbsolutePos(i))) {
+                state->mutable_private_infos(i)->add_init_hand(t.Id());
+            }
+        }
 
         auto status = google::protobuf::util::MessageToJsonString(*state, &serialized);
         assert(status.ok());

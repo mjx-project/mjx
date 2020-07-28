@@ -47,22 +47,11 @@ namespace mj
         mjproto::PossibleAction possible_action_{};
     };
 
-    class EventHistory
-    {
-    public:
-        EventHistory() = default;
-        [[nodiscard]] std::size_t size() const;
-    private:
-        friend class Observation;  // mjproto::Observation needs to refer to mutable mjproto::EventHistory
-        mjproto::EventHistory state_event_history_{};
-        mjproto::EventHistory observation_event_history_{};
-    };
-
     class Observation
     {
     public:
         Observation() = default;
-        Observation(AbsolutePos who, Score& score, EventHistory& action_history, Player& player);
+        Observation(AbsolutePos who, Score& score, Player& player);
         ~Observation();
         // getter
         AbsolutePos who() const;
