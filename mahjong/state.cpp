@@ -151,6 +151,7 @@ namespace mj
         // Set initial hands
         for (int i = 0; i < 4; ++i) players_[i] = Player{AbsolutePos(i), River(),
                                                          Hand(wall_.initial_hand_tiles(AbsolutePos(i)))};
+        // TODO: set protobuf of init_hand
     }
 
     std::string State::ToJson() const {
@@ -161,15 +162,14 @@ namespace mj
         state->mutable_init_score()->set_honba(score_.honba());
         state->mutable_init_score()->set_riichi(score_.riichi());
         for (int i = 0; i < 4; ++i) state->mutable_init_score()->mutable_ten()->Add(score_.ten()[i]);
-        // Set walls
+        // // Set walls
         for(auto t: wall_.tiles())state->mutable_wall()->Add(t.Id());
         // Set initial hands
-        for(int i = 0; i < 4; ++i) {
-            state->add_init_hands();
-            for (auto t: wall_.initial_hand_tiles(AbsolutePos(i))) {
-                state->mutable_init_hands(i)->add_tiles(t.Id());
-            }
-        }
+        // for(int i = 0; i < 4; ++i) {
+        //     for (auto t: wall_.initial_hand_tiles(AbsolutePos(i))) {
+        //         state->mutable_private_infos(i)->add_init_hand(t.Id());
+        //     }
+        // }
 
         auto status = google::protobuf::util::MessageToJsonString(*state, &serialized);
         assert(status.ok());

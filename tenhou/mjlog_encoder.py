@@ -43,7 +43,7 @@ class MjlogEncoder:
         ret = "<INIT "
         ret += f"seed=\"{state.init_score.round},{state.init_score.honba},{state.init_score.riichi},,,{state.doras[0]}\" "
         ret += f"ten=\"{state.init_score.ten[0] // 100},{state.init_score.ten[1] // 100},{state.init_score.ten[2] // 100},{state.init_score.ten[3] // 100}\" oya=\"{state.init_score.round % 4}\" "
-        hai = [",".join([str(t) for t in x.tiles]) for x in state.init_hands]
+        hai = [",".join([str(t) for t in hand]) for hand in [y.init_hand for y in state.private_infos]]
         ret += f"hai0=\"{hai[0]}\" "
         ret += f"hai1=\"{hai[1]}\" "
         ret += f"hai2=\"{hai[2]}\" "
@@ -51,13 +51,16 @@ class MjlogEncoder:
         ret += "/>"
 
         curr_score = copy.deepcopy(state.init_score)
-        assert state.event_history.type == mahjong_pb2.EVENT_HISTORY_TYPE_STATE
+        draw_ixs = [0, 0, 0, 0]
         for event in state.event_history.events:
             if event.type == mahjong_pb2.EVENT_TYPE_DRAW:
+                who_ix = int(event.who)
                 who = MjlogEncoder._encode_absolute_pos_for_draw(event.who)
-                draw = event.tile
+                assert event.tile == 0  # default
+                draw = state.private_infos[who_ix].draws[draw_ixs[who_ix]]
+                draw_ixs[who_ix] += 1
                 ret += f"<{who}{draw}/>"
-            elif event.type == mahjong_pb2.EVENT_TYPE_DISCARD:
+            elif event.type in [mahjong_pb2.EVENT_TYPE_DISCARD_FROM_HAND, mahjong_pb2.EVENT_TYPE_DISCARD_DRAWN_TILE]:
                 who = MjlogEncoder._encode_absolute_pos_for_discard(event.who)
                 discard = event.tile
                 ret += f"<{who}{discard}/>"

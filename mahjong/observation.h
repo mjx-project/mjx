@@ -65,7 +65,6 @@ namespace mj
         Observation(AbsolutePos who, Score& score, EventHistory& action_history, Player& player);
         ~Observation();
         // getter
-        std::uint32_t game_id() const;
         AbsolutePos who() const;
         Hand initial_hand() const;
         Hand current_hand() const;

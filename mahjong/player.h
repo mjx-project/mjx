@@ -42,11 +42,9 @@ namespace mj
         void Discard(Tile tile, bool tsumogiri);
         Tile latest_discard() const;
     private:
-        friend class Observation;  // refers to initial_hand_
         AbsolutePos position_;
         River river_;
         Hand hand_;
-        mjproto::InitHand init_hand_;
     };
 }  // namespace mj
 

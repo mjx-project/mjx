@@ -74,10 +74,6 @@ namespace mj
         return ret;
     }
 
-    std::uint32_t Observation::game_id() const {
-        return proto_.game_id();
-    }
-
     AbsolutePos Observation::who() const {
         return AbsolutePos(proto_.who());
     }
@@ -91,7 +87,6 @@ namespace mj
         assert(proto_.has_event_history());
         proto_.release_init_score();
         proto_.release_event_history();
-        proto_.release_init_hand();
     }
 
     void Observation::add_possible_action(PossibleAction possible_action) {
@@ -104,6 +99,5 @@ namespace mj
         proto_.set_who(mjproto::AbsolutePos(ToUType(who)));
         proto_.set_allocated_init_score(&score.score_);
         proto_.set_allocated_event_history(&event_history.state_event_history_);
-        proto_.set_allocated_init_hand(&player.init_hand_);
     }
 }

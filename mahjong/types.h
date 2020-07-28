@@ -39,10 +39,8 @@ namespace mj {
 
     enum class EventType : std::uint8_t {
         kDraw = mjproto::EVENT_TYPE_DRAW,
-        kDiscard = mjproto::EVENT_TYPE_DISCARD,
-        // Only for observation event history
-        kDrawAndDiscardFromHand = mjproto::EVENT_TYPE_DRAW_AND_DISCARD_FROM_HAND,
-        kDrawAndDiscardDrawnTile = mjproto::EVENT_TYPE_DRAW_AND_DISCARD_DRAWN_TILE,  // ツモ切り, Tsumogiri
+        kDiscardFromHand = mjproto::EVENT_TYPE_DISCARD_FROM_HAND,
+        kDiscardDrawnTile = mjproto::EVENT_TYPE_DISCARD_DRAWN_TILE,  // ツモ切り, Tsumogiri
         // Common
         kRiichi = mjproto::EVENT_TYPE_RIICHI,
         kTsumo = mjproto::EVENT_TYPE_TSUMO,

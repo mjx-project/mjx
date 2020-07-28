@@ -17,12 +17,13 @@ class mjproto::Event <<(D,yellow) Data>> {
 }
 
 class mjproto::EventHistory <<(D,yellow) Data>> {
-  + type: EventHistoryType
   + events: repeated Event
 }
 
-class mjproto::InitHand <<(D,yellow) Data>> {
-  + tiles
+class mjproto::PrivateInfo <<(D,yellow) Data>> {
+  + who
+  + init_hand
+  + draws
 }
 
 class mjproto::PossibleAction <<(D,yellow) Data>> {
@@ -36,7 +37,7 @@ class mjproto::State <<(D,yellow) Data>> {
   + player_ids
   + init_score
   + doras
-  + init_hands
+  + privae_infos
   + event_history
   + wall
   + ura_dora
@@ -79,7 +80,7 @@ mjproto::Observation "1" *-- "1..*" mjproto::PossibleAction
 
 mjproto::State *-- mjproto::Score
 mjproto::State *-- mjproto::EventHistory
-mjproto::State "1" *-- "4" mjproto::InitHand
+mjproto::State "1" *-- "4" mjproto::PrivateInfo
 mjproto::State *-- mjproto::StateEndInfo
 
 mjproto::EventHistory "1" *-- "1..*" mjproto::Event
@@ -134,9 +135,9 @@ class mj::State {
     - dealer: AbsolutePos
     - drawer: AbsolutePos
     - wall: Wall
-    - event_history: EventHistory
     - players: array<Player, 4>
-    - init_hands : vector<mjproto::InitHand>
+    - event_history: mjproto::EventHistory
+    - private_infos: vector<mjproto::InitHand>
     + InitRound(): void
     + CreateObservation(): pair<AbsolutePos, Observation>
     + UpdateState(Action): void
@@ -174,13 +175,6 @@ mjproto::InitHand refers to State
 mjproto::EventHistory refers to EventHistory
 end note
 
-class mj::EventHistory <<(D,yellow) Data>> {
-    - state_event_history: EventHistory
-    - observation_event_history mjproto::EventHistory
-    - draw_history: array<draws, 4>
-    + Add(): void
-}
-
 abstract class mj::AgentClient {
     + TakeAction(): Action
 }
@@ -188,7 +182,6 @@ abstract class mj::AgentClient {
 class mj::AgentClientMock {
 
 }
-
 
 abstract class mj::AgentServer {
     + RunServer(): void
@@ -291,7 +284,6 @@ mj::Environment *-- mj::State
 mj::State <-- mj::Action : UpdateStateByAction
 mj::State *-- mj::Score 
 mj::State *-- mj::Wall
-mj::State *-- mj::EventHistory
 mj::State "1" *-- "4" mj::Player
 mj::State --> mj::Observation : CreateObservation
 mj::State --> mj::WinningStateInfo
