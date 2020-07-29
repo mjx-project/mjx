@@ -161,7 +161,8 @@ namespace mj
             auto who = AbsolutePos(event.who());
             switch (event.type()) {
                 case mjproto::EVENT_TYPE_DRAW:
-                    state->private_infos(ToUType(who)).draws(draw_ixs[ToUType(who)]);
+                    // TODO: wrap by func
+                    private_infos_[ToUType(who)].add_draws(state->private_infos(ToUType(who)).draws(draw_ixs[ToUType(who)]));
                     draw_ixs[ToUType(who)]++;
                     break;
                 case mjproto::EVENT_TYPE_DISCARD_FROM_HAND:
@@ -189,8 +190,6 @@ namespace mj
             event_history_.mutable_events(i)->set_tile(event.tile());
             event_history_.mutable_events(i)->set_open(event.open());
         }
-
-        // TODO: set protobuf of init_hand
     }
 
     std::string State::ToJson() const {
@@ -213,6 +212,12 @@ namespace mj
             state->add_private_infos();
             state->mutable_private_infos(i)->set_who(mjproto::AbsolutePos(i));
             for (auto t: private_infos_[i].init_hand()) state->mutable_private_infos(i)->add_init_hand(t);
+        }
+        // Set draws
+        for (int i = 0; i < 4; ++i) {
+            for (auto draw: private_infos_[i].draws()) {
+                state->mutable_private_infos(i)->add_draws(draw);
+            }
         }
         // Set event history
         for (int i = 0; i < event_history_.events_size(); ++i) {

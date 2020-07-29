@@ -30,9 +30,6 @@ namespace mj
         void UpdateStateByAction(const Action& action);
         Action& UpdateStateByActionCandidates(const std::vector<Action> &action_candidates);
         // operate wall
-        Tile Draw();
-        void AddNewDora();
-        Tile DrawRinshan();
         Observation CreateObservation(AbsolutePos pos);
         std::optional<std::vector<AbsolutePos>> RonCheck();  // 牌を捨てたプレイヤーの下家から順に
         std::optional<std::vector<std::pair<AbsolutePos, std::vector<Open>>>> StealCheck();
