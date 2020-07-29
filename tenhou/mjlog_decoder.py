@@ -99,36 +99,42 @@ class MjlogDecoder:
         self.state.ura_doras.append(wall[131])
         assert dora == wall[130]
         for i in range(4):
-            self.state.init_hands.append(mahjong_pb2.InitHand(who=i, tiles=[int(x) for x in val["hai" + str(i)].split(",")]))
+            self.state.private_infos.append(
+                mahjong_pb2.PrivateInfo(who=i,
+                                        init_hand=[int(x) for x in val["hai" + str(i)].split(",")])
+            )
         for i in range(4 * 12):
-            assert wall[i] in self.state.init_hands[((i // 4) + round_) % 4].tiles
+            assert wall[i] in self.state.private_infos[((i // 4) + round_) % 4].init_hand
         for i in range(4 * 12, 4 * 13):
-            assert wall[i] in self.state.init_hands[(i + round_) % 4].tiles
+            assert wall[i] in self.state.private_infos[(i + round_) % 4].init_hand
 
         event = None
         num_kan_dora = 0
-        self.state.event_history.type = mahjong_pb2.EVENT_HISTORY_TYPE_STATE
+        last_drawer, last_draw = None, None
         for key, val in kv[1:]:
             if key != "UN" and key[0] in ["T", "U", "V", "W"]:  # draw
-                # TODO (sotetsuk): consider draw after kan case
                 who = MjlogDecoder._to_absolute_pos(key[0])
                 draw = int(key[1:])
+                self.state.private_infos[int(who)].draws.append(draw)
                 event = mahjong_pb2.Event(
                     who=who,
                     type=mahjong_pb2.EVENT_TYPE_DRAW,
-                    tile=draw,
+                    # tile is set empty because this is private information
                 )
                 last_drawer, last_draw = who, draw
             elif key != "DORA" and key[0] in ["D", "E", "F", "G"]:  # discard
-                # TDOO (sotetsuk): riichi
                 who = MjlogDecoder._to_absolute_pos(key[0])
                 discard = int(key[1:])
+                type_ = mahjong_pb2.EVENT_TYPE_DISCARD_FROM_HAND
+                if last_drawer is not None and last_draw is not None and last_drawer == who and last_draw == discard:
+                    type_ = mahjong_pb2.EVENT_TYPE_DISCARD_DRAWN_TILE
                 event = mahjong_pb2.Event(
                     who=who,
-                    type=mahjong_pb2.EVENT_TYPE_DISCARD,
+                    type=type_,
                     tile=discard,
                 )
-            elif key == "N":
+                last_drawer, last_draw = None, None
+            elif key == "N":  # open
                 who = int(val["who"])
                 open = int(val["m"])
                 event = mahjong_pb2.Event(
@@ -305,5 +311,5 @@ if __name__ == "__main__":
         wall_dices = reproduce_wall(path_to_mjlog)
         with open(path_to_json, 'w') as f:
             for state in parser.parse(path_to_mjlog, wall_dices):
-                f.write(json.dumps(json_format.MessageToDict(state, including_default_value_fields=False), ensure_ascii=False) + "\n")
+                f.write(json.dumps(json_format.MessageToDict(state, including_default_value_fields=False), ensure_ascii=False, separators=(',', ':')) + "\n")  # No spaces
         print(f"done:\t{path_to_json}")

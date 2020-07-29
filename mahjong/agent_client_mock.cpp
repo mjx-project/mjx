@@ -16,7 +16,6 @@ namespace mj
                 break;
             }
         }
-        response.set_game_id(observation.game_id());
         response.set_who(mjproto::AbsolutePos(observation.who()));
         auto action = Action(std::move(response));
         return action;

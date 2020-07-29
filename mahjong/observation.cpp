@@ -30,6 +30,10 @@ namespace mj
         return ret;
     }
 
+    Score::Score(mjproto::Score score) {
+        score_ = score;
+    }
+
     PossibleAction::PossibleAction(mjproto::PossibleAction possible_action)
     : possible_action_(std::move(possible_action)) {}
 
@@ -57,21 +61,12 @@ namespace mj
         return possible_action;
     }
 
-    std::size_t Events::size() const {
-        return event_history_.events_size();
-    }
-
     std::vector<PossibleAction> Observation::possible_actions() const {
-        assert(proto_.has_event_history());
         std::vector<PossibleAction> ret;
         for (const auto& possible_action: proto_.possible_actions()) {
             ret.emplace_back(PossibleAction{possible_action});
         }
         return ret;
-    }
-
-    std::uint32_t Observation::game_id() const {
-        return proto_.game_id();
     }
 
     AbsolutePos Observation::who() const {
@@ -84,10 +79,8 @@ namespace mj
 
     Observation::~Observation() {
         // Calling release_xxx prevent gRPC from deleting objects after gRPC communication
-        assert(proto_.has_event_history());
         proto_.release_init_score();
         proto_.release_event_history();
-        proto_.release_init_hand();
     }
 
     void Observation::add_possible_action(PossibleAction possible_action) {
@@ -96,10 +89,8 @@ namespace mj
         mutable_possible_actions->Add(std::move(possible_action.possible_action_));
     }
 
-    Observation::Observation(AbsolutePos who, Score &score, Events &event_history, Player& player) {
+    Observation::Observation(AbsolutePos who, Score &score, Player& player) {
         proto_.set_who(mjproto::AbsolutePos(ToUType(who)));
         proto_.set_allocated_init_score(&score.score_);
-        proto_.set_allocated_event_history(&event_history.event_history_);
-        proto_.set_allocated_init_hand(&player.init_hand_);
     }
 }

@@ -41,23 +41,19 @@ enum ActionType {
 }
 
 enum EventType {
-  // Only for state event history
   EVENT_TYPE_DRAW = 0;
-  EVENT_TYPE_DISCARD = 1;
-  // Only for observation event history
-  EVENT_TYPE_DRAW_AND_DISCARD_FROM_HAND = 2;
-  EVENT_TYPE_DRAW_AND_DISCARD_DRAWN_TILE = 3;  // ツモ切り, Tsumogiri
-  // Common
-  EVENT_TYPE_RIICHI = 4;
-  EVENT_TYPE_TSUMO = 5;
-  EVENT_TYPE_RON = 6;
-  EVENT_TYPE_CHI = 7;
-  EVENT_TYPE_PON = 8;
-  EVENT_TYPE_KAN_CLOSED = 9;
-  EVENT_TYPE_KAN_OPENED = 10;
-  EVENT_TYPE_KAN_ADDED = 11;
-  EVENT_TYPE_NEW_DORA = 12;
-  EVENT_TYPE_RIICHI_SCORE_CHANGE = 13;
+  EVENT_TYPE_DISCARD_FROM_HAND = 1;
+  EVENT_TYPE_DISCARD_DRAWN_TILE = 2;  // ツモ切り, Tsumogiri
+  EVENT_TYPE_RIICHI = 3;
+  EVENT_TYPE_TSUMO = 4;
+  EVENT_TYPE_RON = 5;
+  EVENT_TYPE_CHI = 6;
+  EVENT_TYPE_PON = 7;
+  EVENT_TYPE_KAN_CLOSED = 8;
+  EVENT_TYPE_KAN_OPENED = 9;
+  EVENT_TYPE_KAN_ADDED = 10;
+  EVENT_TYPE_NEW_DORA = 11;
+  EVENT_TYPE_RIICHI_SCORE_CHANGE = 12;
 }
 
 enum NoWinnerEndType {  // 流局
@@ -70,11 +66,6 @@ enum NoWinnerEndType {  // 流局
   NO_WINNER_END_TYPE_NM = 6;  // 流し満貫  # TODO(sotetsuk): rename
 }
 
-enum EventHistoryType {
-  EVENT_HISTORY_TYPE_STATE = 0;
-  EVENT_HISTORY_TYPE_OBSERVATION = 1;
-}
-
 message Score {
   uint32 round = 1;
   uint32 honba = 2;
@@ -84,19 +75,19 @@ message Score {
 
 message Event {
   AbsolutePos who = 1;
-  EventType type = 2;  // draw, discard, riichi, riichi_score_change, chi, pon, kan_opened, kan_closed, kan_added, tsumo, ron, new_dora
+  EventType type = 2;
   uint32 tile = 3;
   uint32 open = 4;
 }
 
 message EventHistory {
-  EventHistoryType type = 1;
   repeated Event events = 2;
 }
 
-message InitHand {
+message PrivateInfo {
   AbsolutePos who = 1;
-  repeated uint32 tiles = 2;
+  repeated uint32 init_hand = 2;
+  repeated uint32 draws = 3;
 }
 
 message PossibleAction {
@@ -109,14 +100,13 @@ message PossibleAction {
 // However, different from Tenhou, each observation request is stateless.
 // Each request has enough information to make decisions.
 message Observation {
-  uint32 game_id = 1;
-  repeated string player_ids = 2;
-  Score init_score = 3;  // public info
-  repeated uint32 doras = 4;
+  repeated string player_ids = 1;
+  Score init_score = 2;  // public info
+  repeated uint32 doras = 3;
+  EventHistory event_history = 4;  // public info
   AbsolutePos who = 5;
-  InitHand init_hand = 6;  // private info
-  EventHistory event_history = 7;  // public info
-  repeated PossibleAction possible_actions = 8;
+  PrivateInfo private_info = 6;
+  repeated PossibleAction possible_actions = 7;
 }
 
 message Win {  // only for Tenhou visualization
@@ -152,17 +142,16 @@ message StateEndInfo {  // only for Tenhou visualization
 
 message State {  // For Tenhou visualization and unit test
   // public info
-  uint32 game_id = 1;
-  repeated string player_ids = 2;
-  Score init_score = 3;  // Required for Tenhou mjlog.
-  repeated uint32 doras = 4;
+  repeated string player_ids = 1;
+  Score init_score = 2;  // Required for Tenhou mjlog.
+  repeated uint32 doras = 3;
+  EventHistory event_history = 4;
   // private info
-  repeated InitHand init_hands = 5;
-  EventHistory event_history = 6;
-  repeated uint32 wall = 7;
-  repeated uint32 ura_doras = 8;
+  repeated uint32 wall = 5;
+  repeated uint32 ura_doras = 6;
+  repeated PrivateInfo private_infos = 7;
   // game end info
-  StateEndInfo end_info = 9;
+  StateEndInfo end_info = 8;
 }
 
 message Action {  // corresponds to mj::Action in cpp

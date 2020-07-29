@@ -27,22 +27,6 @@ namespace mj
 
     grpc::Status
     MockAgentServiceImpl::TakeAction(grpc::ServerContext *context, const mjproto::Observation *request, mjproto::Action *reply) {
-        std::cout << "==============================================" << std::endl;
-        std::cout << "Received observation" << std::endl;
-        std::cout << "==============================================" << std::endl;
-        std::cout << "who: " << request->who() << std::endl;
-        std::cout << "round: " << request->init_score().round() << std::endl;
-        std::cout << "honba: " << request->init_score().honba() << std::endl;
-        std::cout << "riichi: " << request->init_score().riichi() << std::endl;
-        std::cout << "ten: ";
-        for (int i = 0; i < request->init_score().ten_size(); ++i) {
-            std::cout << request->init_score().ten(i) << " ";
-        }
-        std::cout << std::endl;
-        std::cout << "init hand size: " << request->init_hand().tiles_size() << std::endl;
-        std::cout << "taken_action size: " << request->event_history().events_size() << std::endl;
-        reply->set_type(mjproto::ActionType(2));
-        reply->set_discard(2);
         return grpc::Status::OK;
     }
 }  // namesapce mj

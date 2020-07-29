@@ -37,6 +37,22 @@ namespace mj {
         kEmpty
     };
 
+    enum class EventType : std::uint8_t {
+        kDraw = mjproto::EVENT_TYPE_DRAW,
+        kDiscardFromHand = mjproto::EVENT_TYPE_DISCARD_FROM_HAND,
+        kDiscardDrawnTile = mjproto::EVENT_TYPE_DISCARD_DRAWN_TILE,  // ツモ切り, Tsumogiri
+        kRiichi = mjproto::EVENT_TYPE_RIICHI,
+        kTsumo = mjproto::EVENT_TYPE_TSUMO,
+        kRon = mjproto::EVENT_TYPE_RON,
+        kChi = mjproto::EVENT_TYPE_CHI,
+        kPon = mjproto::EVENT_TYPE_PON,
+        kKanClosed = mjproto::EVENT_TYPE_KAN_CLOSED,
+        kKanOpened = mjproto::EVENT_TYPE_KAN_OPENED,
+        kKanAdded = mjproto::EVENT_TYPE_KAN_ADDED,
+        kNewDora = mjproto::EVENT_TYPE_NEW_DORA,
+        kRiichiScoreChange = mjproto::EVENT_TYPE_RIICHI_SCORE_CHANGE,
+    };
+
     enum class ActionType : std::uint8_t {
         kDiscard = mjproto::ACTION_TYPE_DISCARD,
         kRiichi = mjproto::ACTION_TYPE_RIICHI,

@@ -20,6 +20,7 @@ namespace mj
     {
     public:
         explicit State(std::uint32_t seed = 9999);
+        explicit State(const std::string &json_str);
         bool IsGameOver();
 
         // operate or access in-round state
@@ -29,9 +30,6 @@ namespace mj
         void UpdateStateByAction(const Action& action);
         Action& UpdateStateByActionCandidates(const std::vector<Action> &action_candidates);
         // operate wall
-        Tile Draw();
-        void AddNewDora();
-        Tile DrawRinshan();
         Observation CreateObservation(AbsolutePos pos);
         std::optional<std::vector<AbsolutePos>> RonCheck();  // 牌を捨てたプレイヤーの下家から順に
         std::optional<std::vector<std::pair<AbsolutePos, std::vector<Open>>>> StealCheck();
@@ -44,10 +42,11 @@ namespace mj
         [[nodiscard]] const Hand & hand(AbsolutePos pos) const;
         [[nodiscard]] const River & river(AbsolutePos pos) const;
 
-        std::string ToMjlog() const;
+        std::string ToJson() const;
 
         static RelativePos ToRelativePos(AbsolutePos origin, AbsolutePos target);
     private:
+        std::array<std::string, 4> player_ids_;
         std::uint32_t seed_;
         Score score_;
         // Round dependent information. These members should be reset after each round.
@@ -57,7 +56,9 @@ namespace mj
         AbsolutePos latest_discarder_;
         Wall wall_;
         std::array<Player, 4> players_;
-        Events action_history_;
+
+        std::array<mjproto::PrivateInfo, 4> private_infos_;
+        mjproto::EventHistory event_history_;
 
         std::uint32_t GenerateRoundSeed();
     };

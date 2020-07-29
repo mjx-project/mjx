@@ -8,9 +8,6 @@ namespace mj
         assert(hand_.Stage() == HandStage::kAfterDiscards);
         assert(hand_.Size() == 13);
         assert(hand_.Opens().empty());
-        for (auto tile: hand_.ToVector()) {
-            init_hand_.add_tiles(tile.Id());
-        }
     }
 
     AbsolutePos Player::position() const {
