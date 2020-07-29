@@ -41,11 +41,9 @@ enum ActionType {
 }
 
 enum EventType {
-  // Only for observation event history
   EVENT_TYPE_DRAW = 0;
   EVENT_TYPE_DISCARD_FROM_HAND = 1;
   EVENT_TYPE_DISCARD_DRAWN_TILE = 2;  // ツモ切り, Tsumogiri
-  // Common
   EVENT_TYPE_RIICHI = 3;
   EVENT_TYPE_TSUMO = 4;
   EVENT_TYPE_RON = 5;

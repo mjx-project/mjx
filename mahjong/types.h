@@ -41,7 +41,6 @@ namespace mj {
         kDraw = mjproto::EVENT_TYPE_DRAW,
         kDiscardFromHand = mjproto::EVENT_TYPE_DISCARD_FROM_HAND,
         kDiscardDrawnTile = mjproto::EVENT_TYPE_DISCARD_DRAWN_TILE,  // ツモ切り, Tsumogiri
-        // Common
         kRiichi = mjproto::EVENT_TYPE_RIICHI,
         kTsumo = mjproto::EVENT_TYPE_TSUMO,
         kRon = mjproto::EVENT_TYPE_RON,
