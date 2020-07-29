@@ -153,7 +153,42 @@ namespace mj
         for (int i = 0; i < 4; ++i) {
             players_[i] = Player{AbsolutePos(i), River(), Hand(wall_.initial_hand_tiles(AbsolutePos(i)))};
             for (auto t: wall_.initial_hand_tiles(AbsolutePos(i))) private_infos_[i].add_init_hand(t.Id());
-        };
+        }
+        // Set event history
+        std::vector<int> draw_ixs = {0, 0, 0, 0};
+        for (int i = 0; i < state->event_history().events_size(); ++i) {
+            auto event = state->event_history().events(i);
+            auto who = AbsolutePos(event.who());
+            switch (event.type()) {
+                case mjproto::EVENT_TYPE_DRAW:
+                    state->private_infos(ToUType(who)).draws(draw_ixs[ToUType(who)]);
+                    draw_ixs[ToUType(who)]++;
+                    break;
+                case mjproto::EVENT_TYPE_DISCARD_FROM_HAND:
+                case mjproto::EVENT_TYPE_DISCARD_DRAWN_TILE:
+                    break;
+                case mjproto::EVENT_TYPE_RIICHI:
+                    break;
+                case mjproto::EVENT_TYPE_TSUMO:
+                    break;
+                case mjproto::EVENT_TYPE_RON:
+                case mjproto::EVENT_TYPE_CHI:
+                case mjproto::EVENT_TYPE_PON:
+                case mjproto::EVENT_TYPE_KAN_CLOSED:
+                case mjproto::EVENT_TYPE_KAN_OPENED:
+                case mjproto::EVENT_TYPE_KAN_ADDED:
+                    break;
+                case mjproto::EVENT_TYPE_NEW_DORA:
+                    break;
+                case mjproto::EVENT_TYPE_RIICHI_SCORE_CHANGE:
+                    break;
+            }
+            event_history_.add_events();
+            event_history_.mutable_events(i)->set_who(event.who());
+            event_history_.mutable_events(i)->set_type(event.type());
+            event_history_.mutable_events(i)->set_tile(event.tile());
+            event_history_.mutable_events(i)->set_open(event.open());
+        }
 
         // TODO: set protobuf of init_hand
     }
@@ -161,6 +196,8 @@ namespace mj
     std::string State::ToJson() const {
         std::string serialized;
         std::unique_ptr<mjproto::State> state = std::make_unique<mjproto::State>();
+        // Set player ids
+        for (const auto &player_id: player_ids_) state->add_player_ids(player_id);
         // Set scores
         state->mutable_init_score()->set_round(score_.round());
         state->mutable_init_score()->set_honba(score_.honba());
@@ -168,13 +205,23 @@ namespace mj
         for (int i = 0; i < 4; ++i) state->mutable_init_score()->mutable_ten()->Add(score_.ten()[i]);
         // Set walls
         for(auto t: wall_.tiles())state->mutable_wall()->Add(t.Id());
-        // Set initial hands
+        // Set doras and ura doras
+        for (auto dora: wall_.doras()) state->add_doras(dora.Id());
+        for (auto ura_dora: wall_.ura_doras()) state->add_ura_doras(ura_dora.Id());
+        // Set init hands
         for(int i = 0; i < 4; ++i) {
             state->add_private_infos();
             state->mutable_private_infos(i)->set_who(mjproto::AbsolutePos(i));
-            for (auto t: wall_.initial_hand_tiles(AbsolutePos(i))) {
-                state->mutable_private_infos(i)->add_init_hand(t.Id());
-            }
+            for (auto t: private_infos_[i].init_hand()) state->mutable_private_infos(i)->add_init_hand(t);
+        }
+        // Set event history
+        for (int i = 0; i < event_history_.events_size(); ++i) {
+            auto event = event_history_.events(i);
+            state->mutable_event_history()->add_events();
+            state->mutable_event_history()->mutable_events(i)->set_who(event.who());
+            state->mutable_event_history()->mutable_events(i)->set_type(event.type());
+            state->mutable_event_history()->mutable_events(i)->set_tile(event.tile());
+            state->mutable_event_history()->mutable_events(i)->set_open(event.open());
         }
 
         auto status = google::protobuf::util::MessageToJsonString(*state, &serialized);
