@@ -184,6 +184,7 @@ namespace mj
                 case mjproto::EVENT_TYPE_RIICHI_SCORE_CHANGE:
                     break;
             }
+            // TODO: remove these
             event_history_.add_events();
             event_history_.mutable_events(i)->set_who(event.who());
             event_history_.mutable_events(i)->set_type(event.type());
@@ -221,7 +222,7 @@ namespace mj
         }
         // Set event history
         for (int i = 0; i < event_history_.events_size(); ++i) {
-            auto event = event_history_.events(i);
+            const auto &event = event_history_.events(i);
             state->mutable_event_history()->add_events();
             state->mutable_event_history()->mutable_events(i)->set_who(event.who());
             state->mutable_event_history()->mutable_events(i)->set_type(event.type());
@@ -237,7 +238,14 @@ namespace mj
     std::pair<AbsolutePos, Tile> State::Draw() {
         auto draw = wall_.Draw();
         mutable_player(drawer_).Draw(draw);
+
+        // set proto
+        mjproto::Event event{};
+        event.set_who(mjproto::AbsolutePos(drawer_));
+        event.set_type(mjproto::EVENT_TYPE_DRAW);
+        event_history_.mutable_events()->Add(std::move(event));
         private_infos_[ToUType(drawer_)].add_draws(draw.Id());
+
         return {drawer_, draw};
     }
 }  // namespace mj
