@@ -261,4 +261,14 @@ namespace mj
         event_history_.mutable_events()->Add(std::move(event));
         // TODO: set discarded tile to river
     }
+
+    void State::Riichi(AbsolutePos who) {
+        mutable_player(who).Riichi();
+
+        // set proto
+        mjproto::Event event{};
+        event.set_who(mjproto::AbsolutePos(who));
+        event.set_type(mjproto::EVENT_TYPE_RIICHI);
+        event_history_.mutable_events()->Add(std::move(event));
+    }
 }  // namespace mj

@@ -63,6 +63,7 @@ namespace mj
 
         Tile Draw(AbsolutePos who);
         void Discard(AbsolutePos who, Tile discard);
+        void Riichi(AbsolutePos who);
 
         std::uint32_t GenerateRoundSeed();
     };
