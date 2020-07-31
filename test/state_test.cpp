@@ -21,7 +21,6 @@ TEST(state, UpdateStateByDraw) {
     auto drawer = state.UpdateStateByDraw();
     EXPECT_EQ(drawer, AbsolutePos::kInitEast);
     EXPECT_EQ(state.hand(drawer).Size(), 14);
-    EXPECT_EQ(state.stage(), RoundStage::kAfterDraw);
 
     // TODO(sotetsuk): add test for different round and turn
 }

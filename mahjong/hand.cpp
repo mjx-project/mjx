@@ -241,7 +241,9 @@ namespace mj
         assert(closed_tiles_.find(tile) != closed_tiles_.end());
         assert(undiscardable_tiles_.find(tile) == undiscardable_tiles_.end());
         assert(last_tile_added_);
-        assert(!under_riichi_ || (under_riichi_ && tile == last_tile_added_));
+        assert(!under_riichi_ ||
+               (stage_ == HandStage::kAfterRiichi && Any(tile, PossibleDiscardsAfterRiichi())) ||
+               (under_riichi_ && tile == last_tile_added_));
         assert(SizeClosed() == 2 || SizeClosed() == 5 || SizeClosed() == 8 || SizeClosed() == 11 || SizeClosed() == 14);
         bool tsumogiri = Any(stage_, {HandStage::kAfterDraw, HandStage::kAfterDrawAfterKan}) && last_tile_added_ && tile == last_tile_added_.value();
         closed_tiles_.erase(tile);
