@@ -173,6 +173,7 @@ namespace mj
                 case mjproto::EVENT_TYPE_TSUMO:
                     break;
                 case mjproto::EVENT_TYPE_RON:
+                    break;
                 case mjproto::EVENT_TYPE_CHI:
                 case mjproto::EVENT_TYPE_PON:
                 case mjproto::EVENT_TYPE_KAN_CLOSED:
