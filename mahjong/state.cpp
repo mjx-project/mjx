@@ -272,4 +272,31 @@ namespace mj
         event.set_type(mjproto::EVENT_TYPE_RIICHI);
         event_history_.mutable_events()->Add(std::move(event));
     }
+
+    void State::ApplyOpen(AbsolutePos who, Open open) {
+        mutable_player(who).ApplyOpen(open);
+
+        // set proto
+        mjproto::Event event{};
+        event.set_who(mjproto::AbsolutePos(who));
+        auto to_event_type = [](OpenType open_type) {
+            switch (open_type) {
+                case OpenType::kChi:
+                    return EventType::kChi;
+                case OpenType::kPon:
+                    return EventType::kPon;
+                case OpenType::kKanOpened:
+                    return EventType::kKanOpened;
+                case OpenType::kKanClosed:
+                    return EventType::kKanClosed;
+                case OpenType::kKanAdded:
+                    return EventType::kKanAdded;
+            }
+        };
+        event.set_type(mjproto::EventType(to_event_type(open.Type())));
+    }
+
+    void State::AddNewDora() {
+        wall_.AddKanDora();
+    }
 }  // namespace mj

@@ -67,7 +67,7 @@ namespace mj
     }
 
     void Player::ApplyOpen(Open open) {
-        hand_.ApplyOpen(std::move(open));
+        hand_.ApplyOpen(open);
     }
 
     void Player::Ron(Tile tile) {

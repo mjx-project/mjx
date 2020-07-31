@@ -64,6 +64,8 @@ namespace mj
         Tile Draw(AbsolutePos who);
         void Discard(AbsolutePos who, Tile discard);
         void Riichi(AbsolutePos who);
+        void ApplyOpen(AbsolutePos who, Open open);
+        void AddNewDora();
 
         std::uint32_t GenerateRoundSeed();
     };
