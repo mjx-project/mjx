@@ -233,4 +233,11 @@ namespace mj
         assert(status.ok());
         return serialized;
     }
+
+    std::pair<AbsolutePos, Tile> State::Draw() {
+        auto draw = wall_.Draw();
+        mutable_player(drawer_).Draw(draw);
+        private_infos_[ToUType(drawer_)].add_draws(draw.Id());
+        return {drawer_, draw};
+    }
 }  // namespace mj

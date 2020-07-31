@@ -36,7 +36,6 @@ namespace mj
 
         // accessors
         [[nodiscard]] const Player& player(AbsolutePos pos) const;
-        Player& mutable_player(AbsolutePos pos);
         [[nodiscard]] RoundStage stage() const;
         [[nodiscard]] const Wall & wall() const;
         [[nodiscard]] const Hand & hand(AbsolutePos pos) const;
@@ -59,6 +58,10 @@ namespace mj
 
         std::array<mjproto::PrivateInfo, 4> private_infos_;
         mjproto::EventHistory event_history_;
+
+        Player& mutable_player(AbsolutePos pos);
+
+        std::pair<AbsolutePos, Tile> Draw();
 
         std::uint32_t GenerateRoundSeed();
     };
