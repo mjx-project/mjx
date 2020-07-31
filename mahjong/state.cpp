@@ -235,17 +235,30 @@ namespace mj
         return serialized;
     }
 
-    std::pair<AbsolutePos, Tile> State::Draw() {
+    Tile State::Draw(AbsolutePos who) {
         auto draw = wall_.Draw();
-        mutable_player(drawer_).Draw(draw);
+        mutable_player(who).Draw(draw);
 
         // set proto
         mjproto::Event event{};
-        event.set_who(mjproto::AbsolutePos(drawer_));
+        event.set_who(mjproto::AbsolutePos(who));
         event.set_type(mjproto::EVENT_TYPE_DRAW);
         event_history_.mutable_events()->Add(std::move(event));
-        private_infos_[ToUType(drawer_)].add_draws(draw.Id());
+        private_infos_[ToUType(who)].add_draws(draw.Id());
 
-        return {drawer_, draw};
+        return draw;
+    }
+
+    void State::Discard(AbsolutePos who, Tile discard) {
+        auto [discarded, tsumogiri] = mutable_player(who).Discard(discard);
+        assert(discard == discarded);
+
+        // set proto
+        mjproto::Event event{};
+        event.set_who(mjproto::AbsolutePos(who));
+        event.set_type(tsumogiri ? mjproto::EVENT_TYPE_DISCARD_DRAWN_TILE : mjproto::EVENT_TYPE_DISCARD_FROM_HAND);
+        event.set_tile(discard.Id());
+        event_history_.mutable_events()->Add(std::move(event));
+        // TODO: set discarded tile to river
     }
 }  // namespace mj

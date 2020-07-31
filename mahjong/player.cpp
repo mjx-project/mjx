@@ -82,8 +82,8 @@ namespace mj
         hand_.Tsumo();
     }
 
-    Tile Player::Discard(Tile tile) {
-        hand_.Discard(tile);
+    std::pair<Tile, bool> Player::Discard(Tile tile) {
+        return hand_.Discard(tile);
     };
 
     // get winning info

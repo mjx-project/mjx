@@ -234,7 +234,7 @@ namespace mj
         stage_ = HandStage::kAfterKanAdded;
     }
 
-    Tile Hand::Discard(Tile tile) {
+    std::pair<Tile, bool> Hand::Discard(Tile tile) {
         assert(stage_ != HandStage::kAfterDiscards);
         assert(stage_ != HandStage::kAfterTsumo && stage_ != HandStage::kAfterTsumoAfterKan &&
                stage_ != HandStage::kAfterRon && stage_ != HandStage::kAfterRonAfterOthersKan);
@@ -243,11 +243,12 @@ namespace mj
         assert(last_tile_added_);
         assert(!under_riichi_ || (under_riichi_ && tile == last_tile_added_));
         assert(SizeClosed() == 2 || SizeClosed() == 5 || SizeClosed() == 8 || SizeClosed() == 11 || SizeClosed() == 14);
+        bool tsumogiri = Any(stage_, {HandStage::kAfterDraw, HandStage::kAfterDrawAfterKan}) && last_tile_added_ && tile == last_tile_added_.value();
         closed_tiles_.erase(tile);
         undiscardable_tiles_.clear();
         stage_ = HandStage::kAfterDiscards;
         last_tile_added_ = std::nullopt;
-        return tile;
+        return {tile, tsumogiri};
     }
 
     std::size_t Hand::Size() const {

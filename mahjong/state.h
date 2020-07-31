@@ -61,7 +61,8 @@ namespace mj
 
         Player& mutable_player(AbsolutePos pos);
 
-        std::pair<AbsolutePos, Tile> Draw();
+        Tile Draw(AbsolutePos who);
+        void Discard(AbsolutePos who, Tile discard);
 
         std::uint32_t GenerateRoundSeed();
     };
