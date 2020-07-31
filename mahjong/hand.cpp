@@ -295,15 +295,15 @@ namespace mj
         std::vector<Tile> possible_discards;
 
         for (const Tile discard_tile : closed_tiles_) {
-            bool discard_able = false;
+            bool discardable = false;
             for (int i = 0; i < 34; ++i) {
                 auto tile_type = static_cast<TileType>(i);
                 if (YakuEvaluator::Has(ToWinningInfo().Discard(discard_tile).Tsumo(tile_type))) {
-                    discard_able = true;
+                    discardable = true;
                     break;
                 }
             }
-            if (discard_able) {
+            if (discardable) {
                 possible_discards.push_back(discard_tile);
             }
         }
