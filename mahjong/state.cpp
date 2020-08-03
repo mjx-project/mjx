@@ -226,7 +226,8 @@ namespace mj
     }
 
     Tile State::Draw(AbsolutePos who) {
-        auto draw = wall_.Draw();
+        bool is_kan_draw = last_action_taker_ == who && Any(last_event_, {EventType::kKanClosed, EventType::kKanOpened, EventType::kKanAdded});
+        auto draw = is_kan_draw ? wall_.KanDraw() : wall_.Draw();
         mutable_player(who).Draw(draw);
 
         // set proto
