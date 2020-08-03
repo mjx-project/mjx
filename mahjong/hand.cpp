@@ -686,6 +686,17 @@ namespace mj
         return YakuEvaluator::Eval(ToWinningInfo(win_state_info));
     }
 
+    bool Hand::IsTenpai() const {
+        assert(stage_ == HandStage::kAfterDiscards);
+        assert(SizeClosed() == 1 || SizeClosed() == 4 || SizeClosed() == 7 || SizeClosed() == 10 || SizeClosed() == 13);
+        auto closed_tile_types = ClosedTileTypes();
+        for (int i = 0; i < 34; ++i) {
+            if (closed_tile_types[TileType(i)] == 4) continue;
+            if (YakuEvaluator::Has(ToWinningInfo().Tsumo(TileType(i)))) return true;
+        }
+        return false;
+    }
+
     HandParams::HandParams(const std::string &closed) {
         assert(closed.size() % 3 == 2);
         for (std::int32_t i = 0; i < closed.size(); i += 3) {

@@ -65,6 +65,7 @@ namespace mj
         bool CanRon(Tile tile) const;  // This does not take furiten and fan into account.
         bool IsCompleted();
         bool CanRiichi();
+        bool IsTenpai() const;
         //bool CanNineTiles(bool IsDealer);  // 九種九牌
 
         // apply actions
