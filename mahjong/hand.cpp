@@ -562,7 +562,7 @@ namespace mj
         return YakuEvaluator::CanWin(ToWinningInfo().Ron(tile));
     }
 
-    bool Hand::CanRiichi() {
+    bool Hand::CanRiichi() const {
         // TODO: use different cache might become faster
 
         assert(stage_ == HandStage::kAfterDraw || stage_ == HandStage::kAfterKanClosed);
@@ -661,7 +661,7 @@ namespace mj
         assert(last_tile_added_);
     }
 
-    bool Hand::IsCompleted() {
+    bool Hand::IsCompleted() const {
         assert(stage_ == HandStage::kAfterDraw || stage_ == HandStage::kAfterDrawAfterKan);
         assert(SizeClosed() == 2 || SizeClosed() == 5 || SizeClosed() == 8 || SizeClosed() == 11 || SizeClosed() == 14);
         return YakuEvaluator::Has(ToWinningInfo());
