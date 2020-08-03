@@ -184,6 +184,7 @@ namespace mj
                     RiichiScoreChange();
                     break;
                 case mjproto::EVENT_TYPE_NO_WINNER:
+                    NoWinner();
                     break;
             }
         }
@@ -360,6 +361,7 @@ namespace mj
         event.set_who(mjproto::AbsolutePos(who));
         event.set_type(mjproto::EVENT_TYPE_TSUMO);
         event.set_tile(tile.Id());
+        event_history_.mutable_events()->Add(std::move(event));
 
         // set terminal
 
@@ -374,11 +376,22 @@ namespace mj
         event.set_who(mjproto::AbsolutePos(who));
         event.set_type(mjproto::EVENT_TYPE_RON);
         event.set_tile(tile.Id());
+        event_history_.mutable_events()->Add(std::move(event));
 
         // set terminal
 
         // set last action
         last_action_taker_ = who;
         last_event_ = EventType::kRon;
+    }
+
+    void State::NoWinner() {
+        // set event
+        mjproto::Event event{};
+        event.set_type(mjproto::EVENT_TYPE_NO_WINNER);
+        event_history_.mutable_events()->Add(std::move(event));
+
+        // set last action
+        last_event_ = EventType::kNoWinner;
     }
 }  // namespace mj

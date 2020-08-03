@@ -70,6 +70,7 @@ namespace mj
         void RiichiScoreChange();
         void Tsumo(AbsolutePos who, Tile tile);
         void Ron(AbsolutePos who, AbsolutePos from_who, Tile tile);
+        void NoWinner();
 
         std::uint32_t GenerateRoundSeed();
     };
