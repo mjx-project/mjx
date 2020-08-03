@@ -54,6 +54,7 @@ enum EventType {
   EVENT_TYPE_KAN_ADDED = 10;
   EVENT_TYPE_NEW_DORA = 11;
   EVENT_TYPE_RIICHI_SCORE_CHANGE = 12;
+  EVENT_TYPE_NO_WINNER = 13;  // 流局
 }
 
 enum NoWinnerType {  // 流局

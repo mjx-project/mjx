@@ -51,6 +51,7 @@ namespace mj {
         kKanAdded = mjproto::EVENT_TYPE_KAN_ADDED,
         kNewDora = mjproto::EVENT_TYPE_NEW_DORA,
         kRiichiScoreChange = mjproto::EVENT_TYPE_RIICHI_SCORE_CHANGE,
+        kNoWinner = mjproto::EVENT_TYPE_NO_WINNER,
     };
 
     enum class ActionType : std::uint8_t {

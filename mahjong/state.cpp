@@ -179,6 +179,8 @@ namespace mj
                 case mjproto::EVENT_TYPE_RIICHI_SCORE_CHANGE:
                     RiichiScoreChange();
                     break;
+                case mjproto::EVENT_TYPE_NO_WINNER:
+                    break;
             }
         }
     }
