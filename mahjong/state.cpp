@@ -165,7 +165,7 @@ namespace mj
                     Riichi(who);
                     break;
                 case mjproto::EVENT_TYPE_TSUMO:
-                    Tsumo(who, Tile(event.tile()));
+                    Tsumo(who);
                     break;
                 case mjproto::EVENT_TYPE_RON:
                     Ron(who, last_discarder, Tile(event.tile()));
@@ -344,15 +344,29 @@ namespace mj
         last_event_ = EventType::kRiichiScoreChange;
     }
 
-    void State::Tsumo(AbsolutePos who, Tile tile) {
+    void State::Tsumo(AbsolutePos who) {
+        mutable_player(who).Tsumo();
+
         // set event
         mjproto::Event event{};
         event.set_who(mjproto::AbsolutePos(who));
         event.set_type(mjproto::EVENT_TYPE_TSUMO);
-        event.set_tile(tile.Id());
+        assert(player(who).hand().LastTileAdded());
+        event.set_tile(player(who).hand().LastTileAdded().value().Id());
         event_history_.mutable_events()->Add(std::move(event));
 
         // set terminal
+        mjproto::Win win;
+        win.set_who(mjproto::AbsolutePos(who));
+        win.set_from_who(mjproto::AbsolutePos(who));
+        for (auto tile: player(who).hand().ToVectorClosed(true)) {
+            win.add_closed_tiles(tile.Id());
+        }
+        assert(player(who).hand().LastTileAdded());
+        win.set_win_tile(player(who).hand().LastTileAdded().value().Id());
+
+        terminal_.mutable_wins()->Add(std::move(win));
+        terminal_.set_is_game_over(IsGameOver());
 
         // set last action
         last_action_taker_ = who;
@@ -360,6 +374,8 @@ namespace mj
     }
 
     void State::Ron(AbsolutePos who, AbsolutePos from_who, Tile tile) {
+        mutable_player(who).Ron(tile);
+
         // set event
         mjproto::Event event{};
         event.set_who(mjproto::AbsolutePos(who));
@@ -368,6 +384,15 @@ namespace mj
         event_history_.mutable_events()->Add(std::move(event));
 
         // set terminal
+        mjproto::Win win;
+        win.set_who(mjproto::AbsolutePos(who));
+        win.set_from_who(mjproto::AbsolutePos(from_who));
+        for (auto tile: player(who).hand().ToVectorClosed(true)) {
+            win.add_closed_tiles(tile.Id());
+        }
+        win.set_win_tile(tile.Id());
+
+        terminal_.mutable_wins()->Add(std::move(win));
         terminal_.set_is_game_over(IsGameOver());
 
         // set last action
