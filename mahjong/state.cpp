@@ -236,6 +236,7 @@ namespace mj
         event_history_.mutable_events()->Add(std::move(event));
         private_infos_[ToUType(who)].add_draws(draw.Id());
 
+        // set last action
         last_action_taker_ = who;
         last_event_ = EventType::kDraw;
 
@@ -254,6 +255,7 @@ namespace mj
         event_history_.mutable_events()->Add(std::move(event));
         // TODO: set discarded tile to river
 
+        // set last action
         last_action_taker_ = who;
         last_event_ = tsumogiri ? EventType::kDiscardDrawnTile : EventType::kDiscardFromHand;
     }
@@ -267,6 +269,7 @@ namespace mj
         event.set_type(mjproto::EVENT_TYPE_RIICHI);
         event_history_.mutable_events()->Add(std::move(event));
 
+        // set last action
         last_action_taker_ = who;
         last_event_ = EventType::kRiichi;
     }
@@ -296,6 +299,7 @@ namespace mj
         event.set_open(open.GetBits());
         event_history_.mutable_events()->Add(std::move(event));
 
+        // set last action
         last_action_taker_ = who;
         switch (open_type) {
             case OpenType::kChi:
@@ -325,6 +329,9 @@ namespace mj
         auto doras = wall_.doras();
         event.set_tile(doras.back().Id());
         event_history_.mutable_events()->Add(std::move(event));
+
+        // set last action
+        last_event_ = EventType::kNewDora;
     }
 
     void State::RiichiScoreChange() {
@@ -335,5 +342,8 @@ namespace mj
         event.set_who(mjproto::AbsolutePos(last_action_taker_));
         event.set_type(mjproto::EVENT_TYPE_RIICHI_SCORE_CHANGE);
         event_history_.mutable_events()->Add(std::move(event));
+
+        // set last action
+        last_event_ = EventType::kRiichiScoreChange;
     }
 }  // namespace mj
