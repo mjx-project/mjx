@@ -56,14 +56,14 @@ enum EventType {
   EVENT_TYPE_RIICHI_SCORE_CHANGE = 12;
 }
 
-enum NoWinnerEndType {  // 流局
-  NO_WINNER_END_TYPE_NORMAL = 0;
-  NO_WINNER_END_TYPE_KYUUSYU = 1; // 九種九牌  // TODO(sotetsuk): rename
-  NO_WINNER_END_TYPE_FOUR_RIICHI = 2;  // 四家立直
-  NO_WINNER_END_TYPE_THREE_RONS = 3;  // 三家和了
-  NO_WINNER_END_TYPE_FOUR_KANS = 4;  // 四槓散了
-  NO_WINNER_END_TYPE_FOUR_WINDS = 5;  // 四風連打
-  NO_WINNER_END_TYPE_NM = 6;  // 流し満貫  # TODO(sotetsuk): rename
+enum NoWinnerType {  // 流局
+  NO_WINNER_TYPE_NORMAL = 0;
+  NO_WINNER_TYPE_KYUUSYU = 1; // 九種九牌  // TODO(sotetsuk): rename
+  NO_WINNER_TYPE_FOUR_RIICHI = 2;  // 四家立直
+  NO_WINNER_TYPE_THREE_RONS = 3;  // 三家和了
+  NO_WINNER_TYPE_FOUR_KANS = 4;  // 四槓散了
+  NO_WINNER_TYPE_FOUR_WINDS = 5;  // 四風連打
+  NO_WINNER_TYPE_NM = 6;  // 流し満貫  # TODO(sotetsuk): rename
 }
 
 message Score {
@@ -123,10 +123,10 @@ message Win {  // only for Tenhou visualization
   repeated uint32 yakumans = 11;
 }
 
-message NoWinnerEnd {  // only for Tenhou visualization
+message NoWinner {  // only for Tenhou visualization
   repeated TenpaiHand tenpais = 1;
   repeated int32 ten_changes = 2;  // Required for Tenhou mjlog.
-  NoWinnerEndType type = 3;  // Following Tenhou mjlog format. 0, normal. 九種九牌, 四家立直, 三家和了, 四槓散了, 四風連打, 流し満貫
+  NoWinnerType type = 3;  // Following Tenhou mjlog format. 0, normal. 九種九牌, 四家立直, 三家和了, 四槓散了, 四風連打, 流し満貫
 }
 
 message TenpaiHand {  // only for Tenhou visualization
@@ -134,9 +134,9 @@ message TenpaiHand {  // only for Tenhou visualization
   repeated uint32 closed_tiles = 2;
 }
 
-message StateEndInfo {  // only for Tenhou visualization
-  repeated Win wins = 2;
-  NoWinnerEnd no_winner_end = 3;  // Empty if someone wins
+message Terminal {  // only for Tenhou visualization
+  repeated Win wins = 2;   // Empty if no one wins
+  NoWinner no_winner = 3;  // Empty if a winner exists
   bool is_game_over = 4;
 }
 
@@ -150,8 +150,8 @@ message State {  // For Tenhou visualization and unit test
   repeated uint32 wall = 5;
   repeated uint32 ura_doras = 6;
   repeated PrivateInfo private_infos = 7;
-  // game end info
-  StateEndInfo end_info = 8;
+  // win/ryuukyoku information
+  Terminal terminal = 8;
 }
 
 message Action {  // corresponds to mj::Action in cpp
