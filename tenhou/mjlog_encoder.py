@@ -78,7 +78,9 @@ class MjlogEncoder:
             elif event.type == mahjong_pb2.EVENT_TYPE_NEW_DORA:
                 ret += "<DORA hai=\"{event.tile}\" />"
             elif event.type in [mahjong_pb2.EVENT_TYPE_TSUMO, mahjong_pb2.EVENT_TYPE_RON]:
-                break
+                assert len(state.terminal.wins) != 0
+            elif event.type == mahjong_pb2.EVENT_TYPE_NO_WINNER:
+                assert len(state.terminal.wins) == 0
 
         if len(state.terminal.wins) == 0:
             ret += "<RYUUKYOKU "

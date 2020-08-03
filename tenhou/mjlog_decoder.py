@@ -196,6 +196,9 @@ class MjlogDecoder:
                     self.state.terminal.no_winner.type = no_winner_type
                 if "owari" in val:
                     self.state.terminal.is_game_over = True
+                event = mahjong_pb2.Event(
+                    type=mahjong_pb2.EVENT_TYPE_NO_WINNER
+                )
             elif key == "AGARI":
                 ba, riichi = [int(x) for x in val["ba"].split(",")]
                 who = int(val["who"])
