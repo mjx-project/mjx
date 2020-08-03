@@ -45,11 +45,11 @@ namespace mj
         return hand_.CanRon(tile);
     }
 
-    bool Player::IsCompleted() {
+    bool Player::IsCompleted() const {
         return hand_.IsCompleted();
     }
 
-    bool Player::CanRiichi() {
+    bool Player::CanRiichi() const {
         // TODO: ツモ番があるかどうかをここで確認
         return hand_.CanRiichi();
     }
@@ -100,5 +100,9 @@ namespace mj
 
     Tile Player::latest_discard() const {
         return river_.latest_discard();
+    }
+
+    bool Player::IsTenpai() const {
+        return hand_.IsTenpai();
     }
 }  // namespace mj

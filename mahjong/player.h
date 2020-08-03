@@ -22,8 +22,9 @@ namespace mj
         std::vector<Open> PossibleOpensAfterOthersDiscard(Tile tile, RelativePos from) const;  // includes Chi, Pon, and KanOpened
         std::vector<Open> PossibleOpensAfterDraw();  // includes KanClosed and KanAdded
         bool CanRon(Tile tile) const;  // This does not take furiten and fan into account.
-        bool IsCompleted();
-        bool CanRiichi();
+        bool IsCompleted() const;
+        bool CanRiichi() const;
+        bool IsTenpai() const;
         //bool CanNineTiles(bool IsDealer);  // 九種九牌
 
         // apply actions

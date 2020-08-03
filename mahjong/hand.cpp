@@ -562,7 +562,7 @@ namespace mj
         return YakuEvaluator::CanWin(ToWinningInfo().Ron(tile));
     }
 
-    bool Hand::CanRiichi() {
+    bool Hand::CanRiichi() const {
         // TODO: use different cache might become faster
 
         assert(stage_ == HandStage::kAfterDraw || stage_ == HandStage::kAfterKanClosed);
@@ -661,7 +661,7 @@ namespace mj
         assert(last_tile_added_);
     }
 
-    bool Hand::IsCompleted() {
+    bool Hand::IsCompleted() const {
         assert(stage_ == HandStage::kAfterDraw || stage_ == HandStage::kAfterDrawAfterKan);
         assert(SizeClosed() == 2 || SizeClosed() == 5 || SizeClosed() == 8 || SizeClosed() == 11 || SizeClosed() == 14);
         return YakuEvaluator::Has(ToWinningInfo());
@@ -684,6 +684,17 @@ namespace mj
 
     WinningScore Hand::EvalScore(const WinningStateInfo& win_state_info) const noexcept {
         return YakuEvaluator::Eval(ToWinningInfo(win_state_info));
+    }
+
+    bool Hand::IsTenpai() const {
+        assert(stage_ == HandStage::kAfterDiscards);
+        assert(SizeClosed() == 1 || SizeClosed() == 4 || SizeClosed() == 7 || SizeClosed() == 10 || SizeClosed() == 13);
+        auto closed_tile_types = ClosedTileTypes();
+        for (int i = 0; i < 34; ++i) {
+            if (closed_tile_types[TileType(i)] == 4) continue;
+            if (YakuEvaluator::Has(ToWinningInfo().Tsumo(TileType(i)))) return true;
+        }
+        return false;
     }
 
     HandParams::HandParams(const std::string &closed) {

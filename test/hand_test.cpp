@@ -642,3 +642,24 @@ TEST(hand, EvalScore) {
     EXPECT_EQ(score.HasYaku(Yaku::kBottomOfTheSea), std::make_optional(1));
     EXPECT_EQ(score.HasYaku(Yaku::kDora), std::make_optional(3));
 }
+
+TEST(hand, IsTenpai) {
+    // テンパイ
+    auto h = Hand(HandParams("m1,m1,m1,m2,m3,m4,m5,m6,m7,m8,m9,m9,m9"));
+    EXPECT_TRUE(h.IsTenpai());
+    // テンパイでない
+    h = Hand(HandParams("m1,m1,m1,m2,m3,m4,m5,m6,m7,m8,m9,m9,p9"));
+    EXPECT_FALSE(h.IsTenpai());
+    // 鳴きの部分を含めて5枚目を使っている（天鳳では聴牌としてみとめられる） https://tenhou.net/man/
+    h = Hand(HandParams("m1").Pon("m1,m1,m1").Pon("p1,p1,p1").Pon("s1,s1,s1").Pon("m9,m9,m9"));
+    EXPECT_TRUE(h.IsTenpai());
+    h = Hand(HandParams("m1,m3,p1,p2,p3,p4,p5,p6,p7,p7").KanOpened("m2,m2,m2,m2"));
+    EXPECT_TRUE(h.IsTenpai());
+    h = Hand(HandParams("m1,m3,p1,p2,p3,p4,p5,p6,p7,p7").KanClosed("m2,m2,m2,m2"));  // TODO(sotetsuk): 大明槓は副露?
+    EXPECT_TRUE(h.IsTenpai());
+    // 純手牌（手牌-副露牌）で4枚使って5枚目を待っている（これは聴牌でない）
+    h = Hand(HandParams("m1,m1,m1,m1,p1,p2,p3,p4,p5,p6,p7,p8,p9"));
+    EXPECT_FALSE(h.IsTenpai());
+    h = Hand(HandParams("m1,m1,m1,m1,m2,m3,m4,m4,m4,m4,rd,rd,rd"));
+    EXPECT_FALSE(h.IsTenpai());
+}

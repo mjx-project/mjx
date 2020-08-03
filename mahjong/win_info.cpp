@@ -103,6 +103,7 @@ namespace mj {
         //                Tileを特定しないと赤ドラの判定ができないが、赤ドラは他に役がなければ上がれないため,
         //                上がれるかどうかの判定には不要である.
         ++closed_tile_types[tile_type];
+        assert(closed_tile_types[tile_type] <= 4);
         ++all_tile_types[tile_type];
         last_added_tile_type = tile_type;
         stage = HandStage::kAfterTsumo;
