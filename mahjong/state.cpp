@@ -368,6 +368,7 @@ namespace mj
         event_history_.mutable_events()->Add(std::move(event));
 
         // set terminal
+        terminal_.set_is_game_over(IsGameOver());
 
         // set last action
         last_action_taker_ = who;
@@ -413,8 +414,14 @@ namespace mj
             }
             terminal_.mutable_no_winner()->add_ten_changes(ten);
         }
+        terminal_.set_is_game_over(IsGameOver());
 
         // set last action
         last_event_ = EventType::kNoWinner;
+    }
+
+    bool State::IsGameOver() {
+        // TODO (sotetsuk): write here
+        return false;
     }
 }  // namespace mj
