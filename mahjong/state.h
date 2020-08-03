@@ -57,8 +57,11 @@ namespace mj
         Wall wall_;
         std::array<Player, 4> players_;
 
+        // protos
         std::array<mjproto::PrivateInfo, 4> private_infos_;
         mjproto::EventHistory event_history_;
+        mjproto::Terminal terminal_;
+        mjproto::State state__;
 
         Player& mutable_player(AbsolutePos pos);
 

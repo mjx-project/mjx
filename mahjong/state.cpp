@@ -226,6 +226,8 @@ namespace mj
             state->mutable_event_history()->mutable_events(i)->set_tile(event.tile());
             state->mutable_event_history()->mutable_events(i)->set_open(event.open());
         }
+        // Set terminal
+        state->mutable_terminal()->CopyFrom(terminal_);
 
         auto status = google::protobuf::util::MessageToJsonString(*state, &serialized);
         assert(status.ok());
@@ -390,6 +392,40 @@ namespace mj
         mjproto::Event event{};
         event.set_type(mjproto::EVENT_TYPE_NO_WINNER);
         event_history_.mutable_events()->Add(std::move(event));
+
+        // set terminal
+        std::vector<int> is_tenpai = {0, 0, 0, 0};
+        for (int i = 0; i < 4; ++i) {
+            auto who = AbsolutePos(i);
+            if (hand(who).IsTenpai()) {
+                is_tenpai[i] = 1;
+                mjproto::TenpaiHand tenpai;
+                tenpai.set_who(mjproto::AbsolutePos(who));
+                for (auto tile: hand(who).ToVectorClosed(true)) {
+                    tenpai.mutable_closed_tiles()->Add(tile.Id());
+                }
+                terminal_.mutable_no_winner()->mutable_tenpais()->Add(std::move(tenpai));
+            }
+        }
+        auto num_tenpai = std::accumulate(is_tenpai.begin(), is_tenpai.end(), 0);
+        for (int i = 0; i < 4; ++i) {
+            int ten;
+            switch (num_tenpai) {
+                case 1:
+                    ten = is_tenpai[i] ? 3000 : -1000;
+                    break;
+                case 2:
+                    ten = is_tenpai[i] ? 1500 : -1500;
+                    break;
+                case 3:
+                    ten = is_tenpai[i] ? 1000 : -3000;
+                    break;
+                default:  // 0, 4
+                    ten = 0;
+                    break;
+            }
+            terminal_.mutable_no_winner()->add_ten_changes(ten);
+        }
 
         // set last action
         last_event_ = EventType::kNoWinner;
