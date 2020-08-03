@@ -68,6 +68,8 @@ namespace mj
         void ApplyOpen(AbsolutePos who, Open open);
         void AddNewDora();
         void RiichiScoreChange();
+        void Tsumo(AbsolutePos who, Tile tile);
+        void Ron(AbsolutePos who, AbsolutePos from_who, Tile tile);
 
         std::uint32_t GenerateRoundSeed();
     };

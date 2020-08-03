@@ -145,6 +145,7 @@ namespace mj
         }
         // Set event history
         std::vector<int> draw_ixs = {0, 0, 0, 0};
+        AbsolutePos last_discarder;
         for (int i = 0; i < state->event_history().events_size(); ++i) {
             auto event = state->event_history().events(i);
             auto who = AbsolutePos(event.who());
@@ -158,13 +159,16 @@ namespace mj
                 case mjproto::EVENT_TYPE_DISCARD_FROM_HAND:
                 case mjproto::EVENT_TYPE_DISCARD_DRAWN_TILE:
                     Discard(who, Tile(event.tile()));
+                    last_discarder = who;
                     break;
                 case mjproto::EVENT_TYPE_RIICHI:
                     Riichi(who);
                     break;
                 case mjproto::EVENT_TYPE_TSUMO:
+                    Tsumo(who, Tile(event.tile()));
                     break;
                 case mjproto::EVENT_TYPE_RON:
+                    Ron(who, last_discarder, Tile(event.tile()));
                     break;
                 case mjproto::EVENT_TYPE_CHI:
                 case mjproto::EVENT_TYPE_PON:
@@ -348,5 +352,33 @@ namespace mj
 
         // set last action
         last_event_ = EventType::kRiichiScoreChange;
+    }
+
+    void State::Tsumo(AbsolutePos who, Tile tile) {
+        // set event
+        mjproto::Event event{};
+        event.set_who(mjproto::AbsolutePos(who));
+        event.set_type(mjproto::EVENT_TYPE_TSUMO);
+        event.set_tile(tile.Id());
+
+        // set terminal
+
+        // set last action
+        last_action_taker_ = who;
+        last_event_ = EventType::kTsumo;
+    }
+
+    void State::Ron(AbsolutePos who, AbsolutePos from_who, Tile tile) {
+        // set event
+        mjproto::Event event{};
+        event.set_who(mjproto::AbsolutePos(who));
+        event.set_type(mjproto::EVENT_TYPE_RON);
+        event.set_tile(tile.Id());
+
+        // set terminal
+
+        // set last action
+        last_action_taker_ = who;
+        last_event_ = EventType::kRon;
     }
 }  // namespace mj
