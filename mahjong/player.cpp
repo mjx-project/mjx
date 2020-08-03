@@ -101,4 +101,8 @@ namespace mj
     Tile Player::latest_discard() const {
         return river_.latest_discard();
     }
+
+    bool Player::IsTenpai() const {
+        return hand_.IsTenpai();
+    }
 }  // namespace mj
