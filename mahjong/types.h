@@ -83,10 +83,11 @@ namespace mj {
     };
 
     enum class RoundStage: std::uint8_t {
-        kAfterDiscards,
+        kAfterDiscard,
         kAfterDraw,
         kAfterDrawAfterKan,
-        kAfterRiichiAndDiscard,
+        kAfterRiichi,
+        kAfterDiscardAfterRiichi,
         kAfterTsumo,
         kAfterTsumoAfterKan,
         kAfterRon,

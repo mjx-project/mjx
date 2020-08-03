@@ -74,7 +74,7 @@ namespace mj
         void Ron(Tile tile);
         void RonAfterOthersKan(Tile tile);
         void Tsumo();  // should be called after draw like h.Draw(tile); if (h.IsCompleted(w)) h.Tsumo();
-        Tile Discard(Tile tile);
+        std::pair<Tile, bool> Discard(Tile tile);
 
         // get winning info
         WinningInfo ToWinningInfo() const noexcept ;

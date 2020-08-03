@@ -224,6 +224,18 @@ TEST(hand, Discard)
     h.Discard(Tile("rd"));
     EXPECT_EQ(h.Size(), 13);
     EXPECT_EQ(h.Stage(), HandStage::kAfterDiscards);
+
+    // Tsumogiri
+    h = Hand(HandParams("m1,m1,p1,p2,p3,s9,ew,sw,ww,nw,wd,gd,rd"));
+    auto draw = Tile("p5");
+    h.Draw(draw);
+    auto [discarded1, tsumogiri1] = h.Discard(draw);
+    EXPECT_TRUE(tsumogiri1);
+    h = Hand(HandParams("m1,m1,p1,p2,p3,s9,ew,sw,ww,nw,wd,gd,rd"));
+    draw = Tile("p5");
+    h.Draw(draw);
+    auto [discarded2, tsumogiri2] = h.Discard(Tile("m1", 0));
+    EXPECT_FALSE(tsumogiri2);
 }
 
 TEST(hand, PossibleDiscards) {

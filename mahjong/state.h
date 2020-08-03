@@ -36,8 +36,6 @@ namespace mj
 
         // accessors
         [[nodiscard]] const Player& player(AbsolutePos pos) const;
-        Player& mutable_player(AbsolutePos pos);
-        [[nodiscard]] RoundStage stage() const;
         [[nodiscard]] const Wall & wall() const;
         [[nodiscard]] const Hand & hand(AbsolutePos pos) const;
         [[nodiscard]] const River & river(AbsolutePos pos) const;
@@ -48,9 +46,11 @@ namespace mj
     private:
         std::array<std::string, 4> player_ids_;
         std::uint32_t seed_;
-        Score score_;
+        Score init_score_;
+        Score curr_score_;
         // Round dependent information. These members should be reset after each round.
-        RoundStage stage_;
+        AbsolutePos last_action_taker_;
+        EventType last_event_;
         AbsolutePos dealer_;
         AbsolutePos drawer_;
         AbsolutePos latest_discarder_;
@@ -59,6 +59,15 @@ namespace mj
 
         std::array<mjproto::PrivateInfo, 4> private_infos_;
         mjproto::EventHistory event_history_;
+
+        Player& mutable_player(AbsolutePos pos);
+
+        Tile Draw(AbsolutePos who);
+        void Discard(AbsolutePos who, Tile discard);
+        void Riichi(AbsolutePos who);
+        void ApplyOpen(AbsolutePos who, Open open);
+        void AddNewDora();
+        void RiichiScoreChange();
 
         std::uint32_t GenerateRoundSeed();
     };

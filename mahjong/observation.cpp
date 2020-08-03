@@ -34,6 +34,11 @@ namespace mj
         score_ = score;
     }
 
+    void Score::Riichi(AbsolutePos who) {
+        score_.set_riichi(riichi() + 1);
+        score_.set_ten(ToUType(who), score_.ten(ToUType(who)) - 1000);
+    }
+
     PossibleAction::PossibleAction(mjproto::PossibleAction possible_action)
     : possible_action_(std::move(possible_action)) {}
 

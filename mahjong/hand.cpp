@@ -234,20 +234,23 @@ namespace mj
         stage_ = HandStage::kAfterKanAdded;
     }
 
-    Tile Hand::Discard(Tile tile) {
+    std::pair<Tile, bool> Hand::Discard(Tile tile) {
         assert(stage_ != HandStage::kAfterDiscards);
         assert(stage_ != HandStage::kAfterTsumo && stage_ != HandStage::kAfterTsumoAfterKan &&
                stage_ != HandStage::kAfterRon && stage_ != HandStage::kAfterRonAfterOthersKan);
         assert(closed_tiles_.find(tile) != closed_tiles_.end());
         assert(undiscardable_tiles_.find(tile) == undiscardable_tiles_.end());
         assert(last_tile_added_);
-        assert(!under_riichi_ || (under_riichi_ && tile == last_tile_added_));
+        assert(!under_riichi_ ||
+               (stage_ == HandStage::kAfterRiichi && Any(tile, PossibleDiscardsAfterRiichi())) ||
+               (under_riichi_ && tile == last_tile_added_));
         assert(SizeClosed() == 2 || SizeClosed() == 5 || SizeClosed() == 8 || SizeClosed() == 11 || SizeClosed() == 14);
+        bool tsumogiri = Any(stage_, {HandStage::kAfterDraw, HandStage::kAfterDrawAfterKan}) && last_tile_added_ && tile == last_tile_added_.value();
         closed_tiles_.erase(tile);
         undiscardable_tiles_.clear();
         stage_ = HandStage::kAfterDiscards;
         last_tile_added_ = std::nullopt;
-        return tile;
+        return {tile, tsumogiri};
     }
 
     std::size_t Hand::Size() const {
@@ -294,15 +297,15 @@ namespace mj
         std::vector<Tile> possible_discards;
 
         for (const Tile discard_tile : closed_tiles_) {
-            bool discard_able = false;
+            bool discardable = false;
             for (int i = 0; i < 34; ++i) {
                 auto tile_type = static_cast<TileType>(i);
                 if (YakuEvaluator::Has(ToWinningInfo().Discard(discard_tile).Tsumo(tile_type))) {
-                    discard_able = true;
+                    discardable = true;
                     break;
                 }
             }
-            if (discard_able) {
+            if (discardable) {
                 possible_discards.push_back(discard_tile);
             }
         }
