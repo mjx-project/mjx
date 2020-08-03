@@ -205,27 +205,14 @@ namespace mj
         // Set doras and ura doras
         for (auto dora: wall_.doras()) state->add_doras(dora.Id());
         for (auto ura_dora: wall_.ura_doras()) state->add_ura_doras(ura_dora.Id());
-        // Set init hands
+        // Set private infos
         for(int i = 0; i < 4; ++i) {
             state->add_private_infos();
+            state->mutable_private_infos(i)->CopyFrom(private_infos_[i]);
             state->mutable_private_infos(i)->set_who(mjproto::AbsolutePos(i));
-            for (auto t: private_infos_[i].init_hand()) state->mutable_private_infos(i)->add_init_hand(t);
-        }
-        // Set draws
-        for (int i = 0; i < 4; ++i) {
-            for (auto draw: private_infos_[i].draws()) {
-                state->mutable_private_infos(i)->add_draws(draw);
-            }
         }
         // Set event history
-        for (int i = 0; i < event_history_.events_size(); ++i) {
-            const auto &event = event_history_.events(i);
-            state->mutable_event_history()->add_events();
-            state->mutable_event_history()->mutable_events(i)->set_who(event.who());
-            state->mutable_event_history()->mutable_events(i)->set_type(event.type());
-            state->mutable_event_history()->mutable_events(i)->set_tile(event.tile());
-            state->mutable_event_history()->mutable_events(i)->set_open(event.open());
-        }
+        state->mutable_event_history()->CopyFrom(event_history_);
         // Set terminal
         state->mutable_terminal()->CopyFrom(terminal_);
 
