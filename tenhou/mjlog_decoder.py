@@ -203,7 +203,8 @@ class MjlogDecoder:
                 # set event
                 event = mahjong_pb2.Event(
                     who=who,
-                    type=mahjong_pb2.EVENT_TYPE_TSUMO if who == from_who else mahjong_pb2.EVENT_TYPE_RON
+                    type=mahjong_pb2.EVENT_TYPE_TSUMO if who == from_who else mahjong_pb2.EVENT_TYPE_RON,
+                    tile=int(val["machi"])
                 )
                 # set win info
                 # TODO(sotetsuk): yakuman
