@@ -70,8 +70,8 @@ namespace mj
         void ApplyOpen(AbsolutePos who, Open open);
         void AddNewDora();
         void RiichiScoreChange();
-        void Tsumo(AbsolutePos who);
-        void Ron(AbsolutePos who, AbsolutePos from_who, Tile tile);
+        void Tsumo(AbsolutePos winner);
+        void Ron(AbsolutePos winner, AbsolutePos loser, Tile tile);
         void NoWinner();
 
         std::uint32_t GenerateRoundSeed();

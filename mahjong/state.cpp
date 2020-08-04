@@ -134,6 +134,7 @@ namespace mj
         // Set scores
         init_score_ = Score(state->init_score());
         curr_score_ = Score(state->init_score());
+        dealer_ = AbsolutePos(curr_score_.round() % 4);
         // Set walls
         auto wall_tiles = std::vector<Tile>();
         for (auto tile_id: state->wall()) wall_tiles.emplace_back(Tile(tile_id));
@@ -203,8 +204,8 @@ namespace mj
         // Set walls
         for(auto t: wall_.tiles())state->mutable_wall()->Add(t.Id());
         // Set doras and ura doras
-        for (auto dora: wall_.doras()) state->add_doras(dora.Id());
-        for (auto ura_dora: wall_.ura_doras()) state->add_ura_doras(ura_dora.Id());
+        for (auto dora: wall_.dora_indicators()) state->add_doras(dora.Id());
+        for (auto ura_dora: wall_.ura_dora_indicators()) state->add_ura_doras(ura_dora.Id());
         // Set private infos
         for(int i = 0; i < 4; ++i) {
             state->add_private_infos();
@@ -323,7 +324,7 @@ namespace mj
         // set proto
         mjproto::Event event{};
         event.set_type(mjproto::EVENT_TYPE_NEW_DORA);
-        auto doras = wall_.doras();
+        auto doras = wall_.dora_indicators();
         event.set_tile(doras.back().Id());
         event_history_.mutable_events()->Add(std::move(event));
 
@@ -344,59 +345,83 @@ namespace mj
         last_event_ = EventType::kRiichiScoreChange;
     }
 
-    void State::Tsumo(AbsolutePos who) {
-        mutable_player(who).Tsumo();
+    void State::Tsumo(AbsolutePos winner) {
+        mutable_player(winner).Tsumo();
 
         // set event
         mjproto::Event event{};
-        event.set_who(mjproto::AbsolutePos(who));
+        event.set_who(mjproto::AbsolutePos(winner));
         event.set_type(mjproto::EVENT_TYPE_TSUMO);
-        assert(player(who).hand().LastTileAdded());
-        event.set_tile(player(who).hand().LastTileAdded().value().Id());
+        assert(player(winner).hand().LastTileAdded());
+        event.set_tile(player(winner).hand().LastTileAdded().value().Id());
         event_history_.mutable_events()->Add(std::move(event));
 
         // set terminal
         mjproto::Win win;
-        win.set_who(mjproto::AbsolutePos(who));
-        win.set_from_who(mjproto::AbsolutePos(who));
-        for (auto tile: player(who).hand().ToVectorClosed(true)) {
+        win.set_who(mjproto::AbsolutePos(winner));
+        win.set_from_who(mjproto::AbsolutePos(winner));
+        for (auto tile: player(winner).hand().ToVectorClosed(true)) {
             win.add_closed_tiles(tile.Id());
         }
-        assert(player(who).hand().LastTileAdded());
-        win.set_win_tile(player(who).hand().LastTileAdded().value().Id());
+        assert(player(winner).hand().LastTileAdded());
+        win.set_win_tile(player(winner).hand().LastTileAdded().value().Id());
 
         terminal_.mutable_wins()->Add(std::move(win));
         terminal_.set_is_game_over(IsGameOver());
 
         // set last action
-        last_action_taker_ = who;
+        last_action_taker_ = winner;
         last_event_ = EventType::kTsumo;
     }
 
-    void State::Ron(AbsolutePos who, AbsolutePos from_who, Tile tile) {
-        mutable_player(who).Ron(tile);
+    void State::Ron(AbsolutePos winner, AbsolutePos loser, Tile tile) {
+        mutable_player(winner).Ron(tile);
+        auto win_state_info = WinningStateInfo().Dora(wall_.dora_count()).ReversedDora(wall_.ura_dora_count());
+        auto win_score = player(winner).hand().EvalScore(win_state_info);
 
         // set event
         mjproto::Event event{};
-        event.set_who(mjproto::AbsolutePos(who));
+        event.set_who(mjproto::AbsolutePos(winner));
         event.set_type(mjproto::EVENT_TYPE_RON);
         event.set_tile(tile.Id());
         event_history_.mutable_events()->Add(std::move(event));
 
         // set terminal
         mjproto::Win win;
-        win.set_who(mjproto::AbsolutePos(who));
-        win.set_from_who(mjproto::AbsolutePos(from_who));
-        for (auto tile: player(who).hand().ToVectorClosed(true)) {
-            win.add_closed_tiles(tile.Id());
+        win.set_who(mjproto::AbsolutePos(winner));
+        win.set_from_who(mjproto::AbsolutePos(loser));
+        // winner closed tiles
+        for (auto t: player(winner).hand().ToVectorClosed(true)) {
+            win.add_closed_tiles(t.Id());
         }
         win.set_win_tile(tile.Id());
-
+        // fu
+        if (win_score.fu()) win.set_fu(win_score.fu().value());
+        // yaku, fans
+        for (const auto &[yaku, fan]: win_score.yaku()) {
+            if (yaku == Yaku::kReversedDora) continue;  // mjlog puts ura-dora at last
+            win.add_yakus(ToUType(yaku));
+            win.add_fans(fan);
+        }
+        if (auto has_ura_dora = win_score.HasYaku(Yaku::kReversedDora); has_ura_dora) {
+            win.add_yakus(ToUType(Yaku::kReversedDora));
+            win.add_fans(has_ura_dora.value());
+        }
+        // ten and ten moves
+        auto [ten, ten_moves] = win_score.TenMoves(winner, dealer_, loser);
+        win.set_ten(ten);
+        for (int i = 0; i < 4; ++i) win.add_ten_changes(0);
+        for (auto &[who, ten_move]: ten_moves) {
+            if (ten_move > 0) ten_move += curr_score_.riichi() * 1000 + curr_score_.honba() * 300;
+            else if (ten_move < 0) ten_move -= curr_score_.honba() * 300;
+            win.set_ten_changes(ToUType(who), ten_move);
+        }
+        // set above win to terminal
         terminal_.mutable_wins()->Add(std::move(win));
         terminal_.set_is_game_over(IsGameOver());
 
         // set last action
-        last_action_taker_ = who;
+        last_action_taker_ = winner;
         last_event_ = EventType::kRon;
     }
 
