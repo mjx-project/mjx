@@ -104,4 +104,16 @@ namespace mj
                 return TileType(ToUType(dora_indicator.Type()) + 1);
         }
     }
+
+    TileTypeCount Wall::dora_count() const {
+        std::map<TileType, int> counter;
+        for (const auto &t: dora_indicators()) counter[Wall::IndicatorToDora(t)]++;
+        return counter;
+    }
+
+    TileTypeCount Wall::ura_dora_count() const {
+        std::map<TileType, int> counter;
+        for (const auto &t: ura_dora_indicators()) counter[Wall::IndicatorToDora(t)]++;
+        return counter;
+    }
 }  // namespace mj

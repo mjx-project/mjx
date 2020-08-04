@@ -88,39 +88,3 @@ TEST(wall, ura_doras) {
     EXPECT_EQ(wall.ura_dora_indicators(), Tile::Create({66, 77}));
 }
 
-TEST(wall, IndicatorToDora) {
-    EXPECT_EQ(Wall::IndicatorToDora(Tile("m1")), TileType::kM2);
-    EXPECT_EQ(Wall::IndicatorToDora(Tile("m2")), TileType::kM3);
-    EXPECT_EQ(Wall::IndicatorToDora(Tile("m3")), TileType::kM4);
-    EXPECT_EQ(Wall::IndicatorToDora(Tile("m4")), TileType::kM5);
-    EXPECT_EQ(Wall::IndicatorToDora(Tile("m5")), TileType::kM6);
-    EXPECT_EQ(Wall::IndicatorToDora(Tile("m6")), TileType::kM7);
-    EXPECT_EQ(Wall::IndicatorToDora(Tile("m7")), TileType::kM8);
-    EXPECT_EQ(Wall::IndicatorToDora(Tile("m8")), TileType::kM9);
-    EXPECT_EQ(Wall::IndicatorToDora(Tile("m9")), TileType::kM1);
-    EXPECT_EQ(Wall::IndicatorToDora(Tile("p1")), TileType::kP2);
-    EXPECT_EQ(Wall::IndicatorToDora(Tile("p2")), TileType::kP3);
-    EXPECT_EQ(Wall::IndicatorToDora(Tile("p3")), TileType::kP4);
-    EXPECT_EQ(Wall::IndicatorToDora(Tile("p4")), TileType::kP5);
-    EXPECT_EQ(Wall::IndicatorToDora(Tile("p5")), TileType::kP6);
-    EXPECT_EQ(Wall::IndicatorToDora(Tile("p6")), TileType::kP7);
-    EXPECT_EQ(Wall::IndicatorToDora(Tile("p7")), TileType::kP8);
-    EXPECT_EQ(Wall::IndicatorToDora(Tile("p8")), TileType::kP9);
-    EXPECT_EQ(Wall::IndicatorToDora(Tile("p9")), TileType::kP1);
-    EXPECT_EQ(Wall::IndicatorToDora(Tile("s1")), TileType::kS2);
-    EXPECT_EQ(Wall::IndicatorToDora(Tile("s2")), TileType::kS3);
-    EXPECT_EQ(Wall::IndicatorToDora(Tile("s3")), TileType::kS4);
-    EXPECT_EQ(Wall::IndicatorToDora(Tile("s4")), TileType::kS5);
-    EXPECT_EQ(Wall::IndicatorToDora(Tile("s5")), TileType::kS6);
-    EXPECT_EQ(Wall::IndicatorToDora(Tile("s6")), TileType::kS7);
-    EXPECT_EQ(Wall::IndicatorToDora(Tile("s7")), TileType::kS8);
-    EXPECT_EQ(Wall::IndicatorToDora(Tile("s8")), TileType::kS9);
-    EXPECT_EQ(Wall::IndicatorToDora(Tile("s9")), TileType::kS1);
-    EXPECT_EQ(Wall::IndicatorToDora(Tile("ew")), TileType::kSW);
-    EXPECT_EQ(Wall::IndicatorToDora(Tile("sw")), TileType::kWW);
-    EXPECT_EQ(Wall::IndicatorToDora(Tile("ww")), TileType::kNW);
-    EXPECT_EQ(Wall::IndicatorToDora(Tile("nw")), TileType::kEW);
-    EXPECT_EQ(Wall::IndicatorToDora(Tile("wd")), TileType::kGD);
-    EXPECT_EQ(Wall::IndicatorToDora(Tile("gd")), TileType::kRD);
-    EXPECT_EQ(Wall::IndicatorToDora(Tile("rd")), TileType::kWD);
-}
