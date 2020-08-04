@@ -21,11 +21,11 @@ namespace mj {
         this->is_first_tsumo = is_first_tsumo;
         return *this;
     }
-    WinningStateInfo& WinningStateInfo::Dora(std::map<TileType,int> dora) noexcept {
+    WinningStateInfo& WinningStateInfo::Dora(TileTypeCount dora) noexcept {
         this->dora = dora;
         return *this;
     }
-    WinningStateInfo& WinningStateInfo::ReversedDora(std::map<TileType,int> reversed_dora) noexcept {
+    WinningStateInfo& WinningStateInfo::ReversedDora(TileTypeCount reversed_dora) noexcept {
         this->reversed_dora = reversed_dora;
         return *this;
     }

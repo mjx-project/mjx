@@ -13,12 +13,12 @@ namespace mj {
         WinningStateInfo() noexcept;
         Wind prevalent_wind;
         bool is_bottom, is_first_tsumo;
-        std::map<TileType,int> dora, reversed_dora;
+        TileTypeCount dora, reversed_dora;
         WinningStateInfo& PrevalentWind(Wind prevalent_wind) noexcept ;
         WinningStateInfo& IsBottom(bool is_bottom) noexcept ;
         WinningStateInfo& IsFirstTsumo(bool is_first_tsumo) noexcept ;
-        WinningStateInfo& Dora(std::map<TileType,int> dora) noexcept ;
-        WinningStateInfo& ReversedDora(std::map<TileType,int> reversed_dora) noexcept ;
+        WinningStateInfo& Dora(TileTypeCount dora) noexcept ;
+        WinningStateInfo& ReversedDora(TileTypeCount reversed_dora) noexcept ;
     };
 
     struct WinningInfo {
