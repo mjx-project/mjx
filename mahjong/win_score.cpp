@@ -136,48 +136,51 @@ namespace mj {
         };
     }
 
-    std::map<AbsolutePos, int>
+    std::pair<int, std::map<AbsolutePos, int>>
     WinningScore::TenMoves(AbsolutePos winner, AbsolutePos dealer, std::optional<AbsolutePos> loser) const noexcept {
         static ScoreTable table;
 
         int fan = total_fan();
         int fu = this->fu() ? this->fu().value() : 0;
 
+        int ten;
         std::map<AbsolutePos, int> ten_moves;
-        if (loser) {
-            int payment;
-            if (winner == dealer) {
-                // 親に振り込んだとき
-                if (!yakuman_.empty()) payment = 48000 * yakuman_.size();
-                else if (table.dealer_ron.count({fan, fu})) {
-                    payment = table.dealer_ron.at({fan, fu});
-                }
-                else {
-                    if (fan <= 5) payment = 12000;
-                    else if (fan <= 7) payment = 18000;
-                    else if (fan <= 10) payment = 24000;
-                    else if (fan <= 12) payment = 36000;
-                    else payment = 48000;
-                }
+
+        // スコアの移動だけでなく、和了の点数を求める（天鳳mjlogでの表示用）
+        // ロン和了の場合はそのままスコアの移動にもなる。
+        if (winner == dealer) {
+            // 親
+            if (!yakuman_.empty()) ten = 48000 * yakuman_.size();
+            else if (table.dealer_ron.count({fan, fu})) {
+                ten = table.dealer_ron.at({fan, fu});
             }
             else {
-                // 子に振り込んだとき
-                if (!yakuman_.empty()) payment = 32000 * yakuman_.size();
-                else if (table.non_dealer_ron.count({fan, fu})) {
-                    payment = table.dealer_ron.at({fan, fu});
-                }
-                else {
-                    if (fan <= 5) payment = 8000;
-                    else if (fan <= 7) payment = 12000;
-                    else if (fan <= 10) payment = 16000;
-                    else if (fan <= 12) payment = 24000;
-                    else payment = 32000;
-                }
+                if (fan <= 5) ten = 12000;
+                else if (fan <= 7) ten = 18000;
+                else if (fan <= 10) ten = 24000;
+                else if (fan <= 12) ten = 36000;
+                else ten = 48000;
             }
-            ten_moves[winner] = payment;
-            ten_moves[loser.value()] = - payment;
         }
         else {
+            // 子
+            if (!yakuman_.empty()) ten = 32000 * yakuman_.size();
+            else if (table.non_dealer_ron.count({fan, fu})) {
+                ten = table.non_dealer_ron.at({fan, fu});
+            }
+            else {
+                if (fan <= 5) ten = 8000;
+                else if (fan <= 7) ten = 12000;
+                else if (fan <= 10) ten = 16000;
+                else if (fan <= 12) ten = 24000;
+                else ten = 32000;
+            }
+        }
+
+        if (loser) {  // ロン和了
+            ten_moves[winner] = ten;
+            ten_moves[loser.value()] = -ten;
+        } else {  // ツモ和了
             if (winner == dealer) {
                 // 親がツモ上がりしたとき
                 int payment;
@@ -220,7 +223,8 @@ namespace mj {
                 }
             }
         }
-        return ten_moves;
+
+        return {ten, ten_moves};
     }
 
     void WinningScore::AddYaku(Yaku yaku, int fan) noexcept {
