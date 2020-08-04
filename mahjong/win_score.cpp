@@ -245,8 +245,7 @@ namespace mj {
     }
 
     bool WinningScore::RequireFu() const noexcept {
-        if (!yakuman_.empty()) return false;
-        return total_fan() <= 4;
+        return yakuman_.empty();  // Tenhou requires fu even if it's Mangan
     }
 
     void WinningScore::set_fu(int fu) noexcept {
