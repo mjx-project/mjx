@@ -25,13 +25,14 @@ namespace mj
         explicit Wall(std::uint32_t round, std::uint32_t seed = 9999);  // round info is necessary due to Tenhou's implementation
         Wall(std::uint32_t round, std::vector<Tile> tiles);
         [[nodiscard]] std::vector<Tile> initial_hand_tiles(AbsolutePos pos) const;
-        [[nodiscard]] std::vector<Tile> doras() const;
-        [[nodiscard]] std::vector<Tile> ura_doras() const;
+        [[nodiscard]] std::vector<Tile> dora_indicators() const;
+        [[nodiscard]] std::vector<Tile> ura_dora_indicators() const;
         [[nodiscard]] const std::vector<Tile>& tiles() const;
         [[nodiscard]] bool HasDrawLeft() const;
         Tile Draw();
         Tile KanDraw();
         void AddKanDora();
+        static TileType IndicatorToDora(Tile dora_indicator);
     private:
         std::uint32_t round_;
         std::uint32_t seed_;
