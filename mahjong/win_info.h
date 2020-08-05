@@ -69,8 +69,8 @@ namespace mj {
         WinInfo& Ron(Tile tile) noexcept ;
 
         /*
-         * NOTE: WinInfo setters are only for unit test usage of YakuEvaluator.
-         * This enables to test YakuEvaluator independent to Hand and State class implementations.
+         * NOTE: These constructor and setters are only for unit test usage.
+         * These setters enables to test YakuEvaluator independent to Hand and State class implementations.
          * Do not use these methods in actual situations. Use constructor instead.
          */
         explicit WinInfo(WinHandInfo &&win_hand_info) noexcept : hand(std::move(win_hand_info)) {}
