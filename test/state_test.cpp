@@ -68,22 +68,22 @@ TEST(state, ToRelativePos) {
 }
 
 TEST(state, ToSeatWind) {
-EXPECT_EQ(State::ToSeatWind(mj::AbsolutePos::kInitEast, mj::AbsolutePos::kInitEast), Wind::kEast);
-EXPECT_EQ(State::ToSeatWind(mj::AbsolutePos::kInitEast, mj::AbsolutePos::kInitSouth), Wind::kNorth);
-EXPECT_EQ(State::ToSeatWind(mj::AbsolutePos::kInitEast, mj::AbsolutePos::kInitWest), Wind::kWest);
-EXPECT_EQ(State::ToSeatWind(mj::AbsolutePos::kInitEast, mj::AbsolutePos::kInitNorth), Wind::kSouth);
-EXPECT_EQ(State::ToSeatWind(mj::AbsolutePos::kInitSouth, mj::AbsolutePos::kInitEast), Wind::kSouth);
-EXPECT_EQ(State::ToSeatWind(mj::AbsolutePos::kInitSouth, mj::AbsolutePos::kInitSouth), Wind::kEast);
-EXPECT_EQ(State::ToSeatWind(mj::AbsolutePos::kInitSouth, mj::AbsolutePos::kInitWest), Wind::kNorth);
-EXPECT_EQ(State::ToSeatWind(mj::AbsolutePos::kInitSouth, mj::AbsolutePos::kInitNorth), Wind::kWest);
-EXPECT_EQ(State::ToSeatWind(mj::AbsolutePos::kInitWest, mj::AbsolutePos::kInitEast), Wind::kWest);
-EXPECT_EQ(State::ToSeatWind(mj::AbsolutePos::kInitWest, mj::AbsolutePos::kInitSouth), Wind::kSouth);
-EXPECT_EQ(State::ToSeatWind(mj::AbsolutePos::kInitWest, mj::AbsolutePos::kInitWest), Wind::kEast);
-EXPECT_EQ(State::ToSeatWind(mj::AbsolutePos::kInitWest, mj::AbsolutePos::kInitNorth), Wind::kNorth);
-EXPECT_EQ(State::ToSeatWind(mj::AbsolutePos::kInitNorth, mj::AbsolutePos::kInitEast), Wind::kNorth);
-EXPECT_EQ(State::ToSeatWind(mj::AbsolutePos::kInitNorth, mj::AbsolutePos::kInitSouth), Wind::kWest);
-EXPECT_EQ(State::ToSeatWind(mj::AbsolutePos::kInitNorth, mj::AbsolutePos::kInitWest), Wind::kSouth);
-EXPECT_EQ(State::ToSeatWind(mj::AbsolutePos::kInitNorth, mj::AbsolutePos::kInitNorth), Wind::kEast);
+    EXPECT_EQ(State::ToSeatWind(mj::AbsolutePos::kInitEast, mj::AbsolutePos::kInitEast), Wind::kEast);
+    EXPECT_EQ(State::ToSeatWind(mj::AbsolutePos::kInitEast, mj::AbsolutePos::kInitSouth), Wind::kNorth);
+    EXPECT_EQ(State::ToSeatWind(mj::AbsolutePos::kInitEast, mj::AbsolutePos::kInitWest), Wind::kWest);
+    EXPECT_EQ(State::ToSeatWind(mj::AbsolutePos::kInitEast, mj::AbsolutePos::kInitNorth), Wind::kSouth);
+    EXPECT_EQ(State::ToSeatWind(mj::AbsolutePos::kInitSouth, mj::AbsolutePos::kInitEast), Wind::kSouth);
+    EXPECT_EQ(State::ToSeatWind(mj::AbsolutePos::kInitSouth, mj::AbsolutePos::kInitSouth), Wind::kEast);
+    EXPECT_EQ(State::ToSeatWind(mj::AbsolutePos::kInitSouth, mj::AbsolutePos::kInitWest), Wind::kNorth);
+    EXPECT_EQ(State::ToSeatWind(mj::AbsolutePos::kInitSouth, mj::AbsolutePos::kInitNorth), Wind::kWest);
+    EXPECT_EQ(State::ToSeatWind(mj::AbsolutePos::kInitWest, mj::AbsolutePos::kInitEast), Wind::kWest);
+    EXPECT_EQ(State::ToSeatWind(mj::AbsolutePos::kInitWest, mj::AbsolutePos::kInitSouth), Wind::kSouth);
+    EXPECT_EQ(State::ToSeatWind(mj::AbsolutePos::kInitWest, mj::AbsolutePos::kInitWest), Wind::kEast);
+    EXPECT_EQ(State::ToSeatWind(mj::AbsolutePos::kInitWest, mj::AbsolutePos::kInitNorth), Wind::kNorth);
+    EXPECT_EQ(State::ToSeatWind(mj::AbsolutePos::kInitNorth, mj::AbsolutePos::kInitEast), Wind::kNorth);
+    EXPECT_EQ(State::ToSeatWind(mj::AbsolutePos::kInitNorth, mj::AbsolutePos::kInitSouth), Wind::kWest);
+    EXPECT_EQ(State::ToSeatWind(mj::AbsolutePos::kInitNorth, mj::AbsolutePos::kInitWest), Wind::kSouth);
+    EXPECT_EQ(State::ToSeatWind(mj::AbsolutePos::kInitNorth, mj::AbsolutePos::kInitNorth), Wind::kEast);
 }
 
 TEST(state, ToJson) {
