@@ -138,6 +138,12 @@ class mj::WinHandInfo <<(D,yellow) Data>> {
     + is_menzen: bool
 }
 
+class mj::HandInfo <<(D,yellow) Data>> {
+    + closed_tiles
+    + opens
+    + win_tile
+}
+
 class mj::State {
     - score: Score
     - stage: RoundStage
@@ -302,8 +308,8 @@ mj::Player *-- mj::River
 mj::Player --> mj::WinInfo : ToWinInfo
 
 mj::Hand "0" *-- "1..4" mj::Open
-mj::Hand --> mj::WinHandInfo
 mj::Hand -- mj::WinHandCache : IsTenpai, CanRiichi
+mj::Hand --> mj::WinHandInfo
 
 mj::WinHandInfo --> mj::Player
 

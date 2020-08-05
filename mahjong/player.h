@@ -7,14 +7,12 @@
 
 namespace mj
 {
-    class Player
+   class Player
     {
     public:
         Player() = default;
         Player(AbsolutePos position, River river, Hand initial_hand);
         [[nodiscard]] AbsolutePos position() const;
-        [[nodiscard]] const Hand& hand() const;
-        [[nodiscard]] const River& river() const;
 
         // action validators
         std::vector<Tile> PossibleDiscards() const;  // TODO(sotetsuk): Current implementation has the tiles with same type (e.g., 2m x 3). What is the Tenhou's implementation? Only first id? or any id?
@@ -37,7 +35,8 @@ namespace mj
         std::pair<Tile, bool> Discard(Tile tile);  // return whether tsumogiri or not
 
         // get winning info
-        [[nodiscard]] WinScore EvalScore(WinStateInfo win_state_info) const noexcept ;
+        [[nodiscard]] std::pair<HandInfo, WinScore> EvalWinHand(WinStateInfo win_state_info) const noexcept ;
+        [[nodiscard]] std::optional<HandInfo> EvalTenpai() const noexcept ;
 
         // river
         void Discard(Tile tile, bool tsumogiri);

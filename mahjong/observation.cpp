@@ -56,12 +56,11 @@ namespace mj
         return ret;
     }
 
-    PossibleAction PossibleAction::CreateDiscard(const Hand &hand) {
-        assert(hand.Stage() != HandStage::kAfterDiscards);
+    PossibleAction PossibleAction::CreateDiscard(const std::vector<Tile>& possible_discards) {
         auto possible_action = PossibleAction();
         possible_action.possible_action_.set_type(ToUType(ActionType::kDiscard));
         auto discard_candidates = possible_action.possible_action_.mutable_discard_candidates();
-        for (auto tile: hand.PossibleDiscards()) discard_candidates->Add(tile.Id());
+        for (auto tile: possible_discards) discard_candidates->Add(tile.Id());
         assert(discard_candidates->size() <= 14);
         return possible_action;
     }

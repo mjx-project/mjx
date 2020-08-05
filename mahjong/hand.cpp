@@ -673,7 +673,7 @@ namespace mj
 
     WinHandInfo Hand::win_info() const noexcept {
         assert(last_tile_added_);
-        return WinHandInfo(closed_tiles_, opens_, ClosedTileTypes(), AllTileTypes(), last_tile_added_.value(), stage_, IsUnderRiichi(), IsMenzen());
+        return WinHandInfo(closed_tiles_, opens_, ClosedTileTypes(), AllTileTypes(),last_tile_added_.value(), stage_, IsUnderRiichi(), IsMenzen());
     }
 
     bool Hand::IsTenpai() const {

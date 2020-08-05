@@ -29,10 +29,6 @@ namespace mj
         return seed_gen();
     }
 
-    const Wall & State::wall() const {
-        return wall_;
-    }
-
     AbsolutePos State::UpdateStateByDraw() {
         mutable_player(drawer_).Draw(wall_.Draw());
         // TODO (sotetsuk): update action history
@@ -56,28 +52,19 @@ namespace mj
         return false;
     }
 
-    const Player &State::player(AbsolutePos pos) const {
-        return players_.at(ToUType(pos));
-    }
-
     Player& State::mutable_player(AbsolutePos pos) {
         return players_.at(ToUType(pos));
     }
 
-    const Hand & State::hand(AbsolutePos pos) const {
-        return player(pos).hand();
+    const Player &State::player(AbsolutePos pos) const {
+        return players_.at(ToUType(pos));
     }
 
-    const River &State::river(AbsolutePos pos) const {
-        return players_.at(ToUType(pos)).river();
-    }
-
-    Observation State::CreateObservation(AbsolutePos pos) {
-        auto observation = Observation(pos, curr_score_, mutable_player(pos));
+    Observation State::CreateObservation(AbsolutePos who) {
+        auto observation = Observation(who, curr_score_, mutable_player(who));
         switch (last_event_) {
             case EventType::kDraw:
-                assert(hand(pos).Stage() == HandStage::kAfterDraw);
-                observation.add_possible_action(PossibleAction::CreateDiscard(hand(pos)));
+                observation.add_possible_action(PossibleAction::CreateDiscard(player(who).PossibleDiscards()));
                 // TODO(sotetsuk): add kan_added, kan_closed and riichi
                 break;
             default:
@@ -89,9 +76,9 @@ namespace mj
     std::optional<std::vector<AbsolutePos>> State::RonCheck() {
         auto possible_winners = std::make_optional<std::vector<AbsolutePos>>();
         auto position = AbsolutePos((ToUType(latest_discarder_) + 1) % 4);
-        auto discarded_tile = player(latest_discarder_).latest_discard();
+        auto discarded_tile = mutable_player(latest_discarder_).latest_discard();
         while (position != latest_discarder_) {
-            if (player(position).CanRon(discarded_tile)) possible_winners->emplace_back(position);
+            if (mutable_player(position).CanRon(discarded_tile)) possible_winners->emplace_back(position);
             position = AbsolutePos((ToUType(position) + 1) % 4);
         }
         if (possible_winners.value().empty()) possible_winners = std::nullopt;
@@ -102,10 +89,10 @@ namespace mj
         assert(Any(last_event_, { EventType::kDiscardFromHand, EventType::kDiscardDrawnTile }));
         auto possible_steals = std::make_optional<std::vector<std::pair<AbsolutePos, std::vector<Open>>>>();
         auto position = AbsolutePos((ToUType(latest_discarder_) + 1) % 4);
-        auto discarded_tile = player(latest_discarder_).latest_discard();
+        auto discarded_tile = mutable_player(latest_discarder_).latest_discard();
         while (position != latest_discarder_) {
             auto stealer = AbsolutePos(position);
-            auto possible_opens = player(stealer).PossibleOpensAfterOthersDiscard(discarded_tile, ToRelativePos(position, latest_discarder_));
+            auto possible_opens = mutable_player(stealer).PossibleOpensAfterOthersDiscard(discarded_tile, ToRelativePos(position, latest_discarder_));
             possible_steals->emplace_back(std::make_pair(stealer, std::move(possible_opens)));
             position = AbsolutePos((ToUType(position) + 1) % 4);
         }
@@ -348,7 +335,7 @@ namespace mj
 
     void State::Tsumo(AbsolutePos winner) {
         mutable_player(winner).Tsumo();
-        auto win_score = EvalScore(winner);
+        auto [hand_info, win_score] = EvalWinHand(winner);
         // calc ten moves
         auto [ten, ten_moves] = win_score.TenMoves(winner, dealer_);
         for (auto &[who, ten_move]: ten_moves) {
@@ -362,8 +349,8 @@ namespace mj
         mjproto::Event event{};
         event.set_who(mjproto::AbsolutePos(winner));
         event.set_type(mjproto::EVENT_TYPE_TSUMO);
-        assert(player(winner).hand().LastTileAdded());
-        event.set_tile(player(winner).hand().LastTileAdded().value().Id());
+        assert(hand_info.win_tile);
+        event.set_tile(hand_info.win_tile.value().Id());
         event_history_.mutable_events()->Add(std::move(event));
 
         // set terminal
@@ -371,14 +358,14 @@ namespace mj
         win.set_who(mjproto::AbsolutePos(winner));
         win.set_from_who(mjproto::AbsolutePos(winner));
         // winner closed tiles, opens and win tile
-        for (auto t: player(winner).hand().ToVectorClosed(true)) {
+        for (auto t: hand_info.closed_tiles) {
             win.add_closed_tiles(t.Id());
         }
-        for (const auto &open: player(winner).hand().Opens()) {
+        for (const auto &open: hand_info.opens) {
             win.add_opens(open.GetBits());
         }
-        assert(player(winner).hand().LastTileAdded());
-        win.set_win_tile(player(winner).hand().LastTileAdded().value().Id());
+        assert(hand_info.win_tile);
+        win.set_win_tile(hand_info.win_tile.value().Id());
         // fu
         if (win_score.fu()) win.set_fu(win_score.fu().value());
         // yaku, fans
@@ -407,7 +394,7 @@ namespace mj
 
     void State::Ron(AbsolutePos winner, AbsolutePos loser, Tile tile) {
         mutable_player(winner).Ron(tile);
-        auto win_score = EvalScore(winner);
+        auto [hand_info, win_score] = EvalWinHand(winner);
         // calc ten moves
         auto [ten, ten_moves] = win_score.TenMoves(winner, dealer_, loser);
         for (auto &[who, ten_move]: ten_moves) {
@@ -429,10 +416,10 @@ namespace mj
         win.set_who(mjproto::AbsolutePos(winner));
         win.set_from_who(mjproto::AbsolutePos(loser));
         // winner closed tiles, opens and win tile
-        for (auto t: player(winner).hand().ToVectorClosed(true)) {
+        for (auto t: hand_info.closed_tiles) {
             win.add_closed_tiles(t.Id());
         }
-        for (const auto &open: player(winner).hand().Opens()) {
+        for (const auto &open: hand_info.opens) {
             win.add_opens(open.GetBits());
         }
         win.set_win_tile(tile.Id());
@@ -473,11 +460,11 @@ namespace mj
         std::vector<int> is_tenpai = {0, 0, 0, 0};
         for (int i = 0; i < 4; ++i) {
             auto who = AbsolutePos(i);
-            if (hand(who).IsTenpai()) {
+            if (auto tenpai_hand = player(who).EvalTenpai(); tenpai_hand) {
                 is_tenpai[i] = 1;
                 mjproto::TenpaiHand tenpai;
                 tenpai.set_who(mjproto::AbsolutePos(who));
-                for (auto tile: hand(who).ToVectorClosed(true)) {
+                for (auto tile: tenpai_hand.value().closed_tiles) {
                     tenpai.mutable_closed_tiles()->Add(tile.Id());
                 }
                 terminal_.mutable_no_winner()->mutable_tenpais()->Add(std::move(tenpai));
@@ -518,7 +505,7 @@ namespace mj
         return is_game_over;
     }
 
-    WinScore State::EvalScore(AbsolutePos who) const noexcept {
+    std::pair<HandInfo, WinScore> State::EvalWinHand(AbsolutePos who) const noexcept {
         // TODO: 場風, 自風, 海底, 一発, 両立直, 天和・地和, 親・子, ドラ, 裏ドラ の情報を追加する
         auto seat_wind = ToSeatWind(who, dealer_);
         auto prevalent_wind = Wind(curr_score_.round() % 4);
@@ -532,7 +519,7 @@ namespace mj
                 seat_wind == Wind::kEast,
                 wall_.dora_count(),
                 wall_.ura_dora_count());
-        return player(who).EvalScore(std::move(win_state_info));
+        return player(who).EvalWinHand(std::move(win_state_info));
     }
 
     Wind State::ToSeatWind(AbsolutePos who, AbsolutePos dealer) {

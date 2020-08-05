@@ -10,8 +10,6 @@
 #include "observation.h"
 #include "action.h"
 #include "player.h"
-#include "hand.h"
-#include "river.h"
 #include "wall.h"
 
 namespace mj
@@ -30,15 +28,9 @@ namespace mj
         void UpdateStateByAction(const Action& action);
         Action& UpdateStateByActionCandidates(const std::vector<Action> &action_candidates);
         // operate wall
-        Observation CreateObservation(AbsolutePos pos);
+        Observation CreateObservation(AbsolutePos who);
         std::optional<std::vector<AbsolutePos>> RonCheck();  // 牌を捨てたプレイヤーの下家から順に
         std::optional<std::vector<std::pair<AbsolutePos, std::vector<Open>>>> StealCheck();
-
-        // accessors
-        [[nodiscard]] const Player& player(AbsolutePos pos) const;
-        [[nodiscard]] const Wall & wall() const;
-        [[nodiscard]] const Hand & hand(AbsolutePos pos) const;
-        [[nodiscard]] const River & river(AbsolutePos pos) const;
 
         std::string ToJson() const;
 
@@ -64,6 +56,7 @@ namespace mj
         mjproto::Terminal terminal_;
 
         Player& mutable_player(AbsolutePos pos);
+        const Player& player(AbsolutePos pos) const;
 
         Tile Draw(AbsolutePos who);
         void Discard(AbsolutePos who, Tile discard);
@@ -74,7 +67,7 @@ namespace mj
         void Tsumo(AbsolutePos winner);
         void Ron(AbsolutePos winner, AbsolutePos loser, Tile tile);
         void NoWinner();
-        [[nodiscard]] WinScore EvalScore(AbsolutePos who) const noexcept;
+        [[nodiscard]] std::pair<HandInfo, WinScore> EvalWinHand(AbsolutePos who) const noexcept;
 
         std::uint32_t GenerateRoundSeed();
     };
