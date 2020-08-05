@@ -16,14 +16,9 @@ namespace mj {
     }
 
     void WinHandCache::LoadWinCache() {
-        std::cerr << "Loading cache file... ";
-
         boost::property_tree::ptree root;
-
         boost::property_tree::read_json(std::string(WIN_CACHE_DIR) + "/win_cache.json", root);
-
         cache_.reserve(root.size());
-
         for (const auto& [hand, patterns_pt] : root) {
             for (auto& pattern_pt : patterns_pt) {
                 SplitPattern pattern;
@@ -34,12 +29,10 @@ namespace mj {
                     }
                     pattern.push_back(st);
                 }
-
                 cache_[hand].insert(pattern);
             }
         }
-
-        std::cerr << "Done" << std::endl;
+        assert(cache_.size() == 9375);
     }
 
     bool WinHandCache::Has(const TileTypeCount& closed_hand) const noexcept {
@@ -54,13 +47,10 @@ namespace mj {
 
     std::vector<std::pair<std::vector<TileTypeCount>, std::vector<TileTypeCount>>>
     WinHandCache::SetAndHeads(const TileTypeCount& closed_hand) const noexcept {
-
         auto [abstruct_hand, tile_types] = CreateAbstructHand(closed_hand);
-
         using Sets = std::vector<TileTypeCount>;
         using Heads = std::vector<TileTypeCount>;
         std::vector<std::pair<Sets, Heads>> ret;
-
         for (const auto& pattern : cache_.at(abstruct_hand)) {
             Sets sets;
             Heads heads;

@@ -48,7 +48,6 @@ namespace mj
     }
 
     WinScore YakuEvaluator::Eval(const WinInfo& win_info) noexcept {
-
         assert(Has(win_info));
 
         WinScore score;
@@ -242,10 +241,15 @@ namespace mj
         return {best_yaku, best_closed_set, best_heads};
     }
 
-    void YakuEvaluator::JudgeYakuman(
-            const WinInfo& win_info,
-            WinScore& score) noexcept {
-
+    void YakuEvaluator::JudgeYakuman(const WinInfo& win_info, WinScore& score) noexcept {
+        if (HasCompletedThirteenOrphans(win_info)) {
+            score.AddYakuman(Yaku::kCompletedThirteenOrphans);
+            return;
+        }
+        if (HasThirteenOrphans(win_info)) {
+            score.AddYakuman(Yaku::kThirteenOrphans);
+            return;
+        }
         if (HasBlessingOfHeaven(win_info)) {
             score.AddYakuman(Yaku::kBlessingOfHeaven);
         }
@@ -269,12 +273,6 @@ namespace mj
         }
         if (HasLittleFourWinds(win_info)) {
             score.AddYakuman(Yaku::kLittleFourWinds);
-        }
-        if (HasThirteenOrphans(win_info)) {
-            score.AddYakuman(Yaku::kThirteenOrphans);
-        }
-        if (HasCompletedThirteenOrphans(win_info)) {
-            score.AddYakuman(Yaku::kCompletedThirteenOrphans);
         }
         if (HasNineGates(win_info)) {
             score.AddYakuman(Yaku::kNineGates);

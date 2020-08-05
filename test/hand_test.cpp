@@ -535,6 +535,10 @@ TEST(hand, CanRiichi) {
     h.Discard(Tile("m9"));
     h.Draw(Tile("p1"));
     EXPECT_FALSE(h.CanRiichi());
+    // 国士無双
+    h = Hand(HandParams("m1,m2,m9,p1,p1,p9,s1,s9,ew,sw,ww,nw,wd"));
+    h.Draw(Tile("rd"));
+    EXPECT_TRUE(h.CanRiichi());
 }
 
 TEST(hand, Opens) {
@@ -650,6 +654,12 @@ TEST(hand, IsTenpai) {
     // テンパイでない
     h = Hand(HandParams("m1,m1,m1,m2,m3,m4,m5,m6,m7,m8,m9,m9,p9"));
     EXPECT_FALSE(h.IsTenpai());
+    // 国士無双
+    h = Hand(HandParams("m1,m9,p1,p1,p9,s1,s9,ew,sw,ww,nw,wd,rd"));
+    EXPECT_TRUE(h.IsTenpai());
+    // 国士十三面待ち
+    h = Hand(HandParams("m1,m9,p1,p9,s1,s9,ew,sw,ww,nw,wd,gd,rd"));
+    EXPECT_TRUE(h.IsTenpai());
     // 鳴きの部分を含めて5枚目を使っている（天鳳では聴牌としてみとめられる） https://tenhou.net/man/
     h = Hand(HandParams("m1").Pon("m1,m1,m1").Pon("p1,p1,p1").Pon("s1,s1,s1").Pon("m9,m9,m9"));
     EXPECT_TRUE(h.IsTenpai());
