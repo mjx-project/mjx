@@ -11,7 +11,7 @@
 
 namespace mj {
 
-    std::vector<TileTypeCount> WinningHandCacheGenerator::CreateSets() noexcept {
+    std::vector<TileTypeCount> WinHandCacheGenerator::CreateSets() noexcept {
         std::vector<TileTypeCount> sets;
 
         // 順子
@@ -34,7 +34,7 @@ namespace mj {
         return sets;
     }
 
-    std::vector<TileTypeCount> WinningHandCacheGenerator::CreateHeads() noexcept {
+    std::vector<TileTypeCount> WinHandCacheGenerator::CreateHeads() noexcept {
         std::vector<TileTypeCount> heads;
         for (int i = 0; i < 34; ++i) {
             TileTypeCount count;
@@ -44,8 +44,8 @@ namespace mj {
         return heads;
     }
 
-    bool WinningHandCacheGenerator::Register(
-            const std::vector<TileTypeCount>& blocks, const TileTypeCount& total, WinningHandCache::CacheType& cache) noexcept {
+    bool WinHandCacheGenerator::Register(
+            const std::vector<TileTypeCount>& blocks, const TileTypeCount& total, WinHandCache::CacheType& cache) noexcept {
 
         for (const auto& [tile_type, count] : total) {
             if (count > 4) return false;
@@ -58,7 +58,7 @@ namespace mj {
             tile_index[tile_types[i]] = i;
         }
 
-        WinningHandCache::SplitPattern pattern;
+        WinHandCache::SplitPattern pattern;
         for (const TileTypeCount& s : blocks) {
             std::vector<int> set_index;
             for (const auto& [tile_type, count] : s) {
@@ -70,30 +70,29 @@ namespace mj {
         }
 
         cache[abstruct_hand].insert(pattern);
-
         return true;
     }
 
-    void WinningHandCacheGenerator::Add(TileTypeCount& total, const TileTypeCount& block) noexcept {
+    void WinHandCacheGenerator::Add(TileTypeCount& total, const TileTypeCount& block) noexcept {
         for (const auto& [tile_type, count] : block) total[tile_type] += count;
     }
-    void WinningHandCacheGenerator::Sub(TileTypeCount& total, const TileTypeCount& block) noexcept {
+    void WinHandCacheGenerator::Sub(TileTypeCount& total, const TileTypeCount& block) noexcept {
         for (const auto& [tile_type, count] : block) {
             if ((total[tile_type] -= count) == 0) total.erase(tile_type);
         }
     }
 
-    void WinningHandCacheGenerator::GenerateCache() noexcept {
+    void WinHandCacheGenerator::GenerateCache() noexcept {
 
         const std::vector<TileTypeCount> sets = CreateSets();
         const std::vector<TileTypeCount> heads = CreateHeads();
 
-        WinningHandCache::CacheType cache;
-        cache.reserve(9362);
+        WinHandCache::CacheType cache;
+        cache.reserve(9375);
 
         {
             // 七対子
-            WinningHandCache::SplitPattern pattern;
+            WinHandCache::SplitPattern pattern;
             for (int i = 0; i < 7; ++i) {
                 pattern.push_back({i, i});
             }
@@ -107,6 +106,16 @@ namespace mj {
             }
         }
 
+        // 国士無双
+        for (int i = 0; i < 13; ++i) {
+            AbstructHand hand;
+            for (int j = 0; j < 13; ++j) {
+                if (i != j) hand += "1,";
+                else hand += "2,";
+            }
+            hand.pop_back();
+            cache[hand].insert(WinHandCache::SplitPattern{});  // 国士無双ではパターンは使わない
+        }
 
         TileTypeCount total;
 
@@ -151,58 +160,42 @@ namespace mj {
                             Register({heads[h], sets[s1], sets[s2], sets[s3], sets[s4]}, total, cache);
                             Sub(total, sets[s4]);
                         }
-
                         Sub(total, sets[s3]);
                     }
-
                     Sub(total, sets[s2]);
                 }
-
                 Sub(total, sets[s1]);
             }
-
             Sub(total, heads[h]);
         }
 
-        boost::property_tree::ptree root;
-
         std::cerr << "Writing cache file... ";
-
+        boost::property_tree::ptree root;
         for (const auto& [hand, patterns] : cache) {
             boost::property_tree::ptree patterns_pt;
-
-            for (const WinningHandCache::SplitPattern& pattern : patterns) {
-
+            for (const WinHandCache::SplitPattern& pattern : patterns) {
                 boost::property_tree::ptree pattern_pt;
-
                 for (const std::vector<int>& st : pattern) {
-
                     boost::property_tree::ptree st_pt;
                     for (int elem : st) {
                         boost::property_tree::ptree elem_pt;
                         elem_pt.put_value(elem);
                         st_pt.push_back(std::make_pair("", elem_pt));
                     }
-
                     pattern_pt.push_back(std::make_pair("", st_pt));
                 }
-
                 patterns_pt.push_back(std::make_pair("", pattern_pt));
             }
-
             root.add_child(hand, patterns_pt);
         }
 
         boost::property_tree::write_json(std::string(WIN_CACHE_DIR) + "/win_cache.json", root);
-
         std::cerr << "Done" << std::endl;
-
         ShowStatus(cache);
     }
 
-    void WinningHandCacheGenerator::ShowStatus(const WinningHandCache::CacheType& cache) noexcept {
+    void WinHandCacheGenerator::ShowStatus(const WinHandCache::CacheType& cache) noexcept {
         std::cerr << "=====統計情報=====" << std::endl;
-
         std::cerr << "abstruct hand kinds: " << cache.size() << std::endl;
 
         int max_size = 0, size_total = 0;
@@ -221,12 +214,11 @@ namespace mj {
         }
 
         std::cerr << "average size of abstruct hand: " << static_cast<double>(size_total) / cache.size() << std::endl;
-
         std::cerr << "================" << std::endl;
     }
 }  // namespace mj
 
 int main(int argc, char** argv) {
-    mj::WinningHandCacheGenerator::GenerateCache();
+    mj::WinHandCacheGenerator::GenerateCache();
     return 0;
 }

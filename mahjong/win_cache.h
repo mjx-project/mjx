@@ -12,15 +12,15 @@
 
 namespace mj
 {
-    class WinningHandCache
+    class WinHandCache
     {
     public:
-        WinningHandCache(const WinningHandCache&) = delete;
-        WinningHandCache& operator=(WinningHandCache&) = delete;
-        WinningHandCache(WinningHandCache&&) = delete;
-        WinningHandCache operator=(WinningHandCache&&) = delete;
+        WinHandCache(const WinHandCache&) = delete;
+        WinHandCache& operator=(WinHandCache&) = delete;
+        WinHandCache(WinHandCache&&) = delete;
+        WinHandCache operator=(WinHandCache&&) = delete;
 
-        static const WinningHandCache& instance();
+        static const WinHandCache& instance();
 
         [[nodiscard]] bool Has(const TileTypeCount& closed_hand) const noexcept ;
         [[nodiscard]] bool Has(const std::string& abstruct_hand) const noexcept ;
@@ -30,8 +30,8 @@ namespace mj
         using SplitPattern = std::vector<std::vector<int>>;
         using CacheType = std::unordered_map<AbstructHand, std::set<SplitPattern>>;
     private:
-        WinningHandCache();
-        ~WinningHandCache() = default;
+        WinHandCache();
+        ~WinHandCache() = default;
         CacheType cache_;
         void LoadWinCache();
     };

@@ -1,6 +1,8 @@
 #ifndef MAHJONG_WIN_INFO_H
 #define MAHJONG_WIN_INFO_H
 
+#include <utility>
+
 #include "unordered_set"
 #include "vector"
 
@@ -9,56 +11,80 @@
 
 namespace mj {
 
-    struct WinningStateInfo {
-        WinningStateInfo() noexcept;
-        Wind seat_wind, prevalent_wind;
-        bool is_bottom, is_first_tsumo;
-        TileTypeCount dora, reversed_dora;
-        WinningStateInfo& SeatWind(Wind seat_wind) noexcept ;
-        WinningStateInfo& PrevalentWind(Wind prevalent_wind) noexcept ;
-        WinningStateInfo& IsBottom(bool is_bottom) noexcept ;
-        WinningStateInfo& IsFirstTsumo(bool is_first_tsumo) noexcept ;
-        WinningStateInfo& Dora(TileTypeCount dora) noexcept ;
-        WinningStateInfo& ReversedDora(TileTypeCount reversed_dora) noexcept ;
+    struct WinStateInfo {
+        WinStateInfo (
+                Wind seat_wind,
+                Wind prevalent_wind,
+                bool is_bottom,
+                bool is_ippatsu,
+                bool is_double_riichi,
+                bool is_first_tsumo,
+                bool is_dealer,
+                TileTypeCount dora,
+                TileTypeCount reversed_dora
+        ) : seat_wind(seat_wind), prevalent_wind(prevalent_wind), is_bottom(is_bottom), is_double_riichi(is_double_riichi),
+        is_first_tsumo(is_first_tsumo), is_dealer(is_dealer), dora(std::move(dora)), reversed_dora(std::move(reversed_dora)) {}
+        WinStateInfo() = default;
+
+        Wind seat_wind = Wind::kEast;
+        Wind prevalent_wind = Wind::kEast;
+        bool is_bottom = false;
+        bool is_ippatsu = false;
+        bool is_double_riichi = false;
+        bool is_first_tsumo = false;
+        bool is_dealer = false;
+        TileTypeCount dora;
+        TileTypeCount reversed_dora;
     };
 
-    struct WinningInfo {
-        std::vector<Open> opens;
+    struct WinHandInfo {
+        WinHandInfo (
+                std::unordered_set<Tile, HashTile> closed_tiles,
+                std::vector<Open> opens,
+                TileTypeCount closed_tile_types,
+                TileTypeCount all_tile_types,
+                Tile win_tile,
+                HandStage hand_stage,
+                bool under_riichi,
+                bool is_menzen
+        ): closed_tiles(std::move(closed_tiles)), opens(std::move(opens)), closed_tile_types(std::move(closed_tile_types)),
+           all_tile_types(std::move(all_tile_types)), win_tile(win_tile), stage(hand_stage), under_riichi(under_riichi), is_menzen(is_menzen) {}
+        WinHandInfo() = default;
+
         std::unordered_set<Tile, HashTile> closed_tiles;
-        std::optional<TileType> last_added_tile_type;
+        std::vector<Open> opens;
+        TileTypeCount closed_tile_types;
+        TileTypeCount all_tile_types;
+        std::optional<Tile> win_tile = std::nullopt;  // Tile class has no default constructor but note that win_tile always exists
         HandStage stage = HandStage::kAfterTsumo;    // default: kAfterTsumo
         bool under_riichi = false;
-        TileTypeCount closed_tile_types, all_tile_types;
         bool is_menzen = false;
+    };
 
-        Wind seat_wind = Wind::kEast, prevalent_wind = Wind::kEast;
-        bool is_bottom = false, is_ippatsu = false, is_double_riichi = false, is_first_tsumo = false;
-        bool is_dealer = false;     // 親:true, 子:false (default:false)
-        std::map<TileType,int> dora, reversed_dora;
+    struct WinInfo {
+        WinInfo(WinStateInfo &&win_state_info, WinHandInfo &&win_hand_info)
+        : state(std::move(win_state_info)), hand(std::move(win_hand_info)) {}
+        WinStateInfo state;
+        WinHandInfo hand;
+        WinInfo& Ron(Tile tile) noexcept ;
 
-        WinningInfo& Opens(std::vector<Open> opens) noexcept ;
-        WinningInfo& ClosedTiles(std::unordered_set<Tile, HashTile> closed_tiles) noexcept ;
-        WinningInfo& LastAddedTileType(std::optional<TileType> last_added_tile_type) noexcept ;
-        WinningInfo& ClosedTileTypes(TileTypeCount closed_tile_types) noexcept ;
-        WinningInfo& AllTileTypes(TileTypeCount all_tile_types) noexcept ;
-        WinningInfo& IsMenzen(bool is_menzen) noexcept ;
-        WinningInfo& UnderRiichi(bool under_riichi) noexcept ;
+        /*
+         * NOTE: These constructor and setters are only for unit test usage.
+         * These setters enables to test YakuEvaluator independent to Hand and State class implementations.
+         * Do not use these methods in actual situations. Use constructor instead.
+         */
+        explicit WinInfo(WinHandInfo &&win_hand_info) noexcept : hand(std::move(win_hand_info)) {}
+        WinInfo& Stage(HandStage stage) noexcept ;
 
-        WinningInfo& ApplyStateInfo(WinningStateInfo win_state_info) noexcept ;
-
-        WinningInfo& Ron(Tile tile) noexcept ;
-        WinningInfo& Discard(Tile tile) noexcept ;
-        WinningInfo& Tsumo(TileType tile_type) noexcept ;
-        WinningInfo& Seat(Wind wind) noexcept ;
-        WinningInfo& Prevalent(Wind wind) noexcept ;
-        WinningInfo& Stage(HandStage stage) noexcept ;
-        WinningInfo& IsBottom(bool is_bottom) noexcept ;
-        WinningInfo& IsIppatsu(bool is_ippatsu) noexcept ;
-        WinningInfo& IsDoubleRiichi(bool is_double_riichi) noexcept ;
-        WinningInfo& IsFirstTsumo(bool is_first_tsumo) noexcept ;
-        WinningInfo& IsDealer(bool is_dealer) noexcept ;
-        WinningInfo& Dora(std::map<TileType,int> dora) noexcept ;
-        WinningInfo& ReversedDora(std::map<TileType,int> reversed_dora) noexcept ;
+        WinInfo& Seat(Wind wind) noexcept ;
+        WinInfo& Prevalent(Wind wind) noexcept ;
+        WinInfo& IsBottom(bool is_bottom) noexcept ;
+        WinInfo& IsIppatsu(bool is_ippatsu) noexcept ;
+        WinInfo& IsDoubleRiichi(bool is_double_riichi) noexcept ;
+        WinInfo& IsFirstTsumo(bool is_first_tsumo) noexcept ;
+        WinInfo& IsDealer(bool is_dealer) noexcept ;
+        WinInfo& Dora(std::map<TileType,int> dora) noexcept ;
+        WinInfo& ReversedDora(std::map<TileType,int> reversed_dora) noexcept ;
     };
 
 } // namespace mj

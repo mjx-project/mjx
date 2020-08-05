@@ -11,19 +11,14 @@
 namespace mj {
 
 
-    WinningHandCache::WinningHandCache() {
+    WinHandCache::WinHandCache() {
         LoadWinCache();
     }
 
-    void WinningHandCache::LoadWinCache() {
-        std::cerr << "Loading cache file... ";
-
+    void WinHandCache::LoadWinCache() {
         boost::property_tree::ptree root;
-
         boost::property_tree::read_json(std::string(WIN_CACHE_DIR) + "/win_cache.json", root);
-
         cache_.reserve(root.size());
-
         for (const auto& [hand, patterns_pt] : root) {
             for (auto& pattern_pt : patterns_pt) {
                 SplitPattern pattern;
@@ -34,33 +29,28 @@ namespace mj {
                     }
                     pattern.push_back(st);
                 }
-
                 cache_[hand].insert(pattern);
             }
         }
-
-        std::cerr << "Done" << std::endl;
+        assert(cache_.size() == 9375);
     }
 
-    bool WinningHandCache::Has(const TileTypeCount& closed_hand) const noexcept {
+    bool WinHandCache::Has(const TileTypeCount& closed_hand) const noexcept {
         auto [abstruct_hand, _] = CreateAbstructHand(closed_hand);
         return cache_.count(abstruct_hand);
     }
 
     // DEPRECATED
-    bool WinningHandCache::Has(const std::string& abstruct_hand) const noexcept {
+    bool WinHandCache::Has(const std::string& abstruct_hand) const noexcept {
         return cache_.count(abstruct_hand);
     }
 
     std::vector<std::pair<std::vector<TileTypeCount>, std::vector<TileTypeCount>>>
-    WinningHandCache::SetAndHeads(const TileTypeCount& closed_hand) const noexcept {
-
+    WinHandCache::SetAndHeads(const TileTypeCount& closed_hand) const noexcept {
         auto [abstruct_hand, tile_types] = CreateAbstructHand(closed_hand);
-
         using Sets = std::vector<TileTypeCount>;
         using Heads = std::vector<TileTypeCount>;
         std::vector<std::pair<Sets, Heads>> ret;
-
         for (const auto& pattern : cache_.at(abstruct_hand)) {
             Sets sets;
             Heads heads;
@@ -76,8 +66,8 @@ namespace mj {
         return ret;
     }
 
-    const WinningHandCache &WinningHandCache::instance() {
-        static WinningHandCache instance;  // Thread safe from C++ 11  https://cpprefjp.github.io/lang/cpp11/static_initialization_thread_safely.html
+    const WinHandCache &WinHandCache::instance() {
+        static WinHandCache instance;  // Thread safe from C++ 11  https://cpprefjp.github.io/lang/cpp11/static_initialization_thread_safely.html
         return instance;
     };
 

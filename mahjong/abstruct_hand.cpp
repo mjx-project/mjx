@@ -17,8 +17,9 @@ namespace mj {
 
         for (int start : {0, 9, 18}) {
             for (int i = start; i < start + 9; ++i) {
-                TileType tile = static_cast<TileType>(i);
+                TileType tile = TileType(i);
                 if (count.count(tile)) {
+                    assert(count.at(tile) != 0);
                     hand += std::to_string(count.at(tile));
                     tile_types.push_back(tile);
                 } else if (!hand.empty()) {
@@ -35,6 +36,7 @@ namespace mj {
         for (int i = 27; i < 34; ++i) {
             TileType tile = static_cast<TileType>(i);
             if (count.count(tile)) {
+                assert(count.at(tile) != 0);
                 hands.push_back(std::to_string(count.at(tile)));
                 tile_types.push_back(tile);
             }

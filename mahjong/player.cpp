@@ -1,4 +1,5 @@
 #include "player.h"
+#include "yaku_evaluator.h"
 
 namespace mj
 {
@@ -42,7 +43,7 @@ namespace mj
 
     bool Player::CanRon(Tile tile) const {
         // TODO: ここでフリテンでないことを確認
-        return hand_.CanRon(tile);
+        return YakuEvaluator::CanWin(WinInfo(hand().win_info()).Ron(tile));
     }
 
     bool Player::IsCompleted() const {
@@ -87,8 +88,8 @@ namespace mj
     };
 
     // get winning info
-    WinningScore Player::EvalScore(WinningStateInfo win_state_info) const noexcept {
-        return hand_.EvalScore(win_state_info);
+    WinScore Player::EvalScore(WinStateInfo win_state_info) const noexcept {
+        return YakuEvaluator::Eval(WinInfo(std::move(win_state_info), hand().win_info()));
     }
 
     // river
