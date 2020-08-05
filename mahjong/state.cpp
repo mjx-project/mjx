@@ -113,8 +113,9 @@ namespace mj
     }
 
     RelativePos State::ToRelativePos(AbsolutePos origin, AbsolutePos target) {
-        assert(origin != target);
         switch ((ToUType(target) - ToUType(origin) + 4) % 4) {
+            case 0:
+                return RelativePos::kSelf;
             case 1:
                 return RelativePos::kRight;
             case 2:
@@ -347,6 +348,7 @@ namespace mj
 
     void State::Tsumo(AbsolutePos winner) {
         mutable_player(winner).Tsumo();
+        auto win_score = EvalScore(winner);
 
         // set event
         mjproto::Event event{};
@@ -360,12 +362,36 @@ namespace mj
         mjproto::Win win;
         win.set_who(mjproto::AbsolutePos(winner));
         win.set_from_who(mjproto::AbsolutePos(winner));
-        for (auto tile: player(winner).hand().ToVectorClosed(true)) {
-            win.add_closed_tiles(tile.Id());
+        // winner closed tiles, opens and win tile
+        for (auto t: player(winner).hand().ToVectorClosed(true)) {
+            win.add_closed_tiles(t.Id());
+        }
+        for (const auto &open: player(winner).hand().Opens()) {
+            win.add_opens(open.GetBits());
         }
         assert(player(winner).hand().LastTileAdded());
         win.set_win_tile(player(winner).hand().LastTileAdded().value().Id());
-
+        // fu
+        if (win_score.fu()) win.set_fu(win_score.fu().value());
+        // yaku, fans
+        for (const auto &[yaku, fan]: win_score.yaku()) {
+            if (yaku == Yaku::kReversedDora) continue;  // mjlog puts ura-dora at last
+            win.add_yakus(ToUType(yaku));
+            win.add_fans(fan);
+        }
+        if (auto has_ura_dora = win_score.HasYaku(Yaku::kReversedDora); has_ura_dora) {
+            win.add_yakus(ToUType(Yaku::kReversedDora));
+            win.add_fans(has_ura_dora.value());
+        }
+        // ten and ten moves
+        auto [ten, ten_moves] = win_score.TenMoves(winner, dealer_);
+        win.set_ten(ten);
+        for (int i = 0; i < 4; ++i) win.add_ten_changes(0);
+        for (auto &[who, ten_move]: ten_moves) {
+            if (ten_move > 0) ten_move += curr_score_.riichi() * 1000 + curr_score_.honba() * 300;
+            else if (ten_move < 0) ten_move -= curr_score_.honba() * 100;
+            win.set_ten_changes(ToUType(who), ten_move);
+        }
         terminal_.mutable_wins()->Add(std::move(win));
         terminal_.set_is_game_over(IsGameOver());
 
@@ -376,8 +402,7 @@ namespace mj
 
     void State::Ron(AbsolutePos winner, AbsolutePos loser, Tile tile) {
         mutable_player(winner).Ron(tile);
-        auto win_state_info = WinningStateInfo().Dora(wall_.dora_count()).ReversedDora(wall_.ura_dora_count());
-        auto win_score = player(winner).hand().EvalScore(win_state_info);
+        auto win_score = EvalScore(winner);
 
         // set event
         mjproto::Event event{};
@@ -390,9 +415,12 @@ namespace mj
         mjproto::Win win;
         win.set_who(mjproto::AbsolutePos(winner));
         win.set_from_who(mjproto::AbsolutePos(loser));
-        // winner closed tiles
+        // winner closed tiles, opens and win tile
         for (auto t: player(winner).hand().ToVectorClosed(true)) {
             win.add_closed_tiles(t.Id());
+        }
+        for (const auto &open: player(winner).hand().Opens()) {
+            win.add_opens(open.GetBits());
         }
         win.set_win_tile(tile.Id());
         // fu
@@ -416,7 +444,7 @@ namespace mj
             else if (ten_move < 0) ten_move -= curr_score_.honba() * 300;
             win.set_ten_changes(ToUType(who), ten_move);
         }
-        // set above win to terminal
+        // set win to terminal
         terminal_.mutable_wins()->Add(std::move(win));
         terminal_.set_is_game_over(IsGameOver());
 
@@ -473,5 +501,19 @@ namespace mj
     bool State::IsGameOver() {
         // TODO (sotetsuk): write here
         return false;
+    }
+
+    WinningScore State::EvalScore(AbsolutePos who) const noexcept {
+        // TODO: 場風, 自風, 海底, 一発, 両立直, 天和・地和, 親・子, ドラ, 裏ドラ の情報を追加する
+        auto win_state_info = WinningStateInfo()
+                .SeatWind(ToSeatWind(who, dealer_))
+                .PrevalentWind(Wind(curr_score_.round() % 4))
+                .Dora(wall_.dora_count())
+                .ReversedDora(wall_.ura_dora_count());
+        return player(who).hand().EvalScore(win_state_info);
+    }
+
+    Wind State::ToSeatWind(AbsolutePos who, AbsolutePos dealer) {
+        return Wind((ToUType(who) - ToUType(dealer) + 4) % 4);
     }
 }  // namespace mj

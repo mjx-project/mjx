@@ -87,9 +87,7 @@ namespace mj
     };
 
     // get winning info
-    WinningScore Player::EvalScore() const noexcept {
-        // TODO: 場風, 自風, 海底, 一発, 両立直, 天和・地和, 親・子, ドラ, 裏ドラ の情報を追加する
-        WinningStateInfo win_state_info;
+    WinningScore Player::EvalScore(WinningStateInfo win_state_info) const noexcept {
         return hand_.EvalScore(win_state_info);
     }
 

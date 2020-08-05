@@ -37,7 +37,7 @@ namespace mj
         std::pair<Tile, bool> Discard(Tile tile);  // return whether tsumogiri or not
 
         // get winning info
-        WinningScore EvalScore() const noexcept ;
+        [[nodiscard]] WinningScore EvalScore(WinningStateInfo win_state_info) const noexcept ;
 
         // river
         void Discard(Tile tile, bool tsumogiri);

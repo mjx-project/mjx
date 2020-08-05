@@ -43,6 +43,7 @@ namespace mj
         std::string ToJson() const;
 
         static RelativePos ToRelativePos(AbsolutePos origin, AbsolutePos target);
+        static Wind ToSeatWind(AbsolutePos who, AbsolutePos dealer);
     private:
         std::array<std::string, 4> player_ids_;
         std::uint32_t seed_;
@@ -73,6 +74,7 @@ namespace mj
         void Tsumo(AbsolutePos winner);
         void Ron(AbsolutePos winner, AbsolutePos loser, Tile tile);
         void NoWinner();
+        [[nodiscard]] WinningScore EvalScore(AbsolutePos who) const noexcept;
 
         std::uint32_t GenerateRoundSeed();
     };
