@@ -15,15 +15,6 @@ namespace mj
         return position_;
     }
 
-    const Hand &Player::hand() const {
-        return hand_;
-    }
-
-
-    const River &Player::river() const {
-        return river_;
-    }
-
     // action validators
     std::vector<Tile> Player::PossibleDiscards() const {
         return hand_.PossibleDiscards();
@@ -43,7 +34,7 @@ namespace mj
 
     bool Player::CanRon(Tile tile) const {
         // TODO: ここでフリテンでないことを確認
-        return YakuEvaluator::CanWin(WinInfo(hand().win_info()).Ron(tile));
+        return YakuEvaluator::CanWin(WinInfo(hand_.win_info()).Ron(tile));
     }
 
     bool Player::IsCompleted() const {
@@ -88,8 +79,9 @@ namespace mj
     };
 
     // get winning info
-    WinScore Player::EvalScore(WinStateInfo win_state_info) const noexcept {
-        return YakuEvaluator::Eval(WinInfo(std::move(win_state_info), hand().win_info()));
+    std::pair<HandInfo, WinScore> Player::EvalWinHand(WinStateInfo win_state_info) const noexcept {
+        return {HandInfo{hand_.ToVectorClosed(true), hand_.Opens(), hand_.LastTileAdded()},
+                YakuEvaluator::Eval(WinInfo(std::move(win_state_info), hand_.win_info()))};
     }
 
     // river
@@ -103,5 +95,10 @@ namespace mj
 
     bool Player::IsTenpai() const {
         return hand_.IsTenpai();
+    }
+
+    std::optional<HandInfo> Player::EvalTenpai() const noexcept {
+        if (!IsTenpai()) return std::nullopt;
+        return HandInfo{hand_.ToVectorClosed(true), hand_.Opens(), hand_.LastTileAdded()};
     }
 }  // namespace mj

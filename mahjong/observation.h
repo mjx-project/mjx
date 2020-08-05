@@ -43,7 +43,7 @@ namespace mj
         Open open() const;
         std::vector<Tile> discard_candidates() const;
 
-        static PossibleAction CreateDiscard(const Hand& hand);
+        static PossibleAction CreateDiscard(const std::vector<Tile>& possible_discards);
     private:
         friend class Observation;
         mjproto::PossibleAction possible_action_{};
