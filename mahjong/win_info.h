@@ -74,16 +74,8 @@ namespace mj {
          * Do not use these methods in actual situations. Use constructor instead.
          */
         explicit WinInfo(WinHandInfo &&win_hand_info) noexcept : hand(std::move(win_hand_info)) {}
-        WinInfo& ClosedTiles(std::unordered_set<Tile, HashTile> closed_tiles) noexcept ;
-        WinInfo& Opens(std::vector<Open> opens) noexcept ;
-        WinInfo& ClosedTileTypes(TileTypeCount closed_tile_types) noexcept ;
-        WinInfo& AllTileTypes(TileTypeCount all_tile_types) noexcept ;
         WinInfo& Stage(HandStage stage) noexcept ;
-        WinInfo& IsMenzen(bool is_menzen) noexcept ;
-        WinInfo& UnderRiichi(bool under_riichi) noexcept ;
 
-        WinInfo& Discard(Tile tile) noexcept ;
-        WinInfo& Tsumo(Tile tile) noexcept ;
         WinInfo& Seat(Wind wind) noexcept ;
         WinInfo& Prevalent(Wind wind) noexcept ;
         WinInfo& IsBottom(bool is_bottom) noexcept ;

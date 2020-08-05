@@ -6,33 +6,6 @@
 #include "types.h"
 
 namespace mj {
-    WinInfo& WinInfo::Opens(std::vector<Open> opens) noexcept {
-        hand.opens = std::move(opens);
-        return *this;
-    }
-
-    WinInfo& WinInfo::ClosedTiles(std::unordered_set<Tile, HashTile> closed_tiles) noexcept {
-        hand.closed_tiles = std::move(closed_tiles);
-        return *this;
-    }
-
-    WinInfo& WinInfo::ClosedTileTypes(TileTypeCount closed_tile_types) noexcept {
-        hand.closed_tile_types = std::move(closed_tile_types);
-        return *this;
-    }
-    WinInfo& WinInfo::AllTileTypes(TileTypeCount all_tile_types) noexcept {
-        hand.all_tile_types = std::move(all_tile_types);
-        return *this;
-    }
-    WinInfo& WinInfo::IsMenzen(bool is_menzen) noexcept {
-        hand.is_menzen = is_menzen;
-        return *this;
-    }
-    WinInfo& WinInfo::UnderRiichi(bool under_riichi) noexcept {
-        hand.under_riichi = under_riichi;
-        return *this;
-    }
-
     WinInfo& WinInfo::Ron(Tile tile) noexcept {
         assert(hand.closed_tiles.find(tile) == hand.closed_tiles.end());
         hand.closed_tiles.insert(tile);
@@ -41,31 +14,6 @@ namespace mj {
         ++hand.all_tile_types[tile_type];
         hand.win_tile = tile;
         hand.stage = HandStage::kAfterRon;
-        return *this;
-    }
-
-    WinInfo& WinInfo::Discard(Tile tile) noexcept {
-        assert(hand.closed_tiles.find(tile) != hand.closed_tiles.end());
-        hand.closed_tiles.erase(tile);
-        const auto tile_type = tile.Type();
-        assert(hand.closed_tile_types.count(tile_type));
-        if (--hand.closed_tile_types[tile_type] == 0) {
-            hand.closed_tile_types.erase(tile_type);
-        }
-        assert(hand.all_tile_types.count(tile_type));
-        if (--hand.all_tile_types[tile_type] == 0) {
-            hand.all_tile_types.erase(tile_type);
-        }
-        hand.stage = HandStage::kAfterDiscards;
-        return *this;
-    }
-
-    WinInfo& WinInfo::Tsumo(Tile tile) noexcept {
-        ++hand.closed_tile_types[tile.Type()];
-        assert(hand.closed_tile_types[tile.Type()] <= 4);
-        ++hand.all_tile_types[tile.Type()];
-        hand.win_tile = tile;
-        hand.stage = HandStage::kAfterTsumo;
         return *this;
     }
 
