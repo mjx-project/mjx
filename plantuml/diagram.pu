@@ -305,6 +305,7 @@ mj::Player --> mj::WinInfo : ToWinInfo
 
 mj::Hand "0" *-- "1..4" mj::Open
 mj::Hand --> mj::WinHandInfo
+mj::Hand -- mj::WinHandCache : Has
 
 mj::WinHandInfo --> mj::Player
 
