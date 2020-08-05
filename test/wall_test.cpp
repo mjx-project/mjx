@@ -62,21 +62,21 @@ TEST(wall, KanDraw) {
 
 TEST(wall, doras) {
     auto wall = Wall(0);
-    EXPECT_EQ(wall.doras().size(), 1);
-    EXPECT_EQ(wall.ura_doras().size(), 1);
+    EXPECT_EQ(wall.dora_indicators().size(), 1);
+    EXPECT_EQ(wall.ura_dora_indicators().size(), 1);
     for (int i = 0; i < 4; ++i) {
         wall.KanDraw();
         wall.AddKanDora();
     }
-    EXPECT_EQ(wall.doras().size(), 5);
-    EXPECT_EQ(wall.ura_doras().size(), 5);
+    EXPECT_EQ(wall.dora_indicators().size(), 5);
+    EXPECT_EQ(wall.ura_dora_indicators().size(), 5);
 
     // From https://tenhou.net/0/?log=2010112714gm-00a9-0000-d497e395
     auto tiles = Tile::Create({24, 48, 11, 122, 135, 75, 128, 65, 111, 13, 46, 131, 120, 125, 71, 107, 118, 54, 52, 121, 109, 26, 42, 93, 119, 123, 21, 8, 80, 0, 116, 58, 132, 50, 64, 133, 63, 32, 35, 117, 100, 34, 82, 83, 74, 87, 89, 72, 29, 1, 67, 56, 78, 103, 124, 126, 59, 69, 38, 112, 61, 22, 25, 60, 86, 31, 99, 127, 23, 68, 3, 5, 33, 51, 15, 73, 43, 18, 85, 55, 53, 92, 114, 129, 97, 113, 40, 115, 90, 81, 4, 2, 19, 45, 105, 6, 36, 10, 94, 91, 12, 28, 17, 30, 106, 101, 79, 47, 49, 102, 104, 95, 41, 20, 16, 110, 96, 14, 134, 37, 108, 70, 130, 27, 39, 7, 57, 84, 44, 77, 76, 66, 98, 9, 88, 62});
     wall = Wall(2, tiles);
     wall.KanDraw();
     wall.AddKanDora();
-    EXPECT_EQ(wall.doras(), Tile::Create({76, 44}));
+    EXPECT_EQ(wall.dora_indicators(), Tile::Create({76, 44}));
 }
 
 TEST(wall, ura_doras) {
@@ -85,5 +85,6 @@ TEST(wall, ura_doras) {
     auto wall = Wall(2, tiles);
     wall.KanDraw();
     wall.AddKanDora();
-    EXPECT_EQ(wall.ura_doras(), Tile::Create({66, 77}));
+    EXPECT_EQ(wall.ura_dora_indicators(), Tile::Create({66, 77}));
 }
+

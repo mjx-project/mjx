@@ -78,44 +78,46 @@ class MjlogEncoder:
             elif event.type == mahjong_pb2.EVENT_TYPE_NEW_DORA:
                 ret += "<DORA hai=\"{event.tile}\" />"
             elif event.type in [mahjong_pb2.EVENT_TYPE_TSUMO, mahjong_pb2.EVENT_TYPE_RON]:
-                break
+                assert len(state.terminal.wins) != 0
+            elif event.type == mahjong_pb2.EVENT_TYPE_NO_WINNER:
+                assert len(state.terminal.wins) == 0
 
-        if len(state.end_info.wins) == 0:
+        if len(state.terminal.wins) == 0:
             ret += "<RYUUKYOKU "
             ret += f"ba=\"{curr_score.honba},{curr_score.riichi}\" "
             sc = []
             for i in range(4):
                 sc.append(curr_score.ten[i] // 100)
-                change = state.end_info.no_winner_end.ten_changes[i]
+                change = state.terminal.no_winner.ten_changes[i]
                 sc.append(change // 100)
                 curr_score.ten[i] += change
             sc = ",".join([str(x) for x in sc])
             ret += f"sc=\"{sc}\" "
-            for tenpai in state.end_info.no_winner_end.tenpais:
+            for tenpai in state.terminal.no_winner.tenpais:
                 closed_tiles = ",".join([str(x) for x in tenpai.closed_tiles])
                 ret += f"hai{tenpai.who}=\"{closed_tiles}\" "
-            if state.end_info.no_winner_end.type != mahjong_pb2.NO_WINNER_END_TYPE_NORMAL:
-                no_winner_end_type = ""
-                if state.end_info.no_winner_end.type == mahjong_pb2.NO_WINNER_END_TYPE_KYUUSYU:
-                    no_winner_end_type = "yao9"
-                elif state.end_info.no_winner_end.type == mahjong_pb2.NO_WINNER_END_TYPE_FOUR_RIICHI:
-                    no_winner_end_type = "reach4"
-                elif state.end_info.no_winner_end.type == mahjong_pb2.NO_WINNER_END_TYPE_THREE_RONS:
-                    no_winner_end_type = "ron3"
-                elif state.end_info.no_winner_end.type == mahjong_pb2.NO_WINNER_END_TYPE_FOUR_KANS:
-                    no_winner_end_type = "kan4"
-                elif state.end_info.no_winner_end.type == mahjong_pb2.NO_WINNER_END_TYPE_FOUR_WINDS:
-                    no_winner_end_type = "kaze4"
-                elif state.end_info.no_winner_end.type == mahjong_pb2.NO_WINNER_END_TYPE_NM:
-                    no_winner_end_type = "nm"
-                assert no_winner_end_type
-                ret += f"type=\"{no_winner_end_type}\" "
-            if state.end_info.is_game_over:
+            if state.terminal.no_winner.type != mahjong_pb2.NO_WINNER_TYPE_NORMAL:
+                no_winner_type = ""
+                if state.terminal.no_winner.type == mahjong_pb2.NO_WINNER_TYPE_KYUUSYU:
+                    no_winner_type = "yao9"
+                elif state.terminal.no_winner.type == mahjong_pb2.NO_WINNER_TYPE_FOUR_RIICHI:
+                    no_winner_type = "reach4"
+                elif state.terminal.no_winner.type == mahjong_pb2.NO_WINNER_TYPE_THREE_RONS:
+                    no_winner_type = "ron3"
+                elif state.terminal.no_winner.type == mahjong_pb2.NO_WINNER_TYPE_FOUR_KANS:
+                    no_winner_type = "kan4"
+                elif state.terminal.no_winner.type == mahjong_pb2.NO_WINNER_TYPE_FOUR_WINDS:
+                    no_winner_type = "kaze4"
+                elif state.terminal.no_winner.type == mahjong_pb2.NO_WINNER_TYPE_NM:
+                    no_winner_type = "nm"
+                assert no_winner_type
+                ret += f"type=\"{no_winner_type}\" "
+            if state.terminal.is_game_over:
                 final_scores = MjlogEncoder._calc_final_score(curr_score.ten)
                 ret += f"owari=\"{curr_score.ten[0] // 100},{final_scores[0]:.1f},{curr_score.ten[1] // 100},{final_scores[1]:.1f},{curr_score.ten[2] // 100},{final_scores[2]:.1f},{curr_score.ten[3] // 100},{final_scores[3]:.1f}\" "
             ret += "/>"
         else:
-            for win in state.end_info.wins:
+            for win in state.terminal.wins:
                 ret += "<AGARI "
                 ret += f"ba=\"{curr_score.honba},{curr_score.riichi}\" "
                 hai = ",".join([str(x) for x in win.closed_tiles])
@@ -162,7 +164,7 @@ class MjlogEncoder:
                     curr_score.ten[i] += change
                 sc = ",".join([str(x) for x in sc])
                 ret += f"sc=\"{sc}\" "
-                if state.end_info.is_game_over:
+                if state.terminal.is_game_over:
                     final_scores = MjlogEncoder._calc_final_score(curr_score.ten)
                     ret += f"owari=\"{curr_score.ten[0] // 100},{final_scores[0]:.1f},{curr_score.ten[1] // 100},{final_scores[1]:.1f},{curr_score.ten[2] // 100},{final_scores[2]:.1f},{curr_score.ten[3] // 100},{final_scores[3]:.1f}\" "
                 ret += "/>"

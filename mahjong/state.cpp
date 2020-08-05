@@ -113,8 +113,9 @@ namespace mj
     }
 
     RelativePos State::ToRelativePos(AbsolutePos origin, AbsolutePos target) {
-        assert(origin != target);
         switch ((ToUType(target) - ToUType(origin) + 4) % 4) {
+            case 0:
+                return RelativePos::kSelf;
             case 1:
                 return RelativePos::kRight;
             case 2:
@@ -134,6 +135,7 @@ namespace mj
         // Set scores
         init_score_ = Score(state->init_score());
         curr_score_ = Score(state->init_score());
+        dealer_ = AbsolutePos(curr_score_.round() % 4);
         // Set walls
         auto wall_tiles = std::vector<Tile>();
         for (auto tile_id: state->wall()) wall_tiles.emplace_back(Tile(tile_id));
@@ -145,6 +147,7 @@ namespace mj
         }
         // Set event history
         std::vector<int> draw_ixs = {0, 0, 0, 0};
+        AbsolutePos last_discarder;
         for (int i = 0; i < state->event_history().events_size(); ++i) {
             auto event = state->event_history().events(i);
             auto who = AbsolutePos(event.who());
@@ -158,13 +161,16 @@ namespace mj
                 case mjproto::EVENT_TYPE_DISCARD_FROM_HAND:
                 case mjproto::EVENT_TYPE_DISCARD_DRAWN_TILE:
                     Discard(who, Tile(event.tile()));
+                    last_discarder = who;
                     break;
                 case mjproto::EVENT_TYPE_RIICHI:
                     Riichi(who);
                     break;
                 case mjproto::EVENT_TYPE_TSUMO:
+                    Tsumo(who);
                     break;
                 case mjproto::EVENT_TYPE_RON:
+                    Ron(who, last_discarder, Tile(event.tile()));
                     break;
                 case mjproto::EVENT_TYPE_CHI:
                 case mjproto::EVENT_TYPE_PON:
@@ -178,6 +184,9 @@ namespace mj
                     break;
                 case mjproto::EVENT_TYPE_RIICHI_SCORE_CHANGE:
                     RiichiScoreChange();
+                    break;
+                case mjproto::EVENT_TYPE_NO_WINNER:
+                    NoWinner();
                     break;
             }
         }
@@ -196,29 +205,18 @@ namespace mj
         // Set walls
         for(auto t: wall_.tiles())state->mutable_wall()->Add(t.Id());
         // Set doras and ura doras
-        for (auto dora: wall_.doras()) state->add_doras(dora.Id());
-        for (auto ura_dora: wall_.ura_doras()) state->add_ura_doras(ura_dora.Id());
-        // Set init hands
+        for (auto dora: wall_.dora_indicators()) state->add_doras(dora.Id());
+        for (auto ura_dora: wall_.ura_dora_indicators()) state->add_ura_doras(ura_dora.Id());
+        // Set private infos
         for(int i = 0; i < 4; ++i) {
             state->add_private_infos();
+            state->mutable_private_infos(i)->CopyFrom(private_infos_[i]);
             state->mutable_private_infos(i)->set_who(mjproto::AbsolutePos(i));
-            for (auto t: private_infos_[i].init_hand()) state->mutable_private_infos(i)->add_init_hand(t);
-        }
-        // Set draws
-        for (int i = 0; i < 4; ++i) {
-            for (auto draw: private_infos_[i].draws()) {
-                state->mutable_private_infos(i)->add_draws(draw);
-            }
         }
         // Set event history
-        for (int i = 0; i < event_history_.events_size(); ++i) {
-            const auto &event = event_history_.events(i);
-            state->mutable_event_history()->add_events();
-            state->mutable_event_history()->mutable_events(i)->set_who(event.who());
-            state->mutable_event_history()->mutable_events(i)->set_type(event.type());
-            state->mutable_event_history()->mutable_events(i)->set_tile(event.tile());
-            state->mutable_event_history()->mutable_events(i)->set_open(event.open());
-        }
+        state->mutable_event_history()->CopyFrom(event_history_);
+        // Set terminal
+        state->mutable_terminal()->CopyFrom(terminal_);
 
         auto status = google::protobuf::util::MessageToJsonString(*state, &serialized);
         assert(status.ok());
@@ -327,7 +325,7 @@ namespace mj
         // set proto
         mjproto::Event event{};
         event.set_type(mjproto::EVENT_TYPE_NEW_DORA);
-        auto doras = wall_.doras();
+        auto doras = wall_.dora_indicators();
         event.set_tile(doras.back().Id());
         event_history_.mutable_events()->Add(std::move(event));
 
@@ -346,5 +344,191 @@ namespace mj
 
         // set last action
         last_event_ = EventType::kRiichiScoreChange;
+    }
+
+    void State::Tsumo(AbsolutePos winner) {
+        mutable_player(winner).Tsumo();
+        auto win_score = EvalScore(winner);
+        // calc ten moves
+        auto [ten, ten_moves] = win_score.TenMoves(winner, dealer_);
+        for (auto &[who, ten_move]: ten_moves) {
+            if (ten_move > 0) ten_move += curr_score_.riichi() * 1000 + curr_score_.honba() * 300;
+            else if (ten_move < 0) ten_move -= curr_score_.honba() * 100;
+        }
+        // apply ten moves
+        for (int i = 0; i < 4; ++i) curr_score_.score_.set_ten(i, curr_score_.score_.ten(i) + ten_moves[AbsolutePos(i)]);
+
+        // set event
+        mjproto::Event event{};
+        event.set_who(mjproto::AbsolutePos(winner));
+        event.set_type(mjproto::EVENT_TYPE_TSUMO);
+        assert(player(winner).hand().LastTileAdded());
+        event.set_tile(player(winner).hand().LastTileAdded().value().Id());
+        event_history_.mutable_events()->Add(std::move(event));
+
+        // set terminal
+        mjproto::Win win;
+        win.set_who(mjproto::AbsolutePos(winner));
+        win.set_from_who(mjproto::AbsolutePos(winner));
+        // winner closed tiles, opens and win tile
+        for (auto t: player(winner).hand().ToVectorClosed(true)) {
+            win.add_closed_tiles(t.Id());
+        }
+        for (const auto &open: player(winner).hand().Opens()) {
+            win.add_opens(open.GetBits());
+        }
+        assert(player(winner).hand().LastTileAdded());
+        win.set_win_tile(player(winner).hand().LastTileAdded().value().Id());
+        // fu
+        if (win_score.fu()) win.set_fu(win_score.fu().value());
+        // yaku, fans
+        for (const auto &[yaku, fan]: win_score.yaku()) {
+            if (yaku == Yaku::kReversedDora) continue;  // mjlog puts ura-dora at last
+            win.add_yakus(ToUType(yaku));
+            win.add_fans(fan);
+        }
+        if (auto has_ura_dora = win_score.HasYaku(Yaku::kReversedDora); has_ura_dora) {
+            win.add_yakus(ToUType(Yaku::kReversedDora));
+            win.add_fans(has_ura_dora.value());
+        }
+        // ten and ten moves
+        win.set_ten(ten);
+        for (int i = 0; i < 4; ++i) win.add_ten_changes(0);
+        for (const auto &[who, ten_move]: ten_moves) {
+            win.set_ten_changes(ToUType(who), ten_move);
+        }
+        terminal_.mutable_wins()->Add(std::move(win));
+        terminal_.set_is_game_over(IsGameOver());
+
+        // set last action
+        last_action_taker_ = winner;
+        last_event_ = EventType::kTsumo;
+    }
+
+    void State::Ron(AbsolutePos winner, AbsolutePos loser, Tile tile) {
+        mutable_player(winner).Ron(tile);
+        auto win_score = EvalScore(winner);
+        // calc ten moves
+        auto [ten, ten_moves] = win_score.TenMoves(winner, dealer_, loser);
+        for (auto &[who, ten_move]: ten_moves) {
+            if (ten_move > 0) ten_move += curr_score_.riichi() * 1000 + curr_score_.honba() * 300;
+            else if (ten_move < 0) ten_move -= curr_score_.honba() * 300;
+        }
+        // apply ten moves
+        for (int i = 0; i < 4; ++i) curr_score_.score_.set_ten(i, curr_score_.score_.ten(i) + ten_moves[AbsolutePos(i)]);
+
+        // set event
+        mjproto::Event event{};
+        event.set_who(mjproto::AbsolutePos(winner));
+        event.set_type(mjproto::EVENT_TYPE_RON);
+        event.set_tile(tile.Id());
+        event_history_.mutable_events()->Add(std::move(event));
+
+        // set terminal
+        mjproto::Win win;
+        win.set_who(mjproto::AbsolutePos(winner));
+        win.set_from_who(mjproto::AbsolutePos(loser));
+        // winner closed tiles, opens and win tile
+        for (auto t: player(winner).hand().ToVectorClosed(true)) {
+            win.add_closed_tiles(t.Id());
+        }
+        for (const auto &open: player(winner).hand().Opens()) {
+            win.add_opens(open.GetBits());
+        }
+        win.set_win_tile(tile.Id());
+        // fu
+        if (win_score.fu()) win.set_fu(win_score.fu().value());
+        // yaku, fans
+        for (const auto &[yaku, fan]: win_score.yaku()) {
+            if (yaku == Yaku::kReversedDora) continue;  // mjlog puts ura-dora at last
+            win.add_yakus(ToUType(yaku));
+            win.add_fans(fan);
+        }
+        if (auto has_ura_dora = win_score.HasYaku(Yaku::kReversedDora); has_ura_dora) {
+            win.add_yakus(ToUType(Yaku::kReversedDora));
+            win.add_fans(has_ura_dora.value());
+        }
+        // ten and ten moves
+        win.set_ten(ten);
+        for (int i = 0; i < 4; ++i) win.add_ten_changes(0);
+        for (const auto &[who, ten_move]: ten_moves) {
+            win.set_ten_changes(ToUType(who), ten_move);
+        }
+        // set win to terminal
+        terminal_.mutable_wins()->Add(std::move(win));
+        terminal_.set_is_game_over(IsGameOver());
+
+        // set last action
+        last_action_taker_ = winner;
+        last_event_ = EventType::kRon;
+    }
+
+    void State::NoWinner() {
+        // set event
+        mjproto::Event event{};
+        event.set_type(mjproto::EVENT_TYPE_NO_WINNER);
+        event_history_.mutable_events()->Add(std::move(event));
+
+        // set terminal
+        std::vector<int> is_tenpai = {0, 0, 0, 0};
+        for (int i = 0; i < 4; ++i) {
+            auto who = AbsolutePos(i);
+            if (hand(who).IsTenpai()) {
+                is_tenpai[i] = 1;
+                mjproto::TenpaiHand tenpai;
+                tenpai.set_who(mjproto::AbsolutePos(who));
+                for (auto tile: hand(who).ToVectorClosed(true)) {
+                    tenpai.mutable_closed_tiles()->Add(tile.Id());
+                }
+                terminal_.mutable_no_winner()->mutable_tenpais()->Add(std::move(tenpai));
+            }
+        }
+        auto num_tenpai = std::accumulate(is_tenpai.begin(), is_tenpai.end(), 0);
+        for (int i = 0; i < 4; ++i) {
+            int ten;
+            switch (num_tenpai) {
+                case 1:
+                    ten = is_tenpai[i] ? 3000 : -1000;
+                    break;
+                case 2:
+                    ten = is_tenpai[i] ? 1500 : -1500;
+                    break;
+                case 3:
+                    ten = is_tenpai[i] ? 1000 : -3000;
+                    break;
+                default:  // 0, 4
+                    ten = 0;
+                    break;
+            }
+            // apply ten moves
+            curr_score_.score_.set_ten(i, curr_score_.score_.ten(i) + ten);
+            terminal_.mutable_no_winner()->add_ten_changes(ten);
+        }
+        terminal_.set_is_game_over(IsGameOver());
+
+        // set last action
+        last_event_ = EventType::kNoWinner;
+    }
+
+    bool State::IsGameOver() {
+        // TODO (sotetsuk): 西入後の終曲条件が供託未収と書いてあるので、修正が必要。　https://tenhou.net/man/
+        auto tens = curr_score_.ten();
+        bool is_game_over = *std::min_element(tens.begin(), tens.end()) < 0 ||
+                (curr_score_.round() >= 7 && *std::max_element(tens.begin(), tens.end()) >= 30000);
+        return is_game_over;
+    }
+
+    WinningScore State::EvalScore(AbsolutePos who) const noexcept {
+        // TODO: 場風, 自風, 海底, 一発, 両立直, 天和・地和, 親・子, ドラ, 裏ドラ の情報を追加する
+        auto win_state_info = WinningStateInfo()
+                .SeatWind(ToSeatWind(who, dealer_))
+                .PrevalentWind(Wind(curr_score_.round() % 4))
+                .Dora(wall_.dora_count())
+                .ReversedDora(wall_.ura_dora_count());
+        return player(who).hand().EvalScore(win_state_info);
+    }
+
+    Wind State::ToSeatWind(AbsolutePos who, AbsolutePos dealer) {
+        return Wind((ToUType(who) - ToUType(dealer) + 4) % 4);
     }
 }  // namespace mj

@@ -70,14 +70,14 @@ namespace mj
         return itr_curr_draw_ + num_kan_draw_ != draw_end();
     }
 
-    std::vector<Tile> Wall::doras() const {
+    std::vector<Tile> Wall::dora_indicators() const {
         assert(abs(num_kan_draw_ - num_kan_dora_) <= 1);
         std::vector<Tile> ret = {tiles_[130]};
         for (int i = 0; i < num_kan_dora_; ++i) ret.emplace_back(tiles_[128 - 2 * i]);
         return ret;
     }
 
-    std::vector<Tile> Wall::ura_doras() const {
+    std::vector<Tile> Wall::ura_dora_indicators() const {
         assert(abs(num_kan_draw_ - num_kan_dora_) <= 1);
         std::vector<Tile> ret = {tiles_[131]};
         for (int i = 0; i < num_kan_dora_; ++i) ret.emplace_back(tiles_[129 - 2 * i]);
@@ -86,5 +86,34 @@ namespace mj
 
     const std::vector<Tile>& Wall::tiles() const {
         return tiles_;
+    }
+
+    TileType Wall::IndicatorToDora(Tile dora_indicator) {
+        switch (dora_indicator.Type()) {
+            case TileType::kM9:
+                return TileType::kM1;
+            case TileType::kP9:
+                return TileType::kP1;
+            case TileType::kS9:
+                return TileType::kS1;
+            case TileType::kNW:
+                return TileType::kEW;
+            case TileType::kRD:
+                return TileType::kWD;
+            default:
+                return TileType(ToUType(dora_indicator.Type()) + 1);
+        }
+    }
+
+    TileTypeCount Wall::dora_count() const {
+        std::map<TileType, int> counter;
+        for (const auto &t: dora_indicators()) counter[Wall::IndicatorToDora(t)]++;
+        return counter;
+    }
+
+    TileTypeCount Wall::ura_dora_count() const {
+        std::map<TileType, int> counter;
+        for (const auto &t: ura_dora_indicators()) counter[Wall::IndicatorToDora(t)]++;
+        return counter;
     }
 }  // namespace mj

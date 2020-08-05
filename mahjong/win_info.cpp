@@ -21,12 +21,17 @@ namespace mj {
         this->is_first_tsumo = is_first_tsumo;
         return *this;
     }
-    WinningStateInfo& WinningStateInfo::Dora(std::map<TileType,int> dora) noexcept {
+    WinningStateInfo& WinningStateInfo::Dora(TileTypeCount dora) noexcept {
         this->dora = dora;
         return *this;
     }
-    WinningStateInfo& WinningStateInfo::ReversedDora(std::map<TileType,int> reversed_dora) noexcept {
+    WinningStateInfo& WinningStateInfo::ReversedDora(TileTypeCount reversed_dora) noexcept {
         this->reversed_dora = reversed_dora;
+        return *this;
+    }
+
+    WinningStateInfo &WinningStateInfo::SeatWind(Wind seat_wind) noexcept {
+        this->seat_wind = seat_wind;
         return *this;
     }
 
@@ -61,6 +66,7 @@ namespace mj {
     }
 
     WinningInfo& WinningInfo::ApplyStateInfo(WinningStateInfo win_state_info) noexcept {
+        this->seat_wind = win_state_info.seat_wind;
         this->prevalent_wind = win_state_info.prevalent_wind;
         this->is_bottom = win_state_info.is_bottom;
         this->is_first_tsumo = win_state_info.is_first_tsumo;

@@ -136,54 +136,53 @@ namespace mj {
         };
     }
 
-    std::array<int,4> WinningScore::Payment(int winner, int dealer, std::optional<int> debtor) const noexcept {
+    std::pair<int, std::map<AbsolutePos, int>>
+    WinningScore::TenMoves(AbsolutePos winner, AbsolutePos dealer, std::optional<AbsolutePos> loser) const noexcept {
         static ScoreTable table;
 
         int fan = total_fan();
         int fu = this->fu() ? this->fu().value() : 0;
 
-        if (debtor) {
-            int payment;
+        int ten;
+        std::map<AbsolutePos, int> ten_moves;
 
-            if (winner == dealer) {
-                // 親に振り込んだとき
-
-                if (!yakuman_.empty()) payment = 48000 * yakuman_.size();
-                else if (table.dealer_ron.count({fan, fu})) {
-                    payment = table.dealer_ron.at({fan, fu});
-                }
-                else {
-                    if (fan <= 5) payment = 12000;
-                    else if (fan <= 7) payment = 18000;
-                    else if (fan <= 10) payment = 24000;
-                    else if (fan <= 12) payment = 36000;
-                    else payment = 48000;
-                }
+        // スコアの移動だけでなく、和了の点数を求める（天鳳mjlogでの表示用）
+        // ロン和了の場合はそのままスコアの移動にもなる。
+        if (winner == dealer) {
+            // 親
+            if (!yakuman_.empty()) ten = 48000 * yakuman_.size();
+            else if (table.dealer_ron.count({fan, fu})) {
+                ten = table.dealer_ron.at({fan, fu});
             }
             else {
-                // 子に振り込んだとき
-
-                if (!yakuman_.empty()) payment = 32000 * yakuman_.size();
-                else if (table.non_dealer_ron.count({fan, fu})) {
-                    payment = table.dealer_ron.at({fan, fu});
-                }
-                else {
-                    if (fan <= 5) payment = 8000;
-                    else if (fan <= 7) payment = 12000;
-                    else if (fan <= 10) payment = 16000;
-                    else if (fan <= 12) payment = 24000;
-                    else payment = 32000;
-                }
+                if (fan <= 5) ten = 12000;
+                else if (fan <= 7) ten = 18000;
+                else if (fan <= 10) ten = 24000;
+                else if (fan <= 12) ten = 36000;
+                else ten = 48000;
             }
-            std::array<int,4> ret{0,0,0,0};
-            ret[debtor.value()] = payment;
-            return ret;
+        }
+        else {
+            // 子
+            if (!yakuman_.empty()) ten = 32000 * yakuman_.size();
+            else if (table.non_dealer_ron.count({fan, fu})) {
+                ten = table.non_dealer_ron.at({fan, fu});
+            }
+            else {
+                if (fan <= 5) ten = 8000;
+                else if (fan <= 7) ten = 12000;
+                else if (fan <= 10) ten = 16000;
+                else if (fan <= 12) ten = 24000;
+                else ten = 32000;
+            }
         }
 
-        else {
+        if (loser) {  // ロン和了
+            ten_moves[winner] = ten;
+            ten_moves[loser.value()] = -ten;
+        } else {  // ツモ和了
             if (winner == dealer) {
                 // 親がツモ上がりしたとき
-
                 int payment;
                 if (!yakuman_.empty()) payment = 16000 * yakuman_.size();
                 else if (table.dealer_tsumo.count({fan, fu})) {
@@ -196,40 +195,36 @@ namespace mj {
                     else if (fan <= 12) payment = 12000;
                     else payment = 16000;
                 }
-
-                std::array<int,4> ret{payment, payment, payment, payment};
-                ret[winner] = 0;
-                return ret;
+                for (int i = 0; i < 4; ++i) ten_moves[AbsolutePos(i)] = AbsolutePos(i) == winner ? 3 * payment : - payment;
             }
             else {
                 // 子がツモ上がりしたとき
-
-                int dealer_payment, non_dealer_payment;
+                int dealer_payment, child_payment;
                 if (!yakuman_.empty()) {
                     dealer_payment = 16000 * yakuman_.size();
-                    non_dealer_payment = 8000 * yakuman_.size();
+                    child_payment = 8000 * yakuman_.size();
                 }
                 else if (table.non_dealer_tsumo.count({fan, fu})) {
-                    std::tie(non_dealer_payment, dealer_payment) =
+                    std::tie(child_payment, dealer_payment) =
                             table.non_dealer_tsumo.at({fan, fu});
                 }
                 else {
-                    if (fan <= 5) non_dealer_payment = 2000, dealer_payment = 4000;
-                    else if (fan <= 7) non_dealer_payment = 3000, dealer_payment = 6000;
-                    else if (fan <= 10) non_dealer_payment = 4000, dealer_payment = 8000;
-                    else if (fan <= 12) non_dealer_payment = 6000, dealer_payment = 12000;
-                    else non_dealer_payment = 8000, dealer_payment = 16000;
+                    if (fan <= 5) child_payment = 2000, dealer_payment = 4000;
+                    else if (fan <= 7) child_payment = 3000, dealer_payment = 6000;
+                    else if (fan <= 10) child_payment = 4000, dealer_payment = 8000;
+                    else if (fan <= 12) child_payment = 6000, dealer_payment = 12000;
+                    else child_payment = 8000, dealer_payment = 16000;
                 }
-
-                std::array<int,4> ret{};
                 for (int i = 0; i < 4; ++i) {
-                    if (i == winner) ret[i] = 0;
-                    else if (i == dealer) ret[i] = dealer_payment;
-                    else ret[i] = non_dealer_payment;
+                    auto who = AbsolutePos(i);
+                    if (who == winner) ten_moves[who] = dealer_payment + 2 * child_payment;
+                    else if (who == dealer) ten_moves[who] = - dealer_payment;
+                    else ten_moves[who] = - child_payment;
                 }
-                return ret;
             }
         }
+
+        return {ten, ten_moves};
     }
 
     void WinningScore::AddYaku(Yaku yaku, int fan) noexcept {
@@ -245,8 +240,7 @@ namespace mj {
     }
 
     bool WinningScore::RequireFu() const noexcept {
-        if (!yakuman_.empty()) return false;
-        return total_fan() <= 4;
+        return yakuman_.empty();  // Tenhou requires fu even if it's Mangan
     }
 
     void WinningScore::set_fu(int fu) noexcept {

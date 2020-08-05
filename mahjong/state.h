@@ -43,6 +43,7 @@ namespace mj
         std::string ToJson() const;
 
         static RelativePos ToRelativePos(AbsolutePos origin, AbsolutePos target);
+        static Wind ToSeatWind(AbsolutePos who, AbsolutePos dealer);
     private:
         std::array<std::string, 4> player_ids_;
         std::uint32_t seed_;
@@ -57,8 +58,10 @@ namespace mj
         Wall wall_;
         std::array<Player, 4> players_;
 
+        // protos
         std::array<mjproto::PrivateInfo, 4> private_infos_;
         mjproto::EventHistory event_history_;
+        mjproto::Terminal terminal_;
 
         Player& mutable_player(AbsolutePos pos);
 
@@ -68,6 +71,10 @@ namespace mj
         void ApplyOpen(AbsolutePos who, Open open);
         void AddNewDora();
         void RiichiScoreChange();
+        void Tsumo(AbsolutePos winner);
+        void Ron(AbsolutePos winner, AbsolutePos loser, Tile tile);
+        void NoWinner();
+        [[nodiscard]] WinningScore EvalScore(AbsolutePos who) const noexcept;
 
         std::uint32_t GenerateRoundSeed();
     };

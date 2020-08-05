@@ -34,7 +34,8 @@ namespace mj {
         void set_fu(int fu) noexcept ;
         [[nodiscard]] bool RequireFan() const noexcept ;
         [[nodiscard]] bool RequireFu() const noexcept ;
-        [[nodiscard]] std::array<int,4> Payment(int winner, int dealer, std::optional<int> debtor) const noexcept ;
+        [[nodiscard]] std::pair<int, std::map<AbsolutePos, int>>
+        TenMoves(AbsolutePos winner, AbsolutePos dealer, std::optional<AbsolutePos> loser = std::nullopt) const noexcept ;
     };
 
 } // namespace mj

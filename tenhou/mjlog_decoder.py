@@ -167,35 +167,38 @@ class MjlogDecoder:
                 )
             elif key == "RYUUKYOKU":
                 ba, riichi = [int(x) for x in val["ba"].split(",")]
-                self.state.end_info.no_winner_end.ten_changes[:] = [int(x) * 100 for i, x in enumerate(val["sc"].split(",")) if i % 2 == 1]
+                self.state.terminal.no_winner.ten_changes[:] = [int(x) * 100 for i, x in enumerate(val["sc"].split(",")) if i % 2 == 1]
                 for i in range(4):
                     hai_key = "hai" + str(i)
                     if hai_key not in val:
                         continue
-                    self.state.end_info.no_winner_end.tenpais.append(mahjong_pb2.TenpaiHand(
+                    self.state.terminal.no_winner.tenpais.append(mahjong_pb2.TenpaiHand(
                             who=i,
                             closed_tiles=[int(x) for x in val[hai_key].split(",")],
                     ))
                 if "type" in val:
-                    no_winner_end_type = None
+                    no_winner_type = None
                     if val["type"] == "yao9":
-                        no_winner_end_type = mahjong_pb2.NO_WINNER_END_TYPE_KYUUSYU
+                        no_winner_type = mahjong_pb2.NO_WINNER_TYPE_KYUUSYU
                     elif val["type"] == "reach4":
-                        no_winner_end_type = mahjong_pb2.NO_WINNER_END_TYPE_FOUR_RIICHI
+                        no_winner_type = mahjong_pb2.NO_WINNER_TYPE_FOUR_RIICHI
                     elif val["type"] == "ron3":
-                        no_winner_end_type = mahjong_pb2.NO_WINNER_END_TYPE_THREE_RONS
+                        no_winner_type = mahjong_pb2.NO_WINNER_TYPE_THREE_RONS
                     elif val["type"] == "kan4":
-                        no_winner_end_type = mahjong_pb2.NO_WINNER_END_TYPE_FOUR_KANS
+                        no_winner_type = mahjong_pb2.NO_WINNER_TYPE_FOUR_KANS
                     elif val["type"] == "kan4":
-                        no_winner_end_type = mahjong_pb2.NO_WINNER_END_TYPE_FOUR_KANS
+                        no_winner_type = mahjong_pb2.NO_WINNER_TYPE_FOUR_KANS
                     elif val["type"] == "kaze4":
-                        no_winner_end_type = mahjong_pb2.NO_WINNER_END_TYPE_FOUR_WINDS
+                        no_winner_type = mahjong_pb2.NO_WINNER_TYPE_FOUR_WINDS
                     elif val["type"] == "nm":
-                        no_winner_end_type = mahjong_pb2.NO_WINNER_END_TYPE_NM
-                    assert no_winner_end_type is not None
-                    self.state.end_info.no_winner_end.type = no_winner_end_type
+                        no_winner_type = mahjong_pb2.NO_WINNER_TYPE_NM
+                    assert no_winner_type is not None
+                    self.state.terminal.no_winner.type = no_winner_type
                 if "owari" in val:
-                    self.state.end_info.is_game_over = True
+                    self.state.terminal.is_game_over = True
+                event = mahjong_pb2.Event(
+                    type=mahjong_pb2.EVENT_TYPE_NO_WINNER
+                )
             elif key == "AGARI":
                 ba, riichi = [int(x) for x in val["ba"].split(",")]
                 who = int(val["who"])
@@ -203,7 +206,8 @@ class MjlogDecoder:
                 # set event
                 event = mahjong_pb2.Event(
                     who=who,
-                    type=mahjong_pb2.EVENT_TYPE_TSUMO if who == from_who else mahjong_pb2.EVENT_TYPE_RON
+                    type=mahjong_pb2.EVENT_TYPE_TSUMO if who == from_who else mahjong_pb2.EVENT_TYPE_RON,
+                    tile=int(val["machi"])
                 )
                 # set win info
                 # TODO(sotetsuk): yakuman
@@ -225,9 +229,9 @@ class MjlogDecoder:
                 win.fans[:] = [int(x) for i, x in enumerate(val["yaku"].split(",")) if i % 2 == 1]
                 if "yakuman" in val:
                     win.yakumans[:] = [int(x) for i, x in enumerate(val["yakuman"].split(",")) if i % 2 == 0]
-                self.state.end_info.wins.append(win)
+                self.state.terminal.wins.append(win)
                 if "owari" in val:
-                    self.state.end_info.is_game_over = True
+                    self.state.terminal.is_game_over = True
             elif key == "BYE":  # 接続切れ
                 pass
             elif key == "UN":  # 再接続
