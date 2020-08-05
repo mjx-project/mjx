@@ -520,12 +520,19 @@ namespace mj
 
     WinScore State::EvalScore(AbsolutePos who) const noexcept {
         // TODO: 場風, 自風, 海底, 一発, 両立直, 天和・地和, 親・子, ドラ, 裏ドラ の情報を追加する
-        auto win_state_info = WinStateInfo()
-                .SeatWind(ToSeatWind(who, dealer_))
-                .PrevalentWind(Wind(curr_score_.round() % 4))
-                .Dora(wall_.dora_count())
-                .ReversedDora(wall_.ura_dora_count());
-        return player(who).hand().EvalScore(win_state_info);
+        auto seat_wind = ToSeatWind(who, dealer_);
+        auto prevalent_wind = Wind(curr_score_.round() % 4);
+        auto win_state_info = WinStateInfo(
+                seat_wind,
+                prevalent_wind,
+                false,
+                false,
+                false,
+                false,
+                seat_wind == Wind::kEast,
+                wall_.dora_count(),
+                wall_.ura_dora_count());
+        return player(who).EvalScore(std::move(win_state_info));
     }
 
     Wind State::ToSeatWind(AbsolutePos who, AbsolutePos dealer) {

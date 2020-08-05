@@ -504,14 +504,14 @@ TEST(hand, IsMenzen) {
     EXPECT_FALSE(h.IsMenzen());
 }
 
-TEST(hand, CanRon) {
-    auto h = Hand(HandParams("m1,m1,m1,m2,m3,m4,m5,m6,m7,m8,m9,m9,m9"));
-    EXPECT_TRUE(h.CanRon(Tile("m1", 3)));
-    EXPECT_TRUE(h.CanRon(Tile("m5", 3)));
-    EXPECT_TRUE(h.CanRon(Tile("m9", 3)));
-    h = Hand(HandParams("m1,m1,m1,m2,m3,m4,m5,m6,m7,m8,m9,m9,rd"));
-    EXPECT_FALSE(h.CanRon(Tile("m1", 3)));
-}
+// TEST(hand, CanRon) {
+//     auto h = Hand(HandParams("m1,m1,m1,m2,m3,m4,m5,m6,m7,m8,m9,m9,m9"));
+//     EXPECT_TRUE(h.CanRon(Tile("m1", 3)));
+//     EXPECT_TRUE(h.CanRon(Tile("m5", 3)));
+//     EXPECT_TRUE(h.CanRon(Tile("m9", 3)));
+//     h = Hand(HandParams("m1,m1,m1,m2,m3,m4,m5,m6,m7,m8,m9,m9,rd"));
+//     EXPECT_FALSE(h.CanRon(Tile("m1", 3)));
+// }
 
 TEST(hand, IsCompleted) {
     auto h = Hand(HandParams("m1,m1,m1,m2,m3,m4,m5,m6,m7,m8,m9,m9,m9"));
@@ -632,16 +632,16 @@ TEST(hand, RonAfterOhtersKan) {
     EXPECT_EQ(h.LastTileAdded(), Tile("m1", 3));
 }
 
-TEST(hand, EvalScore) {
-    auto h = Hand(HandParams("m1,m1,m1,m2,m3,m4,s3,s3,p2,p2,sw,sw,sw").Tsumo("p2"));
-
-    auto score = h.EvalScore(WinStateInfo().PrevalentWind(Wind::kSouth).IsBottom(true)
-            .IsFirstTsumo(false).Dora({{TileType::kM1, 1}}));
-
-    EXPECT_EQ(score.HasYaku(Yaku::kPrevalentWindSouth), std::make_optional(1));
-    EXPECT_EQ(score.HasYaku(Yaku::kBottomOfTheSea), std::make_optional(1));
-    EXPECT_EQ(score.HasYaku(Yaku::kDora), std::make_optional(3));
-}
+// TEST(hand, EvalScore) {
+//     auto h = Hand(HandParams("m1,m1,m1,m2,m3,m4,s3,s3,p2,p2,sw,sw,sw").Tsumo("p2"));
+//
+//     auto score = h.EvalScore(WinStateInfo().PrevalentWind(Wind::kSouth).IsBottom(true)
+//             .IsFirstTsumo(false).Dora({{TileType::kM1, 1}}));
+//
+//     EXPECT_EQ(score.HasYaku(Yaku::kPrevalentWindSouth), std::make_optional(1));
+//     EXPECT_EQ(score.HasYaku(Yaku::kBottomOfTheSea), std::make_optional(1));
+//     EXPECT_EQ(score.HasYaku(Yaku::kDora), std::make_optional(3));
+// }
 
 TEST(hand, IsTenpai) {
     // テンパイ

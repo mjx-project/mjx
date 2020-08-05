@@ -1,7 +1,7 @@
 #include "hand.h"
 #include "open.h"
 #include "utils.h"
-#include "yaku_evaluator.h"
+#include "win_cache.h"
 
 #include <utility>
 #include <unordered_map>
@@ -267,7 +267,7 @@ namespace mj
         return closed_tiles_.size();
     }
 
-    bool Hand::IsUnderRiichi() {
+    bool Hand::IsUnderRiichi() const {
         return under_riichi_;
     }
 
@@ -296,18 +296,23 @@ namespace mj
         assert(SizeClosed() == 2 || SizeClosed() == 5 || SizeClosed() == 8 || SizeClosed() == 11 || SizeClosed() == 14);
         std::vector<Tile> possible_discards;
 
+        auto closed_tile_type_count = ClosedTileTypes();
         for (const Tile discard_tile : closed_tiles_) {
-            bool discardable = false;
+            auto discard_tile_type = discard_tile.Type();
+            assert(closed_tile_type_count[discard_tile_type] >= 1);
+            bool ok = false;
             for (int i = 0; i < 34; ++i) {
-                auto tile_type = static_cast<TileType>(i);
-                if (YakuEvaluator::Has(win_info().Discard(discard_tile).Tsumo(tile_type))) {
-                    discardable = true;
-                    break;
-                }
+                auto draw_tile_type = TileType(i);
+                --closed_tile_type_count[discard_tile_type];
+                if (closed_tile_type_count[discard_tile_type] == 0) closed_tile_type_count.erase(discard_tile_type);
+                ++closed_tile_type_count[draw_tile_type];
+                if (WinHandCache::instance().Has(closed_tile_type_count)) ok = true;
+                ++closed_tile_type_count[discard_tile_type];
+                --closed_tile_type_count[draw_tile_type];
+                if (closed_tile_type_count[draw_tile_type] == 0) closed_tile_type_count.erase(draw_tile_type);
+                if (ok) break;
             }
-            if (discardable) {
-                possible_discards.push_back(discard_tile);
-            }
+            if (ok) possible_discards.push_back(discard_tile);
         }
         return possible_discards;
     }
@@ -555,13 +560,6 @@ namespace mj
                 [](const auto &x){ return x.Type() == OpenType::kKanClosed; });
     }
 
-    bool Hand::CanRon(Tile tile) const {
-        assert(stage_ == HandStage::kAfterDiscards);
-        assert(SizeClosed() == 1 || SizeClosed() == 4 || SizeClosed() == 7 || SizeClosed() == 10 || SizeClosed() == 13);
-
-        return YakuEvaluator::CanWin(win_info().Ron(tile));
-    }
-
     bool Hand::CanRiichi() const {
         // TODO: use different cache might become faster
 
@@ -569,12 +567,18 @@ namespace mj
         assert(SizeClosed() == 2 || SizeClosed() == 5 || SizeClosed() == 8 || SizeClosed() == 11 || SizeClosed() == 14);
         if (!IsMenzen()) return false;
 
+        auto closed_tile_type_count = ClosedTileTypes();
         for (const Tile discard_tile : closed_tiles_) {
+            auto discard_tile_type = discard_tile.Type();
             for (int i = 0; i < 34; ++i) {
-                auto tile_type = static_cast<TileType>(i);
-                if (YakuEvaluator::Has(win_info().Discard(discard_tile).Tsumo(tile_type))) {
-                    return true;
-                }
+                auto draw_tile_type = TileType(i);
+                --closed_tile_type_count[discard_tile_type];
+                if (closed_tile_type_count[discard_tile_type] == 0) closed_tile_type_count.erase(discard_tile_type);
+                ++closed_tile_type_count[draw_tile_type];
+                if (WinHandCache::instance().Has(closed_tile_type_count)) return true;
+                ++closed_tile_type_count[discard_tile_type];
+                --closed_tile_type_count[draw_tile_type];
+                if (closed_tile_type_count[draw_tile_type] == 0) closed_tile_type_count.erase(draw_tile_type);
             }
         }
         return false;
@@ -664,26 +668,12 @@ namespace mj
     bool Hand::IsCompleted() const {
         assert(stage_ == HandStage::kAfterDraw || stage_ == HandStage::kAfterDrawAfterKan);
         assert(SizeClosed() == 2 || SizeClosed() == 5 || SizeClosed() == 8 || SizeClosed() == 11 || SizeClosed() == 14);
-        return YakuEvaluator::Has(win_info());
+        return WinHandCache::instance().Has(ClosedTileTypes());
     }
 
-    WinInfo Hand::win_info() const noexcept {
-        std::optional<TileType> last_added_tile_type = std::nullopt;
-        if (last_tile_added_) {
-            last_added_tile_type = last_tile_added_.value().Type();
-        }
-        return WinInfo().Opens(opens_).ClosedTiles(closed_tiles_)
-                .LastAddedTileType(last_added_tile_type).Stage(stage_)
-                .UnderRiichi(under_riichi_).ClosedTileTypes(ClosedTileTypes())
-                .AllTileTypes(AllTileTypes()).IsMenzen(IsMenzen());
-    }
-
-    WinInfo Hand::win_info(const WinStateInfo& win_state_info) const noexcept {
-        return win_info().ApplyStateInfo(win_state_info);
-    }
-
-    WinScore Hand::EvalScore(const WinStateInfo& win_state_info) const noexcept {
-        return YakuEvaluator::Eval(win_info(win_state_info));
+    WinHandInfo Hand::win_info() const noexcept {
+        assert(last_tile_added_);
+        return WinHandInfo(closed_tiles_, opens_, ClosedTileTypes(), AllTileTypes(), last_tile_added_.value(), stage_, IsUnderRiichi(), IsMenzen());
     }
 
     bool Hand::IsTenpai() const {
@@ -691,8 +681,12 @@ namespace mj
         assert(SizeClosed() == 1 || SizeClosed() == 4 || SizeClosed() == 7 || SizeClosed() == 10 || SizeClosed() == 13);
         auto closed_tile_types = ClosedTileTypes();
         for (int i = 0; i < 34; ++i) {
-            if (closed_tile_types[TileType(i)] == 4) continue;
-            if (YakuEvaluator::Has(win_info().Tsumo(TileType(i)))) return true;
+            auto tile_type = TileType(i);
+            if (closed_tile_types[tile_type] == 4) continue;
+            ++closed_tile_types[tile_type];
+            if (WinHandCache::instance().Has(closed_tile_types)) return true;
+            --closed_tile_types[tile_type];
+            if (closed_tile_types[tile_type] == 0) closed_tile_types.erase(tile_type);
         }
         return false;
     }

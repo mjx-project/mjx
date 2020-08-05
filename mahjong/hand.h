@@ -42,7 +42,7 @@ namespace mj
         [[nodiscard]] HandStage Stage() const;
         [[nodiscard]] std::optional<Tile> LastTileAdded() const;
         [[nodiscard]] bool IsMenzen() const;
-        bool IsUnderRiichi();
+        bool IsUnderRiichi() const;
         [[nodiscard]] std::size_t Size() const;
         [[nodiscard]] std::size_t SizeOpened() const;
         [[nodiscard]] std::size_t SizeClosed() const;
@@ -62,7 +62,6 @@ namespace mj
         std::vector<Tile> PossibleDiscardsAfterRiichi();
         std::vector<Open> PossibleOpensAfterOthersDiscard(Tile tile, RelativePos from) const;  // includes Chi, Pon, and KanOpened
         std::vector<Open> PossibleOpensAfterDraw();  // includes KanClosed and KanAdded
-        bool CanRon(Tile tile) const;  // This does not take furiten and fan into account.
         bool IsCompleted() const;
         bool CanRiichi() const;
         bool IsTenpai() const;
@@ -78,9 +77,7 @@ namespace mj
         std::pair<Tile, bool> Discard(Tile tile);
 
         // get winning info
-        WinInfo win_info() const noexcept ;
-        WinInfo win_info(const WinStateInfo& win_state_info) const noexcept ;
-        WinScore EvalScore(const WinStateInfo& win_state_info) const noexcept ;
+        [[nodiscard]] WinHandInfo win_info() const noexcept ;
     private:
         std::unordered_set<Tile, HashTile> closed_tiles_;
         std::vector<Open> opens_;  // Though open only uses 16 bits, to handle different open types, we need to use pointer
@@ -117,7 +114,7 @@ namespace mj
     {
     public:
         // Usage:
-        //   auto h = Hand(HandParams("m1m1wdwd").Chi("m2m3m4").Pon("m9m9m9").Pon("rdrdrd").Tsumo("wd"));
+        //   auto h = Hand(HandParams("m1,m1,wd,wd").Chi("m2,m3,m4").Pon("m9,m9,m9").Pon("rd,rd,rd").Tsumo("wd"));
         explicit HandParams(const std::string &closed);
         HandParams& Chi(const std::string &chi);
         HandParams& Pon(const std::string &pon);

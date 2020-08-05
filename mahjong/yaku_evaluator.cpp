@@ -18,7 +18,7 @@ namespace mj
         WinScore score;
 
         // closedな手牌が上がり形になっている or 国士無双かどうかを判定する.
-        return win_cache().Has(win_info.closed_tile_types) or
+        return win_cache().Has(win_info.hand.closed_tile_types) or
                HasThirteenOrphans(win_info) or
                HasCompletedThirteenOrphans(win_info);
     }
@@ -27,7 +27,7 @@ namespace mj
         WinScore score;
 
         // closedな手牌が上がり形になっている or 国士無双かどうかを判定する.
-        if (!win_cache().Has(win_info.closed_tile_types) and
+        if (!win_cache().Has(win_info.hand.closed_tile_types) and
             !HasThirteenOrphans(win_info) and
             !HasCompletedThirteenOrphans(win_info)
                 ) return false;
@@ -91,9 +91,9 @@ namespace mj
 
         // 平和ツモ:20, 平和ロン:30
         if (win_score.HasYaku(Yaku::kPinfu)) {
-            if (win_info.stage == HandStage::kAfterTsumo) {
+            if (win_info.hand.stage == HandStage::kAfterTsumo) {
                 return 20;
-            } else if (win_info.stage == HandStage::kAfterRon) {
+            } else if (win_info.hand.stage == HandStage::kAfterRon) {
                 return 30;
             } else {
                 assert(false);
@@ -103,7 +103,7 @@ namespace mj
         int fu = 20;
 
         // 面子
-        for (const Open& open : win_info.opens) {
+        for (const Open& open : win_info.hand.opens) {
             OpenType open_type = open.Type();
             if (open_type == OpenType::kChi) continue;
 
@@ -141,8 +141,8 @@ namespace mj
 
         // 待ち
         bool has_bad_machi = false;
-        assert(win_info.last_added_tile_type);
-        const TileType tsumo_type = win_info.last_added_tile_type.value();
+        assert(win_info.hand.win_tile);
+        const TileType tsumo_type = win_info.hand.win_tile.value().Type();
         if (tsumo_type == head_type) has_bad_machi = true;    // 単騎
         for (const TileTypeCount& st : closed_sets) {
             if (st.size() == 1) continue;   // 刻子は弾く
@@ -161,12 +161,12 @@ namespace mj
         if (has_bad_machi) fu += 2;
 
         // 面前加符
-        if (win_info.is_menzen and win_info.stage == HandStage::kAfterRon) {
+        if (win_info.hand.is_menzen and win_info.hand.stage == HandStage::kAfterRon) {
             fu += 10;
         }
 
         // ツモ符
-        if (win_info.stage == HandStage::kAfterTsumo) {
+        if (win_info.hand.stage == HandStage::kAfterTsumo) {
             fu += 2;
         }
 
@@ -187,7 +187,7 @@ namespace mj
         std::vector<TileTypeCount> best_closed_set, best_heads;
 
         std::vector<TileTypeCount> opened_sets;
-        for (const Open& open : win_info.opens) {
+        for (const Open& open : win_info.hand.opens) {
             TileTypeCount count;
             for (const Tile tile : open.Tiles()) {
                 ++count[tile.Type()];
@@ -195,7 +195,7 @@ namespace mj
             opened_sets.push_back(count);
         }
 
-        for (const auto& [closed_sets, heads] : win_cache().SetAndHeads(win_info.closed_tile_types)) {
+        for (const auto& [closed_sets, heads] : win_cache().SetAndHeads(win_info.hand.closed_tile_types)) {
 
             std::map<Yaku,int> yaku_in_this_pattern;
 
@@ -398,10 +398,10 @@ namespace mj
 
     std::optional<int> YakuEvaluator::HasRedDora(const WinInfo& win_info) noexcept {
         int reds = 0;
-        for (const Tile tile : win_info.closed_tiles) {
+        for (const Tile tile : win_info.hand.closed_tiles) {
             reds += tile.Is(TileSetType::kRedFive);
         }
-        for (const Open& open : win_info.opens) {
+        for (const Open& open : win_info.hand.opens) {
             for (const Tile tile : open.Tiles()) {
                 reds += tile.Is(TileSetType::kRedFive);
             }
@@ -412,16 +412,16 @@ namespace mj
 
     std::optional<int> YakuEvaluator::HasDora(const WinInfo& win_info) noexcept {
         int dora_count = 0;
-        for (const auto& [tile_type, n] : win_info.closed_tile_types) {
-            if (win_info.dora.count(tile_type)) {
-                dora_count += n * win_info.dora.at(tile_type);
+        for (const auto& [tile_type, n] : win_info.hand.closed_tile_types) {
+            if (win_info.state.dora.count(tile_type)) {
+                dora_count += n * win_info.state.dora.at(tile_type);
             }
         }
-        for (const Open& open : win_info.opens) {
+        for (const Open& open : win_info.hand.opens) {
             for (const Tile tile : open.Tiles()) {
                 auto tile_type = tile.Type();
-                if (win_info.dora.count(tile_type)) {
-                    dora_count += win_info.dora.at(tile_type);
+                if (win_info.state.dora.count(tile_type)) {
+                    dora_count += win_info.state.dora.at(tile_type);
                 }
             }
         }
@@ -430,19 +430,19 @@ namespace mj
     }
 
     std::optional<int> YakuEvaluator::HasReversedDora(const WinInfo& win_info) noexcept {
-        if (!win_info.under_riichi) return std::nullopt;
+        if (!win_info.hand.under_riichi) return std::nullopt;
 
         int dora_count = 0;
-        for (const auto& [tile_type, n] : win_info.closed_tile_types) {
-            if (win_info.reversed_dora.count(tile_type)) {
-                dora_count += n * win_info.reversed_dora.at(tile_type);
+        for (const auto& [tile_type, n] : win_info.hand.closed_tile_types) {
+            if (win_info.state.reversed_dora.count(tile_type)) {
+                dora_count += n * win_info.state.reversed_dora.at(tile_type);
             }
         }
-        for (const Open& open : win_info.opens) {
+        for (const Open& open : win_info.hand.opens) {
             for (const Tile tile : open.Tiles()) {
                 auto tile_type = tile.Type();
-                if (win_info.reversed_dora.count(tile_type)) {
-                    dora_count += win_info.reversed_dora.at(tile_type);
+                if (win_info.state.reversed_dora.count(tile_type)) {
+                    dora_count += win_info.state.reversed_dora.at(tile_type);
                 }
             }
         }
@@ -454,7 +454,7 @@ namespace mj
             const std::vector<TileTypeCount>& closed_sets,
             const std::vector<TileTypeCount>& opened_sets,
             const std::vector<TileTypeCount>& heads) noexcept {
-        if (!win_info.is_menzen) return std::nullopt;
+        if (!win_info.hand.is_menzen) return std::nullopt;
 
         if (closed_sets.size() != 4 or heads.size() != 1) {
             // 基本形でなければNG.
@@ -477,8 +477,8 @@ namespace mj
             return std::nullopt;
         }
 
-        assert(win_info.last_added_tile_type);
-        const TileType tsumo_type = win_info.last_added_tile_type.value();
+        assert(win_info.hand.win_tile);
+        const TileType tsumo_type = win_info.hand.win_tile.value().Type();
 
         for (const TileTypeCount& st : closed_sets) {
             const TileType left = st.begin()->first,
@@ -502,7 +502,7 @@ namespace mj
             const std::vector<TileTypeCount>& heads) noexcept {
 
         // 鳴いているとNG
-        if (!win_info.is_menzen) return std::nullopt;
+        if (!win_info.hand.is_menzen) return std::nullopt;
 
         if (closed_sets.size() != 4 or heads.size() != 1) {
             // 基本形でなければNG.
@@ -532,7 +532,7 @@ namespace mj
             const std::vector<TileTypeCount>& heads) noexcept {
 
         // 鳴いているとNG
-        if (!win_info.is_menzen) return std::nullopt;
+        if (!win_info.hand.is_menzen) return std::nullopt;
 
         if (closed_sets.size() != 4 or heads.size() != 1) {
             // 基本形でなければNG.
@@ -627,7 +627,7 @@ namespace mj
         }
 
         if (has_straight) {
-            if (win_info.is_menzen) return 2;
+            if (win_info.hand.is_menzen) return 2;
             else return 1;
         }
 
@@ -673,7 +673,7 @@ namespace mj
         }
 
         if (has_mixed_triple_chis) {
-            if (win_info.is_menzen) return 2;
+            if (win_info.hand.is_menzen) return 2;
             else return 1;
         }
 
@@ -757,7 +757,7 @@ namespace mj
         // 混老頭とは複合しない
         if (all_yaochu) return std::nullopt;
 
-        if (win_info.is_menzen) return 2;
+        if (win_info.hand.is_menzen) return 2;
         else return 1;
     }
 
@@ -782,132 +782,132 @@ namespace mj
             }
         }
 
-        if (win_info.is_menzen) return 3;
+        if (win_info.hand.is_menzen) return 3;
         else return 2;
     }
 
     std::optional<int> YakuEvaluator::HasFullyConcealdHand(const WinInfo& win_info) noexcept {
-        if (win_info.is_menzen and win_info.stage == HandStage::kAfterTsumo) return 1;
+        if (win_info.hand.is_menzen and win_info.hand.stage == HandStage::kAfterTsumo) return 1;
         return std::nullopt;
     }
 
     std::optional<int> YakuEvaluator::HasRiichi(const WinInfo& win_info) noexcept {
-        if (win_info.under_riichi) return 1;
+        if (win_info.hand.under_riichi) return 1;
         return std::nullopt;
     }
     std::optional<int> YakuEvaluator::HasDoubleRiichi(const WinInfo& win_info) noexcept {
-        if (win_info.is_double_riichi) return 1;
+        if (win_info.state.is_double_riichi) return 1;
         return std::nullopt;
     }
 
     std::optional<int> YakuEvaluator::HasAfterKan(const WinInfo& win_info) noexcept {
-        if (win_info.stage == HandStage::kAfterTsumoAfterKan) return 1;
+        if (win_info.hand.stage == HandStage::kAfterTsumoAfterKan) return 1;
         return std::nullopt;
     }
 
     std::optional<int> YakuEvaluator::HasRobbingKan(const WinInfo& win_info) noexcept {
-        if (win_info.stage == HandStage::kAfterRonAfterOthersKan) return 1;
+        if (win_info.hand.stage == HandStage::kAfterRonAfterOthersKan) return 1;
         return std::nullopt;
     }
 
     std::optional<int> YakuEvaluator::HasBottomOfTheSea(const WinInfo& win_info) noexcept {
-        if (win_info.is_bottom and win_info.stage == HandStage::kAfterTsumo) return 1;
+        if (win_info.state.is_bottom and win_info.hand.stage == HandStage::kAfterTsumo) return 1;
         return std::nullopt;
     }
 
     std::optional<int> YakuEvaluator::HasBottomOfTheRiver(const WinInfo& win_info) noexcept {
-        if (win_info.is_bottom and win_info.stage == HandStage::kAfterRon) return 1;
+        if (win_info.state.is_bottom and win_info.hand.stage == HandStage::kAfterRon) return 1;
         return std::nullopt;
     }
 
     std::optional<int> YakuEvaluator::HasIppatsu(const WinInfo& win_info) noexcept {
-        if (win_info.is_ippatsu) return 1;
+        if (win_info.state.is_ippatsu) return 1;
         return std::nullopt;
     }
 
     std::optional<int> YakuEvaluator::HasAllSimples(const WinInfo& win_info) noexcept {
-        for (const auto& [tile_type, _] : win_info.all_tile_types) {
+        for (const auto& [tile_type, _] : win_info.hand.all_tile_types) {
             if (Is(tile_type, TileSetType::kYaocyu)) return std::nullopt;
         }
         return 1;
     }
 
     std::optional<int> YakuEvaluator::HasWhiteDragon(const WinInfo& win_info) noexcept {
-        const auto& all_tile_types = win_info.all_tile_types;
+        const auto& all_tile_types = win_info.hand.all_tile_types;
         if (all_tile_types.count(TileType::kWD) and all_tile_types.at(TileType::kWD) >= 3) return 1;
         return std::nullopt;
     }
 
     std::optional<int> YakuEvaluator::HasGreenDragon(const WinInfo& win_info) noexcept {
-        const auto& all_tile_types = win_info.all_tile_types;
+        const auto& all_tile_types = win_info.hand.all_tile_types;
         if (all_tile_types.count(TileType::kGD) and all_tile_types.at(TileType::kGD) >= 3) return 1;
         return std::nullopt;
     }
 
     std::optional<int> YakuEvaluator::HasRedDragon(const WinInfo& win_info) noexcept {
-        const auto& all_tile_types = win_info.all_tile_types;
+        const auto& all_tile_types = win_info.hand.all_tile_types;
         if (all_tile_types.count(TileType::kRD) and all_tile_types.at(TileType::kRD) >= 3) return 1;
         return std::nullopt;
     }
 
     std::optional<int> YakuEvaluator::HasSeatWindEast(const WinInfo& win_info) noexcept {
-        if (win_info.seat_wind != Wind::kEast) return std::nullopt;
-        const auto& all_tile_types = win_info.all_tile_types;
+        if (win_info.state.seat_wind != Wind::kEast) return std::nullopt;
+        const auto& all_tile_types = win_info.hand.all_tile_types;
         if (all_tile_types.count(TileType::kEW) and all_tile_types.at(TileType::kEW) >= 3) return 1;
         return std::nullopt;
     }
 
     std::optional<int> YakuEvaluator::HasSeatWindSouth(const WinInfo& win_info) noexcept {
-        if (win_info.seat_wind != Wind::kSouth) return std::nullopt;
-        const auto& all_tile_types = win_info.all_tile_types;
+        if (win_info.state.seat_wind != Wind::kSouth) return std::nullopt;
+        const auto& all_tile_types = win_info.hand.all_tile_types;
         if (all_tile_types.count(TileType::kSW) and all_tile_types.at(TileType::kSW) >= 3) return 1;
         return std::nullopt;
     }
 
     std::optional<int> YakuEvaluator::HasSeatWindWest(const WinInfo& win_info) noexcept {
-        if (win_info.seat_wind != Wind::kWest) return std::nullopt;
-        const auto& all_tile_types = win_info.all_tile_types;
+        if (win_info.state.seat_wind != Wind::kWest) return std::nullopt;
+        const auto& all_tile_types = win_info.hand.all_tile_types;
         if (all_tile_types.count(TileType::kWW) and all_tile_types.at(TileType::kWW) >= 3) return 1;
         return std::nullopt;
     }
 
     std::optional<int> YakuEvaluator::HasSeatWindNorth(const WinInfo& win_info) noexcept {
-        if (win_info.seat_wind != Wind::kNorth) return std::nullopt;
-        const auto& all_tile_types = win_info.all_tile_types;
+        if (win_info.state.seat_wind != Wind::kNorth) return std::nullopt;
+        const auto& all_tile_types = win_info.hand.all_tile_types;
         if (all_tile_types.count(TileType::kNW) and all_tile_types.at(TileType::kNW) >= 3) return 1;
         return std::nullopt;
     }
 
     std::optional<int> YakuEvaluator::HasPrevalentWindEast(const WinInfo& win_info) noexcept {
-        if (win_info.prevalent_wind != Wind::kEast) return std::nullopt;
-        const auto& all_tile_types = win_info.all_tile_types;
+        if (win_info.state.prevalent_wind != Wind::kEast) return std::nullopt;
+        const auto& all_tile_types = win_info.hand.all_tile_types;
         if (all_tile_types.count(TileType::kEW) and all_tile_types.at(TileType::kEW) >= 3) return 1;
         return std::nullopt;
     }
 
     std::optional<int> YakuEvaluator::HasPrevalentWindSouth(const WinInfo& win_info) noexcept {
-        if (win_info.prevalent_wind != Wind::kSouth) return std::nullopt;
-        const auto& all_tile_types = win_info.all_tile_types;
+        if (win_info.state.prevalent_wind != Wind::kSouth) return std::nullopt;
+        const auto& all_tile_types = win_info.hand.all_tile_types;
         if (all_tile_types.count(TileType::kSW) and all_tile_types.at(TileType::kSW) >= 3) return 1;
         return std::nullopt;
     }
 
     std::optional<int> YakuEvaluator::HasPrevalentWindWest(const WinInfo& win_info) noexcept {
-        if (win_info.prevalent_wind != Wind::kWest) return std::nullopt;
-        const auto& all_tile_types = win_info.all_tile_types;
+        if (win_info.state.prevalent_wind != Wind::kWest) return std::nullopt;
+        const auto& all_tile_types = win_info.hand.all_tile_types;
         if (all_tile_types.count(TileType::kWW) and all_tile_types.at(TileType::kWW) >= 3) return 1;
         return std::nullopt;
     }
 
     std::optional<int> YakuEvaluator::HasPrevalentWindNorth(const WinInfo& win_info) noexcept {
-        if (win_info.prevalent_wind != Wind::kNorth) return std::nullopt;
-        const auto& all_tile_types = win_info.all_tile_types;
+        if (win_info.state.prevalent_wind != Wind::kNorth) return std::nullopt;
+        const auto& all_tile_types = win_info.hand.all_tile_types;
         if (all_tile_types.count(TileType::kNW) and all_tile_types.at(TileType::kNW) >= 3) return 1;
         return std::nullopt;
     }
 
     std::optional<int> YakuEvaluator::HasAllTermsAndHonours(const WinInfo& win_info) noexcept {
-        const auto& all_tile_types = win_info.all_tile_types;
+        const auto& all_tile_types = win_info.hand.all_tile_types;
         for (const auto& [tile_type, _] : all_tile_types) {
             if (Is(tile_type, TileSetType::kTanyao)) return std::nullopt;
         }
@@ -915,7 +915,7 @@ namespace mj
     }
 
     std::optional<int> YakuEvaluator::HasHalfFlush(const WinInfo& win_info) noexcept {
-        const auto& all_tile_types = win_info.all_tile_types;
+        const auto& all_tile_types = win_info.hand.all_tile_types;
         std::map<TileSetType,bool> set_types;
         for (const auto& [tile_type, _] : all_tile_types) {
             if (Is(tile_type, TileSetType::kHonours)) set_types[TileSetType::kHonours] = true;
@@ -923,12 +923,12 @@ namespace mj
         }
 
         if (set_types.count(TileSetType::kHonours) == 0 or set_types.size() > 2) return std::nullopt;
-        if (win_info.is_menzen) return 3;
+        if (win_info.hand.is_menzen) return 3;
         return 2;
     }
 
     std::optional<int> YakuEvaluator::HasFullFlush(const WinInfo& win_info) noexcept {
-        const auto& all_tile_types = win_info.all_tile_types;
+        const auto& all_tile_types = win_info.hand.all_tile_types;
         std::map<TileSetType,bool> set_types;
         for (const auto& [tile_type, _] : all_tile_types) {
             if (Is(tile_type, TileSetType::kHonours)) set_types[TileSetType::kHonours] = true;
@@ -936,13 +936,13 @@ namespace mj
         }
 
         if (set_types.count(TileSetType::kHonours) or set_types.size() > 1) return std::nullopt;
-        if (win_info.is_menzen) return 6;
+        if (win_info.hand.is_menzen) return 6;
         return 5;
     }
 
     std::optional<int> YakuEvaluator::HasThreeKans(const WinInfo& win_info) noexcept {
         int kans = 0;
-        for (const Open& open : win_info.opens) {
+        for (const Open& open : win_info.hand.opens) {
             if (Any(open.Type(), {
                     OpenType::kKanOpened, OpenType::kKanAdded, OpenType::kKanClosed})) {
                 ++kans;
@@ -954,7 +954,7 @@ namespace mj
     }
 
     std::optional<int> YakuEvaluator::HasLittleThreeDragons(const WinInfo& win_info) noexcept {
-        const auto& all_tile_types = win_info.all_tile_types;
+        const auto& all_tile_types = win_info.hand.all_tile_types;
         int pons = 0, heads = 0;
         for (const TileType tile_type : {TileType::kWD, TileType::kGD, TileType::kRD}) {
             if (!all_tile_types.count(tile_type)) return std::nullopt;
@@ -966,22 +966,22 @@ namespace mj
     }
 
     bool YakuEvaluator::HasBlessingOfHeaven(const WinInfo& win_info) noexcept {
-        return win_info.is_first_tsumo and win_info.is_dealer;
+        return win_info.state.is_first_tsumo and win_info.state.is_dealer;
     }
 
     bool YakuEvaluator::HasBlessingOfEarth(const WinInfo& win_info) noexcept {
-        return win_info.is_first_tsumo and !win_info.is_dealer;
+        return win_info.state.is_first_tsumo and !win_info.state.is_dealer;
     }
 
     bool YakuEvaluator::HasBigThreeDragons(const WinInfo& win_info) noexcept {
-        const auto& all_tile_types = win_info.all_tile_types;
+        const auto& all_tile_types = win_info.hand.all_tile_types;
         return all_tile_types.count(TileType::kWD) and all_tile_types.at(TileType::kWD) >= 3 and
                all_tile_types.count(TileType::kGD) and all_tile_types.at(TileType::kGD) >= 3 and
                all_tile_types.count(TileType::kRD) and all_tile_types.at(TileType::kRD) >= 3;
     }
 
     bool YakuEvaluator::HasAllHonours(const WinInfo& win_info) noexcept {
-        const auto& all_tile_types = win_info.all_tile_types;
+        const auto& all_tile_types = win_info.hand.all_tile_types;
         for (const auto& [tile_type, _] : all_tile_types) {
             if (!Is(tile_type, TileSetType::kHonours)) {
                 return false;
@@ -991,7 +991,7 @@ namespace mj
     }
 
     bool YakuEvaluator::HasAllGreen(const WinInfo& win_info) noexcept {
-        const auto& all_tile_types = win_info.all_tile_types;
+        const auto& all_tile_types = win_info.hand.all_tile_types;
         for (const auto& [tile_type, _] : all_tile_types) {
             if (!Is(tile_type, TileSetType::kGreen)) {
                 return false;
@@ -1001,7 +1001,7 @@ namespace mj
     }
 
     bool YakuEvaluator::HasAllTerminals(const WinInfo& win_info) noexcept {
-        const auto& all_tile_types = win_info.all_tile_types;
+        const auto& all_tile_types = win_info.hand.all_tile_types;
         for (const auto& [tile_type, _] : all_tile_types) {
             if (!Is(tile_type, TileSetType::kTerminals)) {
                 return false;
@@ -1011,7 +1011,7 @@ namespace mj
     }
 
     bool YakuEvaluator::HasBigFourWinds(const WinInfo& win_info) noexcept {
-        const auto& all_tile_types = win_info.all_tile_types;
+        const auto& all_tile_types = win_info.hand.all_tile_types;
         return all_tile_types.count(TileType::kEW) and all_tile_types.at(TileType::kEW) >= 3 and
                all_tile_types.count(TileType::kSW) and all_tile_types.at(TileType::kSW) >= 3 and
                all_tile_types.count(TileType::kWW) and all_tile_types.at(TileType::kWW) >= 3 and
@@ -1019,7 +1019,7 @@ namespace mj
     }
 
     bool YakuEvaluator::HasLittleFourWinds(const WinInfo& win_info) noexcept {
-        const auto& all_tile_types = win_info.all_tile_types;
+        const auto& all_tile_types = win_info.hand.all_tile_types;
         int pons = 0, heads = 0;
         for (const TileType tile_type : {TileType::kEW, TileType::kSW, TileType::kWW, TileType::kNW}) {
             if (!all_tile_types.count(tile_type)) return false;
@@ -1030,9 +1030,9 @@ namespace mj
     }
 
     bool YakuEvaluator::HasThirteenOrphans(const WinInfo& win_info) noexcept {
-        const auto& all_tile_types = win_info.all_tile_types;
-        assert(win_info.last_added_tile_type);
-        const TileType tsumo_type = win_info.last_added_tile_type.value();
+        const auto& all_tile_types = win_info.hand.all_tile_types;
+        assert(win_info.hand.win_tile);
+        const TileType tsumo_type = win_info.hand.win_tile.value().Type();
         std::map<TileType, int> yaocyu;
         for (const auto& [tile_type, n] : all_tile_types) {
             if (Is(tile_type, TileSetType::kYaocyu)) {
@@ -1044,9 +1044,9 @@ namespace mj
     }
 
     bool YakuEvaluator::HasCompletedThirteenOrphans(const WinInfo& win_info) noexcept {
-        const auto& all_tile_types = win_info.all_tile_types;
-        assert(win_info.last_added_tile_type);
-        const TileType tsumo_type = win_info.last_added_tile_type.value();
+        const auto& all_tile_types = win_info.hand.all_tile_types;
+        assert(win_info.hand.win_tile);
+        const TileType tsumo_type = win_info.hand.win_tile.value().Type();
         TileTypeCount yaocyu;
         for (const auto& [tile_type, n] : all_tile_types) {
             if (Is(tile_type, TileSetType::kYaocyu)) {
@@ -1058,8 +1058,8 @@ namespace mj
     }
 
     bool YakuEvaluator::HasNineGates(const WinInfo& win_info) noexcept {
-        const auto& all_tile_types = win_info.all_tile_types;
-        if (!win_info.is_menzen) return false;
+        const auto& all_tile_types = win_info.hand.all_tile_types;
+        if (!win_info.hand.is_menzen) return false;
         std::map<TileSetType, bool> colors;
         for (const auto& [tile_type, n] : all_tile_types) {
             if (Is(tile_type, TileSetType::kHonours)) return false;
@@ -1069,8 +1069,8 @@ namespace mj
 
         std::vector<int> required{0,3,1,1,1,1,1,1,1,3};
 
-        assert(win_info.last_added_tile_type);
-        const TileType tsumo_type = win_info.last_added_tile_type.value();
+        assert(win_info.hand.win_tile);
+        const TileType tsumo_type = win_info.hand.win_tile.value().Type();
 
         for (const auto& [tile_type, n] : all_tile_types) {
             if (required[Num(tile_type)] > n) return false;
@@ -1081,8 +1081,8 @@ namespace mj
     }
 
     bool YakuEvaluator::HasPureNineGates(const WinInfo& win_info) noexcept {
-        const auto& all_tile_types = win_info.all_tile_types;
-        if (!win_info.is_menzen) return false;
+        const auto& all_tile_types = win_info.hand.all_tile_types;
+        if (!win_info.hand.is_menzen) return false;
         std::map<TileSetType, bool> colors;
         for (const auto& [tile_type, n] : all_tile_types) {
             if (Is(tile_type, TileSetType::kHonours)) return false;
@@ -1092,8 +1092,8 @@ namespace mj
 
         std::vector<int> required{0,3,1,1,1,1,1,1,1,3};
 
-        assert(win_info.last_added_tile_type);
-        const TileType tsumo_type = win_info.last_added_tile_type.value();
+        assert(win_info.hand.win_tile);
+        const TileType tsumo_type = win_info.hand.win_tile.value().Type();
 
         for (const auto& [tile_type, n] : all_tile_types) {
             if (required[Num(tile_type)] > n) return false;
@@ -1105,7 +1105,7 @@ namespace mj
 
     bool YakuEvaluator::HasFourKans(const WinInfo& win_info) noexcept {
         int kans = 0;
-        for (const Open& open : win_info.opens) {
+        for (const Open& open : win_info.hand.opens) {
             if (Any(open.Type(), {
                     OpenType::kKanOpened, OpenType::kKanAdded, OpenType::kKanClosed})) {
                 ++kans;
@@ -1116,23 +1116,23 @@ namespace mj
     }
 
     bool YakuEvaluator::HasFourConcealedPons(const WinInfo& win_info) noexcept {
-        const auto& all_tile_types = win_info.all_tile_types;
-        if (!win_info.is_menzen) return false;
+        const auto& all_tile_types = win_info.hand.all_tile_types;
+        if (!win_info.hand.is_menzen) return false;
         if (all_tile_types.size() != 5) return false;
 
-        assert(win_info.last_added_tile_type);
-        const TileType tsumo_type = win_info.last_added_tile_type.value();
+        assert(win_info.hand.win_tile);
+        const TileType tsumo_type = win_info.hand.win_tile.value().Type();
 
         return all_tile_types.at(tsumo_type) > 2;
     }
 
     bool YakuEvaluator::HasCompletedFourConcealedPons(const WinInfo& win_info) noexcept {
-        const auto& all_tile_types = win_info.all_tile_types;
-        if (!win_info.is_menzen) return false;
+        const auto& all_tile_types = win_info.hand.all_tile_types;
+        if (!win_info.hand.is_menzen) return false;
         if (all_tile_types.size() != 5) return false;
 
-        assert(win_info.last_added_tile_type);
-        const TileType tsumo_type = win_info.last_added_tile_type.value();
+        assert(win_info.hand.win_tile);
+        const TileType tsumo_type = win_info.hand.win_tile.value().Type();
 
         return all_tile_types.at(tsumo_type) == 2;
     }
