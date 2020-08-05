@@ -96,26 +96,37 @@ class mj::Environment {
 
 class mj::YakuEvaluator <<(S,orange) Static>> {
     + {static} Has(): bool
-    + {static} Eval(): mj::WinningScore
+    + {static} Eval(): mj::WinScore
 }
 
-class mj::WinningHandCache <<(S,orchid) Singleton>> {
+class mj::WinHandCache <<(S,orchid) Singleton>> {
     + Has(): bool
 }
 
-class mj::WinningStateInfo <<(D,yellow) Data>> {
-  + dora
-  + tenhou
-  + haitei
+class mj::WinStateInfo <<(D,yellow) Data>> {
+    Wind seat_wind;
+    Wind prevalent_wind;
+    bool is_bottom;
+    bool is_first_tsumo;
+    TileTypeCount dora;
+    TileTypeCount reversed_dora;
 }
 
-class mj::WinningScore <<(D,yellow) Data>> {
+class mj::WinInfo <<(D,yellow) Data>> {
+    - win_state_info
+    - win_hand_info
+}
+
+class mj::WinScore <<(D,yellow) Data>> {
+    + closed_tiles
+    + opens
+    + win_tile
     + yakuman: map<mj::Yaku, int>
     + yaku: map<mj::Yaku, bool>
     + fu: optional<int>
 }
 
-class mj::WinningInfo <<(D,yellow) Data>> {
+class mj::WinHandInfo <<(D,yellow) Data>> {
     + opens: vector<Open>
     + closed_tiles: unordered_set<mj::Tile, HashTile> 
     + last_tile_added: std::optional<Tile> 
@@ -124,9 +135,9 @@ class mj::WinningInfo <<(D,yellow) Data>> {
     + closed_tile_types: TileTypeCount 
     + all_tile_types: TileTypeCount 
     + is_menzen: bool
-    + Ron(): WinningInfo&
-    + Discard(): WinningInfor&
-    + Tsumo(): WinningInfo&
+    + Ron(): WinInfo&
+    + Discard(): WinInfor&
+    + Tsumo(): WinInfo&
 }
 
 class mj::State {
@@ -170,10 +181,6 @@ class mj::Player {
 class mj::Observation <<(D,yellow) Data>> {
     - observation mjproto::Observation
 }
-note left
-mjproto::InitHand refers to State
-mjproto::EventHistory refers to EventHistory
-end note
 
 abstract class mj::AgentClient {
     + TakeAction(): Action
@@ -286,17 +293,20 @@ mj::State *-- mj::Score
 mj::State *-- mj::Wall
 mj::State "1" *-- "4" mj::Player
 mj::State --> mj::Observation : CreateObservation
-mj::State --> mj::WinningStateInfo
+mj::State --> mj::WinStateInfo
 
-mj::WinningStateInfo --> mj::Player
+mj::WinStateInfo --> mj::Player
 
 mj::Observation --> mj::AgentClient : TakeAction
 
 mj::Player *-- mj::Hand
 mj::Player *-- mj::River 
-mj::Player --> mj::WinningInfo : ToWinningInfo
+mj::Player --> mj::WinInfo : ToWinInfo
 
 mj::Hand "0" *-- "1..4" mj::Open
+mj::Hand --> mj::WinHandInfo
+
+mj::WinHandInfo --> mj::Player
 
 mj::Open <-- mj::Chi : Create
 mj::Open <-- mj::Pon : Create
@@ -304,12 +314,12 @@ mj::Open <-- mj::KanClosed : Create
 mj::Open <-- mj::KanOpened : Create
 mj::Open <-- mj::KanAdded : Create
 
-mj::WinningInfo --> mj::YakuEvaluator : Has, Eval
+mj::WinInfo --> mj::YakuEvaluator : Has, Eval
 
-mj::YakuEvaluator -- mj::WinningHandCache
-mj::YakuEvaluator --> mj::WinningScore : Eval
+mj::YakuEvaluator -- mj::WinHandCache
+mj::YakuEvaluator --> mj::WinScore : Eval
 
-mj::WinningScore --> mj::Player
+mj::WinScore --> mj::Player
 
 mj::AgentClient --> mj::AgentServer : <<mjproto::Observation>>
 mj::AgentClient --> mj::Action : TakeAction
