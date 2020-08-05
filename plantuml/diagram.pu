@@ -122,9 +122,6 @@ class mj::WinInfo <<(D,yellow) Data>> {
 }
 
 class mj::WinScore <<(D,yellow) Data>> {
-    + closed_tiles
-    + opens
-    + win_tile
     + yakuman: map<mj::Yaku, int>
     + yaku: map<mj::Yaku, bool>
     + fu: optional<int>
