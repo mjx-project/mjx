@@ -11,9 +11,12 @@ namespace mj {
 
     struct WinningStateInfo {
         WinningStateInfo() noexcept;
-        Wind seat_wind, prevalent_wind;
-        bool is_bottom, is_first_tsumo;
-        TileTypeCount dora, reversed_dora;
+        Wind seat_wind;
+        Wind prevalent_wind;
+        bool is_bottom;
+        bool is_first_tsumo;
+        TileTypeCount dora;
+        TileTypeCount reversed_dora;
         WinningStateInfo& SeatWind(Wind seat_wind) noexcept ;
         WinningStateInfo& PrevalentWind(Wind prevalent_wind) noexcept ;
         WinningStateInfo& IsBottom(bool is_bottom) noexcept ;
