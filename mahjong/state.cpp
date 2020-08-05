@@ -349,6 +349,14 @@ namespace mj
     void State::Tsumo(AbsolutePos winner) {
         mutable_player(winner).Tsumo();
         auto win_score = EvalScore(winner);
+        // calc ten moves
+        auto [ten, ten_moves] = win_score.TenMoves(winner, dealer_);
+        for (auto &[who, ten_move]: ten_moves) {
+            if (ten_move > 0) ten_move += curr_score_.riichi() * 1000 + curr_score_.honba() * 300;
+            else if (ten_move < 0) ten_move -= curr_score_.honba() * 100;
+        }
+        // apply ten moves
+        for (int i = 0; i < 4; ++i) curr_score_.score_.set_ten(i, curr_score_.score_.ten(i) + ten_moves[AbsolutePos(i)]);
 
         // set event
         mjproto::Event event{};
@@ -384,12 +392,9 @@ namespace mj
             win.add_fans(has_ura_dora.value());
         }
         // ten and ten moves
-        auto [ten, ten_moves] = win_score.TenMoves(winner, dealer_);
         win.set_ten(ten);
         for (int i = 0; i < 4; ++i) win.add_ten_changes(0);
-        for (auto &[who, ten_move]: ten_moves) {
-            if (ten_move > 0) ten_move += curr_score_.riichi() * 1000 + curr_score_.honba() * 300;
-            else if (ten_move < 0) ten_move -= curr_score_.honba() * 100;
+        for (const auto &[who, ten_move]: ten_moves) {
             win.set_ten_changes(ToUType(who), ten_move);
         }
         terminal_.mutable_wins()->Add(std::move(win));
@@ -403,6 +408,14 @@ namespace mj
     void State::Ron(AbsolutePos winner, AbsolutePos loser, Tile tile) {
         mutable_player(winner).Ron(tile);
         auto win_score = EvalScore(winner);
+        // calc ten moves
+        auto [ten, ten_moves] = win_score.TenMoves(winner, dealer_, loser);
+        for (auto &[who, ten_move]: ten_moves) {
+            if (ten_move > 0) ten_move += curr_score_.riichi() * 1000 + curr_score_.honba() * 300;
+            else if (ten_move < 0) ten_move -= curr_score_.honba() * 300;
+        }
+        // apply ten moves
+        for (int i = 0; i < 4; ++i) curr_score_.score_.set_ten(i, curr_score_.score_.ten(i) + ten_moves[AbsolutePos(i)]);
 
         // set event
         mjproto::Event event{};
@@ -436,12 +449,9 @@ namespace mj
             win.add_fans(has_ura_dora.value());
         }
         // ten and ten moves
-        auto [ten, ten_moves] = win_score.TenMoves(winner, dealer_, loser);
         win.set_ten(ten);
         for (int i = 0; i < 4; ++i) win.add_ten_changes(0);
-        for (auto &[who, ten_move]: ten_moves) {
-            if (ten_move > 0) ten_move += curr_score_.riichi() * 1000 + curr_score_.honba() * 300;
-            else if (ten_move < 0) ten_move -= curr_score_.honba() * 300;
+        for (const auto &[who, ten_move]: ten_moves) {
             win.set_ten_changes(ToUType(who), ten_move);
         }
         // set win to terminal
@@ -490,6 +500,8 @@ namespace mj
                     ten = 0;
                     break;
             }
+            // apply ten moves
+            curr_score_.score_.set_ten(i, curr_score_.score_.ten(i) + ten);
             terminal_.mutable_no_winner()->add_ten_changes(ten);
         }
         terminal_.set_is_game_over(IsGameOver());
@@ -499,8 +511,11 @@ namespace mj
     }
 
     bool State::IsGameOver() {
-        // TODO (sotetsuk): write here
-        return false;
+        // TODO (sotetsuk): 西入後の終曲条件が供託未収と書いてあるので、修正が必要。　https://tenhou.net/man/
+        auto tens = curr_score_.ten();
+        bool is_game_over = *std::min_element(tens.begin(), tens.end()) < 0 ||
+                (curr_score_.round() >= 7 && *std::max_element(tens.begin(), tens.end()) >= 30000);
+        return is_game_over;
     }
 
     WinningScore State::EvalScore(AbsolutePos who) const noexcept {

@@ -22,6 +22,7 @@ namespace mj
         [[nodiscard]] std::uint8_t riichi() const;  // リー棒
         [[nodiscard]] std::array<std::int32_t, 4> ten() const;  // 点 25000 start
     private:
+        friend class State;
         friend class Observation;  // mjproto::Observation needs to refer to mutable mjproto::Score
         mjproto::Score score_{};
     };
