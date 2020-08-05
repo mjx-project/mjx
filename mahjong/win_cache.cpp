@@ -11,11 +11,11 @@
 namespace mj {
 
 
-    WinningHandCache::WinningHandCache() {
+    WinHandCache::WinHandCache() {
         LoadWinCache();
     }
 
-    void WinningHandCache::LoadWinCache() {
+    void WinHandCache::LoadWinCache() {
         std::cerr << "Loading cache file... ";
 
         boost::property_tree::ptree root;
@@ -42,18 +42,18 @@ namespace mj {
         std::cerr << "Done" << std::endl;
     }
 
-    bool WinningHandCache::Has(const TileTypeCount& closed_hand) const noexcept {
+    bool WinHandCache::Has(const TileTypeCount& closed_hand) const noexcept {
         auto [abstruct_hand, _] = CreateAbstructHand(closed_hand);
         return cache_.count(abstruct_hand);
     }
 
     // DEPRECATED
-    bool WinningHandCache::Has(const std::string& abstruct_hand) const noexcept {
+    bool WinHandCache::Has(const std::string& abstruct_hand) const noexcept {
         return cache_.count(abstruct_hand);
     }
 
     std::vector<std::pair<std::vector<TileTypeCount>, std::vector<TileTypeCount>>>
-    WinningHandCache::SetAndHeads(const TileTypeCount& closed_hand) const noexcept {
+    WinHandCache::SetAndHeads(const TileTypeCount& closed_hand) const noexcept {
 
         auto [abstruct_hand, tile_types] = CreateAbstructHand(closed_hand);
 
@@ -76,8 +76,8 @@ namespace mj {
         return ret;
     }
 
-    const WinningHandCache &WinningHandCache::instance() {
-        static WinningHandCache instance;  // Thread safe from C++ 11  https://cpprefjp.github.io/lang/cpp11/static_initialization_thread_safely.html
+    const WinHandCache &WinHandCache::instance() {
+        static WinHandCache instance;  // Thread safe from C++ 11  https://cpprefjp.github.io/lang/cpp11/static_initialization_thread_safely.html
         return instance;
     };
 

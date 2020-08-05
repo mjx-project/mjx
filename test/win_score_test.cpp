@@ -5,7 +5,7 @@
 using namespace mj;
 
 TEST(win_score, dealer_tsumo) {
-    WinningScore score;
+    WinScore score;
     score.AddYakuman(Yaku::kBigThreeDragons);
     score.AddYakuman(Yaku::kAllHonours);
 
@@ -22,7 +22,7 @@ TEST(win_score, dealer_tsumo) {
 }
 
 TEST(win_score, dealer_ron) {
-    WinningScore score;
+    WinScore score;
     score.AddYaku(Yaku::kSevenPairs, 2);
     score.AddYaku(Yaku::kRiichi, 1);
     score.set_fu(25);
@@ -40,7 +40,7 @@ TEST(win_score, dealer_ron) {
 }
 
 TEST(win_score, non_dealer_tsumo) {
-    WinningScore score;
+    WinScore score;
     score.AddYaku(Yaku::kRiichi, 1);
     score.AddYaku(Yaku::kIppatsu, 1);
     score.AddYaku(Yaku::kFullyConcealedHand, 1);
@@ -60,7 +60,7 @@ TEST(win_score, non_dealer_tsumo) {
 }
 
 TEST(win_score, non_dealer_ron) {
-    WinningScore score;
+    WinScore score;
     score.AddYaku(Yaku::kAllPons, 2);
     score.AddYaku(Yaku::kHalfFlush, 2);
     score.AddYaku(Yaku::kPrevalentWindEast, 1);

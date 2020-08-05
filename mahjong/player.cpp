@@ -87,7 +87,7 @@ namespace mj
     };
 
     // get winning info
-    WinningScore Player::EvalScore(WinningStateInfo win_state_info) const noexcept {
+    WinScore Player::EvalScore(WinStateInfo win_state_info) const noexcept {
         return hand_.EvalScore(win_state_info);
     }
 

@@ -137,7 +137,7 @@ namespace mj {
     }
 
     std::pair<int, std::map<AbsolutePos, int>>
-    WinningScore::TenMoves(AbsolutePos winner, AbsolutePos dealer, std::optional<AbsolutePos> loser) const noexcept {
+    WinScore::TenMoves(AbsolutePos winner, AbsolutePos dealer, std::optional<AbsolutePos> loser) const noexcept {
         static ScoreTable table;
 
         int fan = total_fan();
@@ -227,46 +227,46 @@ namespace mj {
         return {ten, ten_moves};
     }
 
-    void WinningScore::AddYaku(Yaku yaku, int fan) noexcept {
+    void WinScore::AddYaku(Yaku yaku, int fan) noexcept {
         yaku_[yaku] = fan;
     }
 
-    void WinningScore::AddYakuman(Yaku yakuman) noexcept {
+    void WinScore::AddYakuman(Yaku yakuman) noexcept {
         yakuman_[yakuman] = true;
     }
 
-    bool WinningScore::RequireFan() const noexcept {
+    bool WinScore::RequireFan() const noexcept {
         return yakuman_.empty();
     }
 
-    bool WinningScore::RequireFu() const noexcept {
+    bool WinScore::RequireFu() const noexcept {
         return yakuman_.empty();  // Tenhou requires fu even if it's Mangan
     }
 
-    void WinningScore::set_fu(int fu) noexcept {
+    void WinScore::set_fu(int fu) noexcept {
         fu_ = fu;
     }
 
-    std::optional<int> WinningScore::HasYaku(Yaku yaku) const noexcept {
+    std::optional<int> WinScore::HasYaku(Yaku yaku) const noexcept {
         if (yaku_.count(yaku)) return yaku_.at(yaku);
         return std::nullopt;
     }
-    bool WinningScore::HasYakuman(Yaku yakuman) const noexcept {
+    bool WinScore::HasYakuman(Yaku yakuman) const noexcept {
         return yakuman_.count(yakuman);
     }
 
-    const std::map<Yaku,int>& WinningScore::yaku() const noexcept {
+    const std::map<Yaku,int>& WinScore::yaku() const noexcept {
         return yaku_;
     }
-    const std::map<Yaku,bool>& WinningScore::yakuman() const noexcept {
+    const std::map<Yaku,bool>& WinScore::yakuman() const noexcept {
         return yakuman_;
     }
 
-    std::optional<int> WinningScore::fu() const noexcept {
+    std::optional<int> WinScore::fu() const noexcept {
         return fu_;
     }
 
-    int WinningScore::total_fan() const noexcept {
+    int WinScore::total_fan() const noexcept {
         int total_fan = 0;
         for (const auto& [yaku, fan] : yaku_) {
             total_fan += fan;

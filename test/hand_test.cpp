@@ -635,7 +635,7 @@ TEST(hand, RonAfterOhtersKan) {
 TEST(hand, EvalScore) {
     auto h = Hand(HandParams("m1,m1,m1,m2,m3,m4,s3,s3,p2,p2,sw,sw,sw").Tsumo("p2"));
 
-    auto score = h.EvalScore(WinningStateInfo().PrevalentWind(Wind::kSouth).IsBottom(true)
+    auto score = h.EvalScore(WinStateInfo().PrevalentWind(Wind::kSouth).IsBottom(true)
             .IsFirstTsumo(false).Dora({{TileType::kM1, 1}}));
 
     EXPECT_EQ(score.HasYaku(Yaku::kPrevalentWindSouth), std::make_optional(1));

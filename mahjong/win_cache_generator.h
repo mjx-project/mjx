@@ -12,7 +12,7 @@
 
 namespace mj
 {
-    class WinningHandCacheGenerator
+    class WinHandCacheGenerator
     {
     public:
         static void GenerateCache() noexcept ;
@@ -22,10 +22,10 @@ namespace mj
         static bool Register(
                 const std::vector<TileTypeCount>& blocks,
                 const TileTypeCount& total,
-                WinningHandCache::CacheType& cache) noexcept ;
+                WinHandCache::CacheType& cache) noexcept ;
         static void Add(TileTypeCount& total, const TileTypeCount& block) noexcept ;
         static void Sub(TileTypeCount& total, const TileTypeCount& block) noexcept ;
-        static void ShowStatus(const WinningHandCache::CacheType& cache) noexcept ;
+        static void ShowStatus(const WinHandCache::CacheType& cache) noexcept ;
     };
 }  // namespace mj
 

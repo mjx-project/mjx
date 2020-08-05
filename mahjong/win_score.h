@@ -17,7 +17,7 @@ namespace mj {
         ScoreTable();
     };
 
-    class WinningScore {
+    class WinScore {
     private:
         std::map<Yaku,int> yaku_;
         std::map<Yaku,bool> yakuman_;

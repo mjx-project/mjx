@@ -6,66 +6,66 @@
 #include "types.h"
 
 namespace mj {
-    WinningStateInfo::WinningStateInfo() noexcept :
+    WinStateInfo::WinStateInfo() noexcept :
             prevalent_wind(Wind::kEast), is_bottom(false), is_first_tsumo(false) {}
 
-    WinningStateInfo& WinningStateInfo::PrevalentWind(Wind prevalent_wind) noexcept {
+    WinStateInfo& WinStateInfo::PrevalentWind(Wind prevalent_wind) noexcept {
         this->prevalent_wind = prevalent_wind;
         return *this;
     }
-    WinningStateInfo& WinningStateInfo::IsBottom(bool is_bottom) noexcept {
+    WinStateInfo& WinStateInfo::IsBottom(bool is_bottom) noexcept {
         this->is_bottom = is_bottom;
         return *this;
     }
-    WinningStateInfo& WinningStateInfo::IsFirstTsumo(bool is_first_tsumo) noexcept {
+    WinStateInfo& WinStateInfo::IsFirstTsumo(bool is_first_tsumo) noexcept {
         this->is_first_tsumo = is_first_tsumo;
         return *this;
     }
-    WinningStateInfo& WinningStateInfo::Dora(TileTypeCount dora) noexcept {
+    WinStateInfo& WinStateInfo::Dora(TileTypeCount dora) noexcept {
         this->dora = dora;
         return *this;
     }
-    WinningStateInfo& WinningStateInfo::ReversedDora(TileTypeCount reversed_dora) noexcept {
+    WinStateInfo& WinStateInfo::ReversedDora(TileTypeCount reversed_dora) noexcept {
         this->reversed_dora = reversed_dora;
         return *this;
     }
 
-    WinningStateInfo &WinningStateInfo::SeatWind(Wind seat_wind) noexcept {
+    WinStateInfo &WinStateInfo::SeatWind(Wind seat_wind) noexcept {
         this->seat_wind = seat_wind;
         return *this;
     }
 
-    WinningInfo& WinningInfo::Opens(std::vector<Open> opens) noexcept {
+    WinInfo& WinInfo::Opens(std::vector<Open> opens) noexcept {
         this->opens = opens;
         return *this;
     }
 
-    WinningInfo& WinningInfo::ClosedTiles(std::unordered_set<Tile, HashTile> closed_tiles) noexcept {
+    WinInfo& WinInfo::ClosedTiles(std::unordered_set<Tile, HashTile> closed_tiles) noexcept {
         this->closed_tiles = closed_tiles;
         return *this;
     }
-    WinningInfo& WinningInfo::LastAddedTileType(std::optional<TileType> last_added_tile_type) noexcept {
+    WinInfo& WinInfo::LastAddedTileType(std::optional<TileType> last_added_tile_type) noexcept {
         this->last_added_tile_type = last_added_tile_type;
         return *this;
     }
-    WinningInfo& WinningInfo::ClosedTileTypes(TileTypeCount closed_tile_types) noexcept {
+    WinInfo& WinInfo::ClosedTileTypes(TileTypeCount closed_tile_types) noexcept {
         this->closed_tile_types = closed_tile_types;
         return *this;
     }
-    WinningInfo& WinningInfo::AllTileTypes(TileTypeCount all_tile_types) noexcept {
+    WinInfo& WinInfo::AllTileTypes(TileTypeCount all_tile_types) noexcept {
         this->all_tile_types = all_tile_types;
         return *this;
     }
-    WinningInfo& WinningInfo::IsMenzen(bool is_menzen) noexcept {
+    WinInfo& WinInfo::IsMenzen(bool is_menzen) noexcept {
         this->is_menzen = is_menzen;
         return *this;
     }
-    WinningInfo& WinningInfo::UnderRiichi(bool under_riichi) noexcept {
+    WinInfo& WinInfo::UnderRiichi(bool under_riichi) noexcept {
         this->under_riichi = under_riichi;
         return *this;
     }
 
-    WinningInfo& WinningInfo::ApplyStateInfo(WinningStateInfo win_state_info) noexcept {
+    WinInfo& WinInfo::ApplyStateInfo(WinStateInfo win_state_info) noexcept {
         this->seat_wind = win_state_info.seat_wind;
         this->prevalent_wind = win_state_info.prevalent_wind;
         this->is_bottom = win_state_info.is_bottom;
@@ -75,7 +75,7 @@ namespace mj {
         return *this;
     }
 
-    WinningInfo& WinningInfo::Ron(Tile tile) noexcept {
+    WinInfo& WinInfo::Ron(Tile tile) noexcept {
         assert(closed_tiles.find(tile) == closed_tiles.end());
         closed_tiles.insert(tile);
         const auto tile_type = tile.Type();
@@ -86,7 +86,7 @@ namespace mj {
         return *this;
     }
 
-    WinningInfo& WinningInfo::Discard(Tile tile) noexcept {
+    WinInfo& WinInfo::Discard(Tile tile) noexcept {
         assert(closed_tiles.find(tile) != closed_tiles.end());
         closed_tiles.erase(tile);
         const auto tile_type = tile.Type();
@@ -102,7 +102,7 @@ namespace mj {
         return *this;
     }
 
-    WinningInfo& WinningInfo::Tsumo(TileType tile_type) noexcept {
+    WinInfo& WinInfo::Tsumo(TileType tile_type) noexcept {
         // WARNING: closed_tiles は更新しない.
         //          理由: このメソッドは[仮にこの種類の牌をツモしたときに上がれるか?]を判定するものである.
         //                そのためTile ではなくTileType を引数にとる.
@@ -116,54 +116,54 @@ namespace mj {
         return *this;
     }
 
-    WinningInfo& WinningInfo::Seat(Wind wind) noexcept {
+    WinInfo& WinInfo::Seat(Wind wind) noexcept {
         seat_wind = wind;
         return *this;
     }
 
-    WinningInfo& WinningInfo::Prevalent(Wind wind) noexcept {
+    WinInfo& WinInfo::Prevalent(Wind wind) noexcept {
         prevalent_wind = wind;
         return *this;
     }
 
-    WinningInfo& WinningInfo::Stage(HandStage stage) noexcept {
+    WinInfo& WinInfo::Stage(HandStage stage) noexcept {
         this->stage = stage;
         return *this;
     }
 
-    WinningInfo& WinningInfo::IsBottom(bool is_bottom) noexcept {
+    WinInfo& WinInfo::IsBottom(bool is_bottom) noexcept {
         this->is_bottom = is_bottom;
         return *this;
     }
 
-    WinningInfo& WinningInfo::IsIppatsu(bool is_ippatsu) noexcept {
+    WinInfo& WinInfo::IsIppatsu(bool is_ippatsu) noexcept {
         assert(under_riichi);
         this->is_ippatsu = is_ippatsu;
         return *this;
     }
 
-    WinningInfo& WinningInfo::IsDoubleRiichi(bool is_double_riichi) noexcept {
+    WinInfo& WinInfo::IsDoubleRiichi(bool is_double_riichi) noexcept {
         assert(under_riichi);
         this->is_double_riichi = is_double_riichi;
         return *this;
     }
 
-    WinningInfo& WinningInfo::IsFirstTsumo(bool is_first_tsumo) noexcept {
+    WinInfo& WinInfo::IsFirstTsumo(bool is_first_tsumo) noexcept {
         assert(stage == HandStage::kAfterTsumo);
         this->is_first_tsumo = is_first_tsumo;
         return *this;
     }
 
-    WinningInfo& WinningInfo::IsDealer(bool is_dealer) noexcept {
+    WinInfo& WinInfo::IsDealer(bool is_dealer) noexcept {
         this->is_dealer = is_dealer;
         return *this;
     }
 
-    WinningInfo& WinningInfo::Dora(std::map<TileType,int> dora) noexcept {
+    WinInfo& WinInfo::Dora(std::map<TileType,int> dora) noexcept {
         this->dora = dora;
         return *this;
     }
-    WinningInfo& WinningInfo::ReversedDora(std::map<TileType,int> reversed_dora) noexcept {
+    WinInfo& WinInfo::ReversedDora(std::map<TileType,int> reversed_dora) noexcept {
         assert(under_riichi);
         this->reversed_dora = reversed_dora;
         return *this;

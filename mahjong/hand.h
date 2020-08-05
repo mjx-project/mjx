@@ -78,9 +78,9 @@ namespace mj
         std::pair<Tile, bool> Discard(Tile tile);
 
         // get winning info
-        WinningInfo ToWinningInfo() const noexcept ;
-        WinningInfo ToWinningInfo(const WinningStateInfo& win_state_info) const noexcept ;
-        WinningScore EvalScore(const WinningStateInfo& win_state_info) const noexcept ;
+        WinInfo win_info() const noexcept ;
+        WinInfo win_info(const WinStateInfo& win_state_info) const noexcept ;
+        WinScore EvalScore(const WinStateInfo& win_state_info) const noexcept ;
     private:
         std::unordered_set<Tile, HashTile> closed_tiles_;
         std::vector<Open> opens_;  // Though open only uses 16 bits, to handle different open types, we need to use pointer

@@ -518,9 +518,9 @@ namespace mj
         return is_game_over;
     }
 
-    WinningScore State::EvalScore(AbsolutePos who) const noexcept {
+    WinScore State::EvalScore(AbsolutePos who) const noexcept {
         // TODO: 場風, 自風, 海底, 一発, 両立直, 天和・地和, 親・子, ドラ, 裏ドラ の情報を追加する
-        auto win_state_info = WinningStateInfo()
+        auto win_state_info = WinStateInfo()
                 .SeatWind(ToSeatWind(who, dealer_))
                 .PrevalentWind(Wind(curr_score_.round() % 4))
                 .Dora(wall_.dora_count())

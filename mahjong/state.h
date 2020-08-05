@@ -74,7 +74,7 @@ namespace mj
         void Tsumo(AbsolutePos winner);
         void Ron(AbsolutePos winner, AbsolutePos loser, Tile tile);
         void NoWinner();
-        [[nodiscard]] WinningScore EvalScore(AbsolutePos who) const noexcept;
+        [[nodiscard]] WinScore EvalScore(AbsolutePos who) const noexcept;
 
         std::uint32_t GenerateRoundSeed();
     };

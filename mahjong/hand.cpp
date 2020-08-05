@@ -300,7 +300,7 @@ namespace mj
             bool discardable = false;
             for (int i = 0; i < 34; ++i) {
                 auto tile_type = static_cast<TileType>(i);
-                if (YakuEvaluator::Has(ToWinningInfo().Discard(discard_tile).Tsumo(tile_type))) {
+                if (YakuEvaluator::Has(win_info().Discard(discard_tile).Tsumo(tile_type))) {
                     discardable = true;
                     break;
                 }
@@ -559,7 +559,7 @@ namespace mj
         assert(stage_ == HandStage::kAfterDiscards);
         assert(SizeClosed() == 1 || SizeClosed() == 4 || SizeClosed() == 7 || SizeClosed() == 10 || SizeClosed() == 13);
 
-        return YakuEvaluator::CanWin(ToWinningInfo().Ron(tile));
+        return YakuEvaluator::CanWin(win_info().Ron(tile));
     }
 
     bool Hand::CanRiichi() const {
@@ -572,7 +572,7 @@ namespace mj
         for (const Tile discard_tile : closed_tiles_) {
             for (int i = 0; i < 34; ++i) {
                 auto tile_type = static_cast<TileType>(i);
-                if (YakuEvaluator::Has(ToWinningInfo().Discard(discard_tile).Tsumo(tile_type))) {
+                if (YakuEvaluator::Has(win_info().Discard(discard_tile).Tsumo(tile_type))) {
                     return true;
                 }
             }
@@ -664,26 +664,26 @@ namespace mj
     bool Hand::IsCompleted() const {
         assert(stage_ == HandStage::kAfterDraw || stage_ == HandStage::kAfterDrawAfterKan);
         assert(SizeClosed() == 2 || SizeClosed() == 5 || SizeClosed() == 8 || SizeClosed() == 11 || SizeClosed() == 14);
-        return YakuEvaluator::Has(ToWinningInfo());
+        return YakuEvaluator::Has(win_info());
     }
 
-    WinningInfo Hand::ToWinningInfo() const noexcept {
+    WinInfo Hand::win_info() const noexcept {
         std::optional<TileType> last_added_tile_type = std::nullopt;
         if (last_tile_added_) {
             last_added_tile_type = last_tile_added_.value().Type();
         }
-        return WinningInfo().Opens(opens_).ClosedTiles(closed_tiles_)
+        return WinInfo().Opens(opens_).ClosedTiles(closed_tiles_)
                 .LastAddedTileType(last_added_tile_type).Stage(stage_)
                 .UnderRiichi(under_riichi_).ClosedTileTypes(ClosedTileTypes())
                 .AllTileTypes(AllTileTypes()).IsMenzen(IsMenzen());
     }
 
-    WinningInfo Hand::ToWinningInfo(const WinningStateInfo& win_state_info) const noexcept {
-        return ToWinningInfo().ApplyStateInfo(win_state_info);
+    WinInfo Hand::win_info(const WinStateInfo& win_state_info) const noexcept {
+        return win_info().ApplyStateInfo(win_state_info);
     }
 
-    WinningScore Hand::EvalScore(const WinningStateInfo& win_state_info) const noexcept {
-        return YakuEvaluator::Eval(ToWinningInfo(win_state_info));
+    WinScore Hand::EvalScore(const WinStateInfo& win_state_info) const noexcept {
+        return YakuEvaluator::Eval(win_info(win_state_info));
     }
 
     bool Hand::IsTenpai() const {
@@ -692,7 +692,7 @@ namespace mj
         auto closed_tile_types = ClosedTileTypes();
         for (int i = 0; i < 34; ++i) {
             if (closed_tile_types[TileType(i)] == 4) continue;
-            if (YakuEvaluator::Has(ToWinningInfo().Tsumo(TileType(i)))) return true;
+            if (YakuEvaluator::Has(win_info().Tsumo(TileType(i)))) return true;
         }
         return false;
     }
