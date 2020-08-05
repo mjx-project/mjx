@@ -104,17 +104,21 @@ class mj::WinHandCache <<(S,orchid) Singleton>> {
 }
 
 class mj::WinStateInfo <<(D,yellow) Data>> {
-    Wind seat_wind;
-    Wind prevalent_wind;
-    bool is_bottom;
-    bool is_first_tsumo;
-    TileTypeCount dora;
-    TileTypeCount reversed_dora;
+    + seat_wind
+    + prevalent_wind
+    + is_bottom
+    + is_ippatsu
+    + is_double_riichi
+    + is_first_tsumo
+    + is_dealer
+    + dora
+    + reversed_dora
 }
 
 class mj::WinInfo <<(D,yellow) Data>> {
-    - win_state_info
-    - win_hand_info
+    + win_state_info
+    + win_hand_info
+    + Ron(): WinInfo&
 }
 
 class mj::WinScore <<(D,yellow) Data>> {
@@ -135,9 +139,6 @@ class mj::WinHandInfo <<(D,yellow) Data>> {
     + closed_tile_types: TileTypeCount 
     + all_tile_types: TileTypeCount 
     + is_menzen: bool
-    + Ron(): WinInfo&
-    + Discard(): WinInfor&
-    + Tsumo(): WinInfo&
 }
 
 class mj::State {
@@ -305,7 +306,7 @@ mj::Player --> mj::WinInfo : ToWinInfo
 
 mj::Hand "0" *-- "1..4" mj::Open
 mj::Hand --> mj::WinHandInfo
-mj::Hand -- mj::WinHandCache : Has
+mj::Hand -- mj::WinHandCache : IsTenpai, CanRiichi
 
 mj::WinHandInfo --> mj::Player
 
