@@ -18,8 +18,6 @@ namespace mj
         latest_discarder_ = AbsolutePos::kInitNorth;
         wall_ = Wall(round());  // TODO: use seed_
         for (int i = 0; i < 4; ++i) players_[i] = Player{AbsolutePos(i), River(), Hand(wall_.initial_hand_tiles(AbsolutePos(i)))};
-
-        event_history_ = mjproto::EventHistory();
     }
 
     AbsolutePos State::UpdateStateByDraw() {
@@ -190,7 +188,7 @@ namespace mj
             state->mutable_private_infos(i)->set_who(mjproto::AbsolutePos(i));
         }
         // Set event history
-        state->mutable_event_history()->CopyFrom(event_history_);
+        state->mutable_event_history()->CopyFrom(state_.event_history());
         // Set terminal
         state->mutable_terminal()->CopyFrom(terminal_);
 
@@ -208,7 +206,7 @@ namespace mj
         mjproto::Event event{};
         event.set_who(mjproto::AbsolutePos(who));
         event.set_type(mjproto::EVENT_TYPE_DRAW);
-        event_history_.mutable_events()->Add(std::move(event));
+        state_.mutable_event_history()->mutable_events()->Add(std::move(event));
         private_infos_[ToUType(who)].add_draws(draw.Id());
 
         // set last action
@@ -227,7 +225,7 @@ namespace mj
         event.set_who(mjproto::AbsolutePos(who));
         event.set_type(tsumogiri ? mjproto::EVENT_TYPE_DISCARD_DRAWN_TILE : mjproto::EVENT_TYPE_DISCARD_FROM_HAND);
         event.set_tile(discard.Id());
-        event_history_.mutable_events()->Add(std::move(event));
+        state_.mutable_event_history()->mutable_events()->Add(std::move(event));
         // TODO: set discarded tile to river
 
         // set last action
@@ -242,7 +240,7 @@ namespace mj
         mjproto::Event event{};
         event.set_who(mjproto::AbsolutePos(who));
         event.set_type(mjproto::EVENT_TYPE_RIICHI);
-        event_history_.mutable_events()->Add(std::move(event));
+        state_.mutable_event_history()->mutable_events()->Add(std::move(event));
 
         // set last action
         last_action_taker_ = who;
@@ -272,7 +270,7 @@ namespace mj
         };
         event.set_type(mjproto::EventType(to_event_type(open_type)));
         event.set_open(open.GetBits());
-        event_history_.mutable_events()->Add(std::move(event));
+        state_.mutable_event_history()->mutable_events()->Add(std::move(event));
 
         // set last action
         last_action_taker_ = who;
@@ -303,7 +301,7 @@ namespace mj
         event.set_type(mjproto::EVENT_TYPE_NEW_DORA);
         auto doras = wall_.dora_indicators();
         event.set_tile(doras.back().Id());
-        event_history_.mutable_events()->Add(std::move(event));
+        state_.mutable_event_history()->mutable_events()->Add(std::move(event));
 
         // set last action
         last_event_ = EventType::kNewDora;
@@ -317,7 +315,7 @@ namespace mj
         mjproto::Event event{};
         event.set_who(mjproto::AbsolutePos(last_action_taker_));
         event.set_type(mjproto::EVENT_TYPE_RIICHI_SCORE_CHANGE);
-        event_history_.mutable_events()->Add(std::move(event));
+        state_.mutable_event_history()->mutable_events()->Add(std::move(event));
 
         // set last action
         last_event_ = EventType::kRiichiScoreChange;
@@ -339,7 +337,7 @@ namespace mj
         event.set_type(mjproto::EVENT_TYPE_TSUMO);
         assert(hand_info.win_tile);
         event.set_tile(hand_info.win_tile.value().Id());
-        event_history_.mutable_events()->Add(std::move(event));
+        state_.mutable_event_history()->mutable_events()->Add(std::move(event));
 
         // set terminal
         mjproto::Win win;
@@ -396,7 +394,7 @@ namespace mj
         event.set_who(mjproto::AbsolutePos(winner));
         event.set_type(mjproto::EVENT_TYPE_RON);
         event.set_tile(tile.Id());
-        event_history_.mutable_events()->Add(std::move(event));
+        state_.mutable_event_history()->mutable_events()->Add(std::move(event));
 
         // set terminal
         mjproto::Win win;
@@ -442,7 +440,7 @@ namespace mj
         // set event
         mjproto::Event event{};
         event.set_type(mjproto::EVENT_TYPE_NO_WINNER);
-        event_history_.mutable_events()->Add(std::move(event));
+        state_.mutable_event_history()->mutable_events()->Add(std::move(event));
 
         // set terminal
         std::vector<int> is_tenpai = {0, 0, 0, 0};

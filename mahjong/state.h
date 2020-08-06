@@ -50,7 +50,6 @@ namespace mj
         // protos
         mjproto::State state_;
         std::array<mjproto::PrivateInfo, 4> private_infos_;
-        mjproto::EventHistory event_history_;
         mjproto::Terminal terminal_;
 
         [[nodiscard]] std::uint8_t round() const;  // 局
