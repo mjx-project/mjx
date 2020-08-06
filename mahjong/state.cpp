@@ -120,7 +120,11 @@ namespace mj
         // Set init hands
         for (int i = 0; i < 4; ++i) {
             players_[i] = Player{AbsolutePos(i), River(), Hand(wall_.initial_hand_tiles(AbsolutePos(i)))};
-            for (auto t: wall_.initial_hand_tiles(AbsolutePos(i))) private_infos_[i].add_init_hand(t.Id());
+            state_.mutable_private_infos()->Add();
+            state_.mutable_private_infos(i)->set_who(mjproto::AbsolutePos(i));
+            for (auto t: wall_.initial_hand_tiles(AbsolutePos(i))) {
+                state_.mutable_private_infos(i)->add_init_hand(t.Id());
+            }
         }
         // Set event history
         std::vector<int> draw_ixs = {0, 0, 0, 0};
@@ -182,11 +186,7 @@ namespace mj
         for (auto dora: wall_.dora_indicators()) state->add_doras(dora.Id());
         for (auto ura_dora: wall_.ura_dora_indicators()) state->add_ura_doras(ura_dora.Id());
         // Set private infos
-        for(int i = 0; i < 4; ++i) {
-            state->add_private_infos();
-            state->mutable_private_infos(i)->CopyFrom(private_infos_[i]);
-            state->mutable_private_infos(i)->set_who(mjproto::AbsolutePos(i));
-        }
+        state->mutable_private_infos()->CopyFrom(state_.private_infos());
         // Set event history
         state->mutable_event_history()->CopyFrom(state_.event_history());
         // Set terminal
@@ -207,7 +207,7 @@ namespace mj
         event.set_who(mjproto::AbsolutePos(who));
         event.set_type(mjproto::EVENT_TYPE_DRAW);
         state_.mutable_event_history()->mutable_events()->Add(std::move(event));
-        private_infos_[ToUType(who)].add_draws(draw.Id());
+        state_.mutable_private_infos(ToUType(who))->add_draws(draw.Id());
 
         // set last action
         last_action_taker_ = who;
