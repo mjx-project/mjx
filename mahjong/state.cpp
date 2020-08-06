@@ -6,7 +6,7 @@
 namespace mj
 {
     State::State(std::uint32_t seed)
-    : seed_(seed), curr_score_(Score()), wall_(0)
+    : seed_(seed), wall_(0)
     {
         // TODO (sotetsuk): shuffle seats
     }
@@ -16,16 +16,10 @@ namespace mj
         last_event_ = EventType::kDiscardDrawnTile;
         drawer_ = dealer();
         latest_discarder_ = AbsolutePos::kInitNorth;
-        wall_ = Wall(curr_score_.round());  // TODO: use seed_
+        wall_ = Wall(round());  // TODO: use seed_
         for (int i = 0; i < 4; ++i) players_[i] = Player{AbsolutePos(i), River(), Hand(wall_.initial_hand_tiles(AbsolutePos(i)))};
 
         event_history_ = mjproto::EventHistory();
-    }
-
-    std::uint32_t State::GenerateRoundSeed() {
-        // TODO: use seed_
-        std::random_device seed_gen;
-        return seed_gen();
     }
 
     AbsolutePos State::UpdateStateByDraw() {
@@ -60,7 +54,7 @@ namespace mj
     }
 
     Observation State::CreateObservation(AbsolutePos who) {
-        auto observation = Observation(who, curr_score_, mutable_player(who));
+        auto observation = Observation(who, state_);  // TODO: fix
         switch (last_event_) {
             case EventType::kDraw:
                 observation.add_possible_action(PossibleAction::CreateDiscard(player(who).PossibleDiscards()));
@@ -119,12 +113,12 @@ namespace mj
 
         for (int i = 0; i < 4; ++i) player_ids_[i] = state->player_ids(i);
         // Set scores
-        init_score_ = Score(state->init_score());
-        curr_score_ = Score(state->init_score());
+        state_.mutable_init_score()->CopyFrom(state->init_score());
+        terminal_.mutable_final_score()->CopyFrom(state->init_score());
         // Set walls
         auto wall_tiles = std::vector<Tile>();
         for (auto tile_id: state->wall()) wall_tiles.emplace_back(Tile(tile_id));
-        wall_ = Wall(curr_score_.round(), wall_tiles);
+        wall_ = Wall(round(), wall_tiles);
         // Set init hands
         for (int i = 0; i < 4; ++i) {
             players_[i] = Player{AbsolutePos(i), River(), Hand(wall_.initial_hand_tiles(AbsolutePos(i)))};
@@ -183,10 +177,7 @@ namespace mj
         // Set player ids
         for (const auto &player_id: player_ids_) state->add_player_ids(player_id);
         // Set scores
-        state->mutable_init_score()->set_round(init_score_.round());
-        state->mutable_init_score()->set_honba(init_score_.honba());
-        state->mutable_init_score()->set_riichi(init_score_.riichi());
-        for (int i = 0; i < 4; ++i) state->mutable_init_score()->mutable_ten()->Add(init_score_.ten()[i]);
+        state->mutable_init_score()->CopyFrom(state_.init_score());
         // Set walls
         for(auto t: wall_.tiles())state->mutable_wall()->Add(t.Id());
         // Set doras and ura doras
@@ -319,7 +310,8 @@ namespace mj
     }
 
     void State::RiichiScoreChange() {
-        curr_score_.Riichi(last_action_taker_);
+        terminal_.mutable_final_score()->set_riichi(riichi() + 1);
+        terminal_.mutable_final_score()->set_ten(ToUType(last_action_taker_), ten(last_action_taker_) - 1000);
 
         // set proto
         mjproto::Event event{};
@@ -335,13 +327,11 @@ namespace mj
         mutable_player(winner).Tsumo();
         auto [hand_info, win_score] = EvalWinHand(winner);
         // calc ten moves
-        auto [ten, ten_moves] = win_score.TenMoves(winner, dealer());
+        auto [ten_, ten_moves] = win_score.TenMoves(winner, dealer());
         for (auto &[who, ten_move]: ten_moves) {
-            if (ten_move > 0) ten_move += curr_score_.riichi() * 1000 + curr_score_.honba() * 300;
-            else if (ten_move < 0) ten_move -= curr_score_.honba() * 100;
+            if (ten_move > 0) ten_move += riichi() * 1000 + honba() * 300;
+            else if (ten_move < 0) ten_move -= honba() * 100;
         }
-        // apply ten moves
-        for (int i = 0; i < 4; ++i) curr_score_.score_.set_ten(i, curr_score_.score_.ten(i) + ten_moves[AbsolutePos(i)]);
 
         // set event
         mjproto::Event event{};
@@ -377,10 +367,11 @@ namespace mj
             win.add_fans(has_ura_dora.value());
         }
         // ten and ten moves
-        win.set_ten(ten);
+        win.set_ten(ten_);
         for (int i = 0; i < 4; ++i) win.add_ten_changes(0);
         for (const auto &[who, ten_move]: ten_moves) {
             win.set_ten_changes(ToUType(who), ten_move);
+            terminal_.mutable_final_score()->set_ten(ToUType(who), ten(who) + ten_move);
         }
         terminal_.mutable_wins()->Add(std::move(win));
         terminal_.set_is_game_over(IsGameOver());
@@ -394,13 +385,11 @@ namespace mj
         mutable_player(winner).Ron(tile);
         auto [hand_info, win_score] = EvalWinHand(winner);
         // calc ten moves
-        auto [ten, ten_moves] = win_score.TenMoves(winner, dealer(), loser);
+        auto [ten_, ten_moves] = win_score.TenMoves(winner, dealer(), loser);
         for (auto &[who, ten_move]: ten_moves) {
-            if (ten_move > 0) ten_move += curr_score_.riichi() * 1000 + curr_score_.honba() * 300;
-            else if (ten_move < 0) ten_move -= curr_score_.honba() * 300;
+            if (ten_move > 0) ten_move += riichi() * 1000 + honba() * 300;
+            else if (ten_move < 0) ten_move -= honba() * 300;
         }
-        // apply ten moves
-        for (int i = 0; i < 4; ++i) curr_score_.score_.set_ten(i, curr_score_.score_.ten(i) + ten_moves[AbsolutePos(i)]);
 
         // set event
         mjproto::Event event{};
@@ -434,10 +423,11 @@ namespace mj
             win.add_fans(has_ura_dora.value());
         }
         // ten and ten moves
-        win.set_ten(ten);
+        win.set_ten(ten_);
         for (int i = 0; i < 4; ++i) win.add_ten_changes(0);
         for (const auto &[who, ten_move]: ten_moves) {
             win.set_ten_changes(ToUType(who), ten_move);
+            terminal_.mutable_final_score()->set_ten(ToUType(who), ten(who) + ten_move);
         }
         // set win to terminal
         terminal_.mutable_wins()->Add(std::move(win));
@@ -470,24 +460,24 @@ namespace mj
         }
         auto num_tenpai = std::accumulate(is_tenpai.begin(), is_tenpai.end(), 0);
         for (int i = 0; i < 4; ++i) {
-            int ten;
+            int ten_move;
             switch (num_tenpai) {
                 case 1:
-                    ten = is_tenpai[i] ? 3000 : -1000;
+                    ten_move = is_tenpai[i] ? 3000 : -1000;
                     break;
                 case 2:
-                    ten = is_tenpai[i] ? 1500 : -1500;
+                    ten_move = is_tenpai[i] ? 1500 : -1500;
                     break;
                 case 3:
-                    ten = is_tenpai[i] ? 1000 : -3000;
+                    ten_move = is_tenpai[i] ? 1000 : -3000;
                     break;
                 default:  // 0, 4
-                    ten = 0;
+                    ten_move = 0;
                     break;
             }
             // apply ten moves
-            curr_score_.score_.set_ten(i, curr_score_.score_.ten(i) + ten);
-            terminal_.mutable_no_winner()->add_ten_changes(ten);
+            terminal_.mutable_no_winner()->add_ten_changes(ten_move);
+            terminal_.mutable_final_score()->set_ten(i, ten(AbsolutePos(i)) + ten_move);
         }
         terminal_.set_is_game_over(IsGameOver());
 
@@ -497,19 +487,19 @@ namespace mj
 
     bool State::IsGameOver() {
         // TODO (sotetsuk): 西入後の終曲条件が供託未収と書いてあるので、修正が必要。　https://tenhou.net/man/
-        auto tens = curr_score_.ten();
-        bool is_game_over = *std::min_element(tens.begin(), tens.end()) < 0 ||
-                (curr_score_.round() >= 7 && *std::max_element(tens.begin(), tens.end()) >= 30000);
+        // ラス親のあがりやめも考慮しないといけない
+        auto tens_ = tens();
+        bool is_game_over = *std::min_element(tens_.begin(), tens_.end()) < 0 ||
+                (round() >= 7 && *std::max_element(tens_.begin(), tens_.end()) >= 30000);
         return is_game_over;
     }
 
     std::pair<HandInfo, WinScore> State::EvalWinHand(AbsolutePos who) const noexcept {
         // TODO: 場風, 自風, 海底, 一発, 両立直, 天和・地和, 親・子, ドラ, 裏ドラ の情報を追加する
         auto seat_wind = ToSeatWind(who, dealer());
-        auto prevalent_wind = Wind(curr_score_.round() % 4);
         auto win_state_info = WinStateInfo(
                 seat_wind,
-                prevalent_wind,
+                prevalent_wind(),
                 false,
                 false,
                 false,
@@ -525,6 +515,32 @@ namespace mj
     }
 
     AbsolutePos State::dealer() const {
-        return AbsolutePos(curr_score_.round() % 4);
+        return AbsolutePos(state_.init_score().round() % 4);
+    }
+
+    std::uint8_t State::round() const {
+        return terminal_.final_score().round();
+    }
+
+    std::uint8_t State::honba() const {
+        return terminal_.final_score().honba();
+    }
+
+    std::uint8_t State::riichi() const {
+        return terminal_.final_score().riichi();
+    }
+
+    std::array<std::int32_t, 4> State::tens() const {
+        std::array<std::int32_t, 4> tens{};
+        for (int i = 0; i < 4; ++i) tens[i] = terminal_.final_score().ten(i);
+        return tens;
+    }
+
+    Wind State::prevalent_wind() const {
+        return Wind(round() / 4);
+    }
+
+    std::int32_t State::ten(AbsolutePos who) const {
+        return terminal_.final_score().ten(ToUType(who));
     }
 }  // namespace mj

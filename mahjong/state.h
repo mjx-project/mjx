@@ -39,22 +39,27 @@ namespace mj
     private:
         std::array<std::string, 4> player_ids_;
         std::uint32_t seed_;
-        Score init_score_;
-        Score curr_score_;
-        // Round dependent information. These members should be reset after each round.
         AbsolutePos last_action_taker_;
         EventType last_event_;
         AbsolutePos drawer_;
         AbsolutePos latest_discarder_;
+
         Wall wall_;
         std::array<Player, 4> players_;
 
         // protos
+        mjproto::State state_;
         std::array<mjproto::PrivateInfo, 4> private_infos_;
         mjproto::EventHistory event_history_;
         mjproto::Terminal terminal_;
 
-        AbsolutePos dealer() const;
+        [[nodiscard]] std::uint8_t round() const;  // 局
+        [[nodiscard]] std::uint8_t honba() const;  // 本場
+        [[nodiscard]] std::uint8_t riichi() const;  // リー棒
+        [[nodiscard]] std::int32_t ten(AbsolutePos who) const;  // 点
+        [[nodiscard]] std::array<std::int32_t, 4> tens() const;  // 点 25000 start
+        [[nodiscard]] AbsolutePos dealer() const;
+        [[nodiscard]] Wind prevalent_wind() const;
 
         Player& mutable_player(AbsolutePos pos);
         const Player& player(AbsolutePos pos) const;
@@ -69,8 +74,6 @@ namespace mj
         void Ron(AbsolutePos winner, AbsolutePos loser, Tile tile);
         void NoWinner();
         [[nodiscard]] std::pair<HandInfo, WinScore> EvalWinHand(AbsolutePos who) const noexcept;
-
-        std::uint32_t GenerateRoundSeed();
     };
 }  // namespace mj
 
