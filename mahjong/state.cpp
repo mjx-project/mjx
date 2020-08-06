@@ -112,7 +112,7 @@ namespace mj
         for (int i = 0; i < 4; ++i) player_ids_[i] = state->player_ids(i);
         // Set scores
         state_.mutable_init_score()->CopyFrom(state->init_score());
-        terminal_.mutable_final_score()->CopyFrom(state->init_score());
+        state_.mutable_terminal()->mutable_final_score()->CopyFrom(state->init_score());
         // Set walls
         auto wall_tiles = std::vector<Tile>();
         for (auto tile_id: state->wall()) wall_tiles.emplace_back(Tile(tile_id));
@@ -190,7 +190,7 @@ namespace mj
         // Set event history
         state->mutable_event_history()->CopyFrom(state_.event_history());
         // Set terminal
-        state->mutable_terminal()->CopyFrom(terminal_);
+        state->mutable_terminal()->CopyFrom(state_.terminal());
 
         auto status = google::protobuf::util::MessageToJsonString(*state, &serialized);
         assert(status.ok());
@@ -308,8 +308,8 @@ namespace mj
     }
 
     void State::RiichiScoreChange() {
-        terminal_.mutable_final_score()->set_riichi(riichi() + 1);
-        terminal_.mutable_final_score()->set_ten(ToUType(last_action_taker_), ten(last_action_taker_) - 1000);
+        state_.mutable_terminal()->mutable_final_score()->set_riichi(riichi() + 1);
+        state_.mutable_terminal()->mutable_final_score()->set_ten(ToUType(last_action_taker_), ten(last_action_taker_) - 1000);
 
         // set proto
         mjproto::Event event{};
@@ -369,10 +369,10 @@ namespace mj
         for (int i = 0; i < 4; ++i) win.add_ten_changes(0);
         for (const auto &[who, ten_move]: ten_moves) {
             win.set_ten_changes(ToUType(who), ten_move);
-            terminal_.mutable_final_score()->set_ten(ToUType(who), ten(who) + ten_move);
+            state_.mutable_terminal()->mutable_final_score()->set_ten(ToUType(who), ten(who) + ten_move);
         }
-        terminal_.mutable_wins()->Add(std::move(win));
-        terminal_.set_is_game_over(IsGameOver());
+        state_.mutable_terminal()->mutable_wins()->Add(std::move(win));
+        state_.mutable_terminal()->set_is_game_over(IsGameOver());
 
         // set last action
         last_action_taker_ = winner;
@@ -425,11 +425,11 @@ namespace mj
         for (int i = 0; i < 4; ++i) win.add_ten_changes(0);
         for (const auto &[who, ten_move]: ten_moves) {
             win.set_ten_changes(ToUType(who), ten_move);
-            terminal_.mutable_final_score()->set_ten(ToUType(who), ten(who) + ten_move);
+            state_.mutable_terminal()->mutable_final_score()->set_ten(ToUType(who), ten(who) + ten_move);
         }
         // set win to terminal
-        terminal_.mutable_wins()->Add(std::move(win));
-        terminal_.set_is_game_over(IsGameOver());
+        state_.mutable_terminal()->mutable_wins()->Add(std::move(win));
+        state_.mutable_terminal()->set_is_game_over(IsGameOver());
 
         // set last action
         last_action_taker_ = winner;
@@ -453,7 +453,7 @@ namespace mj
                 for (auto tile: tenpai_hand.value().closed_tiles) {
                     tenpai.mutable_closed_tiles()->Add(tile.Id());
                 }
-                terminal_.mutable_no_winner()->mutable_tenpais()->Add(std::move(tenpai));
+                state_.mutable_terminal()->mutable_no_winner()->mutable_tenpais()->Add(std::move(tenpai));
             }
         }
         auto num_tenpai = std::accumulate(is_tenpai.begin(), is_tenpai.end(), 0);
@@ -474,10 +474,10 @@ namespace mj
                     break;
             }
             // apply ten moves
-            terminal_.mutable_no_winner()->add_ten_changes(ten_move);
-            terminal_.mutable_final_score()->set_ten(i, ten(AbsolutePos(i)) + ten_move);
+            state_.mutable_terminal()->mutable_no_winner()->add_ten_changes(ten_move);
+            state_.mutable_terminal()->mutable_final_score()->set_ten(i, ten(AbsolutePos(i)) + ten_move);
         }
-        terminal_.set_is_game_over(IsGameOver());
+        state_.mutable_terminal()->set_is_game_over(IsGameOver());
 
         // set last action
         last_event_ = EventType::kNoWinner;
@@ -517,20 +517,20 @@ namespace mj
     }
 
     std::uint8_t State::round() const {
-        return terminal_.final_score().round();
+        return state_.terminal().final_score().round();
     }
 
     std::uint8_t State::honba() const {
-        return terminal_.final_score().honba();
+        return state_.terminal().final_score().honba();
     }
 
     std::uint8_t State::riichi() const {
-        return terminal_.final_score().riichi();
+        return state_.terminal().final_score().riichi();
     }
 
     std::array<std::int32_t, 4> State::tens() const {
         std::array<std::int32_t, 4> tens{};
-        for (int i = 0; i < 4; ++i) tens[i] = terminal_.final_score().ten(i);
+        for (int i = 0; i < 4; ++i) tens[i] = state_.terminal().final_score().ten(i);
         return tens;
     }
 
@@ -539,6 +539,6 @@ namespace mj
     }
 
     std::int32_t State::ten(AbsolutePos who) const {
-        return terminal_.final_score().ten(ToUType(who));
+        return state_.terminal().final_score().ten(ToUType(who));
     }
 }  // namespace mj
