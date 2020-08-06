@@ -44,7 +44,6 @@ namespace mj
         // Round dependent information. These members should be reset after each round.
         AbsolutePos last_action_taker_;
         EventType last_event_;
-        AbsolutePos dealer_;
         AbsolutePos drawer_;
         AbsolutePos latest_discarder_;
         Wall wall_;
@@ -54,6 +53,8 @@ namespace mj
         std::array<mjproto::PrivateInfo, 4> private_infos_;
         mjproto::EventHistory event_history_;
         mjproto::Terminal terminal_;
+
+        AbsolutePos dealer() const;
 
         Player& mutable_player(AbsolutePos pos);
         const Player& player(AbsolutePos pos) const;

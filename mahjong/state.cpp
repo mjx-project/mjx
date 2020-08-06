@@ -14,8 +14,7 @@ namespace mj
     void State::InitRound() {
         // TODO: use seed_
         last_event_ = EventType::kDiscardDrawnTile;
-        dealer_ = AbsolutePos(curr_score_.round() % 4);
-        drawer_ = dealer_;
+        drawer_ = dealer();
         latest_discarder_ = AbsolutePos::kInitNorth;
         wall_ = Wall(curr_score_.round());  // TODO: use seed_
         for (int i = 0; i < 4; ++i) players_[i] = Player{AbsolutePos(i), River(), Hand(wall_.initial_hand_tiles(AbsolutePos(i)))};
@@ -122,7 +121,6 @@ namespace mj
         // Set scores
         init_score_ = Score(state->init_score());
         curr_score_ = Score(state->init_score());
-        dealer_ = AbsolutePos(curr_score_.round() % 4);
         // Set walls
         auto wall_tiles = std::vector<Tile>();
         for (auto tile_id: state->wall()) wall_tiles.emplace_back(Tile(tile_id));
@@ -337,7 +335,7 @@ namespace mj
         mutable_player(winner).Tsumo();
         auto [hand_info, win_score] = EvalWinHand(winner);
         // calc ten moves
-        auto [ten, ten_moves] = win_score.TenMoves(winner, dealer_);
+        auto [ten, ten_moves] = win_score.TenMoves(winner, dealer());
         for (auto &[who, ten_move]: ten_moves) {
             if (ten_move > 0) ten_move += curr_score_.riichi() * 1000 + curr_score_.honba() * 300;
             else if (ten_move < 0) ten_move -= curr_score_.honba() * 100;
@@ -396,7 +394,7 @@ namespace mj
         mutable_player(winner).Ron(tile);
         auto [hand_info, win_score] = EvalWinHand(winner);
         // calc ten moves
-        auto [ten, ten_moves] = win_score.TenMoves(winner, dealer_, loser);
+        auto [ten, ten_moves] = win_score.TenMoves(winner, dealer(), loser);
         for (auto &[who, ten_move]: ten_moves) {
             if (ten_move > 0) ten_move += curr_score_.riichi() * 1000 + curr_score_.honba() * 300;
             else if (ten_move < 0) ten_move -= curr_score_.honba() * 300;
@@ -507,7 +505,7 @@ namespace mj
 
     std::pair<HandInfo, WinScore> State::EvalWinHand(AbsolutePos who) const noexcept {
         // TODO: 場風, 自風, 海底, 一発, 両立直, 天和・地和, 親・子, ドラ, 裏ドラ の情報を追加する
-        auto seat_wind = ToSeatWind(who, dealer_);
+        auto seat_wind = ToSeatWind(who, dealer());
         auto prevalent_wind = Wind(curr_score_.round() % 4);
         auto win_state_info = WinStateInfo(
                 seat_wind,
@@ -524,5 +522,9 @@ namespace mj
 
     Wind State::ToSeatWind(AbsolutePos who, AbsolutePos dealer) {
         return Wind((ToUType(who) - ToUType(dealer) + 4) % 4);
+    }
+
+    AbsolutePos State::dealer() const {
+        return AbsolutePos(curr_score_.round() % 4);
     }
 }  // namespace mj
