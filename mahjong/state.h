@@ -37,7 +37,6 @@ namespace mj
         static RelativePos ToRelativePos(AbsolutePos origin, AbsolutePos target);
         static Wind ToSeatWind(AbsolutePos who, AbsolutePos dealer);
     private:
-        std::array<std::string, 4> player_ids_;
         std::uint32_t seed_;
         AbsolutePos last_action_taker_;
         EventType last_event_;

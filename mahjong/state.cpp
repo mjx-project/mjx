@@ -109,7 +109,8 @@ namespace mj
         auto status = google::protobuf::util::JsonStringToMessage(json_str, state.get());
         assert(status.ok());
 
-        for (int i = 0; i < 4; ++i) player_ids_[i] = state->player_ids(i);
+        // Set player ids
+        state_.mutable_player_ids()->CopyFrom(state->player_ids());
         // Set scores
         state_.mutable_init_score()->CopyFrom(state->init_score());
         state_.mutable_terminal()->mutable_final_score()->CopyFrom(state->init_score());
@@ -177,7 +178,7 @@ namespace mj
         std::string serialized;
         std::unique_ptr<mjproto::State> state = std::make_unique<mjproto::State>();
         // Set player ids
-        for (const auto &player_id: player_ids_) state->add_player_ids(player_id);
+        state->mutable_player_ids()->CopyFrom(state_.player_ids());
         // Set scores
         state->mutable_init_score()->CopyFrom(state_.init_score());
         // Set walls
