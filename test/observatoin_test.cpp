@@ -7,7 +7,6 @@ using namespace mj;
 TEST(observation, possible_actions) {
     // 第一ツモ後に可能なアクションはdiscardだけ
     auto state = State(9999);
-    state.InitRound();
     auto drawer = state.UpdateStateByDraw();
     auto observation = state.CreateObservation(drawer);
     auto possible_actions = observation.possible_actions();

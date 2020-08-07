@@ -17,22 +17,31 @@ namespace mj
     class State
     {
     public:
-        explicit State(std::uint32_t seed = 9999);
+        explicit State(std::uint32_t seed = 9999,
+                int round = 0, int honba = 0, int riichi = 0,
+                std::array<int, 4> tens = {25000, 25000, 25000, 25000});
         explicit State(const std::string &json_str);
-        bool IsGameOver();
-
-        // operate or access in-round state
-        void InitRound();
-        bool IsRoundOver();
+        bool IsRoundOver() const;
+        bool IsGameOver() const;
         AbsolutePos UpdateStateByDraw();
         void UpdateStateByAction(const Action& action);
         Action& UpdateStateByActionCandidates(const std::vector<Action> &action_candidates);
-        // operate wall
         Observation CreateObservation(AbsolutePos who);
         std::optional<std::vector<AbsolutePos>> RonCheck();  // 牌を捨てたプレイヤーの下家から順に
         std::optional<std::vector<std::pair<AbsolutePos, std::vector<Open>>>> StealCheck();
-
         std::string ToJson() const;
+        State Next() const;
+
+        // accessors
+        [[nodiscard]] AbsolutePos dealer() const;
+        [[nodiscard]] Wind prevalent_wind() const;
+        [[nodiscard]] std::uint8_t round() const;  // 局
+        [[nodiscard]] std::uint8_t honba() const;  // 本場
+        [[nodiscard]] std::uint8_t riichi() const;  // リー棒
+        [[nodiscard]] std::int32_t ten(AbsolutePos who) const;  // 点 25000点スタート
+        [[nodiscard]] std::array<std::int32_t, 4> tens() const;
+        [[nodiscard]] std::uint8_t init_riichi() const;
+        [[nodiscard]] std::array<std::int32_t, 4> init_tens() const;
     private:
         // protos
         mjproto::State state_;
@@ -48,13 +57,6 @@ namespace mj
         AbsolutePos latest_discarder_;  // to be removed
 
         // accessors
-        [[nodiscard]] std::uint8_t round() const;  // 局
-        [[nodiscard]] std::uint8_t honba() const;  // 本場
-        [[nodiscard]] std::uint8_t riichi() const;  // リー棒
-        [[nodiscard]] std::int32_t ten(AbsolutePos who) const;  // 点
-        [[nodiscard]] std::array<std::int32_t, 4> tens() const;  // 点 25000 start
-        [[nodiscard]] AbsolutePos dealer() const;
-        [[nodiscard]] Wind prevalent_wind() const;
         [[nodiscard]] const Player& player(AbsolutePos pos) const;
         [[nodiscard]] Player& mutable_player(AbsolutePos pos);
 

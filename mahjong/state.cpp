@@ -5,19 +5,30 @@
 
 namespace mj
 {
-    State::State(std::uint32_t seed)
-    : seed_(seed), wall_(0)
-    {
-        // TODO (sotetsuk): shuffle seats
-    }
-
-    void State::InitRound() {
+    State::State(std::uint32_t seed, int round, int honba, int riichi, std::array<int, 4> tens)
+    : seed_(seed), wall_(0, seed) {
         // TODO: use seed_
         last_event_ = EventType::kDiscardDrawnTile;
         drawer_ = dealer();
         latest_discarder_ = AbsolutePos::kInitNorth;
-        wall_ = Wall(round());  // TODO: use seed_
-        for (int i = 0; i < 4; ++i) players_[i] = Player{AbsolutePos(i), River(), Hand(wall_.initial_hand_tiles(AbsolutePos(i)))};
+        for (int i = 0; i < 4; ++i)
+            players_[i] = Player{AbsolutePos(i), River(), Hand(wall_.initial_hand_tiles(AbsolutePos(i)))};
+
+        // set protos
+        // TODO: player_ids
+        // init_score
+        state_.mutable_init_score()->set_round(round);
+        state_.mutable_init_score()->set_honba(honba);
+        state_.mutable_init_score()->set_riichi(riichi);
+        for (int i = 0; i < 4; ++i) state_.mutable_init_score()->add_ten(tens[i]);
+        curr_score_.CopyFrom(state_.init_score());
+        // wall
+        for(auto t: wall_.tiles()) state_.mutable_wall()->Add(t.Id());
+        // doras, ura_doras
+        state_.add_doras(wall_.dora_indicators().front().Id());
+        state_.add_ura_doras(wall_.ura_dora_indicators().front().Id());
+        // private info
+        for (int i = 0; i < 4; ++i) state_.add_private_infos()->set_who(mjproto::AbsolutePos(i));
     }
 
     AbsolutePos State::UpdateStateByDraw() {
@@ -38,7 +49,7 @@ namespace mj
         }
     }
 
-    bool State::IsRoundOver() {
+    bool State::IsRoundOver() const {
         if (!wall_.HasDrawLeft()) return true;
         return false;
     }
@@ -90,7 +101,7 @@ namespace mj
         return possible_steals;
     }
 
-   State::State(const std::string &json_str): State() {
+   State::State(const std::string &json_str) {
         std::unique_ptr<mjproto::State> state = std::make_unique<mjproto::State>();
         auto status = google::protobuf::util::JsonStringToMessage(json_str, state.get());
         assert(status.ok());
@@ -305,6 +316,7 @@ namespace mj
             if (ten_move > 0) ten_move += riichi() * 1000 + honba() * 300;
             else if (ten_move < 0) ten_move -= honba() * 100;
         }
+        curr_score_.set_riichi(0);
 
         // set event
         mjproto::Event event{};
@@ -364,6 +376,7 @@ namespace mj
             if (ten_move > 0) ten_move += riichi() * 1000 + honba() * 300;
             else if (ten_move < 0) ten_move -= honba() * 300;
         }
+        curr_score_.set_riichi(0);
 
         // set event
         mjproto::Event event{};
@@ -461,7 +474,7 @@ namespace mj
         last_event_ = EventType::kNoWinner;
     }
 
-    bool State::IsGameOver() {
+    bool State::IsGameOver() const {
         // TODO (sotetsuk): 西入後の終曲条件が供託未収と書いてあるので、修正が必要。　https://tenhou.net/man/
         // ラス親のあがりやめも考慮しないといけない
         auto tens_ = tens();
@@ -503,9 +516,9 @@ namespace mj
     }
 
     std::array<std::int32_t, 4> State::tens() const {
-        std::array<std::int32_t, 4> tens{};
-        for (int i = 0; i < 4; ++i) tens[i] = curr_score_.ten(i);
-        return tens;
+        std::array<std::int32_t, 4> tens_{};
+        for (int i = 0; i < 4; ++i) tens_[i] = curr_score_.ten(i);
+        return tens_;
     }
 
     Wind State::prevalent_wind() const {
@@ -514,5 +527,33 @@ namespace mj
 
     std::int32_t State::ten(AbsolutePos who) const {
         return curr_score_.ten(ToUType(who));
+    }
+
+    State State::Next() const {
+        // assert(IsRoundOver());
+        assert(!IsGameOver());
+        if (last_event_ == EventType::kNoWinner) {
+            if (player(dealer()).IsTenpai()) {
+                return State(seed_, round(), honba() + 1, riichi(), tens());
+            } else {
+                return State(seed_, round() + 1, honba() + 1, riichi(), tens());
+            }
+        } else {
+            if (last_action_taker_ == dealer()) {
+                return State(seed_, round(), honba() + 1, riichi(), tens());
+            } else {
+                return State(seed_, round() + 1, 0, riichi(), tens());
+            }
+        }
+    }
+
+    std::uint8_t State::init_riichi() const {
+        return state_.init_score().riichi();
+    }
+
+    std::array<std::int32_t, 4> State::init_tens() const {
+        std::array<std::int32_t, 4> tens_{};
+        for (int i = 0; i < 4; ++i) tens_[i] = state_.init_score().ten(i);
+        return tens_;
     }
 }  // namespace mj

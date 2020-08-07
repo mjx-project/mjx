@@ -22,6 +22,7 @@ namespace mj
          *  - [132, ..., 135]  Kan draw 2, 3, 0, 1  TODO (sotetsuk) check and test this.
          */
     public:
+        Wall() = default;
         explicit Wall(std::uint32_t round, std::uint32_t seed = 9999);  // round info is necessary due to Tenhou's implementation
         Wall(std::uint32_t round, std::vector<Tile> tiles);
         [[nodiscard]] std::vector<Tile> initial_hand_tiles(AbsolutePos pos) const;
