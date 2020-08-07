@@ -118,6 +118,7 @@ namespace mj
         auto wall_tiles = std::vector<Tile>();
         for (auto tile_id: state->wall()) wall_tiles.emplace_back(Tile(tile_id));
         wall_ = Wall(round(), wall_tiles);
+        state_.mutable_wall()->CopyFrom(state->wall());
         // Set dora
         state_.add_doras(wall_.dora_indicators().front().Id());
         state_.add_ura_doras(wall_.ura_dora_indicators().front().Id());
@@ -179,12 +180,7 @@ namespace mj
 
     std::string State::ToJson() const {
         std::string serialized;
-        std::unique_ptr<mjproto::State> state = std::make_unique<mjproto::State>();
-        state->CopyFrom(state_);
-        // Set walls
-        for(auto t: wall_.tiles())state->mutable_wall()->Add(t.Id());
-
-        auto status = google::protobuf::util::MessageToJsonString(*state, &serialized);
+        auto status = google::protobuf::util::MessageToJsonString(state_, &serialized);
         assert(status.ok());
         return serialized;
     }
