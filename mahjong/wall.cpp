@@ -59,10 +59,13 @@ namespace mj
         return drawn_tile;
     }
 
-    void Wall::AddKanDora() {
+    Tile Wall::AddKanDora() {
         assert(abs(num_kan_draw_ - num_kan_dora_) <= 1);
         assert(num_kan_dora_ <= 3);
         num_kan_dora_++;
+        auto kan_dora_indicator = tiles_[130 - 2 * num_kan_dora_];
+        assert(kan_dora_indicator == dora_indicators().back());
+        return kan_dora_indicator;
     }
 
     bool Wall::HasDrawLeft() const {

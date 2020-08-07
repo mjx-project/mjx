@@ -60,6 +60,15 @@ TEST(wall, KanDraw) {
     // TODO(sotestuk): add cases for 4 KANs from Tenhou
 }
 
+TEST(wall, AddKanDra) {
+    auto wall = Wall(3);
+    wall.KanDraw();
+    auto kan_dora = wall.AddKanDora();
+    EXPECT_EQ(kan_dora, wall.dora_indicators().back());
+    kan_dora = wall.AddKanDora();
+    EXPECT_EQ(kan_dora, wall.dora_indicators().back());
+}
+
 TEST(wall, doras) {
     auto wall = Wall(0);
     EXPECT_EQ(wall.dora_indicators().size(), 1);

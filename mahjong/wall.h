@@ -33,7 +33,7 @@ namespace mj
         [[nodiscard]] bool HasDrawLeft() const;
         Tile Draw();
         Tile KanDraw();
-        void AddKanDora();
+        Tile AddKanDora();
     private:
         std::uint32_t round_;
         std::uint32_t seed_;
