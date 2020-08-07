@@ -94,6 +94,10 @@ class MjlogDecoder:
         self.state.init_score.honba = honba
         self.state.init_score.riichi = riichi
         self.state.init_score.ten[:] = [int(x) * 100 for x in val["ten"].split(",")]
+        self.state.terminal.final_score.round = round_
+        self.state.terminal.final_score.honba = honba
+        self.state.terminal.final_score.riichi = riichi
+        self.state.terminal.final_score.ten[:] = [int(x) * 100 for x in val["ten"].split(",")]
         self.state.wall[:] = wall
         self.state.doras.append(dora)
         self.state.ura_doras.append(wall[131])
@@ -154,6 +158,8 @@ class MjlogDecoder:
                         who=who,
                         type=mahjong_pb2.EVENT_TYPE_RIICHI_SCORE_CHANGE
                     )
+                    self.state.terminal.final_score.riichi += 1
+                    self.state.terminal.final_score.ten[who] -= 1000
             elif key == "DORA":
                 dora = wall[128 - 2 * num_kan_dora]
                 assert dora == int(val["hai"])
@@ -168,6 +174,8 @@ class MjlogDecoder:
             elif key == "RYUUKYOKU":
                 ba, riichi = [int(x) for x in val["ba"].split(",")]
                 self.state.terminal.no_winner.ten_changes[:] = [int(x) * 100 for i, x in enumerate(val["sc"].split(",")) if i % 2 == 1]
+                for i in range(4):
+                    self.state.terminal.final_score.ten[i] += self.state.terminal.no_winner.ten_changes[i]
                 for i in range(4):
                     hai_key = "hai" + str(i)
                     if hai_key not in val:
@@ -219,6 +227,8 @@ class MjlogDecoder:
                     win_tile=int(val["machi"])
                 )
                 win.ten_changes[:] = [int(x) * 100 for i, x in enumerate(val["sc"].split(",")) if i % 2 == 1]
+                for i in range(4):
+                    self.state.terminal.final_score.ten[i] += win.ten_changes[i]
                 if "m" in val:
                     win.opens[:] = [int(x) for x in val["m"].split(",")]
                 assert self.state.doras == [int(x) for x in val["doraHai"].split(",")]

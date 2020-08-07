@@ -11,22 +11,6 @@
 
 namespace mj
 {
-    class Score
-    {
-    public:
-        Score();
-        explicit Score(mjproto::Score score);
-        void Riichi(AbsolutePos who);
-        [[nodiscard]] std::uint8_t round() const;  // 局
-        [[nodiscard]] std::uint8_t honba() const;  // 本場
-        [[nodiscard]] std::uint8_t riichi() const;  // リー棒
-        [[nodiscard]] std::array<std::int32_t, 4> ten() const;  // 点 25000 start
-    private:
-        friend class State;
-        friend class Observation;  // mjproto::Observation needs to refer to mutable mjproto::Score
-        mjproto::Score score_{};
-    };
-
     struct Event {
         AbsolutePos who;
         ActionType type;
@@ -52,15 +36,12 @@ namespace mj
     class Observation
     {
     public:
-        Observation() = default;
-        Observation(AbsolutePos who, Score& score, Player& player);
-        ~Observation();
+        Observation() = delete;  // Observation is generated only from State::CreatObservation
         // getter
         AbsolutePos who() const;
         Hand initial_hand() const;
         Hand current_hand() const;
         [[nodiscard]] std::vector<PossibleAction> possible_actions() const;
-        Score score() const;
         std::vector<Event> taken_actions() const;
         // setter
         void add_possible_action(PossibleAction possible_action);
@@ -69,6 +50,8 @@ namespace mj
         std::string ToString() const;
     private:
         friend class AgentClient;
+        friend class State;
+        Observation(AbsolutePos who, const mjproto::State& state);
         mjproto::Observation proto_ = mjproto::Observation{};
     };
 }

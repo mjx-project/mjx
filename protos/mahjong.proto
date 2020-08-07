@@ -151,6 +151,7 @@ message TenpaiHand {  // only for Tenhou visualization
 }
 
 message Terminal {  // only for Tenhou visualization
+  Score final_score = 1;
   repeated Win wins = 2;   // Empty if no one wins
   NoWinner no_winner = 3;  // Empty if a winner exists
   bool is_game_over = 4;
