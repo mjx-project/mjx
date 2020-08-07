@@ -229,6 +229,7 @@ class MjlogDecoder:
                 win.ten_changes[:] = [int(x) * 100 for i, x in enumerate(val["sc"].split(",")) if i % 2 == 1]
                 for i in range(4):
                     self.state.terminal.final_score.ten[i] += win.ten_changes[i]
+                self.state.terminal.final_score.riichi = 0
                 if "m" in val:
                     win.opens[:] = [int(x) for x in val["m"].split(",")]
                 assert self.state.doras == [int(x) for x in val["doraHai"].split(",")]
