@@ -90,21 +90,7 @@ namespace mj
         return possible_steals;
     }
 
-    RelativePos State::ToRelativePos(AbsolutePos origin, AbsolutePos target) {
-        switch ((ToUType(target) - ToUType(origin) + 4) % 4) {
-            case 0:
-                return RelativePos::kSelf;
-            case 1:
-                return RelativePos::kRight;
-            case 2:
-                return RelativePos::kMid;
-            case 3:
-                return RelativePos::kLeft;
-        }
-        assert(false);
-    }
-
-    State::State(const std::string &json_str): State() {
+   State::State(const std::string &json_str): State() {
         std::unique_ptr<mjproto::State> state = std::make_unique<mjproto::State>();
         auto status = google::protobuf::util::JsonStringToMessage(json_str, state.get());
         assert(status.ok());
@@ -498,10 +484,6 @@ namespace mj
                 wall_.dora_count(),
                 wall_.ura_dora_count());
         return player(who).EvalWinHand(std::move(win_state_info));
-    }
-
-    Wind State::ToSeatWind(AbsolutePos who, AbsolutePos dealer) {
-        return Wind((ToUType(who) - ToUType(dealer) + 4) % 4);
     }
 
     AbsolutePos State::dealer() const {

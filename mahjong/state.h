@@ -33,9 +33,6 @@ namespace mj
         std::optional<std::vector<std::pair<AbsolutePos, std::vector<Open>>>> StealCheck();
 
         std::string ToJson() const;
-
-        static RelativePos ToRelativePos(AbsolutePos origin, AbsolutePos target);
-        static Wind ToSeatWind(AbsolutePos who, AbsolutePos dealer);
     private:
         // protos
         mjproto::State state_;

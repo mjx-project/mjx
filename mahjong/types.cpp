@@ -1,4 +1,5 @@
 #include "types.h"
+#include "utils.h"
 
 #include <cassert>
 
@@ -55,6 +56,24 @@ namespace mj
         if (Is(type, TileSetType::kManzu)) return TileSetType::kManzu;
         if (Is(type, TileSetType::kPinzu)) return TileSetType::kPinzu;
         if (Is(type, TileSetType::kSouzu)) return TileSetType::kSouzu;
+        assert(false);
+    }
+
+    Wind ToSeatWind(AbsolutePos who, AbsolutePos dealer) {
+        return Wind((ToUType(who) - ToUType(dealer) + 4) % 4);
+    }
+
+    RelativePos ToRelativePos(AbsolutePos origin, AbsolutePos target) {
+        switch ((ToUType(target) - ToUType(origin) + 4) % 4) {
+            case 0:
+                return RelativePos::kSelf;
+            case 1:
+                return RelativePos::kRight;
+            case 2:
+                return RelativePos::kMid;
+            case 3:
+                return RelativePos::kLeft;
+        }
         assert(false);
     }
 } // namespace mj

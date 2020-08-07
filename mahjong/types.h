@@ -21,6 +21,8 @@ namespace mj {
         kWD, kGD, kRD  // {0, ..., 33}
     };
 
+    using TileTypeCount = std::map<TileType, int>;
+
     enum class TileSetType : std::uint8_t {  // TODO: rename using honours and terminals,
         kAll,
         kManzu,
@@ -219,8 +221,8 @@ namespace mj {
     bool Is(TileType type, TileSetType tile_set_type) noexcept;
     TileSetType Color(TileType type) noexcept ;
 
-    using TileTypeCount = std::map<TileType, int>;
-
+    RelativePos ToRelativePos(AbsolutePos origin, AbsolutePos target);
+    Wind ToSeatWind(AbsolutePos who, AbsolutePos dealer);
 }  // namespace mj
 
 #endif //MAHJONG_TYPES_H
