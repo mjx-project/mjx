@@ -44,8 +44,8 @@ namespace mj
         std::uint32_t seed_;
         AbsolutePos last_action_taker_;
         EventType last_event_;
-        AbsolutePos drawer_;
-        AbsolutePos latest_discarder_;
+        AbsolutePos drawer_;  // to be removed
+        AbsolutePos latest_discarder_;  // to be removed
 
         // accessors
         [[nodiscard]] std::uint8_t round() const;  // 局
