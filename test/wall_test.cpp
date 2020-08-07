@@ -63,10 +63,12 @@ TEST(wall, KanDraw) {
 TEST(wall, AddKanDra) {
     auto wall = Wall(3);
     wall.KanDraw();
-    auto kan_dora = wall.AddKanDora();
-    EXPECT_EQ(kan_dora, wall.dora_indicators().back());
-    kan_dora = wall.AddKanDora();
-    EXPECT_EQ(kan_dora, wall.dora_indicators().back());
+    auto [kan_dora_ind1, ura_kan_dora_ind1] = wall.AddKanDora();
+    EXPECT_EQ(kan_dora_ind1, wall.dora_indicators().back());
+    EXPECT_EQ(ura_kan_dora_ind1, wall.ura_dora_indicators().back());
+    auto [kan_dora_ind2, ura_kan_dora_ind2] = wall.AddKanDora();
+    EXPECT_EQ(kan_dora_ind2, wall.dora_indicators().back());
+    EXPECT_EQ(ura_kan_dora_ind2, wall.ura_dora_indicators().back());
 }
 
 TEST(wall, doras) {
