@@ -6,7 +6,6 @@ using namespace mj;
 
 TEST(state, UpdateStateByDraw) {
     auto state = State(9999);
-    state.InitRound();
     auto drawer = state.UpdateStateByDraw();
     EXPECT_EQ(drawer, AbsolutePos::kInitEast);
 
@@ -17,7 +16,6 @@ TEST(state, UpdateStateByAction) {
     // すべてツモとランダムに切るだけでエラーを吐かないか（鳴きなし）
     auto state = State(9999);
     std::unique_ptr<AgentClient> agent = std::make_unique<AgentClientMock>();
-    state.InitRound();
     for (int i = 0; i < 50; ++i) {
         auto drawer = state.UpdateStateByDraw();
         EXPECT_EQ(drawer, AbsolutePos(i%4));

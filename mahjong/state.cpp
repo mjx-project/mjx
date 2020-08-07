@@ -8,10 +8,6 @@ namespace mj
     State::State(std::uint32_t seed)
     : seed_(seed), wall_(0)
     {
-        // TODO (sotetsuk): shuffle seats
-    }
-
-    void State::InitRound() {
         // TODO: use seed_
         last_event_ = EventType::kDiscardDrawnTile;
         drawer_ = dealer();

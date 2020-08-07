@@ -19,19 +19,14 @@ namespace mj
     public:
         explicit State(std::uint32_t seed = 9999);
         explicit State(const std::string &json_str);
-        bool IsGameOver();
-
-        // operate or access in-round state
-        void InitRound();
         bool IsRoundOver();
+        bool IsGameOver();
         AbsolutePos UpdateStateByDraw();
         void UpdateStateByAction(const Action& action);
         Action& UpdateStateByActionCandidates(const std::vector<Action> &action_candidates);
-        // operate wall
         Observation CreateObservation(AbsolutePos who);
         std::optional<std::vector<AbsolutePos>> RonCheck();  // 牌を捨てたプレイヤーの下家から順に
         std::optional<std::vector<std::pair<AbsolutePos, std::vector<Open>>>> StealCheck();
-
         std::string ToJson() const;
     private:
         // protos
