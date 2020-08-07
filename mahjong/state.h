@@ -48,6 +48,7 @@ namespace mj
 
         // protos
         mjproto::State state_;
+        mjproto::Score curr_score_;  // Using state_.terminal.final_score gives wrong serialization when round is not finished.
 
         [[nodiscard]] std::uint8_t round() const;  // 局
         [[nodiscard]] std::uint8_t honba() const;  // 本場
