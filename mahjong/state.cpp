@@ -118,6 +118,9 @@ namespace mj
         auto wall_tiles = std::vector<Tile>();
         for (auto tile_id: state->wall()) wall_tiles.emplace_back(Tile(tile_id));
         wall_ = Wall(round(), wall_tiles);
+        // Set dora
+        state_.add_doras(wall_.dora_indicators().front().Id());
+        state_.add_ura_doras(wall_.ura_dora_indicators().front().Id());
         // Set init hands
         for (int i = 0; i < 4; ++i) {
             players_[i] = Player{AbsolutePos(i), River(), Hand(wall_.initial_hand_tiles(AbsolutePos(i)))};
@@ -180,9 +183,6 @@ namespace mj
         state->CopyFrom(state_);
         // Set walls
         for(auto t: wall_.tiles())state->mutable_wall()->Add(t.Id());
-        // Set doras and ura doras
-        for (auto dora: wall_.dora_indicators()) state->add_doras(dora.Id());
-        for (auto ura_dora: wall_.ura_dora_indicators()) state->add_ura_doras(ura_dora.Id());
 
         auto status = google::protobuf::util::MessageToJsonString(*state, &serialized);
         assert(status.ok());
@@ -286,14 +286,15 @@ namespace mj
     }
 
     void State::AddNewDora() {
-        wall_.AddKanDora();
+        auto [new_dora_ind, new_ura_dora_ind] = wall_.AddKanDora();
 
         // set proto
         mjproto::Event event{};
         event.set_type(mjproto::EVENT_TYPE_NEW_DORA);
-        auto doras = wall_.dora_indicators();
-        event.set_tile(doras.back().Id());
+        event.set_tile(new_dora_ind.Id());
         state_.mutable_event_history()->mutable_events()->Add(std::move(event));
+        state_.add_doras(new_dora_ind.Id());
+        state_.add_ura_doras(new_ura_dora_ind.Id());
 
         // set last action
         last_event_ = EventType::kNewDora;
