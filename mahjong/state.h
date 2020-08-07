@@ -37,19 +37,20 @@ namespace mj
         static RelativePos ToRelativePos(AbsolutePos origin, AbsolutePos target);
         static Wind ToSeatWind(AbsolutePos who, AbsolutePos dealer);
     private:
+        // protos
+        mjproto::State state_;
+        mjproto::Score curr_score_;  // Using state_.terminal.final_score gives wrong serialization when round is not finished.
+        // container classes
+        Wall wall_;
+        std::array<Player, 4> players_;
+        // temporal memory
         std::uint32_t seed_;
         AbsolutePos last_action_taker_;
         EventType last_event_;
         AbsolutePos drawer_;
         AbsolutePos latest_discarder_;
 
-        Wall wall_;
-        std::array<Player, 4> players_;
-
-        // protos
-        mjproto::State state_;
-        mjproto::Score curr_score_;  // Using state_.terminal.final_score gives wrong serialization when round is not finished.
-
+        // accessors
         [[nodiscard]] std::uint8_t round() const;  // 局
         [[nodiscard]] std::uint8_t honba() const;  // 本場
         [[nodiscard]] std::uint8_t riichi() const;  // リー棒
@@ -57,10 +58,10 @@ namespace mj
         [[nodiscard]] std::array<std::int32_t, 4> tens() const;  // 点 25000 start
         [[nodiscard]] AbsolutePos dealer() const;
         [[nodiscard]] Wind prevalent_wind() const;
+        [[nodiscard]] const Player& player(AbsolutePos pos) const;
+        [[nodiscard]] Player& mutable_player(AbsolutePos pos);
 
-        Player& mutable_player(AbsolutePos pos);
-        const Player& player(AbsolutePos pos) const;
-
+        // event operations
         Tile Draw(AbsolutePos who);
         void Discard(AbsolutePos who, Tile discard);
         void Riichi(AbsolutePos who);
@@ -70,6 +71,7 @@ namespace mj
         void Tsumo(AbsolutePos winner);
         void Ron(AbsolutePos winner, AbsolutePos loser, Tile tile);
         void NoWinner();
+
         [[nodiscard]] std::pair<HandInfo, WinScore> EvalWinHand(AbsolutePos who) const noexcept;
     };
 }  // namespace mj
