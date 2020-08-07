@@ -6,14 +6,30 @@
 namespace mj
 {
     State::State(std::uint32_t seed)
-    : seed_(seed), wall_(0)
-    {
+    : seed_(seed), wall_(0) {
         // TODO: use seed_
         last_event_ = EventType::kDiscardDrawnTile;
         drawer_ = dealer();
         latest_discarder_ = AbsolutePos::kInitNorth;
         wall_ = Wall(round());  // TODO: use seed_
-        for (int i = 0; i < 4; ++i) players_[i] = Player{AbsolutePos(i), River(), Hand(wall_.initial_hand_tiles(AbsolutePos(i)))};
+        for (int i = 0; i < 4; ++i)
+            players_[i] = Player{AbsolutePos(i), River(), Hand(wall_.initial_hand_tiles(AbsolutePos(i)))};
+
+        // set protos
+        // TODO: player_ids
+        // init_score
+        state_.mutable_init_score()->set_round(0);
+        state_.mutable_init_score()->set_honba(0);
+        state_.mutable_init_score()->set_riichi(0);
+        for (int i = 0; i < 4; ++i) state_.mutable_init_score()->add_ten(25000);
+        curr_score_.CopyFrom(state_.init_score());
+        // wall
+        for(auto t: wall_.tiles()) state_.mutable_wall()->Add(t.Id());
+        // doras, ura_doras
+        state_.add_doras(wall_.dora_indicators().front().Id());
+        state_.add_ura_doras(wall_.ura_dora_indicators().front().Id());
+        // private info
+        for (int i = 0; i < 4; ++i) state_.add_private_infos()->set_who(mjproto::AbsolutePos(i));
     }
 
     AbsolutePos State::UpdateStateByDraw() {
@@ -86,7 +102,7 @@ namespace mj
         return possible_steals;
     }
 
-   State::State(const std::string &json_str): State() {
+   State::State(const std::string &json_str) {
         std::unique_ptr<mjproto::State> state = std::make_unique<mjproto::State>();
         auto status = google::protobuf::util::JsonStringToMessage(json_str, state.get());
         assert(status.ok());
