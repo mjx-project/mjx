@@ -64,17 +64,35 @@ namespace mj
         return players_.at(ToUType(pos));
     }
 
-    std::pair<PlayerId, Observation> State::CreateObservation(AbsolutePos who) {
-        auto observation = Observation(who, state_);  // TODO: fix
+    std::pair<PlayerId, Observation> State::CreateObservation() const {
+        PlayerId player_id;
+        Observation observation;
         switch (last_event_) {
             case EventType::kDraw:
-                observation.add_possible_action(PossibleAction::CreateDiscard(player(who).PossibleDiscards()));
-                // TODO(sotetsuk): add kan_added, kan_closed and riichi
+                {
+                    auto action_taker = last_action_taker_;  // drawer
+                    player_id = player(action_taker).player_id();
+                    observation = Observation(action_taker, state_);
+                    if (auto possible_kans = player(action_taker).PossibleOpensAfterDraw(); possible_kans.empty()) {
+                        // No possible kans => Riichi or Discard
+                        if (player(action_taker).CanRiichi()) {
+                            // => Riichi
+                        } else {
+                            // => Discard
+                            observation.add_possible_action(
+                                    PossibleAction::CreateDiscard(player(action_taker).PossibleDiscards())
+                            );
+                        }
+                    } else {
+                        // Possible Kan exists => Kan
+                    }
+                }
+               // TODO(sotetsuk): add kan_added, kan_closed and riichi
                 break;
             default:
                 break;
         }
-        return {"", observation};
+        return {player_id, observation};
     }
 
     std::optional<std::vector<AbsolutePos>> State::RonCheck() {

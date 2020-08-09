@@ -1,6 +1,6 @@
 #include "gtest/gtest.h"
 #include "state.h"
-#include "agent_client_mock.h"
+#include "utils.h"
 
 using namespace mj;
 
@@ -72,5 +72,12 @@ TEST(state, Next) {
 }
 
 TEST(state, CreateObservation) {
-
+    // Draw後、KanもRiichiも出来ないとき => discard
+    std::string json = R"({"playerIds":["-ron-","ASAPIN","うきでん","超ヒモリロ"],"initScore":{"ten":[25000,25000,25000,25000]},"doras":[112],"eventHistory":{"events":[{}]},"wall":[48,16,19,34,17,62,79,52,55,30,12,26,120,130,42,67,2,76,13,7,56,57,82,98,31,90,3,4,114,93,5,61,128,1,39,121,32,103,24,70,80,125,66,102,20,108,41,100,87,54,78,84,107,47,14,131,96,51,68,85,28,10,6,18,122,49,134,109,116,127,105,65,92,101,29,23,83,115,77,38,15,43,94,21,50,91,89,45,97,37,25,35,60,132,119,135,59,0,9,27,53,58,118,110,22,124,69,44,33,8,74,129,64,88,72,75,104,73,71,81,111,86,36,99,133,11,40,113,123,95,112,117,46,126,63,106],"uraDoras":[117],"privateInfos":[{"initHand":[48,16,19,34,2,76,13,7,128,1,39,121,87],"draws":[107,96,28,122,116,92,83,15,21,45,35,135,27,110,44,129,75,81]},{"who":"ABSOLUTE_POS_INIT_SOUTH","initHand":[17,62,79,52,56,57,82,98,32,103,24,70,54],"draws":[47,51,10,49,127,101,115,43,50,97,60,59,53,22,33,64,104,111]},{"who":"ABSOLUTE_POS_INIT_WEST","initHand":[55,30,12,26,31,90,3,4,80,125,66,102,78],"draws":[14,68,6,134,105,29,77,94,91,37,132,0,58,124,8,88,73,86]},{"who":"ABSOLUTE_POS_INIT_NORTH","initHand":[120,130,42,67,114,93,5,61,20,108,41,100,84],"draws":[131,85,18,109,65,23,38,89,25,119,9,118,69,74,72,71]}]})";
+    auto state = State(json);
+    auto [player_id, observation] = state.CreateObservation();
+    EXPECT_EQ(player_id, "-ron-");
+    EXPECT_EQ(observation.possible_actions().size(), 1);
+    EXPECT_EQ(observation.possible_actions().front().type(), ActionType::kDiscard);
+    EXPECT_TRUE(Any(Tile(39), observation.possible_actions().front().discard_candidates()));
 }

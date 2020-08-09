@@ -29,7 +29,7 @@ namespace mj
         AbsolutePos UpdateStateByDraw();
         void UpdateStateByAction(const Action& action);
         Action& UpdateStateByActionCandidates(const std::vector<Action> &action_candidates);
-        std::pair<PlayerId, Observation> CreateObservation(AbsolutePos who);
+        std::pair<PlayerId, Observation> CreateObservation() const;
         std::optional<std::vector<AbsolutePos>> RonCheck();  // 牌を捨てたプレイヤーの下家から順に
         std::optional<std::vector<std::pair<AbsolutePos, std::vector<Open>>>> StealCheck();
         std::string ToJson() const;
