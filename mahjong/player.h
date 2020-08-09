@@ -11,7 +11,7 @@ namespace mj
     {
     public:
         Player() = default;
-        Player(AbsolutePos position, River river, Hand initial_hand);
+        Player(PlayerId player_id, AbsolutePos position, River river, Hand initial_hand);
         [[nodiscard]] AbsolutePos position() const;
 
         // action validators
@@ -42,6 +42,7 @@ namespace mj
         void Discard(Tile tile, bool tsumogiri);
         Tile latest_discard() const;
     private:
+        PlayerId player_id_;
         AbsolutePos position_;
         River river_;
         Hand hand_;

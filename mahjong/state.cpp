@@ -5,17 +5,19 @@
 
 namespace mj
 {
-    State::State(std::uint32_t seed, int round, int honba, int riichi, std::array<int, 4> tens)
+    State::State(std::vector<PlayerId> player_ids, std::uint32_t seed, int round, int honba, int riichi, std::array<int, 4> tens)
     : seed_(seed), wall_(0, seed) {
         // TODO: use seed_
+        assert(std::set(player_ids.begin(), player_ids.end()).size() == 4);  // player_ids should be identical
         last_event_ = EventType::kDiscardDrawnTile;
         drawer_ = dealer();
         latest_discarder_ = AbsolutePos::kInitNorth;
         for (int i = 0; i < 4; ++i)
-            players_[i] = Player{AbsolutePos(i), River(), Hand(wall_.initial_hand_tiles(AbsolutePos(i)))};
+            players_[i] = Player{player_ids[i], AbsolutePos(i), River(), Hand(wall_.initial_hand_tiles(AbsolutePos(i)))};
 
         // set protos
-        // TODO: player_ids
+        // player_ids
+        for (int i = 0; i < 4; ++i) state_.add_player_ids(player_ids[i]);
         // init_score
         state_.mutable_init_score()->set_round(round);
         state_.mutable_init_score()->set_honba(honba);
@@ -62,7 +64,7 @@ namespace mj
         return players_.at(ToUType(pos));
     }
 
-    Observation State::CreateObservation(AbsolutePos who) {
+    std::pair<PlayerId, Observation> State::CreateObservation(AbsolutePos who) {
         auto observation = Observation(who, state_);  // TODO: fix
         switch (last_event_) {
             case EventType::kDraw:
@@ -72,7 +74,7 @@ namespace mj
             default:
                 break;
         }
-        return observation;
+        return {"", observation};
     }
 
     std::optional<std::vector<AbsolutePos>> State::RonCheck() {
@@ -121,7 +123,7 @@ namespace mj
         state_.add_ura_doras(wall_.ura_dora_indicators().front().Id());
         // Set init hands
         for (int i = 0; i < 4; ++i) {
-            players_[i] = Player{AbsolutePos(i), River(), Hand(wall_.initial_hand_tiles(AbsolutePos(i)))};
+            players_[i] = Player{state_.player_ids(i), AbsolutePos(i), River(), Hand(wall_.initial_hand_tiles(AbsolutePos(i)))};
             state_.mutable_private_infos()->Add();
             state_.mutable_private_infos(i)->set_who(mjproto::AbsolutePos(i));
             for (auto t: wall_.initial_hand_tiles(AbsolutePos(i))) {
@@ -532,17 +534,18 @@ namespace mj
     State State::Next() const {
         // assert(IsRoundOver());
         assert(!IsGameOver());
+        std::vector<PlayerId> player_ids(state_.player_ids().begin(), state_.player_ids().end());
         if (last_event_ == EventType::kNoWinner) {
             if (player(dealer()).IsTenpai()) {
-                return State(seed_, round(), honba() + 1, riichi(), tens());
+                return State(player_ids, seed_, round(), honba() + 1, riichi(), tens());
             } else {
-                return State(seed_, round() + 1, honba() + 1, riichi(), tens());
+                return State(player_ids, seed_, round() + 1, honba() + 1, riichi(), tens());
             }
         } else {
             if (last_action_taker_ == dealer()) {
-                return State(seed_, round(), honba() + 1, riichi(), tens());
+                return State(player_ids, seed_, round(), honba() + 1, riichi(), tens());
             } else {
-                return State(seed_, round() + 1, 0, riichi(), tens());
+                return State(player_ids, seed_, round() + 1, 0, riichi(), tens());
             }
         }
     }

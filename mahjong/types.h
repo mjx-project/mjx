@@ -217,6 +217,8 @@ namespace mj {
         kBegin = 0,
     };
 
+    using PlayerId = std::string;
+
     std::uint8_t Num(TileType type) noexcept ;
     bool Is(TileType type, TileSetType tile_set_type) noexcept;
     TileSetType Color(TileType type) noexcept ;

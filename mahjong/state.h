@@ -17,7 +17,10 @@ namespace mj
     class State
     {
     public:
-        explicit State(std::uint32_t seed = 9999,
+        State() = default;
+        explicit State(
+                std::vector<PlayerId> player_ids,  // 起家, ..., ラス親
+                std::uint32_t seed = 9999,
                 int round = 0, int honba = 0, int riichi = 0,
                 std::array<int, 4> tens = {25000, 25000, 25000, 25000});
         explicit State(const std::string &json_str);
@@ -26,11 +29,13 @@ namespace mj
         AbsolutePos UpdateStateByDraw();
         void UpdateStateByAction(const Action& action);
         Action& UpdateStateByActionCandidates(const std::vector<Action> &action_candidates);
-        Observation CreateObservation(AbsolutePos who);
+        std::pair<PlayerId, Observation> CreateObservation(AbsolutePos who);
         std::optional<std::vector<AbsolutePos>> RonCheck();  // 牌を捨てたプレイヤーの下家から順に
         std::optional<std::vector<std::pair<AbsolutePos, std::vector<Open>>>> StealCheck();
         std::string ToJson() const;
         State Next() const;
+
+        static std::vector<PlayerId> ShufflePlayerIds(std::uint32_t seed, std::vector<PlayerId> player_ids);
 
         // accessors
         [[nodiscard]] AbsolutePos dealer() const;

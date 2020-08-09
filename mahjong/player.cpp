@@ -1,10 +1,12 @@
 #include "player.h"
+
+#include <utility>
 #include "yaku_evaluator.h"
 
 namespace mj
 {
-    Player::Player(AbsolutePos position, River river, Hand initial_hand):
-    position_(position), river_(std::move(river)), hand_(std::move(initial_hand))
+    Player::Player(PlayerId player_id, AbsolutePos position, River river, Hand initial_hand):
+    player_id_(std::move(player_id)), position_(position), river_(std::move(river)), hand_(std::move(initial_hand))
     {
         assert(hand_.Stage() == HandStage::kAfterDiscards);
         assert(hand_.Size() == 13);
