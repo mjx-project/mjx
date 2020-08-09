@@ -46,9 +46,9 @@ namespace mj
     }
 
     void Observation::add_possible_action(PossibleAction possible_action) {
-        // TDOO (sotetsuk): add assertion. もしtypeがdiscardならすでにあるpossible_actionはdiscardではない
-        auto mutable_possible_actions = proto_.mutable_possible_actions();
-        mutable_possible_actions->Add(std::move(possible_action.possible_action_));
+        assert(possible_action.type() != ActionType::kRiichi || proto_.possible_actions().empty());
+        assert(possible_action.type() != ActionType::kDiscard || proto_.possible_actions().empty());
+        proto_.mutable_possible_actions()->Add(std::move(possible_action.possible_action_));
     }
 
     Observation::Observation(AbsolutePos who, const mjproto::State &state) {
