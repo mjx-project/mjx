@@ -27,7 +27,8 @@ namespace mj
         Open open() const;
         std::vector<Tile> discard_candidates() const;
 
-        static PossibleAction CreateDiscard(const std::vector<Tile>& possible_discards);
+        static PossibleAction CreateDiscard(std::vector<Tile> &&possible_discards);
+        static PossibleAction CreateRiichi();
     private:
         friend class Observation;
         mjproto::PossibleAction possible_action_{};

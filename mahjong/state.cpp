@@ -77,6 +77,9 @@ namespace mj
                         // No possible kans => Riichi or Discard
                         if (player(action_taker).CanRiichi()) {
                             // => Riichi
+                            observation.add_possible_action(
+                                    PossibleAction::CreateRiichi()
+                            );
                         } else {
                             // => Discard
                             observation.add_possible_action(

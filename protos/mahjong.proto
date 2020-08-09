@@ -107,7 +107,7 @@ message PrivateInfo {
 }
 
 message PossibleAction {
-  uint32 type = 1;
+  uint32 type = 1;  // TDOO: change type to ActionType
   uint32 open = 2;
   repeated uint32 discard_candidates = 3;
 }
