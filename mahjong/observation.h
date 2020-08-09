@@ -36,7 +36,7 @@ namespace mj
     class Observation
     {
     public:
-        Observation() = delete;  // Observation is generated only from State::CreatObservation
+        Observation() = default;  // Observation is generated only from State::CreatObservation
         // getter
         AbsolutePos who() const;
         Hand initial_hand() const;
