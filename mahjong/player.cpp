@@ -22,7 +22,7 @@ namespace mj
         return hand_.PossibleDiscards();
     }
 
-    std::vector<Tile> Player::PossibleDiscardsAfterRiichi() {
+    std::vector<Tile> Player::PossibleDiscardsAfterRiichi() const {
         return hand_.PossibleDiscardsAfterRiichi();
     }
 
@@ -30,7 +30,7 @@ namespace mj
         return hand_.PossibleOpensAfterOthersDiscard(tile, from);
     }
 
-    std::vector<Open> Player::PossibleOpensAfterDraw() {
+    std::vector<Open> Player::PossibleOpensAfterDraw() const {
         return hand_.PossibleOpensAfterDraw();
     }
 
@@ -102,5 +102,9 @@ namespace mj
     std::optional<HandInfo> Player::EvalTenpai() const noexcept {
         if (!IsTenpai()) return std::nullopt;
         return HandInfo{hand_.ToVectorClosed(true), hand_.Opens(), hand_.LastTileAdded()};
+    }
+
+    PlayerId Player::player_id() const {
+        return player_id_;
     }
 }  // namespace mj

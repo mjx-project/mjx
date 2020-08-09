@@ -289,7 +289,7 @@ namespace mj
         return possible_discards;
     }
 
-    std::vector<Tile> Hand::PossibleDiscardsAfterRiichi() {
+    std::vector<Tile> Hand::PossibleDiscardsAfterRiichi() const {
         assert(IsMenzen());
         assert(under_riichi_);
         assert(stage_ == HandStage::kAfterRiichi);
@@ -327,7 +327,7 @@ namespace mj
         return v;
     }
 
-    std::vector<Open> Hand::PossibleKanClosed() {
+    std::vector<Open> Hand::PossibleKanClosed() const {
         assert(Stage() == HandStage::kAfterDraw);
         assert(SizeClosed() == 2 || SizeClosed() == 5 || SizeClosed() == 8 || SizeClosed() == 11 || SizeClosed() == 14);
         std::unordered_map<TileType, std::uint8_t> m;
@@ -341,7 +341,7 @@ namespace mj
         return v;
     }
 
-    std::vector<Open> Hand::PossibleKanAdded() {
+    std::vector<Open> Hand::PossibleKanAdded() const {
         assert(Stage() == HandStage::kAfterDraw);
         assert(SizeClosed() == 2 || SizeClosed() == 5 || SizeClosed() == 8 || SizeClosed() == 11 || SizeClosed() == 14);
         auto v = std::vector<Open>();
@@ -478,7 +478,7 @@ namespace mj
         return v;
     }
 
-    std::vector<Open> Hand::PossibleOpensAfterDraw() {
+    std::vector<Open> Hand::PossibleOpensAfterDraw() const {
         assert(stage_ == HandStage::kAfterDraw);
         assert(SizeClosed() == 2 || SizeClosed() == 5 || SizeClosed() == 8 || SizeClosed() == 11 || SizeClosed() == 14);
         auto v = PossibleKanClosed();

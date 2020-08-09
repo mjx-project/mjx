@@ -59,9 +59,9 @@ namespace mj
 
         // action validators
         std::vector<Tile> PossibleDiscards() const;  // TODO(sotetsuk): Current implementation has the tiles with same type (e.g., 2m x 3). What is the Tenhou's implementation? Only first id? or any id?
-        std::vector<Tile> PossibleDiscardsAfterRiichi();
+        std::vector<Tile> PossibleDiscardsAfterRiichi() const;
         std::vector<Open> PossibleOpensAfterOthersDiscard(Tile tile, RelativePos from) const;  // includes Chi, Pon, and KanOpened
-        std::vector<Open> PossibleOpensAfterDraw();  // includes KanClosed and KanAdded
+        std::vector<Open> PossibleOpensAfterDraw() const;  // includes KanClosed and KanAdded
         bool IsCompleted() const;
         bool CanRiichi() const;
         bool IsTenpai() const;
@@ -90,8 +90,8 @@ namespace mj
         std::vector<Open> PossibleChis(Tile tile) const;  // E.g., 2m 3m [4m] vs 3m [4m] 5m
         std::vector<Open> PossiblePons(Tile tile, RelativePos from) const;  // E.g., with red or not  TODO: check the id choice strategy of tenhou (smalelr one) when it has 2 identical choices.
         std::vector<Open> PossibleKanOpened(Tile tile, RelativePos from) const;
-        std::vector<Open> PossibleKanClosed();  // TODO: which tile id should be used to represent farleft left bits? (current is type * 4 + 0)
-        std::vector<Open> PossibleKanAdded();
+        std::vector<Open> PossibleKanClosed() const;  // TODO: which tile id should be used to represent farleft left bits? (current is type * 4 + 0)
+        std::vector<Open> PossibleKanAdded() const;
         void ApplyKanAdded(Open open);
 
         // apply actions
