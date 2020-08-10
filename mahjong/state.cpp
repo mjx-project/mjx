@@ -64,15 +64,14 @@ namespace mj
         return players_.at(ToUType(pos));
     }
 
-    std::pair<PlayerId, Observation> State::CreateObservation() const {
-        PlayerId player_id;
-        Observation observation;
+    std::unordered_map<PlayerId, Observation> State::CreateObservations() const {
+        std::unordered_map<PlayerId, Observation> observations;
         switch (last_event_) {
             case EventType::kDraw:
                 {
                     auto action_taker = last_action_taker_;  // drawer
-                    player_id = player(action_taker).player_id();
-                    observation = Observation(action_taker, state_);
+                    auto player_id = player(action_taker).player_id();
+                    auto observation = Observation(action_taker, state_);
                     if (auto possible_kans = player(action_taker).PossibleOpensAfterDraw(); possible_kans.empty()) {
                         // No possible kans => Riichi or Discard
                         if (player(action_taker).CanRiichi()) {
@@ -89,6 +88,7 @@ namespace mj
                     } else {
                         // Possible Kan exists => Kan
                     }
+                    observations[player_id] = std::move(observation);
                 }
                 break;
             case EventType::kDiscardFromHand:
@@ -97,7 +97,7 @@ namespace mj
             default:
                 break;
         }
-        return {player_id, observation};
+        return observations;
     }
 
     std::optional<std::vector<AbsolutePos>> State::RonCheck() {
