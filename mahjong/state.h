@@ -76,6 +76,7 @@ namespace mj
         void Tsumo(AbsolutePos winner);
         void Ron(AbsolutePos winner, AbsolutePos loser, Tile tile);
         void NoWinner();
+        std::unordered_map<PlayerId, Observation> CheckSteal() const;
 
         [[nodiscard]] std::pair<HandInfo, WinScore> EvalWinHand(AbsolutePos who) const noexcept;
     };
