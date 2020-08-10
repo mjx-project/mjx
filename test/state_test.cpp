@@ -117,4 +117,7 @@ TEST(state, CreateObservation) {
     observations = state.CreateObservations();
     EXPECT_EQ(observations.size(), 1);
     EXPECT_TRUE(observations.find("うきでん") != observations.end());
+    observation = observations["うきでん"];
+    EXPECT_EQ(observation.possible_actions().size(), 1);
+    EXPECT_EQ(observation.possible_actions().front().type(), ActionType::kRon);
 }
