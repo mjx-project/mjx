@@ -30,6 +30,7 @@ namespace mj
         static PossibleAction CreateDiscard(std::vector<Tile> &&possible_discards);
         static PossibleAction CreateRiichi();
         static PossibleAction CreateOpen(Open open);
+        static PossibleAction CreateRon();
     private:
         friend class Observation;
         mjproto::PossibleAction possible_action_{};

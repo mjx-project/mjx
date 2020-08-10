@@ -43,7 +43,7 @@ namespace mj {
                 std::vector<Open> opens,
                 TileTypeCount closed_tile_types,
                 TileTypeCount all_tile_types,
-                Tile win_tile,
+                std::optional<Tile> win_tile,
                 HandStage hand_stage,
                 bool under_riichi,
                 bool is_menzen
