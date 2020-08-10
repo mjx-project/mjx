@@ -71,6 +71,7 @@ namespace mj
                 {
                     auto action_taker = last_action_taker_;  // drawer
                     auto observation = Observation(action_taker, state_);
+                    // TODO (sotetsuk) Check tsumo
                     if (auto possible_kans = player(action_taker).PossibleOpensAfterDraw(); possible_kans.empty()) {
                         // No possible kans => Riichi or Discard
                         if (player(action_taker).CanRiichi()) {
@@ -85,7 +86,7 @@ namespace mj
                             );
                         }
                     } else {
-                        // Possible Kan exists => Kan
+                        // Possible Kan exists => Kan  TODO (sotetsuk)
                     }
                     observations[player(action_taker).player_id()] = std::move(observation);
                 }
