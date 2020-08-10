@@ -70,7 +70,6 @@ namespace mj
             case EventType::kDraw:
                 {
                     auto action_taker = last_action_taker_;  // drawer
-                    auto player_id = player(action_taker).player_id();
                     auto observation = Observation(action_taker, state_);
                     if (auto possible_kans = player(action_taker).PossibleOpensAfterDraw(); possible_kans.empty()) {
                         // No possible kans => Riichi or Discard
@@ -88,11 +87,29 @@ namespace mj
                     } else {
                         // Possible Kan exists => Kan
                     }
-                    observations[player_id] = std::move(observation);
+                    observations[player(action_taker).player_id()] = std::move(observation);
                 }
                 break;
             case EventType::kDiscardFromHand:
             case EventType::kDiscardDrawnTile:
+            case EventType::kRiichiScoreChange:
+                {
+                    auto discarder = last_action_taker_;
+                    for (int i = 0; i < 4; ++i) {
+                        auto stealer = AbsolutePos(i);
+                        if (stealer == discarder) continue;
+                        auto relative_pos = ToRelativePos(stealer, discarder);
+                        assert(last_discard_);
+                        auto possible_opens = player(stealer).PossibleOpensAfterOthersDiscard(last_discard_.value(), relative_pos);
+                        if (possible_opens.empty()) continue;
+                        auto observation = Observation(stealer, state_);
+                        for (const auto & possible_open: possible_opens) {
+                            auto possible_action = PossibleAction::CreateOpen(possible_open);
+                            observation.add_possible_action(std::move(possible_action));
+                        }
+                        observations[player(stealer).player_id()] = std::move(observation);
+                    }
+                }
                 break;
             default:
                 break;
@@ -241,6 +258,7 @@ namespace mj
         // set last action
         last_action_taker_ = who;
         last_event_ = tsumogiri ? EventType::kDiscardDrawnTile : EventType::kDiscardFromHand;
+        last_discard_ = discard;
     }
 
     void State::Riichi(AbsolutePos who) {
@@ -284,23 +302,7 @@ namespace mj
 
         // set last action
         last_action_taker_ = who;
-        switch (open_type) {
-            case OpenType::kChi:
-                last_event_ = EventType::kChi;
-                break;
-            case OpenType::kPon:
-                last_event_ = EventType::kPon;
-                break;
-            case OpenType::kKanOpened:
-                last_event_ = EventType::kKanOpened;
-                break;
-            case OpenType::kKanClosed:
-                last_event_ = EventType::kKanClosed;
-                break;
-            case OpenType::kKanAdded:
-                last_event_ = EventType::kKanAdded;
-                break;
-        }
+        last_event_ = OpenTypeToEventType(open_type);
     }
 
     void State::AddNewDora() {

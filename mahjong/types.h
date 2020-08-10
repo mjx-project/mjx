@@ -225,6 +225,8 @@ namespace mj {
 
     RelativePos ToRelativePos(AbsolutePos origin, AbsolutePos target);
     Wind ToSeatWind(AbsolutePos who, AbsolutePos dealer);
+    EventType OpenTypeToEventType(OpenType open_type);
+    ActionType OpenTypeToActionType(OpenType open_type);
 }  // namespace mj
 
 #endif //MAHJONG_TYPES_H

@@ -29,6 +29,7 @@ namespace mj
 
         static PossibleAction CreateDiscard(std::vector<Tile> &&possible_discards);
         static PossibleAction CreateRiichi();
+        static PossibleAction CreateOpen(Open open);
     private:
         friend class Observation;
         mjproto::PossibleAction possible_action_{};
@@ -45,7 +46,7 @@ namespace mj
         [[nodiscard]] std::vector<PossibleAction> possible_actions() const;
         std::vector<Event> taken_actions() const;
         // setter
-        void add_possible_action(PossibleAction possible_action);
+        void add_possible_action(PossibleAction &&possible_action);
 
         void ClearPossibleActions();
         std::string ToString() const;
