@@ -105,32 +105,6 @@ namespace mj
         return observations;
     }
 
-    std::optional<std::vector<AbsolutePos>> State::RonCheck() {
-        auto possible_winners = std::make_optional<std::vector<AbsolutePos>>();
-        auto position = AbsolutePos((ToUType(latest_discarder_) + 1) % 4);
-        auto discarded_tile = mutable_player(latest_discarder_).latest_discard();
-        while (position != latest_discarder_) {
-            if (mutable_player(position).CanRon(discarded_tile)) possible_winners->emplace_back(position);
-            position = AbsolutePos((ToUType(position) + 1) % 4);
-        }
-        if (possible_winners.value().empty()) possible_winners = std::nullopt;
-        return possible_winners;
-    }
-
-    std::optional<std::vector<std::pair<AbsolutePos, std::vector<Open>>>> State::StealCheck() {
-        assert(Any(last_event_, { EventType::kDiscardFromHand, EventType::kDiscardDrawnTile }));
-        auto possible_steals = std::make_optional<std::vector<std::pair<AbsolutePos, std::vector<Open>>>>();
-        auto position = AbsolutePos((ToUType(latest_discarder_) + 1) % 4);
-        auto discarded_tile = mutable_player(latest_discarder_).latest_discard();
-        while (position != latest_discarder_) {
-            auto stealer = AbsolutePos(position);
-            auto possible_opens = mutable_player(stealer).PossibleOpensAfterOthersDiscard(discarded_tile, ToRelativePos(position, latest_discarder_));
-            possible_steals->emplace_back(std::make_pair(stealer, std::move(possible_opens)));
-            position = AbsolutePos((ToUType(position) + 1) % 4);
-        }
-        return possible_steals;
-    }
-
     State::State(const std::string &json_str) {
          std::unique_ptr<mjproto::State> state = std::make_unique<mjproto::State>();
          auto status = google::protobuf::util::JsonStringToMessage(json_str, state.get());

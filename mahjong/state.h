@@ -30,8 +30,6 @@ namespace mj
         void UpdateStateByAction(const Action& action);
         Action& UpdateStateByActionCandidates(const std::vector<Action> &action_candidates);
         std::unordered_map<PlayerId, Observation> CreateObservations() const;
-        std::optional<std::vector<AbsolutePos>> RonCheck();  // 牌を捨てたプレイヤーの下家から順に
-        std::optional<std::vector<std::pair<AbsolutePos, std::vector<Open>>>> StealCheck();
         std::string ToJson() const;
         State Next() const;
 
