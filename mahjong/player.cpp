@@ -39,10 +39,6 @@ namespace mj
         return YakuEvaluator::CanWin(WinInfo(hand_.win_info()).Ron(tile));
     }
 
-    bool Player::IsCompleted() const {
-        return hand_.IsCompleted();
-    }
-
     bool Player::CanRiichi() const {
         // TODO: ツモ番があるかどうかをここで確認
         return hand_.CanRiichi();
@@ -106,5 +102,11 @@ namespace mj
 
     PlayerId Player::player_id() const {
         return player_id_;
+    }
+
+    bool Player::CanTsumo() const {
+        return hand_.IsCompleted();
+        // if (!hand_.IsCompleted()) return false;
+        // return YakuEvaluator::CanWin(WinInfo(hand_.win_info()));
     }
 }  // namespace mj

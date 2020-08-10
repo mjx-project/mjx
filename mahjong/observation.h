@@ -31,6 +31,7 @@ namespace mj
         static PossibleAction CreateRiichi();
         static PossibleAction CreateOpen(Open open);
         static PossibleAction CreateRon();
+        static PossibleAction CreateTsumo();
     private:
         friend class Observation;
         mjproto::PossibleAction possible_action_{};

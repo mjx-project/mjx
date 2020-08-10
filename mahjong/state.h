@@ -63,6 +63,7 @@ namespace mj
         // accessors
         [[nodiscard]] const Player& player(AbsolutePos pos) const;
         [[nodiscard]] Player& mutable_player(AbsolutePos pos);
+        [[nodiscard]] WinStateInfo win_state_info(AbsolutePos who) const;
 
         // event operations
         Tile Draw(AbsolutePos who);

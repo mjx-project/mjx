@@ -126,6 +126,7 @@ TEST(state, CreateObservation) {
     observations = state.CreateObservations();
     EXPECT_EQ(observations.size(), 1);
     EXPECT_TRUE(observations.find("ASAPIN") != observations.end());
+    observation = observations["ASAPIN"];
     EXPECT_EQ(observation.possible_actions().size(), 1);
     EXPECT_EQ(observation.possible_actions().front().type(), ActionType::kTsumo);
 }

@@ -48,6 +48,12 @@ namespace mj
         return possible_action;
     }
 
+    PossibleAction PossibleAction::CreateTsumo() {
+        auto possible_action = PossibleAction();
+        possible_action.possible_action_.set_type(ToUType(ActionType::kTsumo));
+        return possible_action;
+    }
+
     std::vector<PossibleAction> Observation::possible_actions() const {
         std::vector<PossibleAction> ret;
         for (const auto& possible_action: proto_.possible_actions()) {

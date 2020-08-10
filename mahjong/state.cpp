@@ -71,7 +71,12 @@ namespace mj
                 {
                     auto action_taker = last_action_taker_;  // drawer
                     auto observation = Observation(action_taker, state_);
-                    // TODO (sotetsuk) Check tsumo
+                    if (player(action_taker).CanTsumo()) {
+                        // => Tsumo
+                        observation.add_possible_action(PossibleAction::CreateTsumo());
+                        observations[player(action_taker).player_id()] = std::move(observation);
+                        return observations;
+                    }
                     if (auto possible_kans = player(action_taker).PossibleOpensAfterDraw(); possible_kans.empty()) {
                         // No possible kans => Riichi or Discard
                         if (player(action_taker).CanRiichi()) {
@@ -473,19 +478,7 @@ namespace mj
     }
 
     std::pair<HandInfo, WinScore> State::EvalWinHand(AbsolutePos who) const noexcept {
-        // TODO: 場風, 自風, 海底, 一発, 両立直, 天和・地和, 親・子, ドラ, 裏ドラ の情報を追加する
-        auto seat_wind = ToSeatWind(who, dealer());
-        auto win_state_info = WinStateInfo(
-                seat_wind,
-                prevalent_wind(),
-                false,
-                false,
-                false,
-                false,
-                seat_wind == Wind::kEast,
-                wall_.dora_count(),
-                wall_.ura_dora_count());
-        return player(who).EvalWinHand(std::move(win_state_info));
+       return player(who).EvalWinHand(win_state_info(who));
     }
 
     AbsolutePos State::dealer() const {
@@ -583,5 +576,21 @@ namespace mj
             }
         }
         return observations;
+    }
+
+    WinStateInfo State::win_state_info(AbsolutePos who) const {
+        // TODO: 場風, 自風, 海底, 一発, 両立直, 天和・地和, 親・子, ドラ, 裏ドラ の情報を追加する
+        auto seat_wind = ToSeatWind(who, dealer());
+        auto win_state_info = WinStateInfo(
+                seat_wind,
+                prevalent_wind(),
+                false,
+                false,
+                false,
+                false,
+                seat_wind == Wind::kEast,
+                wall_.dora_count(),
+                wall_.ura_dora_count());
+        return win_state_info;
     }
 }  // namespace mj
