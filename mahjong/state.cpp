@@ -90,7 +90,9 @@ namespace mj
                         // Possible Kan exists => Kan
                     }
                 }
-               // TODO(sotetsuk): add kan_added, kan_closed and riichi
+                break;
+            case EventType::kDiscardFromHand:
+            case EventType::kDiscardDrawnTile:
                 break;
             default:
                 break;
