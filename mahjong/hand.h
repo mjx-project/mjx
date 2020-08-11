@@ -63,6 +63,7 @@ namespace mj
         std::vector<Open> PossibleOpensAfterOthersDiscard(Tile tile, RelativePos from) const;  // includes Chi, Pon, and KanOpened
         std::vector<Open> PossibleOpensAfterDraw() const;  // includes KanClosed and KanAdded
         bool IsCompleted() const;
+        bool IsCompleted(Tile additional_tile) const;
         bool CanRiichi() const;
         bool IsTenpai() const;
         //bool CanNineTiles(bool IsDealer);  // 九種九牌

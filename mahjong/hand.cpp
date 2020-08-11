@@ -690,6 +690,13 @@ namespace mj
         return false;
     }
 
+    bool Hand::IsCompleted(Tile additional_tile) const {
+        assert(SizeClosed() == 1 || SizeClosed() == 4 || SizeClosed() == 7 || SizeClosed() == 10 || SizeClosed() == 13);
+        auto closed_tile_types = ClosedTileTypes();
+        ++closed_tile_types[additional_tile.Type()];
+        return WinHandCache::instance().Has(closed_tile_types);
+    }
+
     HandParams::HandParams(const std::string &closed) {
         assert(closed.size() % 3 == 2);
         for (std::int32_t i = 0; i < closed.size(); i += 3) {

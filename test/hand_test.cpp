@@ -520,6 +520,12 @@ TEST(hand, IsCompleted) {
     h = Hand(HandParams("m1,m1,m1,m2,m3,m4,m5,m6,m7,m8,m9,m9,m9"));
     h.Draw(Tile("rd", 0));
     EXPECT_FALSE(h.IsCompleted());
+
+    // with additional tile
+    h = Hand(HandParams("m1,m1,m1,m2,m3,m4,m5,m6,m7,m8,m9,m9,m9"));
+    EXPECT_TRUE(h.IsCompleted(Tile("m1", 3)));
+    h = Hand(HandParams("m1,m1,m1,m2,m3,m4,m5,m6,m7,m8,m9,m9,m9"));
+    EXPECT_FALSE(h.IsCompleted(Tile("rd", 0)));
 }
 
 TEST(hand, CanRiichi) {
