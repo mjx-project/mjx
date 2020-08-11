@@ -71,6 +71,7 @@ namespace mj
                     auto action_taker = last_action_taker_;  // drawer
                     auto player_id = player(action_taker).player_id();
                     auto observation = Observation(action_taker, state_);
+
                     // => Tsumo
                     if (player(action_taker).IsCompleted() && player(action_taker).CanTsumo(win_state_info(action_taker))) {
                         observation.add_possible_action(PossibleAction::CreateTsumo());
@@ -94,6 +95,7 @@ namespace mj
                 }
             case EventType::kRiichi:
                 {
+                    // => Discard
                     auto observation = Observation(last_action_taker_, state_);
                     observation.add_possible_action(PossibleAction::CreateDiscard(player(last_action_taker_).PossibleDiscardsAfterRiichi()));
                     return { {player(last_action_taker_).player_id(), std::move(observation)} };
@@ -101,14 +103,17 @@ namespace mj
             case EventType::kChi:
             case EventType::kPon:
                 {
+                    // => Discard
                     auto observation = Observation(last_action_taker_, state_);
                     observation.add_possible_action(PossibleAction::CreateDiscard(player(last_action_taker_).PossibleDiscards()));
                     return { {player(last_action_taker_).player_id(), std::move(observation)} };
                 }
             case EventType::kDiscardFromHand:
             case EventType::kDiscardDrawnTile:
+                // => Ron
                 if (auto ron_observations = CheckRon(); !ron_observations.empty()) return ron_observations;
             case EventType::kRiichiScoreChange:
+                // => Chi, Pon and KanOpened
                 if (auto steal_observations = CheckSteal(); !steal_observations.empty()) return steal_observations;
                 break;
             case EventType::kTsumo:
