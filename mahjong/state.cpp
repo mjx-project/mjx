@@ -109,19 +109,19 @@ namespace mj
                     observation.add_possible_action(PossibleAction::CreateDiscard(player(action_taker).PossibleDiscards()));
                     return { {player_id, std::move(observation)} };
                 }
-                break;
             case EventType::kRiichi:
-                break;
+                {
+                    auto observation = Observation(last_action_taker_, state_);
+                    observation.add_possible_action(PossibleAction::CreateDiscard(player(last_action_taker_).PossibleDiscardsAfterRiichi()));
+                    return { {player(last_action_taker_).player_id(), std::move(observation)} };
+                }
             case EventType::kChi:
             case EventType::kPon:
                 {
-                    auto stealer = last_action_taker_;
-                    auto player_id = player(stealer).player_id();
-                    auto observation = Observation(stealer, state_);
-                    observation.add_possible_action(PossibleAction::CreateDiscard(player(stealer).PossibleDiscards()));
-                    return { {player_id, std::move(observation)} };
+                    auto observation = Observation(last_action_taker_, state_);
+                    observation.add_possible_action(PossibleAction::CreateDiscard(player(last_action_taker_).PossibleDiscards()));
+                    return { {player(last_action_taker_).player_id(), std::move(observation)} };
                 }
-                break;
             case EventType::kDiscardFromHand:
             case EventType::kDiscardDrawnTile:
                 if (auto ron_observations = CheckRon(); !ron_observations.empty()) return ron_observations;
