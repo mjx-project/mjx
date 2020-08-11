@@ -65,7 +65,6 @@ namespace mj
     }
 
     std::unordered_map<PlayerId, Observation> State::CreateObservations() const {
-        std::unordered_map<PlayerId, Observation> observations;
         switch (last_event_) {
             // kDraw = mjproto::EVENT_TYPE_DRAW,
             // kDiscardFromHand = mjproto::EVENT_TYPE_DISCARD_FROM_HAND,
@@ -84,27 +83,31 @@ namespace mj
             case EventType::kDraw:
                 {
                     auto action_taker = last_action_taker_;  // drawer
+                    auto player_id = player(action_taker).player_id();
                     auto observation = Observation(action_taker, state_);
                     // TODO: check action under riichi
+
+                    // => Tsumo
                     if (player(action_taker).IsCompleted() && player(action_taker).CanTsumo(win_state_info(action_taker))) {
-                        // => Tsumo
                         observation.add_possible_action(PossibleAction::CreateTsumo());
-                        observations[player(action_taker).player_id()] = std::move(observation);
-                        return observations;
+                        return { {player_id, std::move(observation)} };
                     }
-                    if (auto possible_kans = player(action_taker).PossibleOpensAfterDraw(); possible_kans.empty()) {
-                        // No possible kans => Riichi or Discard
-                        if (player(action_taker).CanRiichi()) {
-                            // => Riichi
-                            observation.add_possible_action(PossibleAction::CreateRiichi());
-                        } else {
-                            // => Discard
-                            observation.add_possible_action(PossibleAction::CreateDiscard(player(action_taker).PossibleDiscards()));
-                        }
-                    } else {
-                        // Possible Kan exists => Kan  TODO (sotetsuk)
+
+                    // => Kan
+                    if (auto possible_kans = player(action_taker).PossibleOpensAfterDraw(); !possible_kans.empty()) {
+                        // TODO: implement here
+                        return { {player_id, std::move(observation)} };
                     }
-                    observations[player(action_taker).player_id()] = std::move(observation);
+
+                    // => Riichi
+                    if (player(action_taker).CanRiichi()) {
+                        observation.add_possible_action(PossibleAction::CreateRiichi());
+                        return { {player_id, std::move(observation)} };
+                    }
+
+                    // => Discard
+                    observation.add_possible_action(PossibleAction::CreateDiscard(player(action_taker).PossibleDiscards()));
+                    return { {player_id, std::move(observation)} };
                 }
                 break;
             case EventType::kRiichi:
@@ -113,18 +116,17 @@ namespace mj
             case EventType::kPon:
                 {
                     auto stealer = last_action_taker_;
+                    auto player_id = player(stealer).player_id();
                     auto observation = Observation(stealer, state_);
                     observation.add_possible_action(PossibleAction::CreateDiscard(player(stealer).PossibleDiscards()));
-                    observations[player(stealer).player_id()] = std::move(observation);
+                    return { {player_id, std::move(observation)} };
                 }
                 break;
             case EventType::kDiscardFromHand:
             case EventType::kDiscardDrawnTile:
                 if (auto ron_observations = CheckRon(); !ron_observations.empty()) return ron_observations;
             case EventType::kRiichiScoreChange:
-                {
-                    if (auto steal_observations = CheckSteal(); !steal_observations.empty()) return steal_observations;
-                }
+                if (auto steal_observations = CheckSteal(); !steal_observations.empty()) return steal_observations;
                 break;
             case EventType::kTsumo:
             case EventType::kRon:
@@ -135,7 +137,6 @@ namespace mj
             case EventType::kNoWinner:
                 assert(false);
         }
-        return observations;
     }
 
     State::State(const std::string &json_str) {
