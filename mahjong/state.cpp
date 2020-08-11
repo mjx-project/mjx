@@ -67,10 +67,25 @@ namespace mj
     std::unordered_map<PlayerId, Observation> State::CreateObservations() const {
         std::unordered_map<PlayerId, Observation> observations;
         switch (last_event_) {
+            // kDraw = mjproto::EVENT_TYPE_DRAW,
+            // kDiscardFromHand = mjproto::EVENT_TYPE_DISCARD_FROM_HAND,
+            // kDiscardDrawnTile = mjproto::EVENT_TYPE_DISCARD_DRAWN_TILE,  // ツモ切り, Tsumogiri
+            // kRiichi = mjproto::EVENT_TYPE_RIICHI,
+            // kTsumo = mjproto::EVENT_TYPE_TSUMO,
+            // kRon = mjproto::EVENT_TYPE_RON,
+            // kChi = mjproto::EVENT_TYPE_CHI,
+            // kPon = mjproto::EVENT_TYPE_PON,
+            // kKanClosed = mjproto::EVENT_TYPE_KAN_CLOSED,
+            // kKanOpened = mjproto::EVENT_TYPE_KAN_OPENED,
+            // kKanAdded = mjproto::EVENT_TYPE_KAN_ADDED,
+            // kNewDora = mjproto::EVENT_TYPE_NEW_DORA,
+            // kRiichiScoreChange = mjproto::EVENT_TYPE_RIICHI_SCORE_CHANGE,
+            // kNoWinner = mjproto::EVENT_TYPE_NO_WINNER,
             case EventType::kDraw:
                 {
                     auto action_taker = last_action_taker_;  // drawer
                     auto observation = Observation(action_taker, state_);
+                    // TODO: check action under riichi
                     if (player(action_taker).IsCompleted() && player(action_taker).CanTsumo(win_state_info(action_taker))) {
                         // => Tsumo
                         observation.add_possible_action(PossibleAction::CreateTsumo());
@@ -81,19 +96,26 @@ namespace mj
                         // No possible kans => Riichi or Discard
                         if (player(action_taker).CanRiichi()) {
                             // => Riichi
-                            observation.add_possible_action(
-                                    PossibleAction::CreateRiichi()
-                            );
+                            observation.add_possible_action(PossibleAction::CreateRiichi());
                         } else {
                             // => Discard
-                            observation.add_possible_action(
-                                    PossibleAction::CreateDiscard(player(action_taker).PossibleDiscards())
-                            );
+                            observation.add_possible_action(PossibleAction::CreateDiscard(player(action_taker).PossibleDiscards()));
                         }
                     } else {
                         // Possible Kan exists => Kan  TODO (sotetsuk)
                     }
                     observations[player(action_taker).player_id()] = std::move(observation);
+                }
+                break;
+            case EventType::kRiichi:
+                break;
+            case EventType::kChi:
+            case EventType::kPon:
+                {
+                    auto stealer = last_action_taker_;
+                    auto observation = Observation(stealer, state_);
+                    observation.add_possible_action(PossibleAction::CreateDiscard(player(stealer).PossibleDiscards()));
+                    observations[player(stealer).player_id()] = std::move(observation);
                 }
                 break;
             case EventType::kDiscardFromHand:
@@ -104,8 +126,14 @@ namespace mj
                     if (auto steal_observations = CheckSteal(); !steal_observations.empty()) return steal_observations;
                 }
                 break;
-            default:
-                break;
+            case EventType::kTsumo:
+            case EventType::kRon:
+            case EventType::kKanClosed:
+            case EventType::kKanOpened:
+            case EventType::kKanAdded:
+            case EventType::kNewDora:
+            case EventType::kNoWinner:
+                assert(false);
         }
         return observations;
     }
