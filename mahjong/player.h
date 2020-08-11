@@ -19,6 +19,8 @@ namespace mj
         std::vector<Tile> PossibleDiscardsAfterRiichi() const;
         std::vector<Open> PossibleOpensAfterOthersDiscard(Tile tile, RelativePos from) const;  // includes Chi, Pon, and KanOpened
         std::vector<Open> PossibleOpensAfterDraw() const;  // includes KanClosed and KanAdded
+        bool IsCompleted(Tile additional_tile) const;  // This does not take into account yaku and furiten
+        bool IsCompleted() const;  // This does not take into account yaku and furiten
         bool CanRon(Tile tile) const;
         bool CanTsumo() const;
         bool CanRiichi() const;

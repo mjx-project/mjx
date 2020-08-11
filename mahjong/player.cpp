@@ -109,4 +109,12 @@ namespace mj
         // if (!hand_.IsCompleted()) return false;
         // return YakuEvaluator::CanWin(WinInfo(hand_.win_info()));
     }
+
+    bool Player::IsCompleted(Tile additional_tile) const {
+        return hand_.IsCompleted(additional_tile);
+    }
+
+    bool Player::IsCompleted() const {
+        return hand_.IsCompleted();
+    }
 }  // namespace mj
