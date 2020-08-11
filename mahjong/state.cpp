@@ -71,7 +71,7 @@ namespace mj
                 {
                     auto action_taker = last_action_taker_;  // drawer
                     auto observation = Observation(action_taker, state_);
-                    if (player(action_taker).CanTsumo()) {
+                    if (player(action_taker).CanTsumo(win_state_info(action_taker))) {
                         // => Tsumo
                         observation.add_possible_action(PossibleAction::CreateTsumo());
                         observations[player(action_taker).player_id()] = std::move(observation);
@@ -569,7 +569,7 @@ namespace mj
         for (int i = 0; i < 4; ++i) {
             auto winner = AbsolutePos(i);
             if (winner == discarder) continue;
-            if (player(winner).CanRon(discard)) {
+            if (player(winner).CanRon(discard, win_state_info(winner))) {
                 auto observation = Observation(winner, state_);
                 observation.add_possible_action(PossibleAction::CreateRon());
                 observations[player(winner).player_id()] = std::move(observation);

@@ -21,8 +21,8 @@ namespace mj
         std::vector<Open> PossibleOpensAfterDraw() const;  // includes KanClosed and KanAdded
         bool IsCompleted(Tile additional_tile) const;  // This does not take into account yaku and furiten
         bool IsCompleted() const;  // This does not take into account yaku and furiten
-        bool CanRon(Tile tile) const;
-        bool CanTsumo() const;
+        bool CanRon(Tile tile, WinStateInfo &&win_state_info) const;
+        bool CanTsumo(WinStateInfo &&win_state_info) const;
         bool CanRiichi() const;
         bool IsTenpai() const;
         //bool CanNineTiles(bool IsDealer);  // 九種九牌
@@ -37,7 +37,7 @@ namespace mj
         std::pair<Tile, bool> Discard(Tile tile);  // return whether tsumogiri or not
 
         // get winning info
-        [[nodiscard]] std::pair<HandInfo, WinScore> EvalWinHand(WinStateInfo win_state_info) const noexcept ;
+        [[nodiscard]] std::pair<HandInfo, WinScore> EvalWinHand(WinStateInfo &&win_state_info) const noexcept ;
         [[nodiscard]] std::optional<HandInfo> EvalTenpai() const noexcept ;
 
         // river

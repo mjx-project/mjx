@@ -34,9 +34,9 @@ namespace mj
         return hand_.PossibleOpensAfterDraw();
     }
 
-    bool Player::CanRon(Tile tile) const {
+    bool Player::CanRon(Tile tile, WinStateInfo &&win_state_info) const {
         // TODO: ここでフリテンでないことを確認
-        return YakuEvaluator::CanWin(WinInfo(hand_.win_info()).Ron(tile));
+        return YakuEvaluator::CanWin(WinInfo(std::move(win_state_info), hand_.win_info()).Ron(tile));
     }
 
     bool Player::CanRiichi() const {
@@ -77,7 +77,7 @@ namespace mj
     };
 
     // get winning info
-    std::pair<HandInfo, WinScore> Player::EvalWinHand(WinStateInfo win_state_info) const noexcept {
+    std::pair<HandInfo, WinScore> Player::EvalWinHand(WinStateInfo &&win_state_info) const noexcept {
         return {HandInfo{hand_.ToVectorClosed(true), hand_.Opens(), hand_.LastTileAdded()},
                 YakuEvaluator::Eval(WinInfo(std::move(win_state_info), hand_.win_info()))};
     }
@@ -104,10 +104,8 @@ namespace mj
         return player_id_;
     }
 
-    bool Player::CanTsumo() const {
-        return hand_.IsCompleted();
-        // if (!hand_.IsCompleted()) return false;
-        // return YakuEvaluator::CanWin(WinInfo(hand_.win_info()));
+    bool Player::CanTsumo(WinStateInfo &&win_state_info) const {
+        return YakuEvaluator::CanWin(WinInfo(std::move(win_state_info), hand_.win_info()));
     }
 
     bool Player::IsCompleted(Tile additional_tile) const {
