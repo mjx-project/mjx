@@ -66,27 +66,11 @@ namespace mj
 
     std::unordered_map<PlayerId, Observation> State::CreateObservations() const {
         switch (last_event_) {
-            // kDraw = mjproto::EVENT_TYPE_DRAW,
-            // kDiscardFromHand = mjproto::EVENT_TYPE_DISCARD_FROM_HAND,
-            // kDiscardDrawnTile = mjproto::EVENT_TYPE_DISCARD_DRAWN_TILE,  // ツモ切り, Tsumogiri
-            // kRiichi = mjproto::EVENT_TYPE_RIICHI,
-            // kTsumo = mjproto::EVENT_TYPE_TSUMO,
-            // kRon = mjproto::EVENT_TYPE_RON,
-            // kChi = mjproto::EVENT_TYPE_CHI,
-            // kPon = mjproto::EVENT_TYPE_PON,
-            // kKanClosed = mjproto::EVENT_TYPE_KAN_CLOSED,
-            // kKanOpened = mjproto::EVENT_TYPE_KAN_OPENED,
-            // kKanAdded = mjproto::EVENT_TYPE_KAN_ADDED,
-            // kNewDora = mjproto::EVENT_TYPE_NEW_DORA,
-            // kRiichiScoreChange = mjproto::EVENT_TYPE_RIICHI_SCORE_CHANGE,
-            // kNoWinner = mjproto::EVENT_TYPE_NO_WINNER,
             case EventType::kDraw:
                 {
                     auto action_taker = last_action_taker_;  // drawer
                     auto player_id = player(action_taker).player_id();
                     auto observation = Observation(action_taker, state_);
-                    // TODO: check action under riichi
-
                     // => Tsumo
                     if (player(action_taker).IsCompleted() && player(action_taker).CanTsumo(win_state_info(action_taker))) {
                         observation.add_possible_action(PossibleAction::CreateTsumo());
@@ -95,7 +79,6 @@ namespace mj
 
                     // => Kan
                     if (auto possible_kans = player(action_taker).PossibleOpensAfterDraw(); !possible_kans.empty()) {
-                        // TODO: implement here
                         return { {player_id, std::move(observation)} };
                     }
 

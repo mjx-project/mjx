@@ -40,6 +40,7 @@ namespace mj
     }
 
     bool Player::CanRiichi() const {
+        if (hand_.IsUnderRiichi()) return false;
         // TODO: ツモ番があるかどうかをここで確認
         return hand_.CanRiichi();
     }
