@@ -32,6 +32,7 @@ namespace mj
         static PossibleAction CreateOpen(Open open);
         static PossibleAction CreateRon();
         static PossibleAction CreateTsumo();
+        static PossibleAction CreateKanAdded();
     private:
         friend class Observation;
         mjproto::PossibleAction possible_action_{};

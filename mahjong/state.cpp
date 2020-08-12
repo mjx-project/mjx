@@ -81,6 +81,7 @@ namespace mj
 
                     // => Kan
                     if (auto possible_kans = player(action_taker).PossibleOpensAfterDraw(); !possible_kans.empty()) {
+                        observation.add_possible_action(PossibleAction::CreateKanAdded());
                         return { {player_id, std::move(observation)} };
                     }
 
