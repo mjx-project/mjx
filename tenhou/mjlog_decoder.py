@@ -274,10 +274,9 @@ class MjlogDecoder:
         if 1 << 2 & bits:
             return mahjong_pb2.EVENT_TYPE_CHI
         elif 1 << 3 & bits:
-            if 1 << 4 & bits:
-                return mahjong_pb2.EVENT_TYPE_KAN_ADDED
-            else:
-                return mahjong_pb2.EVENT_TYPE_PON
+            return mahjong_pb2.EVENT_TYPE_PON
+        elif 1 << 4 & bits:
+            return mahjong_pb2.EVENT_TYPE_KAN_ADDED
         else:
             if mahjong_pb2.RELATIVE_POS_SELF == bits & 3:
                 return mahjong_pb2.EVENT_TYPE_KAN_CLOSED

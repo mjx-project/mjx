@@ -29,11 +29,9 @@ namespace mj
         if (bits_ & MASK_IS_CHI) {
             return OpenType::kChi;
         } else if (bits_ & MASK_IS_PON) {
-            if (!(bits_ & MASK_IS_KAN_ADDED)) {
-                return OpenType::kPon;
-            } else {
-                return OpenType::kKanAdded;
-            }
+            return OpenType::kPon;
+        } else if (bits_ & MASK_IS_KAN_ADDED) {
+            return OpenType::kKanAdded;
         } else {
             if (RelativePos(static_cast<std::uint8_t>(bits_ & MASK_FROM)) == RelativePos::kSelf) {
                 return OpenType::kKanClosed;
@@ -412,6 +410,7 @@ namespace mj
     Open KanAdded::Create(Open pon) {
         std::uint16_t bits = pon.GetBits();
         bits |= MASK_IS_KAN_ADDED;
+        bits &= ~MASK_IS_PON;
         return Open(bits);
     }
 
