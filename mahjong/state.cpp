@@ -67,6 +67,7 @@ namespace mj
     std::unordered_map<PlayerId, Observation> State::CreateObservations() const {
         switch (last_event_) {
             case EventType::kDraw:
+            case EventType::kNewDora:
                 {
                     auto action_taker = last_action_taker_;  // drawer
                     auto player_id = player(action_taker).player_id();
@@ -121,7 +122,6 @@ namespace mj
             case EventType::kKanClosed:
             case EventType::kKanOpened:
             case EventType::kKanAdded:
-            case EventType::kNewDora:
             case EventType::kNoWinner:
                 assert(false);
         }

@@ -328,7 +328,7 @@ namespace mj
     }
 
     std::vector<Open> Hand::PossibleKanClosed() const {
-        assert(Stage() == HandStage::kAfterDraw);
+        assert(Any(stage_, {HandStage::kAfterDraw, HandStage::kAfterDrawAfterKan}));
         assert(SizeClosed() == 2 || SizeClosed() == 5 || SizeClosed() == 8 || SizeClosed() == 11 || SizeClosed() == 14);
         std::unordered_map<TileType, std::uint8_t> m;
         for (const auto t : closed_tiles_) ++m[t.Type()];
@@ -342,7 +342,7 @@ namespace mj
     }
 
     std::vector<Open> Hand::PossibleKanAdded() const {
-        assert(Stage() == HandStage::kAfterDraw);
+        assert(Any(stage_, {HandStage::kAfterDraw, HandStage::kAfterDrawAfterKan}));
         assert(SizeClosed() == 2 || SizeClosed() == 5 || SizeClosed() == 8 || SizeClosed() == 11 || SizeClosed() == 14);
         auto v = std::vector<Open>();
         for (const auto &o : opens_) {
@@ -479,7 +479,7 @@ namespace mj
     }
 
     std::vector<Open> Hand::PossibleOpensAfterDraw() const {
-        assert(stage_ == HandStage::kAfterDraw);
+        assert(Any(stage_, {HandStage::kAfterDraw, HandStage::kAfterDrawAfterKan}));
         assert(SizeClosed() == 2 || SizeClosed() == 5 || SizeClosed() == 8 || SizeClosed() == 11 || SizeClosed() == 14);
         auto v = PossibleKanClosed();
         auto kan_addeds = PossibleKanAdded();
@@ -562,8 +562,7 @@ namespace mj
 
     bool Hand::CanRiichi() const {
         // TODO: use different cache might become faster
-
-        assert(stage_ == HandStage::kAfterDraw || stage_ == HandStage::kAfterKanClosed);
+        assert(Any(stage_, {HandStage::kAfterDraw, HandStage::kAfterDrawAfterKan}));
         assert(SizeClosed() == 2 || SizeClosed() == 5 || SizeClosed() == 8 || SizeClosed() == 11 || SizeClosed() == 14);
         if (!IsMenzen()) return false;
 
