@@ -90,6 +90,9 @@ TEST(state, CreateObservation) {
     // 15. DiscardDrawnTile => (8) Chi, Pon and KanOpened
     // 16. RiichiScoreChange => (8) Chi, Pon and KanOpened
 
+    // 特に記述がないテストケースは下記から
+    // https://tenhou.net/0/?log=2011020417gm-00a9-0000-b67fcaa3&tw=1
+
     std::string json; State state; std::unordered_map<PlayerId, Observation> observations; Observation observation;
 
     //  1. Draw => (1) Tsumo
