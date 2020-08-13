@@ -73,31 +73,31 @@ namespace mj
                     auto player_id = player(action_taker).player_id();
                     auto observation = Observation(action_taker, state_);
 
-                    // => Tsumo
+                    // => Tsumo (1)
                     if (player(action_taker).IsCompleted() && player(action_taker).CanTsumo(win_state_info(action_taker))) {
                         observation.add_possible_action(PossibleAction::CreateTsumo());
                         return { {player_id, std::move(observation)} };
                     }
 
-                    // => Kan
+                    // => Kan (2)
                     if (auto possible_kans = player(action_taker).PossibleOpensAfterDraw(); !possible_kans.empty()) {
                         observation.add_possible_action(PossibleAction::CreateKanAdded());
                         return { {player_id, std::move(observation)} };
                     }
 
-                    // => Riichi
+                    // => Riichi (3)
                     if (player(action_taker).CanRiichi()) {
                         observation.add_possible_action(PossibleAction::CreateRiichi());
                         return { {player_id, std::move(observation)} };
                     }
 
-                    // => Discard
+                    // => Discard (4)
                     observation.add_possible_action(PossibleAction::CreateDiscard(player(action_taker).PossibleDiscards()));
                     return { {player_id, std::move(observation)} };
                 }
             case EventType::kRiichi:
                 {
-                    // => Discard
+                    // => Discard (5)
                     auto observation = Observation(last_action_taker_, state_);
                     observation.add_possible_action(PossibleAction::CreateDiscard(player(last_action_taker_).PossibleDiscardsAfterRiichi()));
                     return { {player(last_action_taker_).player_id(), std::move(observation)} };
@@ -105,19 +105,18 @@ namespace mj
             case EventType::kChi:
             case EventType::kPon:
                 {
-                    // => Discard
+                    // => Discard (6)
                     auto observation = Observation(last_action_taker_, state_);
                     observation.add_possible_action(PossibleAction::CreateDiscard(player(last_action_taker_).PossibleDiscards()));
                     return { {player(last_action_taker_).player_id(), std::move(observation)} };
                 }
             case EventType::kDiscardFromHand:
             case EventType::kDiscardDrawnTile:
-                // => Ron
+                // => Ron (7)
                 if (auto ron_observations = CheckRon(); !ron_observations.empty()) return ron_observations;
             case EventType::kRiichiScoreChange:
-                // => Chi, Pon and KanOpened
+                // => Chi, Pon and KanOpened (8)
                 if (auto steal_observations = CheckSteal(); !steal_observations.empty()) return steal_observations;
-                break;
             case EventType::kTsumo:
             case EventType::kRon:
             case EventType::kKanClosed:
@@ -126,6 +125,7 @@ namespace mj
             case EventType::kNoWinner:
                 assert(false);
         }
+        assert(false);
     }
 
     State::State(const std::string &json_str) {
