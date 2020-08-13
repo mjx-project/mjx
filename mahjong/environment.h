@@ -16,7 +16,7 @@ namespace mj
         void RunOneRound();
     private:
         const std::vector<AgentClient> &agents_;
-        State state_ = State();
+        State state_;
 
         const AgentClient& agent(AbsolutePos pos) const;
     };

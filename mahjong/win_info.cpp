@@ -7,6 +7,7 @@
 
 namespace mj {
     WinInfo& WinInfo::Ron(Tile tile) noexcept {
+        assert(!hand.win_tile);
         assert(hand.closed_tiles.find(tile) == hand.closed_tiles.end());
         hand.closed_tiles.insert(tile);
         const auto tile_type = tile.Type();

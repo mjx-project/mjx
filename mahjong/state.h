@@ -17,7 +17,10 @@ namespace mj
     class State
     {
     public:
-        explicit State(std::uint32_t seed = 9999,
+        State() = default;
+        explicit State(
+                std::vector<PlayerId> player_ids,  // 起家, ..., ラス親
+                std::uint32_t seed = 9999,
                 int round = 0, int honba = 0, int riichi = 0,
                 std::array<int, 4> tens = {25000, 25000, 25000, 25000});
         explicit State(const std::string &json_str);
@@ -26,11 +29,11 @@ namespace mj
         AbsolutePos UpdateStateByDraw();
         void UpdateStateByAction(const Action& action);
         Action& UpdateStateByActionCandidates(const std::vector<Action> &action_candidates);
-        Observation CreateObservation(AbsolutePos who);
-        std::optional<std::vector<AbsolutePos>> RonCheck();  // 牌を捨てたプレイヤーの下家から順に
-        std::optional<std::vector<std::pair<AbsolutePos, std::vector<Open>>>> StealCheck();
+        std::unordered_map<PlayerId, Observation> CreateObservations() const;
         std::string ToJson() const;
         State Next() const;
+
+        static std::vector<PlayerId> ShufflePlayerIds(std::uint32_t seed, std::vector<PlayerId> player_ids);
 
         // accessors
         [[nodiscard]] AbsolutePos dealer() const;
@@ -53,12 +56,14 @@ namespace mj
         std::uint32_t seed_;
         AbsolutePos last_action_taker_;
         EventType last_event_;
+        std::optional<Tile> last_discard_;
         AbsolutePos drawer_;  // to be removed
         AbsolutePos latest_discarder_;  // to be removed
 
         // accessors
         [[nodiscard]] const Player& player(AbsolutePos pos) const;
         [[nodiscard]] Player& mutable_player(AbsolutePos pos);
+        [[nodiscard]] WinStateInfo win_state_info(AbsolutePos who) const;
 
         // event operations
         Tile Draw(AbsolutePos who);
@@ -70,6 +75,8 @@ namespace mj
         void Tsumo(AbsolutePos winner);
         void Ron(AbsolutePos winner, AbsolutePos loser, Tile tile);
         void NoWinner();
+        std::unordered_map<PlayerId, Observation> CheckSteal() const;
+        std::unordered_map<PlayerId, Observation> CheckRon() const;
 
         [[nodiscard]] std::pair<HandInfo, WinScore> EvalWinHand(AbsolutePos who) const noexcept;
     };

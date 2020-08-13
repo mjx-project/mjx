@@ -289,7 +289,7 @@ namespace mj
         return possible_discards;
     }
 
-    std::vector<Tile> Hand::PossibleDiscardsAfterRiichi() {
+    std::vector<Tile> Hand::PossibleDiscardsAfterRiichi() const {
         assert(IsMenzen());
         assert(under_riichi_);
         assert(stage_ == HandStage::kAfterRiichi);
@@ -327,8 +327,8 @@ namespace mj
         return v;
     }
 
-    std::vector<Open> Hand::PossibleKanClosed() {
-        assert(Stage() == HandStage::kAfterDraw);
+    std::vector<Open> Hand::PossibleKanClosed() const {
+        assert(Any(stage_, {HandStage::kAfterDraw, HandStage::kAfterDrawAfterKan}));
         assert(SizeClosed() == 2 || SizeClosed() == 5 || SizeClosed() == 8 || SizeClosed() == 11 || SizeClosed() == 14);
         std::unordered_map<TileType, std::uint8_t> m;
         for (const auto t : closed_tiles_) ++m[t.Type()];
@@ -341,8 +341,8 @@ namespace mj
         return v;
     }
 
-    std::vector<Open> Hand::PossibleKanAdded() {
-        assert(Stage() == HandStage::kAfterDraw);
+    std::vector<Open> Hand::PossibleKanAdded() const {
+        assert(Any(stage_, {HandStage::kAfterDraw, HandStage::kAfterDrawAfterKan}));
         assert(SizeClosed() == 2 || SizeClosed() == 5 || SizeClosed() == 8 || SizeClosed() == 11 || SizeClosed() == 14);
         auto v = std::vector<Open>();
         for (const auto &o : opens_) {
@@ -478,8 +478,8 @@ namespace mj
         return v;
     }
 
-    std::vector<Open> Hand::PossibleOpensAfterDraw() {
-        assert(stage_ == HandStage::kAfterDraw);
+    std::vector<Open> Hand::PossibleOpensAfterDraw() const {
+        assert(Any(stage_, {HandStage::kAfterDraw, HandStage::kAfterDrawAfterKan}));
         assert(SizeClosed() == 2 || SizeClosed() == 5 || SizeClosed() == 8 || SizeClosed() == 11 || SizeClosed() == 14);
         auto v = PossibleKanClosed();
         auto kan_addeds = PossibleKanAdded();
@@ -562,8 +562,7 @@ namespace mj
 
     bool Hand::CanRiichi() const {
         // TODO: use different cache might become faster
-
-        assert(stage_ == HandStage::kAfterDraw || stage_ == HandStage::kAfterKanClosed);
+        assert(Any(stage_, {HandStage::kAfterDraw, HandStage::kAfterDrawAfterKan}));
         assert(SizeClosed() == 2 || SizeClosed() == 5 || SizeClosed() == 8 || SizeClosed() == 11 || SizeClosed() == 14);
         if (!IsMenzen()) return false;
 
@@ -672,8 +671,7 @@ namespace mj
     }
 
     WinHandInfo Hand::win_info() const noexcept {
-        assert(last_tile_added_);
-        return WinHandInfo(closed_tiles_, opens_, ClosedTileTypes(), AllTileTypes(), last_tile_added_.value(), stage_, IsUnderRiichi(), IsMenzen());
+        return WinHandInfo(closed_tiles_, opens_, ClosedTileTypes(), AllTileTypes(), last_tile_added_, stage_, IsUnderRiichi(), IsMenzen());
     }
 
     bool Hand::IsTenpai() const {
@@ -689,6 +687,13 @@ namespace mj
             if (closed_tile_types[tile_type] == 0) closed_tile_types.erase(tile_type);
         }
         return false;
+    }
+
+    bool Hand::IsCompleted(Tile additional_tile) const {
+        assert(SizeClosed() == 1 || SizeClosed() == 4 || SizeClosed() == 7 || SizeClosed() == 10 || SizeClosed() == 13);
+        auto closed_tile_types = ClosedTileTypes();
+        ++closed_tile_types[additional_tile.Type()];
+        return WinHandCache::instance().Has(closed_tile_types);
     }
 
     HandParams::HandParams(const std::string &closed) {

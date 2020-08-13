@@ -27,7 +27,12 @@ namespace mj
         Open open() const;
         std::vector<Tile> discard_candidates() const;
 
-        static PossibleAction CreateDiscard(const std::vector<Tile>& possible_discards);
+        static PossibleAction CreateDiscard(std::vector<Tile> &&possible_discards);
+        static PossibleAction CreateRiichi();
+        static PossibleAction CreateOpen(Open open);
+        static PossibleAction CreateRon();
+        static PossibleAction CreateTsumo();
+        static PossibleAction CreateKanAdded();
     private:
         friend class Observation;
         mjproto::PossibleAction possible_action_{};
@@ -36,7 +41,7 @@ namespace mj
     class Observation
     {
     public:
-        Observation() = delete;  // Observation is generated only from State::CreatObservation
+        Observation() = default;  // Observation is generated only from State::CreatObservation
         // getter
         AbsolutePos who() const;
         Hand initial_hand() const;
@@ -44,7 +49,7 @@ namespace mj
         [[nodiscard]] std::vector<PossibleAction> possible_actions() const;
         std::vector<Event> taken_actions() const;
         // setter
-        void add_possible_action(PossibleAction possible_action);
+        void add_possible_action(PossibleAction &&possible_action);
 
         void ClearPossibleActions();
         std::string ToString() const;

@@ -11,16 +11,18 @@ namespace mj
     {
     public:
         Player() = default;
-        Player(AbsolutePos position, River river, Hand initial_hand);
+        Player(PlayerId player_id, AbsolutePos position, River river, Hand initial_hand);
         [[nodiscard]] AbsolutePos position() const;
 
         // action validators
         std::vector<Tile> PossibleDiscards() const;  // TODO(sotetsuk): Current implementation has the tiles with same type (e.g., 2m x 3). What is the Tenhou's implementation? Only first id? or any id?
-        std::vector<Tile> PossibleDiscardsAfterRiichi();
+        std::vector<Tile> PossibleDiscardsAfterRiichi() const;
         std::vector<Open> PossibleOpensAfterOthersDiscard(Tile tile, RelativePos from) const;  // includes Chi, Pon, and KanOpened
-        std::vector<Open> PossibleOpensAfterDraw();  // includes KanClosed and KanAdded
-        bool CanRon(Tile tile) const;  // This does not take furiten and fan into account.
-        bool IsCompleted() const;
+        std::vector<Open> PossibleOpensAfterDraw() const;  // includes KanClosed and KanAdded
+        bool IsCompleted(Tile additional_tile) const;  // This does not take into account yaku and furiten
+        bool IsCompleted() const;  // This does not take into account yaku and furiten
+        bool CanRon(Tile tile, WinStateInfo &&win_state_info) const;
+        bool CanTsumo(WinStateInfo &&win_state_info) const;
         bool CanRiichi() const;
         bool IsTenpai() const;
         //bool CanNineTiles(bool IsDealer);  // 九種九牌
@@ -35,13 +37,16 @@ namespace mj
         std::pair<Tile, bool> Discard(Tile tile);  // return whether tsumogiri or not
 
         // get winning info
-        [[nodiscard]] std::pair<HandInfo, WinScore> EvalWinHand(WinStateInfo win_state_info) const noexcept ;
+        [[nodiscard]] std::pair<HandInfo, WinScore> EvalWinHand(WinStateInfo &&win_state_info) const noexcept ;
         [[nodiscard]] std::optional<HandInfo> EvalTenpai() const noexcept ;
 
         // river
         void Discard(Tile tile, bool tsumogiri);
         Tile latest_discard() const;
+
+        [[nodiscard]] PlayerId player_id() const;
     private:
+        PlayerId player_id_;
         AbsolutePos position_;
         River river_;
         Hand hand_;

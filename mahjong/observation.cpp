@@ -20,12 +20,43 @@ namespace mj
         return ret;
     }
 
-    PossibleAction PossibleAction::CreateDiscard(const std::vector<Tile>& possible_discards) {
+    PossibleAction PossibleAction::CreateDiscard(std::vector<Tile> &&possible_discards) {
         auto possible_action = PossibleAction();
         possible_action.possible_action_.set_type(ToUType(ActionType::kDiscard));
         auto discard_candidates = possible_action.possible_action_.mutable_discard_candidates();
         for (auto tile: possible_discards) discard_candidates->Add(tile.Id());
         assert(discard_candidates->size() <= 14);
+        return possible_action;
+    }
+
+    PossibleAction PossibleAction::CreateRiichi() {
+        auto possible_action = PossibleAction();
+        possible_action.possible_action_.set_type(ToUType(ActionType::kRiichi));
+        return possible_action;
+    }
+
+    PossibleAction PossibleAction::CreateOpen(Open open) {
+        auto possible_action = PossibleAction();
+        possible_action.possible_action_.set_type(mjproto::ActionType(OpenTypeToActionType(open.Type())));
+        possible_action.possible_action_.set_open(open.GetBits());
+        return possible_action;
+    }
+
+    PossibleAction PossibleAction::CreateRon() {
+        auto possible_action = PossibleAction();
+        possible_action.possible_action_.set_type(ToUType(ActionType::kRon));
+        return possible_action;
+    }
+
+    PossibleAction PossibleAction::CreateTsumo() {
+        auto possible_action = PossibleAction();
+        possible_action.possible_action_.set_type(ToUType(ActionType::kTsumo));
+        return possible_action;
+    }
+
+    PossibleAction PossibleAction::CreateKanAdded() {
+        auto possible_action = PossibleAction();
+        possible_action.possible_action_.set_type(ToUType(ActionType::kKanAdded));
         return possible_action;
     }
 
@@ -45,10 +76,10 @@ namespace mj
         proto_.clear_possible_actions();
     }
 
-    void Observation::add_possible_action(PossibleAction possible_action) {
-        // TDOO (sotetsuk): add assertion. もしtypeがdiscardならすでにあるpossible_actionはdiscardではない
-        auto mutable_possible_actions = proto_.mutable_possible_actions();
-        mutable_possible_actions->Add(std::move(possible_action.possible_action_));
+    void Observation::add_possible_action(PossibleAction &&possible_action) {
+        assert(possible_action.type() != ActionType::kRiichi || proto_.possible_actions().empty());
+        assert(possible_action.type() != ActionType::kDiscard || proto_.possible_actions().empty());
+        proto_.mutable_possible_actions()->Add(std::move(possible_action.possible_action_));
     }
 
     Observation::Observation(AbsolutePos who, const mjproto::State &state) {

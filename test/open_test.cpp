@@ -314,6 +314,10 @@ TEST(open, OpenGenerator)
     o = Open(36459);
     EXPECT_EQ(o.Type(), OpenType::kPon);
     EXPECT_TRUE(check(o, {tt::kS6, tt::kS6, tt::kS6}, tt::kS6, RelativePos::kLeft));
+
+    // KanAdded from 東３局 https://tenhou.net/0/?log=2010112714gm-00a9-0000-d497e395
+    o = Open(28722);
+    EXPECT_EQ(o.Type(), OpenType::kKanAdded);
     // TODO: add tests from tenhou log for kans
 }
 

@@ -76,4 +76,34 @@ namespace mj
         }
         assert(false);
     }
+
+    EventType OpenTypeToEventType(OpenType open_type) {
+        switch (open_type) {
+            case OpenType::kChi:
+                return EventType::kChi;
+            case OpenType::kPon:
+                return EventType::kPon;
+            case OpenType::kKanOpened:
+                return EventType::kKanOpened;
+            case OpenType::kKanClosed:
+                return EventType::kKanClosed;
+            case OpenType::kKanAdded:
+                return EventType::kKanAdded;
+        }
+    }
+
+    ActionType OpenTypeToActionType(OpenType open_type) {
+        switch (open_type) {
+            case OpenType::kChi:
+                return ActionType::kChi;
+            case OpenType::kPon:
+                return ActionType::kPon;
+            case OpenType::kKanOpened:
+                return ActionType::kKanOpened;
+            case OpenType::kKanClosed:
+                return ActionType::kKanClosed;
+            case OpenType::kKanAdded:
+                return ActionType::kKanAdded;
+        }
+    }
 } // namespace mj

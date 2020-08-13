@@ -217,12 +217,16 @@ namespace mj {
         kBegin = 0,
     };
 
+    using PlayerId = std::string;
+
     std::uint8_t Num(TileType type) noexcept ;
     bool Is(TileType type, TileSetType tile_set_type) noexcept;
     TileSetType Color(TileType type) noexcept ;
 
     RelativePos ToRelativePos(AbsolutePos origin, AbsolutePos target);
     Wind ToSeatWind(AbsolutePos who, AbsolutePos dealer);
+    EventType OpenTypeToEventType(OpenType open_type);
+    ActionType OpenTypeToActionType(OpenType open_type);
 }  // namespace mj
 
 #endif //MAHJONG_TYPES_H
