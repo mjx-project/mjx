@@ -39,6 +39,13 @@ Clion側の設定は [clion/README.md](./clion/README.md) を参照。
 ## Tenhou/mjlog
 天鳳から天鳳位などの牌譜をダウンロードすると、基本的に `.mjlog` という拡張子のファイルが得られる。これはそのままWindows版の天鳳で観戦することができる。このファイルの中身をテキストエディタ等で直接編集したい場合は、一度 `.gz` 形式になおしてから解凍する必要がある[[1](http://rausumaru.hatenablog.com/entry/2019/08/30/021154)]。名前の匿名表示のオンオフはプレミアム版で設定可能らしい（要確認）。
 
+```sh
+# cd mjlog_dir
+$ for x in $(ls); do mv ${x} ${x}.gz; done
+$ cd ../
+$ gzip -dr mjlog_dir
+```
+
 
 ## Terms
 | Japanese | English | Reference |
