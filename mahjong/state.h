@@ -26,9 +26,7 @@ namespace mj
         explicit State(const std::string &json_str);
         bool IsRoundOver() const;
         bool IsGameOver() const;
-        AbsolutePos UpdateStateByDraw();
-        void UpdateStateByAction(const Action& action);
-        Action& UpdateStateByActionCandidates(const std::vector<Action> &action_candidates);
+        const Action& Update(std::vector<Action> &&action_candidates);
         std::unordered_map<PlayerId, Observation> CreateObservations() const;
         std::string ToJson() const;
         State Next() const;

@@ -33,24 +33,6 @@ namespace mj
         for (int i = 0; i < 4; ++i) state_.add_private_infos()->set_who(mjproto::AbsolutePos(i));
     }
 
-    AbsolutePos State::UpdateStateByDraw() {
-        mutable_player(drawer_).Draw(wall_.Draw());
-        // TODO (sotetsuk): update action history
-        last_event_ = EventType::kDraw;
-        return drawer_;
-    }
-
-    void State::UpdateStateByAction(const Action &action) {
-        switch (action.type()) {
-            case ActionType::kDiscard:
-                auto [tile, tsumogiri] = mutable_player(action.who()).Discard(action.discard());
-                last_event_ = tsumogiri ? EventType::kDiscardDrawnTile : EventType::kDiscardFromHand;
-                drawer_ = AbsolutePos((static_cast<int>(action.who()) + 1) % 4);
-                latest_discarder_ = action.who();
-                break;
-        }
-    }
-
     bool State::IsRoundOver() const {
         if (!wall_.HasDrawLeft()) return true;
         return false;
