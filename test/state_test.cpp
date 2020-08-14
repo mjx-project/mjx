@@ -227,7 +227,7 @@ TEST(state, Update) {
     action.set_who(mjproto::ABSOLUTE_POS_INIT_EAST);
     action.set_type(mjproto::ACTION_TYPE_DISCARD);
     action.set_discard(39);
-    actions = { Action(action) };
+    actions = { Action(std::move(action)) };
 
     state_before.Update(std::move(actions));
     state_after = State(after);
