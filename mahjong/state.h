@@ -26,7 +26,7 @@ namespace mj
         explicit State(const std::string &json_str);
         bool IsRoundOver() const;
         bool IsGameOver() const;
-        const Action& Update(std::vector<Action> &&action_candidates);
+        void Update(std::vector<Action> &&action_candidates);
         std::unordered_map<PlayerId, Observation> CreateObservations() const;
         std::string ToJson() const;
         State Next() const;
@@ -62,6 +62,9 @@ namespace mj
         [[nodiscard]] const Player& player(AbsolutePos pos) const;
         [[nodiscard]] Player& mutable_player(AbsolutePos pos);
         [[nodiscard]] WinStateInfo win_state_info(AbsolutePos who) const;
+
+        // update
+        void Update(Action &&action);
 
         // event operations
         Tile Draw(AbsolutePos who);

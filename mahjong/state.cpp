@@ -593,4 +593,38 @@ namespace mj
                 wall_.ura_dora_count());
         return win_state_info;
     }
+
+    void State::Update(std::vector<Action> &&action_candidates) {
+        assert(!action_candidates.empty() && action_candidates.size() <= 3);
+        if (action_candidates.size() == 1) {
+            Update(std::move(action_candidates.front()));
+        } else {
+            // if more than 1 action candidates exist
+            bool ron_exist = std::count_if(action_candidates.begin(), action_candidates.end(),
+                    [](const Action &x){ return x.type() == ActionType::kRon; });
+            if (ron_exist) {
+                // if ron exist, apply update to all ron action
+                // TODO: sort ron actions from 上家 to 下家
+                for (auto & action_candidate : action_candidates) Update(std::move(action_candidate));
+            } else {
+                // if ron does not exist, update via Pon or Kan action
+                auto it = find_if(action_candidates.begin(), action_candidates.end(),
+                        [](const Action &x){ return x.type() == ActionType::kPon || x.type() == ActionType::kKanOpened; });
+                Update(std::move(*it));
+            }
+        }
+    }
+
+    void State::Update(Action &&action) {
+        // Discard
+        // Riichi
+        // Tsumo
+        // Ron
+        // Chi
+        // Pon
+        // KanClosed
+        // KanOpened
+        // KanAdded
+        // Kyushu
+    }
 }  // namespace mj
