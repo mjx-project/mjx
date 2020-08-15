@@ -20,6 +20,9 @@ namespace mj
         bool yes() const { return proto_.yes(); }
         Tile discard() const {return Tile(proto_.discard()); }
         Open open() const { return Open(proto_.open()); }
+
+        static Action CreateDiscard(AbsolutePos who, Tile discard);
+
     private:
         mjproto::Action proto_;
     };
