@@ -616,15 +616,21 @@ namespace mj
     }
 
     void State::Update(Action &&action) {
-        // Discard
-        // Riichi
-        // Tsumo
-        // Ron
-        // Chi
-        // Pon
-        // KanClosed
-        // KanOpened
-        // KanAdded
-        // Kyushu
-    }
+        auto who = action.who();
+        switch (action.type()) {
+            case ActionType::kDiscard:
+                Discard(who, action.discard());
+                return;
+            case ActionType::kRiichi:
+            case ActionType::kTsumo:
+            case ActionType::kRon:
+            case ActionType::kChi:
+            case ActionType::kPon:
+            case ActionType::kKanClosed:
+            case ActionType::kKanOpened:
+            case ActionType::kKanAdded:
+            case ActionType::kKyushu:
+                assert(false);  // Not implemented yet
+        }
+   }
 }  // namespace mj
