@@ -52,8 +52,8 @@ namespace mj
         std::array<Player, 4> players_;
         // temporal memory
         std::uint32_t seed_;
-        AbsolutePos last_action_taker_;
-        EventType last_event_;
+        AbsolutePos last_event_who_;
+        EventType last_event_type_;
         std::optional<Tile> last_discard_;
 
         // accessors

@@ -9,7 +9,7 @@ namespace mj
     : seed_(seed), wall_(0, seed) {
         // TODO: use seed_
         assert(std::set(player_ids.begin(), player_ids.end()).size() == 4);  // player_ids should be identical
-        last_event_ = EventType::kDiscardDrawnTile;
+        last_event_type_ = EventType::kDiscardDrawnTile;
         for (int i = 0; i < 4; ++i)
             players_[i] = Player{player_ids[i], AbsolutePos(i), River(), Hand(wall_.initial_hand_tiles(AbsolutePos(i)))};
 
@@ -45,11 +45,11 @@ namespace mj
     }
 
     std::unordered_map<PlayerId, Observation> State::CreateObservations() const {
-        switch (last_event_) {
+        switch (last_event_type_) {
             case EventType::kDraw:
             case EventType::kNewDora:
                 {
-                    auto action_taker = last_action_taker_;  // drawer
+                    auto action_taker = last_event_who_;  // drawer
                     auto player_id = player(action_taker).player_id();
                     auto observation = Observation(action_taker, state_);
 
@@ -78,17 +78,17 @@ namespace mj
             case EventType::kRiichi:
                 {
                     // => Discard (5)
-                    auto observation = Observation(last_action_taker_, state_);
-                    observation.add_possible_action(PossibleAction::CreateDiscard(player(last_action_taker_).PossibleDiscardsAfterRiichi()));
-                    return { {player(last_action_taker_).player_id(), std::move(observation)} };
+                    auto observation = Observation(last_event_who_, state_);
+                    observation.add_possible_action(PossibleAction::CreateDiscard(player(last_event_who_).PossibleDiscardsAfterRiichi()));
+                    return { {player(last_event_who_).player_id(), std::move(observation)} };
                 }
             case EventType::kChi:
             case EventType::kPon:
                 {
                     // => Discard (6)
-                    auto observation = Observation(last_action_taker_, state_);
-                    observation.add_possible_action(PossibleAction::CreateDiscard(player(last_action_taker_).PossibleDiscards()));
-                    return { {player(last_action_taker_).player_id(), std::move(observation)} };
+                    auto observation = Observation(last_event_who_, state_);
+                    observation.add_possible_action(PossibleAction::CreateDiscard(player(last_event_who_).PossibleDiscards()));
+                    return { {player(last_event_who_).player_id(), std::move(observation)} };
                 }
             case EventType::kDiscardFromHand:
             case EventType::kDiscardDrawnTile:
@@ -190,7 +190,7 @@ namespace mj
     }
 
     Tile State::Draw(AbsolutePos who) {
-        bool is_kan_draw = last_action_taker_ == who && Any(last_event_, {EventType::kKanClosed, EventType::kKanOpened, EventType::kKanAdded});
+        bool is_kan_draw = last_event_who_ == who && Any(last_event_type_, {EventType::kKanClosed, EventType::kKanOpened, EventType::kKanAdded});
         auto draw = is_kan_draw ? wall_.KanDraw() : wall_.Draw();
         mutable_player(who).Draw(draw);
 
@@ -202,8 +202,8 @@ namespace mj
         state_.mutable_private_infos(ToUType(who))->add_draws(draw.Id());
 
         // set last action
-        last_action_taker_ = who;
-        last_event_ = EventType::kDraw;
+        last_event_who_ = who;
+        last_event_type_ = EventType::kDraw;
 
         return draw;
     }
@@ -221,8 +221,8 @@ namespace mj
         // TODO: set discarded tile to river
 
         // set last action
-        last_action_taker_ = who;
-        last_event_ = tsumogiri ? EventType::kDiscardDrawnTile : EventType::kDiscardFromHand;
+        last_event_who_ = who;
+        last_event_type_ = tsumogiri ? EventType::kDiscardDrawnTile : EventType::kDiscardFromHand;
         last_discard_ = discard;
     }
 
@@ -236,8 +236,8 @@ namespace mj
         state_.mutable_event_history()->mutable_events()->Add(std::move(event));
 
         // set last action
-        last_action_taker_ = who;
-        last_event_ = EventType::kRiichi;
+        last_event_who_ = who;
+        last_event_type_ = EventType::kRiichi;
     }
 
     void State::ApplyOpen(AbsolutePos who, Open open) {
@@ -266,8 +266,8 @@ namespace mj
         state_.mutable_event_history()->mutable_events()->Add(std::move(event));
 
         // set last action
-        last_action_taker_ = who;
-        last_event_ = OpenTypeToEventType(open_type);
+        last_event_who_ = who;
+        last_event_type_ = OpenTypeToEventType(open_type);
     }
 
     void State::AddNewDora() {
@@ -282,21 +282,21 @@ namespace mj
         state_.add_ura_doras(new_ura_dora_ind.Id());
 
         // set last action
-        last_event_ = EventType::kNewDora;
+        last_event_type_ = EventType::kNewDora;
     }
 
     void State::RiichiScoreChange() {
         curr_score_.set_riichi(riichi() + 1);
-        curr_score_.set_ten(ToUType(last_action_taker_), ten(last_action_taker_) - 1000);
+        curr_score_.set_ten(ToUType(last_event_who_), ten(last_event_who_) - 1000);
 
         // set proto
         mjproto::Event event{};
-        event.set_who(mjproto::AbsolutePos(last_action_taker_));
+        event.set_who(mjproto::AbsolutePos(last_event_who_));
         event.set_type(mjproto::EVENT_TYPE_RIICHI_SCORE_CHANGE);
         state_.mutable_event_history()->mutable_events()->Add(std::move(event));
 
         // set last action
-        last_event_ = EventType::kRiichiScoreChange;
+        last_event_type_ = EventType::kRiichiScoreChange;
     }
 
     void State::Tsumo(AbsolutePos winner) {
@@ -355,8 +355,8 @@ namespace mj
         state_.mutable_terminal()->mutable_final_score()->CopyFrom(curr_score_);
 
         // set last action
-        last_action_taker_ = winner;
-        last_event_ = EventType::kTsumo;
+        last_event_who_ = winner;
+        last_event_type_ = EventType::kTsumo;
     }
 
     void State::Ron(AbsolutePos winner, AbsolutePos loser, Tile tile) {
@@ -414,8 +414,8 @@ namespace mj
         state_.mutable_terminal()->mutable_final_score()->CopyFrom(curr_score_);
 
         // set last action
-        last_action_taker_ = winner;
-        last_event_ = EventType::kRon;
+        last_event_who_ = winner;
+        last_event_type_ = EventType::kRon;
     }
 
     void State::NoWinner() {
@@ -463,7 +463,7 @@ namespace mj
         state_.mutable_terminal()->mutable_final_score()->CopyFrom(curr_score_);
 
         // set last action
-        last_event_ = EventType::kNoWinner;
+        last_event_type_ = EventType::kNoWinner;
     }
 
     bool State::IsGameOver() const {
@@ -513,14 +513,14 @@ namespace mj
         // assert(IsRoundOver());
         assert(!IsGameOver());
         std::vector<PlayerId> player_ids(state_.player_ids().begin(), state_.player_ids().end());
-        if (last_event_ == EventType::kNoWinner) {
+        if (last_event_type_ == EventType::kNoWinner) {
             if (player(dealer()).IsTenpai()) {
                 return State(player_ids, seed_, round(), honba() + 1, riichi(), tens());
             } else {
                 return State(player_ids, seed_, round() + 1, honba() + 1, riichi(), tens());
             }
         } else {
-            if (last_action_taker_ == dealer()) {
+            if (last_event_who_ == dealer()) {
                 return State(player_ids, seed_, round(), honba() + 1, riichi(), tens());
             } else {
                 return State(player_ids, seed_, round() + 1, 0, riichi(), tens());
@@ -540,7 +540,7 @@ namespace mj
 
     std::unordered_map<PlayerId, Observation> State::CheckSteal() const {
         std::unordered_map<PlayerId, Observation> observations;
-        auto discarder = last_action_taker_;
+        auto discarder = last_event_who_;
         assert(last_discard_);
         auto discard = last_discard_.value();
         for (int i = 0; i < 4; ++i) {
@@ -562,7 +562,7 @@ namespace mj
     std::unordered_map<PlayerId, Observation> State::CheckRon() const {
         std::unordered_map<PlayerId, Observation> observations;
         assert(last_discard_);
-        auto discarder = last_action_taker_;
+        auto discarder = last_event_who_;
         auto discard = last_discard_.value();
         for (int i = 0; i < 4; ++i) {
             auto winner = AbsolutePos(i);
