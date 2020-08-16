@@ -10,8 +10,6 @@ namespace mj
         // TODO: use seed_
         assert(std::set(player_ids.begin(), player_ids.end()).size() == 4);  // player_ids should be identical
         last_event_ = EventType::kDiscardDrawnTile;
-        drawer_ = dealer();
-        latest_discarder_ = AbsolutePos::kInitNorth;
         for (int i = 0; i < 4; ++i)
             players_[i] = Player{player_ids[i], AbsolutePos(i), River(), Hand(wall_.initial_hand_tiles(AbsolutePos(i)))};
 

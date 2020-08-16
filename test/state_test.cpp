@@ -238,4 +238,6 @@ TEST(state, Update) {
     actions = { Action::CreateRiichi(AbsolutePos::kInitSouth, true) };
     state_before.Update(std::move(actions));
     EXPECT_EQ(state_before.ToJson(), state_after.ToJson());
+
+    // Draw後にRiichiをしなかった場合、次のCreateObservationがDiscard
 }
