@@ -13,7 +13,7 @@ namespace mj
     class Action
     {
     public:
-        Action() = delete;
+        Action() = default;
         explicit Action(mjproto::Action &&action_response) : proto_(std::move(action_response)) {}
         AbsolutePos who() const { return AbsolutePos(proto_.who()); }
         ActionType type() const { return ActionType(proto_.type()); }

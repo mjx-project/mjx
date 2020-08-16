@@ -637,5 +637,6 @@ namespace mj
             case ActionType::kKyushu:
                 assert(false);  // Not implemented yet
         }
+        last_action_ = std::move(action);
    }
 }  // namespace mj
