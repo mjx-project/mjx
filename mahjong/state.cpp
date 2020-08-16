@@ -622,6 +622,13 @@ namespace mj
                 Discard(who, action.discard());
                 return;
             case ActionType::kRiichi:
+                if (action.yes()) {
+                    Riichi(who);
+                } else {
+                    // TODO: skip riichi in next observation creation
+                    assert(false);  // Not implemented yet
+                }
+                return;
             case ActionType::kTsumo:
             case ActionType::kRon:
             case ActionType::kChi:

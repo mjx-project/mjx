@@ -9,4 +9,12 @@ namespace mj
         proto.set_discard(discard.Id());
         return Action(std::move(proto));
     }
+
+    Action Action::CreateRiichi(AbsolutePos who, bool yes) {
+        mjproto::Action proto;
+        proto.set_type(mjproto::ACTION_TYPE_RIICHI);
+        proto.set_who(mjproto::AbsolutePos(who));
+        proto.set_yes(yes);
+        return Action(std::move(proto));
+    }
 }  // namespace mj

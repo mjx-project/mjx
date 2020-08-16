@@ -22,7 +22,7 @@ namespace mj
         Open open() const { return Open(proto_.open()); }
 
         static Action CreateDiscard(AbsolutePos who, Tile discard);
-
+        static Action CreateRiichi(AbsolutePos who, bool yes);
     private:
         mjproto::Action proto_;
     };
