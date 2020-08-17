@@ -219,17 +219,19 @@ namespace mj
         assert(discard == discarded);
 
         // set proto
-        mjproto::Event event{};
-        event.set_who(mjproto::AbsolutePos(who));
-        event.set_type(tsumogiri ? mjproto::EVENT_TYPE_DISCARD_DRAWN_TILE : mjproto::EVENT_TYPE_DISCARD_FROM_HAND);
-        event.set_tile(discard.Id());
-        state_.mutable_event_history()->mutable_events()->Add(std::move(event));
+        mjproto::Event proto;
+        proto.set_who(mjproto::AbsolutePos(who));
+        proto.set_type(tsumogiri ? mjproto::EVENT_TYPE_DISCARD_DRAWN_TILE : mjproto::EVENT_TYPE_DISCARD_FROM_HAND);
+        proto.set_tile(discard.Id());
+        Event event(proto);
+        state_.mutable_event_history()->mutable_events()->Add(std::move(proto));
         // TODO: set discarded tile to river
 
         // set last action
         last_event_who_ = who;
         last_event_type_ = tsumogiri ? EventType::kDiscardDrawnTile : EventType::kDiscardFromHand;
         last_discard_ = discard;
+        last_discard_event_ = std::move(event);
     }
 
     void State::Riichi(AbsolutePos who) {
@@ -632,6 +634,8 @@ namespace mj
                 if (action.yes()) Tsumo(who);
                 break;
             case ActionType::kRon:
+                if (action.yes()) Ron(who, last_discard_event_.who(), last_discard_event_.tile());
+                break;
             case ActionType::kChi:
             case ActionType::kPon:
             case ActionType::kKanClosed:
