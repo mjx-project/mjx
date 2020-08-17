@@ -54,31 +54,20 @@ namespace mj
                     auto observation = Observation(action_taker, state_);
 
                     // => Tsumo (1)
-                    if (!(last_action_.who() == action_taker && Any(last_action_.type(), {ActionType::kTsumo, ActionType::kKanAdded, ActionType::kKanClosed, ActionType::kRiichi})) &&
-                        player(action_taker).IsCompleted() &&
-                        player(action_taker).CanTsumo(win_state_info(action_taker))) {
+                    if (player(action_taker).IsCompleted() && player(action_taker).CanTsumo(win_state_info(action_taker)))
                         observation.add_possible_action(PossibleAction::CreateTsumo());
-                        return { {player_id, std::move(observation)} };
-                    }
 
                     // => Kan (2)
-                    if (!(last_action_.who() == action_taker && Any(last_action_.type(), {ActionType::kKanAdded, ActionType::kKanClosed, ActionType::kRiichi}))) {
-                        auto possible_kans = player(action_taker).PossibleOpensAfterDraw();
-                        if (!possible_kans.empty()) {
-                            observation.add_possible_action(PossibleAction::CreateKanAdded());
-                            return { {player_id, std::move(observation)} };
-                        }
-                    }
+                    if (auto possible_kans = player(action_taker).PossibleOpensAfterDraw(); !possible_kans.empty())
+                        observation.add_possible_action(PossibleAction::CreateKanAdded());
 
                     // => Riichi (3)
-                    if (!(last_action_.who() == action_taker && last_action_.type() == ActionType::kRiichi) &&
-                        player(action_taker).CanRiichi()) {
+                    if (player(action_taker).CanRiichi())
                         observation.add_possible_action(PossibleAction::CreateRiichi());
-                        return { {player_id, std::move(observation)} };
-                    }
 
                     // => Discard (4)
                     observation.add_possible_action(PossibleAction::CreateDiscard(player(action_taker).PossibleDiscards()));
+
                     return { {player_id, std::move(observation)} };
                 }
             case EventType::kRiichi:
@@ -101,7 +90,7 @@ namespace mj
             case EventType::kRiichiScoreChange:  // TODO: RiichiScoreChange => Ron はありえる？
                 // => Ron (7)
                 // => Chi, Pon and KanOpened (8)
-                assert(!Any(last_action_.type(), {ActionType::kRon, ActionType::kChi, ActionType::kPon, ActionType::kKanOpened}));
+                assert(last_action_.type() != ActionType::kNo);
                 if (auto steal_observations = CheckSteal(); !steal_observations.empty()) return steal_observations;
             case EventType::kTsumo:
             case EventType::kRon:
@@ -554,20 +543,20 @@ namespace mj
              auto observation = Observation(stealer, state_);
 
              // check ron
-            if (player(stealer).IsCompleted(discard) &&
-                player(stealer).CanRon(discard, win_state_info(stealer))) {
-                observation.add_possible_action(PossibleAction::CreateRon());
-            }
-
-            // check chi, pon and kan_opened
-             auto relative_pos = ToRelativePos(stealer, discarder);
-             auto possible_opens = player(stealer).PossibleOpensAfterOthersDiscard(discard, relative_pos);
-             for (const auto & possible_open: possible_opens) {
-                 auto possible_action = PossibleAction::CreateOpen(possible_open);
-                 observation.add_possible_action(std::move(possible_action));
+             if (player(stealer).IsCompleted(discard) &&
+                 player(stealer).CanRon(discard, win_state_info(stealer))) {
+                 observation.add_possible_action(PossibleAction::CreateRon());
              }
 
+             // check chi, pon and kan_opened
+             auto relative_pos = ToRelativePos(stealer, discarder);
+             auto possible_opens = player(stealer).PossibleOpensAfterOthersDiscard(discard, relative_pos);
+             for (const auto & possible_open: possible_opens)
+                 observation.add_possible_action(PossibleAction::CreateOpen(possible_open));
+
              if (observation.possible_actions().empty()) continue;
+             observation.add_possible_action(PossibleAction::CreateNo());
+
              observations[player(stealer).player_id()] = std::move(observation);
          }
          return observations;
@@ -618,20 +607,23 @@ namespace mj
                 // TODO: discard後、可能なRon, Chi, Pon, KanがなければDrawもしてしまう
                 break;
             case ActionType::kRiichi:
-                if (action.yes()) Riichi(who);
+                Riichi(who);
                 break;
             case ActionType::kTsumo:
-                if (action.yes()) Tsumo(who);
+                Tsumo(who);
                 break;
             case ActionType::kRon:
-                if (action.yes()) Ron(who, last_discard_.who(), last_discard_.tile());
-                else Draw( AbsolutePos((ToUType(last_discard_.who()) + 1) % 4) );  // TODO: check 流局
+                Ron(who, last_discard_.who(), last_discard_.tile());
                 break;
             case ActionType::kChi:
             case ActionType::kPon:
-            case ActionType::kKanClosed:
             case ActionType::kKanOpened:
+                break;
+            case ActionType::kKanClosed:
             case ActionType::kKanAdded:
+            case ActionType::kNo:
+                Draw( AbsolutePos((ToUType(last_discard_.who()) + 1) % 4) );  // TODO: check 流局
+                break;
             case ActionType::kKyushu:
                 assert(false);  // Not implemented yet
         }

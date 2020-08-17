@@ -38,6 +38,7 @@ enum ActionType {
   ACTION_TYPE_KAN_OPENED = 7;
   ACTION_TYPE_KAN_ADDED = 8;
   ACTION_TYPE_KYUSYU = 9;
+  ACTION_TYPE_NO = 10;
 }
 
 enum EventType {
@@ -175,7 +176,6 @@ message Action {  // corresponds to mj::Action in cpp
   uint32 game_id = 1;
   AbsolutePos who = 2;
   ActionType type = 3;
-  bool yes = 4; // riichi_and_discard, tsumo, ron, chi, pon, kans and kyusyu (九種九牌)
   uint32 discard = 5;  // discard, riichi_and_discard, chi and pon
   uint32 open = 6;  // chi, pon, kan_opened, kan_closed, and kan_added
 }
