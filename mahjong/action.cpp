@@ -25,4 +25,12 @@ namespace mj
         proto.set_yes(yes);
         return Action(std::move(proto));
     }
+
+    Action Action::CreateRon(AbsolutePos who, bool yes) {
+        mjproto::Action proto;
+        proto.set_type(mjproto::ACTION_TYPE_RON);
+        proto.set_who(mjproto::AbsolutePos(who));
+        proto.set_yes(yes);
+        return Action(std::move(proto));
+    }
 }  // namespace mj
