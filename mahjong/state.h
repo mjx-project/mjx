@@ -14,6 +14,20 @@
 
 namespace mj
 {
+    class Event
+    {
+    public:
+        Event() = default;
+        Event(mjproto::Event event) : proto_(std::move(event)) {}
+        Event(mjproto::Event &&event) : proto_(std::move(event)) {}
+        EventType type() const { return EventType(proto_.type()); }
+        AbsolutePos who() const { return AbsolutePos(proto_.who()); }
+        Tile tile() const { return Tile(proto_.tile()); }
+        Open open() const { return Open(proto_.open()); }
+    private:
+        mjproto::Event proto_;
+    };
+
     class State
     {
     public:
@@ -56,6 +70,7 @@ namespace mj
         EventType last_event_type_;
         std::optional<Tile> last_discard_;
         Action last_action_;
+        Event last_discard_event_;
 
         // accessors
         [[nodiscard]] const Player& player(AbsolutePos pos) const;
