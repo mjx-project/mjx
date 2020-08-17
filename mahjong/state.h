@@ -90,7 +90,6 @@ namespace mj
         void Ron(AbsolutePos winner, AbsolutePos loser, Tile tile);
         void NoWinner();
         std::unordered_map<PlayerId, Observation> CheckSteal() const;
-        std::unordered_map<PlayerId, Observation> CheckRon() const;
 
         [[nodiscard]] std::pair<HandInfo, WinScore> EvalWinHand(AbsolutePos who) const noexcept;
     };
