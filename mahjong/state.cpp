@@ -618,6 +618,7 @@ namespace mj
             case ActionType::kChi:
             case ActionType::kPon:
             case ActionType::kKanOpened:
+                ApplyOpen(who, action.open());
                 break;
             case ActionType::kKanClosed:
             case ActionType::kKanAdded:

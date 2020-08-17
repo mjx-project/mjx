@@ -286,5 +286,5 @@ TEST(state, Update) {
     state_after = State(json_after);
     actions = { Action::CreateOpen(AbsolutePos::kInitNorth, Open(42031)) };
     state_before.Update(std::move(actions));
-    // EXPECT_EQ(state_before.ToJson(), state_after.ToJson());
+    EXPECT_EQ(state_before.ToJson(), state_after.ToJson());
 }

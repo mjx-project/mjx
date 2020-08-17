@@ -33,8 +33,9 @@ namespace mj
 
     Action Action::CreateOpen(AbsolutePos who, Open open) {
         mjproto::Action proto;
-        proto.set_type(mjproto::ActionType(OpenTypeToActionType(open.Type())));
         proto.set_who(mjproto::AbsolutePos(who));
+        proto.set_type(mjproto::ActionType(OpenTypeToActionType(open.Type())));
+        proto.set_open(open.GetBits());
         return Action(std::move(proto));
     }
 
