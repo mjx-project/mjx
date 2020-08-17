@@ -68,9 +68,8 @@ namespace mj
         std::uint32_t seed_;
         AbsolutePos last_event_who_;
         EventType last_event_type_;
-        std::optional<Tile> last_discard_;
         Action last_action_;
-        Event last_discard_event_;
+        Event last_discard_;
 
         // accessors
         [[nodiscard]] const Player& player(AbsolutePos pos) const;

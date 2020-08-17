@@ -143,7 +143,6 @@ namespace mj
          }
          // Set event history
          std::vector<int> draw_ixs = {0, 0, 0, 0};
-         AbsolutePos last_discarder;
          for (int i = 0; i < state->event_history().events_size(); ++i) {
              auto event = state->event_history().events(i);
              auto who = AbsolutePos(event.who());
@@ -157,7 +156,6 @@ namespace mj
                  case mjproto::EVENT_TYPE_DISCARD_FROM_HAND:
                  case mjproto::EVENT_TYPE_DISCARD_DRAWN_TILE:
                      Discard(who, Tile(event.tile()));
-                     last_discarder = who;
                      break;
                  case mjproto::EVENT_TYPE_RIICHI:
                      Riichi(who);
@@ -166,7 +164,8 @@ namespace mj
                      Tsumo(who);
                      break;
                  case mjproto::EVENT_TYPE_RON:
-                     Ron(who, last_discarder, Tile(event.tile()));
+                     assert(last_discard_.tile() == Tile(event.tile()));
+                     Ron(who, last_discard_.who(), Tile(event.tile()));
                      break;
                  case mjproto::EVENT_TYPE_CHI:
                  case mjproto::EVENT_TYPE_PON:
@@ -230,8 +229,7 @@ namespace mj
         // set last action
         last_event_who_ = who;
         last_event_type_ = tsumogiri ? EventType::kDiscardDrawnTile : EventType::kDiscardFromHand;
-        last_discard_ = discard;
-        last_discard_event_ = std::move(event);
+        last_discard_ = std::move(event);
     }
 
     void State::Riichi(AbsolutePos who) {
@@ -549,8 +547,7 @@ namespace mj
     std::unordered_map<PlayerId, Observation> State::CheckSteal() const {
         std::unordered_map<PlayerId, Observation> observations;
         auto discarder = last_event_who_;
-        assert(last_discard_);
-        auto discard = last_discard_.value();
+        auto discard = last_discard_.tile();
         for (int i = 0; i < 4; ++i) {
              auto stealer = AbsolutePos(i);
              if (stealer == discarder) continue;
@@ -569,9 +566,8 @@ namespace mj
 
     std::unordered_map<PlayerId, Observation> State::CheckRon() const {
         std::unordered_map<PlayerId, Observation> observations;
-        assert(last_discard_);
         auto discarder = last_event_who_;
-        auto discard = last_discard_.value();
+        auto discard = last_discard_.tile();
         for (int i = 0; i < 4; ++i) {
             auto winner = AbsolutePos(i);
             if (winner == discarder) continue;
@@ -634,7 +630,7 @@ namespace mj
                 if (action.yes()) Tsumo(who);
                 break;
             case ActionType::kRon:
-                if (action.yes()) Ron(who, last_discard_event_.who(), last_discard_event_.tile());
+                if (action.yes()) Ron(who, last_discard_.who(), last_discard_.tile());
                 break;
             case ActionType::kChi:
             case ActionType::kPon:
