@@ -54,19 +54,25 @@ namespace mj
                     auto observation = Observation(action_taker, state_);
 
                     // => Tsumo (1)
-                    if (player(action_taker).IsCompleted() && player(action_taker).CanTsumo(win_state_info(action_taker))) {
+                    if (!(last_action_.who() == action_taker && Any(last_action_.type(), {ActionType::kTsumo, ActionType::kKanAdded, ActionType::kKanClosed, ActionType::kRiichi})) &&
+                        player(action_taker).IsCompleted() &&
+                        player(action_taker).CanTsumo(win_state_info(action_taker))) {
                         observation.add_possible_action(PossibleAction::CreateTsumo());
                         return { {player_id, std::move(observation)} };
                     }
 
                     // => Kan (2)
-                    if (auto possible_kans = player(action_taker).PossibleOpensAfterDraw(); !possible_kans.empty()) {
-                        observation.add_possible_action(PossibleAction::CreateKanAdded());
-                        return { {player_id, std::move(observation)} };
+                    if (!(last_action_.who() == action_taker && Any(last_action_.type(), {ActionType::kKanAdded, ActionType::kKanClosed, ActionType::kRiichi}))) {
+                        auto possible_kans = player(action_taker).PossibleOpensAfterDraw();
+                        if (!possible_kans.empty()) {
+                            observation.add_possible_action(PossibleAction::CreateKanAdded());
+                            return { {player_id, std::move(observation)} };
+                        }
                     }
 
                     // => Riichi (3)
-                    if (player(action_taker).CanRiichi()) {
+                    if (!(last_action_.who() == action_taker && last_action_.type() == ActionType::kRiichi) &&
+                        player(action_taker).CanRiichi()) {
                         observation.add_possible_action(PossibleAction::CreateRiichi());
                         return { {player_id, std::move(observation)} };
                     }
@@ -618,15 +624,10 @@ namespace mj
         switch (action.type()) {
             case ActionType::kDiscard:
                 Discard(who, action.discard());
-                return;
+                break;
             case ActionType::kRiichi:
-                if (action.yes()) {
-                    Riichi(who);
-                } else {
-                    // TODO: skip riichi in next observation creation
-                    assert(false);  // Not implemented yet
-                }
-                return;
+                if (action.yes()) Riichi(who);
+                break;
             case ActionType::kTsumo:
             case ActionType::kRon:
             case ActionType::kChi:
