@@ -629,6 +629,8 @@ namespace mj
                 if (action.yes()) Riichi(who);
                 break;
             case ActionType::kTsumo:
+                if (action.yes()) Tsumo(who);
+                break;
             case ActionType::kRon:
             case ActionType::kChi:
             case ActionType::kPon:
