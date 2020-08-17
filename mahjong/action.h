@@ -25,6 +25,7 @@ namespace mj
         static Action CreateRiichi(AbsolutePos who, bool yes);
         static Action CreateTsumo(AbsolutePos who, bool yes);
         static Action CreateRon(AbsolutePos who, bool yes);
+        static Action CreateOpen(AbsolutePos who, Open open);
     private:
         mjproto::Action proto_;
     };

@@ -33,4 +33,11 @@ namespace mj
         proto.set_yes(yes);
         return Action(std::move(proto));
     }
+
+    Action Action::CreateOpen(AbsolutePos who, Open open) {
+        mjproto::Action proto;
+        proto.set_type(mjproto::ActionType(open.Type()));
+        proto.set_who(mjproto::AbsolutePos(who));
+        return Action(std::move(proto));
+    }
 }  // namespace mj
