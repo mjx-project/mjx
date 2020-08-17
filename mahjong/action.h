@@ -23,6 +23,7 @@ namespace mj
 
         static Action CreateDiscard(AbsolutePos who, Tile discard);
         static Action CreateRiichi(AbsolutePos who, bool yes);
+        static Action CreateTsumo(AbsolutePos who, bool yes);
     private:
         mjproto::Action proto_;
     };
