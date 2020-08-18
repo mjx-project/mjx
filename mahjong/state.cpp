@@ -32,8 +32,7 @@ namespace mj
     }
 
     bool State::IsRoundOver() const {
-        if (!wall_.HasDrawLeft()) return true;
-        return false;
+        return is_round_over_;
     }
 
     Player& State::mutable_player(AbsolutePos pos) {
@@ -292,6 +291,8 @@ namespace mj
             win.set_ten_changes(ToUType(who), ten_move);
             curr_score_.set_ten(ToUType(who), ten(who) + ten_move);
         }
+
+        is_round_over_ = true;
         state_.mutable_terminal()->mutable_wins()->Add(std::move(win));
         state_.mutable_terminal()->set_is_game_over(IsGameOver());
         state_.mutable_terminal()->mutable_final_score()->CopyFrom(curr_score_);
@@ -344,6 +345,7 @@ namespace mj
             curr_score_.set_ten(ToUType(who), ten(who) + ten_move);
         }
         // set win to terminal
+        is_round_over_ = true;
         state_.mutable_terminal()->mutable_wins()->Add(std::move(win));
         state_.mutable_terminal()->set_is_game_over(IsGameOver());
         state_.mutable_terminal()->mutable_final_score()->CopyFrom(curr_score_);
@@ -389,11 +391,14 @@ namespace mj
             state_.mutable_terminal()->mutable_no_winner()->add_ten_changes(ten_move);
             curr_score_.set_ten(i, ten(AbsolutePos(i)) + ten_move);
         }
+        is_round_over_ = true;
         state_.mutable_terminal()->set_is_game_over(IsGameOver());
         state_.mutable_terminal()->mutable_final_score()->CopyFrom(curr_score_);
     }
 
     bool State::IsGameOver() const {
+        if (!IsRoundOver()) return false;
+
         // TODO (sotetsuk): 西入後の終曲条件が供託未収と書いてあるので、修正が必要。　https://tenhou.net/man/
         // ラス親のあがりやめも考慮しないといけない
         auto tens_ = tens();

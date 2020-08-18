@@ -58,6 +58,7 @@ namespace mj
         Event last_draw_;
         Event last_event_;
         bool require_riichi_score_change_ = false;
+        bool is_round_over_ = false;
 
         // accessors
         [[nodiscard]] const Player& player(AbsolutePos pos) const;
