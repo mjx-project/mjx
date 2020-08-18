@@ -301,6 +301,7 @@ def reproduce_wall(path_to_mjlog: str) -> List[Tuple[List[int], List[int]]]:
         assert x[0] == "mt19937ar-sha512-n288-base64"
         assert len(x) == 2
         seed = repr(x[1])[1:-1]
+    assert(seed)  # Old (~2009.xx) log does not have SHUFFLE item
     out = subprocess.run(["docker", "run", "sotetsuk/twr:v0.0.1", "/twr",  seed, "100"], capture_output=True)
     wall_dices: List[Tuple[List[int], List[int]]] = []
     wall, dices = [], []
