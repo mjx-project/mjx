@@ -93,7 +93,7 @@ namespace mj
                 // => Ron (7)
                 // => Chi, Pon and KanOpened (8)
                 assert(last_action_.type() != ActionType::kNo);
-                if (auto steal_observations = CheckSteal(); !steal_observations.empty()) return steal_observations;
+                if (auto steal_observations = CreateStealAndRonObservation(); !steal_observations.empty()) return steal_observations;
             case EventType::kTsumo:
             case EventType::kRon:
             case EventType::kKanClosed:
@@ -463,7 +463,7 @@ namespace mj
         return tens_;
     }
 
-    std::unordered_map<PlayerId, Observation> State::CheckSteal() const {
+    std::unordered_map<PlayerId, Observation> State::CreateStealAndRonObservation() const {
         std::unordered_map<PlayerId, Observation> observations;
         auto discarder = last_event_.who();
         auto discard = last_discard_.tile();
@@ -535,7 +535,7 @@ namespace mj
             case ActionType::kDiscard:
                 {
                     Discard(who, action.discard());
-                    if (CheckSteal().empty()) Draw(AbsolutePos((ToUType(who) + 1) % 4));
+                    if (CreateStealAndRonObservation().empty()) Draw(AbsolutePos((ToUType(who) + 1) % 4));
                 }
                 break;
             case ActionType::kRiichi:
