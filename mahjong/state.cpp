@@ -543,8 +543,12 @@ namespace mj
                     // TODO: CreateStealAndRonObservationが2回stateが変わらないのに呼ばれている（CreateObservation内で）
                     bool has_steal_or_ron = !CreateStealAndRonObservation().empty();
                     if (!has_steal_or_ron) {
-                        if (require_riichi_score_change_) RiichiScoreChange();
-                        Draw(AbsolutePos((ToUType(who) + 1) % 4));
+                        if (wall_.HasDrawLeft()) {
+                            if (require_riichi_score_change_) RiichiScoreChange();
+                            Draw(AbsolutePos((ToUType(who) + 1) % 4));
+                        } else {
+                            NoWinner();
+                        }
                     }
                 }
                 break;
@@ -568,8 +572,12 @@ namespace mj
                 ApplyOpen(who, action.open());
                 break;
             case ActionType::kNo:
-                if (require_riichi_score_change_) RiichiScoreChange();
-                Draw( AbsolutePos((ToUType(last_discard_.who()) + 1) % 4) );  // TODO: check 流局
+                if (wall_.HasDrawLeft()) {
+                    if (require_riichi_score_change_) RiichiScoreChange();
+                    Draw(AbsolutePos((ToUType(last_discard_.who()) + 1) % 4));  // TODO: check 流局
+                } else {
+                    NoWinner();
+                }
                 break;
             case ActionType::kKyushu:
                 assert(false);  // Not implemented yet
