@@ -88,7 +88,7 @@ message Event {
   // KAN_CLOSED            Yes    No      Yes
   // KAN_OPENED            Yes    No      Yes
   // KAN_ADDED             Yes    No      Yes
-  // NEW_DORA              Yes    Yes     No
+  // NEW_DORA              No     Yes     No
   // RIICHI_SCORE_CHANGE   Yes    No      No
   // NO_WINNER             No     No      No
   EventType type = 1;
