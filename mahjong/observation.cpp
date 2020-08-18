@@ -15,10 +15,6 @@ namespace mj
         return AbsolutePos(proto_.who());
     }
 
-    void Observation::ClearPossibleActions() {
-        proto_.clear_possible_actions();
-    }
-
     void Observation::add_possible_action(PossibleAction &&possible_action) {
         proto_.mutable_possible_actions()->Add(std::move(possible_action.possible_action_));
     }
@@ -30,5 +26,9 @@ namespace mj
         proto_.mutable_event_history()->CopyFrom(state.event_history());
         proto_.set_who(mjproto::AbsolutePos(who));
         // proto_.mutable_private_info()->CopyFrom(state.private_infos(ToUType(who)));
+    }
+
+    bool Observation::has_possible_action() const {
+        return !proto_.possible_actions().empty();
     }
 }

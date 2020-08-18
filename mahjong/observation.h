@@ -14,17 +14,16 @@ namespace mj
    class Observation
     {
     public:
-        Observation() = default;  // Observation is generated only from State::CreatObservation
-        // getter
+        Observation() = default;
+
         AbsolutePos who() const;
+        [[nodiscard]] bool has_possible_action() const;
+        [[nodiscard]] std::vector<PossibleAction> possible_actions() const;
         Hand initial_hand() const;
         Hand current_hand() const;
-        [[nodiscard]] std::vector<PossibleAction> possible_actions() const;
-        // setter
-        void add_possible_action(PossibleAction &&possible_action);
+        std::string ToJson() const;
 
-        void ClearPossibleActions();
-        std::string ToString() const;
+        void add_possible_action(PossibleAction &&possible_action);
     private:
         friend class AgentClient;
         friend class State;
