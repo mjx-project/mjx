@@ -14,11 +14,11 @@ namespace mj
     {
     public:
         Action() = default;
-        explicit Action(mjproto::Action &&action_response) : proto_(std::move(action_response)) {}
-        AbsolutePos who() const { return AbsolutePos(proto_.who()); }
-        ActionType type() const { return ActionType(proto_.type()); }
-        Tile discard() const {return Tile(proto_.discard()); }
-        Open open() const { return Open(proto_.open()); }
+        explicit Action(mjproto::Action &&action_response);
+        AbsolutePos who() const;
+        ActionType type() const;
+        Tile discard() const;
+        Open open() const;
 
         static Action CreateDiscard(AbsolutePos who, Tile discard);
         static Action CreateRiichi(AbsolutePos who);

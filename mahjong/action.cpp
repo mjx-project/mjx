@@ -47,6 +47,26 @@ namespace mj
         return Action(std::move(proto));
     }
 
+    Action::Action(mjproto::Action &&action_response) : proto_(std::move(action_response)) {}
+
+    AbsolutePos Action::who() const {
+        return AbsolutePos(proto_.who());
+    }
+
+    ActionType Action::type() const {
+        return ActionType(proto_.type());
+    }
+
+    Tile Action::discard() const {
+        assert(type() == ActionType::kDiscard);
+        return Tile(proto_.discard());
+    }
+
+    Open Action::open() const {
+        assert(Any(type(), {ActionType::kChi, ActionType::kPon, ActionType::kKanClosed, ActionType::kKanOpened, ActionType::kKanAdded}));
+        return Open(proto_.open());
+    }
+
     PossibleAction::PossibleAction(mjproto::PossibleAction possible_action)
             : possible_action_(std::move(possible_action)) {}
 
@@ -55,10 +75,12 @@ namespace mj
     }
 
     Open PossibleAction::open() const {
+        assert(Any(type(), {ActionType::kChi, ActionType::kPon, ActionType::kKanClosed, ActionType::kKanOpened, ActionType::kKanAdded}));
         return Open(possible_action_.open());
     }
 
     std::vector<Tile> PossibleAction::discard_candidates() const {
+        assert(type() == ActionType::kDiscard);
         std::vector<Tile> ret;
         for (const auto& id: possible_action_.discard_candidates()) ret.emplace_back(Tile(id));
         return ret;
@@ -109,7 +131,4 @@ namespace mj
         possible_action.possible_action_.set_type(ToUType(ActionType::kNo));
         return possible_action;
     }
-
-
-
 }  // namespace mj
