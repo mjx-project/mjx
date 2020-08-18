@@ -34,7 +34,6 @@ namespace mj
     {
     public:
         PossibleAction() = default;
-        PossibleAction(mjproto::PossibleAction possible_action);
         ActionType type() const;
         Open open() const;
         std::vector<Tile> discard_candidates() const;
@@ -48,7 +47,8 @@ namespace mj
         static PossibleAction CreateNo();
     private:
         friend class Observation;
-        mjproto::PossibleAction possible_action_{};
+        explicit PossibleAction(mjproto::PossibleAction possible_action);
+        mjproto::PossibleAction possible_action_;
     };
 }  // namespace mj
 
