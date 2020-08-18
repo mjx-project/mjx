@@ -465,26 +465,6 @@ namespace mj
         return tens_;
     }
 
-    bool State::HasRon() const {
-        for (int i = 0; i < 4; ++i) {
-            auto who = AbsolutePos(i);
-            if (who == last_discard_.who()) continue;
-            if (player(who).CanRon(last_discard_.tile(), win_state_info(who))) return true;
-        }
-        return false;
-    }
-
-    bool State::HasSteal() const {
-        for (int i = 0; i < 4; ++i) {
-            auto who = AbsolutePos(i);
-            auto discarder = last_discard_.who();
-            if (who == discarder) continue;
-            auto relative_pos = ToRelativePos(who, discarder);
-            if (!player(who).PossibleOpensAfterOthersDiscard(last_discard_.tile(), relative_pos).empty()) return true;
-        }
-        return false;
-    }
-
     std::unordered_map<PlayerId, Observation> State::CreateStealAndRonObservation() const {
         std::unordered_map<PlayerId, Observation> observations;
         auto discarder = last_event_.who();
@@ -557,10 +537,12 @@ namespace mj
             case ActionType::kDiscard:
                 {
                     Discard(who, action.discard());
-                    bool has_ron = HasRon();
-                    bool has_steal = HasSteal();
-                    if (require_riichi_score_change_ && !has_ron) RiichiScoreChange();
-                    if (!has_ron && !has_steal) Draw(AbsolutePos((ToUType(who) + 1) % 4));
+                    // TODO: CreateStealAndRonObservationが2回stateが変わらないのに呼ばれている（CreateObservation内で）
+                    bool has_steal_or_ron = !CreateStealAndRonObservation().empty();
+                    if (!has_steal_or_ron) {
+                        if (require_riichi_score_change_) RiichiScoreChange();
+                        Draw(AbsolutePos((ToUType(who) + 1) % 4));
+                    }
                 }
                 break;
             case ActionType::kRiichi:
@@ -575,6 +557,7 @@ namespace mj
             case ActionType::kChi:
             case ActionType::kPon:
             case ActionType::kKanOpened:
+                if (require_riichi_score_change_) RiichiScoreChange();
                 ApplyOpen(who, action.open());
                 break;
             case ActionType::kKanClosed:
