@@ -603,8 +603,10 @@ namespace mj
         auto who = action.who();
         switch (action.type()) {
             case ActionType::kDiscard:
-                Discard(who, action.discard());
-                // TODO: discard後、可能なRon, Chi, Pon, KanがなければDrawもしてしまう
+                {
+                    Discard(who, action.discard());
+                    if (CheckSteal().empty()) Draw(AbsolutePos((ToUType(who) + 1) % 4));
+                }
                 break;
             case ActionType::kRiichi:
                 Riichi(who);
