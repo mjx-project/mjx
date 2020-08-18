@@ -311,4 +311,11 @@ TEST(state, Update) {
     observations = state_before.CreateObservations();
     observation = observations["超ヒモリロ"];
     EXPECT_TRUE(types_check({ActionType::kDiscard}, observation));
+
+    // Riichi後にDiscardして、鳴き候補もロン候補もないのでRiichiScoreChangeまでUpdateされる
+    // Riichi後にDiscardして、鳴き候補があるのでRiichiScoreChangeされない
+    // Riichi後にDiscardして、鳴いた後にRiichiScoreChangeされる
+    // Riichi後にDiscardして、鳴きを拒否したあとにRiichiScoreChangeされる
+    // Riichi後にDiscardして、ロンをしてRiichiScoreChangeなしでおわり
+    // Riichi後にDiscardして、ロンを拒否したあとにRiichiScoreChangeされる
 }
