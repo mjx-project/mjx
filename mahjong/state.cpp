@@ -213,6 +213,8 @@ namespace mj
 
         last_event_ = Event::CreateRiichi(who);
         state_.mutable_event_history()->mutable_events()->Add(last_event_.proto());
+
+        require_riichi_score_change_ = true;
     }
 
     void State::ApplyOpen(AbsolutePos who, Open open) {
@@ -225,7 +227,6 @@ namespace mj
     void State::AddNewDora() {
         auto [new_dora_ind, new_ura_dora_ind] = wall_.AddKanDora();
 
-        // set proto
         last_event_ = Event::CreateNewDora(new_dora_ind);
         state_.mutable_event_history()->mutable_events()->Add(last_event_.proto());
         state_.add_doras(new_dora_ind.Id());
@@ -237,9 +238,10 @@ namespace mj
         curr_score_.set_riichi(riichi() + 1);
         curr_score_.set_ten(ToUType(who), ten(who) - 1000);
 
-        // set proto
         last_event_ = Event::CreateRiichiScoreChange(who);
         state_.mutable_event_history()->mutable_events()->Add(last_event_.proto());
+
+        require_riichi_score_change_ = false;
     }
 
     void State::Tsumo(AbsolutePos winner) {
@@ -463,6 +465,26 @@ namespace mj
         return tens_;
     }
 
+    bool State::HasRon() const {
+        for (int i = 0; i < 4; ++i) {
+            auto who = AbsolutePos(i);
+            if (who == last_discard_.who()) continue;
+            if (player(who).CanRon(last_discard_.tile(), win_state_info(who))) return true;
+        }
+        return false;
+    }
+
+    bool State::HasSteal() const {
+        for (int i = 0; i < 4; ++i) {
+            auto who = AbsolutePos(i);
+            auto discarder = last_discard_.who();
+            if (who == discarder) continue;
+            auto relative_pos = ToRelativePos(who, discarder);
+            if (!player(who).PossibleOpensAfterOthersDiscard(last_discard_.tile(), relative_pos).empty()) return true;
+        }
+        return false;
+    }
+
     std::unordered_map<PlayerId, Observation> State::CreateStealAndRonObservation() const {
         std::unordered_map<PlayerId, Observation> observations;
         auto discarder = last_event_.who();
@@ -535,7 +557,10 @@ namespace mj
             case ActionType::kDiscard:
                 {
                     Discard(who, action.discard());
-                    if (CreateStealAndRonObservation().empty()) Draw(AbsolutePos((ToUType(who) + 1) % 4));
+                    bool has_ron = HasRon();
+                    bool has_steal = HasSteal();
+                    if (require_riichi_score_change_ && !has_ron) RiichiScoreChange();
+                    if (!has_ron && !has_steal) Draw(AbsolutePos((ToUType(who) + 1) % 4));
                 }
                 break;
             case ActionType::kRiichi:
@@ -557,6 +582,7 @@ namespace mj
                 ApplyOpen(who, action.open());
                 break;
             case ActionType::kNo:
+                if (require_riichi_score_change_) RiichiScoreChange();
                 Draw( AbsolutePos((ToUType(last_discard_.who()) + 1) % 4) );  // TODO: check 流局
                 break;
             case ActionType::kKyushu:

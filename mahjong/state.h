@@ -57,6 +57,7 @@ namespace mj
         Event last_discard_;
         Event last_draw_;
         Event last_event_;
+        bool require_riichi_score_change_ = false;
 
         // accessors
         [[nodiscard]] const Player& player(AbsolutePos pos) const;
@@ -76,6 +77,8 @@ namespace mj
         void Tsumo(AbsolutePos winner);
         void Ron(AbsolutePos winner, AbsolutePos loser, Tile tile);
         void NoWinner();
+        bool HasRon() const;  // TODO: HasRon and HasSteal have similar logic to CreateStealAndRonObservation
+        bool HasSteal() const;
         std::unordered_map<PlayerId, Observation> CreateStealAndRonObservation() const;
 
         [[nodiscard]] std::pair<HandInfo, WinScore> EvalWinHand(AbsolutePos who) const noexcept;
