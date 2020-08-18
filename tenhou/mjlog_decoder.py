@@ -115,6 +115,7 @@ class MjlogDecoder:
         event = None
         num_kan_dora = 0
         last_drawer, last_draw = None, None
+        reach_terminal = False
         for key, val in kv[1:]:
             if key != "UN" and key[0] in ["T", "U", "V", "W"]:  # draw
                 who = MjlogDecoder._to_absolute_pos(key[0])
@@ -172,6 +173,7 @@ class MjlogDecoder:
                     tile=dora
                 )
             elif key == "RYUUKYOKU":
+                reach_terminal = True
                 ba, riichi = [int(x) for x in val["ba"].split(",")]
                 self.state.terminal.no_winner.ten_changes[:] = [int(x) * 100 for i, x in enumerate(val["sc"].split(",")) if i % 2 == 1]
                 for i in range(4):
@@ -208,6 +210,7 @@ class MjlogDecoder:
                     type=mahjong_pb2.EVENT_TYPE_NO_WINNER
                 )
             elif key == "AGARI":
+                reach_terminal = True
                 ba, riichi = [int(x) for x in val["ba"].split(",")]
                 who = int(val["who"])
                 from_who = int(val["fromWho"])
@@ -255,6 +258,8 @@ class MjlogDecoder:
             event = None
             # yield copy.deepcopy(self.state)
 
+        if not reach_terminal:
+            self.state.ClearField("terminal")
         yield copy.deepcopy(self.state)
 
     @staticmethod

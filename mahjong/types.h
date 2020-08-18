@@ -67,6 +67,7 @@ namespace mj {
         kKanOpened = mjproto::ACTION_TYPE_KAN_OPENED,
         kKanAdded = mjproto::ACTION_TYPE_KAN_ADDED,
         kKyushu = mjproto::ACTION_TYPE_KYUSYU,
+        kNo = mjproto::ACTION_TYPE_NO,
     };
 
     enum class HandStage : std::uint8_t {

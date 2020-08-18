@@ -11,13 +11,6 @@
 
 namespace mj
 {
-    struct Event {
-        AbsolutePos who;
-        ActionType type;
-        Tile tile;
-        Open open;
-    };
-
     class PossibleAction
     {
     public:
@@ -33,6 +26,7 @@ namespace mj
         static PossibleAction CreateRon();
         static PossibleAction CreateTsumo();
         static PossibleAction CreateKanAdded();
+        static PossibleAction CreateNo();
     private:
         friend class Observation;
         mjproto::PossibleAction possible_action_{};
@@ -47,7 +41,6 @@ namespace mj
         Hand initial_hand() const;
         Hand current_hand() const;
         [[nodiscard]] std::vector<PossibleAction> possible_actions() const;
-        std::vector<Event> taken_actions() const;
         // setter
         void add_possible_action(PossibleAction &&possible_action);
 
