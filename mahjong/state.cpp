@@ -484,7 +484,7 @@ namespace mj
              for (const auto & possible_open: possible_opens)
                  observation.add_possible_action(PossibleAction::CreateOpen(possible_open));
 
-             if (observation.possible_actions().empty()) continue;
+             if (!observation.has_possible_action()) continue;
              observation.add_possible_action(PossibleAction::CreateNo());
 
              observations[player(stealer).player_id()] = std::move(observation);

@@ -14,11 +14,11 @@ namespace mj
     {
     public:
         Action() = default;
-        explicit Action(mjproto::Action &&action_response) : proto_(std::move(action_response)) {}
-        AbsolutePos who() const { return AbsolutePos(proto_.who()); }
-        ActionType type() const { return ActionType(proto_.type()); }
-        Tile discard() const {return Tile(proto_.discard()); }
-        Open open() const { return Open(proto_.open()); }
+        explicit Action(mjproto::Action &&action_response);
+        AbsolutePos who() const;
+        ActionType type() const;
+        Tile discard() const;
+        Open open() const;
 
         static Action CreateDiscard(AbsolutePos who, Tile discard);
         static Action CreateRiichi(AbsolutePos who);
@@ -28,6 +28,27 @@ namespace mj
         static Action CreateNo(AbsolutePos who);
     private:
         mjproto::Action proto_;
+    };
+
+    class PossibleAction
+    {
+    public:
+        PossibleAction() = default;
+        ActionType type() const;
+        Open open() const;
+        std::vector<Tile> discard_candidates() const;
+
+        static PossibleAction CreateDiscard(std::vector<Tile> &&possible_discards);
+        static PossibleAction CreateRiichi();
+        static PossibleAction CreateOpen(Open open);
+        static PossibleAction CreateRon();
+        static PossibleAction CreateTsumo();
+        static PossibleAction CreateKanAdded();
+        static PossibleAction CreateNo();
+    private:
+        friend class Observation;
+        explicit PossibleAction(mjproto::PossibleAction possible_action);
+        mjproto::PossibleAction possible_action_;
     };
 }  // namespace mj
 

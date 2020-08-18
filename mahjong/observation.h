@@ -11,41 +11,19 @@
 
 namespace mj
 {
-    class PossibleAction
+   class Observation
     {
     public:
-        PossibleAction() = default;
-        PossibleAction(mjproto::PossibleAction possible_action);
-        ActionType type() const;
-        Open open() const;
-        std::vector<Tile> discard_candidates() const;
+        Observation() = default;
 
-        static PossibleAction CreateDiscard(std::vector<Tile> &&possible_discards);
-        static PossibleAction CreateRiichi();
-        static PossibleAction CreateOpen(Open open);
-        static PossibleAction CreateRon();
-        static PossibleAction CreateTsumo();
-        static PossibleAction CreateKanAdded();
-        static PossibleAction CreateNo();
-    private:
-        friend class Observation;
-        mjproto::PossibleAction possible_action_{};
-    };
-
-    class Observation
-    {
-    public:
-        Observation() = default;  // Observation is generated only from State::CreatObservation
-        // getter
         AbsolutePos who() const;
+        [[nodiscard]] bool has_possible_action() const;
+        [[nodiscard]] std::vector<PossibleAction> possible_actions() const;
         Hand initial_hand() const;
         Hand current_hand() const;
-        [[nodiscard]] std::vector<PossibleAction> possible_actions() const;
-        // setter
-        void add_possible_action(PossibleAction &&possible_action);
+        std::string ToJson() const;
 
-        void ClearPossibleActions();
-        std::string ToString() const;
+        void add_possible_action(PossibleAction &&possible_action);
     private:
         friend class AgentClient;
         friend class State;

@@ -1,4 +1,5 @@
 #include "action.h"
+#include "utils.h"
 
 namespace mj
 {
@@ -44,5 +45,90 @@ namespace mj
         proto.set_type(mjproto::ACTION_TYPE_NO);
         proto.set_who(mjproto::AbsolutePos(who));
         return Action(std::move(proto));
+    }
+
+    Action::Action(mjproto::Action &&action_response) : proto_(std::move(action_response)) {}
+
+    AbsolutePos Action::who() const {
+        return AbsolutePos(proto_.who());
+    }
+
+    ActionType Action::type() const {
+        return ActionType(proto_.type());
+    }
+
+    Tile Action::discard() const {
+        assert(type() == ActionType::kDiscard);
+        return Tile(proto_.discard());
+    }
+
+    Open Action::open() const {
+        assert(Any(type(), {ActionType::kChi, ActionType::kPon, ActionType::kKanClosed, ActionType::kKanOpened, ActionType::kKanAdded}));
+        return Open(proto_.open());
+    }
+
+    PossibleAction::PossibleAction(mjproto::PossibleAction possible_action)
+            : possible_action_(std::move(possible_action)) {}
+
+    ActionType PossibleAction::type() const {
+        return ActionType(possible_action_.type());
+    }
+
+    Open PossibleAction::open() const {
+        assert(Any(type(), {ActionType::kChi, ActionType::kPon, ActionType::kKanClosed, ActionType::kKanOpened, ActionType::kKanAdded}));
+        return Open(possible_action_.open());
+    }
+
+    std::vector<Tile> PossibleAction::discard_candidates() const {
+        assert(type() == ActionType::kDiscard);
+        std::vector<Tile> ret;
+        for (const auto& id: possible_action_.discard_candidates()) ret.emplace_back(Tile(id));
+        return ret;
+    }
+
+    PossibleAction PossibleAction::CreateDiscard(std::vector<Tile> &&possible_discards) {
+        auto possible_action = PossibleAction();
+        possible_action.possible_action_.set_type(ToUType(ActionType::kDiscard));
+        auto discard_candidates = possible_action.possible_action_.mutable_discard_candidates();
+        for (auto tile: possible_discards) discard_candidates->Add(tile.Id());
+        assert(discard_candidates->size() <= 14);
+        return possible_action;
+    }
+
+    PossibleAction PossibleAction::CreateRiichi() {
+        auto possible_action = PossibleAction();
+        possible_action.possible_action_.set_type(ToUType(ActionType::kRiichi));
+        return possible_action;
+    }
+
+    PossibleAction PossibleAction::CreateOpen(Open open) {
+        auto possible_action = PossibleAction();
+        possible_action.possible_action_.set_type(mjproto::ActionType(OpenTypeToActionType(open.Type())));
+        possible_action.possible_action_.set_open(open.GetBits());
+        return possible_action;
+    }
+
+    PossibleAction PossibleAction::CreateRon() {
+        auto possible_action = PossibleAction();
+        possible_action.possible_action_.set_type(ToUType(ActionType::kRon));
+        return possible_action;
+    }
+
+    PossibleAction PossibleAction::CreateTsumo() {
+        auto possible_action = PossibleAction();
+        possible_action.possible_action_.set_type(ToUType(ActionType::kTsumo));
+        return possible_action;
+    }
+
+    PossibleAction PossibleAction::CreateKanAdded() {
+        auto possible_action = PossibleAction();
+        possible_action.possible_action_.set_type(ToUType(ActionType::kKanAdded));
+        return possible_action;
+    }
+
+    PossibleAction PossibleAction::CreateNo() {
+        auto possible_action = PossibleAction();
+        possible_action.possible_action_.set_type(ToUType(ActionType::kNo));
+        return possible_action;
     }
 }  // namespace mj
