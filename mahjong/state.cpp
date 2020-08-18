@@ -32,8 +32,7 @@ namespace mj
     }
 
     bool State::IsRoundOver() const {
-        if (!wall_.HasDrawLeft()) return true;
-        return false;
+        return is_round_over_;
     }
 
     Player& State::mutable_player(AbsolutePos pos) {
@@ -292,6 +291,8 @@ namespace mj
             win.set_ten_changes(ToUType(who), ten_move);
             curr_score_.set_ten(ToUType(who), ten(who) + ten_move);
         }
+
+        is_round_over_ = true;
         state_.mutable_terminal()->mutable_wins()->Add(std::move(win));
         state_.mutable_terminal()->set_is_game_over(IsGameOver());
         state_.mutable_terminal()->mutable_final_score()->CopyFrom(curr_score_);
@@ -344,6 +345,7 @@ namespace mj
             curr_score_.set_ten(ToUType(who), ten(who) + ten_move);
         }
         // set win to terminal
+        is_round_over_ = true;
         state_.mutable_terminal()->mutable_wins()->Add(std::move(win));
         state_.mutable_terminal()->set_is_game_over(IsGameOver());
         state_.mutable_terminal()->mutable_final_score()->CopyFrom(curr_score_);
@@ -389,11 +391,14 @@ namespace mj
             state_.mutable_terminal()->mutable_no_winner()->add_ten_changes(ten_move);
             curr_score_.set_ten(i, ten(AbsolutePos(i)) + ten_move);
         }
+        is_round_over_ = true;
         state_.mutable_terminal()->set_is_game_over(IsGameOver());
         state_.mutable_terminal()->mutable_final_score()->CopyFrom(curr_score_);
     }
 
     bool State::IsGameOver() const {
+        if (!IsRoundOver()) return false;
+
         // TODO (sotetsuk): 西入後の終曲条件が供託未収と書いてあるので、修正が必要。　https://tenhou.net/man/
         // ラス親のあがりやめも考慮しないといけない
         auto tens_ = tens();
@@ -469,6 +474,7 @@ namespace mj
         std::unordered_map<PlayerId, Observation> observations;
         auto discarder = last_event_.who();
         auto discard = last_discard_.tile();
+        auto has_draw_left = wall_.HasDrawLeft();
         for (int i = 0; i < 4; ++i) {
              auto stealer = AbsolutePos(i);
              if (stealer == discarder) continue;
@@ -481,10 +487,12 @@ namespace mj
              }
 
              // check chi, pon and kan_opened
-             auto relative_pos = ToRelativePos(stealer, discarder);
-             auto possible_opens = player(stealer).PossibleOpensAfterOthersDiscard(discard, relative_pos);
-             for (const auto & possible_open: possible_opens)
-                 observation.add_possible_action(PossibleAction::CreateOpen(possible_open));
+             if (has_draw_left) {
+                auto relative_pos = ToRelativePos(stealer, discarder);
+                auto possible_opens = player(stealer).PossibleOpensAfterOthersDiscard(discard, relative_pos);
+                for (const auto & possible_open: possible_opens)
+                    observation.add_possible_action(PossibleAction::CreateOpen(possible_open));
+             }
 
              if (!observation.has_possible_action()) continue;
              observation.add_possible_action(PossibleAction::CreateNo());
@@ -540,8 +548,12 @@ namespace mj
                     // TODO: CreateStealAndRonObservationが2回stateが変わらないのに呼ばれている（CreateObservation内で）
                     bool has_steal_or_ron = !CreateStealAndRonObservation().empty();
                     if (!has_steal_or_ron) {
-                        if (require_riichi_score_change_) RiichiScoreChange();
-                        Draw(AbsolutePos((ToUType(who) + 1) % 4));
+                        if (wall_.HasDrawLeft()) {
+                            if (require_riichi_score_change_) RiichiScoreChange();
+                            Draw(AbsolutePos((ToUType(who) + 1) % 4));
+                        } else {
+                            NoWinner();
+                        }
                     }
                 }
                 break;
@@ -565,8 +577,12 @@ namespace mj
                 ApplyOpen(who, action.open());
                 break;
             case ActionType::kNo:
-                if (require_riichi_score_change_) RiichiScoreChange();
-                Draw( AbsolutePos((ToUType(last_discard_.who()) + 1) % 4) );  // TODO: check 流局
+                if (wall_.HasDrawLeft()) {
+                    if (require_riichi_score_change_) RiichiScoreChange();
+                    Draw(AbsolutePos((ToUType(last_discard_.who()) + 1) % 4));  // TODO: check 流局
+                } else {
+                    NoWinner();
+                }
                 break;
             case ActionType::kKyushu:
                 assert(false);  // Not implemented yet
