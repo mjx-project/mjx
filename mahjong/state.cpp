@@ -624,6 +624,8 @@ namespace mj
                 break;
             case ActionType::kKanClosed:
             case ActionType::kKanAdded:
+                ApplyOpen(who, action.open());
+                break;
             case ActionType::kNo:
                 Draw( AbsolutePos((ToUType(last_discard_.who()) + 1) % 4) );  // TODO: check 流局
                 break;
