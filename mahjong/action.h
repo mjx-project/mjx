@@ -29,6 +29,27 @@ namespace mj
     private:
         mjproto::Action proto_;
     };
+
+    class PossibleAction
+    {
+    public:
+        PossibleAction() = default;
+        PossibleAction(mjproto::PossibleAction possible_action);
+        ActionType type() const;
+        Open open() const;
+        std::vector<Tile> discard_candidates() const;
+
+        static PossibleAction CreateDiscard(std::vector<Tile> &&possible_discards);
+        static PossibleAction CreateRiichi();
+        static PossibleAction CreateOpen(Open open);
+        static PossibleAction CreateRon();
+        static PossibleAction CreateTsumo();
+        static PossibleAction CreateKanAdded();
+        static PossibleAction CreateNo();
+    private:
+        friend class Observation;
+        mjproto::PossibleAction possible_action_{};
+    };
 }  // namespace mj
 
 #endif //MAHJONG_ACTION_H
