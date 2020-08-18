@@ -9,26 +9,13 @@
 #include "tile.h"
 #include "observation.h"
 #include "action.h"
+#include "event.h"
 #include "player.h"
 #include "wall.h"
 
 namespace mj
 {
-    class Event
-    {
-    public:
-        Event() = default;
-        Event(mjproto::Event event) : proto_(std::move(event)) {}
-        Event(mjproto::Event &&event) : proto_(std::move(event)) {}
-        EventType type() const { return EventType(proto_.type()); }
-        AbsolutePos who() const { return AbsolutePos(proto_.who()); }
-        Tile tile() const { return Tile(proto_.tile()); }
-        Open open() const { return Open(proto_.open()); }
-    private:
-        mjproto::Event proto_;
-    };
-
-    class State
+   class State
     {
     public:
         State() = default;
@@ -66,10 +53,10 @@ namespace mj
         std::array<Player, 4> players_;
         // temporal memory
         std::uint32_t seed_;
-        AbsolutePos last_event_who_;
-        EventType last_event_type_;
         Action last_action_;
         Event last_discard_;
+        Event last_draw_;
+        Event last_event_;
 
         // accessors
         [[nodiscard]] const Player& player(AbsolutePos pos) const;
