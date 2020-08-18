@@ -469,6 +469,7 @@ namespace mj
         std::unordered_map<PlayerId, Observation> observations;
         auto discarder = last_event_.who();
         auto discard = last_discard_.tile();
+        auto has_draw_left = wall_.HasDrawLeft();
         for (int i = 0; i < 4; ++i) {
              auto stealer = AbsolutePos(i);
              if (stealer == discarder) continue;
@@ -481,10 +482,12 @@ namespace mj
              }
 
              // check chi, pon and kan_opened
-             auto relative_pos = ToRelativePos(stealer, discarder);
-             auto possible_opens = player(stealer).PossibleOpensAfterOthersDiscard(discard, relative_pos);
-             for (const auto & possible_open: possible_opens)
-                 observation.add_possible_action(PossibleAction::CreateOpen(possible_open));
+             if (has_draw_left) {
+                auto relative_pos = ToRelativePos(stealer, discarder);
+                auto possible_opens = player(stealer).PossibleOpensAfterOthersDiscard(discard, relative_pos);
+                for (const auto & possible_open: possible_opens)
+                    observation.add_possible_action(PossibleAction::CreateOpen(possible_open));
+             }
 
              if (!observation.has_possible_action()) continue;
              observation.add_possible_action(PossibleAction::CreateNo());
