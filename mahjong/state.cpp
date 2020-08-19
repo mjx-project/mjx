@@ -93,11 +93,13 @@ namespace mj
                 // => Chi, Pon and KanOpened (8)
                 assert(last_action_.type() != ActionType::kNo);
                 if (auto steal_observations = CreateStealAndRonObservation(); !steal_observations.empty()) return steal_observations;
+            case EventType::kKanAdded:
+                // TODO: check 槍槓
+                break;
             case EventType::kTsumo:
             case EventType::kRon:
             case EventType::kKanClosed:
             case EventType::kKanOpened:
-            case EventType::kKanAdded:
             case EventType::kNoWinner:
                 assert(false);
         }
@@ -550,6 +552,7 @@ namespace mj
         switch (action.type()) {
             case ActionType::kDiscard:
                 {
+                    if (require_kan_dora_) AddNewDora();
                     Discard(who, action.discard());
                     // TODO: CreateStealAndRonObservationが2回stateが変わらないのに呼ばれている（CreateObservation内で）
                     bool has_steal_or_ron = !CreateStealAndRonObservation().empty();
@@ -579,12 +582,16 @@ namespace mj
                 ApplyOpen(who, action.open());
                 break;
             case ActionType::kKanClosed:
+                if (require_kan_dora_) AddNewDora();
                 ApplyOpen(who, action.open());
                 AddNewDora();
                 Draw(who);
                 break;
             case ActionType::kKanAdded:
+                if (require_kan_dora_) AddNewDora();
                 ApplyOpen(who, action.open());
+                // TODO: check 槍槓
+                Draw(who);
                 break;
             case ActionType::kNo:
                 if (wall_.HasDrawLeft()) {
