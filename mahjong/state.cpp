@@ -46,7 +46,6 @@ namespace mj
     std::unordered_map<PlayerId, Observation> State::CreateObservations() const {
         switch (last_event_.type()) {
             case EventType::kDraw:
-            case EventType::kNewDora:
                 {
                     auto who = last_draw_.who();
                     auto player_id = player(who).player_id();
@@ -88,7 +87,6 @@ namespace mj
                 }
             case EventType::kDiscardFromHand:
             case EventType::kDiscardDrawnTile:
-            case EventType::kRiichiScoreChange:  // TODO: RiichiScoreChange => Ron はありえる？
                 // => Ron (7)
                 // => Chi, Pon and KanOpened (8)
                 assert(last_action_.type() != ActionType::kNo);
@@ -101,6 +99,8 @@ namespace mj
             case EventType::kKanClosed:
             case EventType::kKanOpened:
             case EventType::kNoWinner:
+            case EventType::kNewDora:
+            case EventType::kRiichiScoreChange:
                 assert(false);
         }
         assert(false);
