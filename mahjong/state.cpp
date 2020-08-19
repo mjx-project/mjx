@@ -225,7 +225,7 @@ namespace mj
         state_.mutable_event_history()->mutable_events()->Add(last_event_.proto());
         if (Any(open.Type(), {OpenType::kKanClosed, OpenType::kKanOpened, OpenType::kKanAdded})) {
             require_kan_draw_ = true;
-            require_kan_dora_ = true;
+            ++require_kan_dora_;
         }
     }
 
@@ -237,7 +237,7 @@ namespace mj
         state_.add_doras(new_dora_ind.Id());
         state_.add_ura_doras(new_ura_dora_ind.Id());
 
-        require_kan_draw_ = false;
+        --require_kan_dora_;
     }
 
     void State::RiichiScoreChange() {
@@ -581,19 +581,28 @@ namespace mj
                 ApplyOpen(who, action.open());
                 break;
             case ActionType::kKanOpened:
+                // 天鳳のカンの仕様については https://github.com/sotetsuk/mahjong/issues/199 で調べている
                 if (require_riichi_score_change_) RiichiScoreChange();
                 ApplyOpen(who, action.open());
                 Draw(who);
                 break;
             case ActionType::kKanClosed:
-                if (require_kan_dora_) AddNewDora();
-                ApplyOpen(who, action.open());
+                if (require_kan_dora_) {
+                    ApplyOpen(who, action.open());
+                    AddNewDora();
+                } else {
+                    ApplyOpen(who, action.open());
+                }
                 AddNewDora();
                 Draw(who);
                 break;
             case ActionType::kKanAdded:
-                if (require_kan_dora_) AddNewDora();
-                ApplyOpen(who, action.open());
+                if (require_kan_dora_) {
+                    ApplyOpen(who, action.open());
+                    AddNewDora();
+                } else {
+                    ApplyOpen(who, action.open());
+                }
                 // TODO: check 槍槓
                 Draw(who);
                 break;
