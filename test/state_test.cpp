@@ -61,10 +61,6 @@ TEST(state, CreateObservation) {
     //  2. Draw => (2) KanAdded or KanClosed
     //  3. Draw => (3) Riichi
     //  4. Draw => (4) Discard
-    //  5. NewDora => (1) Tsumo
-    //  6. NewDora => (2) KanAdded or KanClosed
-    //  7. NewDora => (3) Riichi
-    //  8. NewDora => (4) Discard
     //  9. Riichi => (5) Discard
     // 10. Chi => (6) Discard
     // 11. Pon => (6) Discard
@@ -72,7 +68,6 @@ TEST(state, CreateObservation) {
     // 13. DiscardFromHand => (8) Chi, Pon and KanOpened
     // 14. DiscardDrawnTile => (7) Ron
     // 15. DiscardDrawnTile => (8) Chi, Pon and KanOpened
-    // 16. RiichiScoreChange => (8) Chi, Pon and KanOpened
 
     // 特に記述がないテストケースは下記から
     // https://tenhou.net/0/?log=2011020417gm-00a9-0000-b67fcaa3&tw=1
@@ -121,20 +116,6 @@ TEST(state, CreateObservation) {
     observation = observations["-ron-"];
     EXPECT_TRUE(types_check({ActionType::kDiscard}, observation));
     EXPECT_TRUE(Any(Tile(39), observation.possible_actions().front().discard_candidates()));
-
-    //  5. NewDora => (1) Tsumo
-    //  6. NewDora => (2) KanAdded or KanClosed
-    //  7. NewDora => (3) Riichi
-    //  8. NewDora => (4) Discard
-
-    // Discard. https://tenhou.net/0/?log=2010112714gm-00a9-0000-d497e395
-    json = R"({"playerIds":["sawly","ROTTEN","ASAPIN","月千一夜"],"initScore":{"round":2,"ten":[34900,23000,22000,20100]},"doras":[76,44],"eventHistory":{"events":[{"who":"ABSOLUTE_POS_INIT_WEST"},{"type":"EVENT_TYPE_DISCARD_FROM_HAND","who":"ABSOLUTE_POS_INIT_WEST","tile":11},{"who":"ABSOLUTE_POS_INIT_NORTH"},{"type":"EVENT_TYPE_DISCARD_FROM_HAND","who":"ABSOLUTE_POS_INIT_NORTH","tile":117},{},{"type":"EVENT_TYPE_DISCARD_FROM_HAND","tile":111},{"who":"ABSOLUTE_POS_INIT_SOUTH"},{"type":"EVENT_TYPE_DISCARD_FROM_HAND","who":"ABSOLUTE_POS_INIT_SOUTH","tile":71},{"who":"ABSOLUTE_POS_INIT_WEST"},{"type":"EVENT_TYPE_DISCARD_FROM_HAND","who":"ABSOLUTE_POS_INIT_WEST","tile":78},{"who":"ABSOLUTE_POS_INIT_NORTH"},{"type":"EVENT_TYPE_DISCARD_FROM_HAND","who":"ABSOLUTE_POS_INIT_NORTH","tile":75},{"type":"EVENT_TYPE_PON","who":"ABSOLUTE_POS_INIT_SOUTH","open":28714},{"type":"EVENT_TYPE_DISCARD_FROM_HAND","who":"ABSOLUTE_POS_INIT_SOUTH"},{"who":"ABSOLUTE_POS_INIT_WEST"},{"type":"EVENT_TYPE_DISCARD_DRAWN_TILE","who":"ABSOLUTE_POS_INIT_WEST","tile":38},{"who":"ABSOLUTE_POS_INIT_NORTH"},{"type":"EVENT_TYPE_DISCARD_FROM_HAND","who":"ABSOLUTE_POS_INIT_NORTH","tile":109},{},{"type":"EVENT_TYPE_DISCARD_FROM_HAND","tile":123},{"who":"ABSOLUTE_POS_INIT_SOUTH"},{"type":"EVENT_TYPE_DISCARD_FROM_HAND","who":"ABSOLUTE_POS_INIT_SOUTH","tile":116},{"who":"ABSOLUTE_POS_INIT_WEST"},{"type":"EVENT_TYPE_DISCARD_FROM_HAND","who":"ABSOLUTE_POS_INIT_WEST","tile":118},{"who":"ABSOLUTE_POS_INIT_NORTH"},{"type":"EVENT_TYPE_DISCARD_FROM_HAND","who":"ABSOLUTE_POS_INIT_NORTH","tile":1},{},{"type":"EVENT_TYPE_DISCARD_FROM_HAND","tile":131},{"who":"ABSOLUTE_POS_INIT_SOUTH"},{"type":"EVENT_TYPE_DISCARD_FROM_HAND","who":"ABSOLUTE_POS_INIT_SOUTH","tile":107},{"who":"ABSOLUTE_POS_INIT_WEST"},{"type":"EVENT_TYPE_DISCARD_DRAWN_TILE","who":"ABSOLUTE_POS_INIT_WEST","tile":99},{"who":"ABSOLUTE_POS_INIT_NORTH"},{"type":"EVENT_TYPE_DISCARD_DRAWN_TILE","who":"ABSOLUTE_POS_INIT_NORTH","tile":127},{"type":"EVENT_TYPE_PON","who":"ABSOLUTE_POS_INIT_SOUTH","open":48650},{"type":"EVENT_TYPE_DISCARD_FROM_HAND","who":"ABSOLUTE_POS_INIT_SOUTH","tile":120},{"who":"ABSOLUTE_POS_INIT_WEST"},{"type":"EVENT_TYPE_DISCARD_FROM_HAND","who":"ABSOLUTE_POS_INIT_WEST","tile":64},{"who":"ABSOLUTE_POS_INIT_NORTH"},{"type":"EVENT_TYPE_DISCARD_FROM_HAND","who":"ABSOLUTE_POS_INIT_NORTH","tile":65},{},{"type":"EVENT_TYPE_DISCARD_FROM_HAND","tile":124},{"who":"ABSOLUTE_POS_INIT_SOUTH"},{"type":"EVENT_TYPE_DISCARD_DRAWN_TILE","who":"ABSOLUTE_POS_INIT_SOUTH","tile":5},{"who":"ABSOLUTE_POS_INIT_WEST"},{"type":"EVENT_TYPE_DISCARD_FROM_HAND","who":"ABSOLUTE_POS_INIT_WEST","tile":122},{"who":"ABSOLUTE_POS_INIT_NORTH"},{"type":"EVENT_TYPE_DISCARD_FROM_HAND","who":"ABSOLUTE_POS_INIT_NORTH","tile":135},{},{"type":"EVENT_TYPE_DISCARD_FROM_HAND","tile":34},{"who":"ABSOLUTE_POS_INIT_SOUTH"},{"type":"EVENT_TYPE_KAN_ADDED","who":"ABSOLUTE_POS_INIT_SOUTH","open":28722},{"who":"ABSOLUTE_POS_INIT_SOUTH"},{"type":"EVENT_TYPE_NEW_DORA","tile":44}]},"wall":[24,48,11,122,135,75,128,65,111,13,46,131,120,125,71,107,118,54,52,121,109,26,42,93,119,123,21,8,80,0,116,58,132,50,64,133,63,32,35,117,100,34,82,83,74,87,89,72,29,1,67,56,78,103,124,126,59,69,38,112,61,22,25,60,86,31,99,127,23,68,3,5,33,51,15,73,43,18,85,55,53,92,114,129,97,113,40,115,90,81,4,2,19,45,105,6,36,10,94,91,12,28,17,30,106,101,79,47,49,102,104,95,41,20,16,110,96,14,134,37,108,70,130,27,39,7,57,84,44,77,76,66,98,9,88,62],"uraDoras":[66,77],"privateInfos":[{"initHand":[111,13,46,131,119,123,21,8,100,34,82,83,67],"draws":[124,61,86,3,15,85,114,40,4,105,94,17,79]},{"who":"ABSOLUTE_POS_INIT_SOUTH","initHand":[120,125,71,107,80,0,116,58,74,87,89,72,56],"draws":[126,22,31,5,73,88,55,129,115,2,6,91,30,47]},{"who":"ABSOLUTE_POS_INIT_WEST","initHand":[24,48,11,122,118,54,52,121,132,50,64,133,29],"draws":[78,59,38,25,99,23,33,43,53,97,90,19,36,12,106]},{"who":"ABSOLUTE_POS_INIT_NORTH","initHand":[135,75,128,65,109,26,42,93,63,32,35,117,1],"draws":[103,69,112,60,127,68,51,18,92,113,81,45,10,28,101]}],"terminal":{"finalScore":{"round":2,"ten":[34900,11000,34000,20100]},"wins":[{"who":"ABSOLUTE_POS_INIT_WEST","fromWho":"ABSOLUTE_POS_INIT_SOUTH","closedTiles":[19,23,24,25,29,33,47,48,50,52,54,59,132,133],"winTile":47,"fu":40,"ten":12000,"tenChanges":[0,-12000,13000,0],"yakus":[1,52,54,53],"fans":[1,2,1,0]}]}})";
-    state = State(json);
-    observations = state.CreateObservations();
-    EXPECT_EQ(observations.size(), 1);
-    EXPECT_TRUE(observations.find("ROTTEN") != observations.end());
-    observation = observations["ROTTEN"];
-    EXPECT_TRUE(types_check({ActionType::kDiscard}, observation));
 
     //  9. Riichi => (5) Discard
     // 可能なdiscardは南だけ。
@@ -192,17 +173,6 @@ TEST(state, CreateObservation) {
     EXPECT_TRUE(types_check({ActionType::kRon, ActionType::kNo}, observation));
 
     // 15. DiscardDrawnTile => (8) Chi, Pon and KanOpened
-
-    // 16. RiichiScoreChange => (8) Chi, Pon and KanOpened
-    // Pon.
-    json = R"({"playerIds":["-ron-","ASAPIN","うきでん","超ヒモリロ"],"initScore":{"round":1,"honba":1,"riichi":1,"ten":[24000,27000,24000,24000]},"doras":[69],"eventHistory":{"events":[{"who":"ABSOLUTE_POS_INIT_SOUTH"},{"type":"EVENT_TYPE_DISCARD_FROM_HAND","who":"ABSOLUTE_POS_INIT_SOUTH","tile":122},{"who":"ABSOLUTE_POS_INIT_WEST"},{"type":"EVENT_TYPE_DISCARD_FROM_HAND","who":"ABSOLUTE_POS_INIT_WEST","tile":132},{"who":"ABSOLUTE_POS_INIT_NORTH"},{"type":"EVENT_TYPE_DISCARD_FROM_HAND","who":"ABSOLUTE_POS_INIT_NORTH","tile":13},{},{"type":"EVENT_TYPE_DISCARD_FROM_HAND","tile":68},{"who":"ABSOLUTE_POS_INIT_SOUTH"},{"type":"EVENT_TYPE_DISCARD_FROM_HAND","who":"ABSOLUTE_POS_INIT_SOUTH","tile":3},{"who":"ABSOLUTE_POS_INIT_WEST"},{"type":"EVENT_TYPE_DISCARD_DRAWN_TILE","who":"ABSOLUTE_POS_INIT_WEST","tile":130},{"who":"ABSOLUTE_POS_INIT_NORTH"},{"type":"EVENT_TYPE_DISCARD_DRAWN_TILE","who":"ABSOLUTE_POS_INIT_NORTH","tile":27},{},{"type":"EVENT_TYPE_DISCARD_FROM_HAND","tile":87},{"who":"ABSOLUTE_POS_INIT_SOUTH"},{"type":"EVENT_TYPE_DISCARD_FROM_HAND","who":"ABSOLUTE_POS_INIT_SOUTH","tile":32},{"who":"ABSOLUTE_POS_INIT_WEST"},{"type":"EVENT_TYPE_DISCARD_FROM_HAND","who":"ABSOLUTE_POS_INIT_WEST","tile":43},{"who":"ABSOLUTE_POS_INIT_NORTH"},{"type":"EVENT_TYPE_DISCARD_DRAWN_TILE","who":"ABSOLUTE_POS_INIT_NORTH","tile":54},{},{"type":"EVENT_TYPE_DISCARD_FROM_HAND","tile":134},{"who":"ABSOLUTE_POS_INIT_SOUTH"},{"type":"EVENT_TYPE_DISCARD_DRAWN_TILE","who":"ABSOLUTE_POS_INIT_SOUTH","tile":119},{"who":"ABSOLUTE_POS_INIT_WEST"},{"type":"EVENT_TYPE_DISCARD_FROM_HAND","who":"ABSOLUTE_POS_INIT_WEST","tile":81},{"who":"ABSOLUTE_POS_INIT_NORTH"},{"type":"EVENT_TYPE_DISCARD_DRAWN_TILE","who":"ABSOLUTE_POS_INIT_NORTH","tile":135},{},{"type":"EVENT_TYPE_DISCARD_FROM_HAND","tile":15},{"who":"ABSOLUTE_POS_INIT_SOUTH"},{"type":"EVENT_TYPE_DISCARD_FROM_HAND","who":"ABSOLUTE_POS_INIT_SOUTH","tile":125},{"who":"ABSOLUTE_POS_INIT_WEST"},{"type":"EVENT_TYPE_DISCARD_DRAWN_TILE","who":"ABSOLUTE_POS_INIT_WEST","tile":121},{"who":"ABSOLUTE_POS_INIT_NORTH"},{"type":"EVENT_TYPE_DISCARD_DRAWN_TILE","who":"ABSOLUTE_POS_INIT_NORTH","tile":19},{},{"type":"EVENT_TYPE_DISCARD_DRAWN_TILE","tile":7},{"who":"ABSOLUTE_POS_INIT_SOUTH"},{"type":"EVENT_TYPE_DISCARD_FROM_HAND","who":"ABSOLUTE_POS_INIT_SOUTH","tile":47},{"who":"ABSOLUTE_POS_INIT_WEST"},{"type":"EVENT_TYPE_DISCARD_FROM_HAND","who":"ABSOLUTE_POS_INIT_WEST","tile":50},{"who":"ABSOLUTE_POS_INIT_NORTH"},{"type":"EVENT_TYPE_DISCARD_FROM_HAND","who":"ABSOLUTE_POS_INIT_NORTH","tile":46},{},{"type":"EVENT_TYPE_DISCARD_DRAWN_TILE","tile":4},{"who":"ABSOLUTE_POS_INIT_SOUTH"},{"type":"EVENT_TYPE_RIICHI","who":"ABSOLUTE_POS_INIT_SOUTH"},{"type":"EVENT_TYPE_DISCARD_FROM_HAND","who":"ABSOLUTE_POS_INIT_SOUTH","tile":111},{"type":"EVENT_TYPE_RIICHI_SCORE_CHANGE","who":"ABSOLUTE_POS_INIT_SOUTH"}]},"wall":[122,36,38,65,62,49,50,25,46,83,95,100,85,87,20,68,22,3,56,14,52,43,42,9,73,115,127,77,26,89,117,15,32,98,111,47,17,24,81,132,86,110,116,76,134,82,72,75,96,6,13,48,125,37,114,99,97,130,27,107,5,45,54,124,119,58,135,105,10,121,19,7,29,60,108,4,63,106,30,1,33,126,79,51,11,64,2,133,35,61,94,78,120,101,70,92,128,55,44,88,84,23,53,18,67,57,71,31,118,131,109,112,40,0,66,74,113,41,91,28,8,102,90,123,12,104,34,21,80,103,69,59,129,39,16,93],"uraDoras":[59],"privateInfos":[{"initHand":[85,87,20,68,26,89,117,15,134,82,72,75,48],"draws":[99,107,124,105,7,4,106,126,51,133,78,92]},{"who":"ABSOLUTE_POS_INIT_SOUTH","initHand":[122,36,38,65,22,3,56,14,32,98,111,47,96],"draws":[125,97,5,119,10,29,63,30,79,11,35,120,128]},{"who":"ABSOLUTE_POS_INIT_WEST","initHand":[62,49,50,25,52,43,42,9,17,24,81,132,6],"draws":[37,130,45,58,121,60,1,64,61,101,55]},{"who":"ABSOLUTE_POS_INIT_NORTH","initHand":[46,83,95,100,73,115,127,77,86,110,116,76,13],"draws":[114,27,54,135,19,108,33,2,94,70,44]}],"terminal":{"finalScore":{"round":1,"honba":1,"ten":[24000,26000,34300,15700]},"wins":[{"who":"ABSOLUTE_POS_INIT_WEST","fromWho":"ABSOLUTE_POS_INIT_NORTH","closedTiles":[1,6,9,24,25,37,42,44,45,49,52,58,60,64],"winTile":44,"fu":30,"ten":8000,"tenChanges":[0,0,11300,-8300],"yakus":[1,7,52,54,53],"fans":[1,1,1,1,1]}]}})";
-    state = State(json);
-    observations = state.CreateObservations();
-    EXPECT_EQ(observations.size(), 1);
-    EXPECT_TRUE(observations.find("超ヒモリロ") != observations.end());
-    observation = observations["超ヒモリロ"];
-    EXPECT_TRUE(types_check({ActionType::kPon, ActionType::kNo}, observation));
-    EXPECT_EQ(observation.possible_actions().front().open().GetBits(), 42538);
 }
 
 TEST(state, Update) {
