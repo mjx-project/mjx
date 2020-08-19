@@ -580,6 +580,7 @@ namespace mj
             case ActionType::kKanOpened:
                 if (require_riichi_score_change_) RiichiScoreChange();
                 ApplyOpen(who, action.open());
+                Draw(who);
                 break;
             case ActionType::kKanClosed:
                 if (require_kan_dora_) AddNewDora();
