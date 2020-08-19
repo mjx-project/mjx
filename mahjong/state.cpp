@@ -93,11 +93,13 @@ namespace mj
                 // => Chi, Pon and KanOpened (8)
                 assert(last_action_.type() != ActionType::kNo);
                 if (auto steal_observations = CreateStealAndRonObservation(); !steal_observations.empty()) return steal_observations;
+            case EventType::kKanAdded:
+                // TODO: check 槍槓
+                break;
             case EventType::kTsumo:
             case EventType::kRon:
             case EventType::kKanClosed:
             case EventType::kKanOpened:
-            case EventType::kKanAdded:
             case EventType::kNoWinner:
                 assert(false);
         }
@@ -185,8 +187,8 @@ namespace mj
     }
 
     Tile State::Draw(AbsolutePos who) {
-        bool is_kan_draw = last_event_.who() == who && Any(last_event_.type(), {EventType::kKanClosed, EventType::kKanOpened, EventType::kKanAdded});
-        auto draw = is_kan_draw ? wall_.KanDraw() : wall_.Draw();
+        auto draw = require_kan_draw_ ? wall_.KanDraw() : wall_.Draw();
+        require_kan_draw_ = false;
         mutable_player(who).Draw(draw);
 
         last_event_ = Event::CreateDraw(who);
@@ -221,6 +223,10 @@ namespace mj
 
         last_event_ = Event::CreateOpen(who, open);
         state_.mutable_event_history()->mutable_events()->Add(last_event_.proto());
+        if (Any(open.Type(), {OpenType::kKanClosed, OpenType::kKanOpened, OpenType::kKanAdded})) {
+            require_kan_draw_ = true;
+            ++require_kan_dora_;
+        }
     }
 
     void State::AddNewDora() {
@@ -230,6 +236,8 @@ namespace mj
         state_.mutable_event_history()->mutable_events()->Add(last_event_.proto());
         state_.add_doras(new_dora_ind.Id());
         state_.add_ura_doras(new_ura_dora_ind.Id());
+
+        --require_kan_dora_;
     }
 
     void State::RiichiScoreChange() {
@@ -544,6 +552,7 @@ namespace mj
         switch (action.type()) {
             case ActionType::kDiscard:
                 {
+                    if (require_kan_dora_) AddNewDora();
                     Discard(who, action.discard());
                     // TODO: CreateStealAndRonObservationが2回stateが変わらないのに呼ばれている（CreateObservation内で）
                     bool has_steal_or_ron = !CreateStealAndRonObservation().empty();
@@ -568,13 +577,35 @@ namespace mj
                 break;
             case ActionType::kChi:
             case ActionType::kPon:
-            case ActionType::kKanOpened:
                 if (require_riichi_score_change_) RiichiScoreChange();
                 ApplyOpen(who, action.open());
                 break;
-            case ActionType::kKanClosed:
-            case ActionType::kKanAdded:
+            case ActionType::kKanOpened:
+                if (require_riichi_score_change_) RiichiScoreChange();
                 ApplyOpen(who, action.open());
+                Draw(who);
+                break;
+            case ActionType::kKanClosed:
+                if (require_kan_dora_) {
+                    // 天鳳のカンの仕様については https://github.com/sotetsuk/mahjong/issues/199 で調べている
+                    // ここのカンドラは直前にカンした場合のカンドラ
+                    ApplyOpen(who, action.open());
+                    AddNewDora();
+                } else {
+                    ApplyOpen(who, action.open());
+                }
+                AddNewDora();
+                Draw(who);
+                break;
+            case ActionType::kKanAdded:
+                if (require_kan_dora_) {
+                    ApplyOpen(who, action.open());
+                    AddNewDora();
+                } else {
+                    ApplyOpen(who, action.open());
+                }
+                // TODO: check 槍槓
+                Draw(who);
                 break;
             case ActionType::kNo:
                 if (wall_.HasDrawLeft()) {

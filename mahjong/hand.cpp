@@ -127,11 +127,8 @@ namespace mj
 
     void Hand::Draw(Tile tile)
     {
-        assert(stage_ == HandStage::kAfterDiscards ||
-               stage_ == HandStage::kAfterKanOpened ||
-               stage_ == HandStage::kAfterKanClosed ||
-               stage_ == HandStage::kAfterKanAdded);
-        assert(SizeClosed() == 1 || SizeClosed() == 4 || SizeClosed() == 7 || SizeClosed() == 10 || SizeClosed() == 13);
+        assert(Any(stage_, {HandStage::kAfterDiscards, HandStage::kAfterKanOpened, HandStage::kAfterKanClosed, HandStage::kAfterKanAdded}));
+        assert(Any(SizeClosed(), {1, 4, 7, 10, 13}));
         assert(!Any(tile, ToVector()));
         closed_tiles_.insert(tile);
         if (stage_ == HandStage::kAfterDiscards) stage_ = HandStage::kAfterDraw;
