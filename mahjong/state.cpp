@@ -101,9 +101,8 @@ namespace mj
             case EventType::kNoWinner:
             case EventType::kNewDora:
             case EventType::kRiichiScoreChange:
-                assert(false);
+                assert(false);  // Impossible state
         }
-        assert(false);
     }
 
     State::State(const std::string &json_str) {
