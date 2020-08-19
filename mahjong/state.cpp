@@ -185,8 +185,8 @@ namespace mj
     }
 
     Tile State::Draw(AbsolutePos who) {
-        bool is_kan_draw = last_event_.who() == who && Any(last_event_.type(), {EventType::kKanClosed, EventType::kKanOpened, EventType::kKanAdded});
-        auto draw = is_kan_draw ? wall_.KanDraw() : wall_.Draw();
+        auto draw = require_kan_draw_ ? wall_.KanDraw() : wall_.Draw();
+        require_kan_draw_ = false;
         mutable_player(who).Draw(draw);
 
         last_event_ = Event::CreateDraw(who);
@@ -221,6 +221,10 @@ namespace mj
 
         last_event_ = Event::CreateOpen(who, open);
         state_.mutable_event_history()->mutable_events()->Add(last_event_.proto());
+        if (Any(open.Type(), {OpenType::kKanClosed, OpenType::kKanOpened, OpenType::kKanAdded})) {
+            require_kan_draw_ = true;
+            require_kan_dora_ = true;
+        }
     }
 
     void State::AddNewDora() {
@@ -230,6 +234,8 @@ namespace mj
         state_.mutable_event_history()->mutable_events()->Add(last_event_.proto());
         state_.add_doras(new_dora_ind.Id());
         state_.add_ura_doras(new_ura_dora_ind.Id());
+
+        require_kan_draw_ = false;
     }
 
     void State::RiichiScoreChange() {
@@ -573,6 +579,10 @@ namespace mj
                 ApplyOpen(who, action.open());
                 break;
             case ActionType::kKanClosed:
+                ApplyOpen(who, action.open());
+                AddNewDora();
+                Draw(who);
+                break;
             case ActionType::kKanAdded:
                 ApplyOpen(who, action.open());
                 break;
