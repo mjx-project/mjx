@@ -577,6 +577,9 @@ namespace mj
                 break;
             case ActionType::kChi:
             case ActionType::kPon:
+                if (require_riichi_score_change_) RiichiScoreChange();
+                ApplyOpen(who, action.open());
+                break;
             case ActionType::kKanOpened:
                 if (require_riichi_score_change_) RiichiScoreChange();
                 ApplyOpen(who, action.open());
