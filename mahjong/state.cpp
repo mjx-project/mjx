@@ -2,6 +2,7 @@
 #include "utils.h"
 
 #include <google/protobuf/util/json_util.h>
+#include <google/protobuf/util/message_differencer.h>
 
 namespace mj
 {
@@ -115,20 +116,20 @@ namespace mj
     }
 
     State::State(const std::string &json_str) {
-         std::unique_ptr<mjproto::State> state = std::make_unique<mjproto::State>();
-         auto status = google::protobuf::util::JsonStringToMessage(json_str, state.get());
+         mjproto::State state = mjproto::State();
+         auto status = google::protobuf::util::JsonStringToMessage(json_str, &state);
          assert(status.ok());
 
          // Set player ids
-         state_.mutable_player_ids()->CopyFrom(state->player_ids());
+         state_.mutable_player_ids()->CopyFrom(state.player_ids());
          // Set scores
-         state_.mutable_init_score()->CopyFrom(state->init_score());
-         curr_score_.CopyFrom(state->init_score());
+         state_.mutable_init_score()->CopyFrom(state.init_score());
+         curr_score_.CopyFrom(state.init_score());
          // Set walls
          auto wall_tiles = std::vector<Tile>();
-         for (auto tile_id: state->wall()) wall_tiles.emplace_back(Tile(tile_id));
+         for (auto tile_id: state.wall()) wall_tiles.emplace_back(Tile(tile_id));
          wall_ = Wall(round(), wall_tiles);
-         state_.mutable_wall()->CopyFrom(state->wall());
+         state_.mutable_wall()->CopyFrom(state.wall());
          // Set dora
          state_.add_doras(wall_.dora_indicators().front().Id());
          state_.add_ura_doras(wall_.ura_dora_indicators().front().Id());
@@ -143,8 +144,8 @@ namespace mj
          }
          // Set event history
          std::vector<int> draw_ixs = {0, 0, 0, 0};
-         for (int i = 0; i < state->event_history().events_size(); ++i) {
-             auto event = state->event_history().events(i);
+         for (int i = 0; i < state.event_history().events_size(); ++i) {
+             auto event = state.event_history().events(i);
              auto who = AbsolutePos(event.who());
              switch (event.type()) {
                  case mjproto::EVENT_TYPE_DRAW:
@@ -185,7 +186,13 @@ namespace mj
                      break;
              }
          }
-         // TODO: check terminal state equality
+         if (!google::protobuf::util::MessageDifferencer::Equals(state, state_)) {
+             std::string expected;
+             google::protobuf::util::MessageToJsonString(state, &expected);
+             std::cerr << "Expected: " << expected << std::endl;
+             std::cerr << "Actual  : " << ToJson() << std::endl;
+         }
+        assert(google::protobuf::util::MessageDifferencer::Equals(state, state_));
     }
 
     std::string State::ToJson() const {
