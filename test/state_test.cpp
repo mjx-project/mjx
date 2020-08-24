@@ -442,4 +442,7 @@ TEST(state, Update) {
     actions = { Action::CreateDiscard(AbsolutePos::kInitWest, Tile(74)) };
     state_before.Update(std::move(actions));
     EXPECT_EQ(state_before.ToJson(), state_after.ToJson());
+
+    // 槍槓
+    // 東3局0本場 https://tenhou.net/0/?log=2010081709gm-00a9-0000-fe3371ad&tw=1
 }
