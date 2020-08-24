@@ -65,10 +65,6 @@ namespace mj
         hand_.Ron(tile);
     }
 
-    void Player::RonAfterOthersKan(Tile tile) {
-        hand_.RonAfterOthersKan(tile);
-    }
-
     void Player::Tsumo() {
         hand_.Tsumo();
     }

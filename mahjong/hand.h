@@ -73,7 +73,6 @@ namespace mj
         void Riichi();  // After riichi, hand is fixed
         void ApplyOpen(Open open);  // TODO: (sotetsuk) current implementation switch private method depending on OpenType. This is not smart way to do dynamic polymorphism.
         void Ron(Tile tile);
-        void RonAfterOthersKan(Tile tile);
         void Tsumo();  // should be called after draw like h.Draw(tile); if (h.IsCompleted(w)) h.Tsumo();
         std::pair<Tile, bool> Discard(Tile tile);
 

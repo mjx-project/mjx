@@ -492,6 +492,7 @@ namespace mj
                 player(winner).CanRon(discarded, win_state_info(winner))) {
                 auto observation = Observation(winner, state_);
                 observation.add_possible_action(PossibleAction::CreateRon());
+                observations[player(winner).player_id()] = observation;
             }
         }
         return observations;
@@ -539,6 +540,7 @@ namespace mj
                 false,
                 false,
                 false,
+                last_event_.type() == EventType::kKanAdded, // robbing kan
                 seat_wind == Wind::kEast,
                 wall_.dora_count(),
                 wall_.ura_dora_count());
