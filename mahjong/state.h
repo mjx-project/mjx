@@ -54,8 +54,7 @@ namespace mj
         // temporal memory
         std::uint32_t seed_;
         Action last_action_;
-        Event last_discard_;
-        Event last_draw_;
+        Event last_draw_;  // necessary duet to new dora event
         Event last_event_;
         bool is_round_over_ = false;
         bool require_riichi_score_change_ = false;
