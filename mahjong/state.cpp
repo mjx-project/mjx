@@ -96,8 +96,12 @@ namespace mj
                 }
             case EventType::kKanAdded:
                 {
-                    assert(!CreateRonObservation(last_event_.who(), last_event_.open().LastTile()).empty());
-                    return CreateRonObservation(last_event_.who(), last_event_.open().LastTile());
+                    auto observations = CreateStealAndRonObservation();
+                    assert(!observations.empty());
+                    for (const auto &[player_id, observation]: observations)
+                        for (const auto &possible_action: observation.possible_actions())
+                            assert(possible_action.type() == ActionType::kRon);
+                    return observations;
                 }
             case EventType::kTsumo:
             case EventType::kRon:
@@ -486,25 +490,10 @@ namespace mj
     }
 
 
-    std::unordered_map<PlayerId, Observation> State::CreateRonObservation(AbsolutePos discarder, Tile discarded) const {
-        std::unordered_map<PlayerId, Observation> observations;
-        for (int i = 0; i < 4; ++i) {
-            auto winner = AbsolutePos(i);
-            if (winner == discarder) continue;
-            if (player(winner).IsCompleted(discarded) &&
-                player(winner).CanRon(discarded, win_state_info(winner))) {
-                auto observation = Observation(winner, state_);
-                observation.add_possible_action(PossibleAction::CreateRon());
-                observations[player(winner).player_id()] = observation;
-            }
-        }
-        return observations;
-    }
-
     std::unordered_map<PlayerId, Observation> State::CreateStealAndRonObservation() const {
         std::unordered_map<PlayerId, Observation> observations;
         auto discarder = last_event_.who();
-        auto discard = last_event_.tile();
+        auto tile = last_event_.type() != EventType::kKanAdded ? last_event_.tile() : last_event_.open().LastTile();
         auto has_draw_left = wall_.HasDrawLeft();
         for (int i = 0; i < 4; ++i) {
              auto stealer = AbsolutePos(i);
@@ -512,15 +501,15 @@ namespace mj
              auto observation = Observation(stealer, state_);
 
              // check ron
-             if (player(stealer).IsCompleted(discard) &&
-                 player(stealer).CanRon(discard, win_state_info(stealer))) {
+             if (player(stealer).IsCompleted(tile) &&
+                 player(stealer).CanRon(tile, win_state_info(stealer))) {
                  observation.add_possible_action(PossibleAction::CreateRon());
              }
 
              // check chi, pon and kan_opened
-             if (has_draw_left) {
+             if (has_draw_left && last_event_.type() != EventType::kKanAdded) {  // if 槍槓, only ron
                 auto relative_pos = ToRelativePos(stealer, discarder);
-                auto possible_opens = player(stealer).PossibleOpensAfterOthersDiscard(discard, relative_pos);
+                auto possible_opens = player(stealer).PossibleOpensAfterOthersDiscard(tile, relative_pos);
                 for (const auto & possible_open: possible_opens)
                     observation.add_possible_action(PossibleAction::CreateOpen(possible_open));
              }
@@ -622,8 +611,8 @@ namespace mj
                 break;
             case ActionType::kKanAdded:
                 ApplyOpen(who, action.open());
-                // TODO: CreateRonObservationが状態変化がないのに2回計算されている
-                if (auto has_no_ron = CreateRonObservation(who, action.open().LastTile()).empty(); has_no_ron) {
+                // TODO: CreateStealAndRonObservationが状態変化がないのに2回計算されている
+                if (auto has_no_ron = CreateStealAndRonObservation().empty(); has_no_ron) {
                     assert(require_kan_dora_ <= 2);
                     while(require_kan_dora_ > 1) AddNewDora();  // 前のカンの分の新ドラをめくる。1回分はここでの加槓の分なので、ここではめくられない
                     Draw(who);

@@ -79,7 +79,6 @@ namespace mj
         void Tsumo(AbsolutePos winner);
         void Ron(AbsolutePos winner);
         void NoWinner();
-        std::unordered_map<PlayerId, Observation> CreateRonObservation(AbsolutePos discarder, Tile discarded) const;  // For 槍槓
         std::unordered_map<PlayerId, Observation> CreateStealAndRonObservation() const;
 
         [[nodiscard]] std::pair<HandInfo, WinScore> EvalWinHand(AbsolutePos who) const noexcept;
