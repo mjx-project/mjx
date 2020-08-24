@@ -160,7 +160,7 @@ namespace mj
                      Tsumo(who);
                      break;
                  case mjproto::EVENT_TYPE_RON:
-                     assert(last_discard_.tile() == Tile(event.tile()) || last_event_.type() == EventType::kKanAdded);
+                     assert(last_event_.type() == EventType::kKanAdded || last_event_.tile() == Tile(event.tile()));
                      Ron(who);
                      break;
                  case mjproto::EVENT_TYPE_CHI:
@@ -209,7 +209,6 @@ namespace mj
         assert(discard == discarded);
 
         last_event_ = Event::CreateDiscard(who, discard, tsumogiri);
-        last_discard_ = last_event_;
         state_.mutable_event_history()->mutable_events()->Add(last_event_.proto());
         // TODO: set discarded tile to river
     }
@@ -505,7 +504,7 @@ namespace mj
     std::unordered_map<PlayerId, Observation> State::CreateStealAndRonObservation() const {
         std::unordered_map<PlayerId, Observation> observations;
         auto discarder = last_event_.who();
-        auto discard = last_discard_.tile();
+        auto discard = last_event_.tile();
         auto has_draw_left = wall_.HasDrawLeft();
         for (int i = 0; i < 4; ++i) {
              auto stealer = AbsolutePos(i);
@@ -573,6 +572,8 @@ namespace mj
     }
 
     void State::Update(Action &&action) {
+        assert(Any(last_event_.type(), {EventType::kDraw, EventType::kDiscardFromHand,EventType::kDiscardDrawnTile,
+                                        EventType::kRiichi, EventType::kChi, EventType::kPon, EventType::kKanAdded}));
         auto who = action.who();
         switch (action.type()) {
             case ActionType::kDiscard:
@@ -637,7 +638,7 @@ namespace mj
             case ActionType::kNo:
                 if (wall_.HasDrawLeft()) {
                     if (require_riichi_score_change_) RiichiScoreChange();
-                    Draw(AbsolutePos((ToUType(last_discard_.who()) + 1) % 4));  // TODO: check 流局
+                    Draw(AbsolutePos((ToUType(last_event_.who()) + 1) % 4));  // TODO: check 流局
                 } else {
                     NoWinner();
                 }
