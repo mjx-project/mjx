@@ -120,7 +120,7 @@ TEST_F(YakuTest, RobbingKan)
 {
     auto yaku1 = YakuEvaluator::Eval(
             WinInfo(Hand(HandParams("m1,m2,m3,m4,m5,m6,m7,m8,s1,s1,p1,p1,p1").Ron("m9")).
-                    win_info()).Stage(HandStage::kAfterRonAfterOthersKan));
+                    win_info()).IsRobbingKan(true));
     EXPECT_EQ(yaku1.HasYaku(Yaku::kRobbingKan), std::make_optional(1));
 
     auto yaku2 = YakuEvaluator::Eval(

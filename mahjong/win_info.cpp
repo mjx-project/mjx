@@ -69,4 +69,9 @@ namespace mj {
         state.reversed_dora = std::move(reversed_dora);
         return *this;
     }
+
+    WinInfo &WinInfo::IsRobbingKan(bool is_robbing_kan) noexcept {
+        state.is_robbing_kan = is_robbing_kan;
+        return *this;
+    }
 }

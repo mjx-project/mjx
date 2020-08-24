@@ -804,7 +804,7 @@ namespace mj
     }
 
     std::optional<int> YakuEvaluator::HasRobbingKan(const WinInfo& win_info) noexcept {
-        if (win_info.hand.stage == HandStage::kAfterRonAfterOthersKan) return 1;
+        if (win_info.state.is_robbing_kan) return 1;
         return std::nullopt;
     }
 

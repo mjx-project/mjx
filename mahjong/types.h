@@ -78,7 +78,6 @@ namespace mj {
         kAfterTsumo,
         kAfterTsumoAfterKan,
         kAfterRon,
-        kAfterRonAfterOthersKan,
         kAfterChi,
         kAfterPon,
         kAfterKanOpened,

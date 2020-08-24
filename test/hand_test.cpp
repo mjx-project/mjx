@@ -635,13 +635,6 @@ TEST(hand, Tsumo) {
     EXPECT_EQ(h.LastTileAdded(), Tile("m1", 3));
 }
 
-TEST(hand, RonAfterOhtersKan) {
-    auto h = Hand(HandParams("m1,m1,m1,m2,m3,m4,m5,m6,m7,m8,m9,m9,m9"));
-    h.RonAfterOthersKan(Tile("m1", 3));
-    EXPECT_EQ(h.Stage(), HandStage::kAfterRonAfterOthersKan);
-    EXPECT_EQ(h.LastTileAdded(), Tile("m1", 3));
-}
-
 // TEST(hand, EvalScore) {
 //     auto h = Hand(HandParams("m1,m1,m1,m2,m3,m4,s3,s3,p2,p2,sw,sw,sw").Tsumo("p2"));
 //

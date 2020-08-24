@@ -20,10 +20,13 @@ namespace mj {
                 bool is_double_riichi,
                 bool is_first_tsumo,
                 bool is_dealer,
+                bool is_robbing_kan,
                 TileTypeCount dora,
                 TileTypeCount reversed_dora
-        ) : seat_wind(seat_wind), prevalent_wind(prevalent_wind), is_bottom(is_bottom), is_double_riichi(is_double_riichi),
-        is_first_tsumo(is_first_tsumo), is_dealer(is_dealer), dora(std::move(dora)), reversed_dora(std::move(reversed_dora)) {}
+        ) : seat_wind(seat_wind), prevalent_wind(prevalent_wind), is_bottom(is_bottom),
+        is_ippatsu(is_ippatsu), is_double_riichi(is_double_riichi),
+        is_first_tsumo(is_first_tsumo), is_dealer(is_dealer), is_robbing_kan(is_robbing_kan),
+        dora(std::move(dora)), reversed_dora(std::move(reversed_dora)) {}
         WinStateInfo() = default;
 
         Wind seat_wind = Wind::kEast;
@@ -33,6 +36,7 @@ namespace mj {
         bool is_double_riichi = false;
         bool is_first_tsumo = false;
         bool is_dealer = false;
+        bool is_robbing_kan = false;
         TileTypeCount dora;
         TileTypeCount reversed_dora;
     };
@@ -83,6 +87,7 @@ namespace mj {
         WinInfo& IsDoubleRiichi(bool is_double_riichi) noexcept ;
         WinInfo& IsFirstTsumo(bool is_first_tsumo) noexcept ;
         WinInfo& IsDealer(bool is_dealer) noexcept ;
+        WinInfo& IsRobbingKan(bool is_robbing_kan) noexcept ;
         WinInfo& Dora(std::map<TileType,int> dora) noexcept ;
         WinInfo& ReversedDora(std::map<TileType,int> reversed_dora) noexcept ;
     };

@@ -110,8 +110,7 @@ namespace mj
             if (after_kan) stage_ = HandStage::kAfterTsumoAfterKan;
         }
         if (!ron.empty()) {
-            if(!after_kan) Ron(tiles.back());
-            else RonAfterOthersKan(tiles.back());
+            Ron(tiles.back());
         }
     }
 
@@ -234,7 +233,7 @@ namespace mj
     std::pair<Tile, bool> Hand::Discard(Tile tile) {
         assert(stage_ != HandStage::kAfterDiscards);
         assert(stage_ != HandStage::kAfterTsumo && stage_ != HandStage::kAfterTsumoAfterKan &&
-               stage_ != HandStage::kAfterRon && stage_ != HandStage::kAfterRonAfterOthersKan);
+               stage_ != HandStage::kAfterRon);
         assert(closed_tiles_.find(tile) != closed_tiles_.end());
         assert(undiscardable_tiles_.find(tile) == undiscardable_tiles_.end());
         assert(last_tile_added_);
@@ -271,7 +270,7 @@ namespace mj
     std::vector<Tile> Hand::PossibleDiscards() const {
         assert(stage_ != HandStage::kAfterDiscards);
         assert(stage_ != HandStage::kAfterTsumo && stage_ != HandStage::kAfterTsumoAfterKan &&
-               stage_ != HandStage::kAfterRon && stage_ != HandStage::kAfterRonAfterOthersKan);
+               stage_ != HandStage::kAfterRon);
         assert(stage_ != HandStage::kAfterRiichi);  // PossibleDiscardsAfterRiichi handle this
         assert(last_tile_added_);
         assert(SizeClosed() == 2 || SizeClosed() == 5 || SizeClosed() == 8 || SizeClosed() == 11 || SizeClosed() == 14);
@@ -651,14 +650,6 @@ namespace mj
                 ApplyKanAdded(std::move(open));
                 break;
         }
-    }
-
-    void Hand::RonAfterOthersKan(Tile tile) {
-        assert(stage_ == HandStage::kAfterDiscards);
-        assert(SizeClosed() == 1 || SizeClosed() == 4 || SizeClosed() == 7 || SizeClosed() == 10 || SizeClosed() == 13);
-        Ron(tile);
-        stage_ = HandStage::kAfterRonAfterOthersKan;
-        assert(last_tile_added_);
     }
 
     bool Hand::IsCompleted() const {

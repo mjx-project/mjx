@@ -89,11 +89,16 @@ namespace mj
             case EventType::kDiscardDrawnTile:
                 // => Ron (7)
                 // => Chi, Pon and KanOpened (8)
-                assert(last_action_.type() != ActionType::kNo);
-                if (auto steal_observations = CreateStealAndRonObservation(); !steal_observations.empty()) return steal_observations;
+                {
+                    assert(last_action_.type() != ActionType::kNo);
+                    assert(!CreateStealAndRonObservation().empty());
+                    return CreateStealAndRonObservation();
+                }
             case EventType::kKanAdded:
-                // TODO: check 槍槓
-                break;
+                {
+                    assert(!CreateRonObservation(last_event_.who(), last_event_.open().LastTile()).empty());
+                    return CreateRonObservation(last_event_.who(), last_event_.open().LastTile());
+                }
             case EventType::kTsumo:
             case EventType::kRon:
             case EventType::kKanClosed:
@@ -155,8 +160,8 @@ namespace mj
                      Tsumo(who);
                      break;
                  case mjproto::EVENT_TYPE_RON:
-                     assert(last_discard_.tile() == Tile(event.tile()));
-                     Ron(who, last_discard_.who(), Tile(event.tile()));
+                     assert(last_discard_.tile() == Tile(event.tile()) || last_event_.type() == EventType::kKanAdded);
+                     Ron(who);
                      break;
                  case mjproto::EVENT_TYPE_CHI:
                  case mjproto::EVENT_TYPE_PON:
@@ -176,6 +181,7 @@ namespace mj
                      break;
              }
          }
+         // TODO: check terminal state equality
     }
 
     std::string State::ToJson() const {
@@ -305,7 +311,10 @@ namespace mj
         state_.mutable_terminal()->mutable_final_score()->CopyFrom(curr_score_);
     }
 
-    void State::Ron(AbsolutePos winner, AbsolutePos loser, Tile tile) {
+    void State::Ron(AbsolutePos winner) {
+        AbsolutePos loser = last_event_.who();
+        Tile tile = last_event_.type() != EventType::kKanAdded ? last_event_.tile() : last_event_.open().LastTile();
+
         mutable_player(winner).Ron(tile);
         auto [hand_info, win_score] = EvalWinHand(winner);
         // calc ten moves
@@ -477,6 +486,22 @@ namespace mj
         return tens_;
     }
 
+
+    std::unordered_map<PlayerId, Observation> State::CreateRonObservation(AbsolutePos discarder, Tile discarded) const {
+        std::unordered_map<PlayerId, Observation> observations;
+        for (int i = 0; i < 4; ++i) {
+            auto winner = AbsolutePos(i);
+            if (winner == discarder) continue;
+            if (player(winner).IsCompleted(discarded) &&
+                player(winner).CanRon(discarded, win_state_info(winner))) {
+                auto observation = Observation(winner, state_);
+                observation.add_possible_action(PossibleAction::CreateRon());
+                observations[player(winner).player_id()] = observation;
+            }
+        }
+        return observations;
+    }
+
     std::unordered_map<PlayerId, Observation> State::CreateStealAndRonObservation() const {
         std::unordered_map<PlayerId, Observation> observations;
         auto discarder = last_event_.who();
@@ -488,7 +513,7 @@ namespace mj
              auto observation = Observation(stealer, state_);
 
              // check ron
-            if (player(stealer).IsCompleted(discard) &&
+             if (player(stealer).IsCompleted(discard) &&
                  player(stealer).CanRon(discard, win_state_info(stealer))) {
                  observation.add_possible_action(PossibleAction::CreateRon());
              }
@@ -519,6 +544,7 @@ namespace mj
                 false,
                 false,
                 false,
+                last_event_.type() == EventType::kKanAdded, // robbing kan
                 seat_wind == Wind::kEast,
                 wall_.dora_count(),
                 wall_.ura_dora_count());
@@ -572,7 +598,7 @@ namespace mj
                 Tsumo(who);
                 break;
             case ActionType::kRon:
-                Ron(who, last_discard_.who(), last_discard_.tile());
+                Ron(who);
                 break;
             case ActionType::kChi:
             case ActionType::kPon:
@@ -603,8 +629,10 @@ namespace mj
                 } else {
                     ApplyOpen(who, action.open());
                 }
-                // TODO: check 槍槓
-                Draw(who);
+                // TODO: CreateRonObservationが状態変化がないのに2回計算されている
+                if (auto has_no_ron = CreateRonObservation(who, action.open().LastTile()).empty(); has_no_ron) {
+                    Draw(who);
+                }
                 break;
             case ActionType::kNo:
                 if (wall_.HasDrawLeft()) {
