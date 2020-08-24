@@ -88,7 +88,7 @@ namespace mj
 
     PossibleAction PossibleAction::CreateDiscard(std::vector<Tile> &&possible_discards) {
         auto possible_action = PossibleAction();
-        possible_action.possible_action_.set_type(ToUType(ActionType::kDiscard));
+        possible_action.possible_action_.set_type(mjproto::ActionType(ActionType::kDiscard));
         auto discard_candidates = possible_action.possible_action_.mutable_discard_candidates();
         for (auto tile: possible_discards) discard_candidates->Add(tile.Id());
         assert(discard_candidates->size() <= 14);
@@ -97,7 +97,7 @@ namespace mj
 
     PossibleAction PossibleAction::CreateRiichi() {
         auto possible_action = PossibleAction();
-        possible_action.possible_action_.set_type(ToUType(ActionType::kRiichi));
+        possible_action.possible_action_.set_type(mjproto::ActionType(ActionType::kRiichi));
         return possible_action;
     }
 
@@ -110,25 +110,25 @@ namespace mj
 
     PossibleAction PossibleAction::CreateRon() {
         auto possible_action = PossibleAction();
-        possible_action.possible_action_.set_type(ToUType(ActionType::kRon));
+        possible_action.possible_action_.set_type(mjproto::ActionType(ActionType::kRon));
         return possible_action;
     }
 
     PossibleAction PossibleAction::CreateTsumo() {
         auto possible_action = PossibleAction();
-        possible_action.possible_action_.set_type(ToUType(ActionType::kTsumo));
+        possible_action.possible_action_.set_type(mjproto::ActionType(ActionType::kTsumo));
         return possible_action;
     }
 
     PossibleAction PossibleAction::CreateKanAdded() {
         auto possible_action = PossibleAction();
-        possible_action.possible_action_.set_type(ToUType(ActionType::kKanAdded));
+        possible_action.possible_action_.set_type(mjproto::ActionType(ActionType::kKanAdded));
         return possible_action;
     }
 
     PossibleAction PossibleAction::CreateNo() {
         auto possible_action = PossibleAction();
-        possible_action.possible_action_.set_type(ToUType(ActionType::kNo));
+        possible_action.possible_action_.set_type(mjproto::ActionType(ActionType::kNo));
         return possible_action;
     }
 }  // namespace mj

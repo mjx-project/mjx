@@ -110,14 +110,11 @@ message PrivateInfo {
 }
 
 message PossibleAction {
-  uint32 type = 1;  // TDOO: change type to ActionType
+  ActionType type = 1;
   uint32 open = 2;
   repeated uint32 discard_candidates = 3;
 }
 
-// Similar to Tenhou's mjlog format. Initial hand and action sequence are sent to each player.
-// However, different from Tenhou, each observation request is stateless.
-// Each request has enough information to make decisions.
 message Observation {
   repeated string player_ids = 1;
   Score init_score = 2;  // public info
@@ -128,7 +125,7 @@ message Observation {
   repeated PossibleAction possible_actions = 7;
 }
 
-message Win {  // only for Tenhou visualization
+message Win {
   AbsolutePos who = 1;
   AbsolutePos from_who = 2;
   repeated uint32 closed_tiles = 3;
@@ -142,25 +139,25 @@ message Win {  // only for Tenhou visualization
   repeated uint32 yakumans = 11;
 }
 
-message NoWinner {  // only for Tenhou visualization
+message NoWinner {
   repeated TenpaiHand tenpais = 1;
   repeated int32 ten_changes = 2;  // Required for Tenhou mjlog.
   NoWinnerType type = 3;  // Following Tenhou mjlog format. 0, normal. 九種九牌, 四家立直, 三家和了, 四槓散了, 四風連打, 流し満貫
 }
 
-message TenpaiHand {  // only for Tenhou visualization
+message TenpaiHand {
   AbsolutePos who = 1;
   repeated uint32 closed_tiles = 2;
 }
 
-message Terminal {  // only for Tenhou visualization
+message Terminal {
   Score final_score = 1;
   repeated Win wins = 2;   // Empty if no one wins
   NoWinner no_winner = 3;  // Empty if a winner exists
   bool is_game_over = 4;
 }
 
-message State {  // For Tenhou visualization and unit test
+message State {
   // public info
   repeated string player_ids = 1;
   Score init_score = 2;  // Required for Tenhou mjlog.
@@ -174,10 +171,22 @@ message State {  // For Tenhou visualization and unit test
   Terminal terminal = 8;
 }
 
-message Action {  // corresponds to mj::Action in cpp
+message Action {
+  //                discard   open
+  //  DISCARD           Yes     No
+  //  RIICHI             No     No
+  //  TSUMO              No     No
+  //  KAN_CLOSED         No    Yes
+  //  KAN_ADDED          No    Yes
+  //  KYUSYU             No     No
+  //  NO                 No     No
+  //  CHI                No    Yes
+  //  PON                No    Yes
+  //  KAN_OPENED         No    Yes
+  //  RON                No     No
   uint32 game_id = 1;
   AbsolutePos who = 2;
   ActionType type = 3;
-  uint32 discard = 5;  // discard, riichi_and_discard, chi and pon
-  uint32 open = 6;  // chi, pon, kan_opened, kan_closed, and kan_added
+  uint32 discard = 4;
+  uint32 open = 5;
 }
