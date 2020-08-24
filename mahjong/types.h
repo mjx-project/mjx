@@ -57,17 +57,19 @@ namespace mj {
     };
 
     enum class ActionType : std::uint8_t {
+        // After draw
         kDiscard = mjproto::ACTION_TYPE_DISCARD,
         kRiichi = mjproto::ACTION_TYPE_RIICHI,
         kTsumo = mjproto::ACTION_TYPE_TSUMO,
-        kRon = mjproto::ACTION_TYPE_RON,
-        kChi = mjproto::ACTION_TYPE_CHI,
-        kPon = mjproto::ACTION_TYPE_PON,
         kKanClosed = mjproto::ACTION_TYPE_KAN_CLOSED,
-        kKanOpened = mjproto::ACTION_TYPE_KAN_OPENED,
         kKanAdded = mjproto::ACTION_TYPE_KAN_ADDED,
         kKyushu = mjproto::ACTION_TYPE_KYUSYU,
+        // After other's discard
         kNo = mjproto::ACTION_TYPE_NO,
+        kChi = mjproto::ACTION_TYPE_CHI,
+        kPon = mjproto::ACTION_TYPE_PON,
+        kKanOpened = mjproto::ACTION_TYPE_KAN_OPENED,
+        kRon = mjproto::ACTION_TYPE_RON,
     };
 
     enum class HandStage : std::uint8_t {
