@@ -47,15 +47,10 @@ $ gzip -dr mjlog_dir
 ```
 
 
-## Terms
-| Japanese | English | Reference |
-|:---:|:---:|:---:|
-| チー | Chi  | [Japanese Mahjong (Wikipedia)](https://en.wikipedia.org/wiki/Japanese_Mahjong) |
-| ポン | Pon  | [Japanese Mahjong (Wikipedia)](https://en.wikipedia.org/wiki/Japanese_Mahjong) |
-| カン | Kan  | [Japanese Mahjong (Wikipedia)](https://en.wikipedia.org/wiki/Japanese_Mahjong) |
 
 ## References
 
+- [麻雀用語集スプレッドシート](https://docs.google.com/spreadsheets/d/e/2PACX-1vQyy10WqsUVxCCeamqTh3Oj4l72qdBkoXkUIbRp1nGecL_Co9St830kST7AvdJKh6ThlkHBA4Y1yi6T/pubhtml)
 - Hand score calculation
   - [シャンテン数計算アルゴリズム](https://qiita.com/tomo_hxx/items/75b5f771285e1334c0a5)
     - [github.com/tomohxx/shanten-number-calculator](https://github.com/tomohxx/shanten-number-calculator)
