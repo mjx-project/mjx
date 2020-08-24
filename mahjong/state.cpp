@@ -48,7 +48,7 @@ namespace mj
         switch (last_event_.type()) {
             case EventType::kDraw:
                 {
-                    auto who = last_draw_.who();
+                    auto who = last_event_.who();
                     auto player_id = player(who).player_id();
                     auto observation = Observation(who, state_);
 
@@ -72,7 +72,7 @@ namespace mj
             case EventType::kRiichi:
                 {
                     // => Discard (5)
-                    auto who = last_draw_.who();
+                    auto who = last_event_.who();
                     auto observation = Observation(who, state_);
                     observation.add_possible_action(PossibleAction::CreateDiscard(player(who).PossibleDiscardsAfterRiichi()));
                     return { {player(who).player_id(), std::move(observation)} };
@@ -207,7 +207,6 @@ namespace mj
         mutable_player(who).Draw(draw);
 
         last_event_ = Event::CreateDraw(who);
-        last_draw_ = last_event_;
         state_.mutable_event_history()->mutable_events()->Add(last_event_.proto());
         state_.mutable_private_infos(ToUType(who))->add_draws(draw.Id());
 

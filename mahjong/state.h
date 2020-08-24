@@ -53,7 +53,6 @@ namespace mj
         std::array<Player, 4> players_;
         // temporal memory
         std::uint32_t seed_;
-        Event last_draw_;  // necessary duet to new dora event
         Event last_event_;
         bool is_round_over_ = false;
         bool require_riichi_score_change_ = false;
