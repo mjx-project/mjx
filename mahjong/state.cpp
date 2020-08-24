@@ -89,11 +89,16 @@ namespace mj
             case EventType::kDiscardDrawnTile:
                 // => Ron (7)
                 // => Chi, Pon and KanOpened (8)
-                assert(last_action_.type() != ActionType::kNo);
-                if (auto steal_observations = CreateStealAndRonObservation(); !steal_observations.empty()) return steal_observations;
+                {
+                    assert(last_action_.type() != ActionType::kNo);
+                    assert(!CreateStealAndRonObservation().empty());
+                    return CreateStealAndRonObservation();
+                }
             case EventType::kKanAdded:
-                // TODO: check 槍槓
-                break;
+                {
+                    assert(!CreateRonObservation(last_event_.who(), last_event_.open().LastTile()).empty());
+                    return CreateRonObservation(last_event_.who(), last_event_.open().LastTile());
+                }
             case EventType::kTsumo:
             case EventType::kRon:
             case EventType::kKanClosed:
@@ -477,6 +482,21 @@ namespace mj
         return tens_;
     }
 
+
+    std::unordered_map<PlayerId, Observation> State::CreateRonObservation(AbsolutePos discarder, Tile discarded) const {
+        std::unordered_map<PlayerId, Observation> observations;
+        for (int i = 0; i < 4; ++i) {
+            auto winner = AbsolutePos(i);
+            if (winner == discarder) continue;
+            if (player(winner).IsCompleted(discarded) &&
+                player(winner).CanRon(discarded, win_state_info(winner))) {
+                auto observation = Observation(winner, state_);
+                observation.add_possible_action(PossibleAction::CreateRon());
+            }
+        }
+        return observations;
+    }
+
     std::unordered_map<PlayerId, Observation> State::CreateStealAndRonObservation() const {
         std::unordered_map<PlayerId, Observation> observations;
         auto discarder = last_event_.who();
@@ -488,7 +508,7 @@ namespace mj
              auto observation = Observation(stealer, state_);
 
              // check ron
-            if (player(stealer).IsCompleted(discard) &&
+             if (player(stealer).IsCompleted(discard) &&
                  player(stealer).CanRon(discard, win_state_info(stealer))) {
                  observation.add_possible_action(PossibleAction::CreateRon());
              }
@@ -603,8 +623,10 @@ namespace mj
                 } else {
                     ApplyOpen(who, action.open());
                 }
-                // TODO: check 槍槓
-                Draw(who);
+                // TODO: CreateRonObservationが状態変化がないのに2回計算されている
+                if (auto has_no_ron = CreateRonObservation(who, action.open().LastTile()).empty(); has_no_ron) {
+                    Draw(who);
+                }
                 break;
             case ActionType::kNo:
                 if (wall_.HasDrawLeft()) {
