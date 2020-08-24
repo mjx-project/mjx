@@ -91,7 +91,6 @@ namespace mj
                 // => Ron (7)
                 // => Chi, Pon and KanOpened (8)
                 {
-                    assert(last_action_.type() != ActionType::kNo);
                     assert(!CreateStealAndRonObservation().empty());
                     return CreateStealAndRonObservation();
                 }
@@ -636,6 +635,5 @@ namespace mj
             case ActionType::kKyushu:
                 assert(false);  // Not implemented yet
         }
-        last_action_ = std::move(action);
    }
 }  // namespace mj
