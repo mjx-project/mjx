@@ -578,6 +578,7 @@ namespace mj
         switch (action.type()) {
             case ActionType::kDiscard:
                 {
+                    assert(require_kan_dora_ <= 1);
                     if (require_kan_dora_) AddNewDora();
                     Discard(who, action.discard());
                     // TODO: CreateStealAndRonObservationが2回stateが変わらないのに呼ばれている（CreateObservation内で）
@@ -612,26 +613,19 @@ namespace mj
                 Draw(who);
                 break;
             case ActionType::kKanClosed:
-                if (require_kan_dora_) {
-                    // 天鳳のカンの仕様については https://github.com/sotetsuk/mahjong/issues/199 で調べている
-                    // ここのカンドラは直前にカンした場合のカンドラ
-                    ApplyOpen(who, action.open());
-                    AddNewDora();
-                } else {
-                    ApplyOpen(who, action.open());
-                }
-                AddNewDora();
+                ApplyOpen(who, action.open());
+                // 天鳳のカンの仕様については https://github.com/sotetsuk/mahjong/issues/199 で調べている
+                // 暗槓の分で最低一回は新ドラがめくられる
+                assert(require_kan_dora_ <= 2);
+                while(require_kan_dora_) AddNewDora();
                 Draw(who);
                 break;
             case ActionType::kKanAdded:
-                if (require_kan_dora_) {
-                    ApplyOpen(who, action.open());
-                    AddNewDora();
-                } else {
-                    ApplyOpen(who, action.open());
-                }
+                ApplyOpen(who, action.open());
                 // TODO: CreateRonObservationが状態変化がないのに2回計算されている
                 if (auto has_no_ron = CreateRonObservation(who, action.open().LastTile()).empty(); has_no_ron) {
+                    assert(require_kan_dora_ <= 2);
+                    while(require_kan_dora_ > 1) AddNewDora();  // 前のカンの分の新ドラをめくる。1回分はここでの加槓の分なので、ここではめくられない
                     Draw(who);
                 }
                 break;
