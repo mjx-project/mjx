@@ -160,8 +160,8 @@ namespace mj
                      Tsumo(who);
                      break;
                  case mjproto::EVENT_TYPE_RON:
-                     assert(last_discard_.tile() == Tile(event.tile()));
-                     Ron(who, last_discard_.who(), Tile(event.tile()));
+                     assert(last_discard_.tile() == Tile(event.tile()) || last_event_.type() == EventType::kKanAdded);
+                     Ron(who);
                      break;
                  case mjproto::EVENT_TYPE_CHI:
                  case mjproto::EVENT_TYPE_PON:
@@ -181,6 +181,7 @@ namespace mj
                      break;
              }
          }
+         // TODO: check terminal state equality
     }
 
     std::string State::ToJson() const {
@@ -310,7 +311,10 @@ namespace mj
         state_.mutable_terminal()->mutable_final_score()->CopyFrom(curr_score_);
     }
 
-    void State::Ron(AbsolutePos winner, AbsolutePos loser, Tile tile) {
+    void State::Ron(AbsolutePos winner) {
+        AbsolutePos loser = last_event_.who();
+        Tile tile = last_event_.type() != EventType::kKanAdded ? last_event_.tile() : last_event_.open().LastTile();
+
         mutable_player(winner).Ron(tile);
         auto [hand_info, win_score] = EvalWinHand(winner);
         // calc ten moves
@@ -594,7 +598,7 @@ namespace mj
                 Tsumo(who);
                 break;
             case ActionType::kRon:
-                Ron(who, last_discard_.who(), last_discard_.tile());
+                Ron(who);
                 break;
             case ActionType::kChi:
             case ActionType::kPon:
