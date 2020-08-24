@@ -546,22 +546,33 @@ namespace mj
     }
 
     void State::Update(std::vector<Action> &&action_candidates) {
+        static_assert(ActionType::kNo < ActionType::kChi);
+        static_assert(ActionType::kChi < ActionType::kPon);
+        static_assert(ActionType::kChi < ActionType::kKanOpened);
+        static_assert(ActionType::kPon < ActionType::kRon);
+        static_assert(ActionType::kKanOpened < ActionType::kRon);
         assert(!action_candidates.empty() && action_candidates.size() <= 3);
+
         if (action_candidates.size() == 1) {
             Update(std::move(action_candidates.front()));
         } else {
-            // if more than 1 action candidates exist
-            bool ron_exist = std::count_if(action_candidates.begin(), action_candidates.end(),
-                    [](const Action &x){ return x.type() == ActionType::kRon; });
-            if (ron_exist) {
-                // if ron exist, apply update to all ron action
-                // TODO: sort ron actions from 上家 to 下家
-                for (auto & action_candidate : action_candidates) Update(std::move(action_candidate));
+            // sort in order Ron > KanOpened > Pon > Chi > No
+            std::sort(action_candidates.begin(), action_candidates.end(),
+                    [](const Action &x, const Action &y){ return x.type() > x.type(); });
+            bool has_ron = action_candidates.front().type() == ActionType::kRon;
+            if (has_ron) {
+                int ron_count = std::count_if(action_candidates.begin(), action_candidates.end(),
+                                               [](const Action &x){ return x.type() == ActionType::kRon; });
+                if (ron_count == 3) {
+                    // TODO: 三家和了
+                }
+                for (auto &action: action_candidates) {
+                    if (action.type() != ActionType::kRon) break;
+                    Update(std::move(action));
+                }
             } else {
-                // if ron does not exist, update via Pon or Kan action
-                auto it = find_if(action_candidates.begin(), action_candidates.end(),
-                        [](const Action &x){ return x.type() == ActionType::kPon || x.type() == ActionType::kKanOpened; });
-                Update(std::move(*it));
+                assert(Any(action_candidates.front().type(), {ActionType::kNo, ActionType::kChi, ActionType::kPon, ActionType::kKanOpened}));
+                Update(std::move(action_candidates.front()));
             }
         }
     }
