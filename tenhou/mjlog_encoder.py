@@ -76,7 +76,7 @@ class MjlogEncoder:
                 curr_score.riichi += 1
                 ret += f"<REACH who=\"{event.who}\" ten=\"{curr_score.ten[0] // 100},{curr_score.ten[1] // 100},{curr_score.ten[2] // 100},{curr_score.ten[3] // 100}\" step=\"2\"/>"
             elif event.type == mahjong_pb2.EVENT_TYPE_NEW_DORA:
-                ret += "<DORA hai=\"{event.tile}\" />"
+                ret += f"<DORA hai=\"{event.tile}\" />"
             elif event.type in [mahjong_pb2.EVENT_TYPE_TSUMO, mahjong_pb2.EVENT_TYPE_RON]:
                 assert len(state.terminal.wins) != 0
             elif event.type == mahjong_pb2.EVENT_TYPE_NO_WINNER:
@@ -84,18 +84,6 @@ class MjlogEncoder:
 
         if len(state.terminal.wins) == 0:
             ret += "<RYUUKYOKU "
-            ret += f"ba=\"{curr_score.honba},{curr_score.riichi}\" "
-            sc = []
-            for i in range(4):
-                sc.append(curr_score.ten[i] // 100)
-                change = state.terminal.no_winner.ten_changes[i]
-                sc.append(change // 100)
-                curr_score.ten[i] += change
-            sc = ",".join([str(x) for x in sc])
-            ret += f"sc=\"{sc}\" "
-            for tenpai in state.terminal.no_winner.tenpais:
-                closed_tiles = ",".join([str(x) for x in tenpai.closed_tiles])
-                ret += f"hai{tenpai.who}=\"{closed_tiles}\" "
             if state.terminal.no_winner.type != mahjong_pb2.NO_WINNER_TYPE_NORMAL:
                 no_winner_type = ""
                 if state.terminal.no_winner.type == mahjong_pb2.NO_WINNER_TYPE_KYUUSYU:
@@ -112,7 +100,28 @@ class MjlogEncoder:
                     no_winner_type = "nm"
                 assert no_winner_type
                 ret += f"type=\"{no_winner_type}\" "
+            ret += f"ba=\"{curr_score.honba},{curr_score.riichi}\" "
+            sc = []
+            for i in range(4):
+                sc.append(curr_score.ten[i] // 100)
+                change = state.terminal.no_winner.ten_changes[i]
+                sc.append(change // 100)
+                curr_score.ten[i] += change
+            sc = ",".join([str(x) for x in sc])
+            ret += f"sc=\"{sc}\" "
+            for tenpai in state.terminal.no_winner.tenpais:
+                closed_tiles = ",".join([str(x) for x in tenpai.closed_tiles])
+                ret += f"hai{tenpai.who}=\"{closed_tiles}\" "
             if state.terminal.is_game_over:
+                # オーラス流局時のリーチ棒はトップ総取り
+                # TODO: 同着トップ時には上家が総取りしてるが正しい？
+                if curr_score.riichi != 0:
+                    max_ten = max(curr_score.ten)
+                    for i in range(4):
+                        if curr_score.ten[i] == max_ten:
+                            curr_score.ten[i] += 1000 * curr_score.riichi
+                            break
+                assert sum(curr_score.ten) == 100000
                 final_scores = MjlogEncoder._calc_final_score(curr_score.ten)
                 ret += f"owari=\"{curr_score.ten[0] // 100},{final_scores[0]:.1f},{curr_score.ten[1] // 100},{final_scores[1]:.1f},{curr_score.ten[2] // 100},{final_scores[2]:.1f},{curr_score.ten[3] // 100},{final_scores[3]:.1f}\" "
             ret += "/>"
@@ -127,18 +136,18 @@ class MjlogEncoder:
                     ret += f"m=\"{m}\" "
                 ret += f"machi=\"{win.win_tile}\" "
                 win_rank = 0
-                if (win.fu >= 70 and sum(win.fans) >= 3) or (win.fu >= 40 and sum(win.fans) >= 4) or sum(win.fans) >= 5:
-                    win_rank = 1
-                elif sum(win.fans) >= 6:
-                    win_rank = 2
-                elif sum(win.fans) >= 8:
-                    win_rank = 3
-                elif sum(win.fans) >= 10:
-                    win_rank = 4
-                elif sum(win.fans) >= 13:
-                    win_rank = 5
                 if len(win.yakumans) > 0:
                     win_rank = 5
+                elif sum(win.fans) >= 13:
+                    win_rank = 5
+                elif sum(win.fans) >= 10:
+                    win_rank = 4
+                elif sum(win.fans) >= 8:
+                    win_rank = 3
+                elif sum(win.fans) >= 6:
+                    win_rank = 2
+                elif (win.fu >= 70 and sum(win.fans) >= 3) or (win.fu >= 40 and sum(win.fans) >= 4) or sum(win.fans) >= 5:
+                    win_rank = 1
                 ret += f"ten=\"{win.fu},{win.ten},{win_rank}\" "
                 yaku_fan = []
                 for yaku, fan in zip(win.yakus, win.fans):
@@ -147,7 +156,7 @@ class MjlogEncoder:
                 yaku_fan = ",".join([str(x) for x in yaku_fan])
                 ret += f"yaku=\"{yaku_fan}\" "
                 if len(win.yakumans) > 0:
-                    yakuman = ",".join(win.yakumans)
+                    yakuman = ",".join([str(x) for x in win.yakumans])
                     ret += f"yakuman=\"{yakuman}\" "
                 doras = ",".join([str(x) for x in state.doras])
                 ret += f"doraHai=\"{doras}\" "

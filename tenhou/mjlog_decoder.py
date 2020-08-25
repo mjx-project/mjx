@@ -18,8 +18,8 @@ Example:
 
   $ python mjlog_decoder.py resources/mjlog resources/json
 """)
-parser.add_argument('mjlog_dir', help='Path to mjlogs')    # 必須の引数を追加
-parser.add_argument('json_dir', help='Path to json outputs')    # 必須の引数を追加
+parser.add_argument('mjlog_dir', help='Path to mjlogs')
+parser.add_argument('json_dir', help='Path to json outputs')
 args = parser.parse_args()
 
 
@@ -205,6 +205,14 @@ class MjlogDecoder:
                     assert no_winner_type is not None
                     self.state.terminal.no_winner.type = no_winner_type
                 if "owari" in val:
+                    # オーラス流局時のリーチ棒はトップ総取り
+                    # TODO: 同着トップ時には上家が総取りしてるが正しい？
+                    if self.state.terminal.final_score.riichi != 0:
+                        max_ten = max(self.state.terminal.final_score.ten)
+                        for i in range(4):
+                            if self.state.terminal.final_score.ten[i] == max_ten:
+                                self.state.terminal.final_score.ten[i] += 1000 * self.state.terminal.final_score.riichi
+                                break
                     self.state.terminal.is_game_over = True
                 event = mahjong_pb2.Event(
                     type=mahjong_pb2.EVENT_TYPE_NO_WINNER
@@ -239,9 +247,12 @@ class MjlogDecoder:
                 if "doraHaiUra" in val:
                     assert self.state.ura_doras == [int(x) for x in val["doraHaiUra"].split(",")]
                 win.fu, win.ten, _ = [int(x) for x in val["ten"].split(",")]
-                win.yakus[:] = [int(x) for i, x in enumerate(val["yaku"].split(",")) if i % 2 == 0]
-                win.fans[:] = [int(x) for i, x in enumerate(val["yaku"].split(",")) if i % 2 == 1]
+                if "yaku" in val:
+                    assert "yakuman" not in val
+                    win.yakus[:] = [int(x) for i, x in enumerate(val["yaku"].split(",")) if i % 2 == 0]
+                    win.fans[:] = [int(x) for i, x in enumerate(val["yaku"].split(",")) if i % 2 == 1]
                 if "yakuman" in val:
+                    assert "yaku" not in val
                     win.yakumans[:] = [int(x) for i, x in enumerate(val["yakuman"].split(",")) if i % 2 == 0]
                 self.state.terminal.wins.append(win)
                 if "owari" in val:
