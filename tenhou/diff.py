@@ -18,6 +18,8 @@ def show_diff(original: str, restored: str) -> None:
     #     print(line)
 
     for line in difflib.unified_diff(original.split('\n'), restored.split('\n'), n=0):
+        if line.startswith("-<GO") or line.startswith("+<GO"):
+            continue
         if line.startswith("-<INIT") or line.startswith("+<INIT"):
             continue
         if line.startswith("-<UN") or line.startswith("+<UN"):

@@ -52,7 +52,7 @@ class MjlogDecoder:
         kv: List[Tuple[str, Dict[str, str]]] = []
         i = 0
         for child in root:
-            if child.tag in ["SHUFFLE", "GO", "UN", "TAIKYOKU"]:
+            if child.tag in ["SHUFFLE", "GO", "UN", "TAIKYOKU", "BYE"]:
                 continue
             if child.tag == "INIT":
                 if kv:
