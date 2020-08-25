@@ -12,17 +12,6 @@ from google.protobuf import json_format
 import mahjong_pb2
 
 
-parser = argparse.ArgumentParser(description="""Convert Tenhou's mjlog format into json, which is readable as protocol buffer.
-
-Example:
-
-  $ python mjlog_decoder.py resources/mjlog resources/json
-""")
-parser.add_argument('mjlog_dir', help='Path to mjlogs')    # 必須の引数を追加
-parser.add_argument('json_dir', help='Path to json outputs')    # 必須の引数を追加
-args = parser.parse_args()
-
-
 class MjlogDecoder:
     def __init__(self):
         self.state = None
@@ -52,7 +41,7 @@ class MjlogDecoder:
         kv: List[Tuple[str, Dict[str, str]]] = []
         i = 0
         for child in root:
-            if child.tag in ["SHUFFLE", "GO", "UN", "TAIKYOKU"]:
+            if child.tag in ["SHUFFLE", "GO", "UN", "TAIKYOKU", "BYE"]:
                 continue
             if child.tag == "INIT":
                 if kv:
@@ -205,6 +194,16 @@ class MjlogDecoder:
                     assert no_winner_type is not None
                     self.state.terminal.no_winner.type = no_winner_type
                 if "owari" in val:
+                    # オーラス流局時のリーチ棒はトップ総取り
+                    # TODO: 同着トップ時には上家が総取りしてるが正しい？
+                    # TODO: 上家総取りになってない。。。
+                    if self.state.terminal.final_score.riichi != 0:
+                        max_ten = max(self.state.terminal.final_score.ten)
+                        for i in range(4):
+                            if self.state.terminal.final_score.ten[i] == max_ten:
+                                self.state.terminal.final_score.ten[i] += 1000 * self.state.terminal.final_score.riichi
+                                break
+                    self.state.terminal.final_score.riichi = 0
                     self.state.terminal.is_game_over = True
                 event = mahjong_pb2.Event(
                     type=mahjong_pb2.EVENT_TYPE_NO_WINNER
@@ -239,10 +238,13 @@ class MjlogDecoder:
                 if "doraHaiUra" in val:
                     assert self.state.ura_doras == [int(x) for x in val["doraHaiUra"].split(",")]
                 win.fu, win.ten, _ = [int(x) for x in val["ten"].split(",")]
-                win.yakus[:] = [int(x) for i, x in enumerate(val["yaku"].split(",")) if i % 2 == 0]
-                win.fans[:] = [int(x) for i, x in enumerate(val["yaku"].split(",")) if i % 2 == 1]
+                if "yaku" in val:
+                    assert "yakuman" not in val
+                    win.yakus[:] = [int(x) for i, x in enumerate(val["yaku"].split(",")) if i % 2 == 0]
+                    win.fans[:] = [int(x) for i, x in enumerate(val["yaku"].split(",")) if i % 2 == 1]
                 if "yakuman" in val:
-                    win.yakumans[:] = [int(x) for i, x in enumerate(val["yakuman"].split(",")) if i % 2 == 0]
+                    assert "yaku" not in val
+                    win.yakumans[:] = [int(x) for i, x in enumerate(val["yakuman"].split(","))]
                 self.state.terminal.wins.append(win)
                 if "owari" in val:
                     self.state.terminal.is_game_over = True
@@ -260,6 +262,9 @@ class MjlogDecoder:
 
         if not reach_terminal:
             self.state.ClearField("terminal")
+        else:
+            assert sum(self.state.terminal.final_score.ten) + self.state.terminal.final_score.riichi * 1000 == 100000
+
         yield copy.deepcopy(self.state)
 
     @staticmethod
@@ -318,6 +323,16 @@ def reproduce_wall(path_to_mjlog: str) -> List[Tuple[List[int], List[int]]]:
 
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="""Convert Tenhou's mjlog format into json, which is readable as protocol buffer.
+
+    Example:
+
+      $ python mjlog_decoder.py resources/mjlog resources/json
+    """)
+    parser.add_argument('mjlog_dir', help='Path to mjlogs')
+    parser.add_argument('json_dir', help='Path to json outputs')
+    args = parser.parse_args()
+
     parser = MjlogDecoder()
     os.makedirs(args.json_dir, exist_ok=True)
     for mjlog in os.listdir(args.mjlog_dir):

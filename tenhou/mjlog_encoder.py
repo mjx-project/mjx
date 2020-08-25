@@ -9,17 +9,6 @@ from google.protobuf import json_format
 import mahjong_pb2
 
 
-parser = argparse.ArgumentParser(description="""Convert json files (protobuf serialization) into Tenhou's mjlog format.
-
-Example:
-
-  $ python mjlog_encoder.py resources/decoded_json resources/encoded_mjlog 
-""")
-parser.add_argument('json_dir', help='Path to input json.')
-parser.add_argument('mjlog_dir', help='Path to output mjlogs.')
-args = parser.parse_args()
-
-
 class MjlogEncoder:
 
     @staticmethod
@@ -40,6 +29,7 @@ class MjlogEncoder:
 
     @staticmethod
     def _parse_each_round(state: mahjong_pb2.State) -> str:
+        assert sum(state.init_score.ten) + state.init_score.riichi * 1000 == 100000
         ret = "<INIT "
         ret += f"seed=\"{state.init_score.round},{state.init_score.honba},{state.init_score.riichi},,,{state.doras[0]}\" "
         ret += f"ten=\"{state.init_score.ten[0] // 100},{state.init_score.ten[1] // 100},{state.init_score.ten[2] // 100},{state.init_score.ten[3] // 100}\" oya=\"{state.init_score.round % 4}\" "
@@ -52,6 +42,7 @@ class MjlogEncoder:
 
         curr_score = copy.deepcopy(state.init_score)
         draw_ixs = [0, 0, 0, 0]
+        under_riichi = [False, False, False, False]
         for event in state.event_history.events:
             if event.type == mahjong_pb2.EVENT_TYPE_DRAW:
                 who_ix = int(event.who)
@@ -72,11 +63,12 @@ class MjlogEncoder:
             elif event.type == mahjong_pb2.EVENT_TYPE_RIICHI:
                 ret += f"<REACH who=\"{event.who}\" step=\"1\"/>"
             elif event.type == mahjong_pb2.EVENT_TYPE_RIICHI_SCORE_CHANGE:
+                under_riichi[event.who] = True
                 curr_score.ten[event.who] -= 1000
                 curr_score.riichi += 1
                 ret += f"<REACH who=\"{event.who}\" ten=\"{curr_score.ten[0] // 100},{curr_score.ten[1] // 100},{curr_score.ten[2] // 100},{curr_score.ten[3] // 100}\" step=\"2\"/>"
             elif event.type == mahjong_pb2.EVENT_TYPE_NEW_DORA:
-                ret += "<DORA hai=\"{event.tile}\" />"
+                ret += f"<DORA hai=\"{event.tile}\" />"
             elif event.type in [mahjong_pb2.EVENT_TYPE_TSUMO, mahjong_pb2.EVENT_TYPE_RON]:
                 assert len(state.terminal.wins) != 0
             elif event.type == mahjong_pb2.EVENT_TYPE_NO_WINNER:
@@ -84,18 +76,6 @@ class MjlogEncoder:
 
         if len(state.terminal.wins) == 0:
             ret += "<RYUUKYOKU "
-            ret += f"ba=\"{curr_score.honba},{curr_score.riichi}\" "
-            sc = []
-            for i in range(4):
-                sc.append(curr_score.ten[i] // 100)
-                change = state.terminal.no_winner.ten_changes[i]
-                sc.append(change // 100)
-                curr_score.ten[i] += change
-            sc = ",".join([str(x) for x in sc])
-            ret += f"sc=\"{sc}\" "
-            for tenpai in state.terminal.no_winner.tenpais:
-                closed_tiles = ",".join([str(x) for x in tenpai.closed_tiles])
-                ret += f"hai{tenpai.who}=\"{closed_tiles}\" "
             if state.terminal.no_winner.type != mahjong_pb2.NO_WINNER_TYPE_NORMAL:
                 no_winner_type = ""
                 if state.terminal.no_winner.type == mahjong_pb2.NO_WINNER_TYPE_KYUUSYU:
@@ -112,11 +92,34 @@ class MjlogEncoder:
                     no_winner_type = "nm"
                 assert no_winner_type
                 ret += f"type=\"{no_winner_type}\" "
+            ret += f"ba=\"{curr_score.honba},{curr_score.riichi}\" "
+            sc = []
+            for i in range(4):
+                sc.append(curr_score.ten[i] // 100)
+                change = state.terminal.no_winner.ten_changes[i]
+                sc.append(change // 100)
+                curr_score.ten[i] += change
+            sc = ",".join([str(x) for x in sc])
+            ret += f"sc=\"{sc}\" "
+            for tenpai in state.terminal.no_winner.tenpais:
+                closed_tiles = ",".join([str(x) for x in tenpai.closed_tiles])
+                ret += f"hai{tenpai.who}=\"{closed_tiles}\" "
             if state.terminal.is_game_over:
-                final_scores = MjlogEncoder._calc_final_score(curr_score.ten)
-                ret += f"owari=\"{curr_score.ten[0] // 100},{final_scores[0]:.1f},{curr_score.ten[1] // 100},{final_scores[1]:.1f},{curr_score.ten[2] // 100},{final_scores[2]:.1f},{curr_score.ten[3] // 100},{final_scores[3]:.1f}\" "
+                # オーラス流局時のリーチ棒はトップ総取り
+                # TODO: 同着トップ時には上家が総取りしてるが正しい？
+                # TODO: 上家総取りになってない。。。
+                if curr_score.riichi != 0:
+                    max_ten = max(curr_score.ten)
+                    for i in range(4):
+                        if curr_score.ten[i] == max_ten:
+                            curr_score.ten[i] += 1000 * curr_score.riichi
+                            break
+                assert sum(curr_score.ten) == 100000
+                final_scores = MjlogEncoder._calc_final_score(state.terminal.final_score.ten)
+                ret += f"owari=\"{state.terminal.final_score.ten[0] // 100},{final_scores[0]:.1f},{state.terminal.final_score.ten[1] // 100},{final_scores[1]:.1f},{state.terminal.final_score.ten[2] // 100},{final_scores[2]:.1f},{state.terminal.final_score.ten[3] // 100},{final_scores[3]:.1f}\" "
             ret += "/>"
         else:
+            # NOTE: ダブロン時、winsは上家から順になっている必要がある
             for win in state.terminal.wins:
                 ret += "<AGARI "
                 ret += f"ba=\"{curr_score.honba},{curr_score.riichi}\" "
@@ -127,31 +130,32 @@ class MjlogEncoder:
                     ret += f"m=\"{m}\" "
                 ret += f"machi=\"{win.win_tile}\" "
                 win_rank = 0
-                if (win.fu >= 70 and sum(win.fans) >= 3) or (win.fu >= 40 and sum(win.fans) >= 4) or sum(win.fans) >= 5:
-                    win_rank = 1
-                elif sum(win.fans) >= 6:
-                    win_rank = 2
-                elif sum(win.fans) >= 8:
-                    win_rank = 3
-                elif sum(win.fans) >= 10:
-                    win_rank = 4
-                elif sum(win.fans) >= 13:
-                    win_rank = 5
                 if len(win.yakumans) > 0:
                     win_rank = 5
+                elif sum(win.fans) >= 13:
+                    win_rank = 5
+                elif sum(win.fans) >= 11:
+                    win_rank = 4
+                elif sum(win.fans) >= 8:
+                    win_rank = 3
+                elif sum(win.fans) >= 6:
+                    win_rank = 2
+                elif (win.fu >= 70 and sum(win.fans) >= 3) or (win.fu >= 40 and sum(win.fans) >= 4) or sum(win.fans) >= 5:
+                    win_rank = 1
                 ret += f"ten=\"{win.fu},{win.ten},{win_rank}\" "
                 yaku_fan = []
                 for yaku, fan in zip(win.yakus, win.fans):
                     yaku_fan.append(yaku)
                     yaku_fan.append(fan)
                 yaku_fan = ",".join([str(x) for x in yaku_fan])
-                ret += f"yaku=\"{yaku_fan}\" "
+                if len(win.yakumans) == 0:
+                    ret += f"yaku=\"{yaku_fan}\" "
                 if len(win.yakumans) > 0:
-                    yakuman = ",".join(win.yakumans)
+                    yakuman = ",".join([str(x) for x in win.yakumans])
                     ret += f"yakuman=\"{yakuman}\" "
                 doras = ",".join([str(x) for x in state.doras])
                 ret += f"doraHai=\"{doras}\" "
-                if 1 in win.yakus:  # if under riichi
+                if under_riichi[win.who]:  # if under riichi (or double riichi)
                     ura_doras = ",".join([str(x) for x in state.ura_doras])
                     ret += f"doraHaiUra=\"{ura_doras}\" "
                 ret += f"who=\"{win.who}\" fromWho=\"{win.from_who}\" "
@@ -164,15 +168,18 @@ class MjlogEncoder:
                     curr_score.ten[i] += change
                 sc = ",".join([str(x) for x in sc])
                 ret += f"sc=\"{sc}\" "
-                if state.terminal.is_game_over:
-                    final_scores = MjlogEncoder._calc_final_score(curr_score.ten)
-                    ret += f"owari=\"{curr_score.ten[0] // 100},{final_scores[0]:.1f},{curr_score.ten[1] // 100},{final_scores[1]:.1f},{curr_score.ten[2] // 100},{final_scores[2]:.1f},{curr_score.ten[3] // 100},{final_scores[3]:.1f}\" "
                 ret += "/>"
-            curr_score.riichi = 0
+                curr_score.riichi = 0  # ダブロンのときは上家がリー棒を総取りしてその時点で riichi = 0 となる
 
-        assert curr_score.riichi == state.terminal.final_score.riichi
+            if state.terminal.is_game_over:
+                ret = ret[:-2]
+                final_scores = MjlogEncoder._calc_final_score(state.terminal.final_score.ten)
+                ret += f"owari=\"{state.terminal.final_score.ten[0] // 100},{final_scores[0]:.1f},{state.terminal.final_score.ten[1] // 100},{final_scores[1]:.1f},{state.terminal.final_score.ten[2] // 100},{final_scores[2]:.1f},{state.terminal.final_score.ten[3] // 100},{final_scores[3]:.1f}\" "
+                ret += "/>"
+
         for i in range(4):
             assert curr_score.ten[i] == state.terminal.final_score.ten[i]
+        assert sum(state.terminal.final_score.ten) + state.terminal.final_score.riichi * 1000 == 100000
 
         return ret
 
@@ -190,32 +197,68 @@ class MjlogEncoder:
         return ["D", "E", "F", "G"][int(who)]
 
     @staticmethod
+    def _to_final_score(ten: int, rank: int) -> int:
+        """
+        >>> MjlogEncoder._to_final_score(-200, 4)
+        -50.0
+        >>> MjlogEncoder._to_final_score(-2300, 4)
+        -52.0
+        >>> MjlogEncoder._to_final_score(-800, 4)
+        -51.0
+        """
+        assert 1 <= rank <= 3
+        ten //= 100
+        if 1 <= abs(ten) % 10 <= 4:
+            if ten >= 0:
+                ten = (abs(ten) // 10) * 10
+            else:
+                ten = - (abs(ten) // 10) * 10
+        elif 5 <= abs(ten) % 10 <= 9:
+            if ten >= 0:
+                ten = (abs(ten) // 10) * 10 + 10
+            else:
+                ten = - (abs(ten) // 10) * 10 - 10
+        ten -= 300
+        ten //= 10
+        # ウマは10-20
+        if rank == 1:
+            ten += 10.0
+        elif rank == 2:
+            ten -= 10.0
+        else:
+            ten -= 20.0
+
+        return ten
+
+    @staticmethod
     def _calc_final_score(ten: List[int]) -> List[int]:
         # 10-20の3万点返し
-        ixs = list(reversed(sorted(range(4), key=lambda i: ten[i])))
+        ixs = list(reversed(sorted(range(4), key=lambda i: ten[i] - i)))  # 同点のときのために -i
         final_score = [0 for _ in range(4)]
         for i in range(1, 4):
             j = ixs[i]
-            score = ten[j]
-            score -= 30000
-            score //= 100
-            if 1 <= score % 10 <= 4:
-                score = (score // 10) * 10
-            elif 5 <= score % 10 <= 9:
-                score = (score // 10) * 10 + 10
-            score //= 10
-            if i == 1:
-                score += 10
-            elif i == 2:
-                score -= 10
-            else:
-                score -= 20
-            final_score[j] = score
+            final_score[j] = MjlogEncoder._to_final_score(ten[j], i)
         final_score[ixs[0]] = - sum(final_score)
+
+        # 同着は上家から順位が上
+        for i in range(3):
+            if ten[i] == ten[i + 1]:
+                assert final_score[i] > final_score[i + 1]
+
         return final_score
 
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="""Convert json files (protobuf serialization) into Tenhou's mjlog format.
+
+    Example:
+
+      $ python mjlog_encoder.py resources/decoded_json resources/encoded_mjlog 
+    """)
+    parser.add_argument('json_dir', help='Path to input json.')
+    parser.add_argument('mjlog_dir', help='Path to output mjlogs.')
+    args = parser.parse_args()
+
     os.makedirs(args.mjlog_dir, exist_ok=True)
     for json_file in os.listdir(args.json_dir):
         if not json_file.endswith("json"):
