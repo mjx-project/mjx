@@ -9,17 +9,6 @@ from google.protobuf import json_format
 import mahjong_pb2
 
 
-parser = argparse.ArgumentParser(description="""Convert json files (protobuf serialization) into Tenhou's mjlog format.
-
-Example:
-
-  $ python mjlog_encoder.py resources/decoded_json resources/encoded_mjlog 
-""")
-parser.add_argument('json_dir', help='Path to input json.')
-parser.add_argument('mjlog_dir', help='Path to output mjlogs.')
-args = parser.parse_args()
-
-
 class MjlogEncoder:
 
     @staticmethod
@@ -241,6 +230,16 @@ class MjlogEncoder:
 
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="""Convert json files (protobuf serialization) into Tenhou's mjlog format.
+
+    Example:
+
+      $ python mjlog_encoder.py resources/decoded_json resources/encoded_mjlog 
+    """)
+    parser.add_argument('json_dir', help='Path to input json.')
+    parser.add_argument('mjlog_dir', help='Path to output mjlogs.')
+    args = parser.parse_args()
+
     os.makedirs(args.mjlog_dir, exist_ok=True)
     for json_file in os.listdir(args.json_dir):
         if not json_file.endswith("json"):

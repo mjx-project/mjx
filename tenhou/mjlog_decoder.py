@@ -12,17 +12,6 @@ from google.protobuf import json_format
 import mahjong_pb2
 
 
-parser = argparse.ArgumentParser(description="""Convert Tenhou's mjlog format into json, which is readable as protocol buffer.
-
-Example:
-
-  $ python mjlog_decoder.py resources/mjlog resources/json
-""")
-parser.add_argument('mjlog_dir', help='Path to mjlogs')
-parser.add_argument('json_dir', help='Path to json outputs')
-args = parser.parse_args()
-
-
 class MjlogDecoder:
     def __init__(self):
         self.state = None
@@ -334,6 +323,16 @@ def reproduce_wall(path_to_mjlog: str) -> List[Tuple[List[int], List[int]]]:
 
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="""Convert Tenhou's mjlog format into json, which is readable as protocol buffer.
+
+    Example:
+
+      $ python mjlog_decoder.py resources/mjlog resources/json
+    """)
+    parser.add_argument('mjlog_dir', help='Path to mjlogs')
+    parser.add_argument('json_dir', help='Path to json outputs')
+    args = parser.parse_args()
+
     parser = MjlogDecoder()
     os.makedirs(args.json_dir, exist_ok=True)
     for mjlog in os.listdir(args.mjlog_dir):
