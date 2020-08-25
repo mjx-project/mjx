@@ -173,10 +173,14 @@ class MjlogEncoder:
                     curr_score.ten[i] += change
                 sc = ",".join([str(x) for x in sc])
                 ret += f"sc=\"{sc}\" "
-                if state.terminal.is_game_over:
-                    final_scores = MjlogEncoder._calc_final_score(curr_score.ten)
-                    ret += f"owari=\"{curr_score.ten[0] // 100},{final_scores[0]:.1f},{curr_score.ten[1] // 100},{final_scores[1]:.1f},{curr_score.ten[2] // 100},{final_scores[2]:.1f},{curr_score.ten[3] // 100},{final_scores[3]:.1f}\" "
                 ret += "/>"
+
+            if state.terminal.is_game_over:
+                ret = ret[:-2]
+                final_scores = MjlogEncoder._calc_final_score(curr_score.ten)
+                ret += f"owari=\"{curr_score.ten[0] // 100},{final_scores[0]:.1f},{curr_score.ten[1] // 100},{final_scores[1]:.1f},{curr_score.ten[2] // 100},{final_scores[2]:.1f},{curr_score.ten[3] // 100},{final_scores[3]:.1f}\" "
+                ret += "/>"
+
             curr_score.riichi = 0
 
         assert curr_score.riichi == state.terminal.final_score.riichi
