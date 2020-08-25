@@ -198,27 +198,47 @@ class MjlogEncoder:
         return ["D", "E", "F", "G"][int(who)]
 
     @staticmethod
+    def _to_final_score(ten: int, rank: int) -> int:
+        """
+        >>> MjlogEncoder._to_final_score(-200, 4)
+        -50.0
+        >>> MjlogEncoder._to_final_score(-2300, 4)
+        -52.0
+        >>> MjlogEncoder._to_final_score(-800, 4)
+        -51.0
+        """
+        assert 1 <= rank <= 3
+        ten //= 100
+        if 1 <= abs(ten) % 10 <= 4:
+            if ten >= 0:
+                ten = (abs(ten) // 10) * 10
+            else:
+                ten = - (abs(ten) // 10) * 10
+        elif 5 <= abs(ten) % 10 <= 9:
+            if ten >= 0:
+                ten = (abs(ten) // 10) * 10 + 10
+            else:
+                ten = - (abs(ten) // 10) * 10 - 10
+        ten -= 300
+        ten //= 10
+        # ウマは10-20
+        if rank == 1:
+            ten += 10.0
+        elif rank == 2:
+            ten -= 10.0
+        else:
+            ten -= 20.0
+
+        return ten
+
+    @staticmethod
     def _calc_final_score(ten: List[int]) -> List[int]:
         # 10-20の3万点返し
         ixs = list(reversed(sorted(range(4), key=lambda i: ten[i] - i)))  # 同点のときのために -i
         final_score = [0 for _ in range(4)]
         for i in range(1, 4):
             j = ixs[i]
-            score = ten[j]
-            score -= 30000
-            score //= 100
-            if 1 <= score % 10 <= 4:
-                score = (score // 10) * 10
-            elif 5 <= score % 10 <= 9:
-                score = (score // 10) * 10 + 10
-            score //= 10
-            if i == 1:
-                score += 10
-            elif i == 2:
-                score -= 10
-            else:
-                score -= 20
-            final_score[j] = score
+            final_score[j] = MjlogEncoder._to_final_score(ten[j], i)
         final_score[ixs[0]] = - sum(final_score)
 
         # 同着は上家から順位が上
