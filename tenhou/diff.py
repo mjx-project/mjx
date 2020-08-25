@@ -2,16 +2,6 @@ import os
 import argparse
 import difflib
 
-parser = argparse.ArgumentParser(description="""Show diff between original mjlog and restored mjlog
-
-Example:
-
-  $ python mjlog_decoder.py resources/mjlog resources/restored_mjlog
-""")
-parser.add_argument('original_dir', help='Path to original mjlogs')
-parser.add_argument('restored_dir', help='Path to restored mjlogs')
-args = parser.parse_args()
-
 
 def show_diff(original: str, restored: str) -> None:
     # for line in difflib.unified_diff(original.split('\n'), restored.split('\n'), n=0):
@@ -50,6 +40,16 @@ def load_mjlog(path: str) -> str:
 
 
 if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description="""Show diff between original mjlog and restored mjlog
+
+    Example:
+
+      $ python mjlog_decoder.py resources/mjlog resources/restored_mjlog
+    """)
+    parser.add_argument('original_dir', help='Path to original mjlogs')
+    parser.add_argument('restored_dir', help='Path to restored mjlogs')
+    args = parser.parse_args()
+
     original_paths = sorted([os.path.join(args.original_dir, x) for x in os.listdir(args.original_dir) if x.endswith(".mjlog")])
     restored_paths = sorted([os.path.join(args.restored_dir, x) for x in os.listdir(args.restored_dir) if x.endswith(".mjlog")])
 
