@@ -53,6 +53,7 @@ class MjlogEncoder:
 
         curr_score = copy.deepcopy(state.init_score)
         draw_ixs = [0, 0, 0, 0]
+        under_riichi = [False, False, False, False]
         for event in state.event_history.events:
             if event.type == mahjong_pb2.EVENT_TYPE_DRAW:
                 who_ix = int(event.who)
@@ -73,6 +74,7 @@ class MjlogEncoder:
             elif event.type == mahjong_pb2.EVENT_TYPE_RIICHI:
                 ret += f"<REACH who=\"{event.who}\" step=\"1\"/>"
             elif event.type == mahjong_pb2.EVENT_TYPE_RIICHI_SCORE_CHANGE:
+                under_riichi[event.who] = True
                 curr_score.ten[event.who] -= 1000
                 curr_score.riichi += 1
                 ret += f"<REACH who=\"{event.who}\" ten=\"{curr_score.ten[0] // 100},{curr_score.ten[1] // 100},{curr_score.ten[2] // 100},{curr_score.ten[3] // 100}\" step=\"2\"/>"
@@ -164,7 +166,7 @@ class MjlogEncoder:
                     ret += f"yakuman=\"{yakuman}\" "
                 doras = ",".join([str(x) for x in state.doras])
                 ret += f"doraHai=\"{doras}\" "
-                if 1 in win.yakus or 21 in win.yakus:  # if under riichi (or double riichi)
+                if under_riichi[win.who]:  # if under riichi (or double riichi)
                     ura_doras = ",".join([str(x) for x in state.ura_doras])
                     ret += f"doraHaiUra=\"{ura_doras}\" "
                 ret += f"who=\"{win.who}\" fromWho=\"{win.from_who}\" "
