@@ -142,7 +142,7 @@ class MjlogEncoder:
                     win_rank = 5
                 elif sum(win.fans) >= 13:
                     win_rank = 5
-                elif sum(win.fans) >= 10:
+                elif sum(win.fans) >= 11:
                     win_rank = 4
                 elif sum(win.fans) >= 8:
                     win_rank = 3
