@@ -208,7 +208,7 @@ class MjlogEncoder:
     @staticmethod
     def _calc_final_score(ten: List[int]) -> List[int]:
         # 10-20の3万点返し
-        ixs = list(reversed(sorted(range(4), key=lambda i: ten[i])))
+        ixs = list(reversed(sorted(range(4), key=lambda i: ten[i] - i)))  # 同点のときのために -i
         final_score = [0 for _ in range(4)]
         for i in range(1, 4):
             j = ixs[i]
@@ -228,6 +228,12 @@ class MjlogEncoder:
                 score -= 20
             final_score[j] = score
         final_score[ixs[0]] = - sum(final_score)
+
+        # 同着は上家から順位が上
+        for i in range(3):
+            if ten[i] == ten[i + 1]:
+                assert final_score[i] > final_score[i + 1]
+
         return final_score
 
 
