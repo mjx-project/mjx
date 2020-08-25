@@ -124,7 +124,7 @@ class MjlogEncoder:
                             curr_score.ten[i] += 1000 * curr_score.riichi
                             break
                 assert sum(curr_score.ten) == 100000
-                final_scores = MjlogEncoder._calc_final_score(curr_score.ten)
+                final_scores = MjlogEncoder._calc_final_score(state.terminal.final_score.ten)
                 ret += f"owari=\"{state.terminal.final_score.ten[0] // 100},{final_scores[0]:.1f},{state.terminal.final_score.ten[1] // 100},{final_scores[1]:.1f},{state.terminal.final_score.ten[2] // 100},{final_scores[2]:.1f},{state.terminal.final_score.ten[3] // 100},{final_scores[3]:.1f}\" "
             ret += "/>"
         else:
@@ -179,7 +179,7 @@ class MjlogEncoder:
 
             if state.terminal.is_game_over:
                 ret = ret[:-2]
-                final_scores = MjlogEncoder._calc_final_score(curr_score.ten)
+                final_scores = MjlogEncoder._calc_final_score(state.terminal.final_score.ten)
                 ret += f"owari=\"{state.terminal.final_score.ten[0] // 100},{final_scores[0]:.1f},{state.terminal.final_score.ten[1] // 100},{final_scores[1]:.1f},{state.terminal.final_score.ten[2] // 100},{final_scores[2]:.1f},{state.terminal.final_score.ten[3] // 100},{final_scores[3]:.1f}\" "
                 ret += "/>"
 
