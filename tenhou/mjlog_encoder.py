@@ -160,7 +160,7 @@ class MjlogEncoder:
                     ret += f"yakuman=\"{yakuman}\" "
                 doras = ",".join([str(x) for x in state.doras])
                 ret += f"doraHai=\"{doras}\" "
-                if 1 in win.yakus:  # if under riichi
+                if 1 in win.yakus or 21 in win.yakus:  # if under riichi (or double riichi)
                     ura_doras = ",".join([str(x) for x in state.ura_doras])
                     ret += f"doraHaiUra=\"{ura_doras}\" "
                 ret += f"who=\"{win.who}\" fromWho=\"{win.from_who}\" "
