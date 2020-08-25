@@ -128,6 +128,7 @@ class MjlogEncoder:
                 ret += f"owari=\"{state.terminal.final_score.ten[0] // 100},{final_scores[0]:.1f},{state.terminal.final_score.ten[1] // 100},{final_scores[1]:.1f},{state.terminal.final_score.ten[2] // 100},{final_scores[2]:.1f},{state.terminal.final_score.ten[3] // 100},{final_scores[3]:.1f}\" "
             ret += "/>"
         else:
+            # NOTE: ダブロン時、winsは上家から順になっている必要がある
             for win in state.terminal.wins:
                 ret += "<AGARI "
                 ret += f"ba=\"{curr_score.honba},{curr_score.riichi}\" "
@@ -176,6 +177,7 @@ class MjlogEncoder:
                 sc = ",".join([str(x) for x in sc])
                 ret += f"sc=\"{sc}\" "
                 ret += "/>"
+                curr_score.riichi = 0  # ダブロンのときは上家がリー棒を総取りしてその時点で riichi = 0 となる
 
             if state.terminal.is_game_over:
                 ret = ret[:-2]
@@ -183,7 +185,6 @@ class MjlogEncoder:
                 ret += f"owari=\"{state.terminal.final_score.ten[0] // 100},{final_scores[0]:.1f},{state.terminal.final_score.ten[1] // 100},{final_scores[1]:.1f},{state.terminal.final_score.ten[2] // 100},{final_scores[2]:.1f},{state.terminal.final_score.ten[3] // 100},{final_scores[3]:.1f}\" "
                 ret += "/>"
 
-            curr_score.riichi = 0
 
         for i in range(4):
             assert curr_score.ten[i] == state.terminal.final_score.ten[i]
