@@ -255,7 +255,7 @@ class MjlogDecoder:
                     win.fans[:] = [int(x) for i, x in enumerate(val["yaku"].split(",")) if i % 2 == 1]
                 if "yakuman" in val:
                     assert "yaku" not in val
-                    win.yakumans[:] = [int(x) for i, x in enumerate(val["yakuman"].split(",")) if i % 2 == 0]
+                    win.yakumans[:] = [int(x) for i, x in enumerate(val["yakuman"].split(","))]
                 self.state.terminal.wins.append(win)
                 if "owari" in val:
                     self.state.terminal.is_game_over = True

@@ -157,7 +157,8 @@ class MjlogEncoder:
                     yaku_fan.append(yaku)
                     yaku_fan.append(fan)
                 yaku_fan = ",".join([str(x) for x in yaku_fan])
-                ret += f"yaku=\"{yaku_fan}\" "
+                if len(win.yakumans) == 0:
+                    ret += f"yaku=\"{yaku_fan}\" "
                 if len(win.yakumans) > 0:
                     yakuman = ",".join([str(x) for x in win.yakumans])
                     ret += f"yakuman=\"{yakuman}\" "
