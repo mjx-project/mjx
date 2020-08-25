@@ -40,6 +40,7 @@ class MjlogEncoder:
 
     @staticmethod
     def _parse_each_round(state: mahjong_pb2.State) -> str:
+        assert sum(state.init_score.ten) + state.init_score.riichi * 1000 == 100000
         ret = "<INIT "
         ret += f"seed=\"{state.init_score.round},{state.init_score.honba},{state.init_score.riichi},,,{state.doras[0]}\" "
         ret += f"ten=\"{state.init_score.ten[0] // 100},{state.init_score.ten[1] // 100},{state.init_score.ten[2] // 100},{state.init_score.ten[3] // 100}\" oya=\"{state.init_score.round % 4}\" "
@@ -115,6 +116,7 @@ class MjlogEncoder:
             if state.terminal.is_game_over:
                 # オーラス流局時のリーチ棒はトップ総取り
                 # TODO: 同着トップ時には上家が総取りしてるが正しい？
+                # TODO: 上家総取りになってない。。。
                 if curr_score.riichi != 0:
                     max_ten = max(curr_score.ten)
                     for i in range(4):
@@ -183,9 +185,9 @@ class MjlogEncoder:
 
             curr_score.riichi = 0
 
-        assert curr_score.riichi == state.terminal.final_score.riichi
         for i in range(4):
             assert curr_score.ten[i] == state.terminal.final_score.ten[i]
+        assert sum(state.terminal.final_score.ten) + state.terminal.final_score.riichi * 1000 == 100000
 
         return ret
 

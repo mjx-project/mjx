@@ -207,12 +207,14 @@ class MjlogDecoder:
                 if "owari" in val:
                     # オーラス流局時のリーチ棒はトップ総取り
                     # TODO: 同着トップ時には上家が総取りしてるが正しい？
+                    # TODO: 上家総取りになってない。。。
                     if self.state.terminal.final_score.riichi != 0:
                         max_ten = max(self.state.terminal.final_score.ten)
                         for i in range(4):
                             if self.state.terminal.final_score.ten[i] == max_ten:
                                 self.state.terminal.final_score.ten[i] += 1000 * self.state.terminal.final_score.riichi
                                 break
+                    self.state.terminal.final_score.riichi = 0
                     self.state.terminal.is_game_over = True
                 event = mahjong_pb2.Event(
                     type=mahjong_pb2.EVENT_TYPE_NO_WINNER
@@ -271,6 +273,9 @@ class MjlogDecoder:
 
         if not reach_terminal:
             self.state.ClearField("terminal")
+        else:
+            assert sum(self.state.terminal.final_score.ten) + self.state.terminal.final_score.riichi * 1000 == 100000
+
         yield copy.deepcopy(self.state)
 
     @staticmethod
