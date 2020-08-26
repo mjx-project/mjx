@@ -275,7 +275,8 @@ namespace mj
         mutable_player(winner).Tsumo();
         auto [hand_info, win_score] = EvalWinHand(winner);
         // calc ten moves
-        auto [ten_, ten_moves] = win_score.TenMoves(winner, dealer());
+        auto ten_moves = win_score.TenMoves(winner, dealer());
+        auto ten_ = ten_moves[winner];
         for (auto &[who, ten_move]: ten_moves) {
             if (ten_move > 0) ten_move += riichi() * 1000 + honba() * 300;
             else if (ten_move < 0) ten_move -= honba() * 100;
@@ -331,7 +332,8 @@ namespace mj
         mutable_player(winner).Ron(tile);
         auto [hand_info, win_score] = EvalWinHand(winner);
         // calc ten moves
-        auto [ten_, ten_moves] = win_score.TenMoves(winner, dealer(), loser);
+        auto ten_moves = win_score.TenMoves(winner, dealer(), loser);
+        auto ten_ = ten_moves[winner];
         for (auto &[who, ten_move]: ten_moves) {
             if (ten_move > 0) ten_move += riichi() * 1000 + honba() * 300;
             else if (ten_move < 0) ten_move -= honba() * 300;

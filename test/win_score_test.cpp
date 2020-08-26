@@ -13,8 +13,7 @@ TEST(win_score, dealer_tsumo) {
     EXPECT_TRUE(score.HasYakuman(Yaku::kAllHonours));
 
     // 親のダブル役満
-    auto [ten, ten_moves] = score.TenMoves(AbsolutePos::kInitEast, AbsolutePos::kInitEast);
-    EXPECT_EQ(ten, 96000);
+    auto ten_moves = score.TenMoves(AbsolutePos::kInitEast, AbsolutePos::kInitEast);
     EXPECT_EQ(ten_moves[AbsolutePos::kInitEast], 96000);
     EXPECT_EQ(ten_moves[AbsolutePos::kInitSouth], -48000 * 2 / 3);
     EXPECT_EQ(ten_moves[AbsolutePos::kInitWest], -48000 * 2 / 3);
@@ -31,8 +30,7 @@ TEST(win_score, dealer_ron) {
     EXPECT_EQ(score.HasYaku(Yaku::kRiichi), std::make_optional(1));
     EXPECT_EQ(score.total_fan(), 3);
 
-    auto [ten, ten_moves] = score.TenMoves(AbsolutePos::kInitEast, AbsolutePos::kInitEast, AbsolutePos::kInitSouth);
-    EXPECT_EQ(ten, 4800);
+    auto ten_moves = score.TenMoves(AbsolutePos::kInitEast, AbsolutePos::kInitEast, AbsolutePos::kInitSouth);
     EXPECT_EQ(ten_moves[AbsolutePos::kInitEast], 4800);
     EXPECT_EQ(ten_moves[AbsolutePos::kInitSouth], -4800);
     EXPECT_EQ(ten_moves[AbsolutePos::kInitWest], 0);
@@ -51,8 +49,7 @@ TEST(win_score, non_dealer_tsumo) {
     EXPECT_EQ(score.total_fan(), 3);
     score.set_fu(30);
 
-    auto [ten, ten_moves] = score.TenMoves(AbsolutePos::kInitEast, AbsolutePos::kInitSouth);
-    EXPECT_EQ(ten, 3900);
+    auto ten_moves = score.TenMoves(AbsolutePos::kInitEast, AbsolutePos::kInitSouth);
     EXPECT_EQ(ten_moves[AbsolutePos::kInitEast], 4000);
     EXPECT_EQ(ten_moves[AbsolutePos::kInitSouth], -2000);
     EXPECT_EQ(ten_moves[AbsolutePos::kInitWest], -1000);
@@ -74,8 +71,7 @@ TEST(win_score, non_dealer_ron) {
     EXPECT_EQ(score.HasYaku(Yaku::kDora), std::make_optional(3));
     EXPECT_EQ(score.total_fan(), 9);
 
-    auto [ten, ten_moves] = score.TenMoves(AbsolutePos::kInitEast, AbsolutePos::kInitSouth, AbsolutePos::kInitWest);
-    EXPECT_EQ(ten, 16000);
+    auto ten_moves = score.TenMoves(AbsolutePos::kInitEast, AbsolutePos::kInitSouth, AbsolutePos::kInitWest);
     EXPECT_EQ(ten_moves[AbsolutePos::kInitEast], 16000);
     EXPECT_EQ(ten_moves[AbsolutePos::kInitSouth], 0);
     EXPECT_EQ(ten_moves[AbsolutePos::kInitWest], -16000);
