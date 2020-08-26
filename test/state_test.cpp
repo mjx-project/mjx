@@ -494,6 +494,6 @@ TEST(state, tenhou) {
     };
 
     std::string json_path;
-    // json_path = "";
+    json_path = "/Users/sotetsuk/github/mahjong/test/resources/json";
     if (!json_path.empty()) for (const auto &filename : std::filesystem::directory_iterator(json_path)) check(filename);
 }
