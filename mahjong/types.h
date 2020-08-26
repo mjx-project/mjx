@@ -150,73 +150,134 @@ namespace mj {
         kNorth = mjproto::WIND_NORTH,
     };
 
-    // The order follows: http://tenhou.net/1/script/tenhou.js
+    // The yaku No. follows: http://tenhou.net/1/script/tenhou.js
     // The terminology basically follows: http://mahjong-europe.org/portal/images/docs/riichi_scoresheet_EN.pdf
     enum class Yaku : std::uint8_t {
         // 1fan
-        kFullyConcealedHand, // 門前清自摸和
-        kRiichi, // 立直
-        kIppatsu, // 一発
-        kRobbingKan, // 槍槓
-        kAfterKan, // 嶺上開花
-        kBottomOfTheSea, // 海底摸月
-        kBottomOfTheRiver, // 河底撈魚
-        kPinfu, // 平和
-        kAllSimples, // 断幺九
-        kPureDoubleChis, // 一盃口
-        kSeatWindEast,// 自風 東
-        kSeatWindSouth, // 自風 南
-        kSeatWindWest, // 自風 西
-        kSeatWindNorth, // 自風 北
-        kPrevalentWindEast, // 場風 東
-        kPrevalentWindSouth, // 場風 南
-        kPrevalentWindWest, // 場風 西
-        kPrevalentWindNorth, // 場風 北
-        kWhiteDragon, // 役牌 白
-        kGreenDragon, // 役牌 發
-        kRedDragon, // 役牌 中
+        kFullyConcealedHand,              //  0. 門前清自摸和
+        kRiichi,                          //  1. 立直
+        kIppatsu,                         //  2. 一発
+        kRobbingKan,                      //  3. 槍槓
+        kAfterKan,                        //  4. 嶺上開花
+        kBottomOfTheSea,                  //  5. 海底摸月
+        kBottomOfTheRiver,                //  6. 河底撈魚
+        kPinfu,                           //  7. 平和
+        kAllSimples,                      //  8. 断幺九
+        kPureDoubleChis,                  //  9. 一盃口
+        kSeatWindEast,                    // 10. 自風 東
+        kSeatWindSouth,                   // 11. 自風 南
+        kSeatWindWest,                    // 12. 自風 西
+        kSeatWindNorth,                   // 13. 自風 北
+        kPrevalentWindEast,               // 14. 場風 東
+        kPrevalentWindSouth,              // 15. 場風 南
+        kPrevalentWindWest,               // 16. 場風 西
+        kPrevalentWindNorth,              // 17. 場風 北
+        kWhiteDragon,                     // 18. 役牌 白
+        kGreenDragon,                     // 19. 役牌 發
+        kRedDragon,                       // 20. 役牌 中
         // 2 fan
-        kDoubleRiichi, // 両立直
-        kSevenPairs, // 七対子
-        kOutsideHand, // 混全帯幺九
-        kPureStraight, // 一気通貫
-        kMixedTripleChis, // 三色同順
-        kTriplePons, // 三色同刻
-        kThreeKans, // 三槓子
-        kAllPons, // 対々和
-        kThreeConcealedPons, // 三暗刻
-        kLittleThreeDragons, // 小三元
-        kAllTermsAndHonours, // 混老頭
+        kDoubleRiichi,                    // 21. 両立直
+        kSevenPairs,                      // 22. 七対子
+        kOutsideHand,                     // 23. 混全帯幺九
+        kPureStraight,                    // 24. 一気通貫
+        kMixedTripleChis,                 // 25. 三色同順
+        kTriplePons,                      // 26. 三色同刻
+        kThreeKans,                       // 27. 三槓子
+        kAllPons,                         // 28. 対々和
+        kThreeConcealedPons,              // 29. 三暗刻
+        kLittleThreeDragons,              // 30. 小三元
+        kAllTermsAndHonours,              // 31. 混老頭
         // 3 fan
-        kTwicePureDoubleChis, // 二盃口
-        kTerminalsInAllSets, // 純全帯幺九
-        kHalfFlush, // 混一色
+        kTwicePureDoubleChis,             // 32. 二盃口
+        kTerminalsInAllSets,              // 33. 純全帯幺九
+        kHalfFlush,                       // 34. 混一色
         // 6 fan
-        kFullFlush, // 清一色
+        kFullFlush,                       // 35. 清一色
         // mangan
-        kBlessingOfMan, // 人和
+        kBlessingOfMan,                   // 36. 人和
         // yakuman
-        kBlessingOfHeaven, // 天和
-        kBlessingOfEarth, // 地和
-        kBigThreeDragons, // 大三元
-        kFourConcealedPons, // 四暗刻
-        kCompletedFourConcealedPons, // 四暗刻単騎
-        kAllHonours, // 字一色
-        kAllGreen, // 緑一色
-        kAllTerminals, // 清老頭
-        kNineGates, // 九蓮宝燈
-        kPureNineGates, // 純正九蓮宝燈
-        kThirteenOrphans, // 国士無双
-        kCompletedThirteenOrphans, // 国士無双１３面
-        kBigFourWinds, // 大四喜
-        kLittleFourWinds, // 小四喜
-        kFourKans, // 四槓子
+        kBlessingOfHeaven,                // 37. 天和
+        kBlessingOfEarth,                 // 38. 地和
+        kBigThreeDragons,                 // 39. 大三元
+        kFourConcealedPons,               // 40. 四暗刻
+        kCompletedFourConcealedPons,      // 41. 四暗刻単騎
+        kAllHonours,                      // 42. 字一色
+        kAllGreen,                        // 43. 緑一色
+        kAllTerminals,                    // 44. 清老頭
+        kNineGates,                       // 45. 九蓮宝燈
+        kPureNineGates,                   // 46. 純正九蓮宝燈
+        kThirteenOrphans,                 // 47. 国士無双
+        kCompletedThirteenOrphans,        // 48. 国士無双１３面
+        kBigFourWinds,                    // 49. 大四喜
+        kLittleFourWinds,                 // 50. 小四喜
+        kFourKans,                        // 51. 四槓子
         // dora
-        kDora, // ドラ
-        kReversedDora, // 裏ドラ
-        kRedDora, // 赤ドラ
+        kDora,                            // 52. ドラ
+        kReversedDora,                    // 53. 裏ドラ
+        kRedDora,                         // 54. 赤ドラ
         kEnd,  // Dummy
         kBegin = 0,
+    };
+
+    // The order of yaku in Tenhou's mjlog. This is slightly different from above order.
+    //   - 門前清自摸和が立直、一発のうしろ
+    //   - 裏ドラが一番うしろ
+    static std::unordered_map<Yaku, std::uint8_t> MjlogYakuOrder = {
+            { Yaku::kRiichi,                           0},  // 立直
+            { Yaku::kIppatsu,                          1},  // 一発
+            { Yaku::kFullyConcealedHand,               2},  // 門前清自摸和
+            { Yaku::kRobbingKan,                       3},  // 槍槓
+            { Yaku::kAfterKan,                         4},  // 嶺上開花
+            { Yaku::kBottomOfTheSea,                   5},  // 海底摸月
+            { Yaku::kBottomOfTheRiver,                 6},  // 河底撈魚
+            { Yaku::kPinfu,                            7},  // 平和
+            { Yaku::kAllSimples,                       8},  // 断幺九
+            { Yaku::kPureDoubleChis,                   9},  // 一盃口
+            { Yaku::kSeatWindEast,                    10},  // 自風 東
+            { Yaku::kSeatWindSouth,                   11},  // 自風 南
+            { Yaku::kSeatWindWest,                    12},  // 自風 西
+            { Yaku::kSeatWindNorth,                   13},  // 自風 北
+            { Yaku::kPrevalentWindEast,               14},  // 場風 東
+            { Yaku::kPrevalentWindSouth,              15},  // 場風 南
+            { Yaku::kPrevalentWindWest,               16},  // 場風 西
+            { Yaku::kPrevalentWindNorth,              17},  // 場風 北
+            { Yaku::kWhiteDragon,                     18},  // 役牌 白
+            { Yaku::kGreenDragon,                     19},  // 役牌 發
+            { Yaku::kRedDragon,                       20},  // 役牌 中
+            { Yaku::kDoubleRiichi,                    21},  // 両立直
+            { Yaku::kSevenPairs,                      22},  // 七対子
+            { Yaku::kOutsideHand,                     23},  // 混全帯幺九
+            { Yaku::kPureStraight,                    24},  // 一気通貫
+            { Yaku::kMixedTripleChis,                 25},  // 三色同順
+            { Yaku::kTriplePons,                      26},  // 三色同刻
+            { Yaku::kThreeKans,                       27},  // 三槓子
+            { Yaku::kAllPons,                         28},  // 対々和
+            { Yaku::kThreeConcealedPons,              29},  // 三暗刻
+            { Yaku::kLittleThreeDragons,              30},  // 小三元
+            { Yaku::kAllTermsAndHonours,              31},  // 混老頭
+            { Yaku::kTwicePureDoubleChis,             32},  // 二盃口
+            { Yaku::kTerminalsInAllSets,              33},  // 純全帯幺九
+            { Yaku::kHalfFlush,                       34},  // 混一色
+            { Yaku::kFullFlush,                       35},  // 清一色
+            { Yaku::kBlessingOfMan,                   36},  // 人和
+            { Yaku::kBlessingOfHeaven,                37},  // 天和
+            { Yaku::kBlessingOfEarth,                 38},  // 地和
+            { Yaku::kBigThreeDragons,                 39},  // 大三元
+            { Yaku::kFourConcealedPons,               40},  // 四暗刻
+            { Yaku::kCompletedFourConcealedPons,      41},  // 四暗刻単騎
+            { Yaku::kAllHonours,                      42},  // 字一色
+            { Yaku::kAllGreen,                        43},  // 緑一色
+            { Yaku::kAllTerminals,                    44},  // 清老頭
+            { Yaku::kNineGates,                       45},  // 九蓮宝燈
+            { Yaku::kPureNineGates,                   46},  // 純正九蓮宝燈
+            { Yaku::kThirteenOrphans,                 47},  // 国士無双
+            { Yaku::kCompletedThirteenOrphans,        48},  // 国士無双１３面
+            { Yaku::kBigFourWinds,                    49},  // 大四喜
+            { Yaku::kLittleFourWinds,                 50},  // 小四喜
+            { Yaku::kFourKans,                        51},  // 四槓子
+            { Yaku::kDora,                            52},  // ドラ
+            { Yaku::kRedDora,                         53},  // 赤ドラ
+            { Yaku::kReversedDora,                    54},  // 裏ドラ
     };
 
     using PlayerId = std::string;
