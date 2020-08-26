@@ -12,4 +12,3 @@ tenhou/__pycache__
 tenhou/resources/*
 !tenhou/resources/.gitkeep
 test/resources
-!test/resources/json/.gitkeep
