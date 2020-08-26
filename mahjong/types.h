@@ -219,67 +219,6 @@ namespace mj {
         kBegin = 0,
     };
 
-    // The order of yaku in Tenhou's mjlog. This is slightly different from above order.
-    //   - 門前清自摸和が立直、一発のうしろ
-    //   - 裏ドラが一番うしろ
-    static std::unordered_map<Yaku, std::uint8_t> MjlogYakuOrder = {
-            { Yaku::kRiichi,                           0},  // 立直
-            { Yaku::kIppatsu,                          1},  // 一発
-            { Yaku::kFullyConcealedHand,               2},  // 門前清自摸和
-            { Yaku::kRobbingKan,                       3},  // 槍槓
-            { Yaku::kAfterKan,                         4},  // 嶺上開花
-            { Yaku::kBottomOfTheSea,                   5},  // 海底摸月
-            { Yaku::kBottomOfTheRiver,                 6},  // 河底撈魚
-            { Yaku::kPinfu,                            7},  // 平和
-            { Yaku::kAllSimples,                       8},  // 断幺九
-            { Yaku::kPureDoubleChis,                   9},  // 一盃口
-            { Yaku::kSeatWindEast,                    10},  // 自風 東
-            { Yaku::kSeatWindSouth,                   11},  // 自風 南
-            { Yaku::kSeatWindWest,                    12},  // 自風 西
-            { Yaku::kSeatWindNorth,                   13},  // 自風 北
-            { Yaku::kPrevalentWindEast,               14},  // 場風 東
-            { Yaku::kPrevalentWindSouth,              15},  // 場風 南
-            { Yaku::kPrevalentWindWest,               16},  // 場風 西
-            { Yaku::kPrevalentWindNorth,              17},  // 場風 北
-            { Yaku::kWhiteDragon,                     18},  // 役牌 白
-            { Yaku::kGreenDragon,                     19},  // 役牌 發
-            { Yaku::kRedDragon,                       20},  // 役牌 中
-            { Yaku::kDoubleRiichi,                    21},  // 両立直
-            { Yaku::kSevenPairs,                      22},  // 七対子
-            { Yaku::kOutsideHand,                     23},  // 混全帯幺九
-            { Yaku::kPureStraight,                    24},  // 一気通貫
-            { Yaku::kMixedTripleChis,                 25},  // 三色同順
-            { Yaku::kTriplePons,                      26},  // 三色同刻
-            { Yaku::kThreeKans,                       27},  // 三槓子
-            { Yaku::kAllPons,                         28},  // 対々和
-            { Yaku::kThreeConcealedPons,              29},  // 三暗刻
-            { Yaku::kLittleThreeDragons,              30},  // 小三元
-            { Yaku::kAllTermsAndHonours,              31},  // 混老頭
-            { Yaku::kTwicePureDoubleChis,             32},  // 二盃口
-            { Yaku::kTerminalsInAllSets,              33},  // 純全帯幺九
-            { Yaku::kHalfFlush,                       34},  // 混一色
-            { Yaku::kFullFlush,                       35},  // 清一色
-            { Yaku::kBlessingOfMan,                   36},  // 人和
-            { Yaku::kBlessingOfHeaven,                37},  // 天和
-            { Yaku::kBlessingOfEarth,                 38},  // 地和
-            { Yaku::kBigThreeDragons,                 39},  // 大三元
-            { Yaku::kFourConcealedPons,               40},  // 四暗刻
-            { Yaku::kCompletedFourConcealedPons,      41},  // 四暗刻単騎
-            { Yaku::kAllHonours,                      42},  // 字一色
-            { Yaku::kAllGreen,                        43},  // 緑一色
-            { Yaku::kAllTerminals,                    44},  // 清老頭
-            { Yaku::kNineGates,                       45},  // 九蓮宝燈
-            { Yaku::kPureNineGates,                   46},  // 純正九蓮宝燈
-            { Yaku::kThirteenOrphans,                 47},  // 国士無双
-            { Yaku::kCompletedThirteenOrphans,        48},  // 国士無双１３面
-            { Yaku::kBigFourWinds,                    49},  // 大四喜
-            { Yaku::kLittleFourWinds,                 50},  // 小四喜
-            { Yaku::kFourKans,                        51},  // 四槓子
-            { Yaku::kDora,                            52},  // ドラ
-            { Yaku::kRedDora,                         53},  // 赤ドラ
-            { Yaku::kReversedDora,                    54},  // 裏ドラ
-    };
-
     using PlayerId = std::string;
 
     std::uint8_t Num(TileType type) noexcept ;

@@ -305,9 +305,7 @@ namespace mj
         if (win_score.fu()) win.set_fu(win_score.fu().value());
         // yaku, fans
         std::vector<std::pair<Yaku, std::uint8_t>> yakus;
-        for (const auto &[yaku, fan]: win_score.yaku()) yakus.emplace_back(yaku, fan);
-        std::sort(yakus.begin(), yakus.end(), [](auto x, auto y){ return MjlogYakuOrder[x.first] < MjlogYakuOrder[y.first]; });
-        for (const auto &[yaku, fan]: yakus) {
+        for (const auto &[yaku, fan]: win_score.yaku()) {
             win.add_yakus(ToUType(yaku));
             win.add_fans(fan);
         }
@@ -360,9 +358,7 @@ namespace mj
         if (win_score.fu()) win.set_fu(win_score.fu().value());
         // yaku, fans
         std::vector<std::pair<Yaku, std::uint8_t>> yakus;
-        for (const auto &[yaku, fan]: win_score.yaku()) yakus.emplace_back(yaku, fan);
-        std::sort(yakus.begin(), yakus.end(), [](auto x, auto y){ return MjlogYakuOrder[x.first] < MjlogYakuOrder[y.first]; });
-        for (const auto &[yaku, fan]: yakus) {
+        for (const auto &[yaku, fan]: win_score.yaku()) {
             win.add_yakus(ToUType(yaku));
             win.add_fans(fan);
         }
