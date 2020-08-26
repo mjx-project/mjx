@@ -299,11 +299,10 @@ namespace mj
         if (const std::optional<int> fan = HasFullyConcealdHand(win_info); fan) {
             score.AddYaku(Yaku::kFullyConcealedHand, fan.value());
         }
-        if (const std::optional<int> fan = HasRiichi(win_info); fan) {
-            score.AddYaku(Yaku::kRiichi, fan.value());
-        }
         if (const std::optional<int> fan = HasDoubleRiichi(win_info); fan) {
             score.AddYaku(Yaku::kDoubleRiichi, fan.value());
+        } else if (const std::optional<int> fan = HasRiichi(win_info); fan) {
+            score.AddYaku(Yaku::kRiichi, fan.value());
         }
         if (const std::optional<int> fan = HasAfterKan(win_info); fan) {
             score.AddYaku(Yaku::kAfterKan, fan.value());
@@ -794,7 +793,7 @@ namespace mj
         return std::nullopt;
     }
     std::optional<int> YakuEvaluator::HasDoubleRiichi(const WinInfo& win_info) noexcept {
-        if (win_info.state.is_double_riichi) return 1;
+        if (win_info.hand.double_riichi) return 2;
         return std::nullopt;
     }
 

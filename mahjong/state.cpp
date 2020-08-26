@@ -220,10 +220,12 @@ namespace mj
         last_event_ = Event::CreateDiscard(who, discard, tsumogiri);
         state_.mutable_event_history()->mutable_events()->Add(last_event_.proto());
         // TODO: set discarded tile to river
+
+        if (is_first_turn_wo_open && ToSeatWind(who, dealer()) == Wind::kNorth) is_first_turn_wo_open = false;
     }
 
     void State::Riichi(AbsolutePos who) {
-        mutable_player(who).Riichi();
+        mutable_player(who).Riichi(is_first_turn_wo_open);
 
         last_event_ = Event::CreateRiichi(who);
         state_.mutable_event_history()->mutable_events()->Add(last_event_.proto());
@@ -240,6 +242,8 @@ namespace mj
             require_kan_draw_ = true;
             ++require_kan_dora_;
         }
+
+        is_first_turn_wo_open = false;
     }
 
     void State::AddNewDora() {
@@ -532,9 +536,8 @@ namespace mj
                 false,
                 false,
                 false,
-                false,
-                last_event_.type() == EventType::kKanAdded, // robbing kan
                 seat_wind == Wind::kEast,
+                last_event_.type() == EventType::kKanAdded, // robbing kan
                 wall_.dora_count(),
                 wall_.ura_dora_count());
         return win_state_info;

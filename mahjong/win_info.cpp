@@ -44,12 +44,6 @@ namespace mj {
         return *this;
     }
 
-    WinInfo& WinInfo::IsDoubleRiichi(bool is_double_riichi) noexcept {
-        assert(hand.under_riichi);
-        state.is_double_riichi = is_double_riichi;
-        return *this;
-    }
-
     WinInfo& WinInfo::IsFirstTsumo(bool is_first_tsumo) noexcept {
         assert(hand.stage == HandStage::kAfterTsumo);
         state.is_first_tsumo = is_first_tsumo;
