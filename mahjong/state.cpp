@@ -296,6 +296,7 @@ namespace mj
         for (auto t: hand_info.closed_tiles) {
             win.add_closed_tiles(t.Id());
         }
+        std::reverse(hand_info.opens.begin(), hand_info.opens.end());  // To follow tenhou's format
         for (const auto &open: hand_info.opens) {
             win.add_opens(open.GetBits());
         }
@@ -350,6 +351,7 @@ namespace mj
         for (auto t: hand_info.closed_tiles) {
             win.add_closed_tiles(t.Id());
         }
+        std::reverse(hand_info.opens.begin(), hand_info.opens.end());  // To follow tenhou's format
         for (const auto &open: hand_info.opens) {
             win.add_opens(open.GetBits());
         }
