@@ -222,6 +222,7 @@ namespace mj
         // TODO: set discarded tile to river
 
         if (is_first_turn_wo_open && ToSeatWind(who, dealer()) == Wind::kNorth) is_first_turn_wo_open = false;
+        is_ippatsu_[who] = false;
     }
 
     void State::Riichi(AbsolutePos who) {
@@ -244,6 +245,7 @@ namespace mj
         }
 
         is_first_turn_wo_open = false;
+        for (int i = 0; i < 4; ++i) is_ippatsu_[AbsolutePos(i)] = false;
     }
 
     void State::AddNewDora() {
@@ -266,6 +268,7 @@ namespace mj
         state_.mutable_event_history()->mutable_events()->Add(last_event_.proto());
 
         require_riichi_score_change_ = false;
+        is_ippatsu_[who] = true;
     }
 
     void State::Tsumo(AbsolutePos winner) {
@@ -534,7 +537,7 @@ namespace mj
                 seat_wind,
                 prevalent_wind(),
                 false,
-                false,
+                is_ippatsu_.at(who),
                 false,
                 seat_wind == Wind::kEast,
                 last_event_.type() == EventType::kKanAdded, // robbing kan
