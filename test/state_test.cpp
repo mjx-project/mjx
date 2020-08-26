@@ -488,6 +488,7 @@ TEST(state, tenhou) {
         std::string original_json, restored_json;
         while (!reading_file.eof()) {
             std::getline(reading_file, original_json);
+            if (original_json.empty()) continue;
             restored_json = State(original_json).ToJson();
             EXPECT_EQ(original_json, restored_json);
         }
