@@ -144,7 +144,6 @@ namespace mj
         std::string ron_ = "";
         bool after_kan_ = false;
         bool riichi_ = false;
-        bool double_riichi_ = false;
         void Push(const std::string &input, std::vector<std::vector<std::string>> &vec);
     };
 }  // namespace mj
