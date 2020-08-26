@@ -127,7 +127,11 @@ namespace mj
         }
         for (const auto& closed_set : closed_sets) {
             if (closed_set.size() > 1) continue;    // 順子は0
-            bool is_yaocyu = Is(closed_set.begin()->first, TileSetType::kYaocyu);
+            auto type = closed_set.begin()->first;
+            // シャンポンのロンを除く
+            bool is_ron_triplet = win_info.hand.stage == HandStage::kAfterRon && type == win_info.hand.win_tile->Type();
+            if (is_ron_triplet) continue;
+            bool is_yaocyu = Is(type, TileSetType::kYaocyu);
             fu += is_yaocyu ? 8 : 4;    // 暗刻
         }
 
