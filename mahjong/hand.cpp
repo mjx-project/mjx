@@ -241,7 +241,7 @@ namespace mj
                (stage_ == HandStage::kAfterRiichi && Any(tile, PossibleDiscardsAfterRiichi())) ||
                (under_riichi_ && tile == last_tile_added_));
         assert(SizeClosed() == 2 || SizeClosed() == 5 || SizeClosed() == 8 || SizeClosed() == 11 || SizeClosed() == 14);
-        bool tsumogiri = Any(stage_, {HandStage::kAfterDraw, HandStage::kAfterDrawAfterKan}) && last_tile_added_ && tile == last_tile_added_.value();
+        bool tsumogiri = Any(stage_, {HandStage::kAfterDraw, HandStage::kAfterDrawAfterKan, HandStage::kAfterRiichi}) && last_tile_added_ && tile == last_tile_added_.value();
         closed_tiles_.erase(tile);
         undiscardable_tiles_.clear();
         stage_ = HandStage::kAfterDiscards;
