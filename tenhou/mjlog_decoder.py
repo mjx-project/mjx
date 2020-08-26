@@ -29,6 +29,8 @@ class MjlogDecoder:
 
         shuffle = root.iter("SHUFFLE")
         go = root.iter("GO")
+        for child in go:
+            assert int(child.attrib["type"]) == 169  # only use 鳳南赤
         un = root.iter("UN")  # TODO(sotetsuk): if there are > 2 "UN", some user became offline
         for child in un:
             state_.player_ids.append(urllib.parse.unquote(child.attrib["n0"]))
