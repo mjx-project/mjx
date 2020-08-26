@@ -609,12 +609,13 @@ namespace mj
         //return ret;
     }
 
-    void Hand::Riichi() {
+    void Hand::Riichi(bool double_riichi) {
         assert(IsMenzen());
         assert(!under_riichi_);
         assert(stage_ == HandStage::kAfterDraw || stage_ == HandStage::kAfterDrawAfterKan);
         assert(SizeClosed() == 2 || SizeClosed() == 5 || SizeClosed() == 8 || SizeClosed() == 11 || SizeClosed() == 14);
         under_riichi_ = true;
+        double_riichi_ = double_riichi;
         stage_ = HandStage::kAfterRiichi;
     }
 
@@ -659,7 +660,7 @@ namespace mj
     }
 
     WinHandInfo Hand::win_info() const noexcept {
-        return WinHandInfo(closed_tiles_, opens_, ClosedTileTypes(), AllTileTypes(), last_tile_added_, stage_, IsUnderRiichi(), IsMenzen());
+        return WinHandInfo(closed_tiles_, opens_, ClosedTileTypes(), AllTileTypes(), last_tile_added_, stage_, IsUnderRiichi(), IsDoubleRiichi(), IsMenzen());
     }
 
     bool Hand::IsTenpai() const {
@@ -682,6 +683,11 @@ namespace mj
         auto closed_tile_types = ClosedTileTypes();
         ++closed_tile_types[additional_tile.Type()];
         return WinHandCache::instance().Has(closed_tile_types);
+    }
+
+    bool Hand::IsDoubleRiichi() const {
+        assert(!(double_riichi_ && !under_riichi_));
+        return double_riichi_;
     }
 
     HandParams::HandParams(const std::string &closed) {
