@@ -17,15 +17,13 @@ namespace mj {
                 Wind prevalent_wind,
                 bool is_bottom,
                 bool is_ippatsu,
-                bool is_double_riichi,
                 bool is_first_tsumo,
                 bool is_dealer,
                 bool is_robbing_kan,
                 TileTypeCount dora,
                 TileTypeCount reversed_dora
         ) : seat_wind(seat_wind), prevalent_wind(prevalent_wind), is_bottom(is_bottom),
-        is_ippatsu(is_ippatsu), is_double_riichi(is_double_riichi),
-        is_first_tsumo(is_first_tsumo), is_dealer(is_dealer), is_robbing_kan(is_robbing_kan),
+        is_ippatsu(is_ippatsu), is_first_tsumo(is_first_tsumo), is_dealer(is_dealer), is_robbing_kan(is_robbing_kan),
         dora(std::move(dora)), reversed_dora(std::move(reversed_dora)) {}
         WinStateInfo() = default;
 
@@ -33,7 +31,6 @@ namespace mj {
         Wind prevalent_wind = Wind::kEast;
         bool is_bottom = false;
         bool is_ippatsu = false;
-        bool is_double_riichi = false;
         bool is_first_tsumo = false;
         bool is_dealer = false;
         bool is_robbing_kan = false;
@@ -50,9 +47,10 @@ namespace mj {
                 std::optional<Tile> win_tile,
                 HandStage hand_stage,
                 bool under_riichi,
+                bool double_riichi,
                 bool is_menzen
         ): closed_tiles(std::move(closed_tiles)), opens(std::move(opens)), closed_tile_types(std::move(closed_tile_types)),
-           all_tile_types(std::move(all_tile_types)), win_tile(win_tile), stage(hand_stage), under_riichi(under_riichi), is_menzen(is_menzen) {}
+           all_tile_types(std::move(all_tile_types)), win_tile(win_tile), stage(hand_stage), under_riichi(under_riichi), double_riichi(double_riichi), is_menzen(is_menzen) {}
         WinHandInfo() = default;
 
         std::unordered_set<Tile, HashTile> closed_tiles;
@@ -62,6 +60,7 @@ namespace mj {
         std::optional<Tile> win_tile = std::nullopt;  // Tile class has no default constructor but note that win_tile always exists
         HandStage stage = HandStage::kAfterTsumo;    // default: kAfterTsumo
         bool under_riichi = false;
+        bool double_riichi = false;
         bool is_menzen = false;
     };
 
@@ -84,7 +83,6 @@ namespace mj {
         WinInfo& Prevalent(Wind wind) noexcept ;
         WinInfo& IsBottom(bool is_bottom) noexcept ;
         WinInfo& IsIppatsu(bool is_ippatsu) noexcept ;
-        WinInfo& IsDoubleRiichi(bool is_double_riichi) noexcept ;
         WinInfo& IsFirstTsumo(bool is_first_tsumo) noexcept ;
         WinInfo& IsDealer(bool is_dealer) noexcept ;
         WinInfo& IsRobbingKan(bool is_robbing_kan) noexcept ;

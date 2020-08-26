@@ -43,6 +43,7 @@ namespace mj
         [[nodiscard]] std::optional<Tile> LastTileAdded() const;
         [[nodiscard]] bool IsMenzen() const;
         bool IsUnderRiichi() const;
+        bool IsDoubleRiichi() const;
         [[nodiscard]] std::size_t Size() const;
         [[nodiscard]] std::size_t SizeOpened() const;
         [[nodiscard]] std::size_t SizeClosed() const;
@@ -70,7 +71,7 @@ namespace mj
 
         // apply actions
         void Draw(Tile tile);
-        void Riichi();  // After riichi, hand is fixed
+        void Riichi(bool double_riichi = false);  // After riichi, hand is fixed
         void ApplyOpen(Open open);  // TODO: (sotetsuk) current implementation switch private method depending on OpenType. This is not smart way to do dynamic polymorphism.
         void Ron(Tile tile);
         void Tsumo();  // should be called after draw like h.Draw(tile); if (h.IsCompleted(w)) h.Tsumo();
@@ -84,7 +85,8 @@ namespace mj
         std::unordered_set<Tile, HashTile> undiscardable_tiles_;
         std::optional<Tile> last_tile_added_;
         HandStage stage_;
-        bool under_riichi_{};
+        bool under_riichi_ = false;
+        bool double_riichi_ = false;
 
         // possible actions
         std::vector<Open> PossibleChis(Tile tile) const;  // E.g., 2m 3m [4m] vs 3m [4m] 5m

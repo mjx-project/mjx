@@ -53,8 +53,8 @@ namespace mj
     void Player::Draw(Tile tile) {
         hand_.Draw(tile);
     }
-    void Player::Riichi() {
-        hand_.Riichi();
+    void Player::Riichi(bool double_riichi) {
+        hand_.Riichi(double_riichi);
     }
 
     void Player::ApplyOpen(Open open) {
@@ -111,5 +111,9 @@ namespace mj
 
     bool Player::IsCompleted() const {
         return hand_.IsCompleted();
+    }
+
+    bool Player::IsUnderRiichi() const {
+        return hand_.IsUnderRiichi();
     }
 }  // namespace mj

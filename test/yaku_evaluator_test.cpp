@@ -88,19 +88,16 @@ TEST_F(YakuTest, Riichi)
 
 TEST_F(YakuTest, DoubleRiichi)
 {
-    auto yaku1 = YakuEvaluator::Eval(
-            WinInfo(Hand(HandParams("m1,m2,m3,m4,m5,m6,m7,m8,s1,s1,p1,p1,p1").Riichi().Ron("m9")).win_info())
-                    .IsDoubleRiichi(true));
-    EXPECT_EQ(yaku1.HasYaku(Yaku::kDoubleRiichi), std::make_optional(1));
+    auto win_info = WinInfo(Hand(HandParams("m1,m2,m3,m4,m5,m6,m7,m8,s1,s1,p1,p1,p1").Riichi().Ron("m9")).win_info());
+    win_info.hand.double_riichi = true;
+    auto yaku1 = YakuEvaluator::Eval(win_info);
+    EXPECT_EQ(yaku1.HasYaku(Yaku::kRiichi), std::nullopt);
+    EXPECT_EQ(yaku1.HasYaku(Yaku::kDoubleRiichi), std::make_optional(2));
 
-    auto yaku2 = YakuEvaluator::Eval(
-            WinInfo(Hand(HandParams("m1,m2,m3,m4,m5,m6,m7,m8,s1,s1,p1,p1,p1").Riichi().Tsumo("m9")).win_info())
-                    .IsDoubleRiichi(true));
-    EXPECT_EQ(yaku2.HasYaku(Yaku::kDoubleRiichi), std::make_optional(1));
-
-    auto yaku3 = YakuEvaluator::Eval(
-            WinInfo(Hand(HandParams("m1,m2,m3,m4,m5,m6,m7,m8,s1,s1,p1,p1,p1").Riichi().Ron("m9")).win_info()));
-    EXPECT_EQ(yaku3.HasYaku(Yaku::kDoubleRiichi), std::nullopt);
+    win_info.hand.double_riichi = false;
+    yaku1 = YakuEvaluator::Eval(win_info);
+    EXPECT_EQ(yaku1.HasYaku(Yaku::kRiichi), std::make_optional(1));
+    EXPECT_EQ(yaku1.HasYaku(Yaku::kDoubleRiichi), std::nullopt);
 }
 
 TEST_F(YakuTest, AfterKan)

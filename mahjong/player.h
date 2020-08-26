@@ -25,11 +25,12 @@ namespace mj
         bool CanTsumo(WinStateInfo &&win_state_info) const;
         bool CanRiichi() const;
         bool IsTenpai() const;
+        bool IsUnderRiichi() const;
         //bool CanNineTiles(bool IsDealer);  // 九種九牌
 
         // apply actions
         void Draw(Tile tile);
-        void Riichi();  // After riichi, hand is fixed
+        void Riichi(bool double_riichi = false);  // After riichi, hand is fixed
         void ApplyOpen(Open open);  // TODO: (sotetsuk) current implementation switch private method depending on OpenType. This is not smart way to do dynamic polymorphism.
         void Ron(Tile tile);
         void RonAfterOthersKan(Tile tile);
