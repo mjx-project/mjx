@@ -191,7 +191,7 @@ namespace mj
              std::cerr << "Expected: " << expected << std::endl;
              std::cerr << "Actual  : " << ToJson() << std::endl;
          }
-        assert(google::protobuf::util::MessageDifferencer::Equals(state, state_));
+         assert(google::protobuf::util::MessageDifferencer::Equals(state, state_));
     }
 
     std::string State::ToJson() const {
@@ -296,14 +296,12 @@ namespace mj
         // fu
         if (win_score.fu()) win.set_fu(win_score.fu().value());
         // yaku, fans
-        for (const auto &[yaku, fan]: win_score.yaku()) {
-            if (yaku == Yaku::kReversedDora) continue;  // mjlog puts ura-dora at last
+        std::vector<std::pair<Yaku, std::uint8_t>> yakus;
+        for (const auto &[yaku, fan]: win_score.yaku()) yakus.emplace_back(yaku, fan);
+        std::sort(yakus.begin(), yakus.end(), [](auto x, auto y){ return MjlogYakuOrder[x.first] < MjlogYakuOrder[y.first]; });
+        for (const auto &[yaku, fan]: yakus) {
             win.add_yakus(ToUType(yaku));
             win.add_fans(fan);
-        }
-        if (auto has_ura_dora = win_score.HasYaku(Yaku::kReversedDora); has_ura_dora) {
-            win.add_yakus(ToUType(Yaku::kReversedDora));
-            win.add_fans(has_ura_dora.value());
         }
         // ten and ten moves
         win.set_ten(ten_);
@@ -352,14 +350,12 @@ namespace mj
         // fu
         if (win_score.fu()) win.set_fu(win_score.fu().value());
         // yaku, fans
-        for (const auto &[yaku, fan]: win_score.yaku()) {
-            if (yaku == Yaku::kReversedDora) continue;  // mjlog puts ura-dora at last
+        std::vector<std::pair<Yaku, std::uint8_t>> yakus;
+        for (const auto &[yaku, fan]: win_score.yaku()) yakus.emplace_back(yaku, fan);
+        std::sort(yakus.begin(), yakus.end(), [](auto x, auto y){ return MjlogYakuOrder[x.first] < MjlogYakuOrder[y.first]; });
+        for (const auto &[yaku, fan]: yakus) {
             win.add_yakus(ToUType(yaku));
             win.add_fans(fan);
-        }
-        if (auto has_ura_dora = win_score.HasYaku(Yaku::kReversedDora); has_ura_dora) {
-            win.add_yakus(ToUType(Yaku::kReversedDora));
-            win.add_fans(has_ura_dora.value());
         }
         // ten and ten moves
         win.set_ten(ten_);
