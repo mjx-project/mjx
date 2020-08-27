@@ -106,4 +106,12 @@ namespace mj
                 return ActionType::kKanAdded;
         }
     }
+
+    bool IsSameWind(TileType tile_type, Wind wind) {
+        if (tile_type == TileType::kEW && wind == Wind::kEast) return true;
+        if (tile_type == TileType::kSW && wind == Wind::kSouth) return true;
+        if (tile_type == TileType::kWW && wind == Wind::kWest) return true;
+        if (tile_type == TileType::kNW && wind == Wind::kNorth) return true;
+        return false;
+    }
 } // namespace mj

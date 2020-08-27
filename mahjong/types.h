@@ -229,6 +229,7 @@ namespace mj {
     Wind ToSeatWind(AbsolutePos who, AbsolutePos dealer);
     EventType OpenTypeToEventType(OpenType open_type);
     ActionType OpenTypeToActionType(OpenType open_type);
+    bool IsSameWind(TileType tile_type, Wind wind);
 }  // namespace mj
 
 #endif //MAHJONG_TYPES_H
