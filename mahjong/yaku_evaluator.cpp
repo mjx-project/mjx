@@ -144,7 +144,6 @@ namespace mj
             if (IsSameWind(head_type, win_info.state.seat_wind)) fu += 2;
             if (IsSameWind(head_type, win_info.state.prevalent_wind)) fu += 2;
         }
-        // TODO: 連風牌は2符? 4符? 要確認.
 
         // 待ち
         bool has_bad_machi = false;
