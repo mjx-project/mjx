@@ -128,11 +128,11 @@ namespace mj
         for (const auto& closed_set : closed_sets) {
             if (closed_set.size() > 1) continue;    // 順子は0
             auto type = closed_set.begin()->first;
-            // シャンポンのロンを除く
+            // シャンポンのロンは明刻扱い
             bool is_ron_triplet = win_info.hand.stage == HandStage::kAfterRon && type == win_info.hand.win_tile->Type();
-            if (is_ron_triplet) continue;
             bool is_yaocyu = Is(type, TileSetType::kYaocyu);
-            fu += is_yaocyu ? 8 : 4;    // 暗刻
+            if (is_ron_triplet) fu += is_yaocyu ? 4 : 2;    // 明刻
+            else fu += is_yaocyu ? 8 : 4;    // 暗刻
         }
 
         // 雀頭
@@ -164,7 +164,8 @@ namespace mj
         if (has_bad_machi) fu += 2;
 
         // 面前加符
-        if (win_info.hand.is_menzen and win_info.hand.stage == HandStage::kAfterRon) {
+        auto is_menzen_ron = win_info.hand.is_menzen and win_info.hand.stage == HandStage::kAfterRon;
+        if (is_menzen_ron) {
             fu += 10;
         }
 
@@ -180,6 +181,9 @@ namespace mj
 
         // 切り上げ
         if (fu % 10) fu += 10 - fu % 10;
+
+        // 門前ロンはピンフ以外40符以上はあるはず
+        assert(!(win_info.hand.is_menzen && win_info.hand.stage == HandStage::kAfterRon && !win_score.HasYaku(Yaku::kPinfu) && fu < 40));
         return fu;
     }
 
