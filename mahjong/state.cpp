@@ -429,8 +429,16 @@ namespace mj
         // TODO (sotetsuk): 西入後の終曲条件が供託未収と書いてあるので、修正が必要。　https://tenhou.net/man/
         // ラス親のあがりやめも考慮しないといけない
         auto tens_ = tens();
-        bool is_game_over = *std::min_element(tens_.begin(), tens_.end()) < 0 ||
-                (round() >= 7 && *std::max_element(tens_.begin(), tens_.end()) >= 30000);
+        for (int i = 0; i < 4; ++i) tens_[i] += 4 - i;  // 同点は起家から順に優先されるので +4, +3, +2, +1 する
+        auto top_score = *std::max_element(tens_.begin(), tens_.end());
+        bool has_minus_point_player = *std::min_element(tens_.begin(), tens_.end()) < 0;
+        bool top_has_30000 = *std::max_element(tens_.begin(), tens_.end()) >= 30000;
+        // TODO: ダブロンのときに last_event.who() では dealerが上がったのを見逃すかもしれない。
+        bool dealer_win_or_tenpai = (Any(last_event_.type(), {EventType::kRon, EventType::kTsumo}) && last_event_.who() == dealer()) ||
+                                    (last_event_.type() == EventType::kNoWinner && player(dealer()).IsTenpai());
+        bool dealer_is_not_top = top_score != tens_[ToUType(dealer())];
+        bool is_game_over = has_minus_point_player ||
+                            (round() >= 7 && top_has_30000 && !(dealer_win_or_tenpai && dealer_is_not_top));
         return is_game_over;
     }
 
