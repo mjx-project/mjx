@@ -564,7 +564,7 @@ namespace mj
         auto win_state_info = WinStateInfo(
                 seat_wind,
                 prevalent_wind(),
-                false,
+                !wall_.HasDrawLeft(),
                 is_ippatsu_.at(who),
                 false,
                 seat_wind == Wind::kEast,
