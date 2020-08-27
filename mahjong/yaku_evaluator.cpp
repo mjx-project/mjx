@@ -795,7 +795,7 @@ namespace mj
     }
 
     std::optional<int> YakuEvaluator::HasFullyConcealdHand(const WinInfo& win_info) noexcept {
-        if (win_info.hand.is_menzen and win_info.hand.stage == HandStage::kAfterTsumo) return 1;
+        if (win_info.hand.is_menzen and Any(win_info.hand.stage, {HandStage::kAfterTsumo, HandStage::kAfterTsumoAfterKan})) return 1;
         return std::nullopt;
     }
 
