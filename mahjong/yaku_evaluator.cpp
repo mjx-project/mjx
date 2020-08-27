@@ -139,7 +139,11 @@ namespace mj
         assert(heads.size() == 1);
         TileType head_type = heads[0].begin()->first;
         if (Is(head_type, TileSetType::kDragons)) fu += 2;
-        // TODO: 場風,自風は2符.
+        // 場風,自風は2符.
+        if (Is(head_type, TileSetType::kWinds)) {
+            if (IsSameWind(head_type, win_info.state.seat_wind)) fu += 2;
+            if (IsSameWind(head_type, win_info.state.prevalent_wind)) fu += 2;
+        }
         // TODO: 連風牌は2符? 4符? 要確認.
 
         // 待ち
