@@ -318,17 +318,17 @@ namespace mj
             curr_score_.set_ten(ToUType(who), ten(who) + ten_move);
         }
 
+        // set terminal
         is_round_over_ = true;
+        if (IsGameOver()) {
+            AbsolutePos top = top_player();
+            curr_score_.set_ten(ToUType(top), curr_score_.ten(ToUType(top)) + 1000 * riichi());
+            curr_score_.set_riichi(0);
+        }
         state_.mutable_terminal()->mutable_wins()->Add(std::move(win));
         state_.mutable_terminal()->set_is_game_over(IsGameOver());
         state_.mutable_terminal()->mutable_final_score()->CopyFrom(curr_score_);
-
-        if (IsGameOver()) {
-            AbsolutePos top = top_player();
-            curr_score_.set_ten(ToUType(top), curr_score_.ten(ToUType(top)) + riichi());
-            curr_score_.set_riichi(0);
-        }
-    }
+   }
 
     void State::Ron(AbsolutePos winner) {
         AbsolutePos loser = last_event_.who();
@@ -377,17 +377,17 @@ namespace mj
             win.set_ten_changes(ToUType(who), ten_move);
             curr_score_.set_ten(ToUType(who), ten(who) + ten_move);
         }
+
         // set win to terminal
         is_round_over_ = true;
+        if (IsGameOver()) {
+            AbsolutePos top = top_player();
+            curr_score_.set_ten(ToUType(top), curr_score_.ten(ToUType(top)) + 1000 * riichi());
+            curr_score_.set_riichi(0);
+        }
         state_.mutable_terminal()->mutable_wins()->Add(std::move(win));
         state_.mutable_terminal()->set_is_game_over(IsGameOver());
         state_.mutable_terminal()->mutable_final_score()->CopyFrom(curr_score_);
-
-        if (IsGameOver()) {
-            AbsolutePos top = top_player();
-            curr_score_.set_ten(ToUType(top), curr_score_.ten(ToUType(top)) + riichi());
-            curr_score_.set_riichi(0);
-        }
     }
 
     void State::NoWinner() {
@@ -430,15 +430,16 @@ namespace mj
             state_.mutable_terminal()->mutable_no_winner()->add_ten_changes(ten_move);
             curr_score_.set_ten(i, ten(AbsolutePos(i)) + ten_move);
         }
-        is_round_over_ = true;
-        state_.mutable_terminal()->set_is_game_over(IsGameOver());
-        state_.mutable_terminal()->mutable_final_score()->CopyFrom(curr_score_);
 
+        // set terminal
+        is_round_over_ = true;
         if (IsGameOver()) {
             AbsolutePos top = top_player();
-            curr_score_.set_ten(ToUType(top), curr_score_.ten(ToUType(top)) + riichi());
+            curr_score_.set_ten(ToUType(top), curr_score_.ten(ToUType(top)) + 1000 * riichi());
             curr_score_.set_riichi(0);
         }
+        state_.mutable_terminal()->set_is_game_over(IsGameOver());
+        state_.mutable_terminal()->mutable_final_score()->CopyFrom(curr_score_);
     }
 
     bool State::IsGameOver() const {
