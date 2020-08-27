@@ -65,6 +65,7 @@ namespace mj
         [[nodiscard]] const Player& player(AbsolutePos pos) const;
         [[nodiscard]] Player& mutable_player(AbsolutePos pos);
         [[nodiscard]] WinStateInfo win_state_info(AbsolutePos who) const;
+        [[nodiscard]] AbsolutePos top_player() const;
 
         // update
         void Update(Action &&action);
@@ -79,8 +80,7 @@ namespace mj
         void Tsumo(AbsolutePos winner);
         void Ron(AbsolutePos winner);
         void NoWinner();
-        std::unordered_map<PlayerId, Observation> CreateStealAndRonObservation() const;
-
+        [[nodiscard]] std::unordered_map<PlayerId, Observation> CreateStealAndRonObservation() const;
         [[nodiscard]] std::pair<HandInfo, WinScore> EvalWinHand(AbsolutePos who) const noexcept;
     };
 }  // namespace mj

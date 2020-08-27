@@ -322,6 +322,12 @@ namespace mj
         state_.mutable_terminal()->mutable_wins()->Add(std::move(win));
         state_.mutable_terminal()->set_is_game_over(IsGameOver());
         state_.mutable_terminal()->mutable_final_score()->CopyFrom(curr_score_);
+
+        if (IsGameOver()) {
+            AbsolutePos top = top_player();
+            curr_score_.set_ten(ToUType(top), curr_score_.ten(ToUType(top)) + riichi());
+            curr_score_.set_riichi(0);
+        }
     }
 
     void State::Ron(AbsolutePos winner) {
@@ -376,6 +382,12 @@ namespace mj
         state_.mutable_terminal()->mutable_wins()->Add(std::move(win));
         state_.mutable_terminal()->set_is_game_over(IsGameOver());
         state_.mutable_terminal()->mutable_final_score()->CopyFrom(curr_score_);
+
+        if (IsGameOver()) {
+            AbsolutePos top = top_player();
+            curr_score_.set_ten(ToUType(top), curr_score_.ten(ToUType(top)) + riichi());
+            curr_score_.set_riichi(0);
+        }
     }
 
     void State::NoWinner() {
@@ -421,6 +433,12 @@ namespace mj
         is_round_over_ = true;
         state_.mutable_terminal()->set_is_game_over(IsGameOver());
         state_.mutable_terminal()->mutable_final_score()->CopyFrom(curr_score_);
+
+        if (IsGameOver()) {
+            AbsolutePos top = top_player();
+            curr_score_.set_ten(ToUType(top), curr_score_.ten(ToUType(top)) + riichi());
+            curr_score_.set_riichi(0);
+        }
     }
 
     bool State::IsGameOver() const {
@@ -432,7 +450,8 @@ namespace mj
         for (int i = 0; i < 4; ++i) tens_[i] += 4 - i;  // 同点は起家から順に優先されるので +4, +3, +2, +1 する
         auto top_score = *std::max_element(tens_.begin(), tens_.end());
         bool has_minus_point_player = *std::min_element(tens_.begin(), tens_.end()) < 0;
-        bool top_has_30000 = *std::max_element(tens_.begin(), tens_.end()) >= 30000;
+        // TODO: リーチ棒をトップに加算してから計算するのが正しいのか確認
+        bool top_has_30000 = *std::max_element(tens_.begin(), tens_.end()) + 1000 * riichi() >= 30000;
         // TODO: ダブロンのときに last_event.who() では dealerが上がったのを見逃すかもしれない。
         bool dealer_win_or_tenpai = (Any(last_event_.type(), {EventType::kRon, EventType::kTsumo}) && last_event_.who() == dealer()) ||
                                     (last_event_.type() == EventType::kNoWinner && player(dealer()).IsTenpai());
@@ -656,4 +675,15 @@ namespace mj
                 assert(false);  // Not implemented yet
         }
    }
+
+    AbsolutePos State::top_player() const {
+        int top_ix = 0; int top_ten  = INT_MIN;
+        for (int i = 0; i < 4; ++i) {
+            if (top_ten < curr_score_.ten(i) + (4 - i)) {  // 同着なら起家優先のため +4, +3, +2, +1
+                top_ix = i;
+                top_ten = curr_score_.ten(i);
+            }
+        }
+        return AbsolutePos(top_ix);
+    }
 }  // namespace mj
