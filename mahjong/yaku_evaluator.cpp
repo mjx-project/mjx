@@ -476,14 +476,11 @@ namespace mj
             }
         }
 
-        // 雀頭が役牌だとNG
-        // TODO: 場風, 自風も弾く.
-        if (const TileType head = heads[0].begin()->first;
-                        head == TileType::kRD or
-                        head == TileType::kGD or
-                        head == TileType::kWD) {
-            return std::nullopt;
-        }
+        // 雀頭が役牌・自風・場風だとNG
+        const TileType head = heads[0].begin()->first;
+        if (Is(head, TileSetType::kDragons)) return std::nullopt;
+        if (IsSameWind(head, win_info.state.seat_wind)) return std::nullopt;
+        if (IsSameWind(head, win_info.state.prevalent_wind)) return std::nullopt;
 
         assert(win_info.hand.win_tile);
         const TileType tsumo_type = win_info.hand.win_tile.value().Type();
