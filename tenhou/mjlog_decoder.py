@@ -16,12 +16,12 @@ class MjlogDecoder:
     def __init__(self):
         self.state = None
 
-    def parse(self, path_to_mjlog: str, wall_dices: List[Tuple[List[int], List[int]]], yaku_sorted: bool) -> Iterator[mahjong_pb2.State]:
+    def parse(self, path_to_mjlog: str, wall_dices: List[Tuple[List[int], List[int]]], modify: bool) -> Iterator[mahjong_pb2.State]:
         tree = ET.parse(path_to_mjlog)
         root = tree.getroot()
-        yield from self._parse_each_game(root, wall_dices, yaku_sorted)
+        yield from self._parse_each_game(root, wall_dices, modify)
 
-    def _parse_each_game(self, root: Element, wall_dices: List[Tuple[List[int], List[int]]], yaku_sorted: bool) -> Iterator[mahjong_pb2.State]:
+    def _parse_each_game(self, root: Element, wall_dices: List[Tuple[List[int], List[int]]], modify: bool) -> Iterator[mahjong_pb2.State]:
         state_ = mahjong_pb2.State()
 
         assert root.tag == "mjloggm"
@@ -48,17 +48,17 @@ class MjlogDecoder:
             if child.tag == "INIT":
                 if kv:
                     wall, dices = wall_dices[i]
-                    yield from self._parse_each_round(kv, wall, dices, yaku_sorted)
+                    yield from self._parse_each_round(kv, wall, dices, modify)
                     i += 1
                 self.state = copy.deepcopy(state_)
                 kv = []
             kv.append((child.tag, child.attrib))
         if kv:
             wall, dices = wall_dices[i]
-            yield from self._parse_each_round(kv, wall, dices, yaku_sorted)
+            yield from self._parse_each_round(kv, wall, dices, modify)
             i += 1
 
-    def _parse_each_round(self, kv: List[Tuple[str, Dict[str, str]]], wall: List[int], dices: List[int], yaku_sorted: bool) -> Iterator[mahjong_pb2.State]:
+    def _parse_each_round(self, kv: List[Tuple[str, Dict[str, str]]], wall: List[int], dices: List[int], modify: bool) -> Iterator[mahjong_pb2.State]:
         """Input examples
 
         - <INIT seed="0,0,0,2,2,112" ten="250,250,250,250" oya="0" hai0="48,16,19,34,2,76,13,7,128,1,39,121,87" hai1="17,62,79,52,56,57,82,98,32,103,24,70,54" hai2="55,30,12,26,31,90,3,4,80,125,66,102,78" hai3="120,130,42,67,114,93,5,61,20,108,41,100,84"/>
@@ -240,19 +240,21 @@ class MjlogDecoder:
                 if "doraHaiUra" in val:
                     assert self.state.ura_doras == [int(x) for x in val["doraHaiUra"].split(",")]
                 win.fu, win.ten, _ = [int(x) for x in val["ten"].split(",")]
+                if modify and "yakuman" in val:
+                    win.fu = 0
                 if "yaku" in val:
                     assert "yakuman" not in val
                     yakus = [int(x) for i, x in enumerate(val["yaku"].split(",")) if i % 2 == 0]
                     fans = [int(x) for i, x in enumerate(val["yaku"].split(",")) if i % 2 == 1]
                     yaku_fan = [(yaku, fan) for yaku, fan in zip(yakus, fans)]
-                    if yaku_sorted:
+                    if modify:
                         yaku_fan.sort(key=lambda x: x[0])
                     win.yakus[:] = [x[0] for x in yaku_fan]
                     win.fans[:] = [x[1] for x in yaku_fan]
                 if "yakuman" in val:
                     assert "yaku" not in val
                     yakumans = [int(x) for i, x in enumerate(val["yakuman"].split(","))]
-                    if yaku_sorted:
+                    if modify:
                         yakumans.sort()
                     win.yakumans[:] = yakumans
                 self.state.terminal.wins.append(win)
@@ -341,7 +343,9 @@ if __name__ == "__main__":
     """)
     parser.add_argument('mjlog_dir', help='Path to mjlogs')
     parser.add_argument('json_dir', help='Path to json outputs')
-    parser.add_argument('--yaku-sorted', action='store_true', help="Whether sort yaku in AGARI")
+    parser.add_argument('--modify', action='store_true', help="Modify some details for mjproto format.")
+    # 1. Yaku is sorted in yaku No.
+    # 2. Yakuman's fu is set to 0
     args = parser.parse_args()
 
     parser = MjlogDecoder()
@@ -356,6 +360,6 @@ if __name__ == "__main__":
         print(f"converting:\t{path_to_mjlog}")
         wall_dices = reproduce_wall(path_to_mjlog)
         with open(path_to_json, 'w') as f:
-            for state in parser.parse(path_to_mjlog, wall_dices, yaku_sorted=args.yaku_sorted):
+            for state in parser.parse(path_to_mjlog, wall_dices, modify=args.modify):
                 f.write(json.dumps(json_format.MessageToDict(state, including_default_value_fields=False), ensure_ascii=False, separators=(',', ':')) + "\n")  # No spaces
         print(f"done:\t{path_to_json}")
