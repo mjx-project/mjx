@@ -240,6 +240,9 @@ namespace mj
             if (const std::optional<int> fan = HasTerminalsInAllSets(win_info, closed_sets, opened_sets, heads); fan) {
                 yaku_in_this_pattern[Yaku::kTerminalsInAllSets] = fan.value();
             }
+            if (const std::optional<int> fan = HasThreeConcealdPons(win_info, closed_sets, opened_sets, heads); fan) {
+                yaku_in_this_pattern[Yaku::kThreeConcealedPons] = fan.value();
+            }
 
             // 今までに調べた組み合わせ方より役の総飜数が高いなら採用する.
             if (best_yaku.empty() or TotalFan(best_yaku) < TotalFan(yaku_in_this_pattern)) {
