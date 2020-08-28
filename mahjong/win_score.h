@@ -21,11 +21,11 @@ namespace mj {
     private:
         std::map<Yaku,int> yaku_;
         std::set<Yaku> yakuman_;
-        int fu_;
+        std::optional<int> fu_;
     public:
         [[nodiscard]] const std::map<Yaku,int>& yaku() const noexcept ;
         [[nodiscard]] const std::set<Yaku> & yakuman() const noexcept ;
-        [[nodiscard]] int fu() const noexcept ;
+        [[nodiscard]] std::optional<int> fu() const noexcept ;
         [[nodiscard]] int total_fan() const noexcept ;
         [[nodiscard]] std::optional<int> HasYaku(Yaku yaku) const noexcept ;
         [[nodiscard]] bool HasYakuman(Yaku yakuman) const noexcept ;

@@ -141,6 +141,7 @@ namespace mj {
         static ScoreTable table;
 
         int fan = total_fan();
+        int fu = this->fu() ? this->fu().value() : 0;
 
         int ten;
         std::map<AbsolutePos, int> ten_moves;
@@ -149,8 +150,8 @@ namespace mj {
             if (winner == dealer) {
                 // 親
                 if (!yakuman_.empty()) ten = 48000 * yakuman_.size();
-                else if (table.dealer_ron.count({fan, fu_})) {
-                    ten = table.dealer_ron.at({fan, fu_});
+                else if (table.dealer_ron.count({fan, fu})) {
+                    ten = table.dealer_ron.at({fan, fu});
                 }
                 else {
                     if (fan <= 5) ten = 12000;
@@ -163,8 +164,8 @@ namespace mj {
             else {
                 // 子
                 if (!yakuman_.empty()) ten = 32000 * yakuman_.size();
-                else if (table.non_dealer_ron.count({fan, fu_})) {
-                    ten = table.non_dealer_ron.at({fan, fu_});
+                else if (table.non_dealer_ron.count({fan, fu})) {
+                    ten = table.non_dealer_ron.at({fan, fu});
                 }
                 else {
                     if (fan <= 5) ten = 8000;
@@ -182,8 +183,8 @@ namespace mj {
                 // 親がツモ上がりしたとき
                 int payment;
                 if (!yakuman_.empty()) payment = 16000 * yakuman_.size();
-                else if (table.dealer_tsumo.count({fan, fu_})) {
-                    payment = table.dealer_tsumo.at({fan, fu_});
+                else if (table.dealer_tsumo.count({fan, fu})) {
+                    payment = table.dealer_tsumo.at({fan, fu});
                 }
                 else {
                     if (fan <= 5) payment = 4000;
@@ -201,9 +202,9 @@ namespace mj {
                     dealer_payment = 16000 * yakuman_.size();
                     child_payment = 8000 * yakuman_.size();
                 }
-                else if (table.non_dealer_tsumo.count({fan, fu_})) {
+                else if (table.non_dealer_tsumo.count({fan, fu})) {
                     std::tie(child_payment, dealer_payment) =
-                            table.non_dealer_tsumo.at({fan, fu_});
+                            table.non_dealer_tsumo.at({fan, fu});
                 }
                 else {
                     if (fan <= 5) child_payment = 2000, dealer_payment = 4000;
@@ -259,7 +260,7 @@ namespace mj {
         return yakuman_;
     }
 
-    int WinScore::fu() const noexcept {
+    std::optional<int> WinScore::fu() const noexcept {
         return fu_;
     }
 

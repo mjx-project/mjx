@@ -303,7 +303,7 @@ namespace mj
         assert(hand_info.win_tile);
         win.set_win_tile(hand_info.win_tile.value().Id());
         // fu
-        win.set_fu(win_score.fu());
+        if (win_score.fu()) win.set_fu(win_score.fu().value());
         // yaku, fans
         std::vector<std::pair<Yaku, std::uint8_t>> yakus;
         for (const auto &[yaku, fan]: win_score.yaku()) {
@@ -371,7 +371,7 @@ namespace mj
         }
         win.set_win_tile(tile.Id());
         // fu
-        win.set_fu(win_score.fu());
+        if (win_score.fu()) win.set_fu(win_score.fu().value());
         // yaku, fans
         std::vector<std::pair<Yaku, std::uint8_t>> yakus;
         for (const auto &[yaku, fan]: win_score.yaku()) {
