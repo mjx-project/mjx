@@ -341,8 +341,11 @@ namespace mj
         auto ten_moves = win_score.TenMoves(winner, dealer(), loser);
         auto ten_ = ten_moves[winner];
         for (auto &[who, ten_move]: ten_moves) {
-            if (ten_move > 0) ten_move += riichi() * 1000 + honba() * 300;
-            else if (ten_move < 0) ten_move -= honba() * 300;
+            // ダブロンは上家取り
+            int honba_ = last_event_.type() == EventType::kRon ? 0 : honba();
+            int riichi_ = last_event_.type() == EventType::kRon ? 0 : riichi();
+            if (ten_move > 0) ten_move += riichi_ * 1000 + honba_ * 300;
+            else if (ten_move < 0) ten_move -= honba_ * 300;
         }
         curr_score_.set_riichi(0);
 
