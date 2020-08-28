@@ -455,8 +455,9 @@ namespace mj
         // TODO: リーチ棒をトップに加算してから計算するのが正しいのか確認
         bool top_has_30000 = *std::max_element(tens_.begin(), tens_.end()) + 1000 * riichi() >= 30000;
         // TODO: ダブロンのときに last_event.who() では dealerが上がったのを見逃すかもしれない。
-        bool dealer_win_or_tenpai = (Any(last_event_.type(), {EventType::kRon, EventType::kTsumo}) && last_event_.who() == dealer()) ||
-                                    (last_event_.type() == EventType::kNoWinner && player(dealer()).IsTenpai());
+        bool dealer_win_or_tenpai = (Any(last_event_.type(), {EventType::kRon, EventType::kTsumo})
+                && std::any_of(state_.terminal().wins().begin(), state_.terminal().wins().end(), [&](const auto x){ return AbsolutePos(x.who()) == dealer(); })) ||
+                (last_event_.type() == EventType::kNoWinner && player(dealer()).IsTenpai());
         bool dealer_is_not_top = top_score != tens_[ToUType(dealer())];
         bool is_game_over = has_minus_point_player ||
                             (round() >= 7 && top_has_30000 && !(dealer_win_or_tenpai && dealer_is_not_top));
