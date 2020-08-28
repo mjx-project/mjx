@@ -139,6 +139,11 @@ namespace mj
                 const std::vector<TileTypeCount>& closed_sets,
                 const std::vector<TileTypeCount>& opened_sets,
                 const std::vector<TileTypeCount>& heads) noexcept ;
+        [[nodiscard]] static std::optional<int> HasThreeConcealdPons(
+                const WinInfo& win_info,
+                const std::vector<TileTypeCount>& closed_sets,
+                const std::vector<TileTypeCount>& opened_sets,
+                const std::vector<TileTypeCount>& heads) noexcept ;
     };
 } // namespace mj
 
