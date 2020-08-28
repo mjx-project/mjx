@@ -33,6 +33,7 @@ namespace mj {
         void AddYakuman(Yaku yaku) noexcept ;
         void set_fu(int fu) noexcept ;
         [[nodiscard]] bool RequireFan() const noexcept ;
+        [[nodiscard]] bool RequireFu() const noexcept ;
         [[nodiscard]] std::map<AbsolutePos, int>
         TenMoves(AbsolutePos winner, AbsolutePos dealer, std::optional<AbsolutePos> loser = std::nullopt) const noexcept ;
     };

@@ -236,6 +236,10 @@ namespace mj {
         return yakuman_.empty();
     }
 
+    bool WinScore::RequireFu() const noexcept {
+        return yakuman_.empty();  // Tenhou requires fu even if it's Mangan
+    }
+
     void WinScore::set_fu(int fu) noexcept {
         fu_ = fu;
     }
