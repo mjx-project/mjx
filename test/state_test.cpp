@@ -1,4 +1,6 @@
 #include "gtest/gtest.h"
+#include <fstream>
+#include <filesystem>
 #include "state.h"
 #include "utils.h"
 
@@ -477,4 +479,25 @@ TEST(state, Update) {
     actions = { Action::CreateRon(AbsolutePos::kInitWest) };
     state_before.Update(std::move(actions));
     EXPECT_EQ(state_before.ToJson(), state_after.ToJson());
+}
+
+TEST(state, tenhou) {
+    int cnt = 0;
+    auto check = [&](const auto &filename) {
+        std::ifstream reading_file;
+        reading_file.open(filename, std::ios::in);
+        std::string original_json, restored_json;
+        while (!reading_file.eof()) {
+            std::getline(reading_file, original_json);
+            if (original_json.empty()) continue;
+            restored_json = State(original_json).ToJson();
+            if (original_json != restored_json) ++cnt;
+            EXPECT_EQ(original_json, restored_json);
+        }
+    };
+
+    std::string json_path;
+    json_path = "/Users/sotetsuk/github/mahjong/test/resources/json";
+    if (!json_path.empty()) for (const auto &filename : std::filesystem::directory_iterator(json_path)) check(filename);
+    std::cerr << "# Failed case: " << cnt;
 }
