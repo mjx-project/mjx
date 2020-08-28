@@ -310,6 +310,10 @@ namespace mj
             win.add_yakus(ToUType(yaku));
             win.add_fans(fan);
         }
+        // yakumans
+        for (const auto& yakuman: win_score.yakuman()) {
+            win.add_yakumans(ToUType(yakuman));
+        }
         // ten and ten moves
         win.set_ten(ten_);
         for (int i = 0; i < 4; ++i) win.add_ten_changes(0);
@@ -373,6 +377,10 @@ namespace mj
         for (const auto &[yaku, fan]: win_score.yaku()) {
             win.add_yakus(ToUType(yaku));
             win.add_fans(fan);
+        }
+        // yakumans
+        for (const auto& yakuman: win_score.yakuman()) {
+            win.add_yakumans(ToUType(yakuman));
         }
         // ten and ten moves
         win.set_ten(ten_);
