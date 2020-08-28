@@ -224,9 +224,9 @@ namespace mj
         const auto stolen = open.StolenTile();
         auto it = std::find_if(opens_.begin(), opens_.end(),
                                [&stolen](const auto &x){ return x.Type() == OpenType::kPon && x.StolenTile() == stolen; });
-        if (it != opens_.end()) opens_.erase(it);
+        assert(it != opens_.end());
+        *it = open;
         last_tile_added_ = open.LastTile();
-        opens_.emplace_back(std::move(open));
         stage_ = HandStage::kAfterKanAdded;
     }
 
