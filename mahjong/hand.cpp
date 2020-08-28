@@ -195,7 +195,7 @@ namespace mj
     void Hand::ApplyKanClosed(Open open)
     {
         // TODO: implement undiscardable_tiles after kan_closed during riichi
-        assert(stage_ == HandStage::kAfterDraw);
+        assert(Any(stage_, {HandStage::kAfterDraw, HandStage::kAfterDrawAfterKan}));
         assert(open.Type() == OpenType::kKanClosed);
         assert(undiscardable_tiles_.empty());
         assert(SizeClosed() == 5 || SizeClosed() == 8 || SizeClosed() == 11 || SizeClosed() == 14);
