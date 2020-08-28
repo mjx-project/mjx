@@ -1141,4 +1141,21 @@ namespace mj
 
         return all_tile_types.at(tsumo_type) == 2;
     }
+
+    std::optional<int>
+    YakuEvaluator::HasThreeConcealdPons(const WinInfo &win_info, const std::vector<TileTypeCount> &closed_sets,
+                                        const std::vector<TileTypeCount> &opened_sets,
+                                        const std::vector<TileTypeCount> &heads) noexcept {
+        int cnt_pons = 0;
+        // 暗槓
+        for (const auto& open: win_info.hand.opens) if (open.Type() == OpenType::kKanClosed) ++cnt_pons;
+        // 暗刻
+        for (const TileTypeCount &count : closed_sets) {
+            bool is_pon = count.size() == 1 && count.begin()->second == 3;
+            // 刻子でもロンだと明刻扱い
+            bool is_not_ron = win_info.hand.stage != HandStage::kAfterRon || win_info.hand.win_tile->Type() != count.begin()->first;
+            if (is_pon && is_not_ron) ++cnt_pons;
+        }
+        return cnt_pons >= 3 ? std::make_optional(2) : std::nullopt;
+    }
 }
