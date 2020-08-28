@@ -790,24 +790,24 @@ TEST_F(YakuTest, CalculateFu) {
     // 七対子
     auto yaku1 = YakuEvaluator::Eval(
             WinInfo(Hand(HandParams("m1,m1,m3,m3,m5,m5,m7,m7,s1,s1,s3,s3,p1").Tsumo("p1")).win_info()));
-    EXPECT_EQ(yaku1.fu().value(), 25);
+    EXPECT_EQ(yaku1.fu(), 25);
 
     // 平和ツモ
     auto yaku2 = YakuEvaluator::Eval(
             WinInfo(Hand(HandParams("m1,m2,m3,m6,m7,m8,s4,s4,p4,p5,p6,p7,p8").Tsumo("p6")).win_info()));
-    EXPECT_EQ(yaku2.fu().value(), 20);
+    EXPECT_EQ(yaku2.fu(), 20);
 
     // 平和ロン
     auto yaku3 = YakuEvaluator::Eval(
             WinInfo(Hand(HandParams("m1,m2,m3,m6,m7,m8,s4,s4,p4,p5,p6,p7,p8").Ron("p6")).win_info()));
-    EXPECT_EQ(yaku3.fu().value(), 30);
+    EXPECT_EQ(yaku3.fu(), 30);
 
     // 喰い平和
     auto yaku4 = YakuEvaluator::Eval(
             WinInfo(Hand(HandParams("m4,m5,m6,m7,m8,m9,s4,s4,p7,p8").Chi("m1,m2,m3").Ron("p6")).win_info()));
-    EXPECT_EQ(yaku4.fu().value(), 30);
+    EXPECT_EQ(yaku4.fu(), 30);
 
     auto yaku5 = YakuEvaluator::Eval(
             WinInfo(Hand(HandParams("p1,p2,rd,rd,gd,gd,gd").KanOpened("p8,p8,p8,p8").Pon("m9,m9,m9").Tsumo("p3")).win_info()));
-    EXPECT_EQ(yaku5.fu().value(), 50);
+    EXPECT_EQ(yaku5.fu(), 50);
 }
