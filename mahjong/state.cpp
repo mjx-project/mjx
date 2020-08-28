@@ -453,14 +453,15 @@ namespace mj
         auto top_score = *std::max_element(tens_.begin(), tens_.end());
         bool has_minus_point_player = *std::min_element(tens_.begin(), tens_.end()) < 0;
         if (has_minus_point_player) return true;
+        if (round() < 7) return false;
         // TODO: リーチ棒をトップに加算してから計算するのが正しいのか確認
         bool top_has_30000 = *std::max_element(tens_.begin(), tens_.end()) + 1000 * riichi() >= 30000;
+        if (!top_has_30000) return false;
         bool dealer_win_or_tenpai = (Any(last_event_.type(), {EventType::kRon, EventType::kTsumo})
                 && std::any_of(state_.terminal().wins().begin(), state_.terminal().wins().end(), [&](const auto x){ return AbsolutePos(x.who()) == dealer(); })) ||
                 (last_event_.type() == EventType::kNoWinner && player(dealer()).IsTenpai());
         bool dealer_is_not_top = top_score != tens_[ToUType(dealer())];
-        bool is_game_over = round() >= 7 && top_has_30000 && !(dealer_win_or_tenpai && dealer_is_not_top);
-        return is_game_over;
+        return !(dealer_win_or_tenpai && dealer_is_not_top);
     }
 
     std::pair<HandInfo, WinScore> State::EvalWinHand(AbsolutePos who) const noexcept {
