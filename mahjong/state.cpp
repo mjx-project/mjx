@@ -331,7 +331,8 @@ namespace mj
     }
 
     void State::Ron(AbsolutePos winner) {
-        AbsolutePos loser = last_event_.who();
+        assert(Any(last_event_.type(), {EventType::kDiscardDrawnTile, EventType::kDiscardFromHand, EventType::kRiichiScoreChange, EventType::kKanAdded, EventType::kRon}));
+        AbsolutePos loser = last_event_.type() != EventType::kRon ? last_event_.who() : AbsolutePos(state_.terminal().wins(0).from_who());
         Tile tile = last_event_.type() != EventType::kKanAdded ? last_event_.tile() : last_event_.open().LastTile();
 
         mutable_player(winner).Ron(tile);
