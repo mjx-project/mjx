@@ -20,11 +20,11 @@ namespace mj {
     class WinScore {
     private:
         std::map<Yaku,int> yaku_;
-        std::map<Yaku,bool> yakuman_;
+        std::set<Yaku> yakuman_;
         std::optional<int> fu_;
     public:
         [[nodiscard]] const std::map<Yaku,int>& yaku() const noexcept ;
-        [[nodiscard]] const std::map<Yaku,bool>& yakuman() const noexcept ;
+        [[nodiscard]] const std::set<Yaku> & yakuman() const noexcept ;
         [[nodiscard]] std::optional<int> fu() const noexcept ;
         [[nodiscard]] int total_fan() const noexcept ;
         [[nodiscard]] std::optional<int> HasYaku(Yaku yaku) const noexcept ;

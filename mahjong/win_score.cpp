@@ -230,7 +230,7 @@ namespace mj {
     }
 
     void WinScore::AddYakuman(Yaku yakuman) noexcept {
-        yakuman_[yakuman] = true;
+        yakuman_.insert(yakuman);
     }
 
     bool WinScore::RequireFan() const noexcept {
@@ -256,7 +256,7 @@ namespace mj {
     const std::map<Yaku,int>& WinScore::yaku() const noexcept {
         return yaku_;
     }
-    const std::map<Yaku,bool>& WinScore::yakuman() const noexcept {
+    const std::set<Yaku> & WinScore::yakuman() const noexcept {
         return yakuman_;
     }
 
