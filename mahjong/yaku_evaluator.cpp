@@ -512,8 +512,8 @@ namespace mj
         // 鳴いているとNG
         if (!win_info.hand.is_menzen) return std::nullopt;
 
-        if (closed_sets.size() != 4 or heads.size() != 1) {
-            // 基本形でなければNG.
+        // 基本形でなければNG。暗槓もOK
+        if (closed_sets.size() + opened_sets.size() != 4 or heads.size() != 1) {
             return std::nullopt;
         }
 
