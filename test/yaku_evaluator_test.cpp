@@ -540,6 +540,23 @@ TEST_F(YakuTest, TerminalsInAllSets) {
     EXPECT_EQ(yaku3.HasYaku(Yaku::kTerminalsInAllSets), std::nullopt);
 }
 
+TEST_F(YakuTest, ThreeConcealedPons) {
+    // 三暗刻あり
+    auto yaku1 = YakuEvaluator::Eval(
+            WinInfo(Hand(HandParams("m1,m1,m1,m4,m4,m4,m5,m6,m7,p2,p2,ew,ew").Tsumo("ew")).win_info()));
+    EXPECT_EQ(yaku1.HasYakuman(Yaku::kThreeConcealedPons), false);
+
+    // 四暗刻と複合しない
+    auto yaku2 = YakuEvaluator::Eval(
+            WinInfo(Hand(HandParams("m1,m1,m1,m4,m4,m4,m7,m7,m7,p2,p2,p2,ew").Tsumo("ew")).win_info()));
+    EXPECT_EQ(yaku2.HasYakuman(Yaku::kThreeConcealedPons), false);
+
+    // 三暗刻要素なし
+    auto yaku3 = YakuEvaluator::Eval(
+            WinInfo(Hand(HandParams("m1,m2,m3,m4,m5,rd,rd,m7,m8,m9,p1,p1,p1").Tsumo("m6")).win_info()));
+    EXPECT_EQ(yaku3.HasYakuman(Yaku::kThreeConcealedPons), false);
+}
+
 TEST_F(YakuTest, ThreeKans) {
     auto yaku1 = YakuEvaluator::Eval(
             WinInfo(Hand(HandParams("m1,m1,m5,m5").KanClosed("s1,s1,s1,s1")
