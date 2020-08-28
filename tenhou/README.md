@@ -1,10 +1,10 @@
 # Tenhou
 
 天鳳のmjlogからprotobufで読み込めるjsonへの変換は次のようにできる。
-天鳳での上がり時の役の並び方はトポロジカルにソートできず、再現が難しそうなため、役の番号でソートしている。
+mjproto側でのテストをしやすくするめに、細かい点を修正するためにmodifyオプションを設定する。
 
 ```sh
-$ python mjlog_decoder.py resources/mjlog resources/json --yaku-sorted
+$ python mjlog_decoder.py resources/mjlog resources/json --modify
 ```
 
 また、protobufで読み込めるjsonから天鳳のmjlogへの変換は次のようにできる。
@@ -18,9 +18,8 @@ $ python mjlog_encoder.py resources/json resources/restored_mjlog
 
 ## Encoding/Decodingのテスト
 
-次のようにしてEncoderとDecoderの差分をチェックできる。
+次のようにmodifyオプションを外すことでしてEncoderとDecoderの差分をチェックできる。
 seedやdice等の情報は失われる。
-ここでのチェックでは役はソートしない。
 
 ```sh
 $ python mjlog_decoder.py resources/mjlog resources/json   # not --yaku-sorted
@@ -28,3 +27,9 @@ $ python mjlog_encoder.py resources/json resources/restored_mjlog
 $ python diff.py resources/mjlog resources/restored_mjlog
 ```
 
+## modifyオプション
+
+Decoderのmodifyオプションがするのは次の修正:
+
+1. 上がったときの役を役番号でソートする
+2. 役満のときの符を常に0にする
