@@ -69,8 +69,6 @@ namespace mj
         // ドラ
         JudgeDora(win_info, score);
 
-        if (!score.RequireFu()) return score;
-
         // 符を計算する
         score.set_fu(CalculateFu(win_info, closed_sets, heads, score));
 
