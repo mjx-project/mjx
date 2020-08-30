@@ -52,6 +52,11 @@ namespace mj
                     auto player_id = player(who).player_id();
                     auto observation = Observation(who, state_);
 
+                    // => NineTiles
+                    if (is_first_turn_wo_open && player(who).CanNineTiles()) {
+                        observation.add_possible_action(PossibleAction::CreateNineTiles());
+                    }
+
                     // => Tsumo (1)
                     if (player(who).IsCompleted() && player(who).CanTsumo(win_state_info(who)))
                         observation.add_possible_action(PossibleAction::CreateTsumo());
