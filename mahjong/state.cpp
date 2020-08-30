@@ -424,7 +424,6 @@ namespace mj
             tenpai.set_who(mjproto::AbsolutePos(last_event_.who()));
             for (auto tile: player(last_event_.who()).closed_tiles()) tenpai.mutable_closed_tiles()->Add(tile.Id());
             state_.mutable_terminal()->mutable_no_winner()->mutable_tenpais()->Add(std::move(tenpai));
-            state_.mutable_terminal()->mutable_no_winner()->add_tenpais();
             set_terminal_vals();
             return;
         }
