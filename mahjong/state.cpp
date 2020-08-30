@@ -221,8 +221,13 @@ namespace mj
         state_.mutable_event_history()->mutable_events()->Add(last_event_.proto());
         // TODO: set discarded tile to river
 
-        if (is_first_turn_wo_open && ToSeatWind(who, dealer()) == Wind::kNorth) is_first_turn_wo_open = false;
         is_ippatsu_[who] = false;
+        if (is_first_turn_wo_open &&
+            !(Is(discarded.Type(), TileSetType::kWinds) &&
+              Any(last_event_.type(), {EventType::kDiscardDrawnTile, EventType::kDiscardFromHand}) &&
+              last_event_.tile().Type() == discard.Type())) is_four_winds = false;
+        if (is_first_turn_wo_open && is_four_winds && ToSeatWind(who, dealer()) == Wind::kNorth) return;
+        if (is_first_turn_wo_open && ToSeatWind(who, dealer()) == Wind::kNorth) is_first_turn_wo_open = false;
     }
 
     void State::Riichi(AbsolutePos who) {
@@ -408,6 +413,14 @@ namespace mj
         // set event
         last_event_ = Event::CreateNoWinner();
         state_.mutable_event_history()->mutable_events()->Add(last_event_.proto());
+
+        // 四風子連打
+        if (is_first_turn_wo_open && is_four_winds) {
+            state_.mutable_terminal()->mutable_no_winner()->set_type(mjproto::NO_WINNER_TYPE_FOUR_WINDS);
+            state_.mutable_terminal()->mutable_final_score()->CopyFrom(curr_score_);
+            for (int i = 0; i < 4; ++i) state_.mutable_terminal()->mutable_no_winner()->add_ten_changes(0);
+            return;
+        }
 
         // set terminal
         std::vector<int> is_tenpai = {0, 0, 0, 0};
@@ -631,37 +644,39 @@ namespace mj
                     assert(require_kan_dora_ <= 1);
                     if (require_kan_dora_) AddNewDora();
                     Discard(who, action.discard());
+                    if (is_first_turn_wo_open && is_four_winds) {  // 四風子連打
+                        NoWinner();
+                        return;
+                    }
                     // TODO: CreateStealAndRonObservationが2回stateが変わらないのに呼ばれている（CreateObservation内で）
-                    bool has_steal_or_ron = !CreateStealAndRonObservation().empty();
-                    if (!has_steal_or_ron) {
-                        if (wall_.HasDrawLeft()) {
-                            if (require_riichi_score_change_) RiichiScoreChange();
-                            Draw(AbsolutePos((ToUType(who) + 1) % 4));
-                        } else {
-                            NoWinner();
-                        }
+                    if (bool has_steal_or_ron = !CreateStealAndRonObservation().empty(); has_steal_or_ron) return;
+                    if (wall_.HasDrawLeft()) {
+                        if (require_riichi_score_change_) RiichiScoreChange();
+                        Draw(AbsolutePos((ToUType(who) + 1) % 4));
+                    } else {
+                        NoWinner();
                     }
                 }
-                break;
+                return;
             case ActionType::kRiichi:
                 Riichi(who);
-                break;
+                return;
             case ActionType::kTsumo:
                 Tsumo(who);
-                break;
+                return;
             case ActionType::kRon:
                 Ron(who);
-                break;
+                return;
             case ActionType::kChi:
             case ActionType::kPon:
                 if (require_riichi_score_change_) RiichiScoreChange();
                 ApplyOpen(who, action.open());
-                break;
+                return;
             case ActionType::kKanOpened:
                 if (require_riichi_score_change_) RiichiScoreChange();
                 ApplyOpen(who, action.open());
                 Draw(who);
-                break;
+                return;
             case ActionType::kKanClosed:
                 ApplyOpen(who, action.open());
                 // 天鳳のカンの仕様については https://github.com/sotetsuk/mahjong/issues/199 で調べている
@@ -669,7 +684,7 @@ namespace mj
                 assert(require_kan_dora_ <= 2);
                 while(require_kan_dora_) AddNewDora();
                 Draw(who);
-                break;
+                return;
             case ActionType::kKanAdded:
                 ApplyOpen(who, action.open());
                 // TODO: CreateStealAndRonObservationが状態変化がないのに2回計算されている
@@ -678,7 +693,7 @@ namespace mj
                     while(require_kan_dora_ > 1) AddNewDora();  // 前のカンの分の新ドラをめくる。1回分はここでの加槓の分なので、ここではめくられない
                     Draw(who);
                 }
-                break;
+                return;
             case ActionType::kNo:
                 if (wall_.HasDrawLeft()) {
                     if (require_riichi_score_change_) RiichiScoreChange();
@@ -686,7 +701,7 @@ namespace mj
                 } else {
                     NoWinner();
                 }
-                break;
+                return;
             case ActionType::kKyushu:
                 assert(false);  // Not implemented yet
         }
