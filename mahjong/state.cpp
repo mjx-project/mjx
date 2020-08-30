@@ -418,6 +418,7 @@ namespace mj
         if (is_first_turn_wo_open && is_four_winds) {
             state_.mutable_terminal()->mutable_no_winner()->set_type(mjproto::NO_WINNER_TYPE_FOUR_WINDS);
             state_.mutable_terminal()->mutable_final_score()->CopyFrom(curr_score_);
+            for (int i = 0; i < 4; ++i) state_.mutable_terminal()->mutable_no_winner()->add_ten_changes(0);
             return;
         }
 
