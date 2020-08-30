@@ -45,6 +45,7 @@ namespace mj
         static PossibleAction CreateTsumo();
         static PossibleAction CreateKanAdded();
         static PossibleAction CreateNo();
+        static PossibleAction CreateNineTiles();
     private:
         friend class Observation;
         explicit PossibleAction(mjproto::PossibleAction possible_action);

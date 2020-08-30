@@ -131,4 +131,10 @@ namespace mj
         possible_action.possible_action_.set_type(mjproto::ActionType(ActionType::kNo));
         return possible_action;
     }
+
+    PossibleAction PossibleAction::CreateNineTiles() {
+        auto possible_action = PossibleAction();
+        possible_action.possible_action_.set_type(mjproto::ActionType(ActionType::kKyushu));
+        return possible_action;
+    }
 }  // namespace mj
