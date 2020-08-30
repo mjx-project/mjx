@@ -67,6 +67,13 @@ namespace mj
         return Open(proto_.open());
     }
 
+    Action Action::CreateNineTiles(AbsolutePos who) {
+        mjproto::Action proto;
+        proto.set_type(mjproto::ACTION_TYPE_KYUSYU);
+        proto.set_who(mjproto::AbsolutePos(who));
+        return Action(std::move(proto));
+    }
+
     PossibleAction::PossibleAction(mjproto::PossibleAction possible_action)
             : possible_action_(std::move(possible_action)) {}
 

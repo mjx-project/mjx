@@ -26,6 +26,7 @@ namespace mj
         static Action CreateRon(AbsolutePos who);
         static Action CreateOpen(AbsolutePos who, Open open);
         static Action CreateNo(AbsolutePos who);
+        static Action CreateNineTiles(AbsolutePos who);
     private:
         mjproto::Action proto_;
     };
