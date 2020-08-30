@@ -74,7 +74,7 @@ namespace mj
     }
 
     AbsolutePos Event::who() const {
-        assert(!Any(type(), {EventType::kNewDora, EventType::kNoWinner}));
+        assert(type() != EventType::kNewDora);
         return AbsolutePos(proto_.who());
     }
 

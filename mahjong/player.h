@@ -37,6 +37,8 @@ namespace mj
         void Tsumo();  // should be called after draw like h.Draw(tile); if (h.IsCompleted(w)) h.Tsumo();
         std::pair<Tile, bool> Discard(Tile tile);  // return whether tsumogiri or not
 
+        std::vector<Tile> closed_tiles() const ;
+
         // get winning info
         [[nodiscard]] std::pair<HandInfo, WinScore> EvalWinHand(WinStateInfo &&win_state_info) const noexcept ;
         [[nodiscard]] std::optional<HandInfo> EvalTenpai() const noexcept ;
