@@ -410,30 +410,34 @@ namespace mj
     }
 
     void State::NoWinner() {
-        // set event
-        last_event_ = Event::CreateNoWinner();
-        state_.mutable_event_history()->mutable_events()->Add(last_event_.proto());
-
         // 四家立直, 三家和了, 四槓散了, 流し満貫
-        // 四風子連打
-        if (is_first_turn_wo_open && is_four_winds && last_event_.who() == AbsolutePos::kInitNorth
-            && Any(last_event_.type(), {EventType::kDiscardFromHand, EventType::kDiscardDrawnTile})) {
-            state_.mutable_terminal()->mutable_no_winner()->set_type(mjproto::NO_WINNER_TYPE_FOUR_WINDS);
+        auto set_terminal_vals = [&]() {
             state_.mutable_terminal()->mutable_final_score()->CopyFrom(curr_score_);
             for (int i = 0; i < 4; ++i) state_.mutable_terminal()->mutable_no_winner()->add_ten_changes(0);
-            return;
-        }
+            last_event_ = Event::CreateNoWinner();
+            state_.mutable_event_history()->mutable_events()->Add(last_event_.proto());
+        };
         // 九種九牌
         if (is_first_turn_wo_open && last_event_.type() == EventType::kDraw) {
             state_.mutable_terminal()->mutable_no_winner()->set_type(mjproto::NO_WINNER_TYPE_KYUUSYU);
             mjproto::TenpaiHand tenpai;
             tenpai.set_who(mjproto::AbsolutePos(last_event_.who()));
+            for (auto tile: player(last_event_.who()).closed_tiles()) tenpai.mutable_closed_tiles()->Add(tile.Id());
             state_.mutable_terminal()->mutable_no_winner()->mutable_tenpais()->Add(std::move(tenpai));
             state_.mutable_terminal()->mutable_no_winner()->add_tenpais();
-            state_.mutable_terminal()->mutable_final_score()->CopyFrom(curr_score_);
-            for (int i = 0; i < 4; ++i) state_.mutable_terminal()->mutable_no_winner()->add_ten_changes(0);
+            set_terminal_vals();
             return;
         }
+        // 四風子連打
+        if (is_first_turn_wo_open && is_four_winds) {
+            state_.mutable_terminal()->mutable_no_winner()->set_type(mjproto::NO_WINNER_TYPE_FOUR_WINDS);
+            set_terminal_vals();
+            return;
+        }
+
+        // set event
+        last_event_ = Event::CreateNoWinner();
+        state_.mutable_event_history()->mutable_events()->Add(last_event_.proto());
 
         // set terminal
         std::vector<int> is_tenpai = {0, 0, 0, 0};

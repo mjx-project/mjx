@@ -116,4 +116,8 @@ namespace mj
     bool Player::IsUnderRiichi() const {
         return hand_.IsUnderRiichi();
     }
+
+    std::vector<Tile> Player::closed_tiles() const {
+        return hand_.ToVectorClosed(true);
+    }
 }  // namespace mj
