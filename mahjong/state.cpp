@@ -414,9 +414,22 @@ namespace mj
         last_event_ = Event::CreateNoWinner();
         state_.mutable_event_history()->mutable_events()->Add(last_event_.proto());
 
+        // 四家立直, 三家和了, 四槓散了, 流し満貫
         // 四風子連打
-        if (is_first_turn_wo_open && is_four_winds) {
+        if (is_first_turn_wo_open && is_four_winds && last_event_.who() == AbsolutePos::kInitNorth
+            && Any(last_event_.type(), {EventType::kDiscardFromHand, EventType::kDiscardDrawnTile})) {
             state_.mutable_terminal()->mutable_no_winner()->set_type(mjproto::NO_WINNER_TYPE_FOUR_WINDS);
+            state_.mutable_terminal()->mutable_final_score()->CopyFrom(curr_score_);
+            for (int i = 0; i < 4; ++i) state_.mutable_terminal()->mutable_no_winner()->add_ten_changes(0);
+            return;
+        }
+        // 九種九牌
+        if (is_first_turn_wo_open && last_event_.type() == EventType::kDraw) {
+            state_.mutable_terminal()->mutable_no_winner()->set_type(mjproto::NO_WINNER_TYPE_KYUUSYU);
+            mjproto::TenpaiHand tenpai;
+            tenpai.set_who(mjproto::AbsolutePos(last_event_.who()));
+            state_.mutable_terminal()->mutable_no_winner()->mutable_tenpais()->Add(std::move(tenpai));
+            state_.mutable_terminal()->mutable_no_winner()->add_tenpais();
             state_.mutable_terminal()->mutable_final_score()->CopyFrom(curr_score_);
             for (int i = 0; i < 4; ++i) state_.mutable_terminal()->mutable_no_winner()->add_ten_changes(0);
             return;
@@ -703,7 +716,8 @@ namespace mj
                 }
                 return;
             case ActionType::kKyushu:
-                assert(false);  // Not implemented yet
+                NoWinner();
+                return;
         }
    }
 
