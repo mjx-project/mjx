@@ -88,7 +88,7 @@ namespace mj {
         const std::vector<TileTypeCount> heads = CreateHeads();
 
         WinHandCache::CacheType cache;
-        cache.reserve(9375);
+        cache.reserve(9362);
 
         {
             // 七対子
@@ -104,17 +104,6 @@ namespace mj {
                 }
                 cache[hand].insert(pattern);
             }
-        }
-
-        // 国士無双
-        for (int i = 0; i < 13; ++i) {
-            AbstructHand hand;
-            for (int j = 0; j < 13; ++j) {
-                if (i != j) hand += "1,";
-                else hand += "2,";
-            }
-            hand.pop_back();
-            cache[hand].insert(WinHandCache::SplitPattern{});  // 国士無双ではパターンは使わない
         }
 
         TileTypeCount total;

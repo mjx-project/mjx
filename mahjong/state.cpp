@@ -52,6 +52,11 @@ namespace mj
                     auto player_id = player(who).player_id();
                     auto observation = Observation(who, state_);
 
+                    // => NineTiles
+                    if (is_first_turn_wo_open && player(who).CanNineTiles()) {
+                        observation.add_possible_action(PossibleAction::CreateNineTiles());
+                    }
+
                     // => Tsumo (1)
                     if (player(who).IsCompleted() && player(who).CanTsumo(win_state_info(who)))
                         observation.add_possible_action(PossibleAction::CreateTsumo());
@@ -416,6 +421,7 @@ namespace mj
             for (int i = 0; i < 4; ++i) state_.mutable_terminal()->mutable_no_winner()->add_ten_changes(0);
             last_event_ = Event::CreateNoWinner();
             state_.mutable_event_history()->mutable_events()->Add(last_event_.proto());
+            is_round_over_ = true;
         };
         // 九種九牌
         if (is_first_turn_wo_open && last_event_.type() == EventType::kDraw) {

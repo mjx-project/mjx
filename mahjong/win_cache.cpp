@@ -32,17 +32,19 @@ namespace mj {
                 cache_[hand].insert(pattern);
             }
         }
-        assert(cache_.size() == 9375);
+        assert(cache_.size() == 9362);
     }
 
     bool WinHandCache::Has(const TileTypeCount& closed_hand) const noexcept {
-        auto [abstruct_hand, _] = CreateAbstructHand(closed_hand);
-        return cache_.count(abstruct_hand);
-    }
-
-    // DEPRECATED
-    bool WinHandCache::Has(const std::string& abstruct_hand) const noexcept {
-        return cache_.count(abstruct_hand);
+        auto [abstruct_hand, _] = CreateAbstructHand(closed_hand);  // E.g., abstructed_hand = "222,111,3,2"
+        if (cache_.count(abstruct_hand)) return true;
+        // 国士無双
+        TileTypeCount yaocyu;
+        for (const auto& [tile_type, n] : closed_hand) {
+            if (!Is(tile_type, TileSetType::kYaocyu)) return false;
+            yaocyu[tile_type] = n;
+        }
+        return yaocyu.size() == 13;
     }
 
     std::vector<std::pair<std::vector<TileTypeCount>, std::vector<TileTypeCount>>>
