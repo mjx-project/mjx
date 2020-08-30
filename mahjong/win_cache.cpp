@@ -32,7 +32,7 @@ namespace mj {
                 cache_[hand].insert(pattern);
             }
         }
-        assert(cache_.size() == 9375);
+        assert(cache_.size() == 9362);
     }
 
     bool WinHandCache::Has(const TileTypeCount& closed_hand) const noexcept {
@@ -40,7 +40,6 @@ namespace mj {
         return cache_.count(abstruct_hand);
     }
 
-    // DEPRECATED
     bool WinHandCache::Has(const std::string& abstruct_hand) const noexcept {
         return cache_.count(abstruct_hand);
     }
