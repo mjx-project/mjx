@@ -691,7 +691,15 @@ namespace mj
     }
 
     bool Hand::CanNineTiles() const {
-        return false;
+        assert(stage_ == HandStage::kAfterDraw);
+        if (!opens_.empty()) return false;
+        std::unordered_set<TileType> yao_types;
+        for (const auto& tile: closed_tiles_) {
+            if (Is(tile.Type(), TileSetType::kYaocyu)) {
+                yao_types.insert(tile.Type());
+            }
+        }
+        return yao_types.size() >= 9;
     }
 
     HandParams::HandParams(const std::string &closed) {
