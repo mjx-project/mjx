@@ -545,6 +545,10 @@ TEST(hand, CanRiichi) {
     h = Hand(HandParams("m1,m2,m9,p1,p1,p9,s1,s9,ew,sw,ww,nw,wd"));
     h.Draw(Tile("rd"));
     EXPECT_TRUE(h.CanRiichi());
+    // 九種九牌だが国士無双シャンテンではない（ので立直できない）
+    h = Hand(Tile::Create({2,11,35,47,51,57,69,75,111,115,119,123,128}));
+    h.Draw(Tile(101));
+    EXPECT_FALSE(h.CanRiichi());
 }
 
 TEST(hand, Opens) {
