@@ -92,7 +92,7 @@ message Event {
   // KAN_ADDED             Yes    No      Yes
   // NEW_DORA              No     Yes     No
   // RIICHI_SCORE_CHANGE   Yes    No      No
-  // NO_WINNER             *No    No      No   九種九牌 has who element
+  // NO_WINNER             No     No      No
   EventType type = 1;
   AbsolutePos who = 2;
   uint32 tile = 3;

@@ -67,7 +67,7 @@ namespace mj
         bool IsCompleted(Tile additional_tile) const;
         bool CanRiichi() const;
         bool IsTenpai() const;
-        //bool CanNineTiles(bool IsDealer);  // 九種九牌
+        bool CanNineTiles() const;  // 九種九牌。一巡目かどうか等はState内で判断する。ここでは牌が九種九牌かどうかのみ
 
         // apply actions
         void Draw(Tile tile);

@@ -26,7 +26,7 @@ namespace mj
         bool CanRiichi() const;
         bool IsTenpai() const;
         bool IsUnderRiichi() const;
-        //bool CanNineTiles(bool IsDealer);  // 九種九牌
+        bool CanNineTiles() const;
 
         // apply actions
         void Draw(Tile tile);
