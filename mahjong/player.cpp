@@ -120,4 +120,8 @@ namespace mj
     std::vector<Tile> Player::closed_tiles() const {
         return hand_.ToVectorClosed(true);
     }
+
+    bool Player::CanNineTiles() const {
+        return hand_.CanNineTiles();
+    }
 }  // namespace mj

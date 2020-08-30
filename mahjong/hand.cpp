@@ -690,6 +690,10 @@ namespace mj
         return double_riichi_;
     }
 
+    bool Hand::CanNineTiles() const {
+        return false;
+    }
+
     HandParams::HandParams(const std::string &closed) {
         assert(closed.size() % 3 == 2);
         for (std::int32_t i = 0; i < closed.size(); i += 3) {
