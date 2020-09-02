@@ -18,3 +18,6 @@ add_executable(${CMAKE_PROJECT_NAME}_test ${TEST_FILES})
 
 target_link_libraries(${CMAKE_PROJECT_NAME}_test gtest gtest_main)
 target_link_libraries(${CMAKE_PROJECT_NAME}_test ${CMAKE_PROJECT_NAME})
+
+# Path to test resources
+add_definitions(-DTEST_RESOURCES_DIR="${CMAKE_CURRENT_SOURCE_DIR}/resources")
