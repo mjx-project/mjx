@@ -1,6 +1,6 @@
 #include "gtest/gtest.h"
 #include <fstream>
-// #include <filesystem>
+#include <filesystem>
 #include "state.h"
 #include "utils.h"
 
@@ -508,11 +508,11 @@ TEST(state, Update) {
 
 TEST(state, tenhou) {
     int cnt = 0;
-    auto check = [&](const auto &filename) {
-        std::ifstream reading_file(filename, std::ios::in);
+    auto check = [&](const std::string &filename) {
+        std::ifstream ifs(filename, std::ios::in);
         std::string original_json, restored_json;
-        while (!reading_file.eof()) {
-            std::getline(reading_file, original_json);
+        while (!ifs.eof()) {
+            std::getline(ifs, original_json);
             if (original_json.empty()) continue;
             restored_json = State(original_json).ToJson();
             if (original_json != restored_json) ++cnt;
@@ -522,7 +522,7 @@ TEST(state, tenhou) {
 
     std::string json_path;
     json_path = std::string(TEST_RESOURCES_DIR) + "/json";
-    // if (!json_path.empty()) for (const auto &filename : std::filesystem::directory_iterator(json_path)) check(filename);
-    check(json_path + "/2011020613gm-00a9-0000-3774f8d1&tw=2.json");
+    if (!json_path.empty()) for (const auto &filename : std::filesystem::directory_iterator(json_path)) check(filename.path().string());
+    // check(json_path + "/2011020613gm-00a9-0000-3774f8d1&tw=2.json");
     std::cerr << "# Failed case: " << cnt;
 }
