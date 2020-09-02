@@ -523,6 +523,5 @@ TEST(state, tenhou) {
     std::string json_path;
     json_path = std::string(TEST_RESOURCES_DIR) + "/json";
     if (!json_path.empty()) for (const auto &filename : std::filesystem::directory_iterator(json_path)) check(filename.path().string());
-    // check(json_path + "/2011020613gm-00a9-0000-3774f8d1&tw=2.json");
     std::cerr << "# Failed case: " << cnt;
 }
