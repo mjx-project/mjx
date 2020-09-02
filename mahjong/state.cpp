@@ -9,7 +9,7 @@ namespace mj
     State::State(std::vector<PlayerId> player_ids, std::uint32_t seed, int round, int honba, int riichi, std::array<int, 4> tens)
     : seed_(seed), wall_(0, seed) {
         // TODO: use seed_
-        assert(std::set(player_ids.begin(), player_ids.end()).size() == 4);  // player_ids should be identical
+        assert(std::set<PlayerId>(player_ids.begin(), player_ids.end()).size() == 4);  // player_ids should be identical
         last_event_ = Event();
         for (int i = 0; i < 4; ++i)
             players_[i] = Player{player_ids[i], AbsolutePos(i), River(), Hand(wall_.initial_hand_tiles(AbsolutePos(i)))};
