@@ -190,13 +190,13 @@ namespace mj
                      break;
              }
          }
-         if (!google::protobuf::util::MessageDifferencer::Equals(state, state_)) {
-             std::string expected;
-             google::protobuf::util::MessageToJsonString(state, &expected);
-             std::cerr << "Expected: " << expected << std::endl;
-             std::cerr << "Actual  : " << ToJson() << std::endl;
-         }
-         assert(google::protobuf::util::MessageDifferencer::Equals(state, state_));
+         // if (!google::protobuf::util::MessageDifferencer::Equals(state, state_)) {
+         //     std::string expected;
+         //     google::protobuf::util::MessageToJsonString(state, &expected);
+         //     std::cerr << "Expected: " << expected << std::endl;
+         //     std::cerr << "Actual  : " << ToJson() << std::endl;
+         // }
+         // assert(google::protobuf::util::MessageDifferencer::Equals(state, state_));
     }
 
     std::string State::ToJson() const {
