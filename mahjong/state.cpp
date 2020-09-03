@@ -732,6 +732,16 @@ namespace mj
                 }
                 return;
             case ActionType::kNo:
+                // 全員が立直している状態で ActionType::kNo が渡されるのは,
+                // 4人目に立直した人の立直宣言牌を他家がロンできるけど無視したときのみ.
+                // 四家立直で流局とする.
+                if (std::all_of(players_.begin(), players_.end(),
+                                [](const Player& player){ return player.IsUnderRiichi(); })) {
+                    RiichiScoreChange();
+                    NoWinner();
+                    return;
+                }
+
                 if (wall_.HasDrawLeft()) {
                     if (require_riichi_score_change_) RiichiScoreChange();
                     Draw(AbsolutePos((ToUType(last_event_.who()) + 1) % 4));  // TODO: check 流局
