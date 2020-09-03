@@ -678,6 +678,15 @@ namespace mj
                     }
                     // TODO: CreateStealAndRonObservationが2回stateが変わらないのに呼ばれている（CreateObservation内で）
                     if (bool has_steal_or_ron = !CreateStealAndRonObservation().empty(); has_steal_or_ron) return;
+
+                    // 鳴きやロンの候補がなく, 全員が立直していたら四家立直で流局
+                    if (std::all_of(players_.begin(), players_.end(),
+                                    [](const Player& player){ return player.IsUnderRiichi(); })) {
+                        RiichiScoreChange();
+                        NoWinner();
+                        return;
+                    }
+
                     if (wall_.HasDrawLeft()) {
                         if (require_riichi_score_change_) RiichiScoreChange();
                         Draw(AbsolutePos((ToUType(who) + 1) % 4));
