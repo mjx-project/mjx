@@ -522,6 +522,12 @@ TEST_F(YakuTest, OutsideHand) {
     auto yaku5 = YakuEvaluator::Eval(
             WinInfo(Hand(HandParams("m1,m1,m1,m9,m9,s1,s1,ew,ew,ew,rd,rd,rd").Tsumo("m9")).win_info()));
     EXPECT_EQ(yaku5.HasYaku(Yaku::kOutsideHand), std::nullopt);
+    }
+    TEST_F(YakuTest, OutsideHand2) {
+    // チャンタ三色
+    auto yaku6 = YakuEvaluator::Eval(
+            WinInfo(Hand(HandParams("p1,p3,s1,s2,s3,nw,nw,nw,gd,gd").Chi("m1,m2,m3").Ron("p2")).win_info()));
+    EXPECT_EQ(yaku6.HasYaku(Yaku::kOutsideHand), std::make_optional(1));
 }
 
 TEST_F(YakuTest, TerminalsInAllSets) {

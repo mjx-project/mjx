@@ -742,20 +742,18 @@ namespace mj
         for (const std::vector<TileTypeCount>& blocks : {closed_sets, opened_sets, heads}) {
             for (const TileTypeCount& count : blocks) {
                 bool valid = false;
-                for (auto& [tile_type, _] : count) {
+                for (auto& [tile_type, n] : count) {
                     if (!has_honour and Is(tile_type, TileSetType::kHonours)) {
                         has_honour = true;
                     }
                     if (Is(tile_type, TileSetType::kYaocyu)) {
                         valid = true;
-                        break;
+                        if (n >= 2) break;
                     } else {
                         all_yaochu = false;
                     }
                 }
-                if (!valid) {
-                    return std::nullopt;
-                }
+                if (!valid) return std::nullopt;
             }
         }
 
