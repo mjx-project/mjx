@@ -222,17 +222,23 @@ namespace mj
         auto [discarded, tsumogiri] = mutable_player(who).Discard(discard);
         assert(discard == discarded);
 
+        is_ippatsu_[who] = false;
+        // set is_four_winds = false
+        if (is_first_turn_wo_open && is_four_winds) {
+            if (!Is(discard.Type(), TileSetType::kWinds)) is_four_winds = false;
+            if (dealer() != who && last_discard_type_ != discard.Type()) is_four_winds = false;
+        }
+
         last_event_ = Event::CreateDiscard(who, discard, tsumogiri);
+        last_discard_type_ = discard.Type();
         state_.mutable_event_history()->mutable_events()->Add(last_event_.proto());
         // TODO: set discarded tile to river
 
-        is_ippatsu_[who] = false;
-        if (is_first_turn_wo_open &&
-            !(Is(discarded.Type(), TileSetType::kWinds) &&
-              Any(last_event_.type(), {EventType::kDiscardDrawnTile, EventType::kDiscardFromHand}) &&
-              last_event_.tile().Type() == discard.Type())) is_four_winds = false;
-        if (is_first_turn_wo_open && is_four_winds && ToSeatWind(who, dealer()) == Wind::kNorth) return;
-        if (is_first_turn_wo_open && ToSeatWind(who, dealer()) == Wind::kNorth) is_first_turn_wo_open = false;
+        bool is_first_discard_of_north_player = is_first_turn_wo_open && ToSeatWind(who, dealer()) == Wind::kNorth;
+        if (is_first_discard_of_north_player) {
+            if(is_four_winds) return;  //  go to NoWinner end
+            else is_first_turn_wo_open = false;
+        }
     }
 
     void State::Riichi(AbsolutePos who) {
@@ -438,6 +444,12 @@ namespace mj
             state_.mutable_terminal()->mutable_no_winner()->set_type(mjproto::NO_WINNER_TYPE_FOUR_WINDS);
             set_terminal_vals();
             return;
+        }
+
+        // 四家立直
+        if (std::all_of(players_.begin(), players_.end(), [](const Player& p){ return p.IsUnderRiichi(); })) {
+            state_.mutable_terminal()->mutable_no_winner()->set_type(mjproto::NO_WINNER_TYPE_FOUR_RIICHI);
+            // 聴牌の情報が必要なため, ここでreturnしてはいけない.
         }
 
         // set event
@@ -666,12 +678,21 @@ namespace mj
                     assert(require_kan_dora_ <= 1);
                     if (require_kan_dora_) AddNewDora();
                     Discard(who, action.discard());
-                    if (is_first_turn_wo_open && is_four_winds) {  // 四風子連打
+                    if (is_first_turn_wo_open && ToSeatWind(who, dealer()) == Wind::kNorth && is_four_winds) {  // 四風子連打
                         NoWinner();
                         return;
                     }
                     // TODO: CreateStealAndRonObservationが2回stateが変わらないのに呼ばれている（CreateObservation内で）
                     if (bool has_steal_or_ron = !CreateStealAndRonObservation().empty(); has_steal_or_ron) return;
+
+                    // 鳴きやロンの候補がなく, 全員が立直していたら四家立直で流局
+                    if (std::all_of(players_.begin(), players_.end(),
+                                    [](const Player& player){ return player.IsUnderRiichi(); })) {
+                        RiichiScoreChange();
+                        NoWinner();
+                        return;
+                    }
+
                     if (wall_.HasDrawLeft()) {
                         if (require_riichi_score_change_) RiichiScoreChange();
                         Draw(AbsolutePos((ToUType(who) + 1) % 4));
@@ -717,6 +738,16 @@ namespace mj
                 }
                 return;
             case ActionType::kNo:
+                // 全員が立直している状態で ActionType::kNo が渡されるのは,
+                // 4人目に立直した人の立直宣言牌を他家がロンできるけど無視したときのみ.
+                // 四家立直で流局とする.
+                if (std::all_of(players_.begin(), players_.end(),
+                                [](const Player& player){ return player.IsUnderRiichi(); })) {
+                    RiichiScoreChange();
+                    NoWinner();
+                    return;
+                }
+
                 if (wall_.HasDrawLeft()) {
                     if (require_riichi_score_change_) RiichiScoreChange();
                     Draw(AbsolutePos((ToUType(last_event_.who()) + 1) % 4));  // TODO: check 流局
