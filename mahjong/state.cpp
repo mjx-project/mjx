@@ -688,9 +688,6 @@ namespace mj
                 return;
             case ActionType::kRiichi:
                 Riichi(who);
-                if (std::all_of(players_.begin(), players_.end(), [](const Player& p){ return p.IsUnderRiichi(); })) {
-                    NoWinner();
-                }
                 return;
             case ActionType::kTsumo:
                 Tsumo(who);
