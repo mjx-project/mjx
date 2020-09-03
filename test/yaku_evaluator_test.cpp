@@ -768,6 +768,11 @@ TEST_F(YakuTest, FourConcealdPons) {
     auto yaku3 = YakuEvaluator::Eval(
             WinInfo(Hand(HandParams("m1,m2,m3,m4,m5,rd,rd,m7,m8,m9,p1,p1,p1").Tsumo("m6")).win_info()));
     EXPECT_EQ(yaku3.HasYakuman(Yaku::kFourConcealedPons), false);
+
+    // ロン対々和三暗刻
+    auto yaku4 = YakuEvaluator::Eval(
+            WinInfo(Hand(HandParams("m1,m1,m1,m4,m4,m4,m7,m7,m7,p2,p2,ew,ew").Ron("ew")).win_info()));
+    EXPECT_EQ(yaku4.HasYakuman(Yaku::kFourConcealedPons), false);
 }
 
 TEST_F(YakuTest, CompletedFourConcealdPons) {
