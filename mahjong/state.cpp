@@ -222,17 +222,23 @@ namespace mj
         auto [discarded, tsumogiri] = mutable_player(who).Discard(discard);
         assert(discard == discarded);
 
+        is_ippatsu_[who] = false;
+        // set is_four_winds = false
+        if (is_first_turn_wo_open && is_four_winds) {
+            if (!Is(discard.Type(), TileSetType::kWinds)) is_four_winds = false;
+            if (dealer() != who && last_discard_type_ != discard.Type()) is_four_winds = false;
+        }
+
         last_event_ = Event::CreateDiscard(who, discard, tsumogiri);
+        last_discard_type_ = discard.Type();
         state_.mutable_event_history()->mutable_events()->Add(last_event_.proto());
         // TODO: set discarded tile to river
 
-        is_ippatsu_[who] = false;
-        if (is_first_turn_wo_open &&
-            !(Is(discarded.Type(), TileSetType::kWinds) &&
-              Any(last_event_.type(), {EventType::kDiscardDrawnTile, EventType::kDiscardFromHand}) &&
-              last_event_.tile().Type() == discard.Type())) is_four_winds = false;
-        if (is_first_turn_wo_open && is_four_winds && ToSeatWind(who, dealer()) == Wind::kNorth) return;
-        if (is_first_turn_wo_open && ToSeatWind(who, dealer()) == Wind::kNorth) is_first_turn_wo_open = false;
+        bool is_first_discard_of_north_player = is_first_turn_wo_open && ToSeatWind(who, dealer()) == Wind::kNorth;
+        if (is_first_discard_of_north_player) {
+            if(is_four_winds) return;  //  go to NoWinner end
+            else is_first_turn_wo_open = false;
+        }
     }
 
     void State::Riichi(AbsolutePos who) {
@@ -672,7 +678,7 @@ namespace mj
                     assert(require_kan_dora_ <= 1);
                     if (require_kan_dora_) AddNewDora();
                     Discard(who, action.discard());
-                    if (is_first_turn_wo_open && is_four_winds) {  // 四風子連打
+                    if (is_first_turn_wo_open && ToSeatWind(who, dealer()) == Wind::kNorth && is_four_winds) {  // 四風子連打
                         NoWinner();
                         return;
                     }
