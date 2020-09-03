@@ -231,8 +231,12 @@ namespace mj
             } else {
                 bool is_last_discard = Any(last_event_.type(),
                                            {EventType::kDiscardDrawnTile, EventType::kDiscardFromHand});
-                bool is_last_discard_eq = last_event_.tile().Type() == discard.Type();
-                if (!(is_wind_discarded && is_last_discard && is_last_discard_eq)) is_four_winds = false;
+                if (is_last_discard) {
+                    bool is_last_discard_eq = last_event_.tile().Type() == discard.Type();
+                    if (!(is_wind_discarded && is_last_discard_eq)) is_four_winds = false;
+                } else {
+                    is_four_winds = false;
+                }
             }
         }
 
