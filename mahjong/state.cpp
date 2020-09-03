@@ -224,20 +224,11 @@ namespace mj
 
         is_ippatsu_[who] = false;
         // set is_four_winds = false
-        if (is_first_turn_wo_open) {
-            bool is_wind_discarded = Is(discard.Type(), TileSetType::kWinds);
-            if (dealer() == who) {
-                if (!is_wind_discarded) is_four_winds = false;
-            } else {
-                bool is_last_discard = Any(last_event_.type(),
-                                           {EventType::kDiscardDrawnTile, EventType::kDiscardFromHand});
-                if (is_last_discard) {
-                    bool is_last_discard_eq = last_event_.tile().Type() == discard.Type();
-                    if (!(is_wind_discarded && is_last_discard_eq)) is_four_winds = false;
-                } else {
-                    is_four_winds = false;
-                }
-            }
+        if (is_first_turn_wo_open && is_four_winds) {
+            if (!Is(discard.Type(), TileSetType::kWinds)) is_four_winds = false;
+            if (dealer() != who &&
+                Any(last_event_.type(), {EventType::kDiscardDrawnTile, EventType::kDiscardFromHand}) &&
+                last_event_.tile().Type() == discard.Type()) is_four_winds = false;
         }
 
         last_event_ = Event::CreateDiscard(who, discard, tsumogiri);
@@ -257,6 +248,7 @@ namespace mj
         last_event_ = Event::CreateRiichi(who);
         state_.mutable_event_history()->mutable_events()->Add(last_event_.proto());
 
+        is_first_turn_wo_open = false;
         require_riichi_score_change_ = true;
     }
 
