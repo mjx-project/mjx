@@ -440,6 +440,12 @@ namespace mj
             return;
         }
 
+        // 四家立直
+        if (std::all_of(players_.begin(), players_.end(), [](const Player& p){ return p.IsUnderRiichi(); })) {
+            state_.mutable_terminal()->mutable_no_winner()->set_type(mjproto::NO_WINNER_TYPE_FOUR_RIICHI);
+            // 聴牌の情報が必要なため, ここでreturnしてはいけない.
+        }
+
         // set event
         last_event_ = Event::CreateNoWinner();
         state_.mutable_event_history()->mutable_events()->Add(last_event_.proto());
@@ -672,6 +678,15 @@ namespace mj
                     }
                     // TODO: CreateStealAndRonObservationが2回stateが変わらないのに呼ばれている（CreateObservation内で）
                     if (bool has_steal_or_ron = !CreateStealAndRonObservation().empty(); has_steal_or_ron) return;
+
+                    // 鳴きやロンの候補がなく, 全員が立直していたら四家立直で流局
+                    if (std::all_of(players_.begin(), players_.end(),
+                                    [](const Player& player){ return player.IsUnderRiichi(); })) {
+                        RiichiScoreChange();
+                        NoWinner();
+                        return;
+                    }
+
                     if (wall_.HasDrawLeft()) {
                         if (require_riichi_score_change_) RiichiScoreChange();
                         Draw(AbsolutePos((ToUType(who) + 1) % 4));
@@ -717,6 +732,16 @@ namespace mj
                 }
                 return;
             case ActionType::kNo:
+                // 全員が立直している状態で ActionType::kNo が渡されるのは,
+                // 4人目に立直した人の立直宣言牌を他家がロンできるけど無視したときのみ.
+                // 四家立直で流局とする.
+                if (std::all_of(players_.begin(), players_.end(),
+                                [](const Player& player){ return player.IsUnderRiichi(); })) {
+                    RiichiScoreChange();
+                    NoWinner();
+                    return;
+                }
+
                 if (wall_.HasDrawLeft()) {
                     if (require_riichi_score_change_) RiichiScoreChange();
                     Draw(AbsolutePos((ToUType(last_event_.who()) + 1) % 4));  // TODO: check 流局
