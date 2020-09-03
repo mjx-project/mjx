@@ -440,6 +440,12 @@ namespace mj
             return;
         }
 
+        // 四家立直
+        if (std::all_of(players_.begin(), players_.end(), [](const Player& p){ return p.IsUnderRiichi(); })) {
+            state_.mutable_terminal()->mutable_no_winner()->set_type(mjproto::NO_WINNER_TYPE_FOUR_RIICHI);
+            // 聴牌の情報が必要なため, ここでreturnしてはいけない.
+        }
+
         // set event
         last_event_ = Event::CreateNoWinner();
         state_.mutable_event_history()->mutable_events()->Add(last_event_.proto());
@@ -682,6 +688,9 @@ namespace mj
                 return;
             case ActionType::kRiichi:
                 Riichi(who);
+                if (std::all_of(players_.begin(), players_.end(), [](const Player& p){ return p.IsUnderRiichi(); })) {
+                    NoWinner();
+                }
                 return;
             case ActionType::kTsumo:
                 Tsumo(who);
