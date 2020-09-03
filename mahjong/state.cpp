@@ -439,6 +439,19 @@ namespace mj
             set_terminal_vals();
             return;
         }
+        // 四槓散了
+        {
+            std::vector<int> kans;
+            for (const Player& p : players_) {
+                if (int num = p.TotalKans(); num) kans.emplace_back(num);
+            }
+            // 槓の合計が4個で, 2人以上が槓している場合は流局
+            if (std::accumulate(kans.begin(), kans.end(), 0) == 4 and kans.size() > 1) {
+                state_.mutable_terminal()->mutable_no_winner()->set_type(mjproto::NO_WINNER_TYPE_FOUR_KANS);
+                set_terminal_vals();
+                return;
+            }
+        }
 
         // set event
         last_event_ = Event::CreateNoWinner();

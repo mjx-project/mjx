@@ -550,6 +550,14 @@ namespace mj
         return count;
     }
 
+    int Hand::TotalKans() const noexcept {
+        int total_kans = 0;
+        for (auto open : opens_) {
+            total_kans += Any(open.Type(), {OpenType::kKanOpened, OpenType::kKanClosed, OpenType::kKanAdded});
+        }
+        return total_kans;
+    }
+
     bool Hand::IsMenzen() const {
         if (opens_.empty()) return true;
         return std::all_of(opens_.begin(), opens_.end(),
