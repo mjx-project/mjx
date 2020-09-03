@@ -177,6 +177,11 @@ namespace mj
             fu += 2;
         }
 
+        // 天鳳は嶺上ツモにも2符加算
+        if (win_info.hand.stage == HandStage::kAfterTsumoAfterKan) {
+            fu += 2;
+        }
+
         if (fu == 20) {
             // 喰い平和でも最低30符
             return 30;
