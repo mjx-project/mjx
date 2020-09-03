@@ -1079,6 +1079,7 @@ namespace mj
             colors[Color(tile_type)] = true;
         }
         if (colors.size() > 1) return false;
+        if (all_tile_types.size() < 9) return false;
 
         std::vector<int> required{0,3,1,1,1,1,1,1,1,3};
 
@@ -1102,6 +1103,7 @@ namespace mj
             colors[Color(tile_type)] = true;
         }
         if (colors.size() > 1) return false;
+        if (all_tile_types.size() < 9) return false;
 
         std::vector<int> required{0,3,1,1,1,1,1,1,1,3};
 

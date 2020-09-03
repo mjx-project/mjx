@@ -724,6 +724,11 @@ TEST_F(YakuTest, NineGates) {
     auto yaku3 = YakuEvaluator::Eval(
             WinInfo(Hand(HandParams("m1,m2,m3,m4,m5,rd,rd,m7,m8,m9,p1,p1,p1").Tsumo("m6")).win_info()));
     EXPECT_EQ(yaku3.HasYakuman(Yaku::kNineGates), false);
+
+    // 九蓮宝燈要素なし
+    auto yaku4 = YakuEvaluator::Eval(
+            WinInfo(Hand(HandParams("p2,p3,p4,p5,p5,p5,p6,p6,p6,p8,p8,p9,p9").Ron("p9")).win_info()));
+    EXPECT_EQ(yaku4.HasYakuman(Yaku::kNineGates), false);
 }
 
 TEST_F(YakuTest, PureNineGates) {
