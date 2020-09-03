@@ -506,7 +506,6 @@ namespace mj
     bool State::IsGameOver() const {
         if (!IsRoundOver()) return false;
 
-        // TODO (sotetsuk): 西入後の終曲条件が供託未収と書いてあるので、修正が必要。　https://tenhou.net/man/
         auto tens_ = tens();
         for (int i = 0; i < 4; ++i) tens_[i] += 4 - i;  // 同点は起家から順に優先されるので +4, +3, +2, +1 する
         auto top_score = *std::max_element(tens_.begin(), tens_.end());
@@ -524,9 +523,8 @@ namespace mj
                                     (last_event_.type() == EventType::kNoWinner && player(dealer()).IsTenpai());
         if (round() == 11 && !dealer_win_or_tenpai) return true;
 
-        // トップが3万点必要
-        // TODO: リーチ棒をトップに加算してから計算するのが正しいのか確認
-        bool top_has_30000 = *std::max_element(tens_.begin(), tens_.end()) + 1000 * riichi() >= 30000;
+        // トップが3万点必要（供託未収）
+        bool top_has_30000 = *std::max_element(tens_.begin(), tens_.end()) >= 30000;
         if (!top_has_30000) return false;
 
         // オーラストップ親の上がりやめあり
