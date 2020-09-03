@@ -177,6 +177,11 @@ namespace mj
             fu += 2;
         }
 
+        // 天鳳は嶺上ツモにも2符加算
+        if (win_info.hand.stage == HandStage::kAfterTsumoAfterKan) {
+            fu += 2;
+        }
+
         if (fu == 20) {
             // 喰い平和でも最低30符
             return 30;
@@ -1072,6 +1077,7 @@ namespace mj
             colors[Color(tile_type)] = true;
         }
         if (colors.size() > 1) return false;
+        if (all_tile_types.size() < 9) return false;
 
         std::vector<int> required{0,3,1,1,1,1,1,1,1,3};
 
@@ -1095,6 +1101,7 @@ namespace mj
             colors[Color(tile_type)] = true;
         }
         if (colors.size() > 1) return false;
+        if (all_tile_types.size() < 9) return false;
 
         std::vector<int> required{0,3,1,1,1,1,1,1,1,3};
 
@@ -1124,6 +1131,7 @@ namespace mj
     bool YakuEvaluator::HasFourConcealedPons(const WinInfo& win_info) noexcept {
         const auto& all_tile_types = win_info.hand.all_tile_types;
         if (!win_info.hand.is_menzen) return false;
+        if (win_info.hand.stage == HandStage::kAfterRon) return false;  // ロンのときは四暗刻単騎のみ
         if (all_tile_types.size() != 5) return false;
 
         assert(win_info.hand.win_tile);
