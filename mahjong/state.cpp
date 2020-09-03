@@ -223,6 +223,7 @@ namespace mj
         assert(discard == discarded);
 
         is_ippatsu_[who] = false;
+        // set is_four_winds = false
         if (is_first_turn_wo_open) {
             bool is_wind_discarded = Is(discard.Type(), TileSetType::kWinds);
             if (dealer() == who) {
