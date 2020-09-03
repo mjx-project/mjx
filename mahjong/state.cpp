@@ -507,19 +507,29 @@ namespace mj
         if (!IsRoundOver()) return false;
 
         // TODO (sotetsuk): 西入後の終曲条件が供託未収と書いてあるので、修正が必要。　https://tenhou.net/man/
-        // ラス親のあがりやめも考慮しないといけない
         auto tens_ = tens();
         for (int i = 0; i < 4; ++i) tens_[i] += 4 - i;  // 同点は起家から順に優先されるので +4, +3, +2, +1 する
         auto top_score = *std::max_element(tens_.begin(), tens_.end());
+
+        // 箱割れ
         bool has_minus_point_player = *std::min_element(tens_.begin(), tens_.end()) < 0;
         if (has_minus_point_player) return true;
+
+        // 東南戦
         if (round() < 7) return false;
+
+        // 北入なし
+        bool dealer_win_or_tenpai = (Any(last_event_.type(), {EventType::kRon, EventType::kTsumo})
+                                     && std::any_of(state_.terminal().wins().begin(), state_.terminal().wins().end(), [&](const auto x){ return AbsolutePos(x.who()) == dealer(); })) ||
+                                    (last_event_.type() == EventType::kNoWinner && player(dealer()).IsTenpai());
+        if (round() == 11 && !dealer_win_or_tenpai) return true;
+
+        // トップが3万点必要
         // TODO: リーチ棒をトップに加算してから計算するのが正しいのか確認
         bool top_has_30000 = *std::max_element(tens_.begin(), tens_.end()) + 1000 * riichi() >= 30000;
         if (!top_has_30000) return false;
-        bool dealer_win_or_tenpai = (Any(last_event_.type(), {EventType::kRon, EventType::kTsumo})
-                && std::any_of(state_.terminal().wins().begin(), state_.terminal().wins().end(), [&](const auto x){ return AbsolutePos(x.who()) == dealer(); })) ||
-                (last_event_.type() == EventType::kNoWinner && player(dealer()).IsTenpai());
+
+        // オーラストップ親の上がりやめあり
         bool dealer_is_not_top = top_score != tens_[ToUType(dealer())];
         return !(dealer_win_or_tenpai && dealer_is_not_top);
     }
