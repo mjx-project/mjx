@@ -825,4 +825,9 @@ TEST_F(YakuTest, CalculateFu) {
     auto yaku5 = YakuEvaluator::Eval(
             WinInfo(Hand(HandParams("p1,p2,rd,rd,gd,gd,gd").KanOpened("p8,p8,p8,p8").Pon("m9,m9,m9").Tsumo("p3")).win_info()));
     EXPECT_EQ(yaku5.fu().value(), 50);
+
+    // シャンポンのロンでp8は明刻と解釈もできるが、p8は暗刻と解釈もできるので暗刻扱い
+    auto yaku6 = YakuEvaluator::Eval(
+            WinInfo(Hand(HandParams("m2,m2,p6,p7,p8,p8,p8").Pon("gd,gd,gd").Pon("rd,rd,rd").Ron("p8")).win_info()));
+    EXPECT_EQ(yaku6.fu().value(), 40);
 }
