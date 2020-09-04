@@ -128,8 +128,9 @@ namespace mj
         for (const auto& closed_set : closed_sets) {
             if (closed_set.size() > 1) continue;    // 順子は0
             auto type = closed_set.begin()->first;
-            // シャンポンのロンは明刻扱い
-            bool is_ron_triplet = win_info.hand.stage == HandStage::kAfterRon && type == win_info.hand.win_tile->Type();
+            auto n = win_info.hand.closed_tile_types.at(type);
+            // シャンポンのロンは明刻扱い (n == 4 のときは暗刻扱い #290)
+            bool is_ron_triplet = win_info.hand.stage == HandStage::kAfterRon && type == win_info.hand.win_tile->Type() && n == 3;
             bool is_yaocyu = Is(type, TileSetType::kYaocyu);
             if (is_ron_triplet) fu += is_yaocyu ? 4 : 2;    // 明刻
             else fu += is_yaocyu ? 8 : 4;    // 暗刻
