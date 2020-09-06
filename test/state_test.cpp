@@ -307,8 +307,8 @@ TEST(state, Update) {
     EXPECT_TRUE(types_check({ActionType::kDiscard}, observation));
 
     // Riichi後にDiscardして、鳴き候補もロン候補もないのでRiichiScoreChange+DrawまでUpdateされる
-    json_before = get_last_json_line("upd-bef-riichi-discard-riichisc.json");
-    json_after = get_last_json_line("upd-aft-riichi-discard-riichisc.json");
+    json_before = get_last_json_line("upd-bef-riichi-discard-riichisc+draw.json");
+    json_after = get_last_json_line("upd-aft-riichi-discard-riichisc+draw.json");
     state_before = State(json_before);
     state_after = State(json_after);
     actions = { Action::CreateDiscard(AbsolutePos::kInitSouth, Tile(115)) };
