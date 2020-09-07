@@ -128,8 +128,9 @@ namespace mj
         for (const auto& closed_set : closed_sets) {
             if (closed_set.size() > 1) continue;    // 順子は0
             auto type = closed_set.begin()->first;
-            // シャンポンのロンは明刻扱い
-            bool is_ron_triplet = win_info.hand.stage == HandStage::kAfterRon && type == win_info.hand.win_tile->Type();
+            auto n = win_info.hand.closed_tile_types.at(type);
+            // シャンポンのロンは明刻扱い (n == 4 のときは暗刻扱い #290)
+            bool is_ron_triplet = win_info.hand.stage == HandStage::kAfterRon && type == win_info.hand.win_tile->Type() && n == 3;
             bool is_yaocyu = Is(type, TileSetType::kYaocyu);
             if (is_ron_triplet) fu += is_yaocyu ? 4 : 2;    // 明刻
             else fu += is_yaocyu ? 8 : 4;    // 暗刻
@@ -174,6 +175,11 @@ namespace mj
 
         // ツモ符
         if (win_info.hand.stage == HandStage::kAfterTsumo) {
+            fu += 2;
+        }
+
+        // 天鳳は嶺上ツモにも2符加算
+        if (win_info.hand.stage == HandStage::kAfterTsumoAfterKan) {
             fu += 2;
         }
 
@@ -742,20 +748,18 @@ namespace mj
         for (const std::vector<TileTypeCount>& blocks : {closed_sets, opened_sets, heads}) {
             for (const TileTypeCount& count : blocks) {
                 bool valid = false;
-                for (auto& [tile_type, _] : count) {
+                for (auto& [tile_type, n] : count) {
                     if (!has_honour and Is(tile_type, TileSetType::kHonours)) {
                         has_honour = true;
                     }
                     if (Is(tile_type, TileSetType::kYaocyu)) {
                         valid = true;
-                        break;
+                        if (n >= 2) break;
                     } else {
                         all_yaochu = false;
                     }
                 }
-                if (!valid) {
-                    return std::nullopt;
-                }
+                if (!valid) return std::nullopt;
             }
         }
 
@@ -1074,6 +1078,7 @@ namespace mj
             colors[Color(tile_type)] = true;
         }
         if (colors.size() > 1) return false;
+        if (all_tile_types.size() < 9) return false;
 
         std::vector<int> required{0,3,1,1,1,1,1,1,1,3};
 
@@ -1097,6 +1102,7 @@ namespace mj
             colors[Color(tile_type)] = true;
         }
         if (colors.size() > 1) return false;
+        if (all_tile_types.size() < 9) return false;
 
         std::vector<int> required{0,3,1,1,1,1,1,1,1,3};
 
@@ -1126,6 +1132,7 @@ namespace mj
     bool YakuEvaluator::HasFourConcealedPons(const WinInfo& win_info) noexcept {
         const auto& all_tile_types = win_info.hand.all_tile_types;
         if (!win_info.hand.is_menzen) return false;
+        if (win_info.hand.stage == HandStage::kAfterRon) return false;  // ロンのときは四暗刻単騎のみ
         if (all_tile_types.size() != 5) return false;
 
         assert(win_info.hand.win_tile);
