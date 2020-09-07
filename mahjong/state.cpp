@@ -780,6 +780,21 @@ namespace mj
                     return;
                 }
 
+                // 2人以上が合計4つ槓をしている状態で ActionType::kNo が渡されるのは,
+                // 4つ目の槓をした人の打牌を他家がロンできるけど無視したときのみ.
+                // 四槓散了で流局とする.
+                // TODO: 4つ目の槓をした人の打牌は鳴けないようにする(海底牌と同じように実装できないか？)
+                {
+                    std::vector<int> kans;
+                    for (const Player& p : players_) {
+                        if (int num = p.TotalKans(); num) kans.emplace_back(num);
+                    }
+                    if (std::accumulate(kans.begin(), kans.end(), 0) == 4 and kans.size() > 1) {
+                        NoWinner();
+                        return;
+                    }
+                }
+
                 if (wall_.HasDrawLeft()) {
                     if (require_riichi_score_change_) RiichiScoreChange();
                     Draw(AbsolutePos((ToUType(last_event_.who()) + 1) % 4));  // TODO: check 流局
