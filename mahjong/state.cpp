@@ -222,17 +222,23 @@ namespace mj
         auto [discarded, tsumogiri] = mutable_player(who).Discard(discard);
         assert(discard == discarded);
 
+        is_ippatsu_[who] = false;
+        // set is_four_winds = false
+        if (is_first_turn_wo_open && is_four_winds) {
+            if (!Is(discard.Type(), TileSetType::kWinds)) is_four_winds = false;
+            if (dealer() != who && last_discard_type_ != discard.Type()) is_four_winds = false;
+        }
+
         last_event_ = Event::CreateDiscard(who, discard, tsumogiri);
+        last_discard_type_ = discard.Type();
         state_.mutable_event_history()->mutable_events()->Add(last_event_.proto());
         // TODO: set discarded tile to river
 
-        is_ippatsu_[who] = false;
-        if (is_first_turn_wo_open &&
-            !(Is(discarded.Type(), TileSetType::kWinds) &&
-              Any(last_event_.type(), {EventType::kDiscardDrawnTile, EventType::kDiscardFromHand}) &&
-              last_event_.tile().Type() == discard.Type())) is_four_winds = false;
-        if (is_first_turn_wo_open && is_four_winds && ToSeatWind(who, dealer()) == Wind::kNorth) return;
-        if (is_first_turn_wo_open && ToSeatWind(who, dealer()) == Wind::kNorth) is_first_turn_wo_open = false;
+        bool is_first_discard_of_north_player = is_first_turn_wo_open && ToSeatWind(who, dealer()) == Wind::kNorth;
+        if (is_first_discard_of_north_player) {
+            if(is_four_winds) return;  //  go to NoWinner end
+            else is_first_turn_wo_open = false;
+        }
     }
 
     void State::Riichi(AbsolutePos who) {
@@ -453,6 +459,12 @@ namespace mj
             }
         }
 
+        // 四家立直
+        if (std::all_of(players_.begin(), players_.end(), [](const Player& p){ return p.IsUnderRiichi(); })) {
+            state_.mutable_terminal()->mutable_no_winner()->set_type(mjproto::NO_WINNER_TYPE_FOUR_RIICHI);
+            // 聴牌の情報が必要なため, ここでreturnしてはいけない.
+        }
+
         // set event
         last_event_ = Event::CreateNoWinner();
         state_.mutable_event_history()->mutable_events()->Add(last_event_.proto());
@@ -507,20 +519,28 @@ namespace mj
     bool State::IsGameOver() const {
         if (!IsRoundOver()) return false;
 
-        // TODO (sotetsuk): 西入後の終曲条件が供託未収と書いてあるので、修正が必要。　https://tenhou.net/man/
-        // ラス親のあがりやめも考慮しないといけない
         auto tens_ = tens();
         for (int i = 0; i < 4; ++i) tens_[i] += 4 - i;  // 同点は起家から順に優先されるので +4, +3, +2, +1 する
         auto top_score = *std::max_element(tens_.begin(), tens_.end());
+
+        // 箱割れ
         bool has_minus_point_player = *std::min_element(tens_.begin(), tens_.end()) < 0;
         if (has_minus_point_player) return true;
+
+        // 東南戦
         if (round() < 7) return false;
-        // TODO: リーチ棒をトップに加算してから計算するのが正しいのか確認
-        bool top_has_30000 = *std::max_element(tens_.begin(), tens_.end()) + 1000 * riichi() >= 30000;
-        if (!top_has_30000) return false;
+
+        // 北入なし
         bool dealer_win_or_tenpai = (Any(last_event_.type(), {EventType::kRon, EventType::kTsumo})
-                && std::any_of(state_.terminal().wins().begin(), state_.terminal().wins().end(), [&](const auto x){ return AbsolutePos(x.who()) == dealer(); })) ||
-                (last_event_.type() == EventType::kNoWinner && player(dealer()).IsTenpai());
+                                     && std::any_of(state_.terminal().wins().begin(), state_.terminal().wins().end(), [&](const auto x){ return AbsolutePos(x.who()) == dealer(); })) ||
+                                    (last_event_.type() == EventType::kNoWinner && player(dealer()).IsTenpai());
+        if (round() == 11 && !dealer_win_or_tenpai) return true;
+
+        // トップが3万点必要（供託未収）
+        bool top_has_30000 = *std::max_element(tens_.begin(), tens_.end()) >= 30000;
+        if (!top_has_30000) return false;
+
+        // オーラストップ親の上がりやめあり
         bool dealer_is_not_top = top_score != tens_[ToUType(dealer())];
         return !(dealer_win_or_tenpai && dealer_is_not_top);
     }
@@ -679,12 +699,21 @@ namespace mj
                     assert(require_kan_dora_ <= 1);
                     if (require_kan_dora_) AddNewDora();
                     Discard(who, action.discard());
-                    if (is_first_turn_wo_open && is_four_winds) {  // 四風子連打
+                    if (is_first_turn_wo_open && ToSeatWind(who, dealer()) == Wind::kNorth && is_four_winds) {  // 四風子連打
                         NoWinner();
                         return;
                     }
                     // TODO: CreateStealAndRonObservationが2回stateが変わらないのに呼ばれている（CreateObservation内で）
                     if (bool has_steal_or_ron = !CreateStealAndRonObservation().empty(); has_steal_or_ron) return;
+
+                    // 鳴きやロンの候補がなく, 全員が立直していたら四家立直で流局
+                    if (std::all_of(players_.begin(), players_.end(),
+                                    [](const Player& player){ return player.IsUnderRiichi(); })) {
+                        RiichiScoreChange();
+                        NoWinner();
+                        return;
+                    }
+
                     if (wall_.HasDrawLeft()) {
                         if (require_riichi_score_change_) RiichiScoreChange();
                         Draw(AbsolutePos((ToUType(who) + 1) % 4));
@@ -730,6 +759,16 @@ namespace mj
                 }
                 return;
             case ActionType::kNo:
+                // 全員が立直している状態で ActionType::kNo が渡されるのは,
+                // 4人目に立直した人の立直宣言牌を他家がロンできるけど無視したときのみ.
+                // 四家立直で流局とする.
+                if (std::all_of(players_.begin(), players_.end(),
+                                [](const Player& player){ return player.IsUnderRiichi(); })) {
+                    RiichiScoreChange();
+                    NoWinner();
+                    return;
+                }
+
                 if (wall_.HasDrawLeft()) {
                     if (require_riichi_score_change_) RiichiScoreChange();
                     Draw(AbsolutePos((ToUType(last_event_.who()) + 1) % 4));  // TODO: check 流局

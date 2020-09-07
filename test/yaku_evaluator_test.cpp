@@ -522,6 +522,11 @@ TEST_F(YakuTest, OutsideHand) {
     auto yaku5 = YakuEvaluator::Eval(
             WinInfo(Hand(HandParams("m1,m1,m1,m9,m9,s1,s1,ew,ew,ew,rd,rd,rd").Tsumo("m9")).win_info()));
     EXPECT_EQ(yaku5.HasYaku(Yaku::kOutsideHand), std::nullopt);
+
+    // チャンタ三色
+    auto yaku6 = YakuEvaluator::Eval(
+            WinInfo(Hand(HandParams("p1,p3,s1,s2,s3,nw,nw,nw,gd,gd").Chi("m1,m2,m3").Ron("p2")).win_info()));
+    EXPECT_EQ(yaku6.HasYaku(Yaku::kOutsideHand), std::make_optional(1));
 }
 
 TEST_F(YakuTest, TerminalsInAllSets) {
@@ -724,6 +729,11 @@ TEST_F(YakuTest, NineGates) {
     auto yaku3 = YakuEvaluator::Eval(
             WinInfo(Hand(HandParams("m1,m2,m3,m4,m5,rd,rd,m7,m8,m9,p1,p1,p1").Tsumo("m6")).win_info()));
     EXPECT_EQ(yaku3.HasYakuman(Yaku::kNineGates), false);
+
+    // 九蓮宝燈要素なし
+    auto yaku4 = YakuEvaluator::Eval(
+            WinInfo(Hand(HandParams("p2,p3,p4,p5,p5,p5,p6,p6,p6,p8,p8,p9,p9").Ron("p9")).win_info()));
+    EXPECT_EQ(yaku4.HasYakuman(Yaku::kNineGates), false);
 }
 
 TEST_F(YakuTest, PureNineGates) {
@@ -768,6 +778,11 @@ TEST_F(YakuTest, FourConcealdPons) {
     auto yaku3 = YakuEvaluator::Eval(
             WinInfo(Hand(HandParams("m1,m2,m3,m4,m5,rd,rd,m7,m8,m9,p1,p1,p1").Tsumo("m6")).win_info()));
     EXPECT_EQ(yaku3.HasYakuman(Yaku::kFourConcealedPons), false);
+
+    // ロン対々和三暗刻
+    auto yaku4 = YakuEvaluator::Eval(
+            WinInfo(Hand(HandParams("m1,m1,m1,m4,m4,m4,m7,m7,m7,p2,p2,ew,ew").Ron("ew")).win_info()));
+    EXPECT_EQ(yaku4.HasYakuman(Yaku::kFourConcealedPons), false);
 }
 
 TEST_F(YakuTest, CompletedFourConcealdPons) {
@@ -810,4 +825,9 @@ TEST_F(YakuTest, CalculateFu) {
     auto yaku5 = YakuEvaluator::Eval(
             WinInfo(Hand(HandParams("p1,p2,rd,rd,gd,gd,gd").KanOpened("p8,p8,p8,p8").Pon("m9,m9,m9").Tsumo("p3")).win_info()));
     EXPECT_EQ(yaku5.fu().value(), 50);
+
+    // シャンポンのロンでp8は明刻と解釈もできるが、p8は暗刻と解釈もできるので暗刻扱い
+    auto yaku6 = YakuEvaluator::Eval(
+            WinInfo(Hand(HandParams("m2,m2,p6,p7,p8,p8,p8").Pon("gd,gd,gd").Pon("rd,rd,rd").Ron("p8")).win_info()));
+    EXPECT_EQ(yaku6.fu().value(), 40);
 }
