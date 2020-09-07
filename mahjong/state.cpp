@@ -445,6 +445,11 @@ namespace mj
             set_terminal_vals();
             return;
         }
+        // 三家和了
+        if (is_three_ron) {
+            state_.mutable_terminal()->mutable_no_winner()->set_type(mjproto::NO_WINNER_TYPE_THREE_RONS);
+            // 聴牌の情報が必要なため, ここでreturnしてはいけない.
+        }
 
         // 四家立直
         if (std::all_of(players_.begin(), players_.end(), [](const Player& p){ return p.IsUnderRiichi(); })) {
@@ -664,6 +669,9 @@ namespace mj
                                                [](const Action &x){ return x.type() == ActionType::kRon; });
                 if (ron_count == 3) {
                     // TODO: 三家和了
+                    is_three_ron = true;
+                    NoWinner();
+                    return;
                 }
                 for (auto &action: action_candidates) {
                     if (action.type() != ActionType::kRon) break;
@@ -677,6 +685,10 @@ namespace mj
     }
 
     void State::Update(Action &&action) {
+        if (!Any(last_event_.type(), {EventType::kDraw, EventType::kDiscardFromHand,EventType::kDiscardDrawnTile,
+                                        EventType::kRiichi, EventType::kChi, EventType::kPon, EventType::kKanAdded})) {
+            std::cerr << static_cast<int>(last_event_.type()) << std::endl;
+        }
         assert(Any(last_event_.type(), {EventType::kDraw, EventType::kDiscardFromHand,EventType::kDiscardDrawnTile,
                                         EventType::kRiichi, EventType::kChi, EventType::kPon, EventType::kKanAdded}));
         auto who = action.who();
