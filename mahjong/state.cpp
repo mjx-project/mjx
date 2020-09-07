@@ -614,9 +614,18 @@ namespace mj
         auto discarder = last_event_.who();
         auto tile = last_event_.type() != EventType::kKanAdded ? last_event_.tile() : last_event_.open().LastTile();
         auto has_draw_left = wall_.HasDrawLeft();
+
+        auto kan4 = [&](){
+            std::vector<int> kans;
+            for (const Player& p : players_) {
+                if (int num = p.TotalKans(); num) kans.emplace_back(num);
+            }
+            return std::accumulate(kans.begin(), kans.end(), 0) == 4 and kans.size() > 1;
+        }();
+
         for (int i = 0; i < 4; ++i) {
-             auto stealer = AbsolutePos(i);
-             if (stealer == discarder) continue;
+            auto stealer = AbsolutePos(i);
+            if (stealer == discarder) continue;
              auto observation = Observation(stealer, state_);
 
              // check ron
@@ -626,7 +635,7 @@ namespace mj
              }
 
              // check chi, pon and kan_opened
-             if (has_draw_left && last_event_.type() != EventType::kKanAdded) {  // if 槍槓, only ron
+             if (has_draw_left && last_event_.type() != EventType::kKanAdded && !kan4) {  // if 槍槓 or 四槓散了直前の捨て牌, only ron
                 auto relative_pos = ToRelativePos(stealer, discarder);
                 auto possible_opens = player(stealer).PossibleOpensAfterOthersDiscard(tile, relative_pos);
                 for (const auto & possible_open: possible_opens)
