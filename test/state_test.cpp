@@ -508,6 +508,13 @@ TEST(state, Update) {
     state_before.Update(std::move(actions));
     actions = { Action::CreateDiscard(AbsolutePos::kInitEast, Tile(80)) };
     state_before.Update(std::move(actions));
+
+    observations = state_before.CreateObservations();
+    EXPECT_EQ(observations.size(), 1);
+    EXPECT_TRUE(observations.find("ぺんぎんさん") != observations.end());
+    observation = observations["ぺんぎんさん"];
+    EXPECT_TRUE(types_check({ActionType::kNo, ActionType::kRon}, observation));
+
     actions = { Action::CreateNo(AbsolutePos::kInitSouth) };
     state_before.Update(std::move(actions));
     EXPECT_EQ(state_before.ToJson(), state_after.ToJson());
