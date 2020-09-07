@@ -713,6 +713,17 @@ namespace mj
                         NoWinner();
                         return;
                     }
+                    // 鳴きやロンの候補がなく, 2人以上が合計4つ槓をしていたら四槓散了で流局
+                    {
+                        std::vector<int> kans;
+                        for (const Player& p : players_) {
+                            if (int num = p.TotalKans(); num) kans.emplace_back(num);
+                        }
+                        if (std::accumulate(kans.begin(), kans.end(), 0) == 4 and kans.size() > 1) {
+                            NoWinner();
+                            return;
+                        }
+                    }
 
                     if (wall_.HasDrawLeft()) {
                         if (require_riichi_score_change_) RiichiScoreChange();
