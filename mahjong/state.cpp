@@ -446,17 +446,10 @@ namespace mj
             return;
         }
         // 四槓散了
-        {
-            std::vector<int> kans;
-            for (const Player& p : players_) {
-                if (int num = p.TotalKans(); num) kans.emplace_back(num);
-            }
-            // 槓の合計が4個で, 2人以上が槓している場合は流局
-            if (std::accumulate(kans.begin(), kans.end(), 0) == 4 and kans.size() > 1) {
-                state_.mutable_terminal()->mutable_no_winner()->set_type(mjproto::NO_WINNER_TYPE_FOUR_KANS);
-                set_terminal_vals();
-                return;
-            }
+        if (IsFourKanNoWinner()) {
+            state_.mutable_terminal()->mutable_no_winner()->set_type(mjproto::NO_WINNER_TYPE_FOUR_KANS);
+            set_terminal_vals();
+            return;
         }
 
         // 四家立直
@@ -615,14 +608,6 @@ namespace mj
         auto tile = last_event_.type() != EventType::kKanAdded ? last_event_.tile() : last_event_.open().LastTile();
         auto has_draw_left = wall_.HasDrawLeft();
 
-        auto kan4 = [&](){
-            std::vector<int> kans;
-            for (const Player& p : players_) {
-                if (int num = p.TotalKans(); num) kans.emplace_back(num);
-            }
-            return std::accumulate(kans.begin(), kans.end(), 0) == 4 and kans.size() > 1;
-        }();
-
         for (int i = 0; i < 4; ++i) {
             auto stealer = AbsolutePos(i);
             if (stealer == discarder) continue;
@@ -635,7 +620,7 @@ namespace mj
              }
 
              // check chi, pon and kan_opened
-             if (has_draw_left && last_event_.type() != EventType::kKanAdded && !kan4) {  // if 槍槓 or 四槓散了直前の捨て牌, only ron
+             if (has_draw_left && last_event_.type() != EventType::kKanAdded && !IsFourKanNoWinner()) {  // if 槍槓 or 四槓散了直前の捨て牌, only ron
                 auto relative_pos = ToRelativePos(stealer, discarder);
                 auto possible_opens = player(stealer).PossibleOpensAfterOthersDiscard(tile, relative_pos);
                 for (const auto & possible_open: possible_opens)
@@ -792,16 +777,9 @@ namespace mj
                 // 2人以上が合計4つ槓をしている状態で ActionType::kNo が渡されるのは,
                 // 4つ目の槓をした人の打牌を他家がロンできるけど無視したときのみ.
                 // 四槓散了で流局とする.
-                // TODO: 4つ目の槓をした人の打牌は鳴けないようにする(海底牌と同じように実装できないか？)
-                {
-                    std::vector<int> kans;
-                    for (const Player& p : players_) {
-                        if (int num = p.TotalKans(); num) kans.emplace_back(num);
-                    }
-                    if (std::accumulate(kans.begin(), kans.end(), 0) == 4 and kans.size() > 1) {
-                        NoWinner();
-                        return;
-                    }
+                if (IsFourKanNoWinner()) {
+                    NoWinner();
+                    return;
                 }
 
                 if (wall_.HasDrawLeft()) {
@@ -826,5 +804,13 @@ namespace mj
             }
         }
         return AbsolutePos(top_ix);
+    }
+
+    bool State::IsFourKanNoWinner() const noexcept {
+        std::vector<int> kans;
+        for (const Player& p : players_) {
+            if (int num = p.TotalKans(); num) kans.emplace_back(num);
+        }
+        return std::accumulate(kans.begin(), kans.end(), 0) == 4 and kans.size() > 1;
     }
 }  // namespace mj
