@@ -85,6 +85,9 @@ namespace mj
         void NoWinner();
         [[nodiscard]] std::unordered_map<PlayerId, Observation> CreateStealAndRonObservation() const;
         [[nodiscard]] std::pair<HandInfo, WinScore> EvalWinHand(AbsolutePos who) const noexcept;
+
+        // utils
+        bool IsFourKanNoWinner() const noexcept ;
     };
 }  // namespace mj
 

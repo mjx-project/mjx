@@ -27,6 +27,7 @@ namespace mj
         bool IsTenpai() const;
         bool IsUnderRiichi() const;
         bool CanNineTiles() const;
+        int TotalKans() const;
 
         // apply actions
         void Draw(Tile tile);

@@ -146,6 +146,10 @@ namespace mj
                  state_.mutable_private_infos(i)->add_init_hand(t.Id());
              }
          }
+         // 三家和了はEventからは復元できないので, ここでSetする
+         if (state.terminal().has_no_winner()) {
+             is_three_ron = state.terminal().no_winner().type() == mjproto::NO_WINNER_TYPE_THREE_RONS;
+         }
          // Set event history
          std::vector<int> draw_ixs = {0, 0, 0, 0};
          for (int i = 0; i < state.event_history().events_size(); ++i) {
@@ -445,6 +449,12 @@ namespace mj
             set_terminal_vals();
             return;
         }
+        // 四槓散了
+        if (IsFourKanNoWinner()) {
+            state_.mutable_terminal()->mutable_no_winner()->set_type(mjproto::NO_WINNER_TYPE_FOUR_KANS);
+            set_terminal_vals();
+            return;
+        }
         // 三家和了
         if (is_three_ron) {
             state_.mutable_terminal()->mutable_no_winner()->set_type(mjproto::NO_WINNER_TYPE_THREE_RONS);
@@ -606,9 +616,10 @@ namespace mj
         auto discarder = last_event_.who();
         auto tile = last_event_.type() != EventType::kKanAdded ? last_event_.tile() : last_event_.open().LastTile();
         auto has_draw_left = wall_.HasDrawLeft();
+
         for (int i = 0; i < 4; ++i) {
-             auto stealer = AbsolutePos(i);
-             if (stealer == discarder) continue;
+            auto stealer = AbsolutePos(i);
+            if (stealer == discarder) continue;
              auto observation = Observation(stealer, state_);
 
              // check ron
@@ -618,7 +629,7 @@ namespace mj
              }
 
              // check chi, pon and kan_opened
-             if (has_draw_left && last_event_.type() != EventType::kKanAdded) {  // if 槍槓, only ron
+             if (has_draw_left && last_event_.type() != EventType::kKanAdded && !IsFourKanNoWinner()) {  // if 槍槓 or 四槓散了直前の捨て牌, only ron
                 auto relative_pos = ToRelativePos(stealer, discarder);
                 auto possible_opens = player(stealer).PossibleOpensAfterOthersDiscard(tile, relative_pos);
                 for (const auto & possible_open: possible_opens)
@@ -712,6 +723,17 @@ namespace mj
                         NoWinner();
                         return;
                     }
+                    // 鳴きやロンの候補がなく, 2人以上が合計4つ槓をしていたら四槓散了で流局
+                    {
+                        std::vector<int> kans;
+                        for (const Player& p : players_) {
+                            if (int num = p.TotalKans(); num) kans.emplace_back(num);
+                        }
+                        if (std::accumulate(kans.begin(), kans.end(), 0) == 4 and kans.size() > 1) {
+                            NoWinner();
+                            return;
+                        }
+                    }
 
                     if (wall_.HasDrawLeft()) {
                         if (require_riichi_score_change_) RiichiScoreChange();
@@ -768,6 +790,14 @@ namespace mj
                     return;
                 }
 
+                // 2人以上が合計4つ槓をしている状態で ActionType::kNo が渡されるのは,
+                // 4つ目の槓をした人の打牌を他家がロンできるけど無視したときのみ.
+                // 四槓散了で流局とする.
+                if (IsFourKanNoWinner()) {
+                    NoWinner();
+                    return;
+                }
+
                 if (wall_.HasDrawLeft()) {
                     if (require_riichi_score_change_) RiichiScoreChange();
                     Draw(AbsolutePos((ToUType(last_event_.who()) + 1) % 4));  // TODO: check 流局
@@ -790,5 +820,13 @@ namespace mj
             }
         }
         return AbsolutePos(top_ix);
+    }
+
+    bool State::IsFourKanNoWinner() const noexcept {
+        std::vector<int> kans;
+        for (const Player& p : players_) {
+            if (int num = p.TotalKans(); num) kans.emplace_back(num);
+        }
+        return std::accumulate(kans.begin(), kans.end(), 0) == 4 and kans.size() > 1;
     }
 }  // namespace mj
