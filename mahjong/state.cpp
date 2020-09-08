@@ -689,7 +689,7 @@ namespace mj
                 int ron_count = std::count_if(action_candidates.begin(), action_candidates.end(),
                                                [](const Action &x){ return x.type() == ActionType::kRon; });
                 if (ron_count == 3) {
-                    // TODO: 三家和了
+                    // 三家和了
                     std::vector<int> ron = {0, 0, 0, 0};
                     for (auto action : action_candidates) {
                         if (action.type() == ActionType::kRon) ron[static_cast<int>(action.who())] = 1;
