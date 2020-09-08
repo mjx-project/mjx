@@ -267,7 +267,7 @@ namespace mj
     void State::ApplyOpen(AbsolutePos who, Open open) {
         mutable_player(who).ApplyOpen(open);
 
-        int absolute_pos_from = (static_cast<int>(who) + static_cast<int>(open.From())) % 4;
+        int absolute_pos_from = (ToUType(who) + ToUType(open.From())) % 4;
         has_nm[absolute_pos_from] = false; // 鳴かれた人は流し満貫が成立しない
 
         last_event_ = Event::CreateOpen(who, open);
