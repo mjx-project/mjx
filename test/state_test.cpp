@@ -516,6 +516,15 @@ TEST(state, Update) {
     actions = { Action::CreateNo(AbsolutePos::kInitSouth) };
     state_before.Update(std::move(actions));
     EXPECT_EQ(state_before.ToJson(), state_after.ToJson());
+
+    // 海底牌を打牌した後, 流し満貫を成立させた人がいれば流し満貫まで進む
+    json_before = get_last_json_line("upd-bef-nm.json");
+    json_after = get_last_json_line("upd-aft-nm.json");
+    state_before = State(json_before);
+    state_after = State(json_after);
+    actions = { Action::CreateDiscard(AbsolutePos::kInitNorth, Tile(17)) };
+    state_before.Update(std::move(actions));
+    EXPECT_EQ(state_before.ToJson(), state_after.ToJson());
 }
 
 TEST(state, tenhou) {
