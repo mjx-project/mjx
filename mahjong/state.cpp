@@ -150,7 +150,7 @@ namespace mj
          if (state.terminal().has_no_winner() and state.terminal().no_winner().type() == mjproto::NO_WINNER_TYPE_THREE_RONS) {
              std::vector<int> tenpai = {0, 0, 0, 0};
              for (auto t : state.terminal().no_winner().tenpais()) {
-                 tenpai[static_cast<int>(t.who())] = 1;
+                 tenpai[ToUType(t.who())] = 1;
              }
              assert(std::accumulate(tenpai.begin(), tenpai.end(), 0) == 3);
              for (int i = 0; i < 4; ++i) {
@@ -240,7 +240,7 @@ namespace mj
             if (dealer() != who && last_discard_type_ != discard.Type()) is_four_winds = false;
         }
         if (Is(discard.Type(), TileSetType::kTanyao)) {
-            has_nm[static_cast<int>(who)] = false;
+            has_nm[ToUType(who)] = false;
         }
 
         last_event_ = Event::CreateDiscard(who, discard, tsumogiri);
@@ -715,7 +715,7 @@ namespace mj
                     // 三家和了
                     std::vector<int> ron = {0, 0, 0, 0};
                     for (auto action : action_candidates) {
-                        if (action.type() == ActionType::kRon) ron[static_cast<int>(action.who())] = 1;
+                        if (action.type() == ActionType::kRon) ron[ToUType(action.who())] = 1;
                     }
                     assert(std::accumulate(ron.begin(), ron.end(), 0) == 3);
                     for (int i = 0; i < 4; ++i) {
