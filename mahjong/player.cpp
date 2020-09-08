@@ -124,4 +124,8 @@ namespace mj
     bool Player::CanNineTiles() const {
         return hand_.CanNineTiles();
     }
+
+    int Player::TotalKans() const {
+        return hand_.TotalKans();
+    }
 }  // namespace mj

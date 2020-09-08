@@ -214,7 +214,7 @@ namespace mj
 
     void Hand::ApplyKanAdded(Open open)
     {
-        assert(stage_ == HandStage::kAfterDraw);
+        assert(Any(stage_, {HandStage::kAfterDraw, HandStage::kAfterDrawAfterKan}));
         assert(open.Type() == OpenType::kKanAdded);
         assert(undiscardable_tiles_.empty());
         assert(closed_tiles_.find(open.LastTile()) != closed_tiles_.end());
@@ -548,6 +548,14 @@ namespace mj
             ++count[tile.Type()];
         }
         return count;
+    }
+
+    int Hand::TotalKans() const noexcept {
+        int total_kans = 0;
+        for (auto open : opens_) {
+            total_kans += Any(open.Type(), {OpenType::kKanOpened, OpenType::kKanClosed, OpenType::kKanAdded});
+        }
+        return total_kans;
     }
 
     bool Hand::IsMenzen() const {
