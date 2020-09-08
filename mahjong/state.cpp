@@ -507,8 +507,8 @@ namespace mj
             for (int i = 0; i < 4; ++i) {
                 if (has_nm[i]) {
                     for (int j = 0; j < 4; ++j) {
-                        if (i == j) ten_move[j] += (i == dealer_id ? 12000 : 8000);
-                        else        ten_move[j] -= (i == dealer_id or j == dealer_id ? 4000 : 2000);
+                        if (i == j) ten_move[j] += (i == dealer_ix ? 12000 : 8000);
+                        else        ten_move[j] -= (i == dealer_ix or j == dealer_ix ? 4000 : 2000);
                     }
                 }
             }
