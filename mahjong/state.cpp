@@ -696,7 +696,7 @@ namespace mj
                     }
                     assert(std::accumulate(ron.begin(), ron.end(), 0) == 3);
                     for (int i = 0; i < 4; ++i) {
-                        if (ron[i] == 0) three_ronned_player = i;
+                        if (ron[i] == 0) three_ronned_player = AbsolutePos(i);
                     }
                     NoWinner();
                     return;
