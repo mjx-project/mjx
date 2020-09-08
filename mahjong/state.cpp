@@ -696,10 +696,6 @@ namespace mj
     }
 
     void State::Update(Action &&action) {
-        if (!Any(last_event_.type(), {EventType::kDraw, EventType::kDiscardFromHand,EventType::kDiscardDrawnTile,
-                                        EventType::kRiichi, EventType::kChi, EventType::kPon, EventType::kKanAdded})) {
-            std::cerr << static_cast<int>(last_event_.type()) << std::endl;
-        }
         assert(Any(last_event_.type(), {EventType::kDraw, EventType::kDiscardFromHand,EventType::kDiscardDrawnTile,
                                         EventType::kRiichi, EventType::kChi, EventType::kPon, EventType::kKanAdded}));
         auto who = action.who();
