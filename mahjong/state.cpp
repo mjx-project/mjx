@@ -503,7 +503,7 @@ namespace mj
         std::vector<int> ten_move{0, 0, 0, 0};
         // 流し満貫
         if (std::any_of(has_nm.begin(), has_nm.end(), [](bool hasnm){ return hasnm; })) {
-            int dealer_id = static_cast<int>(dealer());
+            int dealer_ix = ToUType(dealer());
             for (int i = 0; i < 4; ++i) {
                 if (has_nm[i]) {
                     for (int j = 0; j < 4; ++j) {
