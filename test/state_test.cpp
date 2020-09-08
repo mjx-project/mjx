@@ -476,6 +476,15 @@ TEST(state, Update) {
     state_before.Update(std::move(actions));
     EXPECT_EQ(state_before.ToJson(), state_after.ToJson());
 
+    // 三家和了
+    json_before = get_last_json_line("upd-bef-ron3.json");
+    json_after  =  get_last_json_line("upd-aft-ron3.json");
+    state_before = State(json_before);
+    state_after = State(json_after);
+    actions = { Action::CreateRon(AbsolutePos::kInitEast), Action::CreateRon(AbsolutePos::kInitSouth), Action::CreateRon(AbsolutePos::kInitWest) };
+    state_before.Update(std::move(actions));
+    EXPECT_EQ(state_before.ToJson(), state_after.ToJson());
+
     // 4個目の槓 -> 嶺上牌のツモ -> 打牌 のあと,この牌を誰も鳴けない場合は流局まで進む
     json_before = get_last_json_line("upd-bef-kan4.json");
     json_after = get_last_json_line("upd-aft-kan4.json");
