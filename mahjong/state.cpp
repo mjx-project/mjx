@@ -481,7 +481,7 @@ namespace mj
         // set terminal
         std::vector<int> is_tenpai = {0, 0, 0, 0};
         for (int i = 0; i < 4; ++i) {
-            if (three_ronned_player and three_ronned_player.value() == i) continue; // 三家和了でロンされた人の聴牌情報は入れない
+            if (three_ronned_player and three_ronned_player.value() == who) continue; // 三家和了でロンされた人の聴牌情報は入れない
             auto who = AbsolutePos(i);
             if (auto tenpai_hand = player(who).EvalTenpai(); tenpai_hand) {
                 is_tenpai[i] = 1;
