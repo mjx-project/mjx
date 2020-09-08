@@ -452,8 +452,8 @@ TEST(state, Update) {
     EXPECT_EQ(state_before.ToJson(), state_after.ToJson());
 
     // ４人目にRiichiした後にDiscardして、ロン候補がないときはRiichiScoreChange + NoWinner までUpdateされる
-    json_before = get_last_json_line("bef-reach4.json");
-    json_after = get_last_json_line("aft-reach4.json");
+    json_before = get_last_json_line("upd-bef-reach4.json");
+    json_after = get_last_json_line("upd-aft-reach4.json");
     state_before = State(json_before);
     state_after = State(json_after);
     actions = { Action::CreateRiichi(AbsolutePos::kInitSouth) };
@@ -477,8 +477,8 @@ TEST(state, Update) {
     EXPECT_EQ(state_before.ToJson(), state_after.ToJson());
 
     // 4個目の槓 -> 嶺上牌のツモ -> 打牌 のあと,この牌を誰も鳴けない場合は流局まで進む
-    json_before = get_last_json_line("bef-kan4.json");
-    json_after = get_last_json_line("aft-kan4.json");
+    json_before = get_last_json_line("upd-bef-kan4.json");
+    json_after = get_last_json_line("upd-aft-kan4.json");
     state_before = State(json_before);
     state_after = State(json_after);
     actions = { Action::CreateOpen(AbsolutePos::kInitEast, Open(4608)) };
