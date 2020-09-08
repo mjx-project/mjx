@@ -57,7 +57,7 @@ namespace mj
         TileType last_discard_type_;
         bool is_first_turn_wo_open = true;  // ダブル立直, 九種九牌, 四風連打, etc
         bool is_four_winds = true;
-        bool is_three_ron = false;
+        std::optional<int> three_ronned_player = std::nullopt;
         bool is_round_over_ = false;
         bool require_riichi_score_change_ = false;
         bool require_kan_draw_ = false;

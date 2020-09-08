@@ -147,8 +147,15 @@ namespace mj
              }
          }
          // 三家和了はEventからは復元できないので, ここでSetする
-         if (state.terminal().has_no_winner()) {
-             is_three_ron = state.terminal().no_winner().type() == mjproto::NO_WINNER_TYPE_THREE_RONS;
+         if (state.terminal().has_no_winner() and state.terminal().no_winner().type() == mjproto::NO_WINNER_TYPE_THREE_RONS) {
+             std::vector<int> tenpai = {0, 0, 0, 0};
+             for (auto t : state.terminal().no_winner().tenpais()) {
+                 tenpai[static_cast<int>(t.who())] = 1;
+             }
+             assert(std::accumulate(tenpai.begin(), tenpai.end(), 0) == 3);
+             for (int i = 0; i < 4; ++i) {
+                 if (tenpai[i] == 0) three_ronned_player = i;
+             }
          }
          // Set event history
          std::vector<int> draw_ixs = {0, 0, 0, 0};
@@ -456,7 +463,7 @@ namespace mj
             return;
         }
         // 三家和了
-        if (is_three_ron) {
+        if (three_ronned_player) {
             state_.mutable_terminal()->mutable_no_winner()->set_type(mjproto::NO_WINNER_TYPE_THREE_RONS);
             // 聴牌の情報が必要なため, ここでreturnしてはいけない.
         }
@@ -474,6 +481,7 @@ namespace mj
         // set terminal
         std::vector<int> is_tenpai = {0, 0, 0, 0};
         for (int i = 0; i < 4; ++i) {
+            if (three_ronned_player and three_ronned_player.value() == i) continue; // 三家和了でロンされた人の聴牌情報は入れない
             auto who = AbsolutePos(i);
             if (auto tenpai_hand = player(who).EvalTenpai(); tenpai_hand) {
                 is_tenpai[i] = 1;
@@ -487,20 +495,22 @@ namespace mj
         }
         auto num_tenpai = std::accumulate(is_tenpai.begin(), is_tenpai.end(), 0);
         for (int i = 0; i < 4; ++i) {
-            int ten_move;
-            switch (num_tenpai) {
-                case 1:
-                    ten_move = is_tenpai[i] ? 3000 : -1000;
-                    break;
-                case 2:
-                    ten_move = is_tenpai[i] ? 1500 : -1500;
-                    break;
-                case 3:
-                    ten_move = is_tenpai[i] ? 1000 : -3000;
-                    break;
-                default:  // 0, 4
-                    ten_move = 0;
-                    break;
+            int ten_move = 0;
+            if (!three_ronned_player) {
+                switch (num_tenpai) {
+                    case 1:
+                        ten_move = is_tenpai[i] ? 3000 : -1000;
+                        break;
+                    case 2:
+                        ten_move = is_tenpai[i] ? 1500 : -1500;
+                        break;
+                    case 3:
+                        ten_move = is_tenpai[i] ? 1000 : -3000;
+                        break;
+                    default:  // 0, 4
+                        ten_move = 0;
+                        break;
+                }
             }
             // apply ten moves
             state_.mutable_terminal()->mutable_no_winner()->add_ten_changes(ten_move);
@@ -680,7 +690,14 @@ namespace mj
                                                [](const Action &x){ return x.type() == ActionType::kRon; });
                 if (ron_count == 3) {
                     // TODO: 三家和了
-                    is_three_ron = true;
+                    std::vector<int> ron = {0, 0, 0, 0};
+                    for (auto action : action_candidates) {
+                        if (action.type() == ActionType::kRon) ron[static_cast<int>(action.who())] = 1;
+                    }
+                    assert(std::accumulate(ron.begin(), ron.end(), 0) == 3);
+                    for (int i = 0; i < 4; ++i) {
+                        if (ron[i] == 0) three_ronned_player = i;
+                    }
                     NoWinner();
                     return;
                 }
