@@ -3,72 +3,45 @@ set -eu
 TEST_DIR=$(pwd)
 TENHOU_DIR=${TEST_DIR}/../tenhou
 
-echo "################################################"
-echo "# 天鳳位"
-echo "################################################"
+mkdir -p ${TEST_DIR}/resources/zip
+mkdir -p ${TEST_DIR}/tmp
+# trap finally EXIT
 
-mkdir ${TEST_DIR}/tmp
+function download {
+	ix=$1
+	if [[ ! -e mjlog_pf4-20_n${ix}.zip ]]; 
+		then curl -O https://tenhou.net/0/log/mjlog_pf4-20_n${ix}.zip; 
+	fi
+}
 
-# Download
+function check_gz {
+  echo ".gz: $(ls ${TEST_DIR}/tmp | grep ".gz$" | wc -l), .mjlog: $(ls ${TEST_DIR}/tmp | grep ".mjlog$" | wc -l)"
+}
+
+function finally {
+	rm -rf ${TEST_DIR}/tmp
+}
+
+# 天鳳位のデータのみ TODO: 他の鳳凰卓のデータ
 echo "* Downloading ..."
-cd ${TEST_DIR}/tmp
-curl -O https://tenhou.net/0/log/mjlog_pf4-20_n1.zip  # CLS
-# curl -O https://tenhou.net/0/log/mjlog_pf4-20_n16.zip # 藤井聡ふと
-# curl -O https://tenhou.net/0/log/mjlog_pf4-20_n15.zip # 右折するひつじ
-# curl -O https://tenhou.net/0/log/mjlog_pf4-20_n14.zip # お知らせ
-# curl -O https://tenhou.net/0/log/mjlog_pf4-20_n13.zip # gousi
-# curl -O https://tenhou.net/0/log/mjlog_pf4-20_n12.zip # おかもと
-# curl -O https://tenhou.net/0/log/mjlog_pf4-20_n11.zip # トトリ先生19歳
-# curl -O https://tenhou.net/0/log/mjlog_pf4-20_n10.zip # ウルトラ立直
-# curl -O https://tenhou.net/0/log/mjlog_pf4-20_n9.zip  # 就活生@川村軍団
-# curl -O https://tenhou.net/0/log/mjlog_pf4-20_n8.zip  # かにマジン
-# curl -O https://tenhou.net/0/log/mjlog_pf4-20_n7.zip  # コーラ下さい
-# curl -O https://tenhou.net/0/log/mjlog_pf4-20_n6.zip  # タケオしゃん
-# curl -O https://tenhou.net/0/log/mjlog_pf4-20_n5.zip  # 太くないお
-# curl -O https://tenhou.net/0/log/mjlog_pf4-20_n4.zip  # すずめクレイジー
-# curl -O https://tenhou.net/0/log/mjlog_pf4-20_n3.zip  # 独歩
-# curl -O https://tenhou.net/0/log/mjlog_pf4-20_n2.zip  # （≧▽≦）
-# curl -O https://tenhou.net/0/log/mjlog_pf4-20_n1.zip  # ASAPIN
+cd ${TEST_DIR}/resources/zip
+for ix in $(seq 1 17); do download ${ix}; done
 
-# Unzip 
 echo "* Unzipping ..."
+check_gz
+cd ${TEST_DIR}/resources/zip
+for zip_file in $(ls); do unzip -j ${zip_file} -d ${TEST_DIR}/tmp &>/dev/null; done
+check_gz
 cd ${TEST_DIR}/tmp
-for zip_file in $(ls); do unzip ${zip_file} &>/dev/null && rm -rf ${zip_file}; done
-for dir in $(ls); do
-  cd ${dir}
-  for x in $(ls); do mv ${x} ${x}.gz; done
-  cd ../
-  gzip -dr ${dir} &>/dev/null
-done
-
-# Apply filter  TODO: replace here by python script
+for x in $(ls); do mv ${x} ${x}.gz; done
+check_gz
+cd ${TEST_DIR}/tmp
+for gzip_file in $(ls); do gzip -d ${gzip_file} &>/dev/null || true ; done
+check_gz
+ 
 echo "* Filtering ..."
-cd ${TEST_DIR}/tmp
-for dir in $(ls); do
-  cd ${dir}
-  for file in $(ls); do
-    if [[ $(ls | wc -l) -lt 100 ]]; then break; fi
-    rm ${file}
-  done
-  cd ../
-done
-
-# Move to mjlog from tmp dir
-echo "* Moving ..."
-cd ${TEST_DIR}/tmp
-for dir in $(ls); do
-  mv ${dir}/*.mjlog ${TEST_DIR}/resources/mjlog/
-done
-
-# Converting mjlog 
+python3 ${TENHOU_DIR}/filter.py ${TEST_DIR}/tmp --hounan --rm-users "o(>ロ<*)o"
+  
 echo "* Converting ..."
-cd ${TEST_DIR}/tmp
-for dir in $(ls); do
-  cd ${dir}
-  python3 ${TENHOU_DIR}/mjlog_decoder.py ${TEST_DIR}/resources/mjlog ${TEST_DIR}/resources/json --modify
-  cd ../
-done
-
-cd ${TEST_DIR}
-rm -rf ${TEST_DIR}/tmp
-
+python3 ${TENHOU_DIR}/mjlog_decoder.py ${TEST_DIR}/tmp ${TEST_DIR}/resources/json --modify
+ 
