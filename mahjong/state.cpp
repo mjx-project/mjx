@@ -146,6 +146,17 @@ namespace mj
                  state_.mutable_private_infos(i)->add_init_hand(t.Id());
              }
          }
+         // 三家和了はEventからは復元できないので, ここでSetする
+         if (state.terminal().has_no_winner() and state.terminal().no_winner().type() == mjproto::NO_WINNER_TYPE_THREE_RONS) {
+             std::vector<int> tenpai = {0, 0, 0, 0};
+             for (auto t : state.terminal().no_winner().tenpais()) {
+                 tenpai[ToUType(t.who())] = 1;
+             }
+             assert(std::accumulate(tenpai.begin(), tenpai.end(), 0) == 3);
+             for (int i = 0; i < 4; ++i) {
+                 if (tenpai[i] == 0) three_ronned_player = AbsolutePos(i);
+             }
+         }
          // Set event history
          std::vector<int> draw_ixs = {0, 0, 0, 0};
          for (int i = 0; i < state.event_history().events_size(); ++i) {
@@ -228,6 +239,9 @@ namespace mj
             if (!Is(discard.Type(), TileSetType::kWinds)) is_four_winds = false;
             if (dealer() != who && last_discard_type_ != discard.Type()) is_four_winds = false;
         }
+        if (Is(discard.Type(), TileSetType::kTanyao)) {
+            has_nm[ToUType(who)] = false;
+        }
 
         last_event_ = Event::CreateDiscard(who, discard, tsumogiri);
         last_discard_type_ = discard.Type();
@@ -252,6 +266,9 @@ namespace mj
 
     void State::ApplyOpen(AbsolutePos who, Open open) {
         mutable_player(who).ApplyOpen(open);
+
+        int absolute_pos_from = (ToUType(who) + ToUType(open.From())) % 4;
+        has_nm[absolute_pos_from] = false; // 鳴かれた人は流し満貫が成立しない
 
         last_event_ = Event::CreateOpen(who, open);
         state_.mutable_event_history()->mutable_events()->Add(last_event_.proto());
@@ -451,6 +468,11 @@ namespace mj
             set_terminal_vals();
             return;
         }
+        // 三家和了
+        if (three_ronned_player) {
+            state_.mutable_terminal()->mutable_no_winner()->set_type(mjproto::NO_WINNER_TYPE_THREE_RONS);
+            // 聴牌の情報が必要なため, ここでreturnしてはいけない.
+        }
 
         // 四家立直
         if (std::all_of(players_.begin(), players_.end(), [](const Player& p){ return p.IsUnderRiichi(); })) {
@@ -466,6 +488,7 @@ namespace mj
         std::vector<int> is_tenpai = {0, 0, 0, 0};
         for (int i = 0; i < 4; ++i) {
             auto who = AbsolutePos(i);
+            if (three_ronned_player and three_ronned_player.value() == who) continue; // 三家和了でロンされた人の聴牌情報は入れない
             if (auto tenpai_hand = player(who).EvalTenpai(); tenpai_hand) {
                 is_tenpai[i] = 1;
                 mjproto::TenpaiHand tenpai;
@@ -476,26 +499,45 @@ namespace mj
                 state_.mutable_terminal()->mutable_no_winner()->mutable_tenpais()->Add(std::move(tenpai));
             }
         }
-        auto num_tenpai = std::accumulate(is_tenpai.begin(), is_tenpai.end(), 0);
-        for (int i = 0; i < 4; ++i) {
-            int ten_move;
-            switch (num_tenpai) {
-                case 1:
-                    ten_move = is_tenpai[i] ? 3000 : -1000;
-                    break;
-                case 2:
-                    ten_move = is_tenpai[i] ? 1500 : -1500;
-                    break;
-                case 3:
-                    ten_move = is_tenpai[i] ? 1000 : -3000;
-                    break;
-                default:  // 0, 4
-                    ten_move = 0;
-                    break;
+
+        std::vector<int> ten_move{0, 0, 0, 0};
+        // 流し満貫
+        if (std::any_of(has_nm.begin(), has_nm.end(), [](bool hasnm){ return hasnm; })) {
+            int dealer_ix = ToUType(dealer());
+            for (int i = 0; i < 4; ++i) {
+                if (has_nm[i]) {
+                    for (int j = 0; j < 4; ++j) {
+                        if (i == j) ten_move[j] += (i == dealer_ix ? 12000 : 8000);
+                        else        ten_move[j] -= (i == dealer_ix or j == dealer_ix ? 4000 : 2000);
+                    }
+                }
             }
-            // apply ten moves
-            state_.mutable_terminal()->mutable_no_winner()->add_ten_changes(ten_move);
-            curr_score_.set_ten(i, ten(AbsolutePos(i)) + ten_move);
+            state_.mutable_terminal()->mutable_no_winner()->set_type(mjproto::NO_WINNER_TYPE_NM);
+        }
+        else if (!three_ronned_player) {
+            auto num_tenpai = std::accumulate(is_tenpai.begin(), is_tenpai.end(), 0);
+            for (int i = 0; i < 4; ++i) {
+                switch (num_tenpai) {
+                    case 1:
+                        ten_move[i] = is_tenpai[i] ? 3000 : -1000;
+                        break;
+                    case 2:
+                        ten_move[i] = is_tenpai[i] ? 1500 : -1500;
+                        break;
+                    case 3:
+                        ten_move[i] = is_tenpai[i] ? 1000 : -3000;
+                        break;
+                    default:  // 0, 4
+                        ten_move[i] = 0;
+                        break;
+                }
+            }
+        }
+
+        // apply ten moves
+        for (int i = 0; i < 4; ++i) {
+            state_.mutable_terminal()->mutable_no_winner()->add_ten_changes(ten_move[i]);
+            curr_score_.set_ten(i, ten(AbsolutePos(i)) + ten_move[i]);
         }
 
         // set terminal
@@ -670,7 +712,17 @@ namespace mj
                 int ron_count = std::count_if(action_candidates.begin(), action_candidates.end(),
                                                [](const Action &x){ return x.type() == ActionType::kRon; });
                 if (ron_count == 3) {
-                    // TODO: 三家和了
+                    // 三家和了
+                    std::vector<int> ron = {0, 0, 0, 0};
+                    for (auto action : action_candidates) {
+                        if (action.type() == ActionType::kRon) ron[ToUType(action.who())] = 1;
+                    }
+                    assert(std::accumulate(ron.begin(), ron.end(), 0) == 3);
+                    for (int i = 0; i < 4; ++i) {
+                        if (ron[i] == 0) three_ronned_player = AbsolutePos(i);
+                    }
+                    NoWinner();
+                    return;
                 }
                 for (auto &action: action_candidates) {
                     if (action.type() != ActionType::kRon) break;
