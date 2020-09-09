@@ -538,7 +538,10 @@ TEST(state, tenhou) {
             std::getline(ifs, original_json);
             if (original_json.empty()) continue;
             restored_json = State(original_json).ToJson();
-            if (original_json != restored_json) ++failure_cnt;
+            if (original_json != restored_json) {
+                ++failure_cnt;
+                std::cerr << filename << std::endl;
+            }
             EXPECT_EQ(original_json, restored_json);
         }
     };
