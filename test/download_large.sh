@@ -2,10 +2,12 @@ set -eu
 
 TEST_DIR=$(pwd)
 TENHOU_DIR=${TEST_DIR}/../tenhou
+ZIP_DIR=${TEST_DIR}/resources/zip
+TMP_DIR=${TEST_DIR}/resources/tmp
 
-mkdir -p ${TEST_DIR}/resources/zip
-mkdir -p ${TEST_DIR}/tmp
-# trap finally EXIT
+mkdir -p ${ZIP_DIR}
+mkdir -p ${TMP_DIR}
+trap finally EXIT
 
 function download {
 	ix=$1
@@ -15,33 +17,33 @@ function download {
 }
 
 function check_gz {
-  echo ".gz: $(ls ${TEST_DIR}/tmp | grep ".gz$" | wc -l), .mjlog: $(ls ${TEST_DIR}/tmp | grep ".mjlog$" | wc -l)"
+  echo ".gz: $(ls ${TMP_DIR} | grep ".gz$" | wc -l), .mjlog: $(ls ${TMP_DIR} | grep ".mjlog$" | wc -l)"
 }
 
 function finally {
-	rm -rf ${TEST_DIR}/tmp
+	rm -rf ${TMP_DIR}
 }
 
 # 天鳳位のデータのみ TODO: 他の鳳凰卓のデータ
 echo "* Downloading ..."
-cd ${TEST_DIR}/resources/zip
+cd ${ZIP_DIR}
 for ix in $(seq 1 17); do download ${ix}; done
 
 echo "* Unzipping ..."
 check_gz
-cd ${TEST_DIR}/resources/zip
-for zip_file in $(ls); do unzip -j ${zip_file} -d ${TEST_DIR}/tmp &>/dev/null; done
+cd ${ZIP_DIR}
+for zip_file in $(ls); do unzip -j ${zip_file} -d ${TMP_DIR} &>/dev/null; done
 check_gz
-cd ${TEST_DIR}/tmp
+cd ${TMP_DIR}
 for x in $(ls); do mv ${x} ${x}.gz; done
 check_gz
-cd ${TEST_DIR}/tmp
+cd ${TMP_DIR}
 for gzip_file in $(ls); do gzip -d ${gzip_file} &>/dev/null || true ; done
 check_gz
  
 echo "* Filtering ..."
-python3 ${TENHOU_DIR}/filter.py ${TEST_DIR}/tmp --hounan --rm-users "o(>ロ<*)o"
+python3 ${TENHOU_DIR}/filter.py ${TMP_DIR} --hounan --rm-users "o(>ロ<*)o"
   
 echo "* Converting ..."
-python3 ${TENHOU_DIR}/mjlog_decoder.py ${TEST_DIR}/tmp ${TEST_DIR}/resources/json --modify
+python3 ${TENHOU_DIR}/mjlog_decoder.py ${TMP_DIR} ${TEST_DIR}/resources/json --modify
  
