@@ -50,8 +50,8 @@ namespace mj
 
         [[nodiscard]] PlayerId player_id() const;
     private:
-        unsigned machi_ = 0;    // 上がりの形になるための待ち(役の有無を考慮しない)
-        unsigned discards_ = 0; // 今までに捨てた牌のset
+        std::uint64_t machi_ = 0;    // 上がりの形になるための待ち(役の有無を考慮しない). bitで管理する
+        std::uint64_t discards_ = 0; // 今までに捨てた牌のset. bitで管理する
         PlayerId player_id_;
         AbsolutePos position_;
         River river_;
