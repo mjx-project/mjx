@@ -36,7 +36,7 @@ namespace mj
     }
 
     bool Player::CanRon(Tile tile, WinStateInfo &&win_state_info) const {
-        // TODO: ここでフリテンでないことを確認
+        // フリテンでないことを確認
         if (machi_ & discards_) return false;
         return YakuEvaluator::CanWin(WinInfo(std::move(win_state_info), hand_.win_info()).Ron(tile));
     }
