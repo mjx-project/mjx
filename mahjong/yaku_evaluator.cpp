@@ -14,15 +14,6 @@ namespace mj
         return WinHandCache::instance();
     }
 
-    bool YakuEvaluator::Has(const WinInfo& win_info) noexcept {
-        WinScore score;
-
-        // closedな手牌が上がり形になっている or 国士無双かどうかを判定する.
-        return win_cache().Has(win_info.hand.closed_tile_types) or
-               HasThirteenOrphans(win_info) or
-               HasCompletedThirteenOrphans(win_info);
-    }
-
     bool YakuEvaluator::CanWin(const WinInfo& win_info) noexcept {
         WinScore score;
 
@@ -48,7 +39,7 @@ namespace mj
     }
 
     WinScore YakuEvaluator::Eval(const WinInfo& win_info) noexcept {
-        assert(Has(win_info));
+        assert(win_cache().Has(win_info.hand.closed_tile_types));
 
         WinScore score;
 
