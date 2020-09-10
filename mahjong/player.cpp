@@ -75,7 +75,7 @@ namespace mj
         discards_.set(ToUType(tile.Type()));
         auto ret = hand_.Discard(tile);
         if (IsTenpai()) {
-            machi_ = 0;
+            machi_.reset();
             for (auto tile_type : WinHandCache::instance().Machi(hand_.ClosedTileTypes())) {
                 machi_.set(ToUType(tile_type));
             }
