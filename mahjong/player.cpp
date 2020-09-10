@@ -1,6 +1,7 @@
 #include "player.h"
 
 #include <utility>
+#include "utils.h"
 #include "yaku_evaluator.h"
 
 namespace mj
@@ -35,7 +36,8 @@ namespace mj
     }
 
     bool Player::CanRon(Tile tile, WinStateInfo &&win_state_info) const {
-        // TODO: ここでフリテンでないことを確認
+        // フリテンでないことを確認
+        if ((machi_ & discards_).any()) return false;
         return YakuEvaluator::CanWin(WinInfo(std::move(win_state_info), hand_.win_info()).Ron(tile));
     }
 
@@ -70,7 +72,15 @@ namespace mj
     }
 
     std::pair<Tile, bool> Player::Discard(Tile tile) {
-        return hand_.Discard(tile);
+        discards_.set(ToUType(tile.Type()));
+        auto ret = hand_.Discard(tile);
+        if (IsTenpai()) {
+            machi_.reset();
+            for (auto tile_type : WinHandCache::instance().Machi(hand_.ClosedTileTypes())) {
+                machi_.set(ToUType(tile_type));
+            }
+        }
+        return ret;
     };
 
     // get winning info
