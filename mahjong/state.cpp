@@ -834,6 +834,13 @@ namespace mj
                 return;
             case ActionType::kNo:
                 assert(Any(last_event_.type(), {EventType::kDiscardDrawnTile, EventType::kDiscardFromHand, EventType::kKanAdded}));
+
+                // 加槓のあとに ActionType::kNo が渡されるのは槍槓のロンを否定した場合のみ
+                if (last_event_.type() == EventType::kKanAdded) {
+                    Draw(AbsolutePos((ToUType(last_event_.who()))));  // 嶺上ツモ
+                    return;
+                }
+
                 // 全員が立直している状態で ActionType::kNo が渡されるのは,
                 // 4人目に立直した人の立直宣言牌を他家がロンできるけど無視したときのみ.
                 // 四家立直で流局とする.
@@ -854,7 +861,7 @@ namespace mj
 
                 if (wall_.HasDrawLeft()) {
                     if (require_riichi_score_change_) RiichiScoreChange();
-                    Draw(AbsolutePos((ToUType(last_event_.who()) + 1) % 4));  // TODO: check 流局
+                    Draw(AbsolutePos((ToUType(last_event_.who()) + 1) % 4));
                 } else {
                     NoWinner();
                 }
