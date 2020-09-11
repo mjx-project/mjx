@@ -274,6 +274,21 @@ TEST(state, Update) {
         return serialized;
     };
 
+    auto check_yakus = [](const State &state, AbsolutePos winner, std::vector<Yaku> &&yakus) {
+        mjproto::State state_proto = state.proto();
+        assert(std::any_of(state_proto.terminal().wins().begin(), state_proto.terminal().wins().end(),
+                [&](const auto &win){ return AbsolutePos(win.who()) == winner; }));
+        for (const auto & win: state_proto.terminal().wins()) {
+            if (AbsolutePos(win.who()) == winner) {
+                if (win.yakus().size() != yakus.size()) return false;
+                for (int yaku: win.yakus()) {
+                    if (!Any(Yaku(yaku), yakus)) return false;
+                }
+            }
+        }
+        return true;
+    };
+
     // Draw後にDiscardでUpdate。これを誰も鳴けない場合は次のDrawまで進む
     json_before = get_last_json_line("upd-bef-draw-discard-draw.json");
     json_after = get_last_json_line("upd-aft-draw-discard-draw.json");
