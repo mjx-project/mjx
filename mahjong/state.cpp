@@ -218,6 +218,14 @@ namespace mj
     }
 
     Tile State::Draw(AbsolutePos who) {
+        if (last_ronable_tile.has_value()) {
+            for (int i = 0; i < 4; ++i) {
+                auto type = last_ronable_tile.value().Type();
+                auto ix = ToUType(type);
+                missed_tiles[AbsolutePos(i)].set(ix);
+            }
+        }
+
         auto draw = require_kan_draw_ ? wall_.KanDraw() : wall_.Draw();
         require_kan_draw_ = false;
         mutable_player(who).Draw(draw);
@@ -233,7 +241,10 @@ namespace mj
         auto [discarded, tsumogiri] = mutable_player(who).Discard(discard);
         assert(discard == discarded);
 
+        last_ronable_tile = discard; // ロンされうる牌を更新
+
         is_ippatsu_[who] = false;
+        if (!player(who).IsUnderRiichi()) missed_tiles[who].reset();  // フリテン解除
         // set is_four_winds = false
         if (is_first_turn_wo_open && is_four_winds) {
             if (!Is(discard.Type(), TileSetType::kWinds)) is_four_winds = false;
@@ -269,6 +280,10 @@ namespace mj
 
         int absolute_pos_from = (ToUType(who) + ToUType(open.From())) % 4;
         has_nm[absolute_pos_from] = false; // 鳴かれた人は流し満貫が成立しない
+
+        if (open.Type() == OpenType::kKanAdded) {
+            last_ronable_tile = open.LastTile();    // KanAddedはロンされうる
+        }
 
         last_event_ = Event::CreateOpen(who, open);
         state_.mutable_event_history()->mutable_events()->Add(last_event_.proto());
@@ -657,7 +672,7 @@ namespace mj
 
              // check ron
              if (player(stealer).IsCompleted(tile) &&
-                 player(stealer).CanRon(tile, win_state_info(stealer))) {
+                 player(stealer).CanRon(tile, win_state_info(stealer), missed_tiles.at(stealer))) {
                  observation.add_possible_action(PossibleAction::CreateRon());
              }
 

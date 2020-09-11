@@ -79,6 +79,10 @@ namespace mj
     }
 
     Tile Event::tile() const {
+        //if (!Any(type(), {EventType::kDraw, EventType::kDiscardFromHand, EventType::kDiscardDrawnTile,
+        //                    EventType::kTsumo, EventType::kRon, EventType::kNewDora})) {
+        //    std::cerr << "type():" << ToUType(type()) << std::endl;
+        //}
         assert(Any(type(), {EventType::kDraw, EventType::kDiscardFromHand, EventType::kDiscardDrawnTile,
                             EventType::kTsumo, EventType::kRon, EventType::kNewDora}));
         return Tile(proto_.tile());
