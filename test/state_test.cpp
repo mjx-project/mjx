@@ -203,7 +203,7 @@ TEST(state, CreateObservation) {
 TEST(state, Update) {
     // 特に記述がないテストケースは下記から
     // https://tenhou.net/0/?log=2011020417gm-00a9-0000-b67fcaa3&tw=1
-    std::string json_before, json_after; State state_before, state_after; std::vector<Action> actions; std::unordered_map<PlayerId, Observation> observations; Observation observation;
+    std::string json_before, json_after; State state_before, state_after; std::vector<Action> actions; std::unordered_map<PlayerId, Observation> observations; Observation observation; PossibleAction possible_action;
     auto types_check = [](const std::vector<ActionType>& action_types, const Observation &observation) {
         if (observation.possible_actions().size() != action_types.size()) return false;
         for (const auto &possible_action: observation.possible_actions())
@@ -279,14 +279,29 @@ TEST(state, Update) {
         assert(std::any_of(state_proto.terminal().wins().begin(), state_proto.terminal().wins().end(),
                 [&](const auto &win){ return AbsolutePos(win.who()) == winner; }));
         for (const auto & win: state_proto.terminal().wins()) {
+            bool ok = true;
             if (AbsolutePos(win.who()) == winner) {
-                if (win.yakus().size() != yakus.size()) return false;
-                for (int yaku: win.yakus()) {
-                    if (!Any(Yaku(yaku), yakus)) return false;
-                }
+                if (win.yakus().size() != yakus.size()) ok = false;
+                for (auto yaku: win.yakus()) if (!Any(Yaku(yaku), yakus)) ok = false;
+            }
+            if (!ok) {
+                std::cout << "Actual  : ";
+                for (auto y: win.yakus()) { std::cout << y << " "; }
+                std::cout << std::endl;
+                std::cout << "Expected: ";
+                for (Yaku y: yakus) { std::cout << (int)y << " "; }
+                std::cout << std::endl;
+                return false;
             }
         }
         return true;
+    };
+
+    auto find_possible_action = [](ActionType action_type, const Observation &observation) {
+        for (const auto &possible_action: observation.possible_actions())
+            if (possible_action.type() == action_type) return possible_action;
+        std::cerr << "Cannot find the specified action type" << std::endl;
+        return PossibleAction();
     };
 
     // Draw後にDiscardでUpdate。これを誰も鳴けない場合は次のDrawまで進む
@@ -602,6 +617,76 @@ TEST(state, Update) {
     observations = state_before.CreateObservations();
     EXPECT_EQ(observations.size(), 1);
     EXPECT_TRUE(observations.find("心滅獣身") == observations.end());
+
+    // 加槓=>No=>ツモでは一発はつかない（加槓=>槍槓ロンはつく）
+    // 次のツモを5s(91)にスワップ
+    json_before = get_last_json_line("upd-bef-chankan-twice.json");
+    json_before = swap_tiles(json_before, Tile(12), Tile(91));
+    state_before = State(json_before);
+    // 8s Kan
+    observations = state_before.CreateObservations();
+    EXPECT_EQ(observations.size(), 1);
+    observation = observations.begin()->second;
+    EXPECT_TRUE(types_check({ActionType::kDiscard, ActionType::kKanAdded}, observation));
+    possible_action = find_possible_action(ActionType::kKanAdded, observation);
+    actions = { Action::CreateOpen(observation.who(), possible_action.open()) };
+    state_before.Update(std::move(actions));
+    // No
+    observations = state_before.CreateObservations();
+    EXPECT_EQ(observations.size(), 1);
+    observation = observations.begin()->second;
+    EXPECT_TRUE(types_check({ActionType::kRon, ActionType::kNo}, observation));
+    actions = { Action::CreateNo(observation.who()) };
+    state_before.Update(std::move(actions));
+    // Discard 2m
+    observations = state_before.CreateObservations();
+    EXPECT_EQ(observations.size(), 1);
+    observation = observations.begin()->second;
+    EXPECT_TRUE(types_check({ActionType::kDiscard}, observation));
+    EXPECT_EQ(observation.who(), AbsolutePos::kInitNorth);
+    actions = { Action::CreateDiscard(observation.who(), Tile(4)) };
+    state_before.Update(std::move(actions));
+    // Tsumo
+    observations = state_before.CreateObservations();
+    EXPECT_EQ(observations.size(), 1);
+    observation = observations.begin()->second;
+    EXPECT_TRUE(types_check({ActionType::kDiscard, ActionType::kTsumo}, observation));
+    actions = { Action::CreateTsumo(observation.who()) };
+    state_before.Update(std::move(actions));
+    EXPECT_TRUE(check_yakus(state_before, AbsolutePos::kInitEast,
+            {Yaku::kFullyConcealedHand, Yaku::kRiichi, Yaku::kPinfu, Yaku::kRedDora, Yaku::kReversedDora}));
+
+    // 加槓=>加槓=>槍槓ロンでは一発はつかない（加槓=>槍槓ロンはつく）
+    // s8(103) をリンシャンツモ s3(81) と入れ替え
+    // s3(81) を wd(127) と入れ替え
+    json_before = get_last_json_line("upd-bef-chankan-twice.json");
+    json_before = swap_tiles(json_before, Tile(81), Tile(103));
+    json_before = swap_tiles(json_before, Tile(81), Tile(127));
+    state_before = State(json_before);
+    // KanAdded ww
+    observations = state_before.CreateObservations();
+    EXPECT_EQ(observations.size(), 1);
+    observation = observations.begin()->second;
+    EXPECT_TRUE(types_check({ActionType::kDiscard, ActionType::kKanAdded}, observation));
+    possible_action = find_possible_action(ActionType::kKanAdded, observation);
+    actions = { Action::CreateOpen(observation.who(), possible_action.open()) };
+    state_before.Update(std::move(actions));
+    // KanAdded p8
+    observations = state_before.CreateObservations();
+    EXPECT_EQ(observations.size(), 1);
+    observation = observations.begin()->second;
+    EXPECT_TRUE(types_check({ActionType::kDiscard, ActionType::kKanAdded}, observation));
+    possible_action = find_possible_action(ActionType::kKanAdded, observation);
+    actions = { Action::CreateOpen(observation.who(), possible_action.open()) };
+    state_before.Update(std::move(actions));
+    // 槍槓（一発なし）
+    observations = state_before.CreateObservations();
+    EXPECT_EQ(observations.size(), 1);
+    observation = observations.begin()->second;
+    actions = { Action::CreateRon(observation.who()) };
+    state_before.Update(std::move(actions));
+    EXPECT_TRUE(check_yakus(state_before, AbsolutePos::kInitEast,
+                            {Yaku::kRiichi, Yaku::kPinfu, Yaku::kRedDora, Yaku::kReversedDora, Yaku::kRobbingKan}));
 }
 
 TEST(state, tenhou) {
