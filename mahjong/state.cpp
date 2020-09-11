@@ -225,6 +225,7 @@ namespace mj
                 missed_tiles[AbsolutePos(i)].set(ix);
             }
         }
+        if (!player(who).IsUnderRiichi()) missed_tiles[who].reset();  // フリテン解除
 
         auto draw = require_kan_draw_ ? wall_.KanDraw() : wall_.Draw();
         require_kan_draw_ = false;
@@ -244,7 +245,6 @@ namespace mj
         last_ronable_tile = discard; // ロンされうる牌を更新
 
         is_ippatsu_[who] = false;
-        if (!player(who).IsUnderRiichi()) missed_tiles[who].reset();  // フリテン解除
         // set is_four_winds = false
         if (is_first_turn_wo_open && is_four_winds) {
             if (!Is(discard.Type(), TileSetType::kWinds)) is_four_winds = false;
