@@ -32,7 +32,7 @@ namespace mj
         if (!score.yaku().empty()) return true;
 
         // 手牌の組み合わせ方に依存する役
-        const auto [best_yaku, closed_sets, heads] = MaximizeTotalFan(win_info);
+        const auto [best_yaku, best_fu, closed_sets, heads] = MaximizeTotalFan(win_info);
         for (auto& [yaku, fan] : best_yaku) score.AddYaku(yaku, fan);
 
         return !score.yaku().empty();
@@ -51,19 +51,15 @@ namespace mj
         JudgeSimpleYaku(win_info, score);
 
         // 手牌の組み合わせ方に依存する役
-        const auto [best_yaku, closed_sets, heads] = MaximizeTotalFan(win_info);
+        const auto [best_yaku, best_fu, closed_sets, heads] = MaximizeTotalFan(win_info);
         for (auto& [yaku, fan] : best_yaku) score.AddYaku(yaku, fan);
+        score.set_fu(best_fu);
 
         // 役がないと上がれない.
         assert(!score.yaku().empty());
 
         // ドラ
         JudgeDora(win_info, score);
-
-        if (!score.RequireFu()) return score;
-
-        // 符を計算する
-        score.set_fu(CalculateFu(win_info, closed_sets, heads, score));
 
         return score;
     }
@@ -183,7 +179,7 @@ namespace mj
         if (fu % 10) fu += 10 - fu % 10;
 
         // 門前ロンはピンフ以外40符以上はあるはず
-        assert(!(win_info.hand.is_menzen && win_info.hand.stage == HandStage::kAfterRon && !win_score.HasYaku(Yaku::kPinfu) && fu < 40));
+        assert(!(win_info.hand.is_menzen && win_info.hand.stage == HandStage::kAfterRon && !yakus.count(Yaku::kPinfu) && fu < 40));
         return fu;
     }
 
