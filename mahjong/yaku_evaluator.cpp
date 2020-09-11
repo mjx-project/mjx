@@ -72,15 +72,15 @@ namespace mj
             const WinInfo& win_info,
             const std::vector<TileTypeCount>& closed_sets,
             const std::vector<TileTypeCount>& heads,
-            const WinScore& win_score) noexcept {
+            const std::map<Yaku, int>& yakus) noexcept {
 
         // 七対子:25
-        if (win_score.HasYaku(Yaku::kSevenPairs)) {
+        if (yakus.count(Yaku::kSevenPairs)) {
             return 25;
         }
 
         // 平和ツモ:20, 平和ロン:30
-        if (win_score.HasYaku(Yaku::kPinfu)) {
+        if (yakus.count(Yaku::kPinfu)) {
             if (win_info.hand.stage == HandStage::kAfterTsumo) {
                 return 20;
             } else if (win_info.hand.stage == HandStage::kAfterRon) {
@@ -187,10 +187,11 @@ namespace mj
         return fu;
     }
 
-    std::tuple<std::map<Yaku,int>,std::vector<TileTypeCount>,std::vector<TileTypeCount>>
+    std::tuple<std::map<Yaku,int>, int, std::vector<TileTypeCount>, std::vector<TileTypeCount>>
     YakuEvaluator::MaximizeTotalFan(const WinInfo& win_info) noexcept {
 
         std::map<Yaku,int> best_yaku;
+        int best_fu;
         std::vector<TileTypeCount> best_closed_set, best_heads;
 
         std::vector<TileTypeCount> opened_sets;
@@ -241,15 +242,19 @@ namespace mj
                 yaku_in_this_pattern[Yaku::kThreeConcealedPons] = fan.value();
             }
 
-            // 今までに調べた組み合わせ方より役の総飜数が高いなら採用する.
-            if (best_yaku.empty() or TotalFan(best_yaku) < TotalFan(yaku_in_this_pattern)) {
+            // 今までに調べた組み合わせ方より役の総飜数が高いなら採用する
+            int best_total_fan = TotalFan(best_yaku);
+            int total_fan = TotalFan(yaku_in_this_pattern);
+            int fu = CalculateFu(win_info, closed_sets, heads, yaku_in_this_pattern);
+            if (best_yaku.empty() or best_total_fan < total_fan or (best_total_fan == total_fan and best_fu < fu)) {
                 std::swap(best_yaku, yaku_in_this_pattern);
                 best_closed_set = closed_sets;
                 best_heads = heads;
+                best_fu = fu;
             }
         }
 
-        return {best_yaku, best_closed_set, best_heads};
+        return {best_yaku, best_fu, best_closed_set, best_heads};
     }
 
     void YakuEvaluator::JudgeYakuman(const WinInfo& win_info, WinScore& score) noexcept {
