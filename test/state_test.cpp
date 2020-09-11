@@ -224,7 +224,7 @@ TEST(state, Update) {
     };
 
     // NOTE 鳴きの構成要素になっている牌とはスワップできない
-    auto swap_tile = [](const std::string &json_str, Tile a, Tile b){
+    auto swap_tiles = [](const std::string &json_str, Tile a, Tile b){
         mjproto::State state = mjproto::State();
         auto status = google::protobuf::util::JsonStringToMessage(json_str, &state);
         assert(status.ok());
@@ -516,9 +516,9 @@ TEST(state, Update) {
     // 4人目にRiichiした後にDiscardした牌がロンできるときに無視された場合, RiichiScoreChange + NoWinner までUpdateされる
     // 上のケースで4人目の立直宣言牌が親のあたり牌になるように牌をswapした（48と82）
     json_before = get_last_json_line("upd-bef-reach4.json");
-    json_before = swap_tile(json_before, Tile(48), Tile(82));
+    json_before = swap_tiles(json_before, Tile(48), Tile(82));
     json_after = get_last_json_line("upd-aft-reach4.json");
-    json_after = swap_tile(json_after, Tile(48), Tile(82));
+    json_after = swap_tiles(json_after, Tile(48), Tile(82));
     state_before = State(json_before);
     state_after = State(json_after);
     actions = { Action::CreateRiichi(AbsolutePos::kInitSouth) };
@@ -552,9 +552,9 @@ TEST(state, Update) {
     // 4個目の槓 -> 嶺上牌のツモ -> 打牌 のあと,この牌をロンできるけど無視した場合も流局とする
     // 上の例から嶺上ツモを 6 -> 80 に変更している
     json_before = get_last_json_line("upd-bef-kan4.json");
-    json_before = swap_tile(json_before, Tile(6), Tile(80));
+    json_before = swap_tiles(json_before, Tile(6), Tile(80));
     json_after = get_last_json_line("upd-aft-kan4.json");
-    json_after = swap_tile(json_after, Tile(6), Tile(80));
+    json_after = swap_tiles(json_after, Tile(6), Tile(80));
     state_before = State(json_before);
     state_after = State(json_after);
     actions = { Action::CreateOpen(AbsolutePos::kInitEast, Open(4608)) };
