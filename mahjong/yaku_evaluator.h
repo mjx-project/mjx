@@ -2,6 +2,7 @@
 #define MAHJONG_YAKU_EVALUATOR_H
 
 #include <vector>
+#include <unordered_set>
 #include <tuple>
 
 #include "types.h"
@@ -15,7 +16,6 @@ namespace mj
     public:
         YakuEvaluator() = delete;
         [[nodiscard]] static WinScore Eval(const WinInfo& win_info) noexcept ;
-        [[nodiscard]] static bool Has(const WinInfo& win_info) noexcept ;    // 上がりの形になっていれば良い.
         [[nodiscard]] static bool CanWin(const WinInfo& win_info) noexcept ;    // 役がないとダメ.
 
     private:

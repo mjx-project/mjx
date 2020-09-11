@@ -525,6 +525,13 @@ TEST(state, Update) {
     actions = { Action::CreateDiscard(AbsolutePos::kInitNorth, Tile(17)) };
     state_before.Update(std::move(actions));
     EXPECT_EQ(state_before.ToJson(), state_after.ToJson());
+
+    // 捨て牌によるフリテン
+    json_before = get_last_json_line("upd-sutehai-furiten.json");
+    state_before = State(json_before);
+    observations = state_before.CreateObservations();
+    EXPECT_EQ(observations.size(), 1);
+    EXPECT_TRUE(observations.find("心滅獣身") == observations.end());
 }
 
 TEST(state, tenhou) {
