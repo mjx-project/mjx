@@ -39,12 +39,22 @@ namespace mj {
         auto [abstruct_hand, _] = CreateAbstructHand(closed_hand);  // E.g., abstructed_hand = "222,111,3,2"
         if (cache_.count(abstruct_hand)) return true;
         // 国士無双
-        TileTypeCount yaocyu;
         for (const auto& [tile_type, n] : closed_hand) {
             if (!Is(tile_type, TileSetType::kYaocyu)) return false;
-            yaocyu[tile_type] = n;
         }
-        return yaocyu.size() == 13;
+        return closed_hand.size() == 13;
+    }
+    std::unordered_set<TileType> WinHandCache::Machi(TileTypeCount closed_hand) const noexcept {
+        std::unordered_set<TileType> machi;
+        for (int i = 0; i < 34; ++i) {
+            auto type = static_cast<TileType>(i);
+            ++closed_hand[type];
+            if (Has(closed_hand)) machi.insert(TileType(i));
+            if (--closed_hand[type] == 0) {
+                closed_hand.erase(type);
+            };
+        }
+        return machi;
     }
 
     std::vector<std::pair<std::vector<TileTypeCount>, std::vector<TileTypeCount>>>

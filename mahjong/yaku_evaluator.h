@@ -2,6 +2,7 @@
 #define MAHJONG_YAKU_EVALUATOR_H
 
 #include <vector>
+#include <unordered_set>
 #include <tuple>
 
 #include "types.h"
@@ -15,7 +16,6 @@ namespace mj
     public:
         YakuEvaluator() = delete;
         [[nodiscard]] static WinScore Eval(const WinInfo& win_info) noexcept ;
-        [[nodiscard]] static bool Has(const WinInfo& win_info) noexcept ;    // 上がりの形になっていれば良い.
         [[nodiscard]] static bool CanWin(const WinInfo& win_info) noexcept ;    // 役がないとダメ.
 
     private:
@@ -34,14 +34,14 @@ namespace mj
                 WinScore& score) noexcept ;
 
         static int TotalFan(const std::map<Yaku,int>& yaku) noexcept ;
-        [[nodiscard]] static std::tuple<std::map<Yaku,int>,std::vector<TileTypeCount>,std::vector<TileTypeCount>>
+        [[nodiscard]] static std::tuple<std::map<Yaku,int>, int, std::vector<TileTypeCount>, std::vector<TileTypeCount>>
         MaximizeTotalFan(const WinInfo& win_info) noexcept ;
 
         [[nodiscard]] static int CalculateFu(
                 const WinInfo& win_info,
                 const std::vector<TileTypeCount>& closed_sets,
                 const std::vector<TileTypeCount>& heads,
-                const WinScore& win_score) noexcept ;
+                const std::map<Yaku, int>& yakus) noexcept ;
 
         [[nodiscard]] static bool HasBlessingOfHeaven(const WinInfo& win_info) noexcept ;
         [[nodiscard]] static bool HasBlessingOfEarth(const WinInfo& win_info) noexcept ;
