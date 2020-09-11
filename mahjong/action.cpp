@@ -127,12 +127,6 @@ namespace mj
         return possible_action;
     }
 
-    PossibleAction PossibleAction::CreateKanAdded() {
-        auto possible_action = PossibleAction();
-        possible_action.possible_action_.set_type(mjproto::ActionType(ActionType::kKanAdded));
-        return possible_action;
-    }
-
     PossibleAction PossibleAction::CreateNo() {
         auto possible_action = PossibleAction();
         possible_action.possible_action_.set_type(mjproto::ActionType(ActionType::kNo));

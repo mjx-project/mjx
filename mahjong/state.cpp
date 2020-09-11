@@ -62,8 +62,11 @@ namespace mj
                         observation.add_possible_action(PossibleAction::CreateTsumo());
 
                     // => Kan (2)
-                    if (auto possible_kans = player(who).PossibleOpensAfterDraw(); !possible_kans.empty())
-                        observation.add_possible_action(PossibleAction::CreateKanAdded());
+                    if (auto possible_kans = player(who).PossibleOpensAfterDraw(); !possible_kans.empty()) {
+                        for (const auto possible_kan: possible_kans) {
+                            observation.add_possible_action(PossibleAction::CreateOpen(possible_kan));
+                        }
+                    }
 
                     // => Riichi (3)
                     if (player(who).CanRiichi())
@@ -105,7 +108,7 @@ namespace mj
                     assert(!observations.empty());
                     for (const auto &[player_id, observation]: observations)
                         for (const auto &possible_action: observation.possible_actions())
-                            assert(possible_action.type() == ActionType::kRon);
+                            assert(Any(possible_action.type(), {ActionType::kRon, ActionType::kNo}));
                     return observations;
                 }
             case EventType::kTsumo:
