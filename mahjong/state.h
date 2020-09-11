@@ -63,7 +63,7 @@ namespace mj
         bool require_riichi_score_change_ = false;
         bool require_kan_draw_ = false;
         int require_kan_dora_ = 0;  // 加槓 => 暗槓が続いたときに2回連続でカンドラを開く場合がある https://github.com/sotetsuk/mahjong/issues/199
-        std::unordered_map<AbsolutePos, bool> is_ippatsu_;
+        std::unordered_map<AbsolutePos, bool> is_ippatsu_ = {{AbsolutePos::kInitEast, false}, {AbsolutePos::kInitSouth, false}, {AbsolutePos::kInitWest, false}, {AbsolutePos::kInitNorth, false}};
 
         // accessors
         [[nodiscard]] const Player& player(AbsolutePos pos) const;
