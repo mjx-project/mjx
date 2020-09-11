@@ -36,8 +36,8 @@ namespace mj
     }
 
     bool Player::CanRon(Tile tile, WinStateInfo &&win_state_info) const {
-        // TODO: ここでフリテンでないことを確認
-        if (machi_ & discards_) return false;
+        // フリテンでないことを確認
+        if ((machi_ & discards_).any()) return false;
         return YakuEvaluator::CanWin(WinInfo(std::move(win_state_info), hand_.win_info()).Ron(tile));
     }
 
@@ -72,12 +72,12 @@ namespace mj
     }
 
     std::pair<Tile, bool> Player::Discard(Tile tile) {
-        discards_ |= 1u << ToUType(tile.Type());
+        discards_.set(ToUType(tile.Type()));
         auto ret = hand_.Discard(tile);
         if (IsTenpai()) {
-            machi_ = 0;
+            machi_.reset();
             for (auto tile_type : WinHandCache::instance().Machi(hand_.ClosedTileTypes())) {
-                machi_ |= 1u << ToUType(tile_type);
+                machi_.set(ToUType(tile_type));
             }
         }
         return ret;

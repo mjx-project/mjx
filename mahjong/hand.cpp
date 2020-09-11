@@ -295,6 +295,7 @@ namespace mj
         auto closed_tile_type_count = ClosedTileTypes();
         for (const Tile discard_tile : closed_tiles_) {
             auto discard_tile_type = discard_tile.Type();
+            assert(closed_tile_type_count[discard_tile_type] >= 1);
             if (--closed_tile_type_count[discard_tile_type] == 0) {
                 closed_tile_type_count.erase(discard_tile_type);
             }
