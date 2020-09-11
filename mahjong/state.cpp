@@ -871,4 +871,8 @@ namespace mj
         }
         return std::accumulate(kans.begin(), kans.end(), 0) == 4 and kans.size() > 1;
     }
+
+    mjproto::State State::proto() const {
+        return state_;
+    }
 }  // namespace mj
