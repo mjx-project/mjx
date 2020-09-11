@@ -42,7 +42,7 @@ for gzip_file in $(ls); do gzip -d ${gzip_file} &>/dev/null || true ; done
 check_gz
  
 echo "* Filtering ..."
-python3 ${TENHOU_DIR}/filter.py ${TMP_DIR} --hounan --rm-users "o(>ロ<*)o" "<>" ">_0@杏杏軍團"
+python3 ${TENHOU_DIR}/filter.py ${TMP_DIR} --hounan --rm-users "o(>ロ<*)o" "<>" ">_0@杏杏軍團" "HKG<>LHR"
   
 echo "* Converting ..."
 python3 ${TENHOU_DIR}/mjlog_decoder.py ${TMP_DIR} ${TEST_DIR}/resources/json --modify
