@@ -751,6 +751,7 @@ namespace mj
         switch (action.type()) {
             case ActionType::kDiscard:
                 {
+                    assert(Any(last_event_.type(), {EventType::kDraw, EventType::kChi, EventType::kRon, EventType::kRiichi}));
                     assert(require_kan_dora_ <= 1);
                     if (require_kan_dora_) AddNewDora();
                     Discard(who, action.discard());
@@ -789,25 +790,31 @@ namespace mj
                 }
                 return;
             case ActionType::kRiichi:
+                assert(Any(last_event_.type(), {EventType::kDraw}));
                 Riichi(who);
                 return;
             case ActionType::kTsumo:
+                assert(Any(last_event_.type(), {EventType::kDraw}));
                 Tsumo(who);
                 return;
             case ActionType::kRon:
+                assert(Any(last_event_.type(), {EventType::kDiscardFromHand, EventType::kDiscardDrawnTile, EventType::kKanAdded}));
                 Ron(who);
                 return;
             case ActionType::kChi:
             case ActionType::kPon:
+                assert(Any(last_event_.type(), {EventType::kDiscardFromHand, EventType::kDiscardDrawnTile}));
                 if (require_riichi_score_change_) RiichiScoreChange();
                 ApplyOpen(who, action.open());
                 return;
             case ActionType::kKanOpened:
+                assert(Any(last_event_.type(), {EventType::kDiscardFromHand, EventType::kDiscardDrawnTile}));
                 if (require_riichi_score_change_) RiichiScoreChange();
                 ApplyOpen(who, action.open());
                 Draw(who);
                 return;
             case ActionType::kKanClosed:
+                assert(Any(last_event_.type(), {EventType::kDraw}));
                 ApplyOpen(who, action.open());
                 // 天鳳のカンの仕様については https://github.com/sotetsuk/mahjong/issues/199 で調べている
                 // 暗槓の分で最低一回は新ドラがめくられる
@@ -816,6 +823,7 @@ namespace mj
                 Draw(who);
                 return;
             case ActionType::kKanAdded:
+                assert(Any(last_event_.type(), {EventType::kDraw}));
                 ApplyOpen(who, action.open());
                 // TODO: CreateStealAndRonObservationが状態変化がないのに2回計算されている
                 if (auto has_no_ron = CreateStealAndRonObservation().empty(); has_no_ron) {
@@ -825,6 +833,7 @@ namespace mj
                 }
                 return;
             case ActionType::kNo:
+                assert(Any(last_event_.type(), {EventType::kDiscardDrawnTile, EventType::kDiscardFromHand, EventType::kKanAdded}));
                 // 全員が立直している状態で ActionType::kNo が渡されるのは,
                 // 4人目に立直した人の立直宣言牌を他家がロンできるけど無視したときのみ.
                 // 四家立直で流局とする.
@@ -851,6 +860,7 @@ namespace mj
                 }
                 return;
             case ActionType::kKyushu:
+                assert(Any(last_event_.type(), {EventType::kDraw}));
                 NoWinner();
                 return;
         }
