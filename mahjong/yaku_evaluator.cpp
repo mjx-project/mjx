@@ -187,7 +187,7 @@ namespace mj
     YakuEvaluator::MaximizeTotalFan(const WinInfo& win_info) noexcept {
 
         std::map<Yaku,int> best_yaku;
-        int best_fu;
+        int best_fu = 0;
         std::vector<TileTypeCount> best_closed_set, best_heads;
 
         std::vector<TileTypeCount> opened_sets;
@@ -242,7 +242,7 @@ namespace mj
             int best_total_fan = TotalFan(best_yaku);
             int total_fan = TotalFan(yaku_in_this_pattern);
             int fu = CalculateFu(win_info, closed_sets, heads, yaku_in_this_pattern);
-            if (best_yaku.empty() or best_total_fan < total_fan or (best_total_fan == total_fan and best_fu < fu)) {
+            if (best_total_fan < total_fan or (best_total_fan == total_fan and best_fu < fu)) {
                 std::swap(best_yaku, yaku_in_this_pattern);
                 best_closed_set = closed_sets;
                 best_heads = heads;
