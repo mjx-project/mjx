@@ -865,9 +865,10 @@ namespace mj
     AbsolutePos State::top_player() const {
         int top_ix = 0; int top_ten  = INT_MIN;
         for (int i = 0; i < 4; ++i) {
-            if (top_ten < curr_score_.ten(i) + (4 - i)) {  // 同着なら起家優先のため +4, +3, +2, +1
+            int ten = curr_score_.ten(i) + (4 - i);  // 同着なら起家から順に優先のため +4, +3, +2, +1
+            if (top_ten < ten) {
                 top_ix = i;
-                top_ten = curr_score_.ten(i);
+                top_ten = ten;
             }
         }
         return AbsolutePos(top_ix);
