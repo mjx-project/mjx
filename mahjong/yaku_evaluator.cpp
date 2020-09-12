@@ -14,15 +14,6 @@ namespace mj
         return WinHandCache::instance();
     }
 
-    bool YakuEvaluator::Has(const WinInfo& win_info) noexcept {
-        WinScore score;
-
-        // closedな手牌が上がり形になっている or 国士無双かどうかを判定する.
-        return win_cache().Has(win_info.hand.closed_tile_types) or
-               HasThirteenOrphans(win_info) or
-               HasCompletedThirteenOrphans(win_info);
-    }
-
     bool YakuEvaluator::CanWin(const WinInfo& win_info) noexcept {
         WinScore score;
 
@@ -41,14 +32,14 @@ namespace mj
         if (!score.yaku().empty()) return true;
 
         // 手牌の組み合わせ方に依存する役
-        const auto [best_yaku, closed_sets, heads] = MaximizeTotalFan(win_info);
+        const auto [best_yaku, best_fu, closed_sets, heads] = MaximizeTotalFan(win_info);
         for (auto& [yaku, fan] : best_yaku) score.AddYaku(yaku, fan);
 
         return !score.yaku().empty();
     }
 
     WinScore YakuEvaluator::Eval(const WinInfo& win_info) noexcept {
-        assert(Has(win_info));
+        assert(win_cache().Has(win_info.hand.closed_tile_types));
 
         WinScore score;
 
@@ -60,19 +51,15 @@ namespace mj
         JudgeSimpleYaku(win_info, score);
 
         // 手牌の組み合わせ方に依存する役
-        const auto [best_yaku, closed_sets, heads] = MaximizeTotalFan(win_info);
+        const auto [best_yaku, best_fu, closed_sets, heads] = MaximizeTotalFan(win_info);
         for (auto& [yaku, fan] : best_yaku) score.AddYaku(yaku, fan);
+        score.set_fu(best_fu);
 
         // 役がないと上がれない.
         assert(!score.yaku().empty());
 
         // ドラ
         JudgeDora(win_info, score);
-
-        if (!score.RequireFu()) return score;
-
-        // 符を計算する
-        score.set_fu(CalculateFu(win_info, closed_sets, heads, score));
 
         return score;
     }
@@ -81,15 +68,15 @@ namespace mj
             const WinInfo& win_info,
             const std::vector<TileTypeCount>& closed_sets,
             const std::vector<TileTypeCount>& heads,
-            const WinScore& win_score) noexcept {
+            const std::map<Yaku, int>& yakus) noexcept {
 
         // 七対子:25
-        if (win_score.HasYaku(Yaku::kSevenPairs)) {
+        if (yakus.count(Yaku::kSevenPairs)) {
             return 25;
         }
 
         // 平和ツモ:20, 平和ロン:30
-        if (win_score.HasYaku(Yaku::kPinfu)) {
+        if (yakus.count(Yaku::kPinfu)) {
             if (win_info.hand.stage == HandStage::kAfterTsumo) {
                 return 20;
             } else if (win_info.hand.stage == HandStage::kAfterRon) {
@@ -192,14 +179,15 @@ namespace mj
         if (fu % 10) fu += 10 - fu % 10;
 
         // 門前ロンはピンフ以外40符以上はあるはず
-        assert(!(win_info.hand.is_menzen && win_info.hand.stage == HandStage::kAfterRon && !win_score.HasYaku(Yaku::kPinfu) && fu < 40));
+        assert(!(win_info.hand.is_menzen && win_info.hand.stage == HandStage::kAfterRon && !yakus.count(Yaku::kPinfu) && fu < 40));
         return fu;
     }
 
-    std::tuple<std::map<Yaku,int>,std::vector<TileTypeCount>,std::vector<TileTypeCount>>
+    std::tuple<std::map<Yaku,int>, int, std::vector<TileTypeCount>, std::vector<TileTypeCount>>
     YakuEvaluator::MaximizeTotalFan(const WinInfo& win_info) noexcept {
 
         std::map<Yaku,int> best_yaku;
+        int best_fu;
         std::vector<TileTypeCount> best_closed_set, best_heads;
 
         std::vector<TileTypeCount> opened_sets;
@@ -250,15 +238,19 @@ namespace mj
                 yaku_in_this_pattern[Yaku::kThreeConcealedPons] = fan.value();
             }
 
-            // 今までに調べた組み合わせ方より役の総飜数が高いなら採用する.
-            if (best_yaku.empty() or TotalFan(best_yaku) < TotalFan(yaku_in_this_pattern)) {
+            // 今までに調べた組み合わせ方より役の総飜数が高いなら採用する
+            int best_total_fan = TotalFan(best_yaku);
+            int total_fan = TotalFan(yaku_in_this_pattern);
+            int fu = CalculateFu(win_info, closed_sets, heads, yaku_in_this_pattern);
+            if (best_yaku.empty() or best_total_fan < total_fan or (best_total_fan == total_fan and best_fu < fu)) {
                 std::swap(best_yaku, yaku_in_this_pattern);
                 best_closed_set = closed_sets;
                 best_heads = heads;
+                best_fu = fu;
             }
         }
 
-        return {best_yaku, best_closed_set, best_heads};
+        return {best_yaku, best_fu, best_closed_set, best_heads};
     }
 
     void YakuEvaluator::JudgeYakuman(const WinInfo& win_info, WinScore& score) noexcept {
@@ -1156,16 +1148,19 @@ namespace mj
     YakuEvaluator::HasThreeConcealdPons(const WinInfo &win_info, const std::vector<TileTypeCount> &closed_sets,
                                         const std::vector<TileTypeCount> &opened_sets,
                                         const std::vector<TileTypeCount> &heads) noexcept {
-        int cnt_pons = 0;
+        int cnt_triplets = 0;
         // 暗槓
-        for (const auto& open: win_info.hand.opens) if (open.Type() == OpenType::kKanClosed) ++cnt_pons;
+        for (const auto& open: win_info.hand.opens) if (open.Type() == OpenType::kKanClosed) ++cnt_triplets;
         // 暗刻
         for (const TileTypeCount &count : closed_sets) {
-            bool is_pon = count.size() == 1 && count.begin()->second == 3;
+            if (count.size() != 1) continue;
+            bool is_triplet = count.begin()->second == 3;
             // 刻子でもロンだと明刻扱い
             bool is_not_ron = win_info.hand.stage != HandStage::kAfterRon || win_info.hand.win_tile->Type() != count.begin()->first;
-            if (is_pon && is_not_ron) ++cnt_pons;
+            // 4枚目ならロンであろうが暗刻 PR#311
+            bool is_quad = win_info.hand.closed_tile_types.at(count.begin()->first) == 4;
+            if (is_triplet && (is_not_ron || is_quad)) ++cnt_triplets;
         }
-        return cnt_pons >= 3 ? std::make_optional(2) : std::nullopt;
+        return cnt_triplets >= 3 ? std::make_optional(2) : std::nullopt;
     }
 }
