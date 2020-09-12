@@ -830,4 +830,14 @@ TEST_F(YakuTest, CalculateFu) {
     auto yaku6 = YakuEvaluator::Eval(
             WinInfo(Hand(HandParams("m2,m2,p6,p7,p8,p8,p8").Pon("gd,gd,gd").Pon("rd,rd,rd").Ron("p8")).win_info()));
     EXPECT_EQ(yaku6.fu().value(), 40);
+
+    // 両面とも単騎とも判断できる（ツモ）
+    auto yaku7 = YakuEvaluator::Eval(
+            WinInfo(Hand(HandParams("p6,p7,p7,p8,p8,p9,p9").Pon("p1,p1,p1").Pon("rd,rd,rd").Tsumo("p6")).win_info()));
+    EXPECT_EQ(yaku7.fu().value(), 40);
+
+    // 両面ともカンチャンとも判断できる（ロン）
+    auto yaku8 = YakuEvaluator::Eval(
+            WinInfo(Hand(HandParams("p7,p7,p7,s5,s5,s5,s7,s8,s8,s8").Pon("m8,m8,m8").Ron("s6")).win_info()));
+    EXPECT_EQ(yaku8.fu().value(), 40);
 }
