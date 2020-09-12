@@ -336,6 +336,7 @@ namespace mj
         auto ten_moves = win_score.TenMoves(winner, dealer());
         auto ten_ = ten_moves[winner];
         if (pao) {  // 大三元・大四喜の責任払い
+            assert(pao.value() != winner);
             for (auto &[who, ten_move]: ten_moves) {
                 if (ten_move > 0) ten_move += riichi() * 1000 + honba() * 300;
                 else if (pao.value() == who) ten_move = - ten_ - honba() * 300;
@@ -413,13 +414,14 @@ namespace mj
         auto ten_moves = win_score.TenMoves(winner, dealer(), loser);
         auto ten_ = ten_moves[winner];
         if (pao) {  // 大三元・大四喜の責任払い
+            assert(pao.value() != winner);
             for (auto &[who, ten_move]: ten_moves) {
                 // TODO: パオかつダブロン時の積み棒も上家取りでいいのか？
                 int honba_ = last_event_.type() == EventType::kRon ? 0 : honba();
                 int riichi_ = last_event_.type() == EventType::kRon ? 0 : riichi();
                 if (ten_move > 0) ten_move += riichi_ * 1000 + honba_ * 300;
                 else if (ten_move < 0) ten_move = - (ten_ / 2);
-                else if (who == pao.value()) ten_move = - (ten_ / 2) - honba_ * 300;  // 積み棒はパオが払う
+                if (who == pao.value()) ten_move -= ((ten_ / 2) + honba_ * 300);  // 積み棒はパオが払う。パオがロンされたときに注意
             }
         } else {
             for (auto &[who, ten_move]: ten_moves) {

@@ -698,7 +698,7 @@ namespace mj
         for (const auto &open: opens_) {
             if (Is(open.At(0).Type(), TileSetType::kDragons)) ++dragon_cnt;
             if (Is(open.At(0).Type(), TileSetType::kWinds)) ++wind_cnt;
-            if (dragon_cnt== 3 || wind_cnt == 4) return open.From();
+            if ((dragon_cnt == 3 || wind_cnt == 4) && open.Type() != OpenType::kKanClosed) return open.From();
         }
         return std::nullopt;
     }
