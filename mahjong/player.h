@@ -28,6 +28,7 @@ namespace mj
         bool IsUnderRiichi() const;
         bool CanNineTiles() const;
         int TotalKans() const;
+       std::optional<RelativePos> HasPao() const noexcept ;
 
         // apply actions
         void Draw(Tile tile);
