@@ -62,8 +62,11 @@ namespace mj
                         observation.add_possible_action(PossibleAction::CreateTsumo());
 
                     // => Kan (2)
-                    if (auto possible_kans = player(who).PossibleOpensAfterDraw(); !possible_kans.empty())
-                        observation.add_possible_action(PossibleAction::CreateKanAdded());
+                    if (auto possible_kans = player(who).PossibleOpensAfterDraw(); !possible_kans.empty()) {
+                        for (const auto possible_kan: possible_kans) {
+                            observation.add_possible_action(PossibleAction::CreateOpen(possible_kan));
+                        }
+                    }
 
                     // => Riichi (3)
                     if (player(who).CanRiichi())
@@ -105,7 +108,7 @@ namespace mj
                     assert(!observations.empty());
                     for (const auto &[player_id, observation]: observations)
                         for (const auto &possible_action: observation.possible_actions())
-                            assert(possible_action.type() == ActionType::kRon);
+                            assert(Any(possible_action.type(), {ActionType::kRon, ActionType::kNo}));
                     return observations;
                 }
             case EventType::kTsumo:
@@ -231,6 +234,9 @@ namespace mj
         require_kan_draw_ = false;
         mutable_player(who).Draw(draw);
 
+        // 加槓=>槍槓=>Noのときの一発消し。加槓時に自分の一発は外れている外れているはずなので、一発が残っているのは他家のだれか
+        if (last_event_.type() == EventType::kKanAdded) for (int i = 0; i < 4; ++i) is_ippatsu_[AbsolutePos(i)] = false;
+
         last_event_ = Event::CreateDraw(who);
         state_.mutable_event_history()->mutable_events()->Add(last_event_.proto());
         state_.mutable_private_infos(ToUType(who))->add_draws(draw.Id());
@@ -293,7 +299,10 @@ namespace mj
         }
 
         is_first_turn_wo_open = false;
-        for (int i = 0; i < 4; ++i) is_ippatsu_[AbsolutePos(i)] = false;
+        // 一発解消は「純正巡消しは発声＆和了打診後（加槓のみ)、嶺上ツモの前（連続する加槓の２回目には一発は付かない）」なので、
+        // 加槓時は自分の一発だけ消して（一発・嶺上開花は併発しない）、その他のときには全員の一発を消す
+        if (open.Type() == OpenType::kKanAdded) is_ippatsu_[who] = false;
+        else for (int i = 0; i < 4; ++i) is_ippatsu_[AbsolutePos(i)] = false;
     }
 
     void State::AddNewDora() {
@@ -778,6 +787,7 @@ namespace mj
         switch (action.type()) {
             case ActionType::kDiscard:
                 {
+                    assert(Any(last_event_.type(), {EventType::kDraw, EventType::kChi, EventType::kRon, EventType::kRiichi}));
                     assert(require_kan_dora_ <= 1);
                     if (require_kan_dora_) AddNewDora();
                     Discard(who, action.discard());
@@ -816,25 +826,31 @@ namespace mj
                 }
                 return;
             case ActionType::kRiichi:
+                assert(Any(last_event_.type(), {EventType::kDraw}));
                 Riichi(who);
                 return;
             case ActionType::kTsumo:
+                assert(Any(last_event_.type(), {EventType::kDraw}));
                 Tsumo(who);
                 return;
             case ActionType::kRon:
+                assert(Any(last_event_.type(), {EventType::kDiscardFromHand, EventType::kDiscardDrawnTile, EventType::kKanAdded}));
                 Ron(who);
                 return;
             case ActionType::kChi:
             case ActionType::kPon:
+                assert(Any(last_event_.type(), {EventType::kDiscardFromHand, EventType::kDiscardDrawnTile}));
                 if (require_riichi_score_change_) RiichiScoreChange();
                 ApplyOpen(who, action.open());
                 return;
             case ActionType::kKanOpened:
+                assert(Any(last_event_.type(), {EventType::kDiscardFromHand, EventType::kDiscardDrawnTile}));
                 if (require_riichi_score_change_) RiichiScoreChange();
                 ApplyOpen(who, action.open());
                 Draw(who);
                 return;
             case ActionType::kKanClosed:
+                assert(Any(last_event_.type(), {EventType::kDraw}));
                 ApplyOpen(who, action.open());
                 // 天鳳のカンの仕様については https://github.com/sotetsuk/mahjong/issues/199 で調べている
                 // 暗槓の分で最低一回は新ドラがめくられる
@@ -843,6 +859,7 @@ namespace mj
                 Draw(who);
                 return;
             case ActionType::kKanAdded:
+                assert(Any(last_event_.type(), {EventType::kDraw}));
                 ApplyOpen(who, action.open());
                 // TODO: CreateStealAndRonObservationが状態変化がないのに2回計算されている
                 if (auto has_no_ron = CreateStealAndRonObservation().empty(); has_no_ron) {
@@ -852,6 +869,14 @@ namespace mj
                 }
                 return;
             case ActionType::kNo:
+                assert(Any(last_event_.type(), {EventType::kDiscardDrawnTile, EventType::kDiscardFromHand, EventType::kKanAdded}));
+
+                // 加槓のあとに ActionType::kNo が渡されるのは槍槓のロンを否定した場合のみ
+                if (last_event_.type() == EventType::kKanAdded) {
+                    Draw(AbsolutePos((ToUType(last_event_.who()))));  // 嶺上ツモ
+                    return;
+                }
+
                 // 全員が立直している状態で ActionType::kNo が渡されるのは,
                 // 4人目に立直した人の立直宣言牌を他家がロンできるけど無視したときのみ.
                 // 四家立直で流局とする.
@@ -872,12 +897,13 @@ namespace mj
 
                 if (wall_.HasDrawLeft()) {
                     if (require_riichi_score_change_) RiichiScoreChange();
-                    Draw(AbsolutePos((ToUType(last_event_.who()) + 1) % 4));  // TODO: check 流局
+                    Draw(AbsolutePos((ToUType(last_event_.who()) + 1) % 4));
                 } else {
                     NoWinner();
                 }
                 return;
             case ActionType::kKyushu:
+                assert(Any(last_event_.type(), {EventType::kDraw}));
                 NoWinner();
                 return;
         }
@@ -901,6 +927,10 @@ namespace mj
             if (int num = p.TotalKans(); num) kans.emplace_back(num);
         }
         return std::accumulate(kans.begin(), kans.end(), 0) == 4 and kans.size() > 1;
+    }
+
+    mjproto::State State::proto() const {
+        return state_;
     }
 
     std::optional<AbsolutePos> State::HasPao(AbsolutePos winner) const noexcept {

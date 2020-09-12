@@ -30,6 +30,7 @@ namespace mj
         void Update(std::vector<Action> &&action_candidates);
         std::unordered_map<PlayerId, Observation> CreateObservations() const;
         std::string ToJson() const;
+        mjproto::State proto() const;
         State Next() const;
 
         static std::vector<PlayerId> ShufflePlayerIds(std::uint32_t seed, std::vector<PlayerId> player_ids);
