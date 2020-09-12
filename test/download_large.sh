@@ -1,6 +1,6 @@
 set -eu
 
-TEST_DIR=$(pwd)
+TEST_DIR="$(pwd)"
 TENHOU_DIR=${TEST_DIR}/../tenhou
 ZIP_DIR=${TEST_DIR}/resources/zip
 TMP_DIR=${TEST_DIR}/resources/tmp
