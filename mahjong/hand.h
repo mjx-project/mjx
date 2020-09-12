@@ -58,6 +58,7 @@ namespace mj
         [[nodiscard]] TileTypeCount ClosedTileTypes() const noexcept ;
         [[nodiscard]] TileTypeCount AllTileTypes() const noexcept ;
         int TotalKans() const noexcept ; // 四槓散了の判定に使用する.
+        std::optional<RelativePos> HasPao() const noexcept ;
 
         // action validators
         std::vector<Tile> PossibleDiscards() const;  // TODO(sotetsuk): Current implementation has the tiles with same type (e.g., 2m x 3). What is the Tenhou's implementation? Only first id? or any id?
