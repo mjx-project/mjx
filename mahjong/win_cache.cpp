@@ -59,6 +59,20 @@ namespace mj {
 
     std::vector<std::pair<std::vector<TileTypeCount>, std::vector<TileTypeCount>>>
     WinHandCache::SetAndHeads(const TileTypeCount& closed_hand) const noexcept {
+        // For example,
+        //   abstract_hand: "2222"
+        //   tile_types: {14, 15, 16, 17}
+        //   cache_.at(abstract_hand).size(): 2
+        //   sets:
+        //     15:1 16:1 17:1
+        //     15:1 16:1 17:1
+        //   heads:
+        //     14:2
+        //   sets:
+        //     14:1 15:1 16:1
+        //     14:1 15:1 16:1
+        //   heads:
+        //     17:2
         auto [abstruct_hand, tile_types] = CreateAbstructHand(closed_hand);
         using Sets = std::vector<TileTypeCount>;
         using Heads = std::vector<TileTypeCount>;

@@ -691,6 +691,18 @@ namespace mj
         return yao_types.size() >= 9;
     }
 
+    std::optional<RelativePos> Hand::HasPao() const noexcept {
+        if (opens_.size() < 3) return std::nullopt;
+        // 大三元
+        int dragon_cnt = 0; int wind_cnt = 0;
+        for (const auto &open: opens_) {
+            if (Is(open.At(0).Type(), TileSetType::kDragons)) ++dragon_cnt;
+            if (Is(open.At(0).Type(), TileSetType::kWinds)) ++wind_cnt;
+            if (dragon_cnt== 3 || wind_cnt == 4) return open.From();
+        }
+        return std::nullopt;
+    }
+
     HandParams::HandParams(const std::string &closed) {
         assert(closed.size() % 3 == 2);
         for (std::int32_t i = 0; i < closed.size(); i += 3) {
