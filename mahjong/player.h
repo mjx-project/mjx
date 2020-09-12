@@ -21,7 +21,7 @@ namespace mj
         std::vector<Open> PossibleOpensAfterDraw() const;  // includes KanClosed and KanAdded
         bool IsCompleted(Tile additional_tile) const;  // This does not take into account yaku and furiten
         bool IsCompleted() const;  // This does not take into account yaku and furiten
-        bool CanRon(Tile tile, WinStateInfo &&win_state_info) const;
+        bool CanRon(Tile tile, WinStateInfo &&win_state_info, std::bitset<34> missed_tiles) const;
         bool CanTsumo(WinStateInfo &&win_state_info) const;
         bool CanRiichi() const;
         bool IsTenpai() const;
@@ -50,6 +50,8 @@ namespace mj
 
         [[nodiscard]] PlayerId player_id() const;
     private:
+        std::bitset<34> machi_;    // 上がりの形になるための待ち(役の有無を考慮しない). bitsetで管理する
+        std::bitset<34> discards_; // 今までに捨てた牌のset. bitsetで管理する
         PlayerId player_id_;
         AbsolutePos position_;
         River river_;

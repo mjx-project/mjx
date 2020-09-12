@@ -296,19 +296,13 @@ namespace mj
         for (const Tile discard_tile : closed_tiles_) {
             auto discard_tile_type = discard_tile.Type();
             assert(closed_tile_type_count[discard_tile_type] >= 1);
-            bool ok = false;
-            for (int i = 0; i < 34; ++i) {
-                auto draw_tile_type = TileType(i);
-                --closed_tile_type_count[discard_tile_type];
-                if (closed_tile_type_count[discard_tile_type] == 0) closed_tile_type_count.erase(discard_tile_type);
-                ++closed_tile_type_count[draw_tile_type];
-                if (WinHandCache::instance().Has(closed_tile_type_count)) ok = true;
-                ++closed_tile_type_count[discard_tile_type];
-                --closed_tile_type_count[draw_tile_type];
-                if (closed_tile_type_count[draw_tile_type] == 0) closed_tile_type_count.erase(draw_tile_type);
-                if (ok) break;
+            if (--closed_tile_type_count[discard_tile_type] == 0) {
+                closed_tile_type_count.erase(discard_tile_type);
             }
-            if (ok) possible_discards.push_back(discard_tile);
+            if (!WinHandCache::instance().Machi(closed_tile_type_count).empty()) {
+                possible_discards.push_back(discard_tile);
+            }
+            ++closed_tile_type_count[discard_tile_type];
         }
         return possible_discards;
     }
@@ -571,18 +565,14 @@ namespace mj
         if (!IsMenzen()) return false;
 
         auto closed_tile_type_count = ClosedTileTypes();
-        for (const Tile discard_tile : closed_tiles_) {
-            auto discard_tile_type = discard_tile.Type();
-            for (int i = 0; i < 34; ++i) {
-                auto draw_tile_type = TileType(i);
-                --closed_tile_type_count[discard_tile_type];
-                if (closed_tile_type_count[discard_tile_type] == 0) closed_tile_type_count.erase(discard_tile_type);
-                ++closed_tile_type_count[draw_tile_type];
-                if (WinHandCache::instance().Has(closed_tile_type_count)) return true;
-                ++closed_tile_type_count[discard_tile_type];
-                --closed_tile_type_count[draw_tile_type];
-                if (closed_tile_type_count[draw_tile_type] == 0) closed_tile_type_count.erase(draw_tile_type);
+        for (const auto& [discard_tile_type, n] : ClosedTileTypes()) {
+            if (--closed_tile_type_count[discard_tile_type] == 0) {
+                closed_tile_type_count.erase(discard_tile_type);
             }
+            if (!WinHandCache::instance().Machi(closed_tile_type_count).empty()) {
+                return true;
+            }
+            ++closed_tile_type_count[discard_tile_type];
         }
         return false;
     }
@@ -674,16 +664,7 @@ namespace mj
     bool Hand::IsTenpai() const {
         assert(stage_ == HandStage::kAfterDiscards);
         assert(SizeClosed() == 1 || SizeClosed() == 4 || SizeClosed() == 7 || SizeClosed() == 10 || SizeClosed() == 13);
-        auto closed_tile_types = ClosedTileTypes();
-        for (int i = 0; i < 34; ++i) {
-            auto tile_type = TileType(i);
-            if (closed_tile_types[tile_type] == 4) continue;
-            ++closed_tile_types[tile_type];
-            if (WinHandCache::instance().Has(closed_tile_types)) return true;
-            --closed_tile_types[tile_type];
-            if (closed_tile_types[tile_type] == 0) closed_tile_types.erase(tile_type);
-        }
-        return false;
+        return !WinHandCache::instance().Machi(ClosedTileTypes()).empty();
     }
 
     bool Hand::IsCompleted(Tile additional_tile) const {

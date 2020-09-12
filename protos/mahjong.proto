@@ -79,7 +79,7 @@ message Score {
 
 message Event {
   //                       who    tile    open
-  // DRAW                  Yes    Yes     No
+  // DRAW                  Yes    No      No      Tile is No since it's private info. EventHistory will be passed to Observation as public info.
   // DISCARD_FROM_HAND     Yes    Yes     No
   // DISCARD_DRAWN_TILE    Yes    Yes     No
   // RIICHI                Yes    No      No
