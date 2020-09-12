@@ -730,7 +730,8 @@ namespace mj
                 prevalent_wind(),
                 !wall_.HasDrawLeft(),
                 is_ippatsu_.at(who),
-                is_first_turn_wo_open && last_event_.type() == EventType::kTsumo,
+                is_first_turn_wo_open && last_event_.who() == who
+                        && (Any(last_event_.type(), {EventType::kDraw, EventType::kTsumo})),
                 seat_wind == Wind::kEast,
                 last_event_.type() == EventType::kKanAdded, // robbing kan
                 wall_.dora_count(),
