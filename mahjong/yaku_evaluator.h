@@ -34,14 +34,14 @@ namespace mj
                 WinScore& score) noexcept ;
 
         static int TotalFan(const std::map<Yaku,int>& yaku) noexcept ;
-        [[nodiscard]] static std::tuple<std::map<Yaku,int>,std::vector<TileTypeCount>,std::vector<TileTypeCount>>
+        [[nodiscard]] static std::tuple<std::map<Yaku,int>, int, std::vector<TileTypeCount>, std::vector<TileTypeCount>>
         MaximizeTotalFan(const WinInfo& win_info) noexcept ;
 
         [[nodiscard]] static int CalculateFu(
                 const WinInfo& win_info,
                 const std::vector<TileTypeCount>& closed_sets,
                 const std::vector<TileTypeCount>& heads,
-                const WinScore& win_score) noexcept ;
+                const std::map<Yaku, int>& yakus) noexcept ;
 
         [[nodiscard]] static bool HasBlessingOfHeaven(const WinInfo& win_info) noexcept ;
         [[nodiscard]] static bool HasBlessingOfEarth(const WinInfo& win_info) noexcept ;

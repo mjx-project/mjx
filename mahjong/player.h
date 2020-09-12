@@ -21,7 +21,7 @@ namespace mj
         std::vector<Open> PossibleOpensAfterDraw() const;  // includes KanClosed and KanAdded
         bool IsCompleted(Tile additional_tile) const;  // This does not take into account yaku and furiten
         bool IsCompleted() const;  // This does not take into account yaku and furiten
-        bool CanRon(Tile tile, WinStateInfo &&win_state_info) const;
+        bool CanRon(Tile tile, WinStateInfo &&win_state_info, std::bitset<34> missed_tiles) const;
         bool CanTsumo(WinStateInfo &&win_state_info) const;
         bool CanRiichi() const;
         bool IsTenpai() const;

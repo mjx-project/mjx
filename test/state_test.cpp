@@ -618,6 +618,23 @@ TEST(state, Update) {
     EXPECT_EQ(observations.size(), 1);
     EXPECT_TRUE(observations.find("心滅獣身") == observations.end());
 
+    // 同巡内フリテン
+    // 親が1mを捨てておらず,対面の7mをロンできそうだが,下家の1mを見逃しているためロンできない
+    // (swap Tile(0) and Tile(134)) (swap Tile(74) and Tile(3))
+    json_before = get_last_json_line("upd-sutehai-furiten.json");
+    json_before = swap_tiles(json_before, Tile(0), Tile(134));
+    json_before = swap_tiles(json_before, Tile(74), Tile(3));
+    state_before = State(json_before);
+    observations = state_before.CreateObservations();
+    EXPECT_TRUE(observations.find("心滅獣身") == observations.end());
+
+    // 親が1mを捨てておらず,対面の7mをロンできる (swap Tile(0) and Tile(134))
+    json_before = get_last_json_line("upd-sutehai-furiten.json");
+    json_before = swap_tiles(json_before, Tile(0), Tile(134));
+    state_before = State(json_before);
+    observations = state_before.CreateObservations();
+    EXPECT_TRUE(observations.find("心滅獣身") != observations.end());
+
     // 加槓=>No=>ツモでは一発はつかない（加槓=>槍槓ロンはつく）
     // 次のツモを5s(91)にスワップ
     json_before = get_last_json_line("upd-bef-chankan-twice.json");

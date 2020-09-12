@@ -35,9 +35,10 @@ namespace mj
         return hand_.PossibleOpensAfterDraw();
     }
 
-    bool Player::CanRon(Tile tile, WinStateInfo &&win_state_info) const {
+    bool Player::CanRon(Tile tile, WinStateInfo &&win_state_info, std::bitset<34> missed_tiles) const {
         // フリテンでないことを確認
         if ((machi_ & discards_).any()) return false;
+        if ((machi_ & missed_tiles).any()) return false;
         return YakuEvaluator::CanWin(WinInfo(std::move(win_state_info), hand_.win_info()).Ron(tile));
     }
 
