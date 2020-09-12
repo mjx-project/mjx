@@ -139,4 +139,8 @@ namespace mj
     int Player::TotalKans() const {
         return hand_.TotalKans();
     }
+
+    std::optional<RelativePos> Player::HasPao() const noexcept {
+        return hand_.HasPao();
+    }
 }  // namespace mj

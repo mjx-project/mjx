@@ -323,11 +323,20 @@ namespace mj
         mutable_player(winner).Tsumo();
         auto [hand_info, win_score] = EvalWinHand(winner);
         // calc ten moves
+        auto pao = (win_score.HasYakuman(Yaku::kBigThreeDragons) || win_score.HasYakuman(Yaku::kBigFourWinds)) ? HasPao(winner) : std::nullopt;
         auto ten_moves = win_score.TenMoves(winner, dealer());
         auto ten_ = ten_moves[winner];
-        for (auto &[who, ten_move]: ten_moves) {
-            if (ten_move > 0) ten_move += riichi() * 1000 + honba() * 300;
-            else if (ten_move < 0) ten_move -= honba() * 100;
+        if (pao) {  // 大三元・大四喜の責任払い
+            for (auto &[who, ten_move]: ten_moves) {
+                if (ten_move > 0) ten_move += riichi() * 1000 + honba() * 300;
+                else if (pao.value() == who) ten_move = - ten_ - honba() * 300;
+                else ten_move = 0;
+            }
+        } else {
+            for (auto &[who, ten_move]: ten_moves) {
+                if (ten_move > 0) ten_move += riichi() * 1000 + honba() * 300;
+                else if (ten_move < 0) ten_move -= honba() * 100;
+            }
         }
         curr_score_.set_riichi(0);
 
@@ -391,14 +400,26 @@ namespace mj
         mutable_player(winner).Ron(tile);
         auto [hand_info, win_score] = EvalWinHand(winner);
         // calc ten moves
+        auto pao = (win_score.HasYakuman(Yaku::kBigThreeDragons) || win_score.HasYakuman(Yaku::kBigFourWinds)) ? HasPao(winner) : std::nullopt;
         auto ten_moves = win_score.TenMoves(winner, dealer(), loser);
         auto ten_ = ten_moves[winner];
-        for (auto &[who, ten_move]: ten_moves) {
-            // ダブロンは上家取り
-            int honba_ = last_event_.type() == EventType::kRon ? 0 : honba();
-            int riichi_ = last_event_.type() == EventType::kRon ? 0 : riichi();
-            if (ten_move > 0) ten_move += riichi_ * 1000 + honba_ * 300;
-            else if (ten_move < 0) ten_move -= honba_ * 300;
+        if (pao) {  // 大三元・大四喜の責任払い
+            for (auto &[who, ten_move]: ten_moves) {
+                // TODO: パオかつダブロン時の積み棒も上家取りでいいのか？
+                int honba_ = last_event_.type() == EventType::kRon ? 0 : honba();
+                int riichi_ = last_event_.type() == EventType::kRon ? 0 : riichi();
+                if (ten_move > 0) ten_move += riichi_ * 1000 + honba_ * 300;
+                else if (ten_move < 0) ten_move = - (ten_ / 2);
+                else if (who == pao.value()) ten_move = - (ten_ / 2) - honba_ * 300;  // 積み棒はパオが払う
+            }
+        } else {
+            for (auto &[who, ten_move]: ten_moves) {
+                // ダブロンは上家取り
+                int honba_ = last_event_.type() == EventType::kRon ? 0 : honba();
+                int riichi_ = last_event_.type() == EventType::kRon ? 0 : riichi();
+                if (ten_move > 0) ten_move += riichi_ * 1000 + honba_ * 300;
+                else if (ten_move < 0) ten_move -= honba_ * 300;
+            }
         }
         curr_score_.set_riichi(0);
 
@@ -880,5 +901,11 @@ namespace mj
             if (int num = p.TotalKans(); num) kans.emplace_back(num);
         }
         return std::accumulate(kans.begin(), kans.end(), 0) == 4 and kans.size() > 1;
+    }
+
+    std::optional<AbsolutePos> State::HasPao(AbsolutePos winner) const noexcept {
+        auto pao = player(winner).HasPao();
+        if (pao) return AbsolutePos((ToUType(winner) + ToUType(pao.value())) % 4);
+        else return std::nullopt;
     }
 }  // namespace mj
