@@ -941,4 +941,12 @@ namespace mj
         if (pao) return AbsolutePos((ToUType(winner) + ToUType(pao.value())) % 4);
         else return std::nullopt;
     }
+
+    bool State::operator==(const State &other) const noexcept {
+        return google::protobuf::util::MessageDifferencer::Equals(state_, other.state_);
+    }
+
+    bool State::operator!=(const State &other) const noexcept {
+        return !(*this == other);
+    }
 }  // namespace mj

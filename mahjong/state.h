@@ -45,7 +45,11 @@ namespace mj
         [[nodiscard]] std::array<std::int32_t, 4> tens() const;
         [[nodiscard]] std::uint8_t init_riichi() const;
         [[nodiscard]] std::array<std::int32_t, 4> init_tens() const;
-    private:
+
+        // comparison
+        bool operator== (const State& other) const noexcept;
+        bool operator!= (const State& other) const noexcept;
+   private:
         // protos
         mjproto::State state_;
         mjproto::Score curr_score_;  // Using state_.terminal.final_score gives wrong serialization when round is not finished.
