@@ -754,7 +754,7 @@ namespace mj
         } else {
             // sort in order Ron > KanOpened > Pon > Chi > No
             std::sort(action_candidates.begin(), action_candidates.end(),
-                    [](const Action &x, const Action &y){ return x.type() > x.type(); });
+                    [](const Action &x, const Action &y){ return x.type() > y.type(); });
             bool has_ron = action_candidates.front().type() == ActionType::kRon;
             if (has_ron) {
                 int ron_count = std::count_if(action_candidates.begin(), action_candidates.end(),
