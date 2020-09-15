@@ -729,3 +729,82 @@ TEST(state, CanReach) {
     EXPECT_TRUE(state_before.CanReach(state_before));
     EXPECT_TRUE(state_after.CanReach(state_after));
 }
+
+TEST(state, StateTrans) {
+    auto ListUpActions = [](std::unordered_map<PlayerId, Observation> &&observations) {
+        std::vector<std::vector<Action>> actions;
+        for (const auto &[player_id, observation]: observations) {
+            auto who = observation.who();
+            std::vector<Action> actions_per_player;
+            for (const auto &possible_action: observation.possible_actions()) {
+                switch (possible_action.type()) {
+                    case ActionType::kDiscard:
+                        {
+                            for (Tile tile: possible_action.discard_candidates()) {
+                                actions_per_player.push_back(Action::CreateDiscard(who, tile));
+                            }
+                        }
+                        break;
+                    case ActionType::kTsumo:
+                        actions_per_player.push_back(Action::CreateTsumo(who));
+                        break;
+                    case ActionType::kRon:
+                        actions_per_player.push_back(Action::CreateRon(who));
+                        break;
+                    case ActionType::kRiichi:
+                        actions_per_player.push_back(Action::CreateRiichi(who));
+                        break;
+                    case ActionType::kNo:
+                        actions_per_player.push_back(Action::CreateNo(who));
+                        break;
+                    case ActionType::kKyushu:
+                        actions_per_player.push_back(Action::CreateNineTiles(who));
+                        break;
+                    case ActionType::kChi:
+                    case ActionType::kPon:
+                    case ActionType::kKanOpened:
+                    case ActionType::kKanClosed:
+                    case ActionType::kKanAdded:
+                        actions_per_player.push_back(Action::CreateOpen(who, possible_action.open()));
+                        break;
+                    default:
+                        break;
+                }
+            }
+            // 直積を取る
+            if (actions.empty()) {
+                for (const auto &action: actions_per_player) {
+                    actions.push_back({ action });
+                }
+            } else {
+                auto actions_copy = actions;
+                actions.clear();
+                for (int i = 0; i < actions_copy.size(); ++i) {
+                    for (int j = 0; j < actions_per_player.size(); ++j) {
+                        std::vector<Action> as = actions_copy[i];
+                        Action a = actions_per_player[j];
+                        as.push_back(a);
+                        actions.push_back(as);
+                    }
+                }
+            }
+       }
+        return actions;
+    };
+
+    std::string json_before, json_after;
+    State state_before, state_after;
+    std::vector<std::vector<Action>> actions;
+
+    json_before = GetLastJsonLine("upd-bef-draw-discard-draw.json");
+    state_before = State(json_before);
+    actions = ListUpActions(state_before.CreateObservations());
+    EXPECT_EQ(actions.size(), 14);
+    EXPECT_EQ(actions.front().size(), 1);
+
+    json_before = GetLastJsonLine("upd-bef-ron3.json");
+    state_before = State(json_before);
+    actions = ListUpActions(state_before.CreateObservations());
+    EXPECT_EQ(actions.size(), 24);  // 4 (Chi1, Chi2, Ron, No) x 2 (Ron, No) x 3 (Pon, Ron, No)
+    EXPECT_EQ(actions.front().size(), 3);  // 3
+}
