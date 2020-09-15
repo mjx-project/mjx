@@ -685,7 +685,6 @@ TEST(state, tenhou) {
         std::ifstream ifs(filename, std::ios::in);
         std::string original_json, restored_json;
         while (!ifs.eof()) {
-            ++total_cnt;
             std::getline(ifs, original_json);
             if (original_json.empty()) continue;
             restored_json = State(original_json).ToJson();
@@ -693,6 +692,7 @@ TEST(state, tenhou) {
                 ++failure_cnt;
                 std::cerr << filename << std::endl;
             }
+            ++total_cnt;
             EXPECT_EQ(original_json, restored_json);
         }
     };
