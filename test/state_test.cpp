@@ -700,7 +700,7 @@ TEST(state, tenhou) {
     std::string json_path;
     json_path = std::string(TEST_RESOURCES_DIR) + "/json";
     if (!json_path.empty()) for (const auto &filename : std::filesystem::directory_iterator(json_path)) check(filename.path().string());
-    std::cerr << "# Failed case: " << failure_cnt  << "/" << total_cnt << " " << 100.0 * failure_cnt / total_cnt << " %" << std::endl;
+    std::cerr << "Encode/Decode: # failure = " << failure_cnt  << "/" << total_cnt << " " << 100.0 * failure_cnt / total_cnt << " %" << std::endl;
 }
 
 
@@ -849,4 +849,21 @@ TEST(state, StateTrans) {
     EXPECT_TRUE(init_state != target_state);
     EXPECT_TRUE(init_state.CanReach(target_state));
     EXPECT_TRUE(BFSCheck(init_state, target_state));
+
+    int failure_cnt = 0;
+    int total_cnt = 0;
+    std::string json_path;
+    json_path = std::string(TEST_RESOURCES_DIR) + "/json";
+    if (!json_path.empty()) for (const auto &filename : std::filesystem::directory_iterator(json_path)) {
+            std::ifstream ifs(filename.path().string(), std::ios::in);
+            while (!ifs.eof()) {
+                std::getline(ifs, json);
+                if (json.empty()) continue;
+                bool ok = BFSCheck(State(TruncateAfterFirstDraw(json)), State(json));
+                EXPECT_TRUE(ok);
+                if (!ok) failure_cnt++;
+                ++total_cnt;
+            }
+    }
+    std::cerr << "StateTrans: # failure = " << failure_cnt  << "/" << total_cnt << " " << 100.0 * failure_cnt / total_cnt << " %" << std::endl;
 }
