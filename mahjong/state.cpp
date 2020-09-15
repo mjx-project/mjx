@@ -790,7 +790,7 @@ namespace mj
         switch (action.type()) {
             case ActionType::kDiscard:
                 {
-                    assert(Any(last_event_.type(), {EventType::kDraw, EventType::kChi, EventType::kRon, EventType::kRiichi}));
+                    assert(Any(last_event_.type(), {EventType::kDraw, EventType::kChi, EventType::kPon, EventType::kRon, EventType::kRiichi}));
                     assert(require_kan_dora_ <= 1);
                     if (require_kan_dora_) AddNewDora();
                     Discard(who, action.discard());
