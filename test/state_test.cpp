@@ -825,6 +825,7 @@ TEST(state, StateTrans) {
         }
         std::cerr << "Expected: "  << target_state.ToJson() << std::endl;
         std::cerr << "Actual  : "  << state.ToJson() << std::endl;
+        if (state.IsRoundOver()) return false;
         for (const auto &[pid, obs]: state.CreateObservations()) {
             std::cerr << "Observ  : " << obs.ToJson() << std::endl;
         }
