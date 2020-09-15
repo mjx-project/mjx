@@ -82,6 +82,7 @@ namespace mj
             } else if (win_info.hand.stage == HandStage::kAfterRon) {
                 return 30;
             } else {
+                return 10;  // return obvious mistake to avoid assertion err
                 assert(false);
             }
         }
