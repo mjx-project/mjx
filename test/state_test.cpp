@@ -750,8 +750,35 @@ TEST(state, EqualsTo) {
     json_after = get_last_json_line("upd-aft-draw-discard-draw.json");
     state_before = State(json_before);
     state_after = State(json_after);
-    assert(state_before != state_after);
+    EXPECT_TRUE(state_before != state_after);
     actions = { Action::CreateDiscard(AbsolutePos::kInitEast, Tile(39)) };
     state_before.Update(std::move(actions));
-    assert(state_before == state_after);
+    EXPECT_TRUE(state_before == state_after);
+}
+
+TEST(state, CanReach) {
+    auto get_last_json_line = [&](const std::string &filename) {
+        auto json_path = std::string(TEST_RESOURCES_DIR) + "/json/" + filename;
+        std::ifstream ifs(json_path, std::ios::in);
+        std::string buf, json_line;
+        while (!ifs.eof()) {
+            std::getline(ifs, buf);
+            if (buf.empty()) break;
+            json_line = buf;
+        }
+        return json_line;
+    };
+
+    std::string json_before, json_after;
+    State state_before, state_after;
+    std::vector<Action> actions;
+
+    json_before = get_last_json_line("upd-bef-draw-discard-draw.json");
+    json_after = get_last_json_line("upd-aft-draw-discard-draw.json");
+    state_before = State(json_before);
+    state_after = State(json_after);
+    EXPECT_TRUE(state_before.CanReach(state_after));
+    EXPECT_FALSE(state_after.CanReach(state_before));
+    EXPECT_TRUE(state_before.CanReach(state_before));
+    EXPECT_TRUE(state_after.CanReach(state_after));
 }

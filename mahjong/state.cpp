@@ -954,20 +954,16 @@ namespace mj
         if (*this == other) return true;
 
         // いくつかの初期状態が同じである必要がある
-        if (!google::protobuf::util::MessageDifferencer::Equals(
-                (const google::protobuf::Message &) state_.player_ids(), (const google::protobuf::Message &) other.state_.player_ids())) return false;
-        if (!google::protobuf::util::MessageDifferencer::Equals(
-                (const google::protobuf::Message &) state_.init_score(), (const google::protobuf::Message &) other.state_.init_score())) return false;
-        if (!google::protobuf::util::MessageDifferencer::Equals(
-                (const google::protobuf::Message &) state_.wall(), (const google::protobuf::Message &) other.state_.wall())) return false;
+        if (!std::equal(state_.player_ids().begin(), state_.player_ids().end(), other.state_.player_ids().begin())) return false;
+        if (!google::protobuf::util::MessageDifferencer::Equals(state_.init_score(), other.state_.init_score())) return false;
+        if (!std::equal(state_.wall().begin(), state_.wall().end(), other.state_.wall().begin())) return false;
 
         // 現在の時点まではイベントがすべて同じである必要がある
         if (state_.event_history().events_size() >= other.state_.event_history().events_size()) return false;  // イベント長が同じならそもそも *this == other のはず
         for (int i = 0; i < state_.event_history().events_size(); ++i) {
             const auto& event = state_.event_history().events(i);
             const auto& other_event = other.state_.event_history().events(i);
-            if (!google::protobuf::util::MessageDifferencer::Equals(
-                    (const google::protobuf::Message &) event, (const google::protobuf::Message &) other_event)) return false;
+            if (!google::protobuf::util::MessageDifferencer::Equals(event, other_event)) return false;
         }
 
         // Drawがすべて現時点までは同じである必要がある (配牌は山が同じ時点で同じ）
