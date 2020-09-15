@@ -807,21 +807,23 @@ TEST(state, StateTrans) {
         return serialized;
     };
 
-    auto CanReach = [&ListUpActions](const State& init_state, const State& target_state) {
+    auto BFSCheck = [&ListUpActions](const State& init_state, const State& target_state) {
         std::queue<State> q;
         q.push(init_state);
+        State state;
         while(!q.empty()) {
-            auto state = q.front(); q.pop();
-            std::cerr << state.ToJson() << std::endl;
+            state = q.front(); q.pop();
             if (state == target_state) return true;
             auto observations = state.CreateObservations();
             auto actions = ListUpActions(std::move(observations));
             for (auto as: actions) {
                 auto state_copy = state;
                 state_copy.Update(std::move(as));
-                if (state.CanReach(target_state)) q.push(state_copy);
+                if (state_copy.CanReach(target_state)) q.push(state_copy);
             }
         }
+        std::cerr << "Expected: "  << target_state.ToJson() << std::endl;
+        std::cerr << "Actual:   "  << state.ToJson() << std::endl;
         return false;
     };
 
@@ -846,6 +848,5 @@ TEST(state, StateTrans) {
     auto target_state = State(json);
     EXPECT_TRUE(init_state != target_state);
     EXPECT_TRUE(init_state.CanReach(target_state));
-    EXPECT_TRUE(CanReach(init_state, target_state));
-
+    EXPECT_TRUE(BFSCheck(init_state, target_state));
 }
