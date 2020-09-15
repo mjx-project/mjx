@@ -34,4 +34,11 @@ namespace mj
     bool Observation::has_possible_action() const {
         return !proto_.possible_actions().empty();
     }
+
+    std::string Observation::ToJson() const {
+        std::string serialized;
+        auto status = google::protobuf::util::MessageToJsonString(proto_, &serialized);
+        assert(status.ok());
+        return serialized;
+    }
 }
