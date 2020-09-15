@@ -403,7 +403,7 @@ namespace mj
     }
 
     void State::Ron(AbsolutePos winner) {
-        assert(Any(last_event_.type(), {EventType::kDiscardDrawnTile, EventType::kDiscardFromHand, EventType::kRiichiScoreChange, EventType::kKanAdded, EventType::kRon}));
+        assert(Any(last_event_.type(), {EventType::kDiscardDrawnTile, EventType::kDiscardFromHand, EventType::kKanAdded, EventType::kRon}));
         AbsolutePos loser = last_event_.type() != EventType::kRon ? last_event_.who() : AbsolutePos(state_.terminal().wins(0).from_who());
         Tile tile = last_event_.type() != EventType::kKanAdded ? last_event_.tile() : last_event_.open().LastTile();
 
@@ -785,7 +785,7 @@ namespace mj
 
     void State::Update(Action &&action) {
         assert(Any(last_event_.type(), {EventType::kDraw, EventType::kDiscardFromHand,EventType::kDiscardDrawnTile,
-                                        EventType::kRiichi, EventType::kChi, EventType::kPon, EventType::kKanAdded}));
+                                        EventType::kRiichi, EventType::kChi, EventType::kPon, EventType::kKanAdded, EventType::kRon}));
         auto who = action.who();
         switch (action.type()) {
             case ActionType::kDiscard:
@@ -837,7 +837,7 @@ namespace mj
                 Tsumo(who);
                 return;
             case ActionType::kRon:
-                assert(Any(last_event_.type(), {EventType::kDiscardFromHand, EventType::kDiscardDrawnTile, EventType::kKanAdded}));
+                assert(Any(last_event_.type(), {EventType::kDiscardFromHand, EventType::kDiscardDrawnTile, EventType::kKanAdded, EventType::kRon}));
                 Ron(who);
                 return;
             case ActionType::kChi:
