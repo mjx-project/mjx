@@ -49,6 +49,7 @@ namespace mj
         // comparison
         bool operator== (const State& other) const noexcept;
         bool operator!= (const State& other) const noexcept;
+        bool CanReach(const State& other) const noexcept ;
    private:
         // protos
         mjproto::State state_;

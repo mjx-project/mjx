@@ -949,4 +949,35 @@ namespace mj
     bool State::operator!=(const State &other) const noexcept {
         return !(*this == other);
     }
+
+    bool State::CanReach(const State &other) const noexcept {
+        if (*this == other) return true;
+
+        // いくつかの初期状態が同じである必要がある
+        if (!google::protobuf::util::MessageDifferencer::Equals(
+                (const google::protobuf::Message &) state_.player_ids(), (const google::protobuf::Message &) other.state_.player_ids())) return false;
+        if (!google::protobuf::util::MessageDifferencer::Equals(
+                (const google::protobuf::Message &) state_.init_score(), (const google::protobuf::Message &) other.state_.init_score())) return false;
+        if (!google::protobuf::util::MessageDifferencer::Equals(
+                (const google::protobuf::Message &) state_.wall(), (const google::protobuf::Message &) other.state_.wall())) return false;
+
+        // 現在の時点まではイベントがすべて同じである必要がある
+        if (state_.event_history().events_size() >= other.state_.event_history().events_size()) return false;  // イベント長が同じならそもそも *this == other のはず
+        for (int i = 0; i < state_.event_history().events_size(); ++i) {
+            const auto& event = state_.event_history().events(i);
+            const auto& other_event = other.state_.event_history().events(i);
+            if (!google::protobuf::util::MessageDifferencer::Equals(
+                    (const google::protobuf::Message &) event, (const google::protobuf::Message &) other_event)) return false;
+        }
+
+        // Drawがすべて現時点までは同じである必要がある (配牌は山が同じ時点で同じ）
+        for (int i = 0; i < 4; ++i) {
+            const auto &draws = state_.private_infos(i).draws();
+            const auto &other_draws = other.state_.private_infos(i).draws();
+            if (draws.size() > other_draws.size()) return false;
+            for (int j = 0; j < draws.size(); ++j) if (draws[j] != other_draws[j]) return false;
+        }
+
+        return true;
+    }
 }  // namespace mj
