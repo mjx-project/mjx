@@ -814,16 +814,28 @@ TEST(state, StateTrans) {
         while(!q.empty()) {
             state = q.front(); q.pop();
             if (state == target_state) return true;
+            if (state.IsRoundOver()) break;  // invalid
             auto observations = state.CreateObservations();
             auto actions = ListUpActions(std::move(observations));
-            for (auto as: actions) {
+            for (auto &as: actions) {
                 auto state_copy = state;
                 state_copy.Update(std::move(as));
                 if (state_copy.CanReach(target_state)) q.push(state_copy);
             }
         }
         std::cerr << "Expected: "  << target_state.ToJson() << std::endl;
-        std::cerr << "Actual:   "  << state.ToJson() << std::endl;
+        std::cerr << "Actual  : "  << state.ToJson() << std::endl;
+        for (const auto &[pid, obs]: state.CreateObservations()) {
+            std::cerr << "Observ  : " << obs.ToJson() << std::endl;
+        }
+        auto acs = ListUpActions(state.CreateObservations());
+        std::cerr << acs.size() << std::endl;
+        std::cerr << acs.front().size() << std::endl;
+        for (auto &ac: acs) {
+            auto state_cp = state;
+            state_cp.Update(std::move(ac));
+            std::cerr << "Actual  : "  << state_cp.ToJson() << std::endl;
+        }
         return false;
     };
 
