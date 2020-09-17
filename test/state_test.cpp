@@ -732,7 +732,7 @@ TEST(state, CanReach) {
 }
 
 TEST(state, StateTrans) {
-    auto ListUpActions = [](std::unordered_map<PlayerId, Observation> &&observations) {
+    auto ListUpAllActionCombinations = [](std::unordered_map<PlayerId, Observation> &&observations) {
         std::vector<std::vector<Action>> actions;
         for (const auto &[player_id, observation]: observations) {
             auto who = observation.who();
@@ -783,9 +783,8 @@ TEST(state, StateTrans) {
                 for (int i = 0; i < actions_copy.size(); ++i) {
                     for (int j = 0; j < actions_per_player.size(); ++j) {
                         std::vector<Action> as = actions_copy[i];
-                        Action a = actions_per_player[j];
-                        as.push_back(a);
-                        actions.push_back(as);
+                        as.push_back(actions_per_player[j]);
+                        actions.push_back(std::move(as));
                     }
                 }
             }
@@ -807,36 +806,38 @@ TEST(state, StateTrans) {
         return serialized;
     };
 
-    auto BFSCheck = [&ListUpActions](const State& init_state, const State& target_state) {
+    auto ShowDiff = [&](const State& actual, const State& expected) {
+        std::cerr << "Expected    : "  << expected.ToJson() << std::endl;
+        std::cerr << "Actual      : "  << actual.ToJson() << std::endl;
+        if (actual.IsRoundOver()) return;
+        for (const auto &[pid, obs]: actual.CreateObservations()) {
+            std::cerr << "Observation : " << obs.ToJson() << std::endl;
+        }
+        auto acs = ListUpAllActionCombinations(actual.CreateObservations());
+        for (auto &ac: acs) {
+            auto state_cp = actual;
+            state_cp.Update(std::move(ac));
+            std::cerr << "ActualNext  : "  << state_cp.ToJson() << std::endl;
+        }
+    };
+
+    auto BFSCheck = [&](const State& init_state, const State& target_state) {
         std::queue<State> q;
         q.push(init_state);
-        State state;
+        State curr_state;
         while(!q.empty()) {
-            state = q.front(); q.pop();
-            if (state.Equals(target_state)) return true;
-            if (state.IsRoundOver()) break;  // invalid
-            auto observations = state.CreateObservations();
-            auto actions = ListUpActions(std::move(observations));
-            for (auto &as: actions) {
-                auto state_copy = state;
-                state_copy.Update(std::move(as));
-                if (state_copy.CanReach(target_state)) q.push(state_copy);
+            curr_state = std::move(q.front()); q.pop();
+            if (curr_state.Equals(target_state)) return true;
+            if (curr_state.IsRoundOver()) continue;  // E.g., double ron
+            auto observations = curr_state.CreateObservations();
+            auto action_combs = ListUpAllActionCombinations(std::move(observations));
+            for (auto &action_comb: action_combs) {
+                auto state_copy = curr_state;
+                state_copy.Update(std::move(action_comb));
+                if (state_copy.CanReach(target_state)) q.push(std::move(state_copy));
             }
         }
-        std::cerr << "Expected: "  << target_state.ToJson() << std::endl;
-        std::cerr << "Actual  : "  << state.ToJson() << std::endl;
-        if (state.IsRoundOver()) return false;
-        for (const auto &[pid, obs]: state.CreateObservations()) {
-            std::cerr << "Observ  : " << obs.ToJson() << std::endl;
-        }
-        auto acs = ListUpActions(state.CreateObservations());
-        std::cerr << acs.size() << std::endl;
-        std::cerr << acs.front().size() << std::endl;
-        for (auto &ac: acs) {
-            auto state_cp = state;
-            state_cp.Update(std::move(ac));
-            std::cerr << "Actual  : "  << state_cp.ToJson() << std::endl;
-        }
+        ShowDiff(curr_state, target_state);
         return false;
     };
 
@@ -846,13 +847,13 @@ TEST(state, StateTrans) {
 
     json_before = GetLastJsonLine("upd-bef-draw-discard-draw.json");
     state_before = State(json_before);
-    actions = ListUpActions(state_before.CreateObservations());
+    actions = ListUpAllActionCombinations(state_before.CreateObservations());
     EXPECT_EQ(actions.size(), 14);
     EXPECT_EQ(actions.front().size(), 1);
 
     json_before = GetLastJsonLine("upd-bef-ron3.json");
     state_before = State(json_before);
-    actions = ListUpActions(state_before.CreateObservations());
+    actions = ListUpAllActionCombinations(state_before.CreateObservations());
     EXPECT_EQ(actions.size(), 24);  // 4 (Chi1, Chi2, Ron, No) x 2 (Ron, No) x 3 (Pon, Ron, No)
     EXPECT_EQ(actions.front().size(), 3);  // 3
 
