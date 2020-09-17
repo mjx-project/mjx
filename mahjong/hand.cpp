@@ -279,9 +279,13 @@ namespace mj
             possible_discards.push_back(last_tile_added_.value());
             return possible_discards;
         }
+        std::unordered_set<TileType> added;
         for (auto t : closed_tiles_)
-            if (undiscardable_tiles_.find(t) == undiscardable_tiles_.end())
-                possible_discards.push_back(t);
+            if (!undiscardable_tiles_.count(t)) {
+                bool is_exception = t.IsRedFive() || t == last_tile_added_.value();
+                if (!added.count(t.Type()) || is_exception) possible_discards.push_back(t);
+                if (!is_exception) added.insert(t.Type());
+            }
         return possible_discards;
     }
 
@@ -292,12 +296,16 @@ namespace mj
         assert(SizeClosed() == 2 || SizeClosed() == 5 || SizeClosed() == 8 || SizeClosed() == 11 || SizeClosed() == 14);
         std::vector<Tile> possible_discards;
 
+        std::unordered_set<TileType> added;
         auto closed_tile_type_count = ClosedTileTypes();
         for (const Tile discard_tile : closed_tiles_) {
+            bool is_exception = discard_tile.IsRedFive() || discard_tile == last_tile_added_.value());
+            if (!is_exception && added.count(discard_tile.Type())) continue;
             auto discard_tile_type = discard_tile.Type();
             assert(closed_tile_type_count[discard_tile_type] >= 1);
             if (--closed_tile_type_count[discard_tile_type] == 0) {
                 closed_tile_type_count.erase(discard_tile_type);
+                if (!is_exception) added.insert(discard_tile.Type());
             }
             if (!WinHandCache::instance().Machi(closed_tile_type_count).empty()) {
                 possible_discards.push_back(discard_tile);
