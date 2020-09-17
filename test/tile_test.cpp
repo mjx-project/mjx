@@ -274,4 +274,7 @@ TEST(tile, Equals) {
     t3 = Tile("s5", 2);
     EXPECT_FALSE(t1.Equals(t2));
     EXPECT_TRUE(t2.Equals(t3));
+    t1 = Tile("s5", 0);
+    t2 = Tile("s5", 0);
+    EXPECT_TRUE(t1.Equals(t2));
 }

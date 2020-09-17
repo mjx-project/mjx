@@ -345,7 +345,6 @@ namespace mj
     }
 
     bool Tile::Equals(Tile other) const noexcept {
-        if (IsRedFive() || other.IsRedFive()) return false;  // 赤は一枚だけ
-        return Type() == other.Type();
+        return Type() == other.Type() && IsRedFive() == other.IsRedFive();
     }
 }  // namespace mj
