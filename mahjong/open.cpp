@@ -172,6 +172,28 @@ namespace mj
         }
     }
 
+    bool Open::operator==(Open other) const noexcept {
+        return bits_ == other.bits_;
+    }
+
+    bool Open::operator!=(Open other) const noexcept {
+        return !(*this == other);
+    }
+
+    bool Open::Equals(Open other) const noexcept {
+        if (Type() != other.Type() || From() != other.From()) return false;
+        switch (Type()) {
+            case OpenType::kChi:
+                return At(0).Equals(other.At(0)) && At(1).Equals(other.At(1)) && At(2).Equals(other.At(2));
+            case OpenType::kPon:
+            case OpenType::kKanOpened:
+                return StolenTile().Equals(other.StolenTile());
+            case OpenType::kKanClosed:
+                return At(0).Equals(other.At(0));
+            case OpenType::kKanAdded:
+                return StolenTile().Equals(other.StolenTile()) && LastTile().Equals(other.LastTile());
+        }
+    }
 
     // Chi
 
@@ -263,6 +285,7 @@ namespace mj
     // Pon
 
     Open Pon::Create(Tile stolen, Tile unused, RelativePos from) {
+        assert(stolen.Type() == unused.Type());
         std::uint16_t bits = 0;
         bits |= (MASK_FROM & static_cast<std::uint16_t>(from));
         bits |= MASK_IS_PON;
