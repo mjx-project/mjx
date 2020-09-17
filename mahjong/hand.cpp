@@ -299,7 +299,7 @@ namespace mj
         std::unordered_set<TileType> added;
         auto closed_tile_type_count = ClosedTileTypes();
         for (const Tile discard_tile : closed_tiles_) {
-            bool is_exception = discard_tile.IsRedFive() || discard_tile == last_tile_added_.value());
+            bool is_exception = discard_tile.IsRedFive() || discard_tile == last_tile_added_.value();
             if (!is_exception && added.count(discard_tile.Type())) continue;
             auto discard_tile_type = discard_tile.Type();
             assert(closed_tile_type_count[discard_tile_type] >= 1);
