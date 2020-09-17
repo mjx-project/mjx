@@ -658,7 +658,12 @@ namespace mj
     }
 
     WinHandInfo Hand::win_info() const noexcept {
-        return WinHandInfo(closed_tiles_, opens_, ClosedTileTypes(), AllTileTypes(), last_tile_added_, stage_, IsUnderRiichi(), IsDoubleRiichi(), IsMenzen());
+        // CanWinでの判定のため、まだ上がっていなくても、上がったていで判定をする。こうしないと、例えばメンゼンツモのみ、ハイテイのみでCanWinがfalseになる
+        HandStage win_stage;
+        if (Any(stage_, {HandStage::kAfterDraw, HandStage::kAfterTsumo})) win_stage =  HandStage::kAfterTsumo;
+        else if (Any(stage_, {HandStage::kAfterDrawAfterKan, HandStage::kAfterTsumoAfterKan})) win_stage = HandStage::kAfterTsumoAfterKan;
+        else win_stage = HandStage::kAfterRon;
+        return WinHandInfo(closed_tiles_, opens_, ClosedTileTypes(), AllTileTypes(), last_tile_added_, win_stage, IsUnderRiichi(), IsDoubleRiichi(), IsMenzen());
     }
 
     bool Hand::IsTenpai() const {

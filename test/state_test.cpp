@@ -1,8 +1,10 @@
 #include "gtest/gtest.h"
 #include <fstream>
 #include <filesystem>
+#include <queue>
 #include "state.h"
 #include "utils.h"
+#include <time.h>
 
 using namespace mj;
 
@@ -19,17 +21,106 @@ std::vector<std::string> data_from_tenhou = {
     R"({"playerIds":["-ron-","ASAPIN","うきでん","超ヒモリロ"],"initScore":{"round":7,"honba":2,"riichi":1,"ten":[13300,30600,37600,17500]},"doras":[99],"eventHistory":{"events":[{"who":"ABSOLUTE_POS_INIT_NORTH"},{"type":"EVENT_TYPE_DISCARD_FROM_HAND","who":"ABSOLUTE_POS_INIT_NORTH","tile":127},{},{"type":"EVENT_TYPE_DISCARD_FROM_HAND","tile":110},{"who":"ABSOLUTE_POS_INIT_SOUTH"},{"type":"EVENT_TYPE_DISCARD_FROM_HAND","who":"ABSOLUTE_POS_INIT_SOUTH","tile":122},{"who":"ABSOLUTE_POS_INIT_WEST"},{"type":"EVENT_TYPE_DISCARD_FROM_HAND","who":"ABSOLUTE_POS_INIT_WEST","tile":111},{"who":"ABSOLUTE_POS_INIT_NORTH"},{"type":"EVENT_TYPE_DISCARD_FROM_HAND","who":"ABSOLUTE_POS_INIT_NORTH","tile":129},{},{"type":"EVENT_TYPE_DISCARD_FROM_HAND","tile":119},{"who":"ABSOLUTE_POS_INIT_SOUTH"},{"type":"EVENT_TYPE_DISCARD_FROM_HAND","who":"ABSOLUTE_POS_INIT_SOUTH","tile":74},{"who":"ABSOLUTE_POS_INIT_WEST"},{"type":"EVENT_TYPE_DISCARD_FROM_HAND","who":"ABSOLUTE_POS_INIT_WEST","tile":130},{"who":"ABSOLUTE_POS_INIT_NORTH"},{"type":"EVENT_TYPE_DISCARD_FROM_HAND","who":"ABSOLUTE_POS_INIT_NORTH","tile":132},{},{"type":"EVENT_TYPE_DISCARD_FROM_HAND","tile":33},{"who":"ABSOLUTE_POS_INIT_SOUTH"},{"type":"EVENT_TYPE_DISCARD_FROM_HAND","who":"ABSOLUTE_POS_INIT_SOUTH","tile":94},{"type":"EVENT_TYPE_CHI","who":"ABSOLUTE_POS_INIT_WEST","open":58839},{"type":"EVENT_TYPE_DISCARD_FROM_HAND","who":"ABSOLUTE_POS_INIT_WEST","tile":37},{"who":"ABSOLUTE_POS_INIT_NORTH"},{"type":"EVENT_TYPE_DISCARD_FROM_HAND","who":"ABSOLUTE_POS_INIT_NORTH","tile":123},{},{"type":"EVENT_TYPE_DISCARD_FROM_HAND","tile":131},{"who":"ABSOLUTE_POS_INIT_SOUTH"},{"type":"EVENT_TYPE_DISCARD_DRAWN_TILE","who":"ABSOLUTE_POS_INIT_SOUTH","tile":134},{"who":"ABSOLUTE_POS_INIT_WEST"},{"type":"EVENT_TYPE_DISCARD_FROM_HAND","who":"ABSOLUTE_POS_INIT_WEST","tile":71},{"who":"ABSOLUTE_POS_INIT_NORTH"},{"type":"EVENT_TYPE_DISCARD_FROM_HAND","who":"ABSOLUTE_POS_INIT_NORTH","tile":73},{},{"type":"EVENT_TYPE_DISCARD_FROM_HAND","tile":64},{"who":"ABSOLUTE_POS_INIT_SOUTH"},{"type":"EVENT_TYPE_DISCARD_FROM_HAND","who":"ABSOLUTE_POS_INIT_SOUTH","tile":1},{"who":"ABSOLUTE_POS_INIT_WEST"},{"type":"EVENT_TYPE_DISCARD_FROM_HAND","who":"ABSOLUTE_POS_INIT_WEST","tile":7},{"who":"ABSOLUTE_POS_INIT_NORTH"},{"type":"EVENT_TYPE_DISCARD_FROM_HAND","who":"ABSOLUTE_POS_INIT_NORTH","tile":47},{"type":"EVENT_TYPE_RON","who":"ABSOLUTE_POS_INIT_SOUTH","tile":47}]},"wall":[61,132,36,46,19,55,77,86,12,31,25,22,40,7,81,21,129,89,14,59,131,51,135,33,38,26,8,1,111,130,62,18,101,16,127,123,119,11,64,97,122,94,52,39,98,93,71,103,47,110,74,82,107,87,35,88,42,2,48,37,73,79,5,17,75,134,45,90,23,30,96,104,117,58,126,78,83,120,102,50,92,100,4,28,76,24,121,69,27,72,63,112,43,133,114,54,70,13,95,85,116,67,3,34,57,105,60,10,41,91,15,109,115,6,84,20,65,118,125,66,32,128,108,53,44,68,80,113,56,106,99,124,49,0,9,29],"uraDoras":[124],"privateInfos":[{"initHand":[19,55,77,86,131,51,135,33,119,11,64,97,110],"draws":[87,2,79,75,23]},{"who":"ABSOLUTE_POS_INIT_SOUTH","initHand":[12,31,25,22,38,26,8,1,122,94,52,39,74],"draws":[35,48,5,134,30]},{"who":"ABSOLUTE_POS_INIT_WEST","initHand":[40,7,81,21,111,130,62,18,98,93,71,103,82],"draws":[88,37,45,96]},{"who":"ABSOLUTE_POS_INIT_NORTH","initHand":[61,132,36,46,129,89,14,59,101,16,127,123,47],"draws":[107,42,73,17,90,104]}],"terminal":{"finalScore":{"round":7,"honba":2,"ten":[13300,34200,37600,14900]},"wins":[{"who":"ABSOLUTE_POS_INIT_SOUTH","fromWho":"ABSOLUTE_POS_INIT_NORTH","closedTiles":[5,8,12,22,25,26,30,31,35,38,39,47,48,52],"winTile":47,"fu":30,"ten":2000,"tenChanges":[0,3600,0,-2600],"yakus":[7,54],"fans":[1,1]}],"isGameOver":true}})",
 };
 
-// TEST(state, UpdateStateByAction) {
-//     // すべてツモとランダムに切るだけでエラーを吐かないか（鳴きなし）
-//     auto state = State({"player0", "player1", "player2", "player3"});
-//     std::unique_ptr<AgentClient> agent = std::make_unique<AgentClientMock>();
-//     for (int i = 0; i < 50; ++i) {
-//         auto drawer = state.UpdateStateByDraw();
-//         EXPECT_EQ(drawer, AbsolutePos(i%4));
-//         auto action = agent->TakeAction(state.CreateObservation(drawer));
-//         state.UpdateStateByAction(action);
-//     }
-// }
+// Test utilities
+std::string GetLastJsonLine(const std::string &filename) {
+    auto json_path = std::string(TEST_RESOURCES_DIR) + "/json/" + filename;
+    std::ifstream ifs(json_path, std::ios::in);
+    std::string buf, json_line;
+    while (!ifs.eof()) {
+        std::getline(ifs, buf);
+        if (buf.empty()) break;
+        json_line = buf;
+    }
+    return json_line;
+}
+
+bool ActionTypeCheck(const std::vector<ActionType>& action_types, const Observation &observation) {
+    if (observation.possible_actions().size() != action_types.size()) return false;
+    for (const auto &possible_action: observation.possible_actions())
+        if (!Any(possible_action.type(), action_types)) return false;
+    return true;
+}
+
+bool YakuCheck(const State &state, AbsolutePos winner, std::vector<Yaku> &&yakus) {
+    mjproto::State state_proto = state.proto();
+    assert(std::any_of(state_proto.terminal().wins().begin(), state_proto.terminal().wins().end(),
+                       [&](const auto &win){ return AbsolutePos(win.who()) == winner; }));
+    for (const auto & win: state_proto.terminal().wins()) {
+        bool ok = true;
+        if (AbsolutePos(win.who()) == winner) {
+            if (win.yakus().size() != yakus.size()) ok = false;
+            for (auto yaku: win.yakus()) if (!Any(Yaku(yaku), yakus)) ok = false;
+        }
+        if (!ok) {
+            std::cout << "Actual  : ";
+            for (auto y: win.yakus()) { std::cout << y << " "; }
+            std::cout << std::endl;
+            std::cout << "Expected: ";
+            for (Yaku y: yakus) { std::cout << (int)y << " "; }
+            std::cout << std::endl;
+            return false;
+        }
+    }
+    return true;
+}
+
+// NOTE 鳴きの構成要素になっている牌とはスワップできない
+std::string SwapTiles(const std::string &json_str, Tile a, Tile b){
+    mjproto::State state = mjproto::State();
+    auto status = google::protobuf::util::JsonStringToMessage(json_str, &state);
+    assert(status.ok());
+    // wall
+    for (int i = 0; i < state.wall_size(); ++i) {
+        if (state.wall(i) == a.Id()) state.set_wall(i, b.Id());
+        else if (state.wall(i) == b.Id()) state.set_wall(i, a.Id());
+    }
+    // dora
+    for (int i = 0; i < state.doras_size(); ++i) {
+        if (state.doras(i) == a.Id()) state.set_wall(i, b.Id());
+        else if (state.doras(i) == b.Id()) state.set_wall(i, a.Id());
+    }
+    // ura dora
+    for (int i = 0; i < state.ura_doras_size(); ++i) {
+        if (state.ura_doras(i) == a.Id()) state.set_ura_doras(i, b.Id());
+        else if (state.ura_doras(i) == b.Id()) state.set_ura_doras(i, a.Id());
+    }
+    // init hand, draws
+    for (int j = 0; j < 4; ++j) {
+        auto mpinfo = state.mutable_private_infos(j);
+        for (int i = 0; i < mpinfo->init_hand_size(); ++i) {
+            if (mpinfo->init_hand(i) == a.Id()) mpinfo->set_init_hand(i, b.Id());
+            else if (mpinfo->init_hand(i) == b.Id()) mpinfo->set_init_hand(i, a.Id());
+        }
+        for (int i = 0; i < mpinfo->draws_size(); ++i) {
+            if (mpinfo->draws(i) == a.Id()) mpinfo->set_draws(i, b.Id());
+            else if (mpinfo->draws(i) == b.Id()) mpinfo->set_draws(i, a.Id());
+        }
+    }
+    // event history
+    for (int i = 0; i < state.event_history().events_size(); ++i) {
+        auto mevent = state.mutable_event_history()->mutable_events(i);
+        if (Any(mevent->type(), {mjproto::EventType::EVENT_TYPE_DISCARD_FROM_HAND,
+                                 mjproto::EventType::EVENT_TYPE_DISCARD_DRAWN_TILE,
+                                 mjproto::EventType::EVENT_TYPE_TSUMO,
+                                 mjproto::EventType::EVENT_TYPE_RON,
+                                 mjproto::EventType::EVENT_TYPE_NEW_DORA})) {
+            if (mevent->tile() == a.Id()) mevent->set_tile(b.Id());
+            else if (mevent->tile() == b.Id()) mevent->set_tile(a.Id());
+        }
+    }
+
+    std::string serialized;
+    status = google::protobuf::util::MessageToJsonString(state, &serialized);
+    assert(status.ok());
+    return serialized;
+}
+
+const PossibleAction& FindPossibleAction(ActionType action_type, const Observation &observation) {
+    for (const auto &possible_action: observation.possible_actions())
+        if (possible_action.type() == action_type) return possible_action;
+    std::cerr << "Cannot find the specified action type" << std::endl;
+    assert(false);
+};
 
 TEST(state, ToJson) {
     // From https://tenhou.net/0/?log=2011020417gm-00a9-0000-b67fcaa3&tw=1
@@ -76,237 +167,119 @@ TEST(state, CreateObservation) {
     // https://tenhou.net/0/?log=2011020417gm-00a9-0000-b67fcaa3&tw=1
 
     std::string json; State state; std::unordered_map<PlayerId, Observation> observations; Observation observation;
-    auto types_check = [](const std::vector<ActionType>& action_types, const Observation &observation) {
-        if (observation.possible_actions().size() != action_types.size()) return false;
-        for (const auto &possible_action: observation.possible_actions())
-            if (!Any(possible_action.type(), action_types)) return false;
-        return true;
-    };
-
-    auto get_last_json_line = [&](const std::string &filename) {
-        auto json_path = std::string(TEST_RESOURCES_DIR) + "/json/" + filename;
-        std::ifstream ifs(json_path, std::ios::in);
-        std::string buf, json_line;
-        while (!ifs.eof()) {
-            std::getline(ifs, buf);
-            if (buf.empty()) break;
-            json_line = buf;
-        }
-        return json_line;
-    };
-
     // 1. Drawした後、TsumoれるならTsumoがアクション候補に入る
-    json = get_last_json_line("obs-draw-tsumo.json");
+    json = GetLastJsonLine("obs-draw-tsumo.json");
     state = State(json);
     observations = state.CreateObservations();
     EXPECT_EQ(observations.size(), 1);
     EXPECT_TRUE(observations.find("ASAPIN") != observations.end());
     observation = observations["ASAPIN"];
-    EXPECT_TRUE(types_check({ActionType::kDiscard, ActionType::kTsumo}, observation));
+    EXPECT_TRUE(ActionTypeCheck({ActionType::kDiscard, ActionType::kTsumo}, observation));
 
     // 2. Drawした後、KanAddedが可能なら、KanAddedがアクション候補に入る
-    json = get_last_json_line("obs-draw-kanadded.json");
+    json = GetLastJsonLine("obs-draw-kanadded.json");
     state = State(json);
     observations = state.CreateObservations();
     EXPECT_TRUE(observations.find("ROTTEN") != observations.end());
     observation = observations["ROTTEN"];
-    EXPECT_TRUE(types_check({ActionType::kDiscard, ActionType::kKanAdded}, observation));
+    EXPECT_TRUE(ActionTypeCheck({ActionType::kDiscard, ActionType::kKanAdded}, observation));
 
     // 3. Drawした後、Riichi可能なら、Riichiがアクション候補に入る
-    json = get_last_json_line("obs-draw-riichi.json");
+    json = GetLastJsonLine("obs-draw-riichi.json");
     state = State(json);
     observations = state.CreateObservations();
     EXPECT_EQ(observations.size(), 1);
     observation = observations["ASAPIN"];
     EXPECT_TRUE(observations.find("ASAPIN") != observations.end());
-    EXPECT_TRUE(types_check({ActionType::kDiscard, ActionType::kRiichi}, observation));
+    EXPECT_TRUE(ActionTypeCheck({ActionType::kDiscard, ActionType::kRiichi}, observation));
 
     // 4. Drawした後、Discardがアクション候補にはいる
-    json = get_last_json_line("obs-draw-discard.json");
+    json = GetLastJsonLine("obs-draw-discard.json");
     state = State(json);
     observations = state.CreateObservations();
     EXPECT_EQ(observations.size(), 1);
     EXPECT_TRUE(observations.find("-ron-") != observations.end());
     observation = observations["-ron-"];
-    EXPECT_TRUE(types_check({ActionType::kDiscard}, observation));
+    EXPECT_TRUE(ActionTypeCheck({ActionType::kDiscard}, observation));
     EXPECT_TRUE(Any(Tile(39), observation.possible_actions().front().discard_candidates()));
 
     // 9. Riichiした後、可能なアクションはDiscardだけで、捨てられる牌も上がり系につながるものだけ
     // ここでは、可能なdiscardは南だけ
-    json = get_last_json_line("obs-riichi-discard.json");
+    json = GetLastJsonLine("obs-riichi-discard.json");
     state = State(json);
     observations = state.CreateObservations();
     EXPECT_EQ(observations.size(), 1);
     EXPECT_TRUE(observations.find("ASAPIN") != observations.end());
     observation = observations["ASAPIN"];
-    EXPECT_TRUE(types_check({ActionType::kDiscard}, observation));
+    EXPECT_TRUE(ActionTypeCheck({ActionType::kDiscard}, observation));
     EXPECT_EQ(observation.possible_actions().front().discard_candidates().size(), 1);
     EXPECT_EQ(observation.possible_actions().front().discard_candidates().front().Type(), TileType::kSW);
 
     // 10. チーした後、可能なアクションはDiscardだけで、喰い替えはできない
     // 34566mから567mのチーで4mは喰い替えになるので切れない
-    json = get_last_json_line("obs-chi-discard.json");
+    json = GetLastJsonLine("obs-chi-discard.json");
     state = State(json);
     observations = state.CreateObservations();
     EXPECT_EQ(observations.size(), 1);
     EXPECT_TRUE(observations.find("ASAPIN") != observations.end());
     observation = observations["ASAPIN"];
-    EXPECT_TRUE(types_check({ActionType::kDiscard}, observation));
+    EXPECT_TRUE(ActionTypeCheck({ActionType::kDiscard}, observation));
     EXPECT_EQ(observation.possible_actions().front().discard_candidates().size(), 7);
     for (auto tile : observation.possible_actions().front().discard_candidates()) EXPECT_NE(tile.Type(), TileType::kM4);
 
     // 11. ポンした後、可能なアクションはDiscardだけ
-    json = get_last_json_line("obs-pon-discard.json");
+    json = GetLastJsonLine("obs-pon-discard.json");
     state = State(json);
     observations = state.CreateObservations();
     EXPECT_EQ(observations.size(), 1);
     EXPECT_TRUE(observations.find("超ヒモリロ") != observations.end());
     observation = observations["超ヒモリロ"];
-    EXPECT_TRUE(types_check({ActionType::kDiscard}, observation));
+    EXPECT_TRUE(ActionTypeCheck({ActionType::kDiscard}, observation));
 
     // 12. DiscardFromHand => (7) Ron
 
     // 13. Discardした後、チー可能なプレイヤーがいる場合にはチーが入る
     // Chi.
-    json = get_last_json_line("obs-discard-chi.json");
+    json = GetLastJsonLine("obs-discard-chi.json");
     state = State(json);
     observations = state.CreateObservations();
     EXPECT_EQ(observations.size(), 1);
     EXPECT_TRUE(observations.find("超ヒモリロ") != observations.end());
     observation = observations["超ヒモリロ"];
-    EXPECT_TRUE(types_check({ActionType::kChi, ActionType::kNo}, observation));
+    EXPECT_TRUE(ActionTypeCheck({ActionType::kChi, ActionType::kNo}, observation));
     EXPECT_EQ(observation.possible_actions().front().open().GetBits(), 42031);
 
     // 14. Discardした後、ロン可能なプレイヤーがいる場合にはロンが入る
-    json = get_last_json_line("obs-discard-ron.json");
+    json = GetLastJsonLine("obs-discard-ron.json");
     state = State(json);
     observations = state.CreateObservations();
     EXPECT_EQ(observations.size(), 1);
     EXPECT_TRUE(observations.find("うきでん") != observations.end());
     observation = observations["うきでん"];
-    EXPECT_TRUE(types_check({ActionType::kRon, ActionType::kNo}, observation));
+    EXPECT_TRUE(ActionTypeCheck({ActionType::kRon, ActionType::kNo}, observation));
 
     // 15. DiscardDrawnTile => (8) Chi, Pon and KanOpened
 
     //  0. Draw後、九種九牌が可能な場合には、九種九牌が選択肢に入る
     // 九種九牌
     // From 2011020613gm-00a9-0000-3774f8d1
-    json = get_last_json_line("obs-draw-kyuusyu.json");
+    json = GetLastJsonLine("obs-draw-kyuusyu.json");
     state = State(json);
     observations = state.CreateObservations();
     EXPECT_EQ(observations.size(), 1);
     EXPECT_TRUE(observations.find("ちくき") != observations.end());
     observation = observations["ちくき"];
-    EXPECT_TRUE(types_check({ActionType::kKyushu, ActionType::kDiscard}, observation));
+    EXPECT_TRUE(ActionTypeCheck({ActionType::kKyushu, ActionType::kDiscard}, observation));
 }
 
 TEST(state, Update) {
     // 特に記述がないテストケースは下記から
     // https://tenhou.net/0/?log=2011020417gm-00a9-0000-b67fcaa3&tw=1
     std::string json_before, json_after; State state_before, state_after; std::vector<Action> actions; std::unordered_map<PlayerId, Observation> observations; Observation observation; PossibleAction possible_action;
-    auto types_check = [](const std::vector<ActionType>& action_types, const Observation &observation) {
-        if (observation.possible_actions().size() != action_types.size()) return false;
-        for (const auto &possible_action: observation.possible_actions())
-            if (!Any(possible_action.type(), action_types)) return false;
-        return true;
-    };
-
-    auto get_last_json_line = [&](const std::string &filename) {
-        auto json_path = std::string(TEST_RESOURCES_DIR) + "/json/" + filename;
-        std::ifstream ifs(json_path, std::ios::in);
-        std::string buf, json_line;
-        while (!ifs.eof()) {
-            std::getline(ifs, buf);
-            if (buf.empty()) break;
-            json_line = buf;
-        }
-        return json_line;
-    };
-
-    // NOTE 鳴きの構成要素になっている牌とはスワップできない
-    auto swap_tiles = [](const std::string &json_str, Tile a, Tile b){
-        mjproto::State state = mjproto::State();
-        auto status = google::protobuf::util::JsonStringToMessage(json_str, &state);
-        assert(status.ok());
-        // wall
-        for (int i = 0; i < state.wall_size(); ++i) {
-            if (state.wall(i) == a.Id()) state.set_wall(i, b.Id());
-            else if (state.wall(i) == b.Id()) state.set_wall(i, a.Id());
-        }
-        // dora
-        for (int i = 0; i < state.doras_size(); ++i) {
-            if (state.doras(i) == a.Id()) state.set_wall(i, b.Id());
-            else if (state.doras(i) == b.Id()) state.set_wall(i, a.Id());
-        }
-        // ura dora
-        for (int i = 0; i < state.ura_doras_size(); ++i) {
-            if (state.ura_doras(i) == a.Id()) state.set_ura_doras(i, b.Id());
-            else if (state.ura_doras(i) == b.Id()) state.set_ura_doras(i, a.Id());
-        }
-        // init hand, draws
-        for (int j = 0; j < 4; ++j) {
-            auto mpinfo = state.mutable_private_infos(j);
-            for (int i = 0; i < mpinfo->init_hand_size(); ++i) {
-                if (mpinfo->init_hand(i) == a.Id()) mpinfo->set_init_hand(i, b.Id());
-                else if (mpinfo->init_hand(i) == b.Id()) mpinfo->set_init_hand(i, a.Id());
-            }
-            for (int i = 0; i < mpinfo->draws_size(); ++i) {
-                if (mpinfo->draws(i) == a.Id()) mpinfo->set_draws(i, b.Id());
-                else if (mpinfo->draws(i) == b.Id()) mpinfo->set_draws(i, a.Id());
-            }
-        }
-        // event history
-        for (int i = 0; i < state.event_history().events_size(); ++i) {
-            auto mevent = state.mutable_event_history()->mutable_events(i);
-            if (Any(mevent->type(), {mjproto::EventType::EVENT_TYPE_DISCARD_FROM_HAND,
-                                     mjproto::EventType::EVENT_TYPE_DISCARD_DRAWN_TILE,
-                                     mjproto::EventType::EVENT_TYPE_TSUMO,
-                                     mjproto::EventType::EVENT_TYPE_RON,
-                                     mjproto::EventType::EVENT_TYPE_NEW_DORA})) {
-                if (mevent->tile() == a.Id()) mevent->set_tile(b.Id());
-                else if (mevent->tile() == b.Id()) mevent->set_tile(a.Id());
-            }
-        }
-
-        std::string serialized;
-        status = google::protobuf::util::MessageToJsonString(state, &serialized);
-        assert(status.ok());
-        return serialized;
-    };
-
-    auto check_yakus = [](const State &state, AbsolutePos winner, std::vector<Yaku> &&yakus) {
-        mjproto::State state_proto = state.proto();
-        assert(std::any_of(state_proto.terminal().wins().begin(), state_proto.terminal().wins().end(),
-                [&](const auto &win){ return AbsolutePos(win.who()) == winner; }));
-        for (const auto & win: state_proto.terminal().wins()) {
-            bool ok = true;
-            if (AbsolutePos(win.who()) == winner) {
-                if (win.yakus().size() != yakus.size()) ok = false;
-                for (auto yaku: win.yakus()) if (!Any(Yaku(yaku), yakus)) ok = false;
-            }
-            if (!ok) {
-                std::cout << "Actual  : ";
-                for (auto y: win.yakus()) { std::cout << y << " "; }
-                std::cout << std::endl;
-                std::cout << "Expected: ";
-                for (Yaku y: yakus) { std::cout << (int)y << " "; }
-                std::cout << std::endl;
-                return false;
-            }
-        }
-        return true;
-    };
-
-    auto find_possible_action = [](ActionType action_type, const Observation &observation) {
-        for (const auto &possible_action: observation.possible_actions())
-            if (possible_action.type() == action_type) return possible_action;
-        std::cerr << "Cannot find the specified action type" << std::endl;
-        return PossibleAction();
-    };
 
     // Draw後にDiscardでUpdate。これを誰も鳴けない場合は次のDrawまで進む
-    json_before = get_last_json_line("upd-bef-draw-discard-draw.json");
-    json_after = get_last_json_line("upd-aft-draw-discard-draw.json");
+    json_before = GetLastJsonLine("upd-bef-draw-discard-draw.json");
+    json_after = GetLastJsonLine("upd-aft-draw-discard-draw.json");
     state_before = State(json_before);
     state_after = State(json_after);
     actions = { Action::CreateDiscard(AbsolutePos::kInitEast, Tile(39)) };
@@ -314,8 +287,8 @@ TEST(state, Update) {
     EXPECT_EQ(state_before.ToJson(), state_after.ToJson());
 
     // Draw後にDiscardでUpdate。鳴きがある場合はdiscardでストップ
-    json_before = get_last_json_line("upd-bef-draw-discard-discard.json");
-    json_after = get_last_json_line("upd-aft-draw-discard-discard.json");
+    json_before = GetLastJsonLine("upd-bef-draw-discard-discard.json");
+    json_after = GetLastJsonLine("upd-aft-draw-discard-discard.json");
     state_before = State(json_before);
     state_after = State(json_after);
     actions = { Action::CreateDiscard(AbsolutePos::kInitWest, Tile(68)) };
@@ -323,8 +296,8 @@ TEST(state, Update) {
     EXPECT_EQ(state_before.ToJson(), state_after.ToJson());
 
     // Draw後にRiichiでUpdate。Riichiしただけでストップ
-    json_before = get_last_json_line("upd-bef-draw-riichi-riichi.json");
-    json_after = get_last_json_line("upd-aft-draw-riichi-riichi.json");
+    json_before = GetLastJsonLine("upd-bef-draw-riichi-riichi.json");
+    json_after = GetLastJsonLine("upd-aft-draw-riichi-riichi.json");
     state_before = State(json_before);
     state_after = State(json_after);
     actions = {Action::CreateRiichi(AbsolutePos::kInitSouth)};
@@ -332,8 +305,8 @@ TEST(state, Update) {
     EXPECT_EQ(state_before.ToJson(), state_after.ToJson());
 
     // Draw後にTsumoでUpdate。Tsumoまで更新されて終了。
-    json_before = get_last_json_line("upd-bef-draw-tsumo-tsumo.json");
-    json_after = get_last_json_line("upd-aft-draw-tsumo-tsumo.json");
+    json_before = GetLastJsonLine("upd-bef-draw-tsumo-tsumo.json");
+    json_after = GetLastJsonLine("upd-aft-draw-tsumo-tsumo.json");
     state_before = State(json_before);
     state_after = State(json_after);
     actions = {Action::CreateTsumo(AbsolutePos::kInitSouth)};
@@ -341,8 +314,8 @@ TEST(state, Update) {
     EXPECT_EQ(state_before.ToJson(), state_after.ToJson());
 
     // Discard後にRonでUpdate。Ronまで更新されて終了。
-    json_before = get_last_json_line("upd-bef-draw-ron-ron.json");
-    json_after = get_last_json_line("upd-aft-draw-ron-ron.json");
+    json_before = GetLastJsonLine("upd-bef-draw-ron-ron.json");
+    json_after = GetLastJsonLine("upd-aft-draw-ron-ron.json");
     state_before = State(json_before);
     state_after = State(json_after);
     actions = {Action::CreateRon(AbsolutePos::kInitWest)};
@@ -350,23 +323,23 @@ TEST(state, Update) {
     EXPECT_EQ(state_before.ToJson(), state_after.ToJson());
 
     // Discard後にRonをしなかった場合、次のプレイヤーがDrawし、Tsumo/Riichi/KanAdded/KanOpened/Discardになる（ここではDiscard/Riichi)
-    json_before = get_last_json_line("upd-bef-draw-ron-ron.json");
+    json_before = GetLastJsonLine("upd-bef-draw-ron-ron.json");
     state_before = State(json_before);
     observations = state_before.CreateObservations();
     observation = observations["うきでん"];
-    EXPECT_TRUE(types_check({ActionType::kRon, ActionType::kNo}, observation));
+    EXPECT_TRUE(ActionTypeCheck({ActionType::kRon, ActionType::kNo}, observation));
     actions = {Action::CreateNo(AbsolutePos::kInitWest)};
     state_before.Update(std::move(actions));
     // NoはEventとして追加はされないので、Jsonとしては状態は変わっていないが、CreateObservationの返り値が変わってくる
     EXPECT_EQ(state_before.ToJson(), state_before.ToJson());
     observations = state_before.CreateObservations();
     observation = observations["-ron-"];
-    EXPECT_TRUE(types_check({ActionType::kDiscard, ActionType::kRiichi}, observation));
+    EXPECT_TRUE(ActionTypeCheck({ActionType::kDiscard, ActionType::kRiichi}, observation));
 
     // Discard後にChiでUpdateした場合、Chiまで（Discard直前）まで更新
     // action: InitNorth Chi 42031
-    json_before = get_last_json_line("upd-bef-discard-chi-chi.json");
-    json_after = get_last_json_line("upd-aft-discard-chi-chi.json");
+    json_before = GetLastJsonLine("upd-bef-discard-chi-chi.json");
+    json_after = GetLastJsonLine("upd-aft-discard-chi-chi.json");
     state_before = State(json_before);
     state_after = State(json_after);
     actions = { Action::CreateOpen(AbsolutePos::kInitNorth, Open(42031)) };
@@ -374,22 +347,22 @@ TEST(state, Update) {
     EXPECT_EQ(state_before.ToJson(), state_after.ToJson());
 
     // Discard後にChiできるのをスルー
-    json_before = get_last_json_line("upd-bef-discard-chi-chi.json");
+    json_before = GetLastJsonLine("upd-bef-discard-chi-chi.json");
     state_before = State(json_before);
     observations = state_before.CreateObservations();
     observation = observations["超ヒモリロ"];
-    EXPECT_TRUE(types_check({ActionType::kChi, ActionType::kNo}, observation));
+    EXPECT_TRUE(ActionTypeCheck({ActionType::kChi, ActionType::kNo}, observation));
     actions = { Action::CreateNo(AbsolutePos::kInitNorth) };
     state_before.Update(std::move(actions));
     // NoはEventとして追加はされないので、Jsonとしては状態は変わっていないが、CreateObservationの返り値が変わってくる
     EXPECT_EQ(state_before.ToJson(), state_before.ToJson());
     observations = state_before.CreateObservations();
     observation = observations["超ヒモリロ"];
-    EXPECT_TRUE(types_check({ActionType::kDiscard}, observation));
+    EXPECT_TRUE(ActionTypeCheck({ActionType::kDiscard}, observation));
 
     // Riichi後にDiscardして、鳴き候補もロン候補もないのでRiichiScoreChange+DrawまでUpdateされる
-    json_before = get_last_json_line("upd-bef-riichi-discard-riichisc+draw.json");
-    json_after = get_last_json_line("upd-aft-riichi-discard-riichisc+draw.json");
+    json_before = GetLastJsonLine("upd-bef-riichi-discard-riichisc+draw.json");
+    json_after = GetLastJsonLine("upd-aft-riichi-discard-riichisc+draw.json");
     state_before = State(json_before);
     state_after = State(json_after);
     actions = { Action::CreateDiscard(AbsolutePos::kInitSouth, Tile(115)) };
@@ -397,8 +370,8 @@ TEST(state, Update) {
     EXPECT_EQ(state_before.ToJson(), state_after.ToJson());
 
     // Riichi後にDiscardして、鳴き候補があるのでRiichiScoreChangeされない
-    json_before = get_last_json_line("upd-bef-riichi-discard-discard.json");
-    json_after = get_last_json_line("upd-aft-riichi-discard-discard.json");
+    json_before = GetLastJsonLine("upd-bef-riichi-discard-discard.json");
+    json_after = GetLastJsonLine("upd-aft-riichi-discard-discard.json");
     state_before = State(json_before);
     state_after = State(json_after);
     actions = { Action::CreateDiscard(AbsolutePos::kInitWest, Tile(80)) };
@@ -406,8 +379,8 @@ TEST(state, Update) {
     EXPECT_EQ(state_before.ToJson(), state_after.ToJson());
 
     // Riichi+Discardして、鳴くと鳴きの直前にRiichiScoreChangeが挟まれる
-    json_before = get_last_json_line("upd-bef-riichi+discard-chi-riichisc+chi.json");
-    json_after = get_last_json_line("upd-aft-riichi+discard-chi-riichisc+chi.json");
+    json_before = GetLastJsonLine("upd-bef-riichi+discard-chi-riichisc+chi.json");
+    json_after = GetLastJsonLine("upd-aft-riichi+discard-chi-riichisc+chi.json");
     state_before = State(json_before);
     state_after = State(json_after);
     actions = { Action::CreateOpen(AbsolutePos::kInitNorth, Open(47511)) };  // chi
@@ -415,8 +388,8 @@ TEST(state, Update) {
     EXPECT_EQ(state_before.ToJson(), state_after.ToJson());
 
     // Riichi後にDiscardして、鳴きを拒否したあとにRiichiScoreChange+Drawされる
-    json_before = get_last_json_line("upd-bef-riichi+discard-no-riichisc+draw.json");
-    json_after = get_last_json_line("upd-aft-riichi+discard-no-riichisc+draw.json");
+    json_before = GetLastJsonLine("upd-bef-riichi+discard-no-riichisc+draw.json");
+    json_after = GetLastJsonLine("upd-aft-riichi+discard-no-riichisc+draw.json");
     state_before = State(json_before);
     state_after = State(json_after);
     actions = { Action::CreateNo(AbsolutePos::kInitNorth) };
@@ -424,8 +397,8 @@ TEST(state, Update) {
     EXPECT_EQ(state_before.ToJson(), state_after.ToJson());
 
     // Riichi後にDiscardして、ロンがあるのでRiichiScoreChangeなし
-    json_before = get_last_json_line("upd-bef-riichi-discard-discard2.json");
-    json_after = get_last_json_line("upd-aft-riichi-discard-discard2.json");
+    json_before = GetLastJsonLine("upd-bef-riichi-discard-discard2.json");
+    json_after = GetLastJsonLine("upd-aft-riichi-discard-discard2.json");
     state_before = State(json_before);
     state_after = State(json_after);
     actions = { Action::CreateDiscard(AbsolutePos::kInitNorth, Tile(52)) };
@@ -433,8 +406,8 @@ TEST(state, Update) {
     EXPECT_EQ(state_before.ToJson(), state_after.ToJson());
 
     // Riich-Discard後にロンをしてRiichiScoreChangeなしでおわり
-    json_before = get_last_json_line("upd-bef-riichi+discard-ron-ron.json");
-    json_after = get_last_json_line("upd-aft-riichi+discard-ron-ron.json");
+    json_before = GetLastJsonLine("upd-bef-riichi+discard-ron-ron.json");
+    json_after = GetLastJsonLine("upd-aft-riichi+discard-ron-ron.json");
     state_before = State(json_before);
     state_after = State(json_after);
     actions = { Action::CreateRon(AbsolutePos::kInitEast) };
@@ -442,8 +415,8 @@ TEST(state, Update) {
     EXPECT_EQ(state_before.ToJson(), state_after.ToJson());
 
     // Riichi後にDiscardして、ロンを拒否したあとにRiichiScoreChange+Drawされる
-    json_before = get_last_json_line("upd-bef-riichi+discard-no-riichisc+draw2.json");
-    json_after = get_last_json_line("upd-aft-riichi+discard-no-riichisc+draw2.json");
+    json_before = GetLastJsonLine("upd-bef-riichi+discard-no-riichisc+draw2.json");
+    json_after = GetLastJsonLine("upd-aft-riichi+discard-no-riichisc+draw2.json");
     state_before = State(json_before);
     state_after = State(json_after);
     actions = { Action::CreateNo(AbsolutePos::kInitEast) };
@@ -451,8 +424,8 @@ TEST(state, Update) {
     EXPECT_EQ(state_before.ToJson(), state_after.ToJson());
 
     // Draw後にDiscardして、通常の流局
-    json_before = get_last_json_line("upd-bef-draw-discard-nowinner.json");
-    json_after = get_last_json_line("upd-aft-draw-discard-nowinner.json");
+    json_before = GetLastJsonLine("upd-bef-draw-discard-nowinner.json");
+    json_after = GetLastJsonLine("upd-aft-draw-discard-nowinner.json");
     state_before = State(json_before);
     state_after = State(json_after);
     actions = { Action::CreateDiscard(AbsolutePos::kInitWest, Tile(4)) };
@@ -460,8 +433,8 @@ TEST(state, Update) {
     EXPECT_EQ(state_before.ToJson(), state_after.ToJson());
 
     // 暗槓して、カンドラ＋リンシャンツモまでUpdate
-    json_before = get_last_json_line("upd-bef-draw-kanclosed-dora+draw.json");
-    json_after = get_last_json_line("upd-aft-draw-kanclosed-dora+draw.json");
+    json_before = GetLastJsonLine("upd-bef-draw-kanclosed-dora+draw.json");
+    json_after = GetLastJsonLine("upd-aft-draw-kanclosed-dora+draw.json");
     state_before = State(json_before);
     state_after = State(json_after);
     actions = { Action::CreateOpen(AbsolutePos::kInitEast, Open(31744)) };
@@ -489,16 +462,16 @@ TEST(state, Update) {
     EXPECT_EQ(state_before.ToJson(), state_after.ToJson());
 
     // Drawした後、加槓して嶺上ツモの後にはカンドラなしでDrawだけまで更新
-    json_before = get_last_json_line("upd-bef-draw-kanadded-draw.json");
-    json_after = get_last_json_line("upd-aft-draw-kanadded-draw.json");
+    json_before = GetLastJsonLine("upd-bef-draw-kanadded-draw.json");
+    json_after = GetLastJsonLine("upd-aft-draw-kanadded-draw.json");
     state_before = State(json_before);
     state_after = State(json_after);
     actions = { Action::CreateOpen(AbsolutePos::kInitWest, Open(15106)) };
     state_before.Update(std::move(actions));
     EXPECT_EQ(state_before.ToJson(), state_after.ToJson());
     // 加槓+嶺上ツモのあと、、次のdiscard直前にカンドラが開かれる
-    json_before = get_last_json_line("upd-bef-kanadded+draw-discard-dora+discard.json");
-    json_after = get_last_json_line("upd-aft-kanadded+draw-discard-dora+discard.json");
+    json_before = GetLastJsonLine("upd-bef-kanadded+draw-discard-dora+discard.json");
+    json_after = GetLastJsonLine("upd-aft-kanadded+draw-discard-dora+discard.json");
     state_before = State(json_before);
     state_after = State(json_after);
     actions = { Action::CreateDiscard(AbsolutePos::kInitWest, Tile(74)) };
@@ -506,8 +479,8 @@ TEST(state, Update) {
     EXPECT_EQ(state_before.ToJson(), state_after.ToJson());
 
     // 槍槓: Draw後に加槓してもロンできる人がいるのでリンシャンをツモらない
-    json_before = get_last_json_line("upd-bef-draw-kanadded-kanadded.json");
-    json_after = get_last_json_line("upd-aft-draw-kanadded-kanadded.json");
+    json_before = GetLastJsonLine("upd-bef-draw-kanadded-kanadded.json");
+    json_after = GetLastJsonLine("upd-aft-draw-kanadded-kanadded.json");
     state_before = State(json_before);
     state_after = State(json_after);
     actions = { Action::CreateOpen(AbsolutePos::kInitSouth, Open(16947)) };
@@ -515,8 +488,8 @@ TEST(state, Update) {
     EXPECT_EQ(state_before.ToJson(), state_after.ToJson());
 
     // 槍槓: 槍槓後のロンで更新して終局。
-    json_before = get_last_json_line("upd-bef-draw+kanadded-ron-ron.json");
-    json_after = get_last_json_line("upd-aft-draw+kanadded-ron-ron.json");
+    json_before = GetLastJsonLine("upd-bef-draw+kanadded-ron-ron.json");
+    json_after = GetLastJsonLine("upd-aft-draw+kanadded-ron-ron.json");
     state_before = State(json_before);
     state_after = State(json_after);
     actions = { Action::CreateRon(AbsolutePos::kInitWest) };
@@ -524,8 +497,8 @@ TEST(state, Update) {
     EXPECT_EQ(state_before.ToJson(), state_after.ToJson());
 
     // 九種九牌で流局
-    json_before = get_last_json_line("upd-bef-draw-kyuusyu-kyuusyu.json");
-    json_after = get_last_json_line("upd-aft-draw-kyuusyu-kyuusyu.json");
+    json_before = GetLastJsonLine("upd-bef-draw-kyuusyu-kyuusyu.json");
+    json_after = GetLastJsonLine("upd-aft-draw-kyuusyu-kyuusyu.json");
     state_before = State(json_before);
     state_after = State(json_after);
     actions = { Action::CreateNineTiles(AbsolutePos::kInitNorth) };
@@ -533,8 +506,8 @@ TEST(state, Update) {
     EXPECT_EQ(state_before.ToJson(), state_after.ToJson());
 
     // ４人目にRiichiした後にDiscardして、ロン候補がないときはRiichiScoreChange + NoWinner までUpdateされる
-    json_before = get_last_json_line("upd-bef-reach4.json");
-    json_after = get_last_json_line("upd-aft-reach4.json");
+    json_before = GetLastJsonLine("upd-bef-reach4.json");
+    json_after = GetLastJsonLine("upd-aft-reach4.json");
     state_before = State(json_before);
     state_after = State(json_after);
     actions = { Action::CreateRiichi(AbsolutePos::kInitSouth) };
@@ -545,10 +518,10 @@ TEST(state, Update) {
 
     // 4人目にRiichiした後にDiscardした牌がロンできるときに無視された場合, RiichiScoreChange + NoWinner までUpdateされる
     // 上のケースで4人目の立直宣言牌が親のあたり牌になるように牌をswapした（48と82）
-    json_before = get_last_json_line("upd-bef-reach4.json");
-    json_before = swap_tiles(json_before, Tile(48), Tile(82));
-    json_after = get_last_json_line("upd-aft-reach4.json");
-    json_after = swap_tiles(json_after, Tile(48), Tile(82));
+    json_before = GetLastJsonLine("upd-bef-reach4.json");
+    json_before = SwapTiles(json_before, Tile(48), Tile(82));
+    json_after = GetLastJsonLine("upd-aft-reach4.json");
+    json_after = SwapTiles(json_after, Tile(48), Tile(82));
     state_before = State(json_before);
     state_after = State(json_after);
     actions = { Action::CreateRiichi(AbsolutePos::kInitSouth) };
@@ -560,8 +533,8 @@ TEST(state, Update) {
     EXPECT_EQ(state_before.ToJson(), state_after.ToJson());
 
     // 三家和了
-    json_before = get_last_json_line("upd-bef-ron3.json");
-    json_after  =  get_last_json_line("upd-aft-ron3.json");
+    json_before = GetLastJsonLine("upd-bef-ron3.json");
+    json_after  =  GetLastJsonLine("upd-aft-ron3.json");
     state_before = State(json_before);
     state_after = State(json_after);
     actions = { Action::CreateRon(AbsolutePos::kInitEast), Action::CreateRon(AbsolutePos::kInitSouth), Action::CreateRon(AbsolutePos::kInitWest) };
@@ -569,8 +542,8 @@ TEST(state, Update) {
     EXPECT_EQ(state_before.ToJson(), state_after.ToJson());
 
     // 4個目の槓 -> 嶺上牌のツモ -> 打牌 のあと,この牌を誰も鳴けない場合は流局まで進む
-    json_before = get_last_json_line("upd-bef-kan4.json");
-    json_after = get_last_json_line("upd-aft-kan4.json");
+    json_before = GetLastJsonLine("upd-bef-kan4.json");
+    json_after = GetLastJsonLine("upd-aft-kan4.json");
     state_before = State(json_before);
     state_after = State(json_after);
     actions = { Action::CreateOpen(AbsolutePos::kInitEast, Open(4608)) };
@@ -581,10 +554,10 @@ TEST(state, Update) {
 
     // 4個目の槓 -> 嶺上牌のツモ -> 打牌 のあと,この牌をロンできるけど無視した場合も流局とする
     // 上の例から嶺上ツモを 6 -> 80 に変更している
-    json_before = get_last_json_line("upd-bef-kan4.json");
-    json_before = swap_tiles(json_before, Tile(6), Tile(80));
-    json_after = get_last_json_line("upd-aft-kan4.json");
-    json_after = swap_tiles(json_after, Tile(6), Tile(80));
+    json_before = GetLastJsonLine("upd-bef-kan4.json");
+    json_before = SwapTiles(json_before, Tile(6), Tile(80));
+    json_after = GetLastJsonLine("upd-aft-kan4.json");
+    json_after = SwapTiles(json_after, Tile(6), Tile(80));
     state_before = State(json_before);
     state_after = State(json_after);
     actions = { Action::CreateOpen(AbsolutePos::kInitEast, Open(4608)) };
@@ -596,15 +569,15 @@ TEST(state, Update) {
     EXPECT_EQ(observations.size(), 1);
     EXPECT_TRUE(observations.find("ぺんぎんさん") != observations.end());
     observation = observations["ぺんぎんさん"];
-    EXPECT_TRUE(types_check({ActionType::kNo, ActionType::kRon}, observation));
+    EXPECT_TRUE(ActionTypeCheck({ActionType::kNo, ActionType::kRon}, observation));
 
     actions = { Action::CreateNo(AbsolutePos::kInitSouth) };
     state_before.Update(std::move(actions));
     EXPECT_EQ(state_before.ToJson(), state_after.ToJson());
 
     // 海底牌を打牌した後, 流し満貫を成立させた人がいれば流し満貫まで進む
-    json_before = get_last_json_line("upd-bef-nm.json");
-    json_after = get_last_json_line("upd-aft-nm.json");
+    json_before = GetLastJsonLine("upd-bef-nm.json");
+    json_after = GetLastJsonLine("upd-aft-nm.json");
     state_before = State(json_before);
     state_after = State(json_after);
     actions = { Action::CreateDiscard(AbsolutePos::kInitNorth, Tile(17)) };
@@ -612,7 +585,7 @@ TEST(state, Update) {
     EXPECT_EQ(state_before.ToJson(), state_after.ToJson());
 
     // 捨て牌によるフリテン
-    json_before = get_last_json_line("upd-sutehai-furiten.json");
+    json_before = GetLastJsonLine("upd-sutehai-furiten.json");
     state_before = State(json_before);
     observations = state_before.CreateObservations();
     EXPECT_EQ(observations.size(), 1);
@@ -621,45 +594,45 @@ TEST(state, Update) {
     // 同巡内フリテン
     // 親が1mを捨てておらず,対面の7mをロンできそうだが,下家の1mを見逃しているためロンできない
     // (swap Tile(0) and Tile(134)) (swap Tile(74) and Tile(3))
-    json_before = get_last_json_line("upd-sutehai-furiten.json");
-    json_before = swap_tiles(json_before, Tile(0), Tile(134));
-    json_before = swap_tiles(json_before, Tile(74), Tile(3));
+    json_before = GetLastJsonLine("upd-sutehai-furiten.json");
+    json_before = SwapTiles(json_before, Tile(0), Tile(134));
+    json_before = SwapTiles(json_before, Tile(74), Tile(3));
     state_before = State(json_before);
     observations = state_before.CreateObservations();
     EXPECT_TRUE(observations.find("心滅獣身") == observations.end());
 
     // 親が1mを捨てておらず,対面の7mをロンできる (swap Tile(0) and Tile(134))
-    json_before = get_last_json_line("upd-sutehai-furiten.json");
-    json_before = swap_tiles(json_before, Tile(0), Tile(134));
+    json_before = GetLastJsonLine("upd-sutehai-furiten.json");
+    json_before = SwapTiles(json_before, Tile(0), Tile(134));
     state_before = State(json_before);
     observations = state_before.CreateObservations();
     EXPECT_TRUE(observations.find("心滅獣身") != observations.end());
 
     // 加槓=>No=>ツモでは一発はつかない（加槓=>槍槓ロンはつく）
     // 次のツモを5s(91)にスワップ
-    json_before = get_last_json_line("upd-bef-chankan-twice.json");
-    json_before = swap_tiles(json_before, Tile(12), Tile(91));
+    json_before = GetLastJsonLine("upd-bef-chankan-twice.json");
+    json_before = SwapTiles(json_before, Tile(12), Tile(91));
     state_before = State(json_before);
     // 8s Kan
     observations = state_before.CreateObservations();
     EXPECT_EQ(observations.size(), 1);
     observation = observations.begin()->second;
-    EXPECT_TRUE(types_check({ActionType::kDiscard, ActionType::kKanAdded}, observation));
-    possible_action = find_possible_action(ActionType::kKanAdded, observation);
+    EXPECT_TRUE(ActionTypeCheck({ActionType::kDiscard, ActionType::kKanAdded}, observation));
+    possible_action = FindPossibleAction(ActionType::kKanAdded, observation);
     actions = { Action::CreateOpen(observation.who(), possible_action.open()) };
     state_before.Update(std::move(actions));
     // No
     observations = state_before.CreateObservations();
     EXPECT_EQ(observations.size(), 1);
     observation = observations.begin()->second;
-    EXPECT_TRUE(types_check({ActionType::kRon, ActionType::kNo}, observation));
+    EXPECT_TRUE(ActionTypeCheck({ActionType::kRon, ActionType::kNo}, observation));
     actions = { Action::CreateNo(observation.who()) };
     state_before.Update(std::move(actions));
     // Discard 2m
     observations = state_before.CreateObservations();
     EXPECT_EQ(observations.size(), 1);
     observation = observations.begin()->second;
-    EXPECT_TRUE(types_check({ActionType::kDiscard}, observation));
+    EXPECT_TRUE(ActionTypeCheck({ActionType::kDiscard}, observation));
     EXPECT_EQ(observation.who(), AbsolutePos::kInitNorth);
     actions = { Action::CreateDiscard(observation.who(), Tile(4)) };
     state_before.Update(std::move(actions));
@@ -667,33 +640,33 @@ TEST(state, Update) {
     observations = state_before.CreateObservations();
     EXPECT_EQ(observations.size(), 1);
     observation = observations.begin()->second;
-    EXPECT_TRUE(types_check({ActionType::kDiscard, ActionType::kTsumo}, observation));
+    EXPECT_TRUE(ActionTypeCheck({ActionType::kDiscard, ActionType::kTsumo}, observation));
     actions = { Action::CreateTsumo(observation.who()) };
     state_before.Update(std::move(actions));
-    EXPECT_TRUE(check_yakus(state_before, AbsolutePos::kInitEast,
-            {Yaku::kFullyConcealedHand, Yaku::kRiichi, Yaku::kPinfu, Yaku::kRedDora, Yaku::kReversedDora}));
+    EXPECT_TRUE(YakuCheck(state_before, AbsolutePos::kInitEast,
+                          {Yaku::kFullyConcealedHand, Yaku::kRiichi, Yaku::kPinfu, Yaku::kRedDora, Yaku::kReversedDora}));
 
     // 加槓=>加槓=>槍槓ロンでは一発はつかない（加槓=>槍槓ロンはつく）
     // s8(103) をリンシャンツモ s3(81) と入れ替え
     // s3(81) を wd(127) と入れ替え
-    json_before = get_last_json_line("upd-bef-chankan-twice.json");
-    json_before = swap_tiles(json_before, Tile(81), Tile(103));
-    json_before = swap_tiles(json_before, Tile(81), Tile(127));
+    json_before = GetLastJsonLine("upd-bef-chankan-twice.json");
+    json_before = SwapTiles(json_before, Tile(81), Tile(103));
+    json_before = SwapTiles(json_before, Tile(81), Tile(127));
     state_before = State(json_before);
     // KanAdded ww
     observations = state_before.CreateObservations();
     EXPECT_EQ(observations.size(), 1);
     observation = observations.begin()->second;
-    EXPECT_TRUE(types_check({ActionType::kDiscard, ActionType::kKanAdded}, observation));
-    possible_action = find_possible_action(ActionType::kKanAdded, observation);
+    EXPECT_TRUE(ActionTypeCheck({ActionType::kDiscard, ActionType::kKanAdded}, observation));
+    possible_action = FindPossibleAction(ActionType::kKanAdded, observation);
     actions = { Action::CreateOpen(observation.who(), possible_action.open()) };
     state_before.Update(std::move(actions));
     // KanAdded p8
     observations = state_before.CreateObservations();
     EXPECT_EQ(observations.size(), 1);
     observation = observations.begin()->second;
-    EXPECT_TRUE(types_check({ActionType::kDiscard, ActionType::kKanAdded}, observation));
-    possible_action = find_possible_action(ActionType::kKanAdded, observation);
+    EXPECT_TRUE(ActionTypeCheck({ActionType::kDiscard, ActionType::kKanAdded}, observation));
+    possible_action = FindPossibleAction(ActionType::kKanAdded, observation);
     actions = { Action::CreateOpen(observation.who(), possible_action.open()) };
     state_before.Update(std::move(actions));
     // 槍槓（一発なし）
@@ -702,8 +675,8 @@ TEST(state, Update) {
     observation = observations.begin()->second;
     actions = { Action::CreateRon(observation.who()) };
     state_before.Update(std::move(actions));
-    EXPECT_TRUE(check_yakus(state_before, AbsolutePos::kInitEast,
-                            {Yaku::kRiichi, Yaku::kPinfu, Yaku::kRedDora, Yaku::kReversedDora, Yaku::kRobbingKan}));
+    EXPECT_TRUE(YakuCheck(state_before, AbsolutePos::kInitEast,
+                          {Yaku::kRiichi, Yaku::kPinfu, Yaku::kRedDora, Yaku::kReversedDora, Yaku::kRobbingKan}));
 }
 
 TEST(state, tenhou) {
@@ -713,7 +686,6 @@ TEST(state, tenhou) {
         std::ifstream ifs(filename, std::ios::in);
         std::string original_json, restored_json;
         while (!ifs.eof()) {
-            ++total_cnt;
             std::getline(ifs, original_json);
             if (original_json.empty()) continue;
             restored_json = State(original_json).ToJson();
@@ -721,6 +693,7 @@ TEST(state, tenhou) {
                 ++failure_cnt;
                 std::cerr << filename << std::endl;
             }
+            ++total_cnt;
             EXPECT_EQ(original_json, restored_json);
         }
     };
@@ -728,5 +701,178 @@ TEST(state, tenhou) {
     std::string json_path;
     json_path = std::string(TEST_RESOURCES_DIR) + "/json";
     if (!json_path.empty()) for (const auto &filename : std::filesystem::directory_iterator(json_path)) check(filename.path().string());
-    std::cerr << "# Failed case: " << failure_cnt  << "/" << total_cnt << " " << 100.0 * failure_cnt / total_cnt << " %" << std::endl;
+    std::cerr << "Encode/Decode: # failure = " << failure_cnt  << "/" << total_cnt << " " << 100.0 * failure_cnt / total_cnt << " %" << std::endl;
+}
+
+
+TEST(state, Equals) {
+    std::string json_before, json_after; State state_before, state_after; std::vector<Action> actions;
+    json_before = GetLastJsonLine("upd-bef-draw-discard-draw.json");
+    json_after = GetLastJsonLine("upd-aft-draw-discard-draw.json");
+    state_before = State(json_before);
+    state_after = State(json_after);
+    EXPECT_TRUE(!state_before.Equals(state_after));
+    actions = { Action::CreateDiscard(AbsolutePos::kInitEast, Tile(39)) };
+    state_before.Update(std::move(actions));
+    EXPECT_TRUE(state_before.Equals(state_after));
+}
+
+TEST(state, CanReach) {
+    std::string json_before, json_after;
+    State state_before, state_after;
+    std::vector<Action> actions;
+
+    json_before = GetLastJsonLine("upd-bef-draw-discard-draw.json");
+    json_after = GetLastJsonLine("upd-aft-draw-discard-draw.json");
+    state_before = State(json_before);
+    state_after = State(json_after);
+    EXPECT_TRUE(state_before.CanReach(state_after));
+    EXPECT_FALSE(state_after.CanReach(state_before));
+    EXPECT_TRUE(state_before.CanReach(state_before));
+    EXPECT_TRUE(state_after.CanReach(state_after));
+}
+
+TEST(state, StateTrans) {
+    auto ListUpAllActionCombinations = [](std::unordered_map<PlayerId, Observation> &&observations) {
+        std::vector<std::vector<Action>> actions;
+        for (const auto &[player_id, observation]: observations) {
+            auto who = observation.who();
+            std::vector<Action> actions_per_player;
+            for (const auto &possible_action: observation.possible_actions()) {
+                switch (possible_action.type()) {
+                    case ActionType::kDiscard:
+                        {
+                            for (Tile tile: possible_action.discard_candidates()) {
+                                actions_per_player.push_back(Action::CreateDiscard(who, tile));
+                            }
+                        }
+                        break;
+                    case ActionType::kTsumo:
+                        actions_per_player.push_back(Action::CreateTsumo(who));
+                        break;
+                    case ActionType::kRon:
+                        actions_per_player.push_back(Action::CreateRon(who));
+                        break;
+                    case ActionType::kRiichi:
+                        actions_per_player.push_back(Action::CreateRiichi(who));
+                        break;
+                    case ActionType::kNo:
+                        actions_per_player.push_back(Action::CreateNo(who));
+                        break;
+                    case ActionType::kKyushu:
+                        actions_per_player.push_back(Action::CreateNineTiles(who));
+                        break;
+                    case ActionType::kChi:
+                    case ActionType::kPon:
+                    case ActionType::kKanOpened:
+                    case ActionType::kKanClosed:
+                    case ActionType::kKanAdded:
+                        actions_per_player.push_back(Action::CreateOpen(who, possible_action.open()));
+                        break;
+                    default:
+                        break;
+                }
+            }
+            // 直積を取る
+            if (actions.empty()) {
+                for (const auto &action: actions_per_player) {
+                    actions.push_back({ action });
+                }
+            } else {
+                auto actions_copy = actions;
+                actions.clear();
+                for (int i = 0; i < actions_copy.size(); ++i) {
+                    for (int j = 0; j < actions_per_player.size(); ++j) {
+                        std::vector<Action> as = actions_copy[i];
+                        as.push_back(actions_per_player[j]);
+                        actions.push_back(std::move(as));
+                    }
+                }
+            }
+       }
+       return actions;
+    };
+
+    auto TruncateAfterFirstDraw = [](const auto& json) {
+        mjproto::State state = mjproto::State();
+        auto status = google::protobuf::util::JsonStringToMessage(json, &state);
+        assert(status.ok());
+        auto events = state.mutable_event_history()->mutable_events();
+        events->erase(events->begin() + 1, events->end());
+        state.clear_terminal();
+        // drawについては消さなくても良い（wallから引いてsetされるので）
+        std::string serialized;
+        status = google::protobuf::util::MessageToJsonString(state, &serialized);
+        assert(status.ok());
+        return serialized;
+    };
+
+    auto ShowDiff = [&](const State& actual, const State& expected) {
+        std::cerr << "Expected    : "  << expected.ToJson() << std::endl;
+        std::cerr << "Actual      : "  << actual.ToJson() << std::endl;
+        if (actual.IsRoundOver()) return;
+        for (const auto &[pid, obs]: actual.CreateObservations()) {
+            std::cerr << "Observation : " << obs.ToJson() << std::endl;
+        }
+        auto acs = ListUpAllActionCombinations(actual.CreateObservations());
+        for (auto &ac: acs) {
+            auto state_cp = actual;
+            state_cp.Update(std::move(ac));
+            std::cerr << "ActualNext  : "  << state_cp.ToJson() << std::endl;
+        }
+    };
+
+    auto BFSCheck = [&](const State& init_state, const State& target_state) {
+        std::queue<State> q;
+        q.push(init_state);
+        State curr_state;
+        while(!q.empty()) {
+            curr_state = std::move(q.front()); q.pop();
+            if (curr_state.Equals(target_state)) return true;
+            if (curr_state.IsRoundOver()) continue;  // E.g., double ron
+            auto observations = curr_state.CreateObservations();
+            auto action_combs = ListUpAllActionCombinations(std::move(observations));
+            for (auto &action_comb: action_combs) {
+                auto state_copy = curr_state;
+                state_copy.Update(std::move(action_comb));
+                if (state_copy.CanReach(target_state)) q.push(std::move(state_copy));
+            }
+        }
+        ShowDiff(curr_state, target_state);
+        return false;
+    };
+
+    std::string json_before, json_after, json;
+    State state_before, state_after;
+    std::vector<std::vector<Action>> action_combs;
+
+    // ListUpAllActionCombinationsの動作確認
+    json_before = GetLastJsonLine("upd-bef-ron3.json");
+    state_before = State(json_before);
+    action_combs = ListUpAllActionCombinations(state_before.CreateObservations());
+    EXPECT_EQ(action_combs.size(), 24);  // 4 (Chi1, Chi2, Ron, No) x 2 (Ron, No) x 3 (Pon, Ron, No)
+    EXPECT_EQ(action_combs.front().size(), 3);  // 3 players
+
+    // resources/jsonにあるjsonファイルにおいて、初期状態から CreateObservations と Update を繰り返して最終状態へ行き着けるか確認
+    const int MAX_CNT = 3;
+    int failure_cnt = 0;
+    int total_cnt = 0;
+    std::string json_path;
+    json_path = std::string(TEST_RESOURCES_DIR) + "/json";
+    if (!json_path.empty()) for (const auto &filename : std::filesystem::directory_iterator(json_path)) {
+            std::ifstream ifs(filename.path().string(), std::ios::in);
+            while (!ifs.eof() && total_cnt < MAX_CNT) {
+                std::getline(ifs, json);
+                if (json.empty()) continue;
+                clock_t start = clock();
+                bool ok = BFSCheck(State(TruncateAfterFirstDraw(json)), State(json));
+                clock_t end = clock();
+                const double time = static_cast<double>(end - start) / CLOCKS_PER_SEC * 1000.0;
+                EXPECT_TRUE(ok);
+                if (!ok) failure_cnt++;
+                ++total_cnt;
+                fprintf(stderr, "%07d %8.02lf[ms] %s\n", total_cnt, time, filename.path().string().c_str());
+            }
+    }
+    std::cerr << "StateTrans: # failure = " << failure_cnt  << "/" << total_cnt << " " << 100.0 * failure_cnt / total_cnt << " %" << std::endl;
 }
