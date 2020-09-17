@@ -942,28 +942,100 @@ namespace mj
         else return std::nullopt;
     }
 
-    bool State::operator==(const State &other) const noexcept {
-        return google::protobuf::util::MessageDifferencer::Equals(state_, other.state_);
-    }
 
-    bool State::operator!=(const State &other) const noexcept {
-        return !(*this == other);
+    bool State::Equals(const State &other) const noexcept {
+        auto seq_eq = [](const auto &x, const auto &y) {
+            if (x.size() != y.size()) return false;
+            return std::equal(x.begin(), x.end(), y.begin());
+        };
+        auto tiles_eq = [](const auto &x, const auto &y) {
+            if (x.size() != y.size()) return false;
+            for (int i = 0; i < x.size(); ++i) if (!Tile(x[i]).Equals(Tile(y[i]))) return false;
+            return true;
+        };
+        auto opens_eq = [](const auto &x, const auto &y) {
+            if (x.size() != y.size()) return false;
+            for (int i = 0; i < x.size(); ++i) if (!Open(x[i]).Equals(Open(y[i]))) return false;
+            return true;
+        };
+        if (!seq_eq(state_.player_ids(),other.state_.player_ids())) return false;
+        if (!google::protobuf::util::MessageDifferencer::Equals(state_.init_score(), other.state_.init_score())) return false;
+        if (!tiles_eq(state_.wall(), other.state_.wall())) return false;
+        if (!tiles_eq(state_.doras(), other.state_.doras())) return false;
+        if (!tiles_eq(state_.ura_doras(), other.state_.ura_doras())) return false;
+        for (int i = 0; i < 4; ++i) if (!tiles_eq(state_.private_infos(i).init_hand(), other.state_.private_infos(i).init_hand())) return false;
+        for (int i = 0; i < 4; ++i) if (!tiles_eq(state_.private_infos(i).draws(), other.state_.private_infos(i).draws())) return false;
+        // EventHistory
+        if (state_.event_history().events_size() != other.state_.event_history().events_size()) return false;
+        for (int i = 0; i < state_.event_history().events_size(); ++i) {
+            const auto &event = state_.event_history().events(i);
+            const auto &other_event = other.state_.event_history().events(i);
+            if (event.type() != other_event.type()) return false;
+            if (event.who() != other_event.who()) return false;
+            if (event.tile() != other_event.tile() && !Tile(event.tile()).Equals(Tile(other_event.tile()))) return false;
+            if (event.open() != other_event.open() && !Open(event.open()).Equals(Open(other_event.open()))) return false;
+        }
+        // Terminal
+        if (!state_.has_terminal() && !other.state_.has_terminal()) return true;
+        if (!google::protobuf::util::MessageDifferencer::Equals(state_.terminal().final_score(), other.state_.terminal().final_score())) return false;
+        if (state_.terminal().wins_size() != other.state_.terminal().wins_size()) return false;
+        for (int i = 0; i < state_.terminal().wins_size(); ++i) {
+            const auto &win = state_.terminal().wins(i);
+            const auto &other_win = other.state_.terminal().wins(i);
+            if (win.who() != other_win.who()) return false;
+            if (win.from_who() != other_win.from_who()) return false;
+            if (!tiles_eq(win.closed_tiles(), other_win.closed_tiles())) return false;
+            if (!opens_eq(win.opens(), other_win.opens())) return false;
+            if (!Tile(win.win_tile()).Equals(Tile(other_win.win_tile()))) return false;
+            if (win.fu() != other_win.fu()) return false;
+            if (win.ten() != other_win.ten()) return false;
+            if (!seq_eq(win.ten_changes(), other_win.ten_changes())) return false;
+            if (!seq_eq(win.yakus(), other_win.yakus())) return false;
+            if (!seq_eq(win.fans(), other_win.fans())) return false;
+            if (!seq_eq(win.yakumans(), other_win.yakumans())) return false;
+        }
+        const auto &no_winner = state_.terminal().no_winner();
+        const auto &other_no_winner = other.state_.terminal().no_winner();
+        if (no_winner.tenpais_size() != other_no_winner.tenpais_size()) return false;
+        for (int i = 0; i < no_winner.tenpais_size(); ++i) {
+            const auto &tenpai = no_winner.tenpais(i);
+            const auto &other_tenpai = other_no_winner.tenpais(i);
+            if (tenpai.who() != other_tenpai.who()) return false;
+            if (!tiles_eq(tenpai.closed_tiles(), other_tenpai.closed_tiles())) return false;
+        }
+        if (!seq_eq(no_winner.ten_changes(), other_no_winner.ten_changes())) return false;
+        if (no_winner.type() != other_no_winner.type()) return false;
+        if (state_.terminal().is_game_over() != other.state_.terminal().is_game_over()) return false;
+        return true;
     }
 
     bool State::CanReach(const State &other) const noexcept {
-        if (*this == other) return true;
+        auto seq_eq = [](const auto &x, const auto &y) {
+            if (x.size() != y.size()) return false;
+            return std::equal(x.begin(), x.end(), y.begin());
+        };
+        auto tiles_eq = [](const auto &x, const auto &y) {
+            if (x.size() != y.size()) return false;
+            for (int i = 0; i < x.size(); ++i) if (!Tile(x[i]).Equals(Tile(y[i]))) return false;
+            return true;
+        };
+
+        if (this->Equals(other)) return true;
 
         // いくつかの初期状態が同じである必要がある
-        if (!std::equal(state_.player_ids().begin(), state_.player_ids().end(), other.state_.player_ids().begin())) return false;
+        if (!seq_eq(state_.player_ids(),other.state_.player_ids())) return false;
         if (!google::protobuf::util::MessageDifferencer::Equals(state_.init_score(), other.state_.init_score())) return false;
-        if (!std::equal(state_.wall().begin(), state_.wall().end(), other.state_.wall().begin())) return false;
+        if (!tiles_eq(state_.wall(), other.state_.wall())) return false;
 
         // 現在の時点まではイベントがすべて同じである必要がある
-        if (state_.event_history().events_size() >= other.state_.event_history().events_size()) return false;  // イベント長が同じならそもそも *this == other のはず
+        if (state_.event_history().events_size() >= other.state_.event_history().events_size()) return false;  // イベント長が同じならそもそもEqualのはず
         for (int i = 0; i < state_.event_history().events_size(); ++i) {
-            const auto& event = state_.event_history().events(i);
-            const auto& other_event = other.state_.event_history().events(i);
-            if (!google::protobuf::util::MessageDifferencer::Equals(event, other_event)) return false;
+            const auto &event = state_.event_history().events(i);
+            const auto &other_event = other.state_.event_history().events(i);
+            if (event.type() != other_event.type()) return false;
+            if (event.who() != other_event.who()) return false;
+            if (event.tile() != other_event.tile() && !Tile(event.tile()).Equals(Tile(other_event.tile()))) return false;
+            if (event.open() != other_event.open() && !Open(event.open()).Equals(Open(other_event.open()))) return false;
         }
 
         // Drawがすべて現時点までは同じである必要がある (配牌は山が同じ時点で同じ）
@@ -971,7 +1043,7 @@ namespace mj
             const auto &draws = state_.private_infos(i).draws();
             const auto &other_draws = other.state_.private_infos(i).draws();
             if (draws.size() > other_draws.size()) return false;
-            for (int j = 0; j < draws.size(); ++j) if (draws[j] != other_draws[j]) return false;
+            for (int j = 0; j < draws.size(); ++j) if (!Tile(draws[j]).Equals(Tile(other_draws[j]))) return false;
         }
 
         return true;

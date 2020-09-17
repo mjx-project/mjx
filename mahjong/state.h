@@ -47,8 +47,7 @@ namespace mj
         [[nodiscard]] std::array<std::int32_t, 4> init_tens() const;
 
         // comparison
-        bool operator== (const State& other) const noexcept;
-        bool operator!= (const State& other) const noexcept;
+        bool Equals(const State& other) const noexcept ;
         bool CanReach(const State& other) const noexcept ;
    private:
         // protos
