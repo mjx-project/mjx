@@ -4,6 +4,7 @@
 #include <queue>
 #include "state.h"
 #include "utils.h"
+#include <time.h>
 
 using namespace mj;
 
@@ -873,10 +874,14 @@ TEST(state, StateTrans) {
             while (!ifs.eof()) {
                 std::getline(ifs, json);
                 if (json.empty()) continue;
+                clock_t start = clock();
                 bool ok = BFSCheck(State(TruncateAfterFirstDraw(json)), State(json));
+                clock_t end = clock();
+                const double time = static_cast<double>(end - start) / CLOCKS_PER_SEC * 1000.0;
                 EXPECT_TRUE(ok);
                 if (!ok) failure_cnt++;
                 ++total_cnt;
+                fprintf(stderr, "%07d %8.02lf[ms] %s\n", total_cnt, time, filename.path().string().c_str());
             }
     }
     std::cerr << "StateTrans: # failure = " << failure_cnt  << "/" << total_cnt << " " << 100.0 * failure_cnt / total_cnt << " %" << std::endl;
