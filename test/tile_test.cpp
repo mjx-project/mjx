@@ -254,3 +254,24 @@ TEST(tile, ToString)
     EXPECT_EQ("m1(0)", t1.ToString(true));
     EXPECT_EQ("rd(3)", t2.ToString(true));
 }
+
+TEST(tile, Equals) {
+    auto t1 = Tile("m5", 0);
+    auto t2 = Tile("m5", 1);
+    auto t3 = Tile("m5", 2);
+    EXPECT_FALSE(t1.Equals(t2));
+    EXPECT_TRUE(t2.Equals(t3));
+    t1 = Tile("m6", 0);
+    t2 = Tile("m6", 1);
+    EXPECT_TRUE(t1.Equals(t2));
+    t1 = Tile("p5", 0);
+    t2 = Tile("p5", 1);
+    t3 = Tile("p5", 2);
+    EXPECT_FALSE(t1.Equals(t2));
+    EXPECT_TRUE(t2.Equals(t3));
+    t1 = Tile("s5", 0);
+    t2 = Tile("s5", 1);
+    t3 = Tile("s5", 2);
+    EXPECT_FALSE(t1.Equals(t2));
+    EXPECT_TRUE(t2.Equals(t3));
+}

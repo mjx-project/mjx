@@ -343,4 +343,9 @@ namespace mj
     std::uint8_t Tile::Offset() const noexcept {
         return static_cast<std::uint8_t>(tile_id_) % 4;
     }
+
+    bool Tile::Equals(Tile other) const noexcept {
+        if (IsRedFive() || other.IsRedFive()) return false;  // 赤は一枚だけ
+        return Type() == other.Type();
+    }
 }  // namespace mj
