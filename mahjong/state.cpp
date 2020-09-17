@@ -757,12 +757,17 @@ namespace mj
                     [](const Action &x, const Action &y){ return x.type() > y.type(); });
             bool has_ron = action_candidates.front().type() == ActionType::kRon;
             if (has_ron) {
-                int ron_count = std::count_if(action_candidates.begin(), action_candidates.end(),
-                                               [](const Action &x){ return x.type() == ActionType::kRon; });
+                // ron以外の行動は取られないので消していく
+                while (action_candidates.back().type() != ActionType::kRon) action_candidates.pop_back();
+                // 上家から順にsortする（ダブロン時に供託が上家取り）
+                AbsolutePos from_who = last_event_.who();
+                std::sort(action_candidates.begin(), action_candidates.end(),
+                          [&from_who](const Action &x, const Action &y){ return ((ToUType(x.who()) - ToUType(from_who) + 4) % 4) < ((ToUType(y.who()) - ToUType(from_who) + 4) % 4); });
+                int ron_count = action_candidates.size();
                 if (ron_count == 3) {
                     // 三家和了
                     std::vector<int> ron = {0, 0, 0, 0};
-                    for (auto action : action_candidates) {
+                    for (const auto &action : action_candidates) {
                         if (action.type() == ActionType::kRon) ron[ToUType(action.who())] = 1;
                     }
                     assert(std::accumulate(ron.begin(), ron.end(), 0) == 3);
