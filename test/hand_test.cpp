@@ -128,7 +128,7 @@ TEST(hand, ApplyChi) {
     EXPECT_EQ(h.SizeOpened(), 3);
     EXPECT_EQ(h.SizeClosed(), 11);
     auto possible_discards = h.PossibleDiscards();
-    EXPECT_EQ(possible_discards.size(), 7);
+    EXPECT_EQ(possible_discards.size(), 5);  // m5, m6, m7, m8, m9
     EXPECT_EQ(std::find_if(possible_discards.begin(), possible_discards.end(),
                            [](Tile x) { return x.Is(TileType::kM4); }), possible_discards.end());
     EXPECT_EQ(std::find_if(possible_discards.begin(), possible_discards.end(),
@@ -149,7 +149,7 @@ TEST(hand, ApplyPon)
     EXPECT_EQ(h.SizeOpened(), 3);
     EXPECT_EQ(h.SizeClosed(), 11);
     auto possible_discards = h.PossibleDiscards();
-    EXPECT_EQ(possible_discards.size(), 10);
+    EXPECT_EQ(possible_discards.size(), 8);  // m1, m2, m3, m4, m5, m6, m7, m8
     EXPECT_EQ(std::find_if(possible_discards.begin(), possible_discards.end(),
                            [](Tile x){ return x.Is(TileType::kM9); }), possible_discards.end());
     EXPECT_NE(std::find_if(possible_discards.begin(), possible_discards.end(),
@@ -169,7 +169,7 @@ TEST(hand, ApplyKanOpened)
     EXPECT_EQ(h.SizeClosed(), 10);
     h.Draw(Tile("m3", 3));
     auto possible_discards = h.PossibleDiscards();
-    EXPECT_EQ(possible_discards.size(), 11);
+    EXPECT_EQ(possible_discards.size(), 9);  // m1, m2, m3, m3(draw), m4, m5, m6, m7, m8
 }
 
 TEST(hand, ApplyKanClosed)
@@ -186,7 +186,7 @@ TEST(hand, ApplyKanClosed)
     EXPECT_EQ(h.SizeClosed(), 10);
     h.Draw(Tile("m3", 3));
     auto possible_discards = h.PossibleDiscards();
-    EXPECT_EQ(possible_discards.size(), 11);
+    EXPECT_EQ(possible_discards.size(), 9);  // m1, m2, m3, m3(draw), m4, m5, m6, m7, m8
 }
 
 TEST(hand, ApplyKanAdded)

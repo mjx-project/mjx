@@ -224,7 +224,6 @@ TEST(state, CreateObservation) {
     EXPECT_TRUE(observations.find("ASAPIN") != observations.end());
     observation = observations["ASAPIN"];
     EXPECT_TRUE(ActionTypeCheck({ActionType::kDiscard}, observation));
-    EXPECT_EQ(observation.possible_actions().front().discard_candidates().size(), 7);
     for (auto tile : observation.possible_actions().front().discard_candidates()) EXPECT_NE(tile.Type(), TileType::kM4);
 
     // 11. ポンした後、可能なアクションはDiscardだけ
@@ -679,7 +678,7 @@ TEST(state, Update) {
                           {Yaku::kRiichi, Yaku::kPinfu, Yaku::kRedDora, Yaku::kReversedDora, Yaku::kRobbingKan}));
 }
 
-TEST(state, tenhou) {
+TEST(state, EncodeDecode) {
     int total_cnt = 0;
     int failure_cnt = 0;
     auto check = [&](const std::string &filename) {
@@ -854,14 +853,13 @@ TEST(state, StateTrans) {
     EXPECT_EQ(action_combs.front().size(), 3);  // 3 players
 
     // resources/jsonにあるjsonファイルにおいて、初期状態から CreateObservations と Update を繰り返して最終状態へ行き着けるか確認
-    const int MAX_CNT = 3;
     int failure_cnt = 0;
     int total_cnt = 0;
     std::string json_path;
     json_path = std::string(TEST_RESOURCES_DIR) + "/json";
     if (!json_path.empty()) for (const auto &filename : std::filesystem::directory_iterator(json_path)) {
             std::ifstream ifs(filename.path().string(), std::ios::in);
-            while (!ifs.eof() && total_cnt < MAX_CNT) {
+            while (!ifs.eof()) {
                 std::getline(ifs, json);
                 if (json.empty()) continue;
                 clock_t start = clock();
@@ -871,7 +869,7 @@ TEST(state, StateTrans) {
                 EXPECT_TRUE(ok);
                 if (!ok) failure_cnt++;
                 ++total_cnt;
-                fprintf(stderr, "%07d %8.02lf[ms] %s\n", total_cnt, time, filename.path().string().c_str());
+                // fprintf(stderr, "%07d %8.02lf[ms] %s\n", total_cnt, time, filename.path().string().c_str());
             }
     }
     std::cerr << "StateTrans: # failure = " << failure_cnt  << "/" << total_cnt << " " << 100.0 * failure_cnt / total_cnt << " %" << std::endl;
