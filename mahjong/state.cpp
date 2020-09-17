@@ -1046,6 +1046,7 @@ namespace mj
             for (int j = 0; j < draws.size(); ++j) if (!Tile(draws[j]).Equals(Tile(other_draws[j]))) return false;
         }
 
-        return true;
+        // もしゲーム終了しているなら、Equalでない時点でダメ
+        return !IsRoundOver();
     }
 }  // namespace mj
