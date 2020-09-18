@@ -120,7 +120,7 @@ namespace mj
            hand_params.tsumo_, hand_params.ron_, hand_params.riichi_, hand_params.after_kan_)
     {}
 
-    HandStage Hand::Stage() const {
+    HandStage Hand::stage() const {
         return stage_;
     }
 
@@ -316,7 +316,7 @@ namespace mj
     }
 
     std::vector<Open> Hand::PossibleKanOpened(Tile tile, RelativePos from) const {
-        assert(Stage() == HandStage::kAfterDiscards);
+        assert(stage() == HandStage::kAfterDiscards);
         assert(SizeClosed() == 1 || SizeClosed() == 4 || SizeClosed() == 7 || SizeClosed() == 10 || SizeClosed() == 13);
         std::size_t c = std::count_if(closed_tiles_.begin(), closed_tiles_.end(),
                 [&tile](Tile x){ return x.Is(tile.Type()); });
@@ -356,7 +356,7 @@ namespace mj
     }
 
     std::vector<Open> Hand::PossiblePons(Tile tile, RelativePos from) const {
-        assert(Stage() == HandStage::kAfterDiscards);
+        assert(stage() == HandStage::kAfterDiscards);
         assert(SizeClosed() == 1 || SizeClosed() == 4 || SizeClosed() == 7 || SizeClosed() == 10 || SizeClosed() == 13);
         std::size_t counter = 0, sum = 0;
         for (const auto t: closed_tiles_) {
@@ -387,7 +387,7 @@ namespace mj
     }
 
     std::vector<Open> Hand::PossibleChis(Tile tile) const {
-        assert(Stage() == HandStage::kAfterDiscards);
+        assert(stage() == HandStage::kAfterDiscards);
         assert(SizeClosed() == 1 || SizeClosed() == 4 || SizeClosed() == 7 || SizeClosed() == 10 || SizeClosed() == 13);
         auto v = std::vector<Open>();
         if (!tile.Is(TileSetType::kHonours)) {
