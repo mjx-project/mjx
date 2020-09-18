@@ -112,7 +112,7 @@ TEST(hand, Draw) {
     auto h = Hand(HandParams("m1,m9,p1,p9,s1,s9,ew,sw,ww,nw,wd,gd,rd"));
     EXPECT_EQ(h.Size(), 13);
     h.Draw(Tile(1));
-    EXPECT_EQ(h.Stage(), HandStage::kAfterDraw);
+    EXPECT_EQ(h.stage(), HandStage::kAfterDraw);
     EXPECT_EQ(h.Size(), 14);
 }
 
@@ -120,10 +120,10 @@ TEST(hand, ApplyChi) {
     auto h = Hand(HandParams("m1,m1,m1,m2,m3,m4,m5,m6,m7,m8,m9,m9,m9"));
     std::vector<Tile> t = {Tile("m2"), Tile("m3"), Tile("m4", 3)};
     auto c = Chi::Create(t, Tile("m4", 3));
-    EXPECT_EQ(h.Stage(), HandStage::kAfterDiscards);
+    EXPECT_EQ(h.stage(), HandStage::kAfterDiscards);
     EXPECT_EQ(h.Size(), 13);
     h.ApplyOpen(std::move(c));
-    EXPECT_EQ(h.Stage(), HandStage::kAfterChi);
+    EXPECT_EQ(h.stage(), HandStage::kAfterChi);
     EXPECT_EQ(h.Size(), 14);
     EXPECT_EQ(h.SizeOpened(), 3);
     EXPECT_EQ(h.SizeClosed(), 11);
@@ -141,10 +141,10 @@ TEST(hand, ApplyPon)
 {
     auto h = Hand(HandParams("m1,m1,m1,m2,m3,m4,m5,m6,m7,m8,m9,m9,m9"));
     auto p = Pon::Create(Tile("m9", 3), Tile("m9", 0), RelativePos::kLeft);
-    EXPECT_EQ(h.Stage(), HandStage::kAfterDiscards);
+    EXPECT_EQ(h.stage(), HandStage::kAfterDiscards);
     EXPECT_EQ(h.Size(), 13);
     h.ApplyOpen(std::move(p));
-    EXPECT_EQ(h.Stage(), HandStage::kAfterPon);
+    EXPECT_EQ(h.stage(), HandStage::kAfterPon);
     EXPECT_EQ(h.Size(), 14);
     EXPECT_EQ(h.SizeOpened(), 3);
     EXPECT_EQ(h.SizeClosed(), 11);
@@ -160,10 +160,10 @@ TEST(hand, ApplyKanOpened)
 {
     auto h = Hand(HandParams("m1,m1,m1,m2,m3,m4,m5,m6,m7,m8,m9,m9,m9"));
     auto k = KanOpened::Create(Tile("m9", 3), RelativePos::kMid);
-    EXPECT_EQ(h.Stage(), HandStage::kAfterDiscards);
+    EXPECT_EQ(h.stage(), HandStage::kAfterDiscards);
     EXPECT_EQ(h.Size(), 13);
     h.ApplyOpen(std::move(k));
-    EXPECT_EQ(h.Stage(), HandStage::kAfterKanOpened);
+    EXPECT_EQ(h.stage(), HandStage::kAfterKanOpened);
     EXPECT_EQ(h.Size(), 14);
     EXPECT_EQ(h.SizeOpened(), 4);
     EXPECT_EQ(h.SizeClosed(), 10);
@@ -177,10 +177,10 @@ TEST(hand, ApplyKanClosed)
     auto h = Hand(HandParams("m1,m1,m1,m2,m3,m4,m5,m6,m7,m8,m9,m9,m9"));
     h.Draw(Tile("m9", 3));
     auto k = KanClosed::Create(Tile("m9", 0));
-    EXPECT_EQ(h.Stage(), HandStage::kAfterDraw);
+    EXPECT_EQ(h.stage(), HandStage::kAfterDraw);
     EXPECT_EQ(h.Size(), 14);
     h.ApplyOpen(std::move(k));
-    EXPECT_EQ(h.Stage(), HandStage::kAfterKanClosed);
+    EXPECT_EQ(h.stage(), HandStage::kAfterKanClosed);
     EXPECT_EQ(h.Size(), 14);
     EXPECT_EQ(h.SizeOpened(), 4);
     EXPECT_EQ(h.SizeClosed(), 10);
@@ -211,7 +211,7 @@ TEST(hand, ApplyKanAdded)
     EXPECT_EQ(h.Size(), 14);
     EXPECT_EQ(h.SizeOpened(), 4);
     EXPECT_EQ(h.SizeClosed(), 10);
-    EXPECT_EQ(h.Stage(), HandStage::kAfterKanAdded);
+    EXPECT_EQ(h.stage(), HandStage::kAfterKanAdded);
 }
 
 TEST(hand, Discard)
@@ -220,10 +220,10 @@ TEST(hand, Discard)
     EXPECT_EQ(h.Size(), 13);
     h.Draw(Tile("rd", 2));
     EXPECT_EQ(h.Size(), 14);
-    EXPECT_EQ(h.Stage(), HandStage::kAfterDraw);
+    EXPECT_EQ(h.stage(), HandStage::kAfterDraw);
     h.Discard(Tile("rd"));
     EXPECT_EQ(h.Size(), 13);
-    EXPECT_EQ(h.Stage(), HandStage::kAfterDiscards);
+    EXPECT_EQ(h.stage(), HandStage::kAfterDiscards);
 
     // Tsumogiri
     h = Hand(HandParams("m1,m1,p1,p2,p3,s9,ew,sw,ww,nw,wd,gd,rd"));
@@ -617,7 +617,7 @@ TEST(hand, LastTileAdded) {
 TEST(hand, Ron) {
     auto h = Hand(HandParams("m1,m1,m1,m2,m3,m4,m5,m6,m7,m8,m9,m9,m9"));
     h.Ron(Tile("m1", 3));
-    EXPECT_EQ(h.Stage(), HandStage::kAfterRon);
+    EXPECT_EQ(h.stage(), HandStage::kAfterRon);
     EXPECT_EQ(h.LastTileAdded(), Tile("m1", 3));
 }
 
@@ -625,7 +625,7 @@ TEST(hand, Tsumo) {
     auto h = Hand(HandParams("m1,m1,m1,m2,m3,m4,m5,m6,m7,m8,m9,m9,m9"));
     h.Draw(Tile("m1", 3));
     h.Tsumo();
-    EXPECT_EQ(h.Stage(), HandStage::kAfterTsumo);
+    EXPECT_EQ(h.stage(), HandStage::kAfterTsumo);
     EXPECT_EQ(h.LastTileAdded(), Tile("m1", 3));
 
     // after kan
@@ -635,7 +635,7 @@ TEST(hand, Tsumo) {
     h.ApplyOpen(std::move(possible_opens.front()));
     h.Draw(Tile("m1", 3));
     h.Tsumo();
-    EXPECT_EQ(h.Stage(), HandStage::kAfterTsumoAfterKan);
+    EXPECT_EQ(h.stage(), HandStage::kAfterTsumoAfterKan);
     EXPECT_EQ(h.LastTileAdded(), Tile("m1", 3));
 }
 
