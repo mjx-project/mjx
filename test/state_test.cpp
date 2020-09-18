@@ -125,7 +125,7 @@ const PossibleAction& FindPossibleAction(ActionType action_type, const Observati
 template<typename F>
 bool ParallelTest(F&& f) {
     static std::mutex mtx_;
-    int total_cnt;
+    int total_cnt = 0;
     int failure_cnt = 0;
 
     auto Check = [&total_cnt, &failure_cnt, &f](int begin, int end, const auto &jsons) {
