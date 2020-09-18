@@ -4,7 +4,7 @@
 #include <queue>
 #include "state.h"
 #include "utils.h"
-#include <time.h>
+#include <thread>
 
 using namespace mj;
 
@@ -841,7 +841,7 @@ TEST(state, StateTrans) {
         return false;
     };
 
-    std::string json_before, json_after, json;
+    std::string json_before, json_after;
     State state_before, state_after;
     std::vector<std::vector<Action>> action_combs;
 
@@ -853,24 +853,53 @@ TEST(state, StateTrans) {
     EXPECT_EQ(action_combs.front().size(), 3);  // 3 players
 
     // resources/jsonにあるjsonファイルにおいて、初期状態から CreateObservations と Update を繰り返して最終状態へ行き着けるか確認
+    static std::mutex mtx_;
+    int total_cnt;
     int failure_cnt = 0;
-    int total_cnt = 0;
-    std::string json_path;
-    json_path = std::string(TEST_RESOURCES_DIR) + "/json";
+    auto Check = [&total_cnt, &failure_cnt, BFSCheck, &TruncateAfterFirstDraw](int begin, int end, const auto &jsons) {
+        // {
+        //     std::lock_guard<std::mutex> lock(mtx_);
+        //     std::cerr << std::this_thread::get_id() << " " << begin << " " << end << std::endl;
+        // }
+        int curr = begin;
+        while (curr < end) {
+            const std::string &json = jsons[curr];
+            bool ok = BFSCheck(State(TruncateAfterFirstDraw(json)), State(json));
+            {
+                std::lock_guard<std::mutex> lock(mtx_);
+                total_cnt++;
+            }
+            if (!ok) failure_cnt++;
+            curr++;
+        }
+    };
+
+    const auto thread_count = std::thread::hardware_concurrency();
+    std::vector<std::thread> threads;
+    std::vector<std::string> jsons;
+    std::string json_path = std::string(TEST_RESOURCES_DIR) + "/json";
+    auto Run = [&]() {
+        const int json_size = jsons.size();
+        const int size_per = json_size / thread_count;
+        for (int i = 0; i < thread_count; ++i) {
+            const int start_ix = i * size_per;
+            const int end_ix = (i == thread_count - 1) ? json_size : (i + 1) * size_per;
+            threads.emplace_back(Check, start_ix, end_ix, jsons);
+        }
+        for (auto &t: threads) t.join();
+        threads.clear();
+        jsons.clear();
+    };
     if (!json_path.empty()) for (const auto &filename : std::filesystem::directory_iterator(json_path)) {
             std::ifstream ifs(filename.path().string(), std::ios::in);
             while (!ifs.eof()) {
+                std::string json;
                 std::getline(ifs, json);
                 if (json.empty()) continue;
-                clock_t start = clock();
-                bool ok = BFSCheck(State(TruncateAfterFirstDraw(json)), State(json));
-                clock_t end = clock();
-                const double time = static_cast<double>(end - start) / CLOCKS_PER_SEC * 1000.0;
-                EXPECT_TRUE(ok);
-                if (!ok) failure_cnt++;
-                ++total_cnt;
-                // fprintf(stderr, "%07d %8.02lf[ms] %s\n", total_cnt, time, filename.path().string().c_str());
+                jsons.emplace_back(std::move(json));
             }
+            if (jsons.size() > 100) Run();
     }
+    Run();
     std::cerr << "StateTrans: # failure = " << failure_cnt  << "/" << total_cnt << " " << 100.0 * failure_cnt / total_cnt << " %" << std::endl;
 }
