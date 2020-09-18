@@ -821,7 +821,9 @@ TEST(state, StateTrans) {
         }
     };
 
-    auto BFSCheck = [&](const State& init_state, const State& target_state) {
+    auto BFSCheck = [&](const std::string& init_json, const std::string& target_json) {
+        const State init_state = State(init_json);
+        const State target_state = State(target_json);
         std::queue<State> q;
         q.push(init_state);
         State curr_state;
@@ -856,7 +858,7 @@ TEST(state, StateTrans) {
     static std::mutex mtx_;
     int total_cnt;
     int failure_cnt = 0;
-    auto Check = [&total_cnt, &failure_cnt, BFSCheck, &TruncateAfterFirstDraw](int begin, int end, const auto &jsons) {
+    auto Check = [&total_cnt, &failure_cnt, &BFSCheck, &TruncateAfterFirstDraw](int begin, int end, const auto &jsons) {
         // {
         //     std::lock_guard<std::mutex> lock(mtx_);
         //     std::cerr << std::this_thread::get_id() << " " << begin << " " << end << std::endl;
@@ -864,7 +866,7 @@ TEST(state, StateTrans) {
         int curr = begin;
         while (curr < end) {
             const std::string &json = jsons[curr];
-            bool ok = BFSCheck(State(TruncateAfterFirstDraw(json)), State(json));
+            bool ok = BFSCheck(TruncateAfterFirstDraw(json), json);
             {
                 std::lock_guard<std::mutex> lock(mtx_);
                 total_cnt++;
