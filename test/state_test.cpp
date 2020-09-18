@@ -735,30 +735,12 @@ TEST(state, Update) {
 }
 
 TEST(state, EncodeDecode) {
-    int total_cnt = 0;
-    int failure_cnt = 0;
-    auto check = [&](const std::string &filename) {
-        std::ifstream ifs(filename, std::ios::in);
-        std::string original_json, restored_json;
-        while (!ifs.eof()) {
-            std::getline(ifs, original_json);
-            if (original_json.empty()) continue;
-            restored_json = State(original_json).ToJson();
-            if (original_json != restored_json) {
-                ++failure_cnt;
-                std::cerr << filename << std::endl;
-            }
-            ++total_cnt;
-            EXPECT_EQ(original_json, restored_json);
-        }
-    };
-
-    std::string json_path;
-    json_path = std::string(TEST_RESOURCES_DIR) + "/json";
-    if (!json_path.empty()) for (const auto &filename : std::filesystem::directory_iterator(json_path)) check(filename.path().string());
-    std::cerr << "Encode/Decode: # failure = " << failure_cnt  << "/" << total_cnt << " " << 100.0 * failure_cnt / total_cnt << " %" << std::endl;
+    bool ok = ParallelTest([](const std::string& json){
+        const std::string& restored_json = State(json).ToJson();
+        return json == restored_json;
+    });
+    EXPECT_TRUE(ok);
 }
-
 
 TEST(state, Equals) {
     std::string json_before, json_after; State state_before, state_after; std::vector<Action> actions;
