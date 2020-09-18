@@ -282,6 +282,8 @@ namespace mj
     }
 
     void State::ApplyOpen(AbsolutePos who, Open open) {
+        missed_tiles[who].reset();  // フリテン解除
+
         mutable_player(who).ApplyOpen(open);
 
         int absolute_pos_from = (ToUType(who) + ToUType(open.From())) % 4;
