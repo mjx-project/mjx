@@ -124,10 +124,10 @@ const PossibleAction& FindPossibleAction(ActionType action_type, const Observati
 
 template<typename F>
 bool ParallelTest(F&& f) {
-    // resources/jsonにあるjsonファイルにおいて、初期状態から CreateObservations と Update を繰り返して最終状態へ行き着けるか確認
     static std::mutex mtx_;
     int total_cnt;
     int failure_cnt = 0;
+
     auto Check = [&total_cnt, &failure_cnt, &f](int begin, int end, const auto &jsons) {
         // {
         //     std::lock_guard<std::mutex> lock(mtx_);
@@ -151,6 +151,7 @@ bool ParallelTest(F&& f) {
     std::vector<std::thread> threads;
     std::vector<std::string> jsons;
     std::string json_path = std::string(TEST_RESOURCES_DIR) + "/json";
+
     auto Run = [&]() {
         const int json_size = jsons.size();
         const int size_per = json_size / thread_count;
@@ -163,17 +164,19 @@ bool ParallelTest(F&& f) {
         threads.clear();
         jsons.clear();
     };
+
     if (!json_path.empty()) for (const auto &filename : std::filesystem::directory_iterator(json_path)) {
-            std::ifstream ifs(filename.path().string(), std::ios::in);
-            while (!ifs.eof()) {
-                std::string json;
-                std::getline(ifs, json);
-                if (json.empty()) continue;
-                jsons.emplace_back(std::move(json));
-            }
-            if (jsons.size() > 1000) Run();
+        std::ifstream ifs(filename.path().string(), std::ios::in);
+        while (!ifs.eof()) {
+            std::string json;
+            std::getline(ifs, json);
+            if (json.empty()) continue;
+            jsons.emplace_back(std::move(json));
         }
+        if (jsons.size() > 1000) Run();
+    }
     Run();
+
     std::cerr << "# failure = " << failure_cnt  << "/" << total_cnt << " " << 100.0 * failure_cnt / total_cnt << " %" << std::endl;
     return failure_cnt == 0;
 }
@@ -735,11 +738,16 @@ TEST(state, Update) {
 }
 
 TEST(state, EncodeDecode) {
-    bool ok = ParallelTest([](const std::string& json){
-        const std::string& restored_json = State(json).ToJson();
-        return json == restored_json;
+    const bool all_ok = ParallelTest([](const std::string& json){
+        const auto restored_json = State(json).ToJson();
+        const bool ok = json == restored_json;
+        if (!ok) {
+            std::cerr << "Expected    : "  << json << std::endl;
+            std::cerr << "Actual      : "  << restored_json << std::endl;
+        }
+        return ok;
     });
-    EXPECT_TRUE(ok);
+    EXPECT_TRUE(all_ok);
 }
 
 TEST(state, Equals) {
@@ -869,7 +877,7 @@ TEST(state, StateTrans) {
         }
     };
 
-    // 初期状態から探索して、最終状態にたどり着けるか調べる
+    // 初期状態から CreateObservations と Update を繰り返して状態空間を探索して、目標となる最終状態へと行き着けるか確認
     auto BFSCheck = [&](const std::string& init_json, const std::string& target_json) {
         const State init_state = State(init_json);
         const State target_state = State(target_json);
@@ -893,8 +901,8 @@ TEST(state, StateTrans) {
     };
 
     // テスト実行部分
-    bool ok = ParallelTest([&BFSCheck, &TruncateAfterFirstDraw](const std::string &json){
+    const bool all_ok = ParallelTest([&BFSCheck, &TruncateAfterFirstDraw](const std::string &json){
         return BFSCheck(TruncateAfterFirstDraw(json), json); }
     );
-    EXPECT_TRUE(ok);
+    EXPECT_TRUE(all_ok);
 }
