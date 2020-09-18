@@ -868,8 +868,9 @@ TEST(state, StateTrans) {
             {
                 std::lock_guard<std::mutex> lock(mtx_);
                 total_cnt++;
+                if (!ok) failure_cnt++;
+                if (total_cnt % 1000 == 0) std::cerr << "StateTrans: # failure = " << failure_cnt  << "/" << total_cnt << " " << 100.0 * failure_cnt / total_cnt << " %" << std::endl;
             }
-            if (!ok) failure_cnt++;
             curr++;
         }
     };
@@ -898,7 +899,7 @@ TEST(state, StateTrans) {
                 if (json.empty()) continue;
                 jsons.emplace_back(std::move(json));
             }
-            if (jsons.size() > 100) Run();
+            if (jsons.size() > 1000) Run();
     }
     Run();
     std::cerr << "StateTrans: # failure = " << failure_cnt  << "/" << total_cnt << " " << 100.0 * failure_cnt / total_cnt << " %" << std::endl;
