@@ -228,6 +228,7 @@ namespace mj
                 missed_tiles[AbsolutePos(i)].set(ix);
             }
         }
+        if (!player(who).IsUnderRiichi()) missed_tiles[who].reset();  // フリテン解除
 
         auto draw = require_kan_draw_ ? wall_.KanDraw() : wall_.Draw();
         require_kan_draw_ = false;
@@ -247,7 +248,6 @@ namespace mj
         auto [discarded, tsumogiri] = mutable_player(who).Discard(discard);
         assert(discard == discarded);
 
-        if (!player(who).IsUnderRiichi()) missed_tiles[who].reset();  // フリテン解除
         last_ronable_tile = discard; // ロンされうる牌を更新
 
         is_ippatsu_[who] = false;
@@ -282,6 +282,8 @@ namespace mj
     }
 
     void State::ApplyOpen(AbsolutePos who, Open open) {
+        missed_tiles[who].reset();  // フリテン解除
+
         mutable_player(who).ApplyOpen(open);
 
         int absolute_pos_from = (ToUType(who) + ToUType(open.From())) % 4;
