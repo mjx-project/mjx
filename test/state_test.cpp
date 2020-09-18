@@ -4,7 +4,7 @@
 #include <queue>
 #include "state.h"
 #include "utils.h"
-#include <time.h>
+#include <thread>
 
 using namespace mj;
 
@@ -120,7 +120,66 @@ const PossibleAction& FindPossibleAction(ActionType action_type, const Observati
         if (possible_action.type() == action_type) return possible_action;
     std::cerr << "Cannot find the specified action type" << std::endl;
     assert(false);
-};
+}
+
+template<typename F>
+bool ParallelTest(F&& f) {
+    static std::mutex mtx_;
+    int total_cnt = 0;
+    int failure_cnt = 0;
+
+    auto Check = [&total_cnt, &failure_cnt, &f](int begin, int end, const auto &jsons) {
+        // {
+        //     std::lock_guard<std::mutex> lock(mtx_);
+        //     std::cerr << std::this_thread::get_id() << " " << begin << " " << end << std::endl;
+        // }
+        int curr = begin;
+        while (curr < end) {
+            const std::string &json = jsons[curr];
+            bool ok = f(json);
+            {
+                std::lock_guard<std::mutex> lock(mtx_);
+                total_cnt++;
+                if (!ok) failure_cnt++;
+                if (total_cnt % 1000 == 0) std::cerr << "# failure = " << failure_cnt  << "/" << total_cnt << " " << 100.0 * failure_cnt / total_cnt << " %" << std::endl;
+            }
+            curr++;
+        }
+    };
+
+    const auto thread_count = std::thread::hardware_concurrency();
+    std::vector<std::thread> threads;
+    std::vector<std::string> jsons;
+    std::string json_path = std::string(TEST_RESOURCES_DIR) + "/json";
+
+    auto Run = [&]() {
+        const int json_size = jsons.size();
+        const int size_per = json_size / thread_count;
+        for (int i = 0; i < thread_count; ++i) {
+            const int start_ix = i * size_per;
+            const int end_ix = (i == thread_count - 1) ? json_size : (i + 1) * size_per;
+            threads.emplace_back(Check, start_ix, end_ix, jsons);
+        }
+        for (auto &t: threads) t.join();
+        threads.clear();
+        jsons.clear();
+    };
+
+    if (!json_path.empty()) for (const auto &filename : std::filesystem::directory_iterator(json_path)) {
+        std::ifstream ifs(filename.path().string(), std::ios::in);
+        while (!ifs.eof()) {
+            std::string json;
+            std::getline(ifs, json);
+            if (json.empty()) continue;
+            jsons.emplace_back(std::move(json));
+        }
+        if (jsons.size() > 1000) Run();
+    }
+    Run();
+
+    std::cerr << "# failure = " << failure_cnt  << "/" << total_cnt << " " << 100.0 * failure_cnt / total_cnt << " %" << std::endl;
+    return failure_cnt == 0;
+}
 
 TEST(state, ToJson) {
     // From https://tenhou.net/0/?log=2011020417gm-00a9-0000-b67fcaa3&tw=1
@@ -679,30 +738,17 @@ TEST(state, Update) {
 }
 
 TEST(state, EncodeDecode) {
-    int total_cnt = 0;
-    int failure_cnt = 0;
-    auto check = [&](const std::string &filename) {
-        std::ifstream ifs(filename, std::ios::in);
-        std::string original_json, restored_json;
-        while (!ifs.eof()) {
-            std::getline(ifs, original_json);
-            if (original_json.empty()) continue;
-            restored_json = State(original_json).ToJson();
-            if (original_json != restored_json) {
-                ++failure_cnt;
-                std::cerr << filename << std::endl;
-            }
-            ++total_cnt;
-            EXPECT_EQ(original_json, restored_json);
+    const bool all_ok = ParallelTest([](const std::string& json){
+        const auto restored_json = State(json).ToJson();
+        const bool ok = json == restored_json;
+        if (!ok) {
+            std::cerr << "Expected    : "  << json << std::endl;
+            std::cerr << "Actual      : "  << restored_json << std::endl;
         }
-    };
-
-    std::string json_path;
-    json_path = std::string(TEST_RESOURCES_DIR) + "/json";
-    if (!json_path.empty()) for (const auto &filename : std::filesystem::directory_iterator(json_path)) check(filename.path().string());
-    std::cerr << "Encode/Decode: # failure = " << failure_cnt  << "/" << total_cnt << " " << 100.0 * failure_cnt / total_cnt << " %" << std::endl;
+        return ok;
+    });
+    EXPECT_TRUE(all_ok);
 }
-
 
 TEST(state, Equals) {
     std::string json_before, json_after; State state_before, state_after; std::vector<Action> actions;
@@ -732,6 +778,7 @@ TEST(state, CanReach) {
 }
 
 TEST(state, StateTrans) {
+    // 起こりうるアクションの組み合わせを列挙する。 E.g., { p0: Ron, p1: Chi, p2: No }
     auto ListUpAllActionCombinations = [](std::unordered_map<PlayerId, Observation> &&observations) {
         std::vector<std::vector<Action>> actions;
         for (const auto &[player_id, observation]: observations) {
@@ -792,6 +839,14 @@ TEST(state, StateTrans) {
        return actions;
     };
 
+    // ListUpAllActionCombinationsの動作確認
+    auto json_before = GetLastJsonLine("upd-bef-ron3.json");
+    auto state_before = State(json_before);
+    auto action_combs = ListUpAllActionCombinations(state_before.CreateObservations());
+    EXPECT_EQ(action_combs.size(), 24);  // 4 (Chi1, Chi2, Ron, No) x 2 (Ron, No) x 3 (Pon, Ron, No)
+    EXPECT_EQ(action_combs.front().size(), 3);  // 3 players
+
+    // 任意のjsonを、初期状態のStateを生成できるjsonに変換する（親がツモった直後）
     auto TruncateAfterFirstDraw = [](const auto& json) {
         mjproto::State state = mjproto::State();
         auto status = google::protobuf::util::JsonStringToMessage(json, &state);
@@ -806,6 +861,7 @@ TEST(state, StateTrans) {
         return serialized;
     };
 
+    // Stateが異なるときに違いを可視化する
     auto ShowDiff = [&](const State& actual, const State& expected) {
         std::cerr << "Expected    : "  << expected.ToJson() << std::endl;
         std::cerr << "Actual      : "  << actual.ToJson() << std::endl;
@@ -821,7 +877,10 @@ TEST(state, StateTrans) {
         }
     };
 
-    auto BFSCheck = [&](const State& init_state, const State& target_state) {
+    // 初期状態から CreateObservations と Update を繰り返して状態空間を探索して、目標となる最終状態へと行き着けるか確認
+    auto BFSCheck = [&](const std::string& init_json, const std::string& target_json) {
+        const State init_state = State(init_json);
+        const State target_state = State(target_json);
         std::queue<State> q;
         q.push(init_state);
         State curr_state;
@@ -841,36 +900,9 @@ TEST(state, StateTrans) {
         return false;
     };
 
-    std::string json_before, json_after, json;
-    State state_before, state_after;
-    std::vector<std::vector<Action>> action_combs;
-
-    // ListUpAllActionCombinationsの動作確認
-    json_before = GetLastJsonLine("upd-bef-ron3.json");
-    state_before = State(json_before);
-    action_combs = ListUpAllActionCombinations(state_before.CreateObservations());
-    EXPECT_EQ(action_combs.size(), 24);  // 4 (Chi1, Chi2, Ron, No) x 2 (Ron, No) x 3 (Pon, Ron, No)
-    EXPECT_EQ(action_combs.front().size(), 3);  // 3 players
-
-    // resources/jsonにあるjsonファイルにおいて、初期状態から CreateObservations と Update を繰り返して最終状態へ行き着けるか確認
-    int failure_cnt = 0;
-    int total_cnt = 0;
-    std::string json_path;
-    json_path = std::string(TEST_RESOURCES_DIR) + "/json";
-    if (!json_path.empty()) for (const auto &filename : std::filesystem::directory_iterator(json_path)) {
-            std::ifstream ifs(filename.path().string(), std::ios::in);
-            while (!ifs.eof()) {
-                std::getline(ifs, json);
-                if (json.empty()) continue;
-                clock_t start = clock();
-                bool ok = BFSCheck(State(TruncateAfterFirstDraw(json)), State(json));
-                clock_t end = clock();
-                const double time = static_cast<double>(end - start) / CLOCKS_PER_SEC * 1000.0;
-                EXPECT_TRUE(ok);
-                if (!ok) failure_cnt++;
-                ++total_cnt;
-                // fprintf(stderr, "%07d %8.02lf[ms] %s\n", total_cnt, time, filename.path().string().c_str());
-            }
-    }
-    std::cerr << "StateTrans: # failure = " << failure_cnt  << "/" << total_cnt << " " << 100.0 * failure_cnt / total_cnt << " %" << std::endl;
+    // テスト実行部分
+    const bool all_ok = ParallelTest([&BFSCheck, &TruncateAfterFirstDraw](const std::string &json){
+        return BFSCheck(TruncateAfterFirstDraw(json), json); }
+    );
+    EXPECT_TRUE(all_ok);
 }
