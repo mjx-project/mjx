@@ -145,7 +145,7 @@ bool ParallelTest(F&& f) {
                     failure_cnt++;
                     std::cerr << filename << std::endl;
                 }
-                if (total_cnt % 1000 == 0) std::cerr << "# failure = " << failure_cnt  << "/" << total_cnt << " " << 100.0 * failure_cnt / total_cnt << " %" << std::endl;
+                if (total_cnt % 1000 == 0) std::cerr << "# failure = " << failure_cnt  << "/" << total_cnt << " (" << 100.0 * failure_cnt / total_cnt << " %)" << std::endl;
             }
             curr++;
         }
@@ -181,7 +181,7 @@ bool ParallelTest(F&& f) {
     }
     Run();
 
-    std::cerr << "# failure = " << failure_cnt  << "/" << total_cnt << " " << 100.0 * failure_cnt / total_cnt << " %" << std::endl;
+    std::cerr << "# failure = " << failure_cnt  << "/" << total_cnt << " (" << 100.0 * failure_cnt / total_cnt << " %)" << std::endl;
     return failure_cnt == 0;
 }
 
