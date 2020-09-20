@@ -135,12 +135,16 @@ bool ParallelTest(F&& f) {
         // }
         int curr = begin;
         while (curr < end) {
-            const std::string &json = jsons[curr];
+            const std::string &json = jsons[curr].first;
+            const std::string &filename = jsons[curr].first;
             bool ok = f(json);
             {
                 std::lock_guard<std::mutex> lock(mtx_);
                 total_cnt++;
-                if (!ok) failure_cnt++;
+                if (!ok) {
+                    failure_cnt++;
+                    std::cerr << filename << std::endl;
+                }
                 if (total_cnt % 1000 == 0) std::cerr << "# failure = " << failure_cnt  << "/" << total_cnt << " " << 100.0 * failure_cnt / total_cnt << " %" << std::endl;
             }
             curr++;
@@ -149,7 +153,7 @@ bool ParallelTest(F&& f) {
 
     const auto thread_count = std::thread::hardware_concurrency();
     std::vector<std::thread> threads;
-    std::vector<std::string> jsons;
+    std::vector<std::pair<std::string, std::string>> jsons;
     std::string json_path = std::string(TEST_RESOURCES_DIR) + "/json";
 
     auto Run = [&]() {
@@ -171,7 +175,7 @@ bool ParallelTest(F&& f) {
             std::string json;
             std::getline(ifs, json);
             if (json.empty()) continue;
-            jsons.emplace_back(std::move(json));
+            jsons.emplace_back(std::move(json), filename.path().string());
         }
         if (jsons.size() > 1000) Run();
     }
