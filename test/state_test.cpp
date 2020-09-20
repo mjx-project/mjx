@@ -136,7 +136,7 @@ bool ParallelTest(F&& f) {
         int curr = begin;
         while (curr < end) {
             const std::string &json = jsons[curr].first;
-            const std::string &filename = jsons[curr].first;
+            const std::string &filename = jsons[curr].second;
             bool ok = f(json);
             {
                 std::lock_guard<std::mutex> lock(mtx_);
