@@ -10,46 +10,40 @@ namespace mj {
     std::pair<AbstructHand, std::vector<TileType>>
     CreateAbstructHand(const TileTypeCount& count) noexcept {
 
-        std::vector<std::string> hands;
+        // NOTE: そもそもstd::vector<int> hoge(34) で手牌を管理した方がいいかも
+        std::vector<int> tile_counts(34);
         std::vector<TileType> tile_types;
+        tile_types.reserve(count.size());
+
+        for (auto& [tile_type, n] : count) {
+            tile_counts[static_cast<int>(tile_type)] = n;
+            tile_types.push_back(tile_type);
+        }
 
         std::string hand;
+        bool need_comma = true;
 
         for (int start : {0, 9, 18}) {
             for (int i = start; i < start + 9; ++i) {
-                TileType tile = TileType(i);
-                if (count.count(tile)) {
-                    assert(count.at(tile) != 0);
-                    hand += std::to_string(count.at(tile));
-                    tile_types.push_back(tile);
-                } else if (!hand.empty()) {
-                    hands.push_back(hand);
-                    hand.clear();
+                if (tile_counts[i] > 0) {
+                    if (need_comma and !hand.empty()) hand += ",";
+                    hand += std::to_string(tile_counts[i]);
+                    need_comma = false;
+                } else {
+                    need_comma = true;
                 }
             }
-            if (!hand.empty()) {
-                hands.push_back(hand);
-                hand.clear();
-            }
+            need_comma = true;
         }
 
         for (int i = 27; i < 34; ++i) {
-            TileType tile = static_cast<TileType>(i);
-            if (count.count(tile)) {
-                assert(count.at(tile) != 0);
-                hands.push_back(std::to_string(count.at(tile)));
-                tile_types.push_back(tile);
+            if (tile_counts[i] > 0) {
+                if (!hand.empty()) hand += ",";
+                hand += std::to_string(tile_counts[i]);
             }
         }
 
-        AbstructHand abstruct_hand;
-
-        for (int i = 0; i < hands.size(); ++i) {
-            if (i) abstruct_hand += ',';
-            abstruct_hand += hands[i];
-        }
-
-        return {abstruct_hand, tile_types};
+        return {hand, tile_types};
     }
 
 }

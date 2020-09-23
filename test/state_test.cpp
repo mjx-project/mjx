@@ -780,67 +780,119 @@ TEST(state, CanReach) {
     EXPECT_TRUE(state_after.CanReach(state_after));
 }
 
-TEST(state, StateTrans) {
-    // 起こりうるアクションの組み合わせを列挙する。 E.g., { p0: Ron, p1: Chi, p2: No }
-    auto ListUpAllActionCombinations = [](std::unordered_map<PlayerId, Observation> &&observations) {
-        std::vector<std::vector<Action>> actions;
-        for (const auto &[player_id, observation]: observations) {
-            auto who = observation.who();
-            std::vector<Action> actions_per_player;
-            for (const auto &possible_action: observation.possible_actions()) {
-                switch (possible_action.type()) {
-                    case ActionType::kDiscard:
-                        {
-                            for (Tile tile: possible_action.discard_candidates()) {
-                                actions_per_player.push_back(Action::CreateDiscard(who, tile));
-                            }
-                        }
-                        break;
-                    case ActionType::kTsumo:
-                        actions_per_player.push_back(Action::CreateTsumo(who));
-                        break;
-                    case ActionType::kRon:
-                        actions_per_player.push_back(Action::CreateRon(who));
-                        break;
-                    case ActionType::kRiichi:
-                        actions_per_player.push_back(Action::CreateRiichi(who));
-                        break;
-                    case ActionType::kNo:
-                        actions_per_player.push_back(Action::CreateNo(who));
-                        break;
-                    case ActionType::kKyushu:
-                        actions_per_player.push_back(Action::CreateNineTiles(who));
-                        break;
-                    case ActionType::kChi:
-                    case ActionType::kPon:
-                    case ActionType::kKanOpened:
-                    case ActionType::kKanClosed:
-                    case ActionType::kKanAdded:
-                        actions_per_player.push_back(Action::CreateOpen(who, possible_action.open()));
-                        break;
-                    default:
-                        break;
-                }
-            }
-            // 直積を取る
-            if (actions.empty()) {
-                for (const auto &action: actions_per_player) {
-                    actions.push_back({ action });
-                }
-            } else {
-                auto actions_copy = actions;
-                actions.clear();
-                for (int i = 0; i < actions_copy.size(); ++i) {
-                    for (int j = 0; j < actions_per_player.size(); ++j) {
-                        std::vector<Action> as = actions_copy[i];
-                        as.push_back(actions_per_player[j]);
-                        actions.push_back(std::move(as));
+std::vector<std::vector<Action>> ListUpAllActionCombinations(std::unordered_map<PlayerId, Observation> &&observations) {
+    std::vector<std::vector<Action>> actions{{}};
+    for (const auto &[player_id, observation]: observations) {
+        auto who = observation.who();
+        std::vector<Action> actions_per_player;
+        for (const auto &possible_action: observation.possible_actions()) {
+            switch (possible_action.type()) {
+                case ActionType::kDiscard:
+                {
+                    for (Tile tile: possible_action.discard_candidates()) {
+                        actions_per_player.push_back(Action::CreateDiscard(who, tile));
                     }
                 }
+                    break;
+                case ActionType::kTsumo:
+                    actions_per_player.push_back(Action::CreateTsumo(who));
+                    break;
+                case ActionType::kRon:
+                    actions_per_player.push_back(Action::CreateRon(who));
+                    break;
+                case ActionType::kRiichi:
+                    actions_per_player.push_back(Action::CreateRiichi(who));
+                    break;
+                case ActionType::kNo:
+                    actions_per_player.push_back(Action::CreateNo(who));
+                    break;
+                case ActionType::kKyushu:
+                    actions_per_player.push_back(Action::CreateNineTiles(who));
+                    break;
+                case ActionType::kChi:
+                case ActionType::kPon:
+                case ActionType::kKanOpened:
+                case ActionType::kKanClosed:
+                case ActionType::kKanAdded:
+                    actions_per_player.push_back(Action::CreateOpen(who, possible_action.open()));
+                    break;
+                default:
+                    break;
             }
-       }
-       return actions;
-    };
+        }
+
+        // 直積を取る
+        std::vector<std::vector<Action>> next_actions;
+        next_actions.reserve(actions.size());
+        for (int i = 0; i < actions.size(); ++i) {
+            for (int j = 0; j < actions_per_player.size(); ++j) {
+                std::vector<Action> as = actions[i];
+                as.push_back(actions_per_player[j]);
+                next_actions.push_back(std::move(as));
+            }
+        }
+        swap(next_actions, actions);
+    }
+    return actions;
+};
+
+// 任意のjsonを、初期状態のStateを生成できるjsonに変換する（親がツモった直後）
+std::string TruncateAfterFirstDraw(const std::string& json) {
+    mjproto::State state = mjproto::State();
+    auto status = google::protobuf::util::JsonStringToMessage(json, &state);
+    assert(status.ok());
+    auto events = state.mutable_event_history()->mutable_events();
+    events->erase(events->begin() + 1, events->end());
+    state.clear_terminal();
+    // drawについては消さなくても良い（wallから引いてsetされるので）
+    std::string serialized;
+    status = google::protobuf::util::MessageToJsonString(state, &serialized);
+    assert(status.ok());
+    return serialized;
+};
+
+// Stateが異なるときに違いを可視化する
+void ShowDiff(const State& actual, const State& expected) {
+    std::cerr << "Expected    : "  << expected.ToJson() << std::endl;
+    std::cerr << "Actual      : "  << actual.ToJson() << std::endl;
+    if (actual.IsRoundOver()) return;
+    for (const auto &[pid, obs]: actual.CreateObservations()) {
+        std::cerr << "Observation : " << obs.ToJson() << std::endl;
+    }
+    auto acs = ListUpAllActionCombinations(actual.CreateObservations());
+    for (auto &ac: acs) {
+        auto state_cp = actual;
+        state_cp.Update(std::move(ac));
+        std::cerr << "ActualNext  : "  << state_cp.ToJson() << std::endl;
+    }
+};
+
+// 初期状態から CreateObservations と Update を繰り返して状態空間を探索して、目標となる最終状態へと行き着けるか確認
+bool BFSCheck(const std::string& init_json, const std::string& target_json) {
+    const State init_state = State(init_json);
+    const State target_state = State(target_json);
+
+    std::queue<State> q;
+    q.push(init_state);
+    State curr_state;
+    while(!q.empty()) {
+        curr_state = std::move(q.front()); q.pop();
+        if (curr_state.Equals(target_state)) return true;
+        if (curr_state.IsRoundOver()) continue;  // E.g., double ron
+        auto observations = curr_state.CreateObservations();
+        auto action_combs = ListUpAllActionCombinations(std::move(observations));
+        for (auto &action_comb: action_combs) {
+            auto state_copy = curr_state;
+            state_copy.Update(std::move(action_comb));
+            if (state_copy.CanReach(target_state)) q.push(std::move(state_copy));
+        }
+    }
+
+    ShowDiff(curr_state, target_state);
+    return false;
+};
+
+TEST(state, StateTrans) {
 
     // ListUpAllActionCombinationsの動作確認
     auto json_before = GetLastJsonLine("upd-bef-ron3.json");
@@ -849,62 +901,8 @@ TEST(state, StateTrans) {
     EXPECT_EQ(action_combs.size(), 24);  // 4 (Chi1, Chi2, Ron, No) x 2 (Ron, No) x 3 (Pon, Ron, No)
     EXPECT_EQ(action_combs.front().size(), 3);  // 3 players
 
-    // 任意のjsonを、初期状態のStateを生成できるjsonに変換する（親がツモった直後）
-    auto TruncateAfterFirstDraw = [](const auto& json) {
-        mjproto::State state = mjproto::State();
-        auto status = google::protobuf::util::JsonStringToMessage(json, &state);
-        assert(status.ok());
-        auto events = state.mutable_event_history()->mutable_events();
-        events->erase(events->begin() + 1, events->end());
-        state.clear_terminal();
-        // drawについては消さなくても良い（wallから引いてsetされるので）
-        std::string serialized;
-        status = google::protobuf::util::MessageToJsonString(state, &serialized);
-        assert(status.ok());
-        return serialized;
-    };
-
-    // Stateが異なるときに違いを可視化する
-    auto ShowDiff = [&](const State& actual, const State& expected) {
-        std::cerr << "Expected    : "  << expected.ToJson() << std::endl;
-        std::cerr << "Actual      : "  << actual.ToJson() << std::endl;
-        if (actual.IsRoundOver()) return;
-        for (const auto &[pid, obs]: actual.CreateObservations()) {
-            std::cerr << "Observation : " << obs.ToJson() << std::endl;
-        }
-        auto acs = ListUpAllActionCombinations(actual.CreateObservations());
-        for (auto &ac: acs) {
-            auto state_cp = actual;
-            state_cp.Update(std::move(ac));
-            std::cerr << "ActualNext  : "  << state_cp.ToJson() << std::endl;
-        }
-    };
-
-    // 初期状態から CreateObservations と Update を繰り返して状態空間を探索して、目標となる最終状態へと行き着けるか確認
-    auto BFSCheck = [&](const std::string& init_json, const std::string& target_json) {
-        const State init_state = State(init_json);
-        const State target_state = State(target_json);
-        std::queue<State> q;
-        q.push(init_state);
-        State curr_state;
-        while(!q.empty()) {
-            curr_state = std::move(q.front()); q.pop();
-            if (curr_state.Equals(target_state)) return true;
-            if (curr_state.IsRoundOver()) continue;  // E.g., double ron
-            auto observations = curr_state.CreateObservations();
-            auto action_combs = ListUpAllActionCombinations(std::move(observations));
-            for (auto &action_comb: action_combs) {
-                auto state_copy = curr_state;
-                state_copy.Update(std::move(action_comb));
-                if (state_copy.CanReach(target_state)) q.push(std::move(state_copy));
-            }
-        }
-        ShowDiff(curr_state, target_state);
-        return false;
-    };
-
     // テスト実行部分
-    const bool all_ok = ParallelTest([&BFSCheck, &TruncateAfterFirstDraw](const std::string &json){
+    const bool all_ok = ParallelTest([](const std::string &json){
         return BFSCheck(TruncateAfterFirstDraw(json), json); }
     );
     EXPECT_TRUE(all_ok);
