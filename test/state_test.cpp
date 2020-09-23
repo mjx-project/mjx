@@ -176,9 +176,7 @@ bool ParallelTest(F&& f) {
             if (json.empty()) continue;
             jsons.emplace_back(std::move(json), filename.path().string());
         }
-        if (jsons.size() > 10) {
-            Run(); break;
-        }
+        if (jsons.size() > 1000) Run();
     }
     Run();
 
