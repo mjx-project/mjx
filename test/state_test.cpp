@@ -781,7 +781,7 @@ TEST(state, CanReach) {
 }
 
 std::vector<std::vector<Action>> ListUpAllActionCombinations(std::unordered_map<PlayerId, Observation> &&observations) {
-    std::vector<std::vector<Action>> actions;
+    std::vector<std::vector<Action>> actions{{}};
     for (const auto &[player_id, observation]: observations) {
         auto who = observation.who();
         std::vector<Action> actions_per_player;
@@ -820,22 +820,18 @@ std::vector<std::vector<Action>> ListUpAllActionCombinations(std::unordered_map<
                     break;
             }
         }
+
         // 直積を取る
-        if (actions.empty()) {
-            for (const auto &action: actions_per_player) {
-                actions.push_back({ action });
-            }
-        } else {
-            auto actions_copy = actions;
-            actions.clear();
-            for (int i = 0; i < actions_copy.size(); ++i) {
-                for (int j = 0; j < actions_per_player.size(); ++j) {
-                    std::vector<Action> as = actions_copy[i];
-                    as.push_back(actions_per_player[j]);
-                    actions.push_back(std::move(as));
-                }
+        std::vector<std::vector<Action>> next_actions;
+        next_actions.reserve(actions.size());
+        for (int i = 0; i < actions.size(); ++i) {
+            for (int j = 0; j < actions_per_player.size(); ++j) {
+                std::vector<Action> as = actions[i];
+                as.push_back(actions_per_player[j]);
+                next_actions.push_back(std::move(as));
             }
         }
+        swap(next_actions, actions);
     }
     return actions;
 };
