@@ -20,33 +20,30 @@ namespace mj {
             tile_types.push_back(tile_type);
         }
 
-        std::string abstruct_hand, hand;
+        std::string hand;
+        bool need_comma = true;
 
         for (int start : {0, 9, 18}) {
             for (int i = start; i < start + 9; ++i) {
                 if (tile_counts[i] > 0) {
+                    if (need_comma and !hand.empty()) hand += ",";
                     hand += std::to_string(tile_counts[i]);
-                } else if (!hand.empty()) {
-                    if (!abstruct_hand.empty()) abstruct_hand += ",";
-                    abstruct_hand += hand;
-                    hand.clear();
+                    need_comma = false;
+                } else {
+                    need_comma = true;
                 }
             }
-            if (!hand.empty()) {
-                if (!abstruct_hand.empty()) abstruct_hand += ",";
-                abstruct_hand += hand;
-                hand.clear();
-            }
+            need_comma = true;
         }
 
         for (int i = 27; i < 34; ++i) {
             if (tile_counts[i] > 0) {
-                if (!abstruct_hand.empty()) abstruct_hand += ",";
-                abstruct_hand += std::to_string(tile_counts[i]);
+                if (!hand.empty()) hand += ",";
+                hand += std::to_string(tile_counts[i]);
             }
         }
 
-        return {abstruct_hand, tile_types};
+        return {hand, tile_types};
     }
 
 }
