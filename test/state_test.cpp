@@ -876,11 +876,11 @@ bool BFSCheck(const std::string& init_json, const std::string& target_json) {
     const State init_state = State(init_json);
     const State target_state = State(target_json);
 
-    std::stack<State> q;
+    std::queue<State> q;
     q.push(init_state);
     State curr_state;
     while(!q.empty()) {
-        curr_state = std::move(q.top()); q.pop();
+        curr_state = std::move(q.front()); q.pop();
         if (curr_state.Equals(target_state)) return true;
         if (curr_state.IsRoundOver()) continue;  // E.g., double ron
         auto observations = curr_state.CreateObservations();
