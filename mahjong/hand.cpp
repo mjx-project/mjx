@@ -120,7 +120,7 @@ namespace mj
            hand_params.tsumo_, hand_params.ron_, hand_params.riichi_, hand_params.after_kan_)
     {}
 
-    HandStage Hand::Stage() const {
+    HandStage Hand::stage() const {
         return stage_;
     }
 
@@ -279,9 +279,13 @@ namespace mj
             possible_discards.push_back(last_tile_added_.value());
             return possible_discards;
         }
+        std::unordered_set<TileType> added;
         for (auto t : closed_tiles_)
-            if (undiscardable_tiles_.find(t) == undiscardable_tiles_.end())
-                possible_discards.push_back(t);
+            if (!undiscardable_tiles_.count(t)) {
+                bool is_exception = t.IsRedFive() || t == last_tile_added_.value();
+                if (!added.count(t.Type()) || is_exception) possible_discards.push_back(t);
+                if (!is_exception) added.insert(t.Type());
+            }
         return possible_discards;
     }
 
@@ -292,12 +296,16 @@ namespace mj
         assert(SizeClosed() == 2 || SizeClosed() == 5 || SizeClosed() == 8 || SizeClosed() == 11 || SizeClosed() == 14);
         std::vector<Tile> possible_discards;
 
+        std::unordered_set<TileType> added;
         auto closed_tile_type_count = ClosedTileTypes();
         for (const Tile discard_tile : closed_tiles_) {
+            bool is_exception = discard_tile.IsRedFive() || discard_tile == last_tile_added_.value();
+            if (!is_exception && added.count(discard_tile.Type())) continue;
             auto discard_tile_type = discard_tile.Type();
             assert(closed_tile_type_count[discard_tile_type] >= 1);
             if (--closed_tile_type_count[discard_tile_type] == 0) {
                 closed_tile_type_count.erase(discard_tile_type);
+                if (!is_exception) added.insert(discard_tile.Type());
             }
             if (!WinHandCache::instance().Machi(closed_tile_type_count).empty()) {
                 possible_discards.push_back(discard_tile);
@@ -308,7 +316,7 @@ namespace mj
     }
 
     std::vector<Open> Hand::PossibleKanOpened(Tile tile, RelativePos from) const {
-        assert(Stage() == HandStage::kAfterDiscards);
+        assert(stage() == HandStage::kAfterDiscards);
         assert(SizeClosed() == 1 || SizeClosed() == 4 || SizeClosed() == 7 || SizeClosed() == 10 || SizeClosed() == 13);
         std::size_t c = std::count_if(closed_tiles_.begin(), closed_tiles_.end(),
                 [&tile](Tile x){ return x.Is(tile.Type()); });
@@ -348,7 +356,7 @@ namespace mj
     }
 
     std::vector<Open> Hand::PossiblePons(Tile tile, RelativePos from) const {
-        assert(Stage() == HandStage::kAfterDiscards);
+        assert(stage() == HandStage::kAfterDiscards);
         assert(SizeClosed() == 1 || SizeClosed() == 4 || SizeClosed() == 7 || SizeClosed() == 10 || SizeClosed() == 13);
         std::size_t counter = 0, sum = 0;
         for (const auto t: closed_tiles_) {
@@ -379,7 +387,7 @@ namespace mj
     }
 
     std::vector<Open> Hand::PossibleChis(Tile tile) const {
-        assert(Stage() == HandStage::kAfterDiscards);
+        assert(stage() == HandStage::kAfterDiscards);
         assert(SizeClosed() == 1 || SizeClosed() == 4 || SizeClosed() == 7 || SizeClosed() == 10 || SizeClosed() == 13);
         auto v = std::vector<Open>();
         if (!tile.Is(TileSetType::kHonours)) {
@@ -658,7 +666,12 @@ namespace mj
     }
 
     WinHandInfo Hand::win_info() const noexcept {
-        return WinHandInfo(closed_tiles_, opens_, ClosedTileTypes(), AllTileTypes(), last_tile_added_, stage_, IsUnderRiichi(), IsDoubleRiichi(), IsMenzen());
+        // CanWinでの判定のため、まだ上がっていなくても、上がったていで判定をする。こうしないと、例えばメンゼンツモのみ、ハイテイのみでCanWinがfalseになる
+        HandStage win_stage;
+        if (Any(stage_, {HandStage::kAfterDraw, HandStage::kAfterTsumo})) win_stage =  HandStage::kAfterTsumo;
+        else if (Any(stage_, {HandStage::kAfterDrawAfterKan, HandStage::kAfterTsumoAfterKan})) win_stage = HandStage::kAfterTsumoAfterKan;
+        else win_stage = HandStage::kAfterRon;
+        return WinHandInfo(closed_tiles_, opens_, ClosedTileTypes(), AllTileTypes(), last_tile_added_, win_stage, IsUnderRiichi(), IsDoubleRiichi(), IsMenzen());
     }
 
     bool Hand::IsTenpai() const {

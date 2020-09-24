@@ -28,6 +28,10 @@ namespace mj
 
         std::uint16_t GetBits() const;
         std::string ToString(bool verbose = false) const;  // TODO(sotetsuk): put more information
+
+        bool operator== (Open other) const noexcept;
+        bool operator!= (Open other) const noexcept;
+        bool Equals(Open other) const noexcept ;
     };
 
     class Chi {

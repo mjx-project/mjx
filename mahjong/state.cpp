@@ -282,6 +282,8 @@ namespace mj
     }
 
     void State::ApplyOpen(AbsolutePos who, Open open) {
+        missed_tiles[who].reset();  // フリテン解除
+
         mutable_player(who).ApplyOpen(open);
 
         int absolute_pos_from = (ToUType(who) + ToUType(open.From())) % 4;
@@ -403,7 +405,7 @@ namespace mj
     }
 
     void State::Ron(AbsolutePos winner) {
-        assert(Any(last_event_.type(), {EventType::kDiscardDrawnTile, EventType::kDiscardFromHand, EventType::kRiichiScoreChange, EventType::kKanAdded, EventType::kRon}));
+        assert(Any(last_event_.type(), {EventType::kDiscardDrawnTile, EventType::kDiscardFromHand, EventType::kKanAdded, EventType::kRon}));
         AbsolutePos loser = last_event_.type() != EventType::kRon ? last_event_.who() : AbsolutePos(state_.terminal().wins(0).from_who());
         Tile tile = last_event_.type() != EventType::kKanAdded ? last_event_.tile() : last_event_.open().LastTile();
 
@@ -754,15 +756,20 @@ namespace mj
         } else {
             // sort in order Ron > KanOpened > Pon > Chi > No
             std::sort(action_candidates.begin(), action_candidates.end(),
-                    [](const Action &x, const Action &y){ return x.type() > x.type(); });
+                    [](const Action &x, const Action &y){ return x.type() > y.type(); });
             bool has_ron = action_candidates.front().type() == ActionType::kRon;
             if (has_ron) {
-                int ron_count = std::count_if(action_candidates.begin(), action_candidates.end(),
-                                               [](const Action &x){ return x.type() == ActionType::kRon; });
+                // ron以外の行動は取られないので消していく
+                while (action_candidates.back().type() != ActionType::kRon) action_candidates.pop_back();
+                // 上家から順にsortする（ダブロン時に供託が上家取り）
+                AbsolutePos from_who = last_event_.who();
+                std::sort(action_candidates.begin(), action_candidates.end(),
+                          [&from_who](const Action &x, const Action &y){ return ((ToUType(x.who()) - ToUType(from_who) + 4) % 4) < ((ToUType(y.who()) - ToUType(from_who) + 4) % 4); });
+                int ron_count = action_candidates.size();
                 if (ron_count == 3) {
                     // 三家和了
                     std::vector<int> ron = {0, 0, 0, 0};
-                    for (auto action : action_candidates) {
+                    for (const auto &action : action_candidates) {
                         if (action.type() == ActionType::kRon) ron[ToUType(action.who())] = 1;
                     }
                     assert(std::accumulate(ron.begin(), ron.end(), 0) == 3);
@@ -785,12 +792,12 @@ namespace mj
 
     void State::Update(Action &&action) {
         assert(Any(last_event_.type(), {EventType::kDraw, EventType::kDiscardFromHand,EventType::kDiscardDrawnTile,
-                                        EventType::kRiichi, EventType::kChi, EventType::kPon, EventType::kKanAdded}));
+                                        EventType::kRiichi, EventType::kChi, EventType::kPon, EventType::kKanAdded, EventType::kRon}));
         auto who = action.who();
         switch (action.type()) {
             case ActionType::kDiscard:
                 {
-                    assert(Any(last_event_.type(), {EventType::kDraw, EventType::kChi, EventType::kRon, EventType::kRiichi}));
+                    assert(Any(last_event_.type(), {EventType::kDraw, EventType::kChi, EventType::kPon, EventType::kRon, EventType::kRiichi}));
                     assert(require_kan_dora_ <= 1);
                     if (require_kan_dora_) AddNewDora();
                     Discard(who, action.discard());
@@ -837,7 +844,7 @@ namespace mj
                 Tsumo(who);
                 return;
             case ActionType::kRon:
-                assert(Any(last_event_.type(), {EventType::kDiscardFromHand, EventType::kDiscardDrawnTile, EventType::kKanAdded}));
+                assert(Any(last_event_.type(), {EventType::kDiscardFromHand, EventType::kDiscardDrawnTile, EventType::kKanAdded, EventType::kRon}));
                 Ron(who);
                 return;
             case ActionType::kChi:
@@ -940,5 +947,113 @@ namespace mj
         auto pao = player(winner).HasPao();
         if (pao) return AbsolutePos((ToUType(winner) + ToUType(pao.value())) % 4);
         else return std::nullopt;
+    }
+
+
+    bool State::Equals(const State &other) const noexcept {
+        auto seq_eq = [](const auto &x, const auto &y) {
+            if (x.size() != y.size()) return false;
+            return std::equal(x.begin(), x.end(), y.begin());
+        };
+        auto tiles_eq = [](const auto &x, const auto &y) {
+            if (x.size() != y.size()) return false;
+            for (int i = 0; i < x.size(); ++i) if (!Tile(x[i]).Equals(Tile(y[i]))) return false;
+            return true;
+        };
+        auto opens_eq = [](const auto &x, const auto &y) {
+            if (x.size() != y.size()) return false;
+            for (int i = 0; i < x.size(); ++i) if (!Open(x[i]).Equals(Open(y[i]))) return false;
+            return true;
+        };
+        if (!seq_eq(state_.player_ids(),other.state_.player_ids())) return false;
+        if (!google::protobuf::util::MessageDifferencer::Equals(state_.init_score(), other.state_.init_score())) return false;
+        if (!tiles_eq(state_.wall(), other.state_.wall())) return false;
+        if (!tiles_eq(state_.doras(), other.state_.doras())) return false;
+        if (!tiles_eq(state_.ura_doras(), other.state_.ura_doras())) return false;
+        for (int i = 0; i < 4; ++i) if (!tiles_eq(state_.private_infos(i).init_hand(), other.state_.private_infos(i).init_hand())) return false;
+        for (int i = 0; i < 4; ++i) if (!tiles_eq(state_.private_infos(i).draws(), other.state_.private_infos(i).draws())) return false;
+        // EventHistory
+        if (state_.event_history().events_size() != other.state_.event_history().events_size()) return false;
+        for (int i = 0; i < state_.event_history().events_size(); ++i) {
+            const auto &event = state_.event_history().events(i);
+            const auto &other_event = other.state_.event_history().events(i);
+            if (event.type() != other_event.type()) return false;
+            if (event.who() != other_event.who()) return false;
+            if (event.tile() != other_event.tile() && !Tile(event.tile()).Equals(Tile(other_event.tile()))) return false;
+            if (event.open() != other_event.open() && !Open(event.open()).Equals(Open(other_event.open()))) return false;
+        }
+        // Terminal
+        if (!state_.has_terminal() && !other.state_.has_terminal()) return true;
+        if (!google::protobuf::util::MessageDifferencer::Equals(state_.terminal().final_score(), other.state_.terminal().final_score())) return false;
+        if (state_.terminal().wins_size() != other.state_.terminal().wins_size()) return false;
+        for (int i = 0; i < state_.terminal().wins_size(); ++i) {
+            const auto &win = state_.terminal().wins(i);
+            const auto &other_win = other.state_.terminal().wins(i);
+            if (win.who() != other_win.who()) return false;
+            if (win.from_who() != other_win.from_who()) return false;
+            if (!tiles_eq(win.closed_tiles(), other_win.closed_tiles())) return false;
+            if (!opens_eq(win.opens(), other_win.opens())) return false;
+            if (!Tile(win.win_tile()).Equals(Tile(other_win.win_tile()))) return false;
+            if (win.fu() != other_win.fu()) return false;
+            if (win.ten() != other_win.ten()) return false;
+            if (!seq_eq(win.ten_changes(), other_win.ten_changes())) return false;
+            if (!seq_eq(win.yakus(), other_win.yakus())) return false;
+            if (!seq_eq(win.fans(), other_win.fans())) return false;
+            if (!seq_eq(win.yakumans(), other_win.yakumans())) return false;
+        }
+        const auto &no_winner = state_.terminal().no_winner();
+        const auto &other_no_winner = other.state_.terminal().no_winner();
+        if (no_winner.tenpais_size() != other_no_winner.tenpais_size()) return false;
+        for (int i = 0; i < no_winner.tenpais_size(); ++i) {
+            const auto &tenpai = no_winner.tenpais(i);
+            const auto &other_tenpai = other_no_winner.tenpais(i);
+            if (tenpai.who() != other_tenpai.who()) return false;
+            if (!tiles_eq(tenpai.closed_tiles(), other_tenpai.closed_tiles())) return false;
+        }
+        if (!seq_eq(no_winner.ten_changes(), other_no_winner.ten_changes())) return false;
+        if (no_winner.type() != other_no_winner.type()) return false;
+        if (state_.terminal().is_game_over() != other.state_.terminal().is_game_over()) return false;
+        return true;
+    }
+
+    bool State::CanReach(const State &other) const noexcept {
+        auto seq_eq = [](const auto &x, const auto &y) {
+            if (x.size() != y.size()) return false;
+            return std::equal(x.begin(), x.end(), y.begin());
+        };
+        auto tiles_eq = [](const auto &x, const auto &y) {
+            if (x.size() != y.size()) return false;
+            for (int i = 0; i < x.size(); ++i) if (!Tile(x[i]).Equals(Tile(y[i]))) return false;
+            return true;
+        };
+
+        if (this->Equals(other)) return true;
+
+        // いくつかの初期状態が同じである必要がある
+        if (!seq_eq(state_.player_ids(),other.state_.player_ids())) return false;
+        if (!google::protobuf::util::MessageDifferencer::Equals(state_.init_score(), other.state_.init_score())) return false;
+        if (!tiles_eq(state_.wall(), other.state_.wall())) return false;
+
+        // 現在の時点まではイベントがすべて同じである必要がある
+        if (state_.event_history().events_size() >= other.state_.event_history().events_size()) return false;  // イベント長が同じならそもそもEqualのはず
+        for (int i = 0; i < state_.event_history().events_size(); ++i) {
+            const auto &event = state_.event_history().events(i);
+            const auto &other_event = other.state_.event_history().events(i);
+            if (event.type() != other_event.type()) return false;
+            if (event.who() != other_event.who()) return false;
+            if (event.tile() != other_event.tile() && !Tile(event.tile()).Equals(Tile(other_event.tile()))) return false;
+            if (event.open() != other_event.open() && !Open(event.open()).Equals(Open(other_event.open()))) return false;
+        }
+
+        // Drawがすべて現時点までは同じである必要がある (配牌は山が同じ時点で同じ）
+        for (int i = 0; i < 4; ++i) {
+            const auto &draws = state_.private_infos(i).draws();
+            const auto &other_draws = other.state_.private_infos(i).draws();
+            if (draws.size() > other_draws.size()) return false;
+            for (int j = 0; j < draws.size(); ++j) if (!Tile(draws[j]).Equals(Tile(other_draws[j]))) return false;
+        }
+
+        // もしゲーム終了しているなら、Equalでない時点でダメ
+        return !IsRoundOver();
     }
 }  // namespace mj

@@ -321,3 +321,56 @@ TEST(open, OpenGenerator)
     // TODO: add tests from tenhou log for kans
 }
 
+TEST(open, Equals) {
+    // Chi
+    std::vector<Tile> t1 = {Tile("p5", 2), Tile("p6", 1), Tile("p7", 0)};
+    auto o1 = Chi::Create(t1, Tile("p6", 1));
+    std::vector<Tile> t2 = {Tile("p5", 3), Tile("p6", 1), Tile("p7", 2)};
+    auto o2 = Chi::Create(t2, Tile("p6", 1));
+    EXPECT_TRUE(o1 != o2);
+    EXPECT_TRUE(o1.Equals(o2));
+    // Pon
+    o1 = Pon::Create(Tile("gd", 2), Tile("gd", 0), RelativePos::kMid);
+    o2 = Pon::Create(Tile("gd", 3), Tile("gd", 1), RelativePos::kMid);
+    EXPECT_TRUE(o1 != o2);
+    EXPECT_TRUE(o1.Equals(o2));
+    o1 = Pon::Create(Tile("gd", 2), Tile("gd", 0), RelativePos::kMid);
+    o2 = Pon::Create(Tile("gd", 3), Tile("gd", 1), RelativePos::kLeft);
+    EXPECT_TRUE(o1 != o2);
+    EXPECT_FALSE(o1.Equals(o2));
+    o1 = Pon::Create(Tile("m5", 0), Tile("m5", 1), RelativePos::kMid);  // 0, 2, 3
+    o2 = Pon::Create(Tile("m5", 1), Tile("m5", 2), RelativePos::kMid);  // 0, 1, 2
+    EXPECT_TRUE(o1 != o2);
+    EXPECT_FALSE(o1.Equals(o2));
+    o1 = Pon::Create(Tile("m5", 2), Tile("m5", 0), RelativePos::kMid);
+    o2 = Pon::Create(Tile("m5", 3), Tile("m5", 0), RelativePos::kLeft);
+    EXPECT_TRUE(o1 != o2);
+    EXPECT_FALSE(o1.Equals(o2));
+    // KanClosed
+    o1 = KanClosed::Create(Tile("p5", 0));
+    o2 = KanClosed::Create(Tile("p5", 1));
+    EXPECT_TRUE(o1 != o2);
+    EXPECT_TRUE(o1.Equals(o2));
+    // KanOpened
+    o1 = KanOpened::Create(Tile("s5", 2), RelativePos::kRight);
+    o2 = KanOpened::Create(Tile("s5", 3), RelativePos::kRight);
+    EXPECT_TRUE(o1 != o2);
+    EXPECT_TRUE(o1.Equals(o2));
+    o1 = KanOpened::Create(Tile("s5", 0), RelativePos::kRight);
+    o2 = KanOpened::Create(Tile("s5", 3), RelativePos::kRight);
+    EXPECT_TRUE(o1 != o2);
+    EXPECT_FALSE(o1.Equals(o2));
+    // KanAdded
+    o1 = Pon::Create(Tile("m5", 2), Tile("m5", 3), RelativePos::kMid);
+    o1 = KanAdded::Create(o1);
+    o2 = Pon::Create(Tile("m5", 3), Tile("m5", 2), RelativePos::kMid);
+    o2 = KanAdded::Create(o2);
+    EXPECT_TRUE(o1 != o2);
+    EXPECT_TRUE(o1.Equals(o2));
+    o1 = Pon::Create(Tile("m5", 2), Tile("m5", 3), RelativePos::kMid);
+    o1 = KanAdded::Create(o1);
+    o2 = Pon::Create(Tile("m5", 0), Tile("m5", 2), RelativePos::kMid);
+    o2 = KanAdded::Create(o2);
+    EXPECT_TRUE(o1 != o2);
+    EXPECT_FALSE(o1.Equals(o2));
+}
