@@ -40,7 +40,7 @@ namespace mj
     }
 
     Observation::~Observation() {
-        // Stateクラスに実体があるEventHistoryを破棄するのを防ぐ
+        // Stateクラスに実体があるmjprotoを破棄するのを防ぐ
         proto_.release_init_score();
         proto_.release_event_history();
         proto_.release_private_info();
