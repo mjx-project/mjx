@@ -19,9 +19,6 @@ namespace mj
     public:
         MockAgentServer();
         ~MockAgentServer() final = default;
-        void RunServer(const std::string &socket_address) final ;
-    private:
-        std::unique_ptr<grpc::Service> agent_impl_;
     };
 
 }  // namespace mj

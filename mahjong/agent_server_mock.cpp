@@ -13,18 +13,6 @@ namespace mj
         agent_impl_ = std::make_unique<MockAgentServiceImpl>();
     }
 
-    void MockAgentServer::RunServer(const std::string &socket_address) {
-        std::cout << socket_address << std::endl;
-        grpc::EnableDefaultHealthCheckService(true);
-        grpc::reflection::InitProtoReflectionServerBuilderPlugin();
-        grpc::ServerBuilder builder;
-        builder.AddListeningPort(socket_address, grpc::InsecureServerCredentials());
-        builder.RegisterService(agent_impl_.get());
-        std::unique_ptr<grpc::Server> server(builder.BuildAndStart());
-        std::cout << "Mock agent server listening on " << socket_address << std::endl;
-        server->Wait();
-    }
-
     grpc::Status
     MockAgentServiceImpl::TakeAction(grpc::ServerContext *context, const mjproto::Observation *request, mjproto::Action *reply) {
         return grpc::Status::OK;
