@@ -1,9 +1,11 @@
 #include "agent_client.h"
 
+#include <utility>
+
 namespace mj
 {
-    AgentClient::AgentClient(std::shared_ptr<grpc::Channel> channel)
-            : stub_(mjproto::Agent::NewStub(channel)) {}
+    AgentClient::AgentClient(PlayerId player_id, std::shared_ptr<grpc::Channel> channel)
+            : player_id_(std::move(player_id)), stub_(mjproto::Agent::NewStub(channel)) {}
 
     Action AgentClient::TakeAction(Observation &&observation) const {
         assert(stub_ != nullptr);
@@ -13,6 +15,10 @@ namespace mj
         grpc::Status status = stub_->TakeAction(&context, request, &response);
         if (!status.ok()) std::cerr << status.error_code() << ": " << status.error_message() << std::endl;
         return Action(std::move(response));
+    }
+
+    const PlayerId& AgentClient::player_id() const {
+        return player_id_;
     }
 }  // namespace mj
 

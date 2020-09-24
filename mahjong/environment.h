@@ -9,16 +9,14 @@ namespace mj
     class Environment
     {
     public:
-        Environment(const std::vector<AgentClient> &agents);
+        explicit Environment(std::vector<AgentClient*> &&agents);
 
         [[noreturn]] void Run();
         void RunOneGame(std::uint32_t seed = 9999);
         void RunOneRound();
     private:
-        const std::vector<AgentClient> &agents_;
+        std::unordered_map<PlayerId, AgentClient*> agents_;
         State state_;
-
-        const AgentClient& agent(AbsolutePos pos) const;
     };
 }  // namespace mj
 
