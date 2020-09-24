@@ -259,7 +259,7 @@ namespace mj {
 }  // namespace mj
 
 int main(int argc, char** argv) {
-    //mj::WinHandCacheGenerator::GenerateCache();
+    mj::WinHandCacheGenerator::GenerateCache();
     mj::WinHandCacheGenerator::GenerateTenpaiCache();
     return 0;
 }
