@@ -22,8 +22,9 @@ namespace mj
 
         static const WinHandCache& instance();
 
+        [[nodiscard]] bool Has(const std::vector<int>& closed_hand) const noexcept ;
         [[nodiscard]] bool Has(const TileTypeCount& closed_hand) const noexcept ;
-        [[nodiscard]] std::unordered_set<TileType> Machi(TileTypeCount closed_hand) const noexcept ;
+        [[nodiscard]] std::unordered_set<TileType> Machi(const TileTypeCount& closed_hand) const noexcept ;
         [[nodiscard]] std::vector<std::pair<std::vector<TileTypeCount>, std::vector<TileTypeCount>>>
         SetAndHeads(const TileTypeCount& closed_hand) const noexcept ;
 
