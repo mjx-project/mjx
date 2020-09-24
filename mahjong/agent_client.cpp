@@ -5,17 +5,14 @@ namespace mj
     AgentClient::AgentClient(std::shared_ptr<grpc::Channel> channel)
             : stub_(mjproto::Agent::NewStub(channel)) {}
 
-    Action AgentClient::TakeAction(Observation observation) const {
+    Action AgentClient::TakeAction(Observation &&observation) const {
         assert(stub_ != nullptr);
-        const mjproto::Observation request = observation.proto_;
+        const mjproto::Observation& request = observation.proto_;
         mjproto::Action response;
         grpc::ClientContext context;
         grpc::Status status = stub_->TakeAction(&context, request, &response);
-        if (!status.ok()) {
-            std::cout << status.error_code() << ": " << status.error_message() << std::endl;
-        }
-        auto action = Action(std::move(response));
-        return action;
+        if (!status.ok()) std::cerr << status.error_code() << ": " << status.error_message() << std::endl;
+        return Action(std::move(response));
     }
 }  // namespace mj
 
