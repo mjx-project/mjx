@@ -39,10 +39,10 @@ namespace mj {
     void WinHandCache::LoadTenpaiCache() {
         boost::property_tree::ptree root;
         boost::property_tree::read_json(std::string(WIN_CACHE_DIR) + "/tenpai_cache.json", root);
-        for (auto& hand_pt : root) {
+        for (auto& hand_pt : root.get_child("data")) {
             tenpai_cache_.insert(hand_pt.second.get_value<std::string>());
         }
-        std::cerr << "tenpai_cache_.size(): " << tenpai_cache_.size() << std::endl;
+        assert(tenpai_cache_.size() == 34539);
     }
 
     bool WinHandCache::Has(const std::vector<int>& closed_hand) const noexcept {

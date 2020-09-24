@@ -183,6 +183,57 @@ namespace mj {
         ShowStatus(cache);
     }
 
+    std::unordered_set<AbstructHand> WinHandCacheGenerator::ReduceTile(const AbstructHand& hand) noexcept {
+        std::unordered_set<AbstructHand> ret;
+        for (int i = 0; i < hand.size(); ++i) {
+            if (hand[i] == ',') continue;
+            auto h = hand;
+            if (h[i] > '1') {
+                --h[i]; ret.insert(h);
+            } else {
+                h[i] = ',';
+                bool updated = true;
+                while (updated) {
+                    updated = false;
+                    if (h[0] == ',') {h.erase(0, 1); updated = true; continue; }
+                    if (h[h.size()-1] == ',') {h.erase(h.size()-1, 1); updated = true; continue; }
+                    for (int j = 0; j+1 < h.size(); ++j) {
+                        if (h.substr(j, 2) == ",,") {h.erase(j, 1); updated = true; break;}
+                    }
+                }
+                ret.insert(h);
+            }
+        }
+        return ret;
+    }
+
+    void WinHandCacheGenerator::GenerateTenpaiCache() noexcept {
+        std::unordered_set<AbstructHand> tenpai_cache;
+        {
+            boost::property_tree::ptree root;
+            boost::property_tree::read_json(std::string(WIN_CACHE_DIR) + "/win_cache.json", root);
+            for (const auto& [hand, patterns_pt] : root) {
+                for (const auto& tenpai : ReduceTile(hand)) {
+                    tenpai_cache.insert(tenpai);
+                }
+            }
+        }
+        std::cerr << "tenpai_cache.size(): " << tenpai_cache.size() << std::endl;
+
+        std::cerr << "Writing tenpai cache file... ";
+        {
+            boost::property_tree::ptree root, data;
+            for (const auto& hand : tenpai_cache) {
+                boost::property_tree::ptree hand_pt;
+                hand_pt.put_value(hand);
+                data.push_back(std::make_pair("", hand_pt));
+            }
+            root.add_child("data", data);
+            boost::property_tree::write_json(std::string(WIN_CACHE_DIR) + "/tenpai_cache.json", root);
+        }
+        std::cerr << "Done" << std::endl;
+    }
+
     void WinHandCacheGenerator::ShowStatus(const WinHandCache::CacheType& cache) noexcept {
         std::cerr << "=====統計情報=====" << std::endl;
         std::cerr << "abstruct hand kinds: " << cache.size() << std::endl;
@@ -208,6 +259,7 @@ namespace mj {
 }  // namespace mj
 
 int main(int argc, char** argv) {
-    mj::WinHandCacheGenerator::GenerateCache();
+    //mj::WinHandCacheGenerator::GenerateCache();
+    mj::WinHandCacheGenerator::GenerateTenpaiCache();
     return 0;
 }

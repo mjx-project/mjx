@@ -31,7 +31,7 @@ namespace mj
 
         using SplitPattern = std::vector<std::vector<int>>;
         using CacheType = std::unordered_map<AbstructHand, std::set<SplitPattern>>;
-        using TenpaiCacheType = std::set<AbstructHand>;
+        using TenpaiCacheType = std::unordered_set<AbstructHand>;
     private:
         WinHandCache();
         ~WinHandCache() = default;
