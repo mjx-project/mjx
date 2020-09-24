@@ -49,9 +49,8 @@ add_custom_command(
 include_directories("${CMAKE_CURRENT_BINARY_DIR}")
 
 # Targets for quick gRPC execution test
-foreach(_target
-        agent_server_mock)
-        # agent_server_mock agent_client)
+foreach(_target)
+        # agent_server_mock agent_server_mock agent_client)
     add_executable(${_target} "${_target}.cpp"
             ${mj_proto_srcs}
             ${mj_grpc_srcs})
