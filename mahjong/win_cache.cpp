@@ -46,7 +46,7 @@ namespace mj {
     }
 
     bool WinHandCache::Has(const std::vector<int>& closed_hand) const noexcept {
-        auto abstruct_hand = CreateAbstructHand(closed_hand);  // E.g., abstructed_hand = "222,111,3,2"
+        auto abstruct_hand = CreateAbstructHand(closed_hand);  // E.g., abstruct_hand = "222,111,3,2"
         if (cache_.count(abstruct_hand)) return true;
         // 国士無双
         for (int i = 0; i < 34; ++i) {
@@ -67,7 +67,7 @@ namespace mj {
     }
 
     bool WinHandCache::Tenpai(const std::vector<int>& closed_hand) const noexcept {
-        auto abstruct_hand = CreateAbstructHand(closed_hand);  // E.g., abstructed_hand = "222,111,2,2"
+        auto abstruct_hand = CreateAbstructHand(closed_hand);  // E.g., abstruct_hand = "222,111,2,2"
         if (tenpai_cache_.count(abstruct_hand)) return true;
         // 国士無双
         int types = 0;
