@@ -236,6 +236,8 @@ namespace mj
 
         // 加槓=>槍槓=>Noのときの一発消し。加槓時に自分の一発は外れている外れているはずなので、一発が残っているのは他家のだれか
         if (last_event_.type() == EventType::kKanAdded) for (int i = 0; i < 4; ++i) is_ippatsu_[AbsolutePos(i)] = false;
+        // 槍槓
+        is_robbing_kan = false;
 
         last_event_ = Event::CreateDraw(who);
         state_.mutable_event_history()->mutable_events()->Add(last_event_.proto());
@@ -303,8 +305,12 @@ namespace mj
         is_first_turn_wo_open = false;
         // 一発解消は「純正巡消しは発声＆和了打診後（加槓のみ)、嶺上ツモの前（連続する加槓の２回目には一発は付かない）」なので、
         // 加槓時は自分の一発だけ消して（一発・嶺上開花は併発しない）、その他のときには全員の一発を消す
-        if (open.Type() == OpenType::kKanAdded) is_ippatsu_[who] = false;
-        else for (int i = 0; i < 4; ++i) is_ippatsu_[AbsolutePos(i)] = false;
+        if (open.Type() == OpenType::kKanAdded) {
+            is_ippatsu_[who] = false;
+            is_robbing_kan = true;  // 槍槓
+        } else {
+            for (int i = 0; i < 4; ++i) is_ippatsu_[AbsolutePos(i)] = false;
+        }
     }
 
     void State::AddNewDora() {
@@ -737,7 +743,7 @@ namespace mj
                 is_first_turn_wo_open && last_event_.who() == who
                         && (Any(last_event_.type(), {EventType::kDraw, EventType::kTsumo})),
                 seat_wind == Wind::kEast,
-                last_event_.type() == EventType::kKanAdded, // robbing kan
+                is_robbing_kan,
                 wall_.dora_count(),
                 wall_.ura_dora_count());
         return win_state_info;
