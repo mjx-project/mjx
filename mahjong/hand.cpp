@@ -682,6 +682,7 @@ namespace mj
 
     bool Hand::IsCompleted(Tile additional_tile) const {
         assert(SizeClosed() == 1 || SizeClosed() == 4 || SizeClosed() == 7 || SizeClosed() == 10 || SizeClosed() == 13);
+        // TODO: TileTypeCountではなくstd::vector<TileType>を使うversionの方が速い
         auto closed_tile_types = ClosedTileTypes();
         ++closed_tile_types[additional_tile.Type()];
         return WinHandCache::instance().Has(closed_tile_types);

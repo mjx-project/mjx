@@ -51,7 +51,7 @@ namespace mj {
             if (count > 4) return false;
         }
 
-        auto [abstruct_hand, tile_types] = CreateAbstructHand(total);
+        auto [abstruct_hand, tile_types] = CreateAbstructHandWithTileTypes(total);
 
         std::map<TileType, int> tile_index;
         for (int i = 0; i < tile_types.size(); ++i) {
