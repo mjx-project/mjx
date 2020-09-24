@@ -24,17 +24,21 @@ namespace mj
 
         [[nodiscard]] bool Has(const std::vector<int>& closed_hand) const noexcept ;
         [[nodiscard]] bool Has(const TileTypeCount& closed_hand) const noexcept ;
+        [[nodiscard]] bool Tenpai(const std::vector<int>& closed_hand) const noexcept ;
         [[nodiscard]] std::unordered_set<TileType> Machi(const TileTypeCount& closed_hand) const noexcept ;
         [[nodiscard]] std::vector<std::pair<std::vector<TileTypeCount>, std::vector<TileTypeCount>>>
         SetAndHeads(const TileTypeCount& closed_hand) const noexcept ;
 
         using SplitPattern = std::vector<std::vector<int>>;
         using CacheType = std::unordered_map<AbstructHand, std::set<SplitPattern>>;
+        using TenpaiCacheType = std::set<AbstructHand>;
     private:
         WinHandCache();
         ~WinHandCache() = default;
         CacheType cache_;
+        TenpaiCacheType tenpai_cache_;
         void LoadWinCache();
+        void LoadTenpaiCache();
     };
 }  // namespace mj
 

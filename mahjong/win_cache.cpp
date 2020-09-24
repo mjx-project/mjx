@@ -13,6 +13,7 @@ namespace mj {
 
     WinHandCache::WinHandCache() {
         LoadWinCache();
+        LoadTenpaiCache();
     }
 
     void WinHandCache::LoadWinCache() {
@@ -33,6 +34,15 @@ namespace mj {
             }
         }
         assert(cache_.size() == 9362);
+    }
+
+    void WinHandCache::LoadTenpaiCache() {
+        boost::property_tree::ptree root;
+        boost::property_tree::read_json(std::string(WIN_CACHE_DIR) + "/tenpai_cache.json", root);
+        for (auto& hand_pt : root) {
+            tenpai_cache_.insert(hand_pt.second.get_value<std::string>());
+        }
+        std::cerr << "tenpai_cache_.size(): " << tenpai_cache_.size() << std::endl;
     }
 
     bool WinHandCache::Has(const std::vector<int>& closed_hand) const noexcept {
@@ -56,12 +66,26 @@ namespace mj {
         return closed_hand.size() == 13;
     }
 
+    bool WinHandCache::Tenpai(const std::vector<int>& closed_hand) const noexcept {
+        auto abstruct_hand = CreateAbstructHand(closed_hand);  // E.g., abstructed_hand = "222,111,3,2"
+        if (tenpai_cache_.count(abstruct_hand)) return true;
+        // 国士無双
+        int types = 0;
+        for (int i = 0; i < 34; ++i) {
+            if (Is(TileType(i), TileSetType::kYaocyu) and closed_hand[i] > 0) ++types;
+            if (!Is(TileType(i), TileSetType::kYaocyu) and closed_hand[i] > 0) return false;
+        }
+        return types >= 12;
+    }
+
     std::unordered_set<TileType> WinHandCache::Machi(const TileTypeCount& closed_hand) const noexcept {
         std::unordered_set<TileType> machi;
         std::vector<int> tile_counts(34);
         for (const auto& [type, n] : closed_hand) {
             tile_counts[static_cast<int>(type)] = n;
         }
+
+        if (!Tenpai(tile_counts)) return machi;
 
         for (int i = 0; i < 34; ++i) {
             ++tile_counts[i];
