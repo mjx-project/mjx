@@ -21,12 +21,11 @@ namespace mj
 
     Observation::Observation(AbsolutePos who, mjproto::State &state) {
         proto_.mutable_player_ids()->CopyFrom(state.player_ids());
-        proto_.mutable_init_score()->CopyFrom(state.init_score());
+        proto_.set_allocated_init_score(state.mutable_init_score());
         proto_.mutable_doras()->CopyFrom(state.doras());
         proto_.set_allocated_event_history(state.mutable_event_history());
-        // proto_.mutable_event_history()->CopyFrom(state.event_history());
         proto_.set_who(mjproto::AbsolutePos(who));
-        proto_.mutable_private_info()->CopyFrom(state.private_infos(ToUType(who)));
+        proto_.set_allocated_private_info(state.mutable_private_infos(ToUType(who)));
     }
 
     bool Observation::has_possible_action() const {
@@ -42,6 +41,8 @@ namespace mj
 
     Observation::~Observation() {
         // Stateクラスに実体があるEventHistoryを破棄するのを防ぐ
+        proto_.release_init_score();
         proto_.release_event_history();
+        proto_.release_private_info();
     }
 }
