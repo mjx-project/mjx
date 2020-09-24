@@ -1,8 +1,6 @@
-#include <iostream>
 #include <memory>
 
 #include <grpcpp/grpcpp.h>
-#include <grpcpp/health_check_service_interface.h>
 #include <grpcpp/ext/proto_server_reflection_plugin.h>
 
 #include "agent_server_mock.h"
