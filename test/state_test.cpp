@@ -749,9 +749,8 @@ TEST(state, EncodeDecode) {
         const auto restored_state = State(json).proto();
         const bool ok = google::protobuf::util::MessageDifferencer::Equals(original_state, restored_state);
         if (!ok) {
-            std::cerr << "Expected    : "
-            << json << std::endl;
-            std::cerr << "Actual      : "  << State(json).ToJson() << std::endl;
+            std::cerr << "Expected    : " << json << std::endl;
+            std::cerr << "Actual      : " << State(json).ToJson() << std::endl;
         }
         return ok;
     });
