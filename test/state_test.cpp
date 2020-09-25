@@ -5,6 +5,7 @@
 #include "state.h"
 #include "utils.h"
 #include <thread>
+#include <google/protobuf/util/message_differencer.h>
 
 using namespace mj;
 
@@ -742,11 +743,15 @@ TEST(state, Update) {
 
 TEST(state, EncodeDecode) {
     const bool all_ok = ParallelTest([](const std::string& json){
-        const auto restored_json = State(json).ToJson();
-        const bool ok = json == restored_json;
+        mjproto::State original_state;
+        auto status = google::protobuf::util::JsonStringToMessage(json, &original_state);
+        assert(status.ok());
+        const auto restored_state = State(json).proto();
+        const bool ok = google::protobuf::util::MessageDifferencer::Equals(original_state, restored_state);
         if (!ok) {
-            std::cerr << "Expected    : "  << json << std::endl;
-            std::cerr << "Actual      : "  << restored_json << std::endl;
+            std::cerr << "Expected    : "
+            << json << std::endl;
+            std::cerr << "Actual      : "  << State(json).ToJson() << std::endl;
         }
         return ok;
     });
