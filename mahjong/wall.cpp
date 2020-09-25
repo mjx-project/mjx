@@ -7,22 +7,20 @@ namespace mj
 {
     Wall::Wall(std::uint32_t round, std::uint32_t seed)
             : round_(round), seed_(seed),
-              tiles_(Tile::CreateAllShuffled(seed)),
-              itr_curr_draw_(draw_begin())
+              tiles_(Tile::CreateAllShuffled(seed))
     {}
 
 
     Wall::Wall(std::uint32_t round, std::vector<Tile> tiles)
             : round_(round), seed_(-1),
-              tiles_(std::move(tiles)),
-              itr_curr_draw_(draw_begin())
+              tiles_(std::move(tiles))
     {}
 
     Tile Wall::Draw() {
         assert(HasDrawLeft());
         assert(abs(num_kan_draw_ - num_kan_dora_) <= 1);
-        auto drawn_tile = *itr_curr_draw_;
-        itr_curr_draw_++;
+        auto drawn_tile = tiles_[draw_ix_];
+        draw_ix_++;
         return drawn_tile;
     }
 
@@ -41,14 +39,6 @@ namespace mj
         tiles.emplace_back(tiles_.at(ix));
         assert(tiles.size() == 13);
         return tiles;
-    }
-
-    std::vector<Tile>::const_iterator Wall::draw_begin() const {
-        return tiles_.cbegin() + 52;
-    }
-
-    std::vector<Tile>::const_iterator Wall::draw_end() const {
-        return tiles_.cbegin() + 122;
     }
 
     Tile Wall::KanDraw() {
@@ -72,7 +62,7 @@ namespace mj
 
     bool Wall::HasDrawLeft() const {
         assert(abs(num_kan_draw_ - num_kan_dora_) <= 1);
-        return itr_curr_draw_ + num_kan_draw_ != draw_end();
+        return draw_ix_ + num_kan_draw_ < 122;
     }
 
     std::vector<Tile> Wall::dora_indicators() const {

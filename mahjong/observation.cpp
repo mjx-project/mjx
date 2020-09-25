@@ -19,16 +19,30 @@ namespace mj
         proto_.mutable_possible_actions()->Add(std::move(possible_action.possible_action_));
     }
 
-    Observation::Observation(AbsolutePos who, const mjproto::State &state) {
-        // proto_.mutable_player_ids()->CopyFrom(state.player_ids());
-        proto_.mutable_init_score()->CopyFrom(state.init_score());
-        // proto_.mutable_doras()->CopyFrom(state.doras());
-        proto_.mutable_event_history()->CopyFrom(state.event_history());
+    Observation::Observation(AbsolutePos who, mjproto::State &state) {
+        proto_.mutable_player_ids()->CopyFrom(state.player_ids());
+        proto_.set_allocated_init_score(state.mutable_init_score());
+        proto_.mutable_doras()->CopyFrom(state.doras());
+        proto_.set_allocated_event_history(state.mutable_event_history());
         proto_.set_who(mjproto::AbsolutePos(who));
-        // proto_.mutable_private_info()->CopyFrom(state.private_infos(ToUType(who)));
+        proto_.set_allocated_private_info(state.mutable_private_infos(ToUType(who)));
     }
 
     bool Observation::has_possible_action() const {
         return !proto_.possible_actions().empty();
+    }
+
+    std::string Observation::ToJson() const {
+        std::string serialized;
+        auto status = google::protobuf::util::MessageToJsonString(proto_, &serialized);
+        assert(status.ok());
+        return serialized;
+    }
+
+    Observation::~Observation() {
+        // Stateクラスに実体があるmjprotoを破棄するのを防ぐ
+        proto_.release_init_score();
+        proto_.release_event_history();
+        proto_.release_private_info();
     }
 }

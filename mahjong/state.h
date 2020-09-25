@@ -45,9 +45,13 @@ namespace mj
         [[nodiscard]] std::array<std::int32_t, 4> tens() const;
         [[nodiscard]] std::uint8_t init_riichi() const;
         [[nodiscard]] std::array<std::int32_t, 4> init_tens() const;
-    private:
+
+        // comparison
+        bool Equals(const State& other) const noexcept ;
+        bool CanReach(const State& other) const noexcept ;
+   private:
         // protos
-        mjproto::State state_;
+        mutable mjproto::State state_;  // mutable because Observation constructor uses state_ as mutable to avoid copy
         mjproto::Score curr_score_;  // Using state_.terminal.final_score gives wrong serialization when round is not finished.
         // container classes
         Wall wall_;
@@ -72,6 +76,7 @@ namespace mj
         bool require_kan_draw_ = false;
         int require_kan_dora_ = 0;  // 加槓 => 暗槓が続いたときに2回連続でカンドラを開く場合がある https://github.com/sotetsuk/mahjong/issues/199
         std::unordered_map<AbsolutePos, bool> is_ippatsu_ = {{AbsolutePos::kInitEast, false}, {AbsolutePos::kInitSouth, false}, {AbsolutePos::kInitWest, false}, {AbsolutePos::kInitNorth, false}};
+        bool is_robbing_kan = false;
 
         // accessors
         [[nodiscard]] const Player& player(AbsolutePos pos) const;
