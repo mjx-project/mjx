@@ -710,8 +710,14 @@ namespace mj
             bool valid = true;
             for (int set_start : {start, start + 9, start + 18}) {
                 TileTypeCount count;
+                bool has_kotsu = false;
+                // ３個の刻子をもつ
                 count[static_cast<TileType>(set_start)] = 3;
-                if (pons.count(count) == 0) {
+                has_kotsu |= (pons.count(count) != 0);
+                // ４個の刻子（槓子）をもつ
+                count[static_cast<TileType>(set_start)] = 4;
+                has_kotsu |= (pons.count(count) != 0);
+                if (!has_kotsu) {
                     valid = false;
                     break;
                 }
