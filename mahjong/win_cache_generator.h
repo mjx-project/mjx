@@ -16,6 +16,7 @@ namespace mj
     {
     public:
         static void GenerateCache() noexcept ;
+        static void GenerateTenpaiCache() noexcept ;
     private:
         [[nodiscard]] static std::vector<TileTypeCount> CreateSets() noexcept ;
         [[nodiscard]] static std::vector<TileTypeCount> CreateHeads() noexcept ;
@@ -25,6 +26,7 @@ namespace mj
                 WinHandCache::CacheType& cache) noexcept ;
         static void Add(TileTypeCount& total, const TileTypeCount& block) noexcept ;
         static void Sub(TileTypeCount& total, const TileTypeCount& block) noexcept ;
+        static std::unordered_set<AbstructHand> ReduceTile(const AbstructHand& hand) noexcept ;
         static void ShowStatus(const WinHandCache::CacheType& cache) noexcept ;
     };
 }  // namespace mj

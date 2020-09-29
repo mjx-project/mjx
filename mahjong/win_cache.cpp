@@ -13,6 +13,7 @@ namespace mj {
 
     WinHandCache::WinHandCache() {
         LoadWinCache();
+        LoadTenpaiCache();
     }
 
     void WinHandCache::LoadWinCache() {
@@ -35,8 +36,28 @@ namespace mj {
         assert(cache_.size() == 9362);
     }
 
+    void WinHandCache::LoadTenpaiCache() {
+        boost::property_tree::ptree root;
+        boost::property_tree::read_json(std::string(WIN_CACHE_DIR) + "/tenpai_cache.json", root);
+        for (auto& hand_pt : root.get_child("data")) {
+            tenpai_cache_.insert(hand_pt.second.get_value<std::string>());
+        }
+        assert(tenpai_cache_.size() == 34539);
+    }
+
+    bool WinHandCache::Has(const std::vector<int>& closed_hand) const noexcept {
+        auto abstruct_hand = CreateAbstructHand(closed_hand);  // E.g., abstruct_hand = "222,111,3,2"
+        if (cache_.count(abstruct_hand)) return true;
+        // 国士無双
+        for (int i = 0; i < 34; ++i) {
+            if (Is(TileType(i), TileSetType::kYaocyu) and closed_hand[i] == 0) return false;
+            if (!Is(TileType(i), TileSetType::kYaocyu) and closed_hand[i] > 0) return false;
+        }
+        return true;
+    }
+
     bool WinHandCache::Has(const TileTypeCount& closed_hand) const noexcept {
-        auto [abstruct_hand, _] = CreateAbstructHand(closed_hand);  // E.g., abstructed_hand = "222,111,3,2"
+        auto abstruct_hand = CreateAbstructHand(closed_hand);
         if (cache_.count(abstruct_hand)) return true;
         // 国士無双
         for (const auto& [tile_type, n] : closed_hand) {
@@ -44,15 +65,32 @@ namespace mj {
         }
         return closed_hand.size() == 13;
     }
-    std::unordered_set<TileType> WinHandCache::Machi(TileTypeCount closed_hand) const noexcept {
-        std::unordered_set<TileType> machi;
+
+    bool WinHandCache::Tenpai(const std::vector<int>& closed_hand) const noexcept {
+        auto abstruct_hand = CreateAbstructHand(closed_hand);  // E.g., abstruct_hand = "222,111,2,2"
+        if (tenpai_cache_.count(abstruct_hand)) return true;
+        // 国士無双
+        int types = 0;
         for (int i = 0; i < 34; ++i) {
-            auto type = static_cast<TileType>(i);
-            ++closed_hand[type];
-            if (Has(closed_hand)) machi.insert(TileType(i));
-            if (--closed_hand[type] == 0) {
-                closed_hand.erase(type);
-            };
+            if (Is(TileType(i), TileSetType::kYaocyu) and closed_hand[i] > 0) ++types;
+            if (!Is(TileType(i), TileSetType::kYaocyu) and closed_hand[i] > 0) return false;
+        }
+        return types >= 12;
+    }
+
+    std::unordered_set<TileType> WinHandCache::Machi(const TileTypeCount& closed_hand) const noexcept {
+        std::unordered_set<TileType> machi;
+        std::vector<int> tile_counts(34);
+        for (const auto& [type, n] : closed_hand) {
+            tile_counts[static_cast<int>(type)] = n;
+        }
+
+        if (!Tenpai(tile_counts)) return machi;
+
+        for (int i = 0; i < 34; ++i) {
+            ++tile_counts[i];
+            if (Has(tile_counts)) machi.insert(TileType(i));
+            --tile_counts[i];
         }
         return machi;
     }
@@ -73,7 +111,8 @@ namespace mj {
         //     14:1 15:1 16:1
         //   heads:
         //     17:2
-        auto [abstruct_hand, tile_types] = CreateAbstructHand(closed_hand);
+        //auto [abstruct_hand, tile_types] = CreateAbstructHand(closed_hand);
+        auto [abstruct_hand, tile_types] = CreateAbstructHandWithTileTypes(closed_hand);
         using Sets = std::vector<TileTypeCount>;
         using Heads = std::vector<TileTypeCount>;
         std::vector<std::pair<Sets, Heads>> ret;

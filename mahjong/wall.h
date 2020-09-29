@@ -39,12 +39,10 @@ namespace mj
         std::uint32_t round_;
         std::uint32_t seed_;
         std::vector<Tile> tiles_;
-        std::vector<Tile>::const_iterator itr_curr_draw_;
+        int draw_ix_ = 52;
         int num_kan_draw_ = 0;
         int num_kan_dora_ = 0;
 
-        [[nodiscard]] std::vector<Tile>::const_iterator draw_begin() const;
-        [[nodiscard]] std::vector<Tile>::const_iterator draw_end() const;
         static TileType IndicatorToDora(Tile dora_indicator);
     };
 }  // namespace mj

@@ -15,6 +15,7 @@ namespace mj
     {
     public:
         Observation() = default;
+        ~Observation();
 
         AbsolutePos who() const;
         [[nodiscard]] bool has_possible_action() const;
@@ -27,7 +28,7 @@ namespace mj
     private:
         friend class AgentClient;
         friend class State;
-        Observation(AbsolutePos who, const mjproto::State& state);
+        Observation(AbsolutePos who, mjproto::State& state);
         mjproto::Observation proto_ = mjproto::Observation{};
     };
 }
