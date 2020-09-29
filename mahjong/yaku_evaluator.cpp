@@ -716,7 +716,7 @@ namespace mj
                 has_kotsu |= pons.count(count);
                 // ４個の刻子（槓子）をもつ
                 count[static_cast<TileType>(set_start)] = 4;
-                has_kotsu |= (pons.count(count) != 0);
+                has_kotsu |= pons.count(count);
                 if (!has_kotsu) {
                     valid = false;
                     break;
