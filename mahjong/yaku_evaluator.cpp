@@ -1127,10 +1127,10 @@ namespace mj
         if (win_info.hand.stage == HandStage::kAfterRon) return false;  // ロンのときは四暗刻単騎のみ
         if (all_tile_types.size() != 5) return false;
 
-        // ２個以下の要素は一つだけ
-        int count=0;
-        for (auto tile_type: all_tile_types){
-            count += tile_type.second <= 2;
+        // ２個以下の要素は１つだけ
+        int count = 0;
+        for (const auto &[type, cnt]: all_tile_types){
+            count += cnt <= 2;
         }
         if(count > 1) return false;
 
@@ -1145,10 +1145,10 @@ namespace mj
         if (!win_info.hand.is_menzen) return false;
         if (all_tile_types.size() != 5) return false;
 
-        // ２個以下の要素は一つだけ
-        int count=0;
-        for (auto tile_type: all_tile_types){
-            count += tile_type.second <= 2;
+        // ２個以下の要素は１つだけ
+        int count = 0;
+        for (const auto &[type, cnt]: all_tile_types){
+            count += cnt <= 2;
         }
         if(count > 1) return false;
 
