@@ -51,7 +51,7 @@ namespace mj
         bool CanReach(const State& other) const noexcept ;
    private:
         // protos
-        mutable mjproto::State state_;  // mutable because Observation constructor uses state_ as mutable to avoid copy
+        mjproto::State state_;
         mjproto::Score curr_score_;  // Using state_.terminal.final_score gives wrong serialization when round is not finished.
         // container classes
         Wall wall_;
