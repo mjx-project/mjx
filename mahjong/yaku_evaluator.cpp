@@ -1133,6 +1133,13 @@ namespace mj
         if (win_info.hand.stage == HandStage::kAfterRon) return false;  // ロンのときは四暗刻単騎のみ
         if (all_tile_types.size() != 5) return false;
 
+        // ２個以下の要素は１つだけ
+        int count = 0;
+        for (const auto &[type, cnt]: all_tile_types){
+            count += cnt <= 2;
+        }
+        if(count > 1) return false;
+
         assert(win_info.hand.win_tile);
         const TileType tsumo_type = win_info.hand.win_tile.value().Type();
 
@@ -1143,6 +1150,13 @@ namespace mj
         const auto& all_tile_types = win_info.hand.all_tile_types;
         if (!win_info.hand.is_menzen) return false;
         if (all_tile_types.size() != 5) return false;
+
+        // ２個以下の要素は１つだけ
+        int count = 0;
+        for (const auto &[type, cnt]: all_tile_types){
+            count += cnt <= 2;
+        }
+        if(count > 1) return false;
 
         assert(win_info.hand.win_tile);
         const TileType tsumo_type = win_info.hand.win_tile.value().Type();
