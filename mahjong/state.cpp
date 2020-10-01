@@ -275,6 +275,7 @@ namespace mj
     }
 
     void State::Riichi(AbsolutePos who) {
+        assert(ten(who) > 1000);
         mutable_player(who).Riichi(is_first_turn_wo_open);
 
         last_event_ = Event::CreateRiichi(who);
