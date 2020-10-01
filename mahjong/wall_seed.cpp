@@ -1,5 +1,6 @@
 #include "wall_seed.h"
 #include <random>
+#include <cassert>
 
 namespace mj {
 
