@@ -328,12 +328,10 @@ namespace mj
     std::vector<Open> Hand::PossibleKanClosed() const {
         assert(Any(stage_, {HandStage::kAfterDraw, HandStage::kAfterDrawAfterKan}));
         assert(SizeClosed() == 2 || SizeClosed() == 5 || SizeClosed() == 8 || SizeClosed() == 11 || SizeClosed() == 14);
-        std::unordered_map<TileType, std::uint8_t> m;
-        for (const auto t : closed_tiles_) ++m[t.Type()];
         auto v = std::vector<Open>();
+        auto closed_tile_type_count = ClosedTileTypes();
         //リーチ、リーチ以外で場合わけ
         if(IsUnderRiichi()){
-            auto closed_tile_type_count = ClosedTileTypes();
             auto last_type = last_tile_added_.value().Type();
             if(closed_tile_type_count[last_type] == 4){
                 closed_tile_type_count[last_type] = 3;
@@ -342,14 +340,14 @@ namespace mj
                 closed_tile_type_count.erase(last_type);
                 auto machi_after_kan = WinHandCache::instance().Machi(closed_tile_type_count);
                 if(machi==machi_after_kan){
-                    v.push_back(KanClosed::Create(Tile(static_cast<std::uint8_t>(last_type) * 4)));
+                    v.push_back(KanClosed::Create(Tile(ToUType(last_type) * 4)));
                 }
             }
         }
         else{
-            for (const auto &[tile,cnt]: m) {
+            for (const auto &[tile,cnt]: closed_tile_type_count) {
                 if (cnt == 4) {
-                    v.push_back(KanClosed::Create(Tile(static_cast<std::uint8_t>(tile) * 4)));
+                    v.push_back(KanClosed::Create(Tile(ToUType(tile) * 4)));
                 }
             }
         }
