@@ -331,30 +331,26 @@ namespace mj
         std::unordered_map<TileType, std::uint8_t> m;
         for (const auto t : closed_tiles_) ++m[t.Type()];
         auto v = std::vector<Open>();
-        auto closed_tile_type_count = ClosedTileTypes();
-        if(closed_tile_type_count[last_tile_added_->Type()] == 4){
-            closed_tile_type_count[last_tile_added_->Type()] = 3;
-        }
-        auto machi = WinHandCache::instance().Machi(closed_tile_type_count);
-        for (const auto &[tile,cnt]: m) {
-            if (cnt == 4) {
-                if(IsUnderRiichi()){
-                    // カン前後の待ちを比較する
-                    closed_tile_type_count.erase(tile);
-                    auto machi_after_kan = WinHandCache::instance().Machi(closed_tile_type_count);
-                    int a = machi_after_kan.size();
-                    int b = machi.size();
-                    std::unordered_set<TileType> result;
-                    std::set_symmetric_difference(
-                            machi.begin(),
-                            machi.end(),
-                            WinHandCache::instance().Machi(closed_tile_type_count).begin(),
-                            WinHandCache::instance().Machi(closed_tile_type_count).end(),
-                            std::inserter(result, result.end()));
-                    closed_tile_type_count.emplace(tile,cnt);
-                    if(result.size()>0) continue;
+        //リーチ、リーチ以外で場合わけ
+        if(IsUnderRiichi()){
+            auto closed_tile_type_count = ClosedTileTypes();
+            auto last_type = last_tile_added_.value().Type();
+            if(closed_tile_type_count[last_type] == 4){
+                closed_tile_type_count[last_type] = 3;
+                auto machi = WinHandCache::instance().Machi(closed_tile_type_count);
+                // カン前後の待ちを比較する
+                closed_tile_type_count.erase(last_type);
+                auto machi_after_kan = WinHandCache::instance().Machi(closed_tile_type_count);
+                if(machi==machi_after_kan){
+                    v.push_back(KanClosed::Create(Tile(static_cast<std::uint8_t>(last_type) * 4)));
                 }
-                v.push_back(KanClosed::Create(Tile(static_cast<std::uint8_t>(tile) * 4)));
+            }
+        }
+        else{
+            for (const auto &[tile,cnt]: m) {
+                if (cnt == 4) {
+                    v.push_back(KanClosed::Create(Tile(static_cast<std::uint8_t>(tile) * 4)));
+                }
             }
         }
         return v;
