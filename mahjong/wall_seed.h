@@ -1,16 +1,15 @@
 #ifndef MAHJONG_WALL_SEED_H
 #define MAHJONG_WALL_SEED_H
 
-#include <array>
+#include <random>
 
 namespace mj {
-    const int WALL_SEED_NUM = 2;
-
     class WallSeed {
     public:
-        std::array<std::uint32_t, WALL_SEED_NUM> seeds, round_offset, honba_offset;
+        std::uint64_t seed, round_offset, honba_offset;
         WallSeed();
-        std::uint32_t Get(int idx, int round, int honba) const;
+        std::uint64_t Get(int round, int honba) const;
+        std::mt19937_64& mt();
     };
 } // namespace mj
 

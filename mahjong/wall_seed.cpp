@@ -5,18 +5,18 @@
 namespace mj {
 
     WallSeed::WallSeed() {
-        std::random_device seed_gen;
-        for (int i = 0; i < WALL_SEED_NUM; ++i) {
-            seeds[i] = seed_gen();
-            round_offset[i] = seed_gen();
-            honba_offset[i] = seed_gen();
-        }
+        seed = mt()();
+        round_offset = mt()();
+        honba_offset = mt()();
     }
 
-    std::uint32_t WallSeed::Get(int idx, int round, int honba) const {
-        assert(0 <= idx and idx < WALL_SEED_NUM);
-        using u64 = std::uint64_t;
-        const u64 MASK = (1ul << 32u) - 1;
-        return ((u64)seeds[idx] + (u64)round_offset[idx] * round + (u64)honba_offset[idx] * honba) & MASK;
+    std::uint64_t WallSeed::Get(int round, int honba) const {
+        using i128 = __uint128_t;
+        return (i128)seed + (i128)round_offset * round + (i128)honba_offset * honba;
+    }
+
+    std::mt19937_64& WallSeed::mt() {
+        static std::mt19937_64 mt(std::random_device{}());
+        return mt;
     }
 }
