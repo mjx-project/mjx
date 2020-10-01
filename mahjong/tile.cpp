@@ -71,6 +71,16 @@ namespace mj
         return tiles;
     }
 
+    std::vector<Tile> Tile::CreateAllShuffled(WallSeed seeds, int round, int honba) noexcept {
+        auto ids = std::vector<TileId>(136);
+        std::iota(ids.begin(), ids.end(), 0);
+        auto tiles = Tile::Create(ids, true);
+        for (int i = 0; i < WALL_SEED_NUM; ++i) {
+            std::shuffle(tiles.begin(), tiles.end(), std::mt19937(seeds.Get(i, round, honba)));
+        }
+        return tiles;
+    }
+
     TileId Tile::Id() const noexcept {
         assert(IsValid());
         return tile_id_;
