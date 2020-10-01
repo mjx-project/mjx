@@ -416,6 +416,20 @@ TEST(hand, PossibleOpensAfterDraw) {
     EXPECT_EQ(possible_opens.at(0).At(0).Type(), TileType::kM1);
     EXPECT_EQ(possible_opens.at(1).Type(), OpenType::kKanAdded);
     EXPECT_EQ(possible_opens.at(1).At(0).Type(), TileType::kM9);
+
+    // リーチ後のカンで待ちが変わるときにはカンできない
+    // リーチ後だけどカンできる場合
+    h = Hand(HandParams("s3,s3,s3,s5,s6,s6,s6,wd,wd,wd,rd,rd,rd").Riichi());
+    h.Draw(Tile("s3",3));
+    possible_opens = h.PossibleOpensAfterDraw();
+    EXPECT_EQ(possible_opens.size(), 1);
+    EXPECT_EQ(possible_opens.front().Type(), OpenType::kKanClosed);
+    EXPECT_EQ(possible_opens.front().At(0).Type(), TileType::kS3);
+    // リーチ後でカンできない場合
+    h = Hand(HandParams("s3,s3,s3,s5,s6,s6,s6,wd,wd,wd,rd,rd,rd").Riichi());
+    h.Draw(Tile("s6",3));
+    possible_opens = h.PossibleOpensAfterDraw();
+    EXPECT_EQ(possible_opens.size(), 0);
 }
 
 TEST(hand, Size) {
