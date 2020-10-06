@@ -1,23 +1,23 @@
-project(${CMAKE_PROJECT_NAME}_test)
+project(${PROJECT_NAME}_test)
 
 # Clone Google Test
-set(GOOGLETEST_DIR ${CMAKE_SOURCE_DIR}/test/lib/googletest)
+set(GOOGLETEST_DIR ${CMAKE_CURRENT_SOURCE_DIR}/lib/googletest)
 if(NOT EXISTS ${GOOGLETEST_DIR})
     find_package(Git REQUIRED)
     execute_process(
-        COMMAND ${GIT_EXECUTABLE} clone https://github.com/google/googletest ${GOOGLETEST_DIR}
+            COMMAND ${GIT_EXECUTABLE} clone https://github.com/google/googletest ${GOOGLETEST_DIR}
     )
 endif()
 
-include_directories(${CMAKE_BINARY_DIR}/mahjong)  # to include generated gRPC files
+include_directories(${CMAKE_CURRENT_BINARY_DIR}/mahjong)  # to include generated gRPC files
 include_directories(${gtest_SOURCE_DIR}/include ${gtest_SOURCE_DIR})
-add_subdirectory(lib/googletest)
+add_subdirectory(${GOOGLETEST_DIR})
 
 file(GLOB TEST_FILES *.cpp)
-add_executable(${CMAKE_PROJECT_NAME}_test ${TEST_FILES})
+add_executable(${PROJECT_NAME}_test ${TEST_FILES})
 
-target_link_libraries(${CMAKE_PROJECT_NAME}_test gtest gtest_main)
-target_link_libraries(${CMAKE_PROJECT_NAME}_test ${CMAKE_PROJECT_NAME})
+target_link_libraries(${PROJECT_NAME}_test gtest gtest_main)
+target_link_libraries(${PROJECT_NAME}_test ${PROJECT_NAME})
 
 # Path to test resources
 add_definitions(-DTEST_RESOURCES_DIR="${CMAKE_CURRENT_SOURCE_DIR}/resources")

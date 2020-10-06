@@ -1,4 +1,4 @@
-project(${CMAKE_PROJECT_NAME})
+project(${PROJECT_NAME})
 
 ####################################################################################
 # For Boost
@@ -51,7 +51,7 @@ include_directories("${CMAKE_CURRENT_BINARY_DIR}")
 # Targets for quick gRPC execution test
 foreach(_target
         agent_server_mock)
-        # agent_server_mock agent_client)
+    # agent_server_mock agent_client)
     add_executable(${_target} "${_target}.cpp"
             ${mj_proto_srcs}
             ${mj_grpc_srcs})
@@ -67,9 +67,9 @@ endforeach()
 
 file(GLOB SOURCE_FILES *.cpp)
 file(GLOB HEADER_FILES *.h)
-add_library(${CMAKE_PROJECT_NAME} STATIC
+add_library(${PROJECT_NAME} STATIC
         ${SOURCE_FILES} ${HEADER_FILES} ${mj_proto_srcs} ${mj_grpc_srcs})
-target_link_libraries(${CMAKE_PROJECT_NAME} ${_REFLECTION} ${_GRPC_GRPCPP} ${_PROTOBUF_LIBPROTOBUF})
+target_link_libraries(${PROJECT_NAME} ${_REFLECTION} ${_GRPC_GRPCPP} ${_PROTOBUF_LIBPROTOBUF})
 
 ####################################################################################
 # For winning hand cache
@@ -78,4 +78,4 @@ add_definitions(-DWIN_CACHE_DIR="${CMAKE_CURRENT_SOURCE_DIR}/cache")
 
 # Generate cache file
 add_executable(win_cache_generator win_cache_generator.cpp)
-target_link_libraries(win_cache_generator ${CMAKE_PROJECT_NAME})
+target_link_libraries(win_cache_generator ${PROJECT_NAME})
