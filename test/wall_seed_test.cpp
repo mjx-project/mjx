@@ -1,5 +1,5 @@
 #include "gtest/gtest.h"
-#include "wall_seed.h"
+#include <mahjong/wall_seed.h>
 
 using namespace mj;
 

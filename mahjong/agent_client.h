@@ -2,7 +2,7 @@
 #define MAHJONG_AGENT_CLIENT_H
 
 #include <grpcpp/grpcpp.h>
-#include <mahjong.grpc.pb.h>
+#include "mahjong.grpc.pb.h"
 #include "action.h"
 #include "observation.h"
 

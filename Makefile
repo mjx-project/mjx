@@ -1,4 +1,5 @@
 clean:
+	rm mahjong/*.pb.cc mahjong/*.pb.h
 	rm -rf build
 	rm -rf docker-build
 

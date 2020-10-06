@@ -1,10 +1,10 @@
 #ifndef MAHJONG_OBSERVATION_H
 #define MAHJONG_OBSERVATION_H
 
-#include <mahjong.pb.h>
-
 #include <utility>
 #include <array>
+
+#include "mahjong.pb.h"
 #include "hand.h"
 #include "action.h"
 #include "player.h"

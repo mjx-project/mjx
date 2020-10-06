@@ -1,6 +1,6 @@
-#include "player.h"
-
 #include <utility>
+
+#include "player.h"
 #include "utils.h"
 #include "yaku_evaluator.h"
 

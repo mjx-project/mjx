@@ -13,3 +13,5 @@ tenhou/resources/*
 !tenhou/resources/.gitkeep
 test/resources/*
 !test/resources/.gitkeep
+*.pb.cc
+*.pb.h

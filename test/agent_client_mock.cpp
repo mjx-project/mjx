@@ -1,6 +1,6 @@
 #include "gtest/gtest.h"
-#include "state.h"
-#include "agent_client_mock.h"
+#include <mahjong/state.h>
+#include <mahjong/agent_client_mock.h>
 
 using namespace mj;
 
