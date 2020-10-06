@@ -1,7 +1,7 @@
 #ifndef MAHJONG_AGENT_SERVER_H
 #define MAHJONG_AGENT_SERVER_H
 
-#include <mahjong.grpc.pb.h>
+#include "mahjong.grpc.pb.h"
 
 namespace mj
 {

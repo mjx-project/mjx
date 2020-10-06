@@ -2,8 +2,8 @@
 #include <fstream>
 #include <filesystem>
 #include <queue>
-#include "state.h"
-#include "utils.h"
+#include <mahjong/state.h>
+#include <mahjong/utils.h>
 #include <thread>
 #include <google/protobuf/util/message_differencer.h>
 

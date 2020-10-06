@@ -28,23 +28,22 @@ get_filename_component(mj_proto "../protos/mahjong.proto" ABSOLUTE)
 get_filename_component(mj_proto_path "${mj_proto}" PATH)
 
 # Generated sources
-set(mj_proto_srcs "${CMAKE_CURRENT_BINARY_DIR}/mahjong.pb.cc")
-set(mj_proto_hdrs "${CMAKE_CURRENT_BINARY_DIR}/mahjong.pb.h")
-set(mj_grpc_srcs "${CMAKE_CURRENT_BINARY_DIR}/mahjong.grpc.pb.cc")
-set(mj_grpc_hdrs "${CMAKE_CURRENT_BINARY_DIR}/mahjong.grpc.pb.h")
-message("CMAKE_CURRENT_BINARY_DIR = ${CMAKE_CURRENT_BINARY_DIR}")
+set(mj_proto_srcs "${CMAKE_CURRENT_SOURCE_DIR}/mahjong.pb.cc")
+set(mj_proto_hdrs "${CMAKE_CURRENT_SOURCE_DIR}/mahjong.pb.h")
+set(mj_grpc_srcs "${CMAKE_CURRENT_SOURCE_DIR}/mahjong.grpc.pb.cc")
+set(mj_grpc_hdrs "${CMAKE_CURRENT_SOURCE_DIR}/mahjong.grpc.pb.h")
 add_custom_command(
         OUTPUT "${mj_proto_srcs}" "${mj_proto_hdrs}" "${mj_grpc_srcs}" "${mj_grpc_hdrs}"
         COMMAND ${_PROTOBUF_PROTOC}
-        ARGS --grpc_out "${CMAKE_CURRENT_BINARY_DIR}"
-        --cpp_out "${CMAKE_CURRENT_BINARY_DIR}"
+        ARGS --grpc_out "${CMAKE_CURRENT_SOURCE_DIR}"
+        --cpp_out "${CMAKE_CURRENT_SOURCE_DIR}"
         -I "${mj_proto_path}"
         --plugin=protoc-gen-grpc="${_GRPC_CPP_PLUGIN_EXECUTABLE}"
         "${mj_proto}"
         DEPENDS "${mj_proto}")
 
 # Include generated *.pb.h files
-include_directories("${CMAKE_CURRENT_BINARY_DIR}")
+include_directories("${CMAKE_CURRENT_SOURCE_DIR}")
 
 # Targets for quick gRPC execution test
 

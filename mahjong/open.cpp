@@ -1,10 +1,8 @@
 #include <bitset>
-#include <bitset>
-
-#include <open.h>
-#include <iostream>
 #include <cassert>
 #include <algorithm>
+
+#include "open.h"
 
 namespace mj
 {

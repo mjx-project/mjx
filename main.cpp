@@ -1,5 +1,5 @@
 #include <iostream>
-#include "mahjong/agent_server_mock.h"
+#include <mahjong/agent_server_mock.h>
 
 int main() {
     std::unique_ptr<mj::AgentServer> mock_agent =  std::make_unique<mj::MockAgentServer>();

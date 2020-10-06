@@ -5,9 +5,9 @@
 #include <unordered_set>
 #include <set>
 #include <vector>
-
-#include <tile.h>
 #include <unordered_map>
+
+#include "tile.h"
 #include "open.h"
 #include "win_cache.h"
 #include "win_info.h"

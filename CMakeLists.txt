@@ -9,8 +9,7 @@ set(CMAKE_CXX_FLAGS "-Wall")
 set(SOURCE_FILES main.cpp)
 add_executable(${PROJECT_NAME}.out ${SOURCE_FILES})
 
-include_directories(mahjong)
-include_directories(${CMAKE_CURRENT_BINARY_DIR}/mahjong)  # to include generated gRPC files
+include_directories(.)
 
 add_subdirectory(mahjong)
 add_subdirectory(test)
