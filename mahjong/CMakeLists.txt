@@ -1,4 +1,4 @@
-project(${CMAKE_PROJECT_NAME})
+#project(${CMAKE_PROJECT_NAME})
 
 ####################################################################################
 # For Boost
