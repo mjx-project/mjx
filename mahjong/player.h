@@ -23,7 +23,7 @@ namespace mj
         bool IsCompleted() const;  // This does not take into account yaku and furiten
         bool CanRon(Tile tile, WinStateInfo &&win_state_info, std::bitset<34> missed_tiles) const;
         bool CanTsumo(WinStateInfo &&win_state_info) const;
-        bool CanRiichi(int32_t ten = 25000) const;
+        bool CanRiichi(int32_t ten = 25000) const;　// デフォルト25000点
         bool IsTenpai() const;
         bool IsUnderRiichi() const;
         bool CanNineTiles() const;
