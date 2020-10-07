@@ -67,7 +67,7 @@ namespace mj
         std::vector<Open> PossibleOpensAfterDraw() const;  // includes KanClosed and KanAdded
         bool IsCompleted() const;
         bool IsCompleted(Tile additional_tile) const;
-        bool CanRiichi(int32_t ten = 25000) const;
+        bool CanRiichi(int32_t ten = 25000) const; // デフォルト25000点
         bool IsTenpai() const;
         bool CanNineTiles() const;  // 九種九牌。一巡目かどうか等はState内で判断する。ここでは牌が九種九牌かどうかのみ
 
