@@ -69,7 +69,7 @@ namespace mj
                     }
 
                     // => Riichi (3)
-                    if (player(who).CanRiichi())
+                    if (player(who).CanRiichi(ten(who)))
                         observation.add_possible_action(PossibleAction::CreateRiichi());
 
                     // => Discard (4)
@@ -261,7 +261,6 @@ namespace mj
         if (Is(discard.Type(), TileSetType::kTanyao)) {
             has_nm[ToUType(who)] = false;
         }
-
         last_event_ = Event::CreateDiscard(who, discard, tsumogiri);
         last_discard_type_ = discard.Type();
         state_.mutable_event_history()->mutable_events()->Add(last_event_.proto());

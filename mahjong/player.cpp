@@ -42,10 +42,10 @@ namespace mj
         return YakuEvaluator::CanWin(WinInfo(std::move(win_state_info), hand_.win_info()).Ron(tile));
     }
 
-    bool Player::CanRiichi() const {
+    bool Player::CanRiichi(int32_t ten) const {
         if (hand_.IsUnderRiichi()) return false;
         // TODO: ツモ番があるかどうかをここで確認
-        return hand_.CanRiichi();
+        return hand_.CanRiichi(ten);
     }
 
     //bool Player::CanNineTiles(bool IsDealer) {
