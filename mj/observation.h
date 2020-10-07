@@ -27,6 +27,7 @@ namespace mj
     private:
         friend class AgentClient;
         friend class State;
+        friend class TrainDataGenerator;
         Observation(AbsolutePos who, const mjproto::State& state);
         mjproto::Observation proto_ = mjproto::Observation{};
     };

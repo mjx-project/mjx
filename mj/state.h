@@ -103,6 +103,11 @@ namespace mj
         // utils
         bool IsFourKanNoWinner() const noexcept ;
         std::optional<AbsolutePos> HasPao(AbsolutePos winner) const noexcept ;
+
+        friend class TrainDataGenerator;
+        void InitState(const mjproto::State &state);
+        void LoadEvents(const mjproto::EventHistory& event_history);
+        void LoadEvent(const mjproto::Event& event);
     };
 }  // namespace mj
 
