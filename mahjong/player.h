@@ -3,7 +3,7 @@
 
 #include "hand.h"
 #include "river.h"
-#include <mahjong.grpc.pb.h>
+#include "mahjong.grpc.pb.h"
 
 namespace mj
 {

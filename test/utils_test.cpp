@@ -1,6 +1,6 @@
 #include "gtest/gtest.h"
-#include "types.h"
-#include "utils.h"
+#include <mahjong/types.h>
+#include <mahjong/utils.h>
 
 using namespace mj;
 

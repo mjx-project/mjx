@@ -3,7 +3,7 @@
 
 #include <memory>
 #include <utility>
-#include <mahjong.pb.h>
+#include "mahjong.pb.h"
 #include "types.h"
 #include "tile.h"
 #include "open.h"

@@ -1,6 +1,6 @@
 #include "gtest/gtest.h"
 
-#include "win_score.h"
+#include <mahjong/win_score.h>
 
 using namespace mj;
 
