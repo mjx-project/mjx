@@ -1,5 +1,5 @@
 #include "gtest/gtest.h"
-#include <mahjong/types.h>
+#include <mj/types.h>
 
 using namespace mj;
 

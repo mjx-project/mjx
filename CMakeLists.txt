@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.9)
-project(mahjong)
+project(mj)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -11,7 +11,7 @@ add_executable(${PROJECT_NAME}.out ${SOURCE_FILES})
 
 include_directories(.)
 
-add_subdirectory(mahjong)
+add_subdirectory(mj)
 add_subdirectory(test)
 
 target_link_libraries(${PROJECT_NAME}.out ${PROJECT_NAME})

@@ -24,14 +24,14 @@ set(_GRPC_GRPCPP gRPC::grpc++)
 find_program(_GRPC_CPP_PLUGIN_EXECUTABLE grpc_cpp_plugin)
 
 # Proto file
-get_filename_component(mj_proto "../protos/mahjong.proto" ABSOLUTE)
+get_filename_component(mj_proto "../protos/mj.proto" ABSOLUTE)
 get_filename_component(mj_proto_path "${mj_proto}" PATH)
 
 # Generated sources
-set(mj_proto_srcs "${CMAKE_CURRENT_SOURCE_DIR}/mahjong.pb.cc")
-set(mj_proto_hdrs "${CMAKE_CURRENT_SOURCE_DIR}/mahjong.pb.h")
-set(mj_grpc_srcs "${CMAKE_CURRENT_SOURCE_DIR}/mahjong.grpc.pb.cc")
-set(mj_grpc_hdrs "${CMAKE_CURRENT_SOURCE_DIR}/mahjong.grpc.pb.h")
+set(mj_proto_srcs "${CMAKE_CURRENT_SOURCE_DIR}/mj.pb.cc")
+set(mj_proto_hdrs "${CMAKE_CURRENT_SOURCE_DIR}/mj.pb.h")
+set(mj_grpc_srcs "${CMAKE_CURRENT_SOURCE_DIR}/mj.grpc.pb.cc")
+set(mj_grpc_hdrs "${CMAKE_CURRENT_SOURCE_DIR}/mj.grpc.pb.h")
 add_custom_command(
         OUTPUT "${mj_proto_srcs}" "${mj_proto_hdrs}" "${mj_grpc_srcs}" "${mj_grpc_hdrs}"
         COMMAND ${_PROTOBUF_PROTOC}
@@ -58,7 +58,7 @@ include_directories("${CMAKE_CURRENT_SOURCE_DIR}")
 # endforeach()
 
 ####################################################################################
-# For mahjong library
+# For mj library
 ####################################################################################
 
 file(GLOB SOURCE_FILES *.cpp)

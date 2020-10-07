@@ -1,11 +1,11 @@
 .idea/*
-mahjong/cmake-build-debug/*
+mj/cmake-build-debug/*
 cmake-build-*/*
 build/*
 docker-build/*
 test/lib/*
-tenhou/mahjong_pb2.py
-tenhou/mahjong_pb2_grpc.py
+tenhou/mj_pb2.py
+tenhou/mj_pb2_grpc.py
 tenhou/.idea
 tenhou/venv
 tenhou/__pycache__
