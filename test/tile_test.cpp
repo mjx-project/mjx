@@ -1,5 +1,5 @@
 #include "gtest/gtest.h"
-#include <mahjong/tile.h>
+#include <mj/tile.h>
 
 using namespace mj;
 

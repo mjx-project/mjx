@@ -1,7 +1,7 @@
 #include <array>
 #include "gtest/gtest.h"
-#include <mahjong/tile.h>
-#include <mahjong/hand.h>
+#include <mj/tile.h>
+#include <mj/hand.h>
 
 using namespace mj;
 

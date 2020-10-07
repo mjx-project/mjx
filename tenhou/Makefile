@@ -1,8 +1,8 @@
 proto:
-	python -m grpc_tools.protoc -I ../protos --python_out=. --grpc_python_out=. ../protos/mahjong.proto
+	python -m grpc_tools.protoc -I ../protos --python_out=. --grpc_python_out=. ../protos/mj.proto
 
 clean:
-	rm mahjong_pb2.py mahjong_pb2_grpc.py
+	rm mj_pb2.py mj_pb2_grpc.py
 
 
 .PHONY:	proto clean

@@ -1,7 +1,7 @@
 #ifndef MAHJONG_AGENT_SERVER_MOCK_H
 #define MAHJONG_AGENT_SERVER_MOCK_H
 
-#include "mahjong.grpc.pb.h"
+#include "mj.grpc.pb.h"
 
 #include "agent_server.h"
 

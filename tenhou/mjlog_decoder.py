@@ -9,20 +9,20 @@ import xml.etree.ElementTree as ET
 from xml.etree.ElementTree import Element
 from google.protobuf import json_format
 
-import mahjong_pb2
+import mj_pb2
 
 
 class MjlogDecoder:
     def __init__(self):
         self.state = None
 
-    def parse(self, path_to_mjlog: str, wall_dices: List[Tuple[List[int], List[int]]], modify: bool) -> Iterator[mahjong_pb2.State]:
+    def parse(self, path_to_mjlog: str, wall_dices: List[Tuple[List[int], List[int]]], modify: bool) -> Iterator[mj_pb2.State]:
         tree = ET.parse(path_to_mjlog)
         root = tree.getroot()
         yield from self._parse_each_game(root, wall_dices, modify)
 
-    def _parse_each_game(self, root: Element, wall_dices: List[Tuple[List[int], List[int]]], modify: bool) -> Iterator[mahjong_pb2.State]:
-        state_ = mahjong_pb2.State()
+    def _parse_each_game(self, root: Element, wall_dices: List[Tuple[List[int], List[int]]], modify: bool) -> Iterator[mj_pb2.State]:
+        state_ = mj_pb2.State()
 
         assert root.tag == "mjloggm"
         assert root.attrib['ver'] == "2.3"
@@ -58,7 +58,7 @@ class MjlogDecoder:
             yield from self._parse_each_round(kv, wall, dices, modify)
             i += 1
 
-    def _parse_each_round(self, kv: List[Tuple[str, Dict[str, str]]], wall: List[int], dices: List[int], modify: bool) -> Iterator[mahjong_pb2.State]:
+    def _parse_each_round(self, kv: List[Tuple[str, Dict[str, str]]], wall: List[int], dices: List[int], modify: bool) -> Iterator[mj_pb2.State]:
         """Input examples
 
         - <INIT seed="0,0,0,2,2,112" ten="250,250,250,250" oya="0" hai0="48,16,19,34,2,76,13,7,128,1,39,121,87" hai1="17,62,79,52,56,57,82,98,32,103,24,70,54" hai2="55,30,12,26,31,90,3,4,80,125,66,102,78" hai3="120,130,42,67,114,93,5,61,20,108,41,100,84"/>
@@ -95,7 +95,7 @@ class MjlogDecoder:
         assert dora == wall[130]
         for i in range(4):
             self.state.private_infos.append(
-                mahjong_pb2.PrivateInfo(who=i,
+                mj_pb2.PrivateInfo(who=i,
                                         init_hand=[int(x) for x in val["hai" + str(i)].split(",")])
             )
         for i in range(4 * 12):
@@ -112,19 +112,19 @@ class MjlogDecoder:
                 who = MjlogDecoder._to_absolute_pos(key[0])
                 draw = int(key[1:])
                 self.state.private_infos[int(who)].draws.append(draw)
-                event = mahjong_pb2.Event(
+                event = mj_pb2.Event(
                     who=who,
-                    type=mahjong_pb2.EVENT_TYPE_DRAW,
+                    type=mj_pb2.EVENT_TYPE_DRAW,
                     # tile is set empty because this is private information
                 )
                 last_drawer, last_draw = who, draw
             elif key != "DORA" and key[0] in ["D", "E", "F", "G"]:  # discard
                 who = MjlogDecoder._to_absolute_pos(key[0])
                 discard = int(key[1:])
-                type_ = mahjong_pb2.EVENT_TYPE_DISCARD_FROM_HAND
+                type_ = mj_pb2.EVENT_TYPE_DISCARD_FROM_HAND
                 if last_drawer is not None and last_draw is not None and last_drawer == who and last_draw == discard:
-                    type_ = mahjong_pb2.EVENT_TYPE_DISCARD_DRAWN_TILE
-                event = mahjong_pb2.Event(
+                    type_ = mj_pb2.EVENT_TYPE_DISCARD_DRAWN_TILE
+                event = mj_pb2.Event(
                     who=who,
                     type=type_,
                     tile=discard,
@@ -133,7 +133,7 @@ class MjlogDecoder:
             elif key == "N":  # open
                 who = int(val["who"])
                 open = int(val["m"])
-                event = mahjong_pb2.Event(
+                event = mj_pb2.Event(
                     who=who,
                     type=MjlogDecoder._open_type(open),
                     open=open,
@@ -141,14 +141,14 @@ class MjlogDecoder:
             elif key == "REACH":
                 who = int(val["who"])
                 if int(val["step"]) == 1:
-                    event = mahjong_pb2.Event(
+                    event = mj_pb2.Event(
                         who=who,
-                        type=mahjong_pb2.EVENT_TYPE_RIICHI
+                        type=mj_pb2.EVENT_TYPE_RIICHI
                     )
                 else:
-                    event = mahjong_pb2.Event(
+                    event = mj_pb2.Event(
                         who=who,
-                        type=mahjong_pb2.EVENT_TYPE_RIICHI_SCORE_CHANGE
+                        type=mj_pb2.EVENT_TYPE_RIICHI_SCORE_CHANGE
                     )
                     self.state.terminal.final_score.riichi += 1
                     self.state.terminal.final_score.ten[who] -= 1000
@@ -159,8 +159,8 @@ class MjlogDecoder:
                 num_kan_dora += 1
                 self.state.doras.append(dora)
                 self.state.ura_doras.append(ura_dora)
-                event = mahjong_pb2.Event(
-                    type=mahjong_pb2.EVENT_TYPE_NEW_DORA,
+                event = mj_pb2.Event(
+                    type=mj_pb2.EVENT_TYPE_NEW_DORA,
                     tile=dora
                 )
             elif key == "RYUUKYOKU":
@@ -173,26 +173,26 @@ class MjlogDecoder:
                     hai_key = "hai" + str(i)
                     if hai_key not in val:
                         continue
-                    self.state.terminal.no_winner.tenpais.append(mahjong_pb2.TenpaiHand(
+                    self.state.terminal.no_winner.tenpais.append(mj_pb2.TenpaiHand(
                             who=i,
                             closed_tiles=[int(x) for x in val[hai_key].split(",")],
                     ))
                 if "type" in val:
                     no_winner_type = None
                     if val["type"] == "yao9":
-                        no_winner_type = mahjong_pb2.NO_WINNER_TYPE_KYUUSYU
+                        no_winner_type = mj_pb2.NO_WINNER_TYPE_KYUUSYU
                     elif val["type"] == "reach4":
-                        no_winner_type = mahjong_pb2.NO_WINNER_TYPE_FOUR_RIICHI
+                        no_winner_type = mj_pb2.NO_WINNER_TYPE_FOUR_RIICHI
                     elif val["type"] == "ron3":
-                        no_winner_type = mahjong_pb2.NO_WINNER_TYPE_THREE_RONS
+                        no_winner_type = mj_pb2.NO_WINNER_TYPE_THREE_RONS
                     elif val["type"] == "kan4":
-                        no_winner_type = mahjong_pb2.NO_WINNER_TYPE_FOUR_KANS
+                        no_winner_type = mj_pb2.NO_WINNER_TYPE_FOUR_KANS
                     elif val["type"] == "kan4":
-                        no_winner_type = mahjong_pb2.NO_WINNER_TYPE_FOUR_KANS
+                        no_winner_type = mj_pb2.NO_WINNER_TYPE_FOUR_KANS
                     elif val["type"] == "kaze4":
-                        no_winner_type = mahjong_pb2.NO_WINNER_TYPE_FOUR_WINDS
+                        no_winner_type = mj_pb2.NO_WINNER_TYPE_FOUR_WINDS
                     elif val["type"] == "nm":
-                        no_winner_type = mahjong_pb2.NO_WINNER_TYPE_NM
+                        no_winner_type = mj_pb2.NO_WINNER_TYPE_NM
                     assert no_winner_type is not None
                     self.state.terminal.no_winner.type = no_winner_type
                 if "owari" in val:
@@ -207,8 +207,8 @@ class MjlogDecoder:
                                 break
                     self.state.terminal.final_score.riichi = 0
                     self.state.terminal.is_game_over = True
-                event = mahjong_pb2.Event(
-                    type=mahjong_pb2.EVENT_TYPE_NO_WINNER
+                event = mj_pb2.Event(
+                    type=mj_pb2.EVENT_TYPE_NO_WINNER
                 )
             elif key == "AGARI":
                 reach_terminal = True
@@ -216,15 +216,15 @@ class MjlogDecoder:
                 who = int(val["who"])
                 from_who = int(val["fromWho"])
                 # set event
-                event = mahjong_pb2.Event(
+                event = mj_pb2.Event(
                     who=who,
-                    type=mahjong_pb2.EVENT_TYPE_TSUMO if who == from_who else mahjong_pb2.EVENT_TYPE_RON,
+                    type=mj_pb2.EVENT_TYPE_TSUMO if who == from_who else mj_pb2.EVENT_TYPE_RON,
                     tile=int(val["machi"])
                 )
                 # set win info
                 # TODO(sotetsuk): yakuman
                 # TODO(sotetsuk): check double ron behavior
-                win = mahjong_pb2.Win(
+                win = mj_pb2.Win(
                     who=who,
                     from_who=from_who,
                     closed_tiles=[int(x) for x in val["hai"].split(",")],
@@ -280,30 +280,30 @@ class MjlogDecoder:
         yield copy.deepcopy(self.state)
 
     @staticmethod
-    def _to_absolute_pos(pos_str: str) -> mahjong_pb2.AbsolutePos:
+    def _to_absolute_pos(pos_str: str) -> mj_pb2.AbsolutePos:
         assert pos_str in ["T", "U", "V", "W", "D", "E", "F", "G"]
         if pos_str in ["T", "D"]:
-            return mahjong_pb2.ABSOLUTE_POS_INIT_EAST
+            return mj_pb2.ABSOLUTE_POS_INIT_EAST
         elif pos_str in ["U", "E"]:
-            return mahjong_pb2.ABSOLUTE_POS_INIT_SOUTH
+            return mj_pb2.ABSOLUTE_POS_INIT_SOUTH
         elif pos_str in ["V", "F"]:
-            return mahjong_pb2.ABSOLUTE_POS_INIT_WEST
+            return mj_pb2.ABSOLUTE_POS_INIT_WEST
         elif pos_str in ["W", "G"]:
-            return mahjong_pb2.ABSOLUTE_POS_INIT_NORTH
+            return mj_pb2.ABSOLUTE_POS_INIT_NORTH
 
     @staticmethod
-    def _open_type(bits: int) -> mahjong_pb2.EventType:
+    def _open_type(bits: int) -> mj_pb2.EventType:
         if 1 << 2 & bits:
-            return mahjong_pb2.EVENT_TYPE_CHI
+            return mj_pb2.EVENT_TYPE_CHI
         elif 1 << 3 & bits:
-            return mahjong_pb2.EVENT_TYPE_PON
+            return mj_pb2.EVENT_TYPE_PON
         elif 1 << 4 & bits:
-            return mahjong_pb2.EVENT_TYPE_KAN_ADDED
+            return mj_pb2.EVENT_TYPE_KAN_ADDED
         else:
-            if mahjong_pb2.RELATIVE_POS_SELF == bits & 3:
-                return mahjong_pb2.EVENT_TYPE_KAN_CLOSED
+            if mj_pb2.RELATIVE_POS_SELF == bits & 3:
+                return mj_pb2.EVENT_TYPE_KAN_CLOSED
             else:
-                return mahjong_pb2.EVENT_TYPE_KAN_OPENED
+                return mj_pb2.EVENT_TYPE_KAN_OPENED
 
 
 # TODO: remove docker dependency
