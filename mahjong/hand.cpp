@@ -581,7 +581,7 @@ namespace mj
                 [](const auto &x){ return x.Type() == OpenType::kKanClosed; });
     }
 
-    bool Hand::CanRiichi(int32_t ten) const {
+    bool Hand::CanRiichi(std::int32_t ten) const {
         // TODO: use different cache might become faster
         assert(Any(stage_, {HandStage::kAfterDraw, HandStage::kAfterDrawAfterKan}));
         assert(SizeClosed() == 2 || SizeClosed() == 5 || SizeClosed() == 8 || SizeClosed() == 11 || SizeClosed() == 14);
