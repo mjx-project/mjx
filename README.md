@@ -36,6 +36,19 @@ $ make docker-clion-start
 
 Clion側の設定は [clion/README.md](./clion/README.md) を参照。
 
+## Usage
+
+`mj/mj.h` をincludeすることで使用できる。
+
+```cpp
+#include <mj/mj.h>
+
+int main() {
+    auto t = mj::Tile("m1");
+    return 0;
+}
+```
+
 ## Tenhou/mjlog
 天鳳から天鳳位などの牌譜をダウンロードすると、基本的に `.mjlog` という拡張子のファイルが得られる。これはそのままWindows版の天鳳で観戦することができる。このファイルの中身をテキストエディタ等で直接編集したい場合は、一度 `.gz` 形式になおしてから解凍する必要がある[[1](http://rausumaru.hatenablog.com/entry/2019/08/30/021154)]。名前の匿名表示のオンオフはプレミアム版で設定可能らしい（要確認）。
 
