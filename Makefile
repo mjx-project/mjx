@@ -1,5 +1,6 @@
 clean:
-	rm mahjong/*.pb.cc mahjong/*.pb.h
+	rm tenhou/*pb2.py tenhou/*pb2_grpc.py
+	rm mj/*.pb.cc mj/*.pb.h
 	rm -rf build
 	rm -rf docker-build
 
@@ -7,7 +8,7 @@ build:
 	mkdir -p build && cd build && cmake .. && make -j
 
 test: build
-	./build/test/mahjong_test
+	./build/test/mj_test
 
 all: clean test
 
@@ -15,7 +16,7 @@ docker-build:
 	docker run -it -v ${CURDIR}:/mahjong sotetsuk/ubuntu-gcc-grpc:latest  /bin/bash -c "cd /mahjong && mkdir -p docker-build && cd docker-build && cmake .. && make -j"
 
 docker-test: docker-build
-	docker run -it -v ${CURDIR}:/mahjong sotetsuk/ubuntu-gcc-grpc:latest  /bin/bash -c "/mahjong/docker-build/test/mahjong_test"
+	docker run -it -v ${CURDIR}:/mahjong sotetsuk/ubuntu-gcc-grpc:latest  /bin/bash -c "/mahjong/docker-build/test/mj_test"
 
 docker-all: clean docker-test
 

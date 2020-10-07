@@ -1,7 +1,7 @@
 #include "gtest/gtest.h"
-#include <mahjong/yaku_evaluator.h>
-#include <mahjong/types.h>
-#include <mahjong/hand.h>
+#include <mj/yaku_evaluator.h>
+#include <mj/types.h>
+#include <mj/hand.h>
 
 using namespace mj;
 

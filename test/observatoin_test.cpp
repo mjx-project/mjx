@@ -1,6 +1,6 @@
 #include "gtest/gtest.h"
-#include "mahjong/observation.h"
-#include "mahjong/state.h"
+#include <mj/observation.h>
+#include <mj/state.h>
 
 using namespace mj;
 
