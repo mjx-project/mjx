@@ -6,8 +6,8 @@
 
 namespace mj
 {
-    Player::Player(PlayerId player_id, AbsolutePos position, River river, Hand initial_hand):
-    player_id_(std::move(player_id)), position_(position), river_(std::move(river)), hand_(std::move(initial_hand))
+    Player::Player(PlayerId player_id, AbsolutePos position, Hand initial_hand):
+    player_id_(std::move(player_id)), position_(position), hand_(std::move(initial_hand))
     {
         assert(hand_.stage() == HandStage::kAfterDiscards);
         assert(hand_.Size() == 13);
@@ -91,14 +91,6 @@ namespace mj
     }
 
     // river
-    void Player::Discard(Tile tile, bool tsumogiri) {
-        river_.Discard(tile, tsumogiri);
-    }
-
-    Tile Player::latest_discard() const {
-        return river_.latest_discard();
-    }
-
     bool Player::IsTenpai() const {
         return hand_.IsTenpai();
     }

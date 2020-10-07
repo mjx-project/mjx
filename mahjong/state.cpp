@@ -12,7 +12,7 @@ namespace mj
         assert(std::set<PlayerId>(player_ids.begin(), player_ids.end()).size() == 4);  // player_ids should be identical
         last_event_ = Event();
         for (int i = 0; i < 4; ++i)
-            players_[i] = Player{player_ids[i], AbsolutePos(i), River(), Hand(wall_.initial_hand_tiles(AbsolutePos(i)))};
+            players_[i] = Player{player_ids[i], AbsolutePos(i), Hand(wall_.initial_hand_tiles(AbsolutePos(i)))};
 
         // set protos
         // player_ids
@@ -142,7 +142,7 @@ namespace mj
          state_.add_ura_doras(wall_.ura_dora_indicators().front().Id());
          // Set init hands
          for (int i = 0; i < 4; ++i) {
-             players_[i] = Player{state_.player_ids(i), AbsolutePos(i), River(), Hand(wall_.initial_hand_tiles(AbsolutePos(i)))};
+             players_[i] = Player{state_.player_ids(i), AbsolutePos(i), Hand(wall_.initial_hand_tiles(AbsolutePos(i)))};
              state_.mutable_private_infos()->Add();
              state_.mutable_private_infos(i)->set_who(mjproto::AbsolutePos(i));
              for (auto t: wall_.initial_hand_tiles(AbsolutePos(i))) {

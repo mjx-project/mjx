@@ -2,7 +2,6 @@
 #define MAHJONG_PLAYER_H
 
 #include "hand.h"
-#include "river.h"
 #include "mahjong.grpc.pb.h"
 
 namespace mj
@@ -11,7 +10,7 @@ namespace mj
     {
     public:
         Player() = default;
-        Player(PlayerId player_id, AbsolutePos position, River river, Hand initial_hand);
+        Player(PlayerId player_id, AbsolutePos position, Hand initial_hand);
         [[nodiscard]] AbsolutePos position() const;
 
         // action validators
@@ -55,7 +54,6 @@ namespace mj
         std::bitset<34> discards_; // 今までに捨てた牌のset. bitsetで管理する
         PlayerId player_id_;
         AbsolutePos position_;
-        River river_;
         Hand hand_;
     };
 }  // namespace mj
