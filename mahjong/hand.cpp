@@ -581,11 +581,11 @@ namespace mj
                 [](const auto &x){ return x.Type() == OpenType::kKanClosed; });
     }
 
-    bool Hand::CanRiichi() const {
+    bool Hand::CanRiichi(std::int32_t ten) const {
         // TODO: use different cache might become faster
         assert(Any(stage_, {HandStage::kAfterDraw, HandStage::kAfterDrawAfterKan}));
         assert(SizeClosed() == 2 || SizeClosed() == 5 || SizeClosed() == 8 || SizeClosed() == 11 || SizeClosed() == 14);
-        if (!IsMenzen()) return false;
+        if (!IsMenzen() || ten < 1000) return false;
 
         auto closed_tile_type_count = ClosedTileTypes();
         for (const auto& [discard_tile_type, n] : ClosedTileTypes()) {
