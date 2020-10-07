@@ -13,6 +13,7 @@
 #include "player.h"
 #include "wall.h"
 
+//これを構造体に変える
 namespace mj
 {
    class State
