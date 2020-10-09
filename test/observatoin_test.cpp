@@ -5,7 +5,7 @@
 
 using namespace mj;
 
-TEST(observation, possible_actions) {
+TEST(observation, hand) {
     auto GetLastJsonLine = [](const std::string &filename) {
         auto json_path = std::string(TEST_RESOURCES_DIR) + "/json/" + filename;
         std::ifstream ifs(json_path, std::ios::in);
