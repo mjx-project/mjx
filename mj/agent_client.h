@@ -12,10 +12,11 @@ namespace mj
     {
     public:
         AgentClient() = default;  // generate invalid object
-        explicit AgentClient(std::shared_ptr<grpc::Channel> channel);
+        explicit AgentClient(PlayerId player_id, const std::shared_ptr<grpc::Channel>& channel);
         virtual ~AgentClient() = default;
         [[nodiscard]] virtual Action TakeAction(Observation observation) const;
     private:
+        PlayerId player_id_;
         std::unique_ptr<mjproto::Agent::Stub> stub_;
     };
 }  // namespace mj
