@@ -241,7 +241,7 @@ namespace mj
 
         auto draw = require_kan_draw_ ? wall_.KanDraw() : wall_.Draw();
         require_kan_draw_ = false;
-        mutable_player(who).hand_.Draw(draw);
+        mutable_hand(who).Draw(draw);
 
         // 加槓=>槍槓=>Noのときの一発消し。加槓時に自分の一発は外れている外れているはずなので、一発が残っているのは他家のだれか
         if (last_event_.type() == EventType::kKanAdded) for (int i = 0; i < 4; ++i) mutable_player(AbsolutePos(i)).is_ippatsu_ = false;
@@ -284,7 +284,7 @@ namespace mj
 
     void State::Riichi(AbsolutePos who) {
         assert(ten(who) >= 1000);
-        mutable_player(who).hand_.Riichi(is_first_turn_wo_open);
+        mutable_hand(who).Riichi(is_first_turn_wo_open);
 
         last_event_ = Event::CreateRiichi(who);
         state_.mutable_event_history()->mutable_events()->Add(last_event_.proto());
@@ -295,7 +295,7 @@ namespace mj
     void State::ApplyOpen(AbsolutePos who, Open open) {
         mutable_player(who).missed_tiles_.reset();  // フリテン解除
 
-        mutable_player(who).hand_.ApplyOpen(open);
+        mutable_hand(who).ApplyOpen(open);
 
         int absolute_pos_from = (ToUType(who) + ToUType(open.From())) % 4;
         mutable_player(AbsolutePos(absolute_pos_from)).has_nm_ = false; // 鳴かれた人は流し満貫が成立しない
