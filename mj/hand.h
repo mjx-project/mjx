@@ -105,6 +105,9 @@ namespace mj
         void ApplyKanOpened(Open open);
         void ApplyKanClosed(Open open);
 
+        // utils
+        static bool IsTenpai(const TileTypeCount &closed_tile_types);
+
         explicit Hand(std::vector<std::string> closed,
              std::vector<std::vector<std::string>> chis = {},
              std::vector<std::vector<std::string>> pons = {},
