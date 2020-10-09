@@ -6,7 +6,7 @@ namespace mj
             : stub_(mjproto::Agent::NewStub(channel)) {}
 
     Action AgentClient::TakeAction(Observation observation) const {
-        assert(stub_ != nullptr);
+        assert(stub_);
         const mjproto::Observation request = observation.proto_;
         mjproto::Action response;
         grpc::ClientContext context;

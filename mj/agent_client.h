@@ -11,7 +11,7 @@ namespace mj
     class AgentClient
     {
     public:
-        AgentClient() = default;
+        AgentClient() = default;  // generate invalid object
         explicit AgentClient(std::shared_ptr<grpc::Channel> channel);
         virtual ~AgentClient() = default;
         [[nodiscard]] virtual Action TakeAction(Observation observation) const;
