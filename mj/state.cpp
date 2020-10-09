@@ -234,7 +234,7 @@ namespace mj
             for (int i = 0; i < 4; ++i) {
                 auto type = last_ronable_tile.value().Type();
                 auto ix = ToUType(type);
-                mutable_player(who).missed_tiles_.set(ix);
+                mutable_player(AbsolutePos(i)).missed_tiles_.set(ix);
             }
         }
         if (!IsUnderRiichi(who)) mutable_player(who).missed_tiles_.reset();  // フリテン解除
