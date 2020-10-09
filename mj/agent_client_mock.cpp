@@ -20,7 +20,4 @@ namespace mj
         auto action = Action(std::move(response));
         return action;
     }
-
-    AgentClientMock::AgentClientMock(PlayerId player_id)
-    : AgentClient(std::move(player_id), nullptr) {}
 }

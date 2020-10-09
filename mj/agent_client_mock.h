@@ -9,7 +9,6 @@ namespace mj
     {
     public:
         AgentClientMock() = default;
-        AgentClientMock(PlayerId player_id);
         ~AgentClientMock() final = default;
         [[nodiscard]] Action TakeAction(Observation &&observation) const final ;
     };
