@@ -25,9 +25,9 @@ namespace mj
         Hand hand_;
 
         //Stateクラスから移動してきた変数
-        std::bitset<34> missed_tiles = 0;
+        std::bitset<34> missed_tiles_ = 0;
         bool is_ippatsu_ = false;
-        bool has_nm = true;
+        bool has_nm_ = true;
     };
 }  // namespace mj
 
