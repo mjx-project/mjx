@@ -81,6 +81,7 @@ namespace mj
         [[nodiscard]] const Player& player(AbsolutePos pos) const;
         [[nodiscard]] Player& mutable_player(AbsolutePos pos);
         [[nodiscard]] const Hand& hand(AbsolutePos who) const;
+        [[nodiscard]] Hand& mutable_hand(AbsolutePos who);
         [[nodiscard]] WinStateInfo win_state_info(AbsolutePos who) const;
         [[nodiscard]] AbsolutePos top_player() const;
 

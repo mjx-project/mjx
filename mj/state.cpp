@@ -36,16 +36,21 @@ namespace mj
         return is_round_over_;
     }
 
-    Player& State::mutable_player(AbsolutePos pos) {
-        return players_.at(ToUType(pos));
-    }
 
     const Player &State::player(AbsolutePos pos) const {
         return players_.at(ToUType(pos));
     }
 
+    Player& State::mutable_player(AbsolutePos pos) {
+        return players_.at(ToUType(pos));
+    }
+
     const Hand &State::hand(AbsolutePos who) const {
         return player(who).hand_;
+    }
+
+    Hand& State::mutable_hand(AbsolutePos who) {
+        return mutable_player(who).hand_;
     }
 
     std::unordered_map<PlayerId, Observation> State::CreateObservations() const {
