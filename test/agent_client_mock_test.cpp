@@ -33,4 +33,28 @@ TEST(agent_client_mock, TakeAction) {
     observation = state.CreateObservations().begin()->second;
     action = agent->TakeAction(std::move(observation));
     EXPECT_EQ(action.type(), ActionType::kRiichi);
+
+    // KanAdded
+    state = State(GetLastJsonLine("obs-draw-kanadded.json"));
+    observation = state.CreateObservations().begin()->second;
+    action = agent->TakeAction(std::move(observation));
+    EXPECT_EQ(action.type(), ActionType::kKanAdded);
+
+    // Chi
+    state = State(GetLastJsonLine("obs-discard-chi.json"));
+    observation = state.CreateObservations().begin()->second;
+    action = agent->TakeAction(std::move(observation));
+    EXPECT_EQ(action.type(), ActionType::kChi);
+
+    // Ron
+    state = State(GetLastJsonLine("obs-discard-ron.json"));
+    observation = state.CreateObservations().begin()->second;
+    action = agent->TakeAction(std::move(observation));
+    EXPECT_EQ(action.type(), ActionType::kRon);
+
+    // 九種九牌
+    state = State(GetLastJsonLine("obs-draw-kyuusyu.json"));
+    observation = state.CreateObservations().begin()->second;
+    action = agent->TakeAction(std::move(observation));
+    EXPECT_EQ(action.type(), ActionType::kKyushu);
 }
