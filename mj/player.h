@@ -16,11 +16,18 @@ namespace mj
             assert(hand_.Size() == 13);
             assert(hand_.Opens().empty());
         }
+
+        //Playerクラスにもともとあった変数
         std::bitset<34> machi_;    // 上がりの形になるための待ち(役の有無を考慮しない). bitsetで管理する
         std::bitset<34> discards_; // 今までに捨てた牌のset. bitsetで管理する
         PlayerId player_id_;
         AbsolutePos position_;
         Hand hand_;
+
+        //Stateクラスから移動してきた変数
+        std::bitset<34> missed_tiles = 0;
+        bool is_ippatsu_ = false;
+        bool has_nm = true;
     };
 }  // namespace mj
 
