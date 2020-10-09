@@ -256,7 +256,14 @@ namespace mj
     }
 
     void State::Discard(AbsolutePos who, Tile discard) {
-        auto [discarded, tsumogiri] = mutable_player(who).Discard(discard);
+        mutable_player(who).discards_.set(ToUType(discard.Type()));
+        auto [discarded, tsumogiri] = mutable_hand(who).Discard(discard);
+        if (IsTenpai(who)) {
+            mutable_player(who).machi_.reset();
+            for (auto tile_type : WinHandCache::instance().Machi(hand(who).ClosedTileTypes())) {
+                mutable_player(who).machi_.set(ToUType(tile_type));
+            }
+        }
         assert(discard == discarded);
 
         last_ronable_tile = discard; // ロンされうる牌を更新
