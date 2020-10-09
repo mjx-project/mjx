@@ -586,19 +586,8 @@ namespace mj
         assert(Any(stage_, {HandStage::kAfterDraw, HandStage::kAfterDrawAfterKan}));
         assert(SizeClosed() == 2 || SizeClosed() == 5 || SizeClosed() == 8 || SizeClosed() == 11 || SizeClosed() == 14);
         if (!IsMenzen() || ten < 1000) return false;
-
-        auto closed_tile_type_count = ClosedTileTypes();
-        for (const auto& [discard_tile_type, n] : ClosedTileTypes()) {
-            if (--closed_tile_type_count[discard_tile_type] == 0) {
-                closed_tile_type_count.erase(discard_tile_type);
-            }
-            if (!WinHandCache::instance().Machi(closed_tile_type_count).empty()) {
-                return true;
-            }
-            ++closed_tile_type_count[discard_tile_type];
-        }
-        return false;
-    }
+        return CanTakeTenpai();
+   }
 
     std::optional<Tile> Hand::LastTileAdded() const {
         return last_tile_added_;
@@ -730,6 +719,20 @@ namespace mj
             if ((dragon_cnt == 3 || wind_cnt == 4) && open.Type() != OpenType::kKanClosed) return open.From();
         }
         return std::nullopt;
+    }
+
+    bool Hand::CanTakeTenpai() const {
+        auto closed_tile_type_count = ClosedTileTypes();
+        for (const auto& [discard_tile_type, n] : ClosedTileTypes()) {
+            if (--closed_tile_type_count[discard_tile_type] == 0) {
+                closed_tile_type_count.erase(discard_tile_type);
+            }
+            if (!WinHandCache::instance().Machi(closed_tile_type_count).empty()) {
+                return true;
+            }
+            ++closed_tile_type_count[discard_tile_type];
+        }
+        return false;
     }
 
     HandParams::HandParams(const std::string &closed) {
