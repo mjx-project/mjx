@@ -13,6 +13,11 @@ namespace mj
                 break;
             }
 
+            if (possible_action.type() == ActionType::kRiichi) {
+                response.set_type(mjproto::ActionType::ACTION_TYPE_RIICHI);
+                break;
+            }
+
             if (possible_action.type() == ActionType::kDiscard) {
                 // random action
                 const auto &discard_candidates = possible_action.discard_candidates();
