@@ -27,4 +27,10 @@ TEST(agent_client_mock, TakeAction) {
     observation = state.CreateObservations().begin()->second;
     action = agent->TakeAction(std::move(observation));
     EXPECT_EQ(action.type(), ActionType::kTsumo);
+
+    // リーチできるときはリーチ
+    state = State(GetLastJsonLine("obs-draw-riichi.json"));
+    observation = state.CreateObservations().begin()->second;
+    action = agent->TakeAction(std::move(observation));
+    EXPECT_EQ(action.type(), ActionType::kRiichi);
 }
