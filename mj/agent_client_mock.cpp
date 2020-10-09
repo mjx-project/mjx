@@ -3,7 +3,7 @@
 
 namespace mj
 {
-    Action AgentClientMock::TakeAction(Observation observation) const {
+    Action AgentClientMock::TakeAction(Observation &&observation) const {
         // Currently this method only implements discard
         mjproto::Action response;
         for (const auto &possible_action: observation.possible_actions()) {
