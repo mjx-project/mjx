@@ -8,6 +8,7 @@ namespace mj
             : player_id_(std::move(player_id)), stub_(mjproto::Agent::NewStub(channel)) {}
 
     Action AgentClient::TakeAction(Observation &&observation) const {
+        // TODO: verify that player_id is consistent (player_id_ == observation.player_id)
         assert(!player_id_.empty());
         assert(stub_);
         const mjproto::Observation request = observation.proto_;
