@@ -1,7 +1,6 @@
 #include "gtest/gtest.h"
 #include <mj/state.h>
 #include <mj/agent_client_mock.h>
-#include <fstream>
 
 using namespace mj;
 
