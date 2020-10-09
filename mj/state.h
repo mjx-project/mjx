@@ -5,6 +5,7 @@
 #include <array>
 #include <vector>
 #include <random>
+#include <utility>
 #include "consts.h"
 #include "tile.h"
 #include "observation.h"
@@ -12,6 +13,10 @@
 #include "event.h"
 #include "player.h"
 #include "wall.h"
+#include "hand.h"
+#include "mj.grpc.pb.h"
+#include "utils.h"
+#include "yaku_evaluator.h"
 
 //これを構造体に変える
 namespace mj
@@ -75,6 +80,7 @@ namespace mj
         // accessors
         [[nodiscard]] const Player& player(AbsolutePos pos) const;
         [[nodiscard]] Player& mutable_player(AbsolutePos pos);
+        [[nodiscard]] const Hand& hand(AbsolutePos who) const;
         [[nodiscard]] WinStateInfo win_state_info(AbsolutePos who) const;
         [[nodiscard]] AbsolutePos top_player() const;
 
@@ -93,11 +99,36 @@ namespace mj
         void NoWinner();
         [[nodiscard]] std::unordered_map<PlayerId, Observation> CreateStealAndRonObservation() const;
         [[nodiscard]] std::pair<HandInfo, WinScore> EvalWinHand(AbsolutePos who) const noexcept;
+        void RonAfterOthersKan(Tile tile);
 
         // utils
         bool IsFourKanNoWinner() const noexcept ;
-        std::optional<AbsolutePos> HasPao(AbsolutePos winner) const noexcept ;
-    };
+       std::optional<AbsolutePos> HasPao(AbsolutePos winner) const noexcept ;
+
+       // #398 追加分
+       // action validators
+       std::vector<Tile> PossibleDiscards(AbsolutePos who) const;  // TODO(sotetsuk): Current implementation has the tiles with same type (e.g., 2m x 3). What is the Tenhou's implementation? Only first id? or any id?
+       std::vector<Tile> PossibleDiscardsAfterRiichi(AbsolutePos who) const;
+       std::vector<Open> PossibleOpensAfterOthersDiscard(AbsolutePos who, Tile tile, RelativePos from) const;  // includes Chi, Pon, and KanOpened
+       std::vector<Open> PossibleOpensAfterDraw(AbsolutePos who) const;  // includes KanClosed and KanAdded
+       bool IsCompleted(AbsolutePos who, Tile additional_tile) const;  // This does not take into account yaku and furiten
+       bool IsCompleted(AbsolutePos who) const;  // This does not take into account yaku and furiten
+       bool CanRon(AbsolutePos who, Tile tile) const;
+       bool CanTsumo(AbsolutePos who) const;
+       bool CanRiichi(AbsolutePos who) const; // デフォルト25000点
+       bool IsTenpai(AbsolutePos who) const;
+       bool IsUnderRiichi(AbsolutePos who) const;
+       bool CanNineTiles(AbsolutePos who) const;
+       int TotalKans(AbsolutePos who) const;
+
+       // get closed tiles
+       std::vector<Tile> closed_tiles(AbsolutePos who) const ;
+
+       // get winning info
+       [[nodiscard]] std::pair<HandInfo, WinScore> EvalWinHand(AbsolutePos who, WinStateInfo &&win_state_info) const noexcept ;
+       [[nodiscard]] std::optional<HandInfo> EvalTenpai(AbsolutePos who) const noexcept ;
+
+   };
 }  // namespace mj
 
 #endif //MAHJONG_STATE_H
