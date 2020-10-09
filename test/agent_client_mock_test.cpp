@@ -19,11 +19,12 @@ TEST(agent_client_mock, TakeAction) {
         return json_line;
     };
 
-    auto json = GetLastJsonLine("obs-draw-tsumo.json");
-    // // random discard
-    // auto state = State(9999);
-    // std::unique_ptr<AgentClient> agent = std::make_unique<AgentClientMock>();
-    // auto drawer = state.UpdateStateByDraw();
-    // auto action = agent->TakeAction(state.CreateObservation(drawer));
-    // EXPECT_EQ(action.type(), ActionType::kDiscard);
+    State state; Observation observation; Action action;
+    std::unique_ptr<AgentClient> agent = std::make_unique<AgentClientMock>();
+
+    // ツモれるときはツモ
+    state = State(GetLastJsonLine("obs-draw-tsumo.json"));
+    observation = state.CreateObservations().begin()->second;
+    action = agent->TakeAction(std::move(observation));
+    EXPECT_EQ(action.type(), ActionType::kTsumo);
 }
