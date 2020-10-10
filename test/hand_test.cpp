@@ -249,6 +249,14 @@ TEST(hand, PossibleDiscards) {
             [](Tile x){ return x.Is(TileType::kM3); }), possible_discards.end());
 }
 
+TEST(hand, PossibleDiscardsToTakeTenpai) {
+    auto h = Hand(HandParams("m1,m2,m3,s1,s2,s3,s4,s5,s6,s1,s2,ew,nw"));
+    h.Draw(Tile("ew", 2));
+    auto possible_discards = h.PossibleDiscardsToTakeTenpai();
+    EXPECT_EQ(possible_discards.size(), 1);
+    EXPECT_EQ(possible_discards.front().Type(), TileType::kNW);
+}
+
 TEST(hand, PossibleOpensAfterOthersDiscard) { // TODO: add more detailed test
     auto num_of_opens = [](const auto &opens, const auto &open_type) {
         return std::count_if(opens.begin(), opens.end(),

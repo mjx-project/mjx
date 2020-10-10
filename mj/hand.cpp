@@ -586,19 +586,8 @@ namespace mj
         assert(Any(stage_, {HandStage::kAfterDraw, HandStage::kAfterDrawAfterKan}));
         assert(SizeClosed() == 2 || SizeClosed() == 5 || SizeClosed() == 8 || SizeClosed() == 11 || SizeClosed() == 14);
         if (!IsMenzen() || ten < 1000) return false;
-
-        auto closed_tile_type_count = ClosedTileTypes();
-        for (const auto& [discard_tile_type, n] : ClosedTileTypes()) {
-            if (--closed_tile_type_count[discard_tile_type] == 0) {
-                closed_tile_type_count.erase(discard_tile_type);
-            }
-            if (!WinHandCache::instance().Machi(closed_tile_type_count).empty()) {
-                return true;
-            }
-            ++closed_tile_type_count[discard_tile_type];
-        }
-        return false;
-    }
+        return CanTakeTenpai();
+   }
 
     std::optional<Tile> Hand::LastTileAdded() const {
         return last_tile_added_;
@@ -692,7 +681,7 @@ namespace mj
     bool Hand::IsTenpai() const {
         assert(stage_ == HandStage::kAfterDiscards);
         assert(SizeClosed() == 1 || SizeClosed() == 4 || SizeClosed() == 7 || SizeClosed() == 10 || SizeClosed() == 13);
-        return !WinHandCache::instance().Machi(ClosedTileTypes()).empty();
+        return Hand::IsTenpai(ClosedTileTypes());
     }
 
     bool Hand::IsCompleted(Tile additional_tile) const {
@@ -730,6 +719,36 @@ namespace mj
             if ((dragon_cnt == 3 || wind_cnt == 4) && open.Type() != OpenType::kKanClosed) return open.From();
         }
         return std::nullopt;
+    }
+
+    bool Hand::CanTakeTenpai() const {
+        assert(Any(SizeClosed(), {2, 5, 8, 11, 14}));
+        auto closed_tile_type_count = ClosedTileTypes();
+        for (const auto& [discard_tile_type, n] : ClosedTileTypes()) {
+            if (--closed_tile_type_count[discard_tile_type] == 0) closed_tile_type_count.erase(discard_tile_type);
+            if (Hand::IsTenpai(closed_tile_type_count)) return true;
+            ++closed_tile_type_count[discard_tile_type];
+        }
+        return false;
+    }
+
+    bool Hand::IsTenpai(const TileTypeCount &closed_tile_types) {
+        return !WinHandCache::instance().Machi(closed_tile_types).empty();
+    }
+
+    std::vector<Tile> Hand::PossibleDiscardsToTakeTenpai() const {
+        assert(Any(SizeClosed(), {2, 5, 8, 11, 14}));
+        assert(CanTakeTenpai());
+        std::vector<Tile> possible_discards;
+        auto closed_tile_types = ClosedTileTypes();
+        for (const auto tile: PossibleDiscards()) {
+            assert(closed_tile_types.count(tile.Type()));
+            if (--closed_tile_types[tile.Type()] == 0) closed_tile_types.erase(tile.Type());
+            if (Hand::IsTenpai(closed_tile_types)) possible_discards.emplace_back(tile);
+            ++closed_tile_types[tile.Type()];
+        }
+        assert(!possible_discards.empty());
+        return possible_discards;
     }
 
     HandParams::HandParams(const std::string &closed) {

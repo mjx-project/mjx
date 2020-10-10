@@ -62,12 +62,14 @@ namespace mj
 
         // action validators
         std::vector<Tile> PossibleDiscards() const;  // 同じ種類（タイプ）の牌については、idが一番小さいものだけを返す。赤とツモ切り牌だけ例外。
+        std::vector<Tile> PossibleDiscardsToTakeTenpai() const;
         std::vector<Tile> PossibleDiscardsAfterRiichi() const;  // 同上
         std::vector<Open> PossibleOpensAfterOthersDiscard(Tile tile, RelativePos from) const;  // includes Chi, Pon, and KanOpened
         std::vector<Open> PossibleOpensAfterDraw() const;  // includes KanClosed and KanAdded
         bool IsCompleted() const;
         bool IsCompleted(Tile additional_tile) const;
         bool CanRiichi(std::int32_t ten = 25000) const; // デフォルト25000点
+        bool CanTakeTenpai() const;
         bool IsTenpai() const;
         bool CanNineTiles() const;  // 九種九牌。一巡目かどうか等はState内で判断する。ここでは牌が九種九牌かどうかのみ
 
@@ -103,6 +105,9 @@ namespace mj
         void ApplyPon(Open open);
         void ApplyKanOpened(Open open);
         void ApplyKanClosed(Open open);
+
+        // utils
+        static bool IsTenpai(const TileTypeCount &closed_tile_types);
 
         explicit Hand(std::vector<std::string> closed,
              std::vector<std::vector<std::string>> chis = {},
