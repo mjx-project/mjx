@@ -41,4 +41,36 @@ namespace mj
         assert(status.ok());
         return serialized;
     }
+
+    Hand Observation::initial_hand() const {
+        std::vector<Tile> tiles;
+        for (auto tile_id: proto_.private_info().init_hand()) tiles.emplace_back(tile_id);
+        return Hand(tiles);
+    }
+
+    Hand Observation::current_hand() const {
+        // TODO: just use stored info in protocol buffer
+        std::vector<Tile> tiles;
+        for (auto tile_id: proto_.private_info().init_hand()) tiles.emplace_back(tile_id);
+        Hand hand = Hand(tiles);
+        int draw_ix = 0;
+        for (const auto& event: proto_.event_history().events()) {
+            if (event.who() != proto_.who()) continue;
+            if (event.type() == mjproto::EVENT_TYPE_DRAW) {
+                hand.Draw(Tile(proto_.private_info().draws(draw_ix)));
+                draw_ix++;
+            } else if (event.type() == mjproto::EVENT_TYPE_RIICHI) {
+                hand.Riichi();  // TODO: double riichi
+            } else if (Any(event.type(), {mjproto::EVENT_TYPE_DISCARD_DRAWN_TILE, mjproto::EVENT_TYPE_DISCARD_FROM_HAND})) {
+                hand.Discard(Tile(event.tile()));
+            } else if (Any(event.type(), {mjproto::EVENT_TYPE_CHI, mjproto::EVENT_TYPE_PON, mjproto::EVENT_TYPE_KAN_ADDED, mjproto::EVENT_TYPE_KAN_OPENED, mjproto::EVENT_TYPE_KAN_CLOSED})) {
+                hand.ApplyOpen(Open(event.open()));
+            } else if (event.type() == mjproto::EVENT_TYPE_RON) {
+                hand.Ron(Tile(event.tile()));
+            } else if (event.type() == mjproto::EVENT_TYPE_TSUMO) {
+                hand.Tsumo();
+            }
+        }
+        return hand;
+    }
 }
