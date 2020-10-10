@@ -62,6 +62,7 @@ namespace mj
 
         // action validators
         std::vector<Tile> PossibleDiscards() const;  // 同じ種類（タイプ）の牌については、idが一番小さいものだけを返す。赤とツモ切り牌だけ例外。
+        std::vector<Tile> PossibleDiscardsToTakeTenpai() const;
         std::vector<Tile> PossibleDiscardsAfterRiichi() const;  // 同上
         std::vector<Open> PossibleOpensAfterOthersDiscard(Tile tile, RelativePos from) const;  // includes Chi, Pon, and KanOpened
         std::vector<Open> PossibleOpensAfterDraw() const;  // includes KanClosed and KanAdded
