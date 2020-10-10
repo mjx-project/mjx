@@ -746,6 +746,7 @@ namespace mj
             if (Hand::IsTenpai(closed_tile_types)) possible_discards.emplace_back(tile);
             ++closed_tile_types[tile.Type()];
         }
+        assert(!possible_discards.empty());
         return possible_discards;
     }
 
