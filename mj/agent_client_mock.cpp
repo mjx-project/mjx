@@ -34,6 +34,7 @@ namespace mj
                      ActionType::kChi})) {
                 response.set_open(possible_action.open().GetBits());
             }
+            return Action(std::move(response));
         }
 
         // discardしか取れるアクションがないとき
