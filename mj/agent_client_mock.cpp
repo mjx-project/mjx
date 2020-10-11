@@ -44,9 +44,14 @@ namespace mj
         const TileTypeCount closed_tile_type_cnt = curr_hand.ClosedTileTypes();
         // 聴牌が取れるなら取れるように切る
         if (curr_hand.CanTakeTenpai()) {
-            auto tile = curr_hand.PossibleDiscardsToTakeTenpai().front();
-            response.set_discard(tile.Id());
-            return Action(std::move(response));
+            auto tenpai_discards = curr_hand.PossibleDiscardsToTakeTenpai();
+            for (const auto tile: possible_action.discard_candidates()) {
+                if (Any(tile, tenpai_discards)) {
+                    response.set_discard(tile.Id());
+                    return Action(std::move(response));
+                }
+            }
+            assert(false);
         }
         // 字牌孤立牌があればまずそれを切り飛ばす
         for (const auto tile: possible_action.discard_candidates()) {
