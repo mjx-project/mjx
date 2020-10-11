@@ -1,11 +1,13 @@
 #include "environment.h"
+
+#include <utility>
 #include "algorithm"
 #include "utils.h"
 
 namespace mj
 {
 
-    Environment::Environment(const std::vector<AgentClient> &agents) :agents_(agents) { }
+    Environment::Environment(std::vector<AgentClient*> agents) :agents_(std::move(agents)) { }
 
     [[noreturn]] void Environment::Run() {
         while(true) RunOneGame();
