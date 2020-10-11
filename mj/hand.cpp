@@ -231,16 +231,13 @@ namespace mj
     }
 
     std::pair<Tile, bool> Hand::Discard(Tile tile) {
-        assert(stage_ != HandStage::kAfterDiscards);
-        assert(stage_ != HandStage::kAfterTsumo && stage_ != HandStage::kAfterTsumoAfterKan &&
-               stage_ != HandStage::kAfterRon);
-        assert(closed_tiles_.find(tile) != closed_tiles_.end());
-        assert(undiscardable_tiles_.find(tile) == undiscardable_tiles_.end());
+        assert(Any(SizeClosed(),  {2, 5, 8, 11, 14}));
+        assert(!Any(stage_, {HandStage::kAfterDiscards, HandStage::kAfterTsumo, HandStage::kAfterTsumoAfterKan, HandStage::kAfterRon}));
+        assert(closed_tiles_.count(tile));
+        assert(!undiscardable_tiles_.count(tile));
         assert(last_tile_added_);
-        assert(!under_riichi_ ||
-               (stage_ == HandStage::kAfterRiichi && Any(tile, PossibleDiscardsAfterRiichi())) ||
-               (under_riichi_ && tile == last_tile_added_));
-        assert(SizeClosed() == 2 || SizeClosed() == 5 || SizeClosed() == 8 || SizeClosed() == 11 || SizeClosed() == 14);
+        assert((stage_ != HandStage::kAfterRiichi && Any(tile, PossibleDiscards())) ||
+               (stage_ == HandStage::kAfterRiichi && Any(tile, PossibleDiscardsAfterRiichi())));
         bool tsumogiri = Any(stage_, {HandStage::kAfterDraw, HandStage::kAfterDrawAfterKan, HandStage::kAfterRiichi}) && last_tile_added_ && tile == last_tile_added_.value();
         closed_tiles_.erase(tile);
         undiscardable_tiles_.clear();
