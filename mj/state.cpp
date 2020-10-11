@@ -814,6 +814,8 @@ namespace mj
             case ActionType::kDiscard:
                 {
                     assert(Any(last_event_.type(), {EventType::kDraw, EventType::kChi, EventType::kPon, EventType::kRon, EventType::kRiichi}));
+                    assert(last_event_.type() == EventType::kRiichi || Any(action.discard(), player(who).PossibleDiscards()));
+                    assert(last_event_.type() != EventType::kRiichi || Any(action.discard(), player(who).PossibleDiscardsJustAfterRiichi()));
                     assert(require_kan_dora_ <= 1);
                     if (require_kan_dora_) AddNewDora();
                     Discard(who, action.discard());
