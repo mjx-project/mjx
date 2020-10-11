@@ -271,7 +271,6 @@ namespace mj
         assert(stage_ != HandStage::kAfterDiscards);
         assert(stage_ != HandStage::kAfterTsumo && stage_ != HandStage::kAfterTsumoAfterKan &&
                stage_ != HandStage::kAfterRon);
-        assert(stage_ != HandStage::kAfterRiichi);  // PossibleDiscardsAfterRiichi handle this
         assert(last_tile_added_);
         assert(SizeClosed() == 2 || SizeClosed() == 5 || SizeClosed() == 8 || SizeClosed() == 11 || SizeClosed() == 14);
         auto possible_discards = std::vector<Tile>();
