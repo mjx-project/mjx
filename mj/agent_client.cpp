@@ -4,6 +4,8 @@
 
 namespace mj
 {
+    AgentClient::AgentClient(PlayerId player_id): player_id_(std::move(player_id)) {}
+
     AgentClient::AgentClient(PlayerId player_id, const std::shared_ptr<grpc::Channel>& channel)
             : player_id_(std::move(player_id)), stub_(mjproto::Agent::NewStub(channel)) {}
 
@@ -20,6 +22,10 @@ namespace mj
         }
         auto action = Action(std::move(response));
         return action;
+    }
+
+    PlayerId AgentClient::player_id() const {
+        return player_id_;
     }
 }  // namespace mj
 

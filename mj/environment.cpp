@@ -1,11 +1,17 @@
 #include "environment.h"
+
+#include <utility>
 #include "algorithm"
 #include "utils.h"
 
 namespace mj
 {
 
-    Environment::Environment(const std::vector<AgentClient> &agents) :agents_(agents) { }
+    Environment::Environment(std::vector<std::shared_ptr<AgentClient>> agents) :agents_(std::move(agents)) {
+        for (const auto &agent: agents_) map_agents_[agent->player_id()] = agent;
+        std::vector<PlayerId> player_ids(4); for (int i = 0; i < 4; ++i) player_ids[i] = agents_.at(i)->player_id();
+        state_ = State(player_ids);
+    }
 
     [[noreturn]] void Environment::Run() {
         while(true) RunOneGame();
@@ -19,34 +25,22 @@ namespace mj
     }
 
     void Environment::RunOneRound() {
-        // state_ = State();
-        // while (!state_.IsRoundOver()) {
-        //     auto drawer = state_.UpdateStateByDraw();
-        //     // discard, riichi_and_discard, tsumo, kan_closed or kan_added. (At the first draw, 9種9牌）
-        //     auto action = agent(drawer).TakeAction(state_.CreateObservation(drawer));
-        //     state_.UpdateStateByAction(action);
-        //     // TODO(sotetsuk): assert that possbile_actions are empty
-        //     if (auto winners = state_.RonCheck(); winners) {
-        //         std::vector<Action> action_candidates;
-        //         for (AbsolutePos winner: winners.value()) {
-        //             // only ron
-        //             action_candidates.emplace_back(agent(winner).TakeAction(state_.CreateObservation(winner)));
-        //         }
-        //         state_.UpdateStateByActionCandidates(action_candidates);
-        //     }
-        //     if (auto stealers = state_.StealCheck(); stealers) {
-        //         std::vector<Action> action_candidates;
-        //         // TODO (sotetsuk): make gRPC async
-        //         for (auto &[stealer, possible_opens]: stealers.value()) {
-        //             // chi, pon and kan_opened
-        //             action_candidates.emplace_back(agent(stealer).TakeAction(state_.CreateObservation(stealer)));
-        //         }
-        //         state_.UpdateStateByActionCandidates(action_candidates);
-        //     }
-        // }
+        while (!state_.IsRoundOver()) {
+            auto observations = state_.CreateObservations();
+            std::vector<Action> actions; actions.reserve(observations.size());
+            for (auto& [player_id, obs]: observations) {
+                actions.emplace_back(agent(player_id)->TakeAction(std::move(obs)));
+            }
+            state_.Update(std::move(actions));
+        }
+        std::cerr << state_.ToJson() << std::endl;
     }
 
-    const AgentClient &Environment::agent(AbsolutePos pos) const {
+    std::shared_ptr<AgentClient> Environment::agent(AbsolutePos pos) const {
         return agents_.at(ToUType(pos));
+    }
+
+    std::shared_ptr<AgentClient> Environment::agent(PlayerId player_id) const {
+        return map_agents_.at(player_id);
     }
 }

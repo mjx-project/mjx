@@ -3,7 +3,8 @@
 
 namespace mj
 {
-    AgentClientMock::AgentClientMock(PlayerId player_id): AgentClient(std::move(player_id), nullptr) {}
+    AgentClientMock::AgentClientMock(PlayerId player_id): AgentClient(std::move(player_id)) {}
+
     Action AgentClientMock::TakeAction(Observation &&observation) const {
         // Currently this method only implements discard
         mjproto::Action response;
@@ -43,9 +44,14 @@ namespace mj
         const TileTypeCount closed_tile_type_cnt = curr_hand.ClosedTileTypes();
         // 聴牌が取れるなら取れるように切る
         if (curr_hand.CanTakeTenpai()) {
-            auto tile = curr_hand.PossibleDiscardsToTakeTenpai().front();
-            response.set_discard(tile.Id());
-            return Action(std::move(response));
+            auto tenpai_discards = curr_hand.PossibleDiscardsToTakeTenpai();
+            for (const auto tile: possible_action.discard_candidates()) {
+                if (Any(tile, tenpai_discards)) {
+                    response.set_discard(tile.Id());
+                    return Action(std::move(response));
+                }
+            }
+            assert(false);
         }
         // 字牌孤立牌があればまずそれを切り飛ばす
         for (const auto tile: possible_action.discard_candidates()) {
@@ -55,7 +61,7 @@ namespace mj
             return Action(std::move(response));
         }
         // 19の孤立牌を切り飛ばす
-        auto is_independent = [&closed_tile_type_cnt](Tile tile){
+        auto is_isolated = [&closed_tile_type_cnt](Tile tile){
             if (closed_tile_type_cnt.count(tile.Type()) && closed_tile_type_cnt.at(tile.Type()) >= 2) return false;
             if (!Any(tile.Type(), {TileType::kM1, TileType::kP1, TileType::kS1}) && closed_tile_type_cnt.count(TileType(ToUType(tile.Type()) - 1))) return false;
             if (!Any(tile.Type(), {TileType::kM9, TileType::kP9, TileType::kS9}) && closed_tile_type_cnt.count(TileType(ToUType(tile.Type()) + 1))) return false;
@@ -63,19 +69,19 @@ namespace mj
         };
         for (const auto tile: possible_action.discard_candidates()) {
             if (!Is(tile.Type(), TileSetType::kTerminals)) continue;
-            if (is_independent(tile)) continue;
+            if (!is_isolated(tile)) continue;
             response.set_discard(tile.Id());
             return Action(std::move(response));
         }
         // 断么九の孤立牌を切り飛ばす
         for (const auto tile: possible_action.discard_candidates()) {
             if (!Is(tile.Type(), TileSetType::kTanyao)) continue;
-            if (is_independent(tile)) continue;
+            if (!is_isolated(tile)) continue;
             response.set_discard(tile.Id());
             return Action(std::move(response));
         }
         // 上記以外のときは、ランダムに切る
-        response.set_discard(SelectRandomly(possible_action.discard_candidates().begin(), possible_action.discard_candidates().end())->Id());
+        response.set_discard(possible_action.discard_candidates().front().Id());
         return Action(std::move(response));
     }
 }
