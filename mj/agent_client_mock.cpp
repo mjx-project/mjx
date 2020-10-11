@@ -1,8 +1,11 @@
 #include "agent_client_mock.h"
+
+#include <utility>
 #include "utils.h"
 
 namespace mj
 {
+    AgentClientMock::AgentClientMock(PlayerId player_id): AgentClient(std::move(player_id), nullptr) {}
     Action AgentClientMock::TakeAction(Observation &&observation) const {
         // Currently this method only implements discard
         mjproto::Action response;
