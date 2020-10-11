@@ -236,8 +236,9 @@ namespace mj
         assert(closed_tiles_.count(tile));
         assert(!undiscardable_tiles_.count(tile));
         assert(last_tile_added_);
-        assert((stage_ != HandStage::kAfterRiichi && Any(PossibleDiscards(), [&tile](Tile discard){ return tile.Type() == discard.Type(); })) ||
-               (stage_ == HandStage::kAfterRiichi && Any(PossibleDiscardsAfterRiichi(), [&tile](Tile discard){ return tile.Type() == discard.Type(); })));
+        assert(!(IsUnderRiichi() && stage_ != HandStage::kAfterRiichi) || tile == last_tile_added_.value());
+        assert((stage_ != HandStage::kAfterRiichi && Any(PossibleDiscards(), [&tile](Tile possible_discard){ return tile.Equals(possible_discard); })) ||
+               (stage_ == HandStage::kAfterRiichi && Any(PossibleDiscardsAfterRiichi(), [&tile](Tile possible_discard){ return tile.Equals(possible_discard); })));
         bool tsumogiri = Any(stage_, {HandStage::kAfterDraw, HandStage::kAfterDrawAfterKan, HandStage::kAfterRiichi}) && last_tile_added_ && tile == last_tile_added_.value();
         closed_tiles_.erase(tile);
         undiscardable_tiles_.clear();
