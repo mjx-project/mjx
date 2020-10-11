@@ -9,13 +9,18 @@
 namespace mj
 {
     template<typename T>
-    bool Any(T target, std::initializer_list<T> list) {
-        return std::any_of(list.begin(), list.end(), [&target](T elem) { return target == elem; });
+    bool Any(T target, const std::initializer_list<T> &v) {
+        return std::any_of(v.begin(), v.end(), [&target](T elem) { return target == elem; });
     }
 
     template<typename T>
-    bool Any(T target, std::vector<T> list) {
-        return std::any_of(list.begin(), list.end(), [&target](T elem) { return target == elem; });
+    bool Any(T target, const std::vector<T> &v) {
+        return std::any_of(v.begin(), v.end(), [&target](T elem) { return target == elem; });
+    }
+
+    template<typename T, typename F>
+    bool Any(const std::vector<T> &v, F && f) {
+        return std::any_of(v.begin(), v.end(), [&f](T elem) { return f(elem); });
     }
 
     // https://stackoverflow.com/questions/6942273/how-to-get-a-random-element-from-a-c-container

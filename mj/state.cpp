@@ -91,7 +91,8 @@ namespace mj
                     // => Discard (5)
                     auto who = last_event_.who();
                     auto observation = Observation(who, state_);
-                    observation.add_possible_action(PossibleAction::CreateDiscard(player(who).PossibleDiscardsAfterRiichi()));
+                    observation.add_possible_action(PossibleAction::CreateDiscard(
+                            player(who).PossibleDiscardsJustAfterRiichi()));
                     return { {player(who).player_id(), std::move(observation)} };
                 }
             case EventType::kChi:

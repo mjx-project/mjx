@@ -23,8 +23,8 @@ namespace mj
         return hand_.PossibleDiscards();
     }
 
-    std::vector<Tile> Player::PossibleDiscardsAfterRiichi() const {
-        return hand_.PossibleDiscardsAfterRiichi();
+    std::vector<Tile> Player::PossibleDiscardsJustAfterRiichi() const {
+        return hand_.PossibleDiscardsJustAfterRiichi();
     }
 
     std::vector<Open> Player::PossibleOpensAfterOthersDiscard(Tile tile, RelativePos from) const {
