@@ -724,7 +724,8 @@ namespace mj
     bool Hand::CanTakeTenpai() const {
         assert(Any(SizeClosed(), {2, 5, 8, 11, 14}));
         auto closed_tile_type_count = ClosedTileTypes();
-        for (const auto tile: PossibleDiscards()) {
+        auto possible_discards = IsUnderRiichi() ? PossibleDiscardsAfterRiichi() : PossibleDiscards();
+        for (const auto tile: possible_discards) {
             auto tt = tile.Type();
             if (--closed_tile_type_count[tt] == 0) closed_tile_type_count.erase(tt);
             if (Hand::IsTenpai(closed_tile_type_count)) return true;
@@ -742,7 +743,8 @@ namespace mj
         assert(CanTakeTenpai());
         std::vector<Tile> possible_discards;
         auto closed_tile_types = ClosedTileTypes();
-        for (const auto tile: PossibleDiscards()) {
+        auto possible_discards = IsUnderRiichi() ? PossibleDiscardsAfterRiichi() : PossibleDiscards();
+        for (const auto tile: possible_discards) {
             assert(closed_tile_types.count(tile.Type()));
             if (--closed_tile_types[tile.Type()] == 0) closed_tile_types.erase(tile.Type());
             if (Hand::IsTenpai(closed_tile_types)) possible_discards.emplace_back(tile);
