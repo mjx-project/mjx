@@ -23,6 +23,10 @@ namespace mj
         auto action = Action(std::move(response));
         return action;
     }
+
+    PlayerId AgentClient::player_id() const {
+        return player_id_;
+    }
 }  // namespace mj
 
 
