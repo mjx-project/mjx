@@ -48,7 +48,7 @@ namespace mj
         // }
     }
 
-    const AgentClient &Environment::agent(AbsolutePos pos) const {
+    const AgentClient *Environment::agent(AbsolutePos pos) const {
         return agents_.at(ToUType(pos));
     }
 }

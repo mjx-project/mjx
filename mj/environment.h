@@ -18,7 +18,7 @@ namespace mj
         std::vector<AgentClient*> agents_;
         State state_;
 
-        const AgentClient& agent(AbsolutePos pos) const;
+        const AgentClient* agent(AbsolutePos pos) const;
     };
 }  // namespace mj
 
