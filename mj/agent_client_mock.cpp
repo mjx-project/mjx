@@ -1,6 +1,5 @@
 #include "agent_client_mock.h"
 
-#include <utility>
 #include "utils.h"
 
 namespace mj
