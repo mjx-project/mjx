@@ -108,6 +108,7 @@ namespace mj
 
         // utils
         static bool IsTenpai(const TileTypeCount &closed_tile_types);
+        std::vector<Tile> AllPossibleDiscards() const;
 
         explicit Hand(std::vector<std::string> closed,
              std::vector<std::vector<std::string>> chis = {},

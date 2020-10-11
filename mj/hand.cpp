@@ -268,31 +268,19 @@ namespace mj
     }
 
     std::vector<Tile> Hand::PossibleDiscards() const {
-        assert(stage_ != HandStage::kAfterDiscards);
-        assert(stage_ != HandStage::kAfterTsumo && stage_ != HandStage::kAfterTsumoAfterKan &&
-               stage_ != HandStage::kAfterRon);
+        assert(!Any(stage_, {HandStage::kAfterDiscards, HandStage::kAfterTsumo, HandStage::kAfterTsumoAfterKan, HandStage::kAfterRon}));
+        assert(stage_ != HandStage::kAfterRiichi);  // PossibleDiscardsAfterRiichi deal with this situation
         assert(last_tile_added_);
-        assert(SizeClosed() == 2 || SizeClosed() == 5 || SizeClosed() == 8 || SizeClosed() == 11 || SizeClosed() == 14);
-        auto possible_discards = std::vector<Tile>();
-        if (under_riichi_) {
-            possible_discards.push_back(last_tile_added_.value());
-            return possible_discards;
-        }
-        std::unordered_set<TileType> added;
-        for (auto t : closed_tiles_)
-            if (!undiscardable_tiles_.count(t)) {
-                bool is_exception = t.IsRedFive() || t == last_tile_added_.value();
-                if (!added.count(t.Type()) || is_exception) possible_discards.push_back(t);
-                if (!is_exception) added.insert(t.Type());
-            }
-        return possible_discards;
+        assert(Any(SizeClosed(), {2, 5, 8, 11, 14}));
+        if (under_riichi_) return { last_tile_added_.value() };
+        return AllPossibleDiscards();
     }
 
     std::vector<Tile> Hand::PossibleDiscardsAfterRiichi() const {
         assert(IsMenzen());
-        assert(under_riichi_);
+        assert(IsUnderRiichi());
         assert(stage_ == HandStage::kAfterRiichi);
-        assert(SizeClosed() == 2 || SizeClosed() == 5 || SizeClosed() == 8 || SizeClosed() == 11 || SizeClosed() == 14);
+        assert(Any(SizeClosed(), {2, 5, 8, 11, 14}));
         return PossibleDiscardsToTakeTenpai();
     }
 
@@ -720,17 +708,34 @@ namespace mj
     }
 
     std::vector<Tile> Hand::PossibleDiscardsToTakeTenpai() const {
+        assert(!Any(stage_, {HandStage::kAfterDiscards, HandStage::kAfterTsumo, HandStage::kAfterTsumoAfterKan, HandStage::kAfterRon}));
+        assert(last_tile_added_);
         assert(Any(SizeClosed(), {2, 5, 8, 11, 14}));
         assert(CanTakeTenpai());
         std::vector<Tile> possible_discards;
         auto closed_tile_types = ClosedTileTypes();
-        for (const auto tile: PossibleDiscards()) {
+        for (const auto tile: AllPossibleDiscards()) {
             assert(closed_tile_types.count(tile.Type()));
             if (--closed_tile_types[tile.Type()] == 0) closed_tile_types.erase(tile.Type());
             if (Hand::IsTenpai(closed_tile_types)) possible_discards.emplace_back(tile);
             ++closed_tile_types[tile.Type()];
         }
         assert(!possible_discards.empty());
+        return possible_discards;
+    }
+
+    std::vector<Tile> Hand::AllPossibleDiscards() const {
+        assert(!Any(stage_, {HandStage::kAfterDiscards, HandStage::kAfterTsumo, HandStage::kAfterTsumoAfterKan, HandStage::kAfterRon}));
+        assert(last_tile_added_);
+        assert(Any(SizeClosed(), {2, 5, 8, 11, 14}));
+        auto possible_discards = std::vector<Tile>();
+        std::unordered_set<TileType> added;
+        for (auto t : closed_tiles_)
+            if (!undiscardable_tiles_.count(t)) {
+                bool is_exception = t.IsRedFive() || t == last_tile_added_.value();
+                if (!added.count(t.Type()) || is_exception) possible_discards.push_back(t);
+                if (!is_exception) added.insert(t.Type());
+            }
         return possible_discards;
     }
 
