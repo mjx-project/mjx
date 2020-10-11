@@ -725,17 +725,18 @@ namespace mj
     }
 
     std::vector<Tile> Hand::AllPossibleDiscards() const {
+        // 同じ種類（タイプ）の牌については、idが一番小さいものだけを返す。赤とツモ切り牌だけ例外。
         assert(!Any(stage_, {HandStage::kAfterDiscards, HandStage::kAfterTsumo, HandStage::kAfterTsumoAfterKan, HandStage::kAfterRon}));
         assert(last_tile_added_);
         assert(Any(SizeClosed(), {2, 5, 8, 11, 14}));
         auto possible_discards = std::vector<Tile>();
         std::unordered_set<TileType> added;
-        for (auto t : closed_tiles_)
-            if (!undiscardable_tiles_.count(t)) {
-                bool is_exception = t.IsRedFive() || t == last_tile_added_.value();
-                if (!added.count(t.Type()) || is_exception) possible_discards.push_back(t);
-                if (!is_exception) added.insert(t.Type());
-            }
+        for (auto t : closed_tiles_) {
+            if (undiscardable_tiles_.count(t)) continue;
+            bool is_exception = t.IsRedFive() || t == last_tile_added_.value();
+            if (!added.count(t.Type()) || is_exception) possible_discards.push_back(t);
+            if (!is_exception) added.insert(t.Type());
+        }
         return possible_discards;
     }
 
