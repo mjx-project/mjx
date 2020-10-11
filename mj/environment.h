@@ -9,16 +9,16 @@ namespace mj
     class Environment
     {
     public:
-        Environment(std::vector<AgentClient*> agents);
+        Environment(std::vector<std::shared_ptr<AgentClient>> agents);
 
         [[noreturn]] void Run();
         void RunOneGame(std::uint32_t seed = 9999);
         void RunOneRound();
     private:
-        std::vector<AgentClient*> agents_;
+        const std::vector<std::shared_ptr<AgentClient>> agents_;
         State state_;
 
-        const AgentClient* agent(AbsolutePos pos) const;
+        std::shared_ptr<AgentClient> agent(AbsolutePos pos) const;
     };
 }  // namespace mj
 

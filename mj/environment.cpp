@@ -7,7 +7,7 @@
 namespace mj
 {
 
-    Environment::Environment(std::vector<AgentClient*> agents) :agents_(std::move(agents)) { }
+    Environment::Environment(std::vector<std::shared_ptr<AgentClient>> agents) :agents_(std::move(agents)) { }
 
     [[noreturn]] void Environment::Run() {
         while(true) RunOneGame();
@@ -48,7 +48,7 @@ namespace mj
         // }
     }
 
-    const AgentClient *Environment::agent(AbsolutePos pos) const {
+    std::shared_ptr<AgentClient> Environment::agent(AbsolutePos pos) const {
         return agents_.at(ToUType(pos));
     }
 }
