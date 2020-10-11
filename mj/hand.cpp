@@ -724,10 +724,11 @@ namespace mj
     bool Hand::CanTakeTenpai() const {
         assert(Any(SizeClosed(), {2, 5, 8, 11, 14}));
         auto closed_tile_type_count = ClosedTileTypes();
-        for (const auto& [discard_tile_type, n] : ClosedTileTypes()) {
-            if (--closed_tile_type_count[discard_tile_type] == 0) closed_tile_type_count.erase(discard_tile_type);
+        for (const auto tile: PossibleDiscards()) {
+            auto tt = tile.Type();
+            if (--closed_tile_type_count[tt] == 0) closed_tile_type_count.erase(tt);
             if (Hand::IsTenpai(closed_tile_type_count)) return true;
-            ++closed_tile_type_count[discard_tile_type];
+            ++closed_tile_type_count[tt];
         }
         return false;
     }

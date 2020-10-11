@@ -698,3 +698,11 @@ TEST(hand, IsTenpai) {
     h = Hand(HandParams("m1,m1,m1,m1,m2,m3,m4,m4,m4,m4,rd,rd,rd"));
     EXPECT_FALSE(h.IsTenpai());
 }
+
+TEST(hand, CanTakeTenpai) {
+    auto h = Hand(HandParams("m5,m6,s2,s3,s4,p9,p9").Pon("m8,m8,m8").Chi("s5,s6,s7"));
+    auto t = Tile::Create({"s3", "s4", "s5"});
+    auto c = Chi::Create(t, Tile("s5", 0));
+    h.ApplyOpen(c);
+    EXPECT_EQ(h.CanTakeTenpai(), false);  // s2は喰い替えで切れないのでテンパイは取れない
+}
