@@ -26,7 +26,6 @@ namespace mj
 
     void Environment::RunOneRound() {
         while (!state_.IsRoundOver()) {
-            std::cerr << state_.ToJson() << std::endl;
             auto observations = state_.CreateObservations();
             std::vector<Action> actions; actions.reserve(observations.size());
             for (auto& [player_id, obs]: observations) {
