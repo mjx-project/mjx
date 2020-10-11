@@ -736,6 +736,7 @@ namespace mj
             if (!is_exception) added.insert(t.Type());
         }
         assert(!Any(stage_, {HandStage::kAfterDraw, HandStage::kAfterDrawAfterKan}) || Any(last_tile_added_.value(), possible_discards));
+        assert(!possible_discards.empty());
         return possible_discards;
     }
 
