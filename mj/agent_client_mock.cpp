@@ -3,7 +3,8 @@
 
 namespace mj
 {
-    AgentClientMock::AgentClientMock(PlayerId player_id): AgentClient(std::move(player_id), nullptr) {}
+    AgentClientMock::AgentClientMock(PlayerId player_id): AgentClient(std::move(player_id)) {}
+
     Action AgentClientMock::TakeAction(Observation &&observation) const {
         // Currently this method only implements discard
         mjproto::Action response;
