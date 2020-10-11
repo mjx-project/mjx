@@ -740,9 +740,9 @@ namespace mj
     std::vector<Tile> Hand::PossibleDiscardsToTakeTenpai() const {
         assert(Any(SizeClosed(), {2, 5, 8, 11, 14}));
         assert(CanTakeTenpai());
+        std::vector<Tile> possible_discards;
         auto closed_tile_types = ClosedTileTypes();
-        auto possible_discards = stage_ != HandStage::kAfterRiichi ? PossibleDiscards() : PossibleDiscardsAfterRiichi();
-        for (const auto tile: possible_discards) {
+        for (const auto tile: PossibleDiscards()) {
             assert(closed_tile_types.count(tile.Type()));
             if (--closed_tile_types[tile.Type()] == 0) closed_tile_types.erase(tile.Type());
             if (Hand::IsTenpai(closed_tile_types)) possible_discards.emplace_back(tile);
