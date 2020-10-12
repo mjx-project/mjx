@@ -81,7 +81,8 @@ namespace mj
             return Action(std::move(response));
         }
         // 上記以外のときは、ランダムに切る
-        response.set_discard(possible_action.discard_candidates().front().Id());
+        auto possible_discards = possible_action.discard_candidates();
+        response.set_discard(SelectRandomly(possible_discards.begin(), possible_discards.end())->Id());
         return Action(std::move(response));
     }
 }
