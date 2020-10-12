@@ -44,7 +44,7 @@ namespace mj
                 response.set_type(mjproto::ActionType(possible_action.type()));
                 return Action(std::move(response));
             }
-       }
+        }
 
         // 鳴ける場合にはランダムに行動選択
         if (Any(possible_action.type(), {ActionType::kKanClosed, ActionType::kKanAdded, ActionType::kKanOpened, ActionType::kPon, ActionType::kChi})) {
