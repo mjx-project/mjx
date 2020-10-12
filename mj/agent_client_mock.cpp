@@ -26,6 +26,8 @@ namespace mj
         };
         std::sort(possible_actions.begin(), possible_actions.end(),
                 [&action_priority](const PossibleAction &x, const PossibleAction &y){ return action_priority.at(x.type()) < action_priority.at(y.type()); });
+
+        const Hand curr_hand = observation.current_hand();
         auto& possible_action = possible_actions.front();
 
         // 和了れるときは全て和了る。リーチできるときは全てリーチする。九種九牌も全て流す。
@@ -33,6 +35,16 @@ namespace mj
             response.set_type(mjproto::ActionType(possible_action.type()));
             return Action(std::move(response));
         }
+
+        // テンパっているときには他家から鳴かない
+        if (Any(possible_action.type(), {ActionType::kKanOpened, ActionType::kPon, ActionType::kChi})) {
+            if (curr_hand.IsTenpai()) {
+                possible_action = *possible_actions.rbegin();
+                assert(possible_action.type() == ActionType::kNo);
+                response.set_type(mjproto::ActionType(possible_action.type()));
+                return Action(std::move(response));
+            }
+       }
 
         // 鳴ける場合にはランダムに行動選択
         if (Any(possible_action.type(), {ActionType::kKanClosed, ActionType::kKanAdded, ActionType::kKanOpened, ActionType::kPon, ActionType::kChi})) {
@@ -47,7 +59,6 @@ namespace mj
 
         // Discardが選択されたとき（あるいはdiscardしかできないとき）、切る牌を選ぶ
         assert(possible_action.type() == ActionType::kDiscard);
-        const Hand curr_hand = observation.current_hand();
         const TileTypeCount closed_tile_type_cnt = curr_hand.ClosedTileTypes();
         // 聴牌が取れるなら取れるように切る
         if (curr_hand.CanTakeTenpai()) {
