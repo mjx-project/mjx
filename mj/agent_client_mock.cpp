@@ -63,8 +63,16 @@ namespace mj
         // 19の孤立牌を切り飛ばす
         auto is_isolated = [&closed_tile_type_cnt](Tile tile){
             if (closed_tile_type_cnt.count(tile.Type()) && closed_tile_type_cnt.at(tile.Type()) >= 2) return false;
-            if (!Any(tile.Type(), {TileType::kM1, TileType::kP1, TileType::kS1}) && closed_tile_type_cnt.count(TileType(ToUType(tile.Type()) - 1))) return false;
-            if (!Any(tile.Type(), {TileType::kM9, TileType::kP9, TileType::kS9}) && closed_tile_type_cnt.count(TileType(ToUType(tile.Type()) + 1))) return false;
+            if (!Any(tile.Type(), {TileType::kM1, TileType::kP1, TileType::kS1}) &&
+                closed_tile_type_cnt.count(TileType(ToUType(tile.Type()) - 1))) return false;
+            if (!Any(tile.Type(), {TileType::kM1, TileType::kP1, TileType::kS1,
+                                   TileType::kM2, TileType::kP2, TileType::kS2}) &&
+                closed_tile_type_cnt.count(TileType(ToUType(tile.Type()) - 2))) return false;
+            if (!Any(tile.Type(), {TileType::kM9, TileType::kP9, TileType::kS9}) &&
+                closed_tile_type_cnt.count(TileType(ToUType(tile.Type()) + 1))) return false;
+            if (!Any(tile.Type(), {TileType::kM9, TileType::kP9, TileType::kS9,
+                                   TileType::kM8, TileType::kP8, TileType::kS8}) &&
+                closed_tile_type_cnt.count(TileType(ToUType(tile.Type()) + 2))) return false;
             return true;
         };
         for (const auto tile: possible_action.discard_candidates()) {
