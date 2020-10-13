@@ -18,9 +18,10 @@ namespace mj
     }
 
     void Environment::RunOneGame(std::uint32_t seed) {
-        state_ = State();
-        while (!state_.IsGameOver()) {
+        while (true) {
             RunOneRound();
+            if (state_.IsGameOver()) break;
+            state_ = state_.Next();
         }
     }
 
