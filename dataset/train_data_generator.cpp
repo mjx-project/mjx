@@ -10,8 +10,6 @@ namespace mj {
         std::ofstream ofs(dst_path, std::ios::out);
         std::string json;
         while (std::getline(ifs, json)) {
-            std::cerr << "json: " << json << std::endl;
-
             mjproto::State state;
             auto status = google::protobuf::util::JsonStringToMessage(json, &state);
             assert(status.ok());
@@ -27,11 +25,7 @@ namespace mj {
 
                 std::string event_json;
                 assert(google::protobuf::util::MessageToJsonString(event, &event_json).ok());
-                //std::cerr << event_json << std::endl;
-
                 std::string train_data = observation.ToJson() + "\t" + event_json;
-                std::cerr << train_data << std::endl;
-                //
                 state_.UpdateByEvent(event);
             }
         }
