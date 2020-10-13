@@ -71,38 +71,86 @@ namespace mj
             }
             assert(false);
         }
+        // 判定ロジック
+        auto is_head = [&closed_tile_type_cnt](Tile tile){
+            return closed_tile_type_cnt.count(tile.Type()) && closed_tile_type_cnt.at(tile.Type()) >= 2;
+        };
+        auto is_pon = [&closed_tile_type_cnt](Tile tile){
+            return closed_tile_type_cnt.count(tile.Type()) && closed_tile_type_cnt.at(tile.Type()) >= 3;
+        };
+        auto has_next = [&closed_tile_type_cnt](Tile tile, int n){
+            return (bool) closed_tile_type_cnt.count(TileType(ToUType(tile.Type()) + n));
+        };
+        auto has_prev = [&closed_tile_type_cnt](Tile tile, int n){
+            return (bool) closed_tile_type_cnt.count(TileType(ToUType(tile.Type()) - n));
+        };
+        auto is_chi = [&](Tile tile){
+            if (Any(tile.Type(), {TileType::kM1, TileType::kP1, TileType::kS1}))
+                return has_next(tile, 1) && has_next(tile, 2);
+            if (Any(tile.Type(), {TileType::kM2, TileType::kP2, TileType::kS2}))
+                return (has_next(tile, 1) && has_next(tile, 2)) || (has_prev(tile, 1) && has_next(tile, 1));
+            if (Any(tile.Type(), {TileType::kM9, TileType::kP9, TileType::kS9}))
+                return has_prev(tile, 1) && has_prev(tile, 2);
+            if (Any(tile.Type(), {TileType::kM8, TileType::kP8, TileType::kS8}))
+                return (has_prev(tile, 1) && has_prev(tile, 2)) || (has_prev(tile, 1) && has_next(tile, 1));
+            return (has_next(tile, 1) && has_next(tile, 2)) || (has_prev(tile, 1) && has_prev(tile, 2)) || (has_prev(tile, 1) && has_next(tile, 1));
+        };
+        auto has_neighbors = [&](Tile tile){
+            if (Any(tile.Type(), {TileType::kM1, TileType::kP1, TileType::kS1})) return has_next(tile, 1);
+            if (Any(tile.Type(), {TileType::kM9, TileType::kP9, TileType::kS9})) return has_prev(tile, 1);
+            return has_next(tile, 1) || has_prev(tile, 1);
+        };
+        auto has_skip_neighbors = [&](Tile tile){
+            if (Any(tile.Type(), {TileType::kM1, TileType::kP1, TileType::kS1, TileType::kM2, TileType::kP2, TileType::kS2})) return has_next(tile, 2);
+            if (Any(tile.Type(), {TileType::kM9, TileType::kP9, TileType::kS9, TileType::kM8, TileType::kP8, TileType::kS8})) return has_prev(tile, 2);
+            return has_next(tile, 2) || has_prev(tile, 2);
+        };
         // 字牌孤立牌があればまずそれを切り飛ばす
         for (const auto tile: possible_action.discard_candidates()) {
             if (!Is(tile.Type(), TileSetType::kHonours)) continue;
-            if (closed_tile_type_cnt.count(tile.Type()) && closed_tile_type_cnt.at(tile.Type()) >= 2) continue;
+            if (is_head(tile) || is_pon(tile)) continue;
             response.set_discard(tile.Id());
             return Action(std::move(response));
         }
         // 19の孤立牌を切り飛ばす
-        auto is_isolated = [&closed_tile_type_cnt](Tile tile){
-            if (closed_tile_type_cnt.count(tile.Type()) && closed_tile_type_cnt.at(tile.Type()) >= 2) return false;
-            if (!Any(tile.Type(), {TileType::kM1, TileType::kP1, TileType::kS1}) &&
-                closed_tile_type_cnt.count(TileType(ToUType(tile.Type()) - 1))) return false;
-            if (!Any(tile.Type(), {TileType::kM1, TileType::kP1, TileType::kS1,
-                                   TileType::kM2, TileType::kP2, TileType::kS2}) &&
-                closed_tile_type_cnt.count(TileType(ToUType(tile.Type()) - 2))) return false;
-            if (!Any(tile.Type(), {TileType::kM9, TileType::kP9, TileType::kS9}) &&
-                closed_tile_type_cnt.count(TileType(ToUType(tile.Type()) + 1))) return false;
-            if (!Any(tile.Type(), {TileType::kM9, TileType::kP9, TileType::kS9,
-                                   TileType::kM8, TileType::kP8, TileType::kS8}) &&
-                closed_tile_type_cnt.count(TileType(ToUType(tile.Type()) + 2))) return false;
-            return true;
-        };
         for (const auto tile: possible_action.discard_candidates()) {
             if (!Is(tile.Type(), TileSetType::kTerminals)) continue;
-            if (!is_isolated(tile)) continue;
+            if (is_head(tile) || is_pon(tile) || is_chi(tile) || has_neighbors(tile) || has_skip_neighbors(tile)) continue;
             response.set_discard(tile.Id());
             return Action(std::move(response));
         }
         // 断么九の孤立牌を切り飛ばす
         for (const auto tile: possible_action.discard_candidates()) {
             if (!Is(tile.Type(), TileSetType::kTanyao)) continue;
-            if (!is_isolated(tile)) continue;
+            if (is_head(tile) || is_pon(tile) || is_chi(tile) || has_neighbors(tile) || has_skip_neighbors(tile)) continue;
+            response.set_discard(tile.Id());
+            return Action(std::move(response));
+        }
+        // 19ペンチャンを外す
+        for (const auto tile: possible_action.discard_candidates()) {
+            if (!Is(tile.Type(), TileSetType::kTerminals)) continue;
+            if (is_head(tile) || is_pon(tile) || is_chi(tile) || has_skip_neighbors(tile)) continue;
+            response.set_discard(tile.Id());
+            return Action(std::move(response));
+        }
+        // 19カンチャンを外す
+        for (const auto tile: possible_action.discard_candidates()) {
+            if (!Is(tile.Type(), TileSetType::kTerminals)) continue;
+            if (is_head(tile) || is_pon(tile) || is_chi(tile) || has_neighbors(tile)) continue;
+            response.set_discard(tile.Id());
+            return Action(std::move(response));
+        }
+        // 断么九のカンチャンを外す
+        for (const auto tile: possible_action.discard_candidates()) {
+            if (!Is(tile.Type(), TileSetType::kTanyao)) continue;
+            if (is_head(tile) || is_pon(tile) || is_chi(tile) || has_neighbors(tile)) continue;
+            response.set_discard(tile.Id());
+            return Action(std::move(response));
+        }
+        // 断么九の両面を外す
+        for (const auto tile: possible_action.discard_candidates()) {
+            if (!Is(tile.Type(), TileSetType::kTanyao)) continue;
+            if (is_head(tile) || is_pon(tile) || is_chi(tile)) continue;
             response.set_discard(tile.Id());
             return Action(std::move(response));
         }
