@@ -13,3 +13,14 @@ TEST(environment, RunOneRound) {
     Environment env(agents);
     env.RunOneRound();
 }
+
+TEST(environment, RunOneGame) {
+    const std::vector<std::shared_ptr<AgentClient>> agents = {
+            std::make_shared<AgentClientMock>("agent01"),
+            std::make_shared<AgentClientMock>("agent02"),
+            std::make_shared<AgentClientMock>("agent03"),
+            std::make_shared<AgentClientMock>("agent04")
+    };
+    Environment env(agents);
+    env.RunOneGame();
+}
