@@ -106,7 +106,7 @@ namespace mj
         std::optional<AbsolutePos> HasPao(AbsolutePos winner) const noexcept ;
 
 
-        mjproto::State LoadJson(const std::string &json_str) ;
+        static mjproto::State LoadJson(const std::string &json_str) ;
 
         friend class TrainDataGenerator;
         void UpdateByEvent(const mjproto::Event& event);
