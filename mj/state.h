@@ -25,6 +25,7 @@ namespace mj
                 int round = 0, int honba = 0, int riichi = 0,
                 std::array<int, 4> tens = {25000, 25000, 25000, 25000});
         explicit State(const std::string &json_str);
+        explicit State(const mjproto::State& state);
         bool IsRoundOver() const;
         bool IsGameOver() const;
         void Update(std::vector<Action> &&action_candidates);
@@ -104,10 +105,11 @@ namespace mj
         bool IsFourKanNoWinner() const noexcept ;
         std::optional<AbsolutePos> HasPao(AbsolutePos winner) const noexcept ;
 
+
+        mjproto::State LoadJson(const std::string &json_str) ;
+
         friend class TrainDataGenerator;
-        void InitState(const mjproto::State &state);
-        void LoadEvents(const mjproto::EventHistory& event_history);
-        void LoadEvent(const mjproto::Event& event);
+        void UpdateByEvent(const mjproto::Event& event);
     };
 }  // namespace mj
 

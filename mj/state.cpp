@@ -122,16 +122,16 @@ namespace mj
         }
     }
 
-    State::State(const std::string &json_str) {
+    mjproto::State State::LoadJson(const std::string &json_str) {
         mjproto::State state = mjproto::State();
         auto status = google::protobuf::util::JsonStringToMessage(json_str, &state);
         assert(status.ok());
-
-        InitState(state);
-        LoadEvents(state.event_history());
+        return state;
     }
 
-    void State::InitState(const mjproto::State &state) {
+    State::State(const std::string &json_str) : State(LoadJson(json_str)) {}
+
+    State::State(const mjproto::State& state) {
         //mjproto::State state = mjproto::State();
         //auto status = google::protobuf::util::JsonStringToMessage(json_str, &state);
         //assert(status.ok());
@@ -170,64 +170,13 @@ namespace mj
                 if (tenpai[i] == 0) three_ronned_player = AbsolutePos(i);
             }
         }
+
+        for (const auto &event : state.event_history().events()) {
+            UpdateByEvent(event);
+        }
     }
 
-    void State::LoadEvents(const mjproto::EventHistory& event_history) {
-         // Set event history
-         //std::vector<int> draw_ixs = {0, 0, 0, 0};
-         for (const auto& event : event_history.events()) {
-             LoadEvent(event);
-
-             //auto who = AbsolutePos(event.who());
-             //switch (event.type()) {
-             //    case mjproto::EVENT_TYPE_DRAW:
-             //        // TODO: wrap by func
-             //        // private_infos_[ToUType(who)].add_draws(state->private_infos(ToUType(who)).draws(draw_ixs[ToUType(who)]));
-             //        // draw_ixs[ToUType(who)]++;
-             //        Draw(who);
-             //        break;
-             //    case mjproto::EVENT_TYPE_DISCARD_FROM_HAND:
-             //    case mjproto::EVENT_TYPE_DISCARD_DRAWN_TILE:
-             //        Discard(who, Tile(event.tile()));
-             //        break;
-             //    case mjproto::EVENT_TYPE_RIICHI:
-             //        Riichi(who);
-             //        break;
-             //    case mjproto::EVENT_TYPE_TSUMO:
-             //        Tsumo(who);
-             //        break;
-             //    case mjproto::EVENT_TYPE_RON:
-             //        assert(last_event_.type() == EventType::kKanAdded || last_event_.tile() == Tile(event.tile()));
-             //        Ron(who);
-             //        break;
-             //    case mjproto::EVENT_TYPE_CHI:
-             //    case mjproto::EVENT_TYPE_PON:
-             //    case mjproto::EVENT_TYPE_KAN_CLOSED:
-             //    case mjproto::EVENT_TYPE_KAN_OPENED:
-             //    case mjproto::EVENT_TYPE_KAN_ADDED:
-             //        ApplyOpen(who, Open(event.open()));
-             //        break;
-             //    case mjproto::EVENT_TYPE_NEW_DORA:
-             //        AddNewDora();
-             //        break;
-             //    case mjproto::EVENT_TYPE_RIICHI_SCORE_CHANGE:
-             //        RiichiScoreChange();
-             //        break;
-             //    case mjproto::EVENT_TYPE_NO_WINNER:
-             //        NoWinner();
-             //        break;
-             //}
-         }
-         // if (!google::protobuf::util::MessageDifferencer::Equals(state, state_)) {
-         //     std::string expected;
-         //     google::protobuf::util::MessageToJsonString(state, &expected);
-         //     std::cerr << "Expected: " << expected << std::endl;
-         //     std::cerr << "Actual  : " << ToJson() << std::endl;
-         // }
-         // assert(google::protobuf::util::MessageDifferencer::Equals(state, state_));
-    }
-
-    void State::LoadEvent(const mjproto::Event& event) {
+    void State::UpdateByEvent(const mjproto::Event& event) {
         auto who = AbsolutePos(event.who());
         switch (event.type()) {
             case mjproto::EVENT_TYPE_DRAW:
