@@ -5,6 +5,7 @@
 #include <array>
 #include <vector>
 #include <random>
+#include <utility>
 #include "consts.h"
 #include "tile.h"
 #include "observation.h"
@@ -12,7 +13,12 @@
 #include "event.h"
 #include "player.h"
 #include "wall.h"
+#include "hand.h"
+#include "mj.grpc.pb.h"
+#include "utils.h"
+#include "yaku_evaluator.h"
 
+//これを構造体に変える
 namespace mj
 {
    class State
@@ -64,24 +70,18 @@ namespace mj
         TileType last_discard_type_;
         bool is_first_turn_wo_open = true;  // ダブル立直, 九種九牌, 四風連打, etc
         bool is_four_winds = true;
-        std::vector<bool> has_nm = {true, true, true, true};
-        std::unordered_map<AbsolutePos, std::bitset<34>> missed_tiles = {
-                {AbsolutePos::kInitEast, 0},
-                {AbsolutePos::kInitSouth, 0},
-                {AbsolutePos::kInitWest, 0},
-                {AbsolutePos::kInitNorth, 0}
-        };  // 他家の打牌でロンを見逃した牌のbitset. フリテンの判定に使用する.
         std::optional<AbsolutePos> three_ronned_player = std::nullopt;
         bool is_round_over_ = false;
         bool require_riichi_score_change_ = false;
         bool require_kan_draw_ = false;
         int require_kan_dora_ = 0;  // 加槓 => 暗槓が続いたときに2回連続でカンドラを開く場合がある https://github.com/sotetsuk/mahjong/issues/199
-        std::unordered_map<AbsolutePos, bool> is_ippatsu_ = {{AbsolutePos::kInitEast, false}, {AbsolutePos::kInitSouth, false}, {AbsolutePos::kInitWest, false}, {AbsolutePos::kInitNorth, false}};
         bool is_robbing_kan = false;
 
         // accessors
         [[nodiscard]] const Player& player(AbsolutePos pos) const;
         [[nodiscard]] Player& mutable_player(AbsolutePos pos);
+        [[nodiscard]] const Hand& hand(AbsolutePos who) const;
+        [[nodiscard]] Hand& mutable_hand(AbsolutePos who);
         [[nodiscard]] WinStateInfo win_state_info(AbsolutePos who) const;
         [[nodiscard]] AbsolutePos top_player() const;
 
@@ -105,6 +105,13 @@ namespace mj
         bool IsFourKanNoWinner() const noexcept ;
         std::optional<AbsolutePos> HasPao(AbsolutePos winner) const noexcept ;
 
+        // #398 追加分
+        // action validators
+        bool CanRon(AbsolutePos who, Tile tile) const;
+        bool CanRiichi(AbsolutePos who) const; // デフォルト25000点
+        bool CanTsumo(AbsolutePos who) const;
+
+        [[nodiscard]] std::optional<HandInfo> EvalTenpai(AbsolutePos who) const noexcept ;
 
         static mjproto::State LoadJson(const std::string &json_str) ;
 
