@@ -11,8 +11,10 @@ namespace mj
         // TODO: use seed_
         assert(std::set<PlayerId>(player_ids.begin(), player_ids.end()).size() == 4);  // player_ids should be identical
         last_event_ = Event();
-        for (int i = 0; i < 4; ++i)
-            players_[i] = Player{player_ids[i], AbsolutePos(i), Hand(wall_.initial_hand_tiles(AbsolutePos(i)))};
+        for (int i = 0; i < 4; ++i) {
+            auto hand = Hand(wall_.initial_hand_tiles(AbsolutePos(i)));
+            players_[i] = Player{player_ids[i], AbsolutePos(i), std::move(hand)};
+        }
 
         // set protos
         // player_ids
@@ -29,7 +31,14 @@ namespace mj
         state_.add_doras(wall_.dora_indicators().front().Id());
         state_.add_ura_doras(wall_.ura_dora_indicators().front().Id());
         // private info
-        for (int i = 0; i < 4; ++i) state_.add_private_infos()->set_who(mjproto::AbsolutePos(i));
+        for (int i = 0; i < 4; ++i) {
+            state_.add_private_infos()->set_who(mjproto::AbsolutePos(i));
+            for (const auto tile: wall_.initial_hand_tiles(AbsolutePos(i)))
+                state_.mutable_private_infos(i)->mutable_init_hand()->Add(tile.Id());
+        }
+
+        // dealer draws the first tusmo
+        Draw(dealer());
     }
 
     bool State::IsRoundOver() const {
@@ -822,6 +831,10 @@ namespace mj
             case ActionType::kDiscard:
                 {
                     assert(Any(last_event_.type(), {EventType::kDraw, EventType::kChi, EventType::kPon, EventType::kRon, EventType::kRiichi}));
+                    assert(last_event_.type() == EventType::kRiichi || Any(player(who).PossibleDiscards(),
+                            [&action](Tile possible_discard){ return possible_discard.Equals(action.discard()); }));
+                    assert(last_event_.type() != EventType::kRiichi || Any(player(who).PossibleDiscardsJustAfterRiichi(),
+                            [&action](Tile possible_discard){ return possible_discard.Equals(action.discard()); }));
                     assert(require_kan_dora_ <= 1);
                     if (require_kan_dora_) AddNewDora();
                     Discard(who, action.discard());

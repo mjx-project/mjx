@@ -1,12 +1,18 @@
 #include "agent_client.h"
 
+#include <utility>
+
 namespace mj
 {
-    AgentClient::AgentClient(std::shared_ptr<grpc::Channel> channel)
-            : stub_(mjproto::Agent::NewStub(channel)) {}
+    AgentClient::AgentClient(PlayerId player_id): player_id_(std::move(player_id)) {}
 
-    Action AgentClient::TakeAction(Observation observation) const {
-        assert(stub_ != nullptr);
+    AgentClient::AgentClient(PlayerId player_id, const std::shared_ptr<grpc::Channel>& channel)
+            : player_id_(std::move(player_id)), stub_(mjproto::Agent::NewStub(channel)) {}
+
+    Action AgentClient::TakeAction(Observation &&observation) const {
+        // TODO: verify that player_id is consistent (player_id_ == observation.player_id)
+        assert(!player_id_.empty());
+        assert(stub_);
         const mjproto::Observation request = observation.proto_;
         mjproto::Action response;
         grpc::ClientContext context;
@@ -16,6 +22,10 @@ namespace mj
         }
         auto action = Action(std::move(response));
         return action;
+    }
+
+    PlayerId AgentClient::player_id() const {
+        return player_id_;
     }
 }  // namespace mj
 
