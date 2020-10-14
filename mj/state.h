@@ -105,13 +105,13 @@ namespace mj
         bool IsFourKanNoWinner() const noexcept ;
         std::optional<AbsolutePos> HasPao(AbsolutePos winner) const noexcept ;
 
-       // #398 追加分
-       // action validators
-       bool CanRon(AbsolutePos who, Tile tile) const;
-       bool CanRiichi(AbsolutePos who) const; // デフォルト25000点
-       bool CanTsumo(AbsolutePos who) const;
+        // #398 追加分
+        // action validators
+        bool CanRon(AbsolutePos who, Tile tile) const;
+        bool CanRiichi(AbsolutePos who) const; // デフォルト25000点
+        bool CanTsumo(AbsolutePos who) const;
 
-       [[nodiscard]] std::optional<HandInfo> EvalTenpai(AbsolutePos who) const noexcept ;
+        [[nodiscard]] std::optional<HandInfo> EvalTenpai(AbsolutePos who) const noexcept ;
 
         static mjproto::State LoadJson(const std::string &json_str) ;
 
