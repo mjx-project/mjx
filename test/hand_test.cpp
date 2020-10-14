@@ -249,6 +249,14 @@ TEST(hand, PossibleDiscards) {
             [](Tile x){ return x.Is(TileType::kM3); }), possible_discards.end());
 }
 
+TEST(hand, PossibleDiscardsToTakeTenpai) {
+    auto h = Hand(HandParams("m1,m2,m3,s1,s2,s3,s4,s5,s6,s1,s2,ew,nw"));
+    h.Draw(Tile("ew", 2));
+    auto possible_discards = h.PossibleDiscardsToTakeTenpai();
+    EXPECT_EQ(possible_discards.size(), 1);
+    EXPECT_EQ(possible_discards.front().Type(), TileType::kNW);
+}
+
 TEST(hand, PossibleOpensAfterOthersDiscard) { // TODO: add more detailed test
     auto num_of_opens = [](const auto &opens, const auto &open_type) {
         return std::count_if(opens.begin(), opens.end(),
@@ -586,7 +594,7 @@ TEST(hand, PossibleDiscardsAfterRiichi) {
     auto h = Hand(HandParams("m1,m1,m1,m2,m3,m4,m5,m6,m7,m8,m9,m9,m9"));
     h.Draw(Tile("rd"));
     h.Riichi();
-    auto possible_discards = h.PossibleDiscardsAfterRiichi();
+    auto possible_discards = h.PossibleDiscardsJustAfterRiichi();
     EXPECT_EQ(possible_discards.size(), 4);
     auto HasType = [&](TileType tt) {
         return std::find_if(possible_discards.begin(), possible_discards.end(),
@@ -689,4 +697,12 @@ TEST(hand, IsTenpai) {
     EXPECT_FALSE(h.IsTenpai());
     h = Hand(HandParams("m1,m1,m1,m1,m2,m3,m4,m4,m4,m4,rd,rd,rd"));
     EXPECT_FALSE(h.IsTenpai());
+}
+
+TEST(hand, CanTakeTenpai) {
+    auto h = Hand(HandParams("m5,m6,s2,s3,s4,p9,p9").Pon("m8,m8,m8").Chi("s5,s6,s7"));
+    auto t = Tile::Create({"s3", "s4", "s5"});
+    auto c = Chi::Create(t, Tile("s5", 0));
+    h.ApplyOpen(c);
+    EXPECT_EQ(h.CanTakeTenpai(), false);  // s2は喰い替えで切れないのでテンパイは取れない
 }

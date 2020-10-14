@@ -231,16 +231,14 @@ namespace mj
     }
 
     std::pair<Tile, bool> Hand::Discard(Tile tile) {
-        assert(stage_ != HandStage::kAfterDiscards);
-        assert(stage_ != HandStage::kAfterTsumo && stage_ != HandStage::kAfterTsumoAfterKan &&
-               stage_ != HandStage::kAfterRon);
-        assert(closed_tiles_.find(tile) != closed_tiles_.end());
-        assert(undiscardable_tiles_.find(tile) == undiscardable_tiles_.end());
+        assert(Any(SizeClosed(),  {2, 5, 8, 11, 14}));
+        assert(!Any(stage_, {HandStage::kAfterDiscards, HandStage::kAfterTsumo, HandStage::kAfterTsumoAfterKan, HandStage::kAfterRon}));
+        assert(closed_tiles_.count(tile));
+        assert(!undiscardable_tiles_.count(tile));
         assert(last_tile_added_);
-        assert(!under_riichi_ ||
-               (stage_ == HandStage::kAfterRiichi && Any(tile, PossibleDiscardsAfterRiichi())) ||
-               (under_riichi_ && tile == last_tile_added_));
-        assert(SizeClosed() == 2 || SizeClosed() == 5 || SizeClosed() == 8 || SizeClosed() == 11 || SizeClosed() == 14);
+        assert(!(IsUnderRiichi() && stage_ != HandStage::kAfterRiichi) || tile == last_tile_added_.value());
+        assert((stage_ != HandStage::kAfterRiichi && Any(PossibleDiscards(), [&tile](Tile possible_discard){ return tile.Equals(possible_discard); })) ||
+               (stage_ == HandStage::kAfterRiichi && Any(PossibleDiscardsJustAfterRiichi(), [&tile](Tile possible_discard){ return tile.Equals(possible_discard); })));
         bool tsumogiri = Any(stage_, {HandStage::kAfterDraw, HandStage::kAfterDrawAfterKan, HandStage::kAfterRiichi}) && last_tile_added_ && tile == last_tile_added_.value();
         closed_tiles_.erase(tile);
         undiscardable_tiles_.clear();
@@ -268,51 +266,20 @@ namespace mj
     }
 
     std::vector<Tile> Hand::PossibleDiscards() const {
-        assert(stage_ != HandStage::kAfterDiscards);
-        assert(stage_ != HandStage::kAfterTsumo && stage_ != HandStage::kAfterTsumoAfterKan &&
-               stage_ != HandStage::kAfterRon);
-        assert(stage_ != HandStage::kAfterRiichi);  // PossibleDiscardsAfterRiichi handle this
+        assert(!Any(stage_, {HandStage::kAfterDiscards, HandStage::kAfterTsumo, HandStage::kAfterTsumoAfterKan, HandStage::kAfterRon}));
+        assert(stage_ != HandStage::kAfterRiichi);  // PossibleDiscardsAfterRiichi deal with this situation
         assert(last_tile_added_);
-        assert(SizeClosed() == 2 || SizeClosed() == 5 || SizeClosed() == 8 || SizeClosed() == 11 || SizeClosed() == 14);
-        auto possible_discards = std::vector<Tile>();
-        if (under_riichi_) {
-            possible_discards.push_back(last_tile_added_.value());
-            return possible_discards;
-        }
-        std::unordered_set<TileType> added;
-        for (auto t : closed_tiles_)
-            if (!undiscardable_tiles_.count(t)) {
-                bool is_exception = t.IsRedFive() || t == last_tile_added_.value();
-                if (!added.count(t.Type()) || is_exception) possible_discards.push_back(t);
-                if (!is_exception) added.insert(t.Type());
-            }
-        return possible_discards;
+        assert(Any(SizeClosed(), {2, 5, 8, 11, 14}));
+        if (under_riichi_) return { last_tile_added_.value() };
+        return AllPossibleDiscards();
     }
 
-    std::vector<Tile> Hand::PossibleDiscardsAfterRiichi() const {
+    std::vector<Tile> Hand::PossibleDiscardsJustAfterRiichi() const {
         assert(IsMenzen());
-        assert(under_riichi_);
+        assert(IsUnderRiichi());
         assert(stage_ == HandStage::kAfterRiichi);
-        assert(SizeClosed() == 2 || SizeClosed() == 5 || SizeClosed() == 8 || SizeClosed() == 11 || SizeClosed() == 14);
-        std::vector<Tile> possible_discards;
-
-        std::unordered_set<TileType> added;
-        auto closed_tile_type_count = ClosedTileTypes();
-        for (const Tile discard_tile : closed_tiles_) {
-            bool is_exception = discard_tile.IsRedFive() || discard_tile == last_tile_added_.value();
-            if (!is_exception && added.count(discard_tile.Type())) continue;
-            auto discard_tile_type = discard_tile.Type();
-            assert(closed_tile_type_count[discard_tile_type] >= 1);
-            if (--closed_tile_type_count[discard_tile_type] == 0) {
-                closed_tile_type_count.erase(discard_tile_type);
-                if (!is_exception) added.insert(discard_tile.Type());
-            }
-            if (!WinHandCache::instance().Machi(closed_tile_type_count).empty()) {
-                possible_discards.push_back(discard_tile);
-            }
-            ++closed_tile_type_count[discard_tile_type];
-        }
-        return possible_discards;
+        assert(Any(SizeClosed(), {2, 5, 8, 11, 14}));
+        return PossibleDiscardsToTakeTenpai();
     }
 
     std::vector<Open> Hand::PossibleKanOpened(Tile tile, RelativePos from) const {
@@ -586,19 +553,8 @@ namespace mj
         assert(Any(stage_, {HandStage::kAfterDraw, HandStage::kAfterDrawAfterKan}));
         assert(SizeClosed() == 2 || SizeClosed() == 5 || SizeClosed() == 8 || SizeClosed() == 11 || SizeClosed() == 14);
         if (!IsMenzen() || ten < 1000) return false;
-
-        auto closed_tile_type_count = ClosedTileTypes();
-        for (const auto& [discard_tile_type, n] : ClosedTileTypes()) {
-            if (--closed_tile_type_count[discard_tile_type] == 0) {
-                closed_tile_type_count.erase(discard_tile_type);
-            }
-            if (!WinHandCache::instance().Machi(closed_tile_type_count).empty()) {
-                return true;
-            }
-            ++closed_tile_type_count[discard_tile_type];
-        }
-        return false;
-    }
+        return CanTakeTenpai();
+   }
 
     std::optional<Tile> Hand::LastTileAdded() const {
         return last_tile_added_;
@@ -692,7 +648,7 @@ namespace mj
     bool Hand::IsTenpai() const {
         assert(stage_ == HandStage::kAfterDiscards);
         assert(SizeClosed() == 1 || SizeClosed() == 4 || SizeClosed() == 7 || SizeClosed() == 10 || SizeClosed() == 13);
-        return !WinHandCache::instance().Machi(ClosedTileTypes()).empty();
+        return Hand::IsTenpai(ClosedTileTypes());
     }
 
     bool Hand::IsCompleted(Tile additional_tile) const {
@@ -730,6 +686,58 @@ namespace mj
             if ((dragon_cnt == 3 || wind_cnt == 4) && open.Type() != OpenType::kKanClosed) return open.From();
         }
         return std::nullopt;
+    }
+
+    bool Hand::CanTakeTenpai() const {
+        assert(Any(SizeClosed(), {2, 5, 8, 11, 14}));
+        auto closed_tile_type_count = ClosedTileTypes();
+        if (stage_ == HandStage::kAfterRiichi) return true;
+        for (const auto tile: PossibleDiscards()) {
+            auto tt = tile.Type();
+            if (--closed_tile_type_count[tt] == 0) closed_tile_type_count.erase(tt);
+            if (Hand::IsTenpai(closed_tile_type_count)) return true;
+            ++closed_tile_type_count[tt];
+        }
+        return false;
+    }
+
+    bool Hand::IsTenpai(const TileTypeCount &closed_tile_types) {
+        return !WinHandCache::instance().Machi(closed_tile_types).empty();
+    }
+
+    std::vector<Tile> Hand::PossibleDiscardsToTakeTenpai() const {
+        assert(!Any(stage_, {HandStage::kAfterDiscards, HandStage::kAfterTsumo, HandStage::kAfterTsumoAfterKan, HandStage::kAfterRon}));
+        assert(last_tile_added_);
+        assert(Any(SizeClosed(), {2, 5, 8, 11, 14}));
+        assert(CanTakeTenpai());
+        std::vector<Tile> possible_discards;
+        auto closed_tile_types = ClosedTileTypes();
+        for (const auto tile: AllPossibleDiscards()) {
+            assert(closed_tile_types.count(tile.Type()));
+            if (--closed_tile_types[tile.Type()] == 0) closed_tile_types.erase(tile.Type());
+            if (Hand::IsTenpai(closed_tile_types)) possible_discards.emplace_back(tile);
+            ++closed_tile_types[tile.Type()];
+        }
+        assert(!possible_discards.empty());
+        return possible_discards;
+    }
+
+    std::vector<Tile> Hand::AllPossibleDiscards() const {
+        // 同じ種類（タイプ）の牌については、idが一番小さいものだけを返す。赤とツモ切り牌だけ例外。
+        assert(!Any(stage_, {HandStage::kAfterDiscards, HandStage::kAfterTsumo, HandStage::kAfterTsumoAfterKan, HandStage::kAfterRon}));
+        assert(last_tile_added_);
+        assert(Any(SizeClosed(), {2, 5, 8, 11, 14}));
+        auto possible_discards = std::vector<Tile>();
+        std::unordered_set<TileType> added;
+        for (auto t : closed_tiles_) {
+            if (undiscardable_tiles_.count(t)) continue;
+            bool is_exception = t.IsRedFive() || t == last_tile_added_.value();
+            if (!added.count(t.Type()) || is_exception) possible_discards.push_back(t);
+            if (!is_exception) added.insert(t.Type());
+        }
+        assert(!Any(stage_, {HandStage::kAfterDraw, HandStage::kAfterDrawAfterKan}) || Any(last_tile_added_.value(), possible_discards));
+        assert(!possible_discards.empty());
+        return possible_discards;
     }
 
     HandParams::HandParams(const std::string &closed) {
