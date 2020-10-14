@@ -1,3 +1,4 @@
+from typing import List
 import sys
 import json
 import argparse
@@ -5,16 +6,39 @@ from mjlog_encoder import MjlogEncoder
 from mjlog_decoder import MjlogDecoder, reproduce_wall
 
 
-def detect_format(line: str) -> str:
-    try:
-        json.loads(line)
-        return "mjproto"
-    except:
-        return "mjlog"
+class Converter:
+    def __init__(self, fmt_to: str):
+        self.fmt_from: str = ""
+        self.fmt_to: str = fmt_to
+        self.converter = None
 
+    @staticmethod
+    def _detect_format(line: str) -> str:
+        try:
+            json.loads(line)
+            return "mjproto"
+        except:
+            return "mjlog"
 
-def convert(line: str, fmt_from: str, fmt_to: str) -> str:
-    return fmt_from + "\t" + fmt_to + "\t" + line
+    def _init_converter(self):
+        self.fmt_from = Converter._detect_format(line)
+        if self.fmt_from == "mjproto" and self.fmt_to == "mjlog":
+            self.converter = MjlogEncoder()
+        else:
+            raise NotImplementedError
+
+    def convert(self, line: str) -> List[str]:
+        if self.converter is None:
+            self._init_converter()
+
+        if self.fmt_from == "mjproto" and self.fmt_to == "mjlog":
+            self.converter.put(line)
+            if self.converter.is_completed():
+                return [self.converter.get()]
+            else:
+                return []
+        else:
+            raise NotImplementedError
 
 
 def to(args) -> str:
@@ -56,7 +80,9 @@ if __name__ == "__main__":
     parser.add_argument('--to-mjlog', action='store_true', help="")
     args = parser.parse_args()
 
+    converter = Converter(to(args))
     itr = StdinIterator()
     for line in itr:
-        sys.stdout.write(convert(line, detect_format(line), to(args)))
+        for transformed in converter.convert(line):
+            sys.stdout.write(transformed + "\n")
 

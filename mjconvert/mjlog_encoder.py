@@ -10,22 +10,35 @@ import mj_pb2
 
 
 class MjlogEncoder:
+    def __init__(self):
+        self.xml: str = ""
+        self.is_init_round: bool = False
+        self._reset_xml()
 
-    @staticmethod
-    def encode(path_to_json) -> str:
-        xml = """<mjloggm ver="2.3"><SHUFFLE seed="" ref=""/><GO type="169" lobby="0"/>"""
-        is_init_round = True
-        with open(path_to_json, 'r') as fp:
-            for line in fp:
-                d = json.loads(line)
-                state = json_format.ParseDict(d, mj_pb2.State())
-                if is_init_round:
-                    xml += MjlogEncoder._parse_player_id(state)
-                    xml += """<TAIKYOKU oya="0"/>"""
-                    is_init_round = False
-                xml += MjlogEncoder._parse_each_round(state)
-        xml += """</mjloggm>"""
-        return xml
+    def _reset_xml(self):
+        self.xml = """<mjloggm ver="2.3"><SHUFFLE seed="" ref=""/><GO type="169" lobby="0"/>"""
+        self.is_init_round = True
+
+    def is_completed(self):
+        return self.xml.endswith("""</mjloggm>""")
+
+    def put(self, line) -> None:
+        assert not self.is_completed()
+        d = json.loads(line)
+        state = json_format.ParseDict(d, mj_pb2.State())
+        if self.is_init_round:
+            self.xml += MjlogEncoder._parse_player_id(state)
+            self.xml += """<TAIKYOKU oya="0"/>"""
+            self.is_init_round = False
+        self.xml += MjlogEncoder._parse_each_round(state)
+        if state.terminal.is_game_over:
+            self.xml += """</mjloggm>"""
+
+    def get(self) -> str:
+        assert self.is_completed()
+        tmp = self.xml
+        self._reset_xml()
+        return tmp
 
     @staticmethod
     def _parse_each_round(state: mj_pb2.State) -> str:
@@ -247,28 +260,3 @@ class MjlogEncoder:
 
         return final_score
 
-
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="""Convert json files (protobuf serialization) into Tenhou's mjlog format.
-
-    Example:
-
-      $ python mjlog_encoder.py resources/decoded_json resources/encoded_mjlog 
-    """)
-    parser.add_argument('json_dir', help='Path to input json.')
-    parser.add_argument('mjlog_dir', help='Path to output mjlogs.')
-    args = parser.parse_args()
-
-    os.makedirs(args.mjlog_dir, exist_ok=True)
-    for json_file in os.listdir(args.json_dir):
-        if not json_file.endswith("json"):
-            continue
-
-        path_to_json = os.path.join(args.json_dir, json_file)
-        path_to_mjlog = os.path.join(args.mjlog_dir, os.path.splitext(os.path.basename(path_to_json))[0] + '.mjlog')
-
-        print(f"converting:\t{path_to_json}")
-        with open(path_to_mjlog, 'w') as fp:
-            s = MjlogEncoder.encode(path_to_json)
-            fp.write(s + "\n")
-        print(f"done:\t{path_to_mjlog}")
