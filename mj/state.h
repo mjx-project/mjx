@@ -31,6 +31,7 @@ namespace mj
                 int round = 0, int honba = 0, int riichi = 0,
                 std::array<int, 4> tens = {25000, 25000, 25000, 25000});
         explicit State(const std::string &json_str);
+        explicit State(const mjproto::State& state);
         bool IsRoundOver() const;
         bool IsGameOver() const;
         void Update(std::vector<Action> &&action_candidates);
@@ -129,7 +130,11 @@ namespace mj
        [[nodiscard]] std::pair<HandInfo, WinScore> EvalWinHand(AbsolutePos who, WinStateInfo &&win_state_info) const noexcept ;
        [[nodiscard]] std::optional<HandInfo> EvalTenpai(AbsolutePos who) const noexcept ;
 
-   };
+        static mjproto::State LoadJson(const std::string &json_str) ;
+
+        friend class TrainDataGenerator;
+        void UpdateByEvent(const mjproto::Event& event);
+    };
 }  // namespace mj
 
 #endif //MAHJONG_STATE_H
