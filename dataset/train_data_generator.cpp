@@ -34,9 +34,3 @@ namespace mj {
     }
 
 } // namespace mj
-
-int main() {
-    mj::TrainDataGenerator::generate(
-            std::string(RESOURCES_DIR) + "/2010091009gm-00a9-0000-83af2648&tw=2.json",
-            std::string(RESOURCES_DIR) + "/sample.txt");
-}
