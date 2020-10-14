@@ -1111,7 +1111,7 @@ namespace mj
 
     bool State::CanRiichi(AbsolutePos who) const {
         if (hand(who).IsUnderRiichi()) return false;
-        // TODO: ツモ番があるかどうかをここで確認
+        if (!wall_.HasNextDrawLeft()) return false;
         return hand(who).CanRiichi(ten(who));
     }
 
