@@ -11,8 +11,10 @@ namespace mj
         // TODO: use seed_
         assert(std::set<PlayerId>(player_ids.begin(), player_ids.end()).size() == 4);  // player_ids should be identical
         last_event_ = Event();
-        for (int i = 0; i < 4; ++i)
-            players_[i] = Player{player_ids[i], AbsolutePos(i), Hand(wall_.initial_hand_tiles(AbsolutePos(i)))};
+        for (int i = 0; i < 4; ++i) {
+            auto hand = Hand(wall_.initial_hand_tiles(AbsolutePos(i)));
+            players_[i] = Player{player_ids[i], AbsolutePos(i), std::move(hand)};
+        }
 
         // set protos
         // player_ids
@@ -29,19 +31,35 @@ namespace mj
         state_.add_doras(wall_.dora_indicators().front().Id());
         state_.add_ura_doras(wall_.ura_dora_indicators().front().Id());
         // private info
-        for (int i = 0; i < 4; ++i) state_.add_private_infos()->set_who(mjproto::AbsolutePos(i));
+        for (int i = 0; i < 4; ++i) {
+            state_.add_private_infos()->set_who(mjproto::AbsolutePos(i));
+            for (const auto tile: wall_.initial_hand_tiles(AbsolutePos(i)))
+                state_.mutable_private_infos(i)->mutable_init_hand()->Add(tile.Id());
+        }
+
+        // dealer draws the first tusmo
+        Draw(dealer());
     }
 
     bool State::IsRoundOver() const {
         return is_round_over_;
     }
 
+
+    const Player &State::player(AbsolutePos pos) const {
+        return players_.at(ToUType(pos));
+    }
+
     Player& State::mutable_player(AbsolutePos pos) {
         return players_.at(ToUType(pos));
     }
 
-    const Player &State::player(AbsolutePos pos) const {
-        return players_.at(ToUType(pos));
+    const Hand &State::hand(AbsolutePos who) const {
+        return player(who).hand;
+    }
+
+    Hand& State::mutable_hand(AbsolutePos who) {
+        return mutable_player(who).hand;
     }
 
     std::unordered_map<PlayerId, Observation> State::CreateObservations() const {
@@ -49,31 +67,31 @@ namespace mj
             case EventType::kDraw:
                 {
                     auto who = last_event_.who();
-                    auto player_id = player(who).player_id();
+                    auto player_id = player(who).player_id;
                     auto observation = Observation(who, state_);
 
                     // => NineTiles
-                    if (is_first_turn_wo_open && player(who).CanNineTiles()) {
+                    if (is_first_turn_wo_open && hand(who).CanNineTiles()) {
                         observation.add_possible_action(PossibleAction::CreateNineTiles());
                     }
 
                     // => Tsumo (1)
-                    if (player(who).IsCompleted() && player(who).CanTsumo(win_state_info(who)))
+                    if (hand(who).IsCompleted() && CanTsumo(who))
                         observation.add_possible_action(PossibleAction::CreateTsumo());
 
                     // => Kan (2)
-                    if (auto possible_kans = player(who).PossibleOpensAfterDraw(); !possible_kans.empty()) {
+                    if (auto possible_kans = hand(who).PossibleOpensAfterDraw(); !possible_kans.empty()) {
                         for (const auto possible_kan: possible_kans) {
                             observation.add_possible_action(PossibleAction::CreateOpen(possible_kan));
                         }
                     }
 
                     // => Riichi (3)
-                    if (player(who).CanRiichi(ten(who)))
+                    if (CanRiichi(who))
                         observation.add_possible_action(PossibleAction::CreateRiichi());
 
                     // => Discard (4)
-                    observation.add_possible_action(PossibleAction::CreateDiscard(player(who).PossibleDiscards()));
+                    observation.add_possible_action(PossibleAction::CreateDiscard(hand(who).PossibleDiscards()));
 
                     return { {player_id, std::move(observation)} };
                 }
@@ -82,8 +100,8 @@ namespace mj
                     // => Discard (5)
                     auto who = last_event_.who();
                     auto observation = Observation(who, state_);
-                    observation.add_possible_action(PossibleAction::CreateDiscard(player(who).PossibleDiscardsAfterRiichi()));
-                    return { {player(who).player_id(), std::move(observation)} };
+                    observation.add_possible_action(PossibleAction::CreateDiscard(hand(who).PossibleDiscardsJustAfterRiichi()));
+                    return { {player(who).player_id, std::move(observation)} };
                 }
             case EventType::kChi:
             case EventType::kPon:
@@ -91,8 +109,8 @@ namespace mj
                     // => Discard (6)
                     auto who = last_event_.who();
                     auto observation = Observation(who, state_);
-                    observation.add_possible_action(PossibleAction::CreateDiscard(player(who).PossibleDiscards()));
-                    return { {player(who).player_id(), std::move(observation)} };
+                    observation.add_possible_action(PossibleAction::CreateDiscard(hand(who).PossibleDiscards()));
+                    return { {player(who).player_id, std::move(observation)} };
                 }
             case EventType::kDiscardFromHand:
             case EventType::kDiscardDrawnTile:
@@ -230,17 +248,17 @@ namespace mj
             for (int i = 0; i < 4; ++i) {
                 auto type = last_ronable_tile.value().Type();
                 auto ix = ToUType(type);
-                missed_tiles[AbsolutePos(i)].set(ix);
+                mutable_player(AbsolutePos(i)).missed_tiles.set(ix);
             }
         }
-        if (!player(who).IsUnderRiichi()) missed_tiles[who].reset();  // フリテン解除
+        if (!hand(who).IsUnderRiichi()) mutable_player(who).missed_tiles.reset();  // フリテン解除
 
         auto draw = require_kan_draw_ ? wall_.KanDraw() : wall_.Draw();
         require_kan_draw_ = false;
-        mutable_player(who).Draw(draw);
+        mutable_hand(who).Draw(draw);
 
         // 加槓=>槍槓=>Noのときの一発消し。加槓時に自分の一発は外れている外れているはずなので、一発が残っているのは他家のだれか
-        if (last_event_.type() == EventType::kKanAdded) for (int i = 0; i < 4; ++i) is_ippatsu_[AbsolutePos(i)] = false;
+        if (last_event_.type() == EventType::kKanAdded) for (int i = 0; i < 4; ++i) mutable_player(AbsolutePos(i)).is_ippatsu = false;
         // 槍槓
         is_robbing_kan = false;
 
@@ -252,19 +270,26 @@ namespace mj
     }
 
     void State::Discard(AbsolutePos who, Tile discard) {
-        auto [discarded, tsumogiri] = mutable_player(who).Discard(discard);
+        mutable_player(who).discards.set(ToUType(discard.Type()));
+        auto [discarded, tsumogiri] = mutable_hand(who).Discard(discard);
+        if (hand(who).IsTenpai()) {
+            mutable_player(who).machi.reset();
+            for (auto tile_type : WinHandCache::instance().Machi(hand(who).ClosedTileTypes())) {
+                mutable_player(who).machi.set(ToUType(tile_type));
+            }
+        }
         assert(discard == discarded);
 
         last_ronable_tile = discard; // ロンされうる牌を更新
 
-        is_ippatsu_[who] = false;
+        mutable_player(who).is_ippatsu = false;
         // set is_four_winds = false
         if (is_first_turn_wo_open && is_four_winds) {
             if (!Is(discard.Type(), TileSetType::kWinds)) is_four_winds = false;
             if (dealer() != who && last_discard_type_ != discard.Type()) is_four_winds = false;
         }
         if (Is(discard.Type(), TileSetType::kTanyao)) {
-            has_nm[ToUType(who)] = false;
+            mutable_player(who).has_nm=false;
         }
         last_event_ = Event::CreateDiscard(who, discard, tsumogiri);
         last_discard_type_ = discard.Type();
@@ -280,7 +305,7 @@ namespace mj
 
     void State::Riichi(AbsolutePos who) {
         assert(ten(who) >= 1000);
-        mutable_player(who).Riichi(is_first_turn_wo_open);
+        mutable_hand(who).Riichi(is_first_turn_wo_open);
 
         last_event_ = Event::CreateRiichi(who);
         state_.mutable_event_history()->mutable_events()->Add(last_event_.proto());
@@ -289,12 +314,12 @@ namespace mj
     }
 
     void State::ApplyOpen(AbsolutePos who, Open open) {
-        missed_tiles[who].reset();  // フリテン解除
+        mutable_player(who).missed_tiles.reset();  // フリテン解除
 
-        mutable_player(who).ApplyOpen(open);
+        mutable_hand(who).ApplyOpen(open);
 
         int absolute_pos_from = (ToUType(who) + ToUType(open.From())) % 4;
-        has_nm[absolute_pos_from] = false; // 鳴かれた人は流し満貫が成立しない
+        mutable_player(AbsolutePos(absolute_pos_from)).has_nm = false; // 鳴かれた人は流し満貫が成立しない
 
         if (open.Type() == OpenType::kKanAdded) {
             last_ronable_tile = open.LastTile();    // KanAddedはロンされうる
@@ -311,10 +336,10 @@ namespace mj
         // 一発解消は「純正巡消しは発声＆和了打診後（加槓のみ)、嶺上ツモの前（連続する加槓の２回目には一発は付かない）」なので、
         // 加槓時は自分の一発だけ消して（一発・嶺上開花は併発しない）、その他のときには全員の一発を消す
         if (open.Type() == OpenType::kKanAdded) {
-            is_ippatsu_[who] = false;
+            mutable_player(who).is_ippatsu = false;
             is_robbing_kan = true;  // 槍槓
         } else {
-            for (int i = 0; i < 4; ++i) is_ippatsu_[AbsolutePos(i)] = false;
+            for (int i = 0; i < 4; ++i) mutable_player(AbsolutePos(i)).is_ippatsu = false;
         }
     }
 
@@ -338,11 +363,11 @@ namespace mj
         state_.mutable_event_history()->mutable_events()->Add(last_event_.proto());
 
         require_riichi_score_change_ = false;
-        is_ippatsu_[who] = true;
+        mutable_player(who).is_ippatsu=true;
     }
 
     void State::Tsumo(AbsolutePos winner) {
-        mutable_player(winner).Tsumo();
+        mutable_player(winner).hand.Tsumo();
         auto [hand_info, win_score] = EvalWinHand(winner);
         // calc ten moves
         auto pao = (win_score.HasYakuman(Yaku::kBigThreeDragons) || win_score.HasYakuman(Yaku::kBigFourWinds)) ? HasPao(winner) : std::nullopt;
@@ -420,7 +445,7 @@ namespace mj
         AbsolutePos loser = last_event_.type() != EventType::kRon ? last_event_.who() : AbsolutePos(state_.terminal().wins(0).from_who());
         Tile tile = last_event_.type() != EventType::kKanAdded ? last_event_.tile() : last_event_.open().LastTile();
 
-        mutable_player(winner).Ron(tile);
+        mutable_player(winner).hand.Ron(tile);
         auto [hand_info, win_score] = EvalWinHand(winner);
         // calc ten moves
         auto pao = (win_score.HasYakuman(Yaku::kBigThreeDragons) || win_score.HasYakuman(Yaku::kBigFourWinds)) ? HasPao(winner) : std::nullopt;
@@ -511,7 +536,7 @@ namespace mj
             state_.mutable_terminal()->mutable_no_winner()->set_type(mjproto::NO_WINNER_TYPE_KYUUSYU);
             mjproto::TenpaiHand tenpai;
             tenpai.set_who(mjproto::AbsolutePos(last_event_.who()));
-            for (auto tile: player(last_event_.who()).closed_tiles()) tenpai.mutable_closed_tiles()->Add(tile.Id());
+            for (auto tile: hand(last_event_.who()).ToVectorClosed(true)) tenpai.mutable_closed_tiles()->Add(tile.Id());
             state_.mutable_terminal()->mutable_no_winner()->mutable_tenpais()->Add(std::move(tenpai));
             set_terminal_vals();
             return;
@@ -535,7 +560,8 @@ namespace mj
         }
 
         // 四家立直
-        if (std::all_of(players_.begin(), players_.end(), [](const Player& p){ return p.IsUnderRiichi(); })) {
+        if (std::all_of(players_.begin(), players_.end(),
+                        [&](const Player& player){ return hand(player.position).IsUnderRiichi(); })) {
             state_.mutable_terminal()->mutable_no_winner()->set_type(mjproto::NO_WINNER_TYPE_FOUR_RIICHI);
             // 聴牌の情報が必要なため, ここでreturnしてはいけない.
         }
@@ -549,7 +575,7 @@ namespace mj
         for (int i = 0; i < 4; ++i) {
             auto who = AbsolutePos(i);
             if (three_ronned_player and three_ronned_player.value() == who) continue; // 三家和了でロンされた人の聴牌情報は入れない
-            if (auto tenpai_hand = player(who).EvalTenpai(); tenpai_hand) {
+            if (auto tenpai_hand = EvalTenpai(who); tenpai_hand) {
                 is_tenpai[i] = 1;
                 mjproto::TenpaiHand tenpai;
                 tenpai.set_who(mjproto::AbsolutePos(who));
@@ -562,10 +588,10 @@ namespace mj
 
         std::vector<int> ten_move{0, 0, 0, 0};
         // 流し満貫
-        if (std::any_of(has_nm.begin(), has_nm.end(), [](bool hasnm){ return hasnm; })) {
+        if (std::any_of(players_.begin(), players_.end(), [](const Player &p){ return p.has_nm; })) {
             int dealer_ix = ToUType(dealer());
             for (int i = 0; i < 4; ++i) {
-                if (has_nm[i]) {
+                if (player(AbsolutePos(i)).has_nm) {
                     for (int j = 0; j < 4; ++j) {
                         if (i == j) ten_move[j] += (i == dealer_ix ? 12000 : 8000);
                         else        ten_move[j] -= (i == dealer_ix or j == dealer_ix ? 4000 : 2000);
@@ -628,7 +654,7 @@ namespace mj
         // 北入なし
         bool dealer_win_or_tenpai = (Any(last_event_.type(), {EventType::kRon, EventType::kTsumo})
                                      && std::any_of(state_.terminal().wins().begin(), state_.terminal().wins().end(), [&](const auto x){ return AbsolutePos(x.who()) == dealer(); })) ||
-                                    (last_event_.type() == EventType::kNoWinner && player(dealer()).IsTenpai());
+                                    (last_event_.type() == EventType::kNoWinner && hand(dealer()).IsTenpai());
         if (round() == 11 && !dealer_win_or_tenpai) return true;
 
         // トップが3万点必要（供託未収）
@@ -641,7 +667,8 @@ namespace mj
     }
 
     std::pair<HandInfo, WinScore> State::EvalWinHand(AbsolutePos who) const noexcept {
-       return player(who).EvalWinHand(win_state_info(who));
+        return {HandInfo{hand(who).ToVectorClosed(true), hand(who).Opens(), hand(who).LastTileAdded()},
+                YakuEvaluator::Eval(WinInfo(std::move(win_state_info(who)), hand(who).win_info()))};
     }
 
     AbsolutePos State::dealer() const {
@@ -679,7 +706,7 @@ namespace mj
         assert(!IsGameOver());
         std::vector<PlayerId> player_ids(state_.player_ids().begin(), state_.player_ids().end());
         if (last_event_.type() == EventType::kNoWinner) {
-            if (player(dealer()).IsTenpai()) {
+            if (hand(dealer()).IsTenpai()) {
                 return State(player_ids, seed_, round(), honba() + 1, riichi(), tens());
             } else {
                 return State(player_ids, seed_, round() + 1, honba() + 1, riichi(), tens());
@@ -716,15 +743,15 @@ namespace mj
              auto observation = Observation(stealer, state_);
 
              // check ron
-             if (player(stealer).IsCompleted(tile) &&
-                 player(stealer).CanRon(tile, win_state_info(stealer), missed_tiles.at(stealer))) {
+             if (hand(stealer).IsCompleted(tile) &&
+                 CanRon(stealer, tile)) {
                  observation.add_possible_action(PossibleAction::CreateRon());
              }
 
              // check chi, pon and kan_opened
              if (has_draw_left && last_event_.type() != EventType::kKanAdded && !IsFourKanNoWinner()) {  // if 槍槓 or 四槓散了直前の捨て牌, only ron
                 auto relative_pos = ToRelativePos(stealer, discarder);
-                auto possible_opens = player(stealer).PossibleOpensAfterOthersDiscard(tile, relative_pos);
+                auto possible_opens = hand(stealer).PossibleOpensAfterOthersDiscard(tile, relative_pos);
                 for (const auto & possible_open: possible_opens)
                     observation.add_possible_action(PossibleAction::CreateOpen(possible_open));
              }
@@ -732,7 +759,7 @@ namespace mj
              if (!observation.has_possible_action()) continue;
              observation.add_possible_action(PossibleAction::CreateNo());
 
-             observations[player(stealer).player_id()] = std::move(observation);
+             observations[player(stealer).player_id] = std::move(observation);
          }
          return observations;
     }
@@ -744,7 +771,7 @@ namespace mj
                 seat_wind,
                 prevalent_wind(),
                 !wall_.HasDrawLeft(),
-                is_ippatsu_.at(who),
+                player(who).is_ippatsu,
                 is_first_turn_wo_open && last_event_.who() == who
                         && (Any(last_event_.type(), {EventType::kDraw, EventType::kTsumo})),
                 seat_wind == Wind::kEast,
@@ -809,6 +836,10 @@ namespace mj
             case ActionType::kDiscard:
                 {
                     assert(Any(last_event_.type(), {EventType::kDraw, EventType::kChi, EventType::kPon, EventType::kRon, EventType::kRiichi}));
+                    assert(last_event_.type() == EventType::kRiichi || Any(hand(who).PossibleDiscards(),
+                            [&action](Tile possible_discard){ return possible_discard.Equals(action.discard()); }));
+                    assert(last_event_.type() != EventType::kRiichi || Any(hand(who).PossibleDiscardsJustAfterRiichi(),
+                            [&action](Tile possible_discard){ return possible_discard.Equals(action.discard()); }));
                     assert(require_kan_dora_ <= 1);
                     if (require_kan_dora_) AddNewDora();
                     Discard(who, action.discard());
@@ -821,7 +852,7 @@ namespace mj
 
                     // 鳴きやロンの候補がなく, 全員が立直していたら四家立直で流局
                     if (std::all_of(players_.begin(), players_.end(),
-                                    [](const Player& player){ return player.IsUnderRiichi(); })) {
+                                    [&](const Player& player){ return hand(player.position).IsUnderRiichi(); })) {
                         RiichiScoreChange();
                         NoWinner();
                         return;
@@ -830,7 +861,7 @@ namespace mj
                     {
                         std::vector<int> kans;
                         for (const Player& p : players_) {
-                            if (int num = p.TotalKans(); num) kans.emplace_back(num);
+                            if (int num = hand(p.position).TotalKans(); num) kans.emplace_back(num);
                         }
                         if (std::accumulate(kans.begin(), kans.end(), 0) == 4 and kans.size() > 1) {
                             NoWinner();
@@ -902,7 +933,7 @@ namespace mj
                 // 4人目に立直した人の立直宣言牌を他家がロンできるけど無視したときのみ.
                 // 四家立直で流局とする.
                 if (std::all_of(players_.begin(), players_.end(),
-                                [](const Player& player){ return player.IsUnderRiichi(); })) {
+                                [&](const Player& player){ return hand(player.position).IsUnderRiichi(); })) {
                     RiichiScoreChange();
                     NoWinner();
                     return;
@@ -945,7 +976,7 @@ namespace mj
     bool State::IsFourKanNoWinner() const noexcept {
         std::vector<int> kans;
         for (const Player& p : players_) {
-            if (int num = p.TotalKans(); num) kans.emplace_back(num);
+            if (int num = hand(p.position).TotalKans(); num) kans.emplace_back(num);
         }
         return std::accumulate(kans.begin(), kans.end(), 0) == 4 and kans.size() > 1;
     }
@@ -955,7 +986,7 @@ namespace mj
     }
 
     std::optional<AbsolutePos> State::HasPao(AbsolutePos winner) const noexcept {
-        auto pao = player(winner).HasPao();
+        auto pao = player(winner).hand.HasPao();
         if (pao) return AbsolutePos((ToUType(winner) + ToUType(pao.value())) % 4);
         else return std::nullopt;
     }
@@ -1066,5 +1097,29 @@ namespace mj
 
         // もしゲーム終了しているなら、Equalでない時点でダメ
         return !IsRoundOver();
+    }
+
+    // #398 追加分
+    // action validators
+    bool State::CanRon(AbsolutePos who, Tile tile) const {
+        // フリテンでないことを確認
+        if ((player(who).machi & player(who).discards).any()) return false;
+        if ((player(who).machi & player(who).missed_tiles).any()) return false;
+        return YakuEvaluator::CanWin(WinInfo(std::move(win_state_info(who)), hand(who).win_info()).Ron(tile));
+    }
+
+    bool State::CanRiichi(AbsolutePos who) const {
+        if (hand(who).IsUnderRiichi()) return false;
+        // TODO: ツモ番があるかどうかをここで確認
+        return hand(who).CanRiichi(ten(who));
+    }
+
+    bool State::CanTsumo(AbsolutePos who) const {
+        return YakuEvaluator::CanWin(WinInfo(std::move(win_state_info(who)), hand(who).win_info()));
+    }
+
+    std::optional<HandInfo> State::EvalTenpai(AbsolutePos who) const noexcept {
+        if (!hand(who).IsTenpai()) return std::nullopt;
+        return HandInfo{hand(who).ToVectorClosed(true), hand(who).Opens(), hand(who).LastTileAdded()};
     }
 }  // namespace mj
