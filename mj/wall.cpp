@@ -65,6 +65,10 @@ namespace mj
         return draw_ix_ + num_kan_draw_ < 122;
     }
 
+    bool Wall::HasNextDrawLeft() const {
+        return draw_ix_ + num_kan_draw_ <= 118;
+    }
+
     std::vector<Tile> Wall::dora_indicators() const {
         assert(abs(num_kan_draw_ - num_kan_dora_) <= 1);
         std::vector<Tile> ret = {tiles_[130]};

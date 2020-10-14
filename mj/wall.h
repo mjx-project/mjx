@@ -32,6 +32,7 @@ namespace mj
         [[nodiscard]] TileTypeCount ura_dora_count() const;
         [[nodiscard]] const std::vector<Tile>& tiles() const;
         [[nodiscard]] bool HasDrawLeft() const;
+        [[nodiscard]] bool HasNextDrawLeft() const;
         Tile Draw();
         Tile KanDraw();
         std::pair<Tile, Tile> AddKanDora();
