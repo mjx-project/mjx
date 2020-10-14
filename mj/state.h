@@ -70,7 +70,6 @@ namespace mj
         TileType last_discard_type_;
         bool is_first_turn_wo_open = true;  // ダブル立直, 九種九牌, 四風連打, etc
         bool is_four_winds = true;
-        // 他家の打牌でロンを見逃した牌のbitset. フリテンの判定に使用する.
         std::optional<AbsolutePos> three_ronned_player = std::nullopt;
         bool is_round_over_ = false;
         bool require_riichi_score_change_ = false;
@@ -104,14 +103,15 @@ namespace mj
 
         // utils
         bool IsFourKanNoWinner() const noexcept ;
-       std::optional<AbsolutePos> HasPao(AbsolutePos winner) const noexcept ;
+        std::optional<AbsolutePos> HasPao(AbsolutePos winner) const noexcept ;
 
-       // #398 追加分
-       // action validators
-       bool CanRon(AbsolutePos who, Tile tile) const;
-       bool CanRiichi(AbsolutePos who) const; // デフォルト25000点
+        // #398 追加分
+        // action validators
+        bool CanRon(AbsolutePos who, Tile tile) const;
+        bool CanRiichi(AbsolutePos who) const; // デフォルト25000点
+        bool CanTsumo(AbsolutePos who) const;
 
-       [[nodiscard]] std::optional<HandInfo> EvalTenpai(AbsolutePos who) const noexcept ;
+        [[nodiscard]] std::optional<HandInfo> EvalTenpai(AbsolutePos who) const noexcept ;
 
         static mjproto::State LoadJson(const std::string &json_str) ;
 
