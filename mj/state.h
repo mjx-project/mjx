@@ -103,7 +103,7 @@ namespace mj
 
         // utils
         bool IsFourKanNoWinner() const noexcept ;
-       std::optional<AbsolutePos> HasPao(AbsolutePos winner) const noexcept ;
+        std::optional<AbsolutePos> HasPao(AbsolutePos winner) const noexcept ;
 
        // #398 追加分
        // action validators
