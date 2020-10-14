@@ -21,7 +21,7 @@
 //これを構造体に変える
 namespace mj
 {
-   class State
+    class State
     {
     public:
         State() = default;
@@ -55,7 +55,7 @@ namespace mj
         // comparison
         bool Equals(const State& other) const noexcept ;
         bool CanReach(const State& other) const noexcept ;
-   private:
+    private:
         // protos
         mjproto::State state_;
         mjproto::Score curr_score_;  // Using state_.terminal.final_score gives wrong serialization when round is not finished.
@@ -103,17 +103,17 @@ namespace mj
 
         // utils
         bool IsFourKanNoWinner() const noexcept ;
-       std::optional<AbsolutePos> HasPao(AbsolutePos winner) const noexcept ;
+        std::optional<AbsolutePos> HasPao(AbsolutePos winner) const noexcept ;
 
-       // #398 追加分
-       // action validators
-       bool CanRon(AbsolutePos who, Tile tile) const;
-       bool CanRiichi(AbsolutePos who) const; // デフォルト25000点
+        // #398 追加分
+        // action validators
+        bool CanRon(AbsolutePos who, Tile tile) const;
+        bool CanRiichi(AbsolutePos who) const; // デフォルト25000点
 
-       // get winning info
-       [[nodiscard]] std::optional<HandInfo> EvalTenpai(AbsolutePos who) const noexcept ;
+        // get winning info
+        [[nodiscard]] std::optional<HandInfo> EvalTenpai(AbsolutePos who) const noexcept ;
 
-   };
+    };
 }  // namespace mj
 
 #endif //MAHJONG_STATE_H

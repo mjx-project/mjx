@@ -7,14 +7,12 @@
 namespace mj
 {
     State::State(std::vector<PlayerId> player_ids, std::uint32_t seed, int round, int honba, int riichi, std::array<int, 4> tens)
-    : seed_(seed), wall_(0, seed) {
+            : seed_(seed), wall_(0, seed) {
         // TODO: use seed_
         assert(std::set<PlayerId>(player_ids.begin(), player_ids.end()).size() == 4);  // player_ids should be identical
         last_event_ = Event();
-        for (int i = 0; i < 4; ++i) {
-            auto hand = Hand(wall_.initial_hand_tiles(AbsolutePos(i)));
-            players_[i] = Player{player_ids[i], AbsolutePos(i), std::move(hand)};
-        }
+        for (int i = 0; i < 4; ++i)
+            players_[i] = Player{player_ids[i], AbsolutePos(i), Hand(wall_.initial_hand_tiles(AbsolutePos(i)))};
 
         // set protos
         // player_ids
@@ -31,14 +29,7 @@ namespace mj
         state_.add_doras(wall_.dora_indicators().front().Id());
         state_.add_ura_doras(wall_.ura_dora_indicators().front().Id());
         // private info
-        for (int i = 0; i < 4; ++i) {
-            state_.add_private_infos()->set_who(mjproto::AbsolutePos(i));
-            for (const auto tile: wall_.initial_hand_tiles(AbsolutePos(i)))
-                state_.mutable_private_infos(i)->mutable_init_hand()->Add(tile.Id());
-        }
-
-        // dealer draws the first tusmo
-        Draw(dealer());
+        for (int i = 0; i < 4; ++i) state_.add_private_infos()->set_who(mjproto::AbsolutePos(i));
     }
 
     bool State::IsRoundOver() const {
@@ -65,70 +56,70 @@ namespace mj
     std::unordered_map<PlayerId, Observation> State::CreateObservations() const {
         switch (last_event_.type()) {
             case EventType::kDraw:
-                {
-                    auto who = last_event_.who();
-                    auto player_id = player(who).player_id_;
-                    auto observation = Observation(who, state_);
+            {
+                auto who = last_event_.who();
+                auto player_id = player(who).player_id_;
+                auto observation = Observation(who, state_);
 
-                    // => NineTiles
-                    if (is_first_turn_wo_open && hand(who).CanNineTiles()) {
-                        observation.add_possible_action(PossibleAction::CreateNineTiles());
-                    }
-
-                    // => Tsumo (1)
-                    if (hand(who).IsCompleted() && YakuEvaluator::CanWin(WinInfo(std::move(win_state_info(who)), hand(who).win_info())))
-                        observation.add_possible_action(PossibleAction::CreateTsumo());
-
-                    // => Kan (2)
-                    if (auto possible_kans = hand(who).PossibleOpensAfterDraw(); !possible_kans.empty()) {
-                        for (const auto possible_kan: possible_kans) {
-                            observation.add_possible_action(PossibleAction::CreateOpen(possible_kan));
-                        }
-                    }
-
-                    // => Riichi (3)
-                    if (CanRiichi(who))
-                        observation.add_possible_action(PossibleAction::CreateRiichi());
-
-                    // => Discard (4)
-                    observation.add_possible_action(PossibleAction::CreateDiscard(hand(who).PossibleDiscards()));
-
-                    return { {player_id, std::move(observation)} };
+                // => NineTiles
+                if (is_first_turn_wo_open && hand(who).CanNineTiles()) {
+                    observation.add_possible_action(PossibleAction::CreateNineTiles());
                 }
+
+                // => Tsumo (1)
+                if (hand(who).IsCompleted() && YakuEvaluator::CanWin(WinInfo(std::move(win_state_info(who)), hand(who).win_info())))
+                    observation.add_possible_action(PossibleAction::CreateTsumo());
+
+                // => Kan (2)
+                if (auto possible_kans = hand(who).PossibleOpensAfterDraw(); !possible_kans.empty()) {
+                    for (const auto possible_kan: possible_kans) {
+                        observation.add_possible_action(PossibleAction::CreateOpen(possible_kan));
+                    }
+                }
+
+                // => Riichi (3)
+                if (CanRiichi(who))
+                    observation.add_possible_action(PossibleAction::CreateRiichi());
+
+                // => Discard (4)
+                observation.add_possible_action(PossibleAction::CreateDiscard(hand(who).PossibleDiscards()));
+
+                return { {player_id, std::move(observation)} };
+            }
             case EventType::kRiichi:
-                {
-                    // => Discard (5)
-                    auto who = last_event_.who();
-                    auto observation = Observation(who, state_);
-                    observation.add_possible_action(PossibleAction::CreateDiscard(hand(who).PossibleDiscardsAfterRiichi()));
-                    return { {player(who).player_id_, std::move(observation)} };
-                }
+            {
+                // => Discard (5)
+                auto who = last_event_.who();
+                auto observation = Observation(who, state_);
+                observation.add_possible_action(PossibleAction::CreateDiscard(hand(who).PossibleDiscardsJustAfterRiichi()));
+                return { {player(who).player_id_, std::move(observation)} };
+            }
             case EventType::kChi:
             case EventType::kPon:
-                {
-                    // => Discard (6)
-                    auto who = last_event_.who();
-                    auto observation = Observation(who, state_);
-                    observation.add_possible_action(PossibleAction::CreateDiscard(hand(who).PossibleDiscards()));
-                    return { {player(who).player_id_, std::move(observation)} };
-                }
+            {
+                // => Discard (6)
+                auto who = last_event_.who();
+                auto observation = Observation(who, state_);
+                observation.add_possible_action(PossibleAction::CreateDiscard(hand(who).PossibleDiscards()));
+                return { {player(who).player_id_, std::move(observation)} };
+            }
             case EventType::kDiscardFromHand:
             case EventType::kDiscardDrawnTile:
                 // => Ron (7)
                 // => Chi, Pon and KanOpened (8)
-                {
-                    assert(!CreateStealAndRonObservation().empty());
-                    return CreateStealAndRonObservation();
-                }
+            {
+                assert(!CreateStealAndRonObservation().empty());
+                return CreateStealAndRonObservation();
+            }
             case EventType::kKanAdded:
-                {
-                    auto observations = CreateStealAndRonObservation();
-                    assert(!observations.empty());
-                    for (const auto &[player_id, observation]: observations)
-                        for (const auto &possible_action: observation.possible_actions())
-                            assert(Any(possible_action.type(), {ActionType::kRon, ActionType::kNo}));
-                    return observations;
-                }
+            {
+                auto observations = CreateStealAndRonObservation();
+                assert(!observations.empty());
+                for (const auto &[player_id, observation]: observations)
+                    for (const auto &possible_action: observation.possible_actions())
+                        assert(Any(possible_action.type(), {ActionType::kRon, ActionType::kNo}));
+                return observations;
+            }
             case EventType::kTsumo:
             case EventType::kRon:
             case EventType::kKanClosed:
@@ -141,94 +132,94 @@ namespace mj
     }
 
     State::State(const std::string &json_str) {
-         mjproto::State state = mjproto::State();
-         auto status = google::protobuf::util::JsonStringToMessage(json_str, &state);
-         assert(status.ok());
+        mjproto::State state = mjproto::State();
+        auto status = google::protobuf::util::JsonStringToMessage(json_str, &state);
+        assert(status.ok());
 
-         // Set player ids
-         state_.mutable_player_ids()->CopyFrom(state.player_ids());
-         // Set scores
-         state_.mutable_init_score()->CopyFrom(state.init_score());
-         curr_score_.CopyFrom(state.init_score());
-         // Set walls
-         auto wall_tiles = std::vector<Tile>();
-         for (auto tile_id: state.wall()) wall_tiles.emplace_back(Tile(tile_id));
-         wall_ = Wall(round(), wall_tiles);
-         state_.mutable_wall()->CopyFrom(state.wall());
-         // Set dora
-         state_.add_doras(wall_.dora_indicators().front().Id());
-         state_.add_ura_doras(wall_.ura_dora_indicators().front().Id());
-         // Set init hands
-         for (int i = 0; i < 4; ++i) {
-             players_[i] = Player{state_.player_ids(i), AbsolutePos(i), Hand(wall_.initial_hand_tiles(AbsolutePos(i)))};
-             state_.mutable_private_infos()->Add();
-             state_.mutable_private_infos(i)->set_who(mjproto::AbsolutePos(i));
-             for (auto t: wall_.initial_hand_tiles(AbsolutePos(i))) {
-                 state_.mutable_private_infos(i)->add_init_hand(t.Id());
-             }
-         }
-         // 三家和了はEventからは復元できないので, ここでSetする
-         if (state.terminal().has_no_winner() and state.terminal().no_winner().type() == mjproto::NO_WINNER_TYPE_THREE_RONS) {
-             std::vector<int> tenpai = {0, 0, 0, 0};
-             for (auto t : state.terminal().no_winner().tenpais()) {
-                 tenpai[ToUType(t.who())] = 1;
-             }
-             assert(std::accumulate(tenpai.begin(), tenpai.end(), 0) == 3);
-             for (int i = 0; i < 4; ++i) {
-                 if (tenpai[i] == 0) three_ronned_player = AbsolutePos(i);
-             }
-         }
-         // Set event history
-         std::vector<int> draw_ixs = {0, 0, 0, 0};
-         for (int i = 0; i < state.event_history().events_size(); ++i) {
-             auto event = state.event_history().events(i);
-             auto who = AbsolutePos(event.who());
-             switch (event.type()) {
-                 case mjproto::EVENT_TYPE_DRAW:
-                     // TODO: wrap by func
-                     // private_infos_[ToUType(who)].add_draws(state->private_infos(ToUType(who)).draws(draw_ixs[ToUType(who)]));
-                     // draw_ixs[ToUType(who)]++;
-                     Draw(who);
-                     break;
-                 case mjproto::EVENT_TYPE_DISCARD_FROM_HAND:
-                 case mjproto::EVENT_TYPE_DISCARD_DRAWN_TILE:
-                     Discard(who, Tile(event.tile()));
-                     break;
-                 case mjproto::EVENT_TYPE_RIICHI:
-                     Riichi(who);
-                     break;
-                 case mjproto::EVENT_TYPE_TSUMO:
-                     Tsumo(who);
-                     break;
-                 case mjproto::EVENT_TYPE_RON:
-                     assert(last_event_.type() == EventType::kKanAdded || last_event_.tile() == Tile(event.tile()));
-                     Ron(who);
-                     break;
-                 case mjproto::EVENT_TYPE_CHI:
-                 case mjproto::EVENT_TYPE_PON:
-                 case mjproto::EVENT_TYPE_KAN_CLOSED:
-                 case mjproto::EVENT_TYPE_KAN_OPENED:
-                 case mjproto::EVENT_TYPE_KAN_ADDED:
-                     ApplyOpen(who, Open(event.open()));
-                     break;
-                 case mjproto::EVENT_TYPE_NEW_DORA:
-                     AddNewDora();
-                     break;
-                 case mjproto::EVENT_TYPE_RIICHI_SCORE_CHANGE:
-                     RiichiScoreChange();
-                     break;
-                 case mjproto::EVENT_TYPE_NO_WINNER:
-                     NoWinner();
-                     break;
-             }
-         }
-         // if (!google::protobuf::util::MessageDifferencer::Equals(state, state_)) {
-         //     std::string expected;
-         //     google::protobuf::util::MessageToJsonString(state, &expected);
-         //     std::cerr << "Expected: " << expected << std::endl;
-         //     std::cerr << "Actual  : " << ToJson() << std::endl;
-         // }
-         // assert(google::protobuf::util::MessageDifferencer::Equals(state, state_));
+        // Set player ids
+        state_.mutable_player_ids()->CopyFrom(state.player_ids());
+        // Set scores
+        state_.mutable_init_score()->CopyFrom(state.init_score());
+        curr_score_.CopyFrom(state.init_score());
+        // Set walls
+        auto wall_tiles = std::vector<Tile>();
+        for (auto tile_id: state.wall()) wall_tiles.emplace_back(Tile(tile_id));
+        wall_ = Wall(round(), wall_tiles);
+        state_.mutable_wall()->CopyFrom(state.wall());
+        // Set dora
+        state_.add_doras(wall_.dora_indicators().front().Id());
+        state_.add_ura_doras(wall_.ura_dora_indicators().front().Id());
+        // Set init hands
+        for (int i = 0; i < 4; ++i) {
+            players_[i] = Player{state_.player_ids(i), AbsolutePos(i), Hand(wall_.initial_hand_tiles(AbsolutePos(i)))};
+            state_.mutable_private_infos()->Add();
+            state_.mutable_private_infos(i)->set_who(mjproto::AbsolutePos(i));
+            for (auto t: wall_.initial_hand_tiles(AbsolutePos(i))) {
+                state_.mutable_private_infos(i)->add_init_hand(t.Id());
+            }
+        }
+        // 三家和了はEventからは復元できないので, ここでSetする
+        if (state.terminal().has_no_winner() and state.terminal().no_winner().type() == mjproto::NO_WINNER_TYPE_THREE_RONS) {
+            std::vector<int> tenpai = {0, 0, 0, 0};
+            for (auto t : state.terminal().no_winner().tenpais()) {
+                tenpai[ToUType(t.who())] = 1;
+            }
+            assert(std::accumulate(tenpai.begin(), tenpai.end(), 0) == 3);
+            for (int i = 0; i < 4; ++i) {
+                if (tenpai[i] == 0) three_ronned_player = AbsolutePos(i);
+            }
+        }
+        // Set event history
+        std::vector<int> draw_ixs = {0, 0, 0, 0};
+        for (int i = 0; i < state.event_history().events_size(); ++i) {
+            auto event = state.event_history().events(i);
+            auto who = AbsolutePos(event.who());
+            switch (event.type()) {
+                case mjproto::EVENT_TYPE_DRAW:
+                    // TODO: wrap by func
+                    // private_infos_[ToUType(who)].add_draws(state->private_infos(ToUType(who)).draws(draw_ixs[ToUType(who)]));
+                    // draw_ixs[ToUType(who)]++;
+                    Draw(who);
+                    break;
+                case mjproto::EVENT_TYPE_DISCARD_FROM_HAND:
+                case mjproto::EVENT_TYPE_DISCARD_DRAWN_TILE:
+                    Discard(who, Tile(event.tile()));
+                    break;
+                case mjproto::EVENT_TYPE_RIICHI:
+                    Riichi(who);
+                    break;
+                case mjproto::EVENT_TYPE_TSUMO:
+                    Tsumo(who);
+                    break;
+                case mjproto::EVENT_TYPE_RON:
+                    assert(last_event_.type() == EventType::kKanAdded || last_event_.tile() == Tile(event.tile()));
+                    Ron(who);
+                    break;
+                case mjproto::EVENT_TYPE_CHI:
+                case mjproto::EVENT_TYPE_PON:
+                case mjproto::EVENT_TYPE_KAN_CLOSED:
+                case mjproto::EVENT_TYPE_KAN_OPENED:
+                case mjproto::EVENT_TYPE_KAN_ADDED:
+                    ApplyOpen(who, Open(event.open()));
+                    break;
+                case mjproto::EVENT_TYPE_NEW_DORA:
+                    AddNewDora();
+                    break;
+                case mjproto::EVENT_TYPE_RIICHI_SCORE_CHANGE:
+                    RiichiScoreChange();
+                    break;
+                case mjproto::EVENT_TYPE_NO_WINNER:
+                    NoWinner();
+                    break;
+            }
+        }
+        // if (!google::protobuf::util::MessageDifferencer::Equals(state, state_)) {
+        //     std::string expected;
+        //     google::protobuf::util::MessageToJsonString(state, &expected);
+        //     std::cerr << "Expected: " << expected << std::endl;
+        //     std::cerr << "Actual  : " << ToJson() << std::endl;
+        // }
+        // assert(google::protobuf::util::MessageDifferencer::Equals(state, state_));
     }
 
     std::string State::ToJson() const {
@@ -735,28 +726,28 @@ namespace mj
         for (int i = 0; i < 4; ++i) {
             auto stealer = AbsolutePos(i);
             if (stealer == discarder) continue;
-             auto observation = Observation(stealer, state_);
+            auto observation = Observation(stealer, state_);
 
-             // check ron
-             if (hand(stealer).IsCompleted(tile) &&
-                 CanRon(stealer, tile)) {
-                 observation.add_possible_action(PossibleAction::CreateRon());
-             }
+            // check ron
+            if (hand(stealer).IsCompleted(tile) &&
+                CanRon(stealer, tile)) {
+                observation.add_possible_action(PossibleAction::CreateRon());
+            }
 
-             // check chi, pon and kan_opened
-             if (has_draw_left && last_event_.type() != EventType::kKanAdded && !IsFourKanNoWinner()) {  // if 槍槓 or 四槓散了直前の捨て牌, only ron
+            // check chi, pon and kan_opened
+            if (has_draw_left && last_event_.type() != EventType::kKanAdded && !IsFourKanNoWinner()) {  // if 槍槓 or 四槓散了直前の捨て牌, only ron
                 auto relative_pos = ToRelativePos(stealer, discarder);
                 auto possible_opens = hand(stealer).PossibleOpensAfterOthersDiscard(tile, relative_pos);
                 for (const auto & possible_open: possible_opens)
                     observation.add_possible_action(PossibleAction::CreateOpen(possible_open));
-             }
+            }
 
-             if (!observation.has_possible_action()) continue;
-             observation.add_possible_action(PossibleAction::CreateNo());
+            if (!observation.has_possible_action()) continue;
+            observation.add_possible_action(PossibleAction::CreateNo());
 
-             observations[player(stealer).player_id_] = std::move(observation);
-         }
-         return observations;
+            observations[player(stealer).player_id_] = std::move(observation);
+        }
+        return observations;
     }
 
     WinStateInfo State::win_state_info(AbsolutePos who) const {
@@ -768,7 +759,7 @@ namespace mj
                 !wall_.HasDrawLeft(),
                 player(who).is_ippatsu_,
                 is_first_turn_wo_open && last_event_.who() == who
-                        && (Any(last_event_.type(), {EventType::kDraw, EventType::kTsumo})),
+                && (Any(last_event_.type(), {EventType::kDraw, EventType::kTsumo})),
                 seat_wind == Wind::kEast,
                 is_robbing_kan,
                 wall_.dora_count(),
@@ -789,7 +780,7 @@ namespace mj
         } else {
             // sort in order Ron > KanOpened > Pon > Chi > No
             std::sort(action_candidates.begin(), action_candidates.end(),
-                    [](const Action &x, const Action &y){ return x.type() > y.type(); });
+                      [](const Action &x, const Action &y){ return x.type() > y.type(); });
             bool has_ron = action_candidates.front().type() == ActionType::kRon;
             if (has_ron) {
                 // ron以外の行動は取られないので消していく
@@ -829,48 +820,44 @@ namespace mj
         auto who = action.who();
         switch (action.type()) {
             case ActionType::kDiscard:
+            {
+                assert(Any(last_event_.type(), {EventType::kDraw, EventType::kChi, EventType::kPon, EventType::kRon, EventType::kRiichi}));
+                assert(require_kan_dora_ <= 1);
+                if (require_kan_dora_) AddNewDora();
+                Discard(who, action.discard());
+                if (is_first_turn_wo_open && ToSeatWind(who, dealer()) == Wind::kNorth && is_four_winds) {  // 四風子連打
+                    NoWinner();
+                    return;
+                }
+                // TODO: CreateStealAndRonObservationが2回stateが変わらないのに呼ばれている（CreateObservation内で）
+                if (bool has_steal_or_ron = !CreateStealAndRonObservation().empty(); has_steal_or_ron) return;
+
+                // 鳴きやロンの候補がなく, 全員が立直していたら四家立直で流局
+                if (std::all_of(players_.begin(), players_.end(),
+                                [&](const Player& player){ return hand(player.position_).IsUnderRiichi(); })) {
+                    RiichiScoreChange();
+                    NoWinner();
+                    return;
+                }
+                // 鳴きやロンの候補がなく, 2人以上が合計4つ槓をしていたら四槓散了で流局
                 {
-                    assert(Any(last_event_.type(), {EventType::kDraw, EventType::kChi, EventType::kPon, EventType::kRon, EventType::kRiichi}));
-                    assert(last_event_.type() == EventType::kRiichi || Any(player(who).PossibleDiscards(),
-                            [&action](Tile possible_discard){ return possible_discard.Equals(action.discard()); }));
-                    assert(last_event_.type() != EventType::kRiichi || Any(player(who).PossibleDiscardsJustAfterRiichi(),
-                            [&action](Tile possible_discard){ return possible_discard.Equals(action.discard()); }));
-                    assert(require_kan_dora_ <= 1);
-                    if (require_kan_dora_) AddNewDora();
-                    Discard(who, action.discard());
-                    if (is_first_turn_wo_open && ToSeatWind(who, dealer()) == Wind::kNorth && is_four_winds) {  // 四風子連打
+                    std::vector<int> kans;
+                    for (const Player& p : players_) {
+                        if (int num = hand(p.position_).TotalKans(); num) kans.emplace_back(num);
+                    }
+                    if (std::accumulate(kans.begin(), kans.end(), 0) == 4 and kans.size() > 1) {
                         NoWinner();
                         return;
-                    }
-                    // TODO: CreateStealAndRonObservationが2回stateが変わらないのに呼ばれている（CreateObservation内で）
-                    if (bool has_steal_or_ron = !CreateStealAndRonObservation().empty(); has_steal_or_ron) return;
-
-                    // 鳴きやロンの候補がなく, 全員が立直していたら四家立直で流局
-                    if (std::all_of(players_.begin(), players_.end(),
-                                    [&](const Player& player){ return hand(player.position_).IsUnderRiichi(); })) {
-                        RiichiScoreChange();
-                        NoWinner();
-                        return;
-                    }
-                    // 鳴きやロンの候補がなく, 2人以上が合計4つ槓をしていたら四槓散了で流局
-                    {
-                        std::vector<int> kans;
-                        for (const Player& p : players_) {
-                            if (int num = hand(p.position_).TotalKans(); num) kans.emplace_back(num);
-                        }
-                        if (std::accumulate(kans.begin(), kans.end(), 0) == 4 and kans.size() > 1) {
-                            NoWinner();
-                            return;
-                        }
-                    }
-
-                    if (wall_.HasDrawLeft()) {
-                        if (require_riichi_score_change_) RiichiScoreChange();
-                        Draw(AbsolutePos((ToUType(who) + 1) % 4));
-                    } else {
-                        NoWinner();
                     }
                 }
+
+                if (wall_.HasDrawLeft()) {
+                    if (require_riichi_score_change_) RiichiScoreChange();
+                    Draw(AbsolutePos((ToUType(who) + 1) % 4));
+                } else {
+                    NoWinner();
+                }
+            }
                 return;
             case ActionType::kRiichi:
                 assert(Any(last_event_.type(), {EventType::kDraw}));
@@ -954,7 +941,7 @@ namespace mj
                 NoWinner();
                 return;
         }
-   }
+    }
 
     AbsolutePos State::top_player() const {
         int top_ix = 0; int top_ten  = INT_MIN;
