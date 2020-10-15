@@ -13,13 +13,19 @@ import mj_pb2
 
 
 class MjlogDecoder:
-    def __init__(self):
+    def __init__(self, modify: bool):
         self.state = None
+        self.modify = modify
 
-    def parse(self, path_to_mjlog: str, wall_dices: List[Tuple[List[int], List[int]]], modify: bool) -> Iterator[mj_pb2.State]:
-        tree = ET.parse(path_to_mjlog)
-        root = tree.getroot()
-        yield from self._parse_each_game(root, wall_dices, modify)
+    def decode(self, mjlog_str: str) -> List[mj_pb2.State]:
+        wall_dices = reproduce_wall(mjlog_str)
+        root = ET.fromstring(mjlog_str)
+        ret = []
+        for state in self._parse_each_game(root, wall_dices, self.modify):
+            # No spaces
+            x = json.dumps(json_format.MessageToDict(state, including_default_value_fields=False), ensure_ascii=False, separators=(',', ':')) + "\n"
+            ret.append(x)
+        return ret
 
     def _parse_each_game(self, root: Element, wall_dices: List[Tuple[List[int], List[int]]], modify: bool) -> Iterator[mj_pb2.State]:
         state_ = mj_pb2.State()
@@ -307,9 +313,8 @@ class MjlogDecoder:
 
 
 # TODO: remove docker dependency
-def reproduce_wall(path_to_mjlog: str) -> List[Tuple[List[int], List[int]]]:
-    tree = ET.parse(path_to_mjlog)
-    root = tree.getroot()
+def reproduce_wall(mjlog_str: str) -> List[Tuple[List[int], List[int]]]:
+    root = ET.fromstring(mjlog_str)
     shuffle = root.iter("SHUFFLE")
     seed = ""
     for i, child in enumerate(shuffle):
@@ -333,33 +338,3 @@ def reproduce_wall(path_to_mjlog: str) -> List[Tuple[List[int], List[int]]]:
             wall_dices.append((wall, dices))
     return wall_dices
 
-
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="""Convert Tenhou's mjlog format into json, which is readable as protocol buffer.
-
-    Example:
-
-      $ python mjlog_decoder.py resources/mjlog resources/json
-    """)
-    parser.add_argument('mjlog_dir', help='Path to mjlogs')
-    parser.add_argument('json_dir', help='Path to json outputs')
-    parser.add_argument('--modify', action='store_true', help="Modify some details for mjproto format.")
-    # 1. Yaku is sorted in yaku No.
-    # 2. Yakuman's fu is set to 0
-    args = parser.parse_args()
-
-    parser = MjlogDecoder()
-    os.makedirs(args.json_dir, exist_ok=True)
-    for mjlog in os.listdir(args.mjlog_dir):
-        if not mjlog.endswith("mjlog"):
-            continue
-
-        path_to_mjlog = os.path.join(args.mjlog_dir, mjlog)
-        path_to_json = os.path.join(args.json_dir, os.path.splitext(os.path.basename(path_to_mjlog))[0] + '.json')
-
-        print(f"converting:\t{path_to_mjlog}")
-        wall_dices = reproduce_wall(path_to_mjlog)
-        with open(path_to_json, 'w') as f:
-            for state in parser.parse(path_to_mjlog, wall_dices, modify=args.modify):
-                f.write(json.dumps(json_format.MessageToDict(state, including_default_value_fields=False), ensure_ascii=False, separators=(',', ':')) + "\n")  # No spaces
-        print(f"done:\t{path_to_json}")

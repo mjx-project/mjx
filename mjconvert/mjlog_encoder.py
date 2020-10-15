@@ -20,7 +20,7 @@ class MjlogEncoder:
         self.is_init_round = True
 
     def is_completed(self):
-        return self.xml.endswith("""</mjloggm>""")
+        return self.xml.endswith("""</mjloggm>\n""")
 
     def put(self, line) -> None:
         assert not self.is_completed()
@@ -32,7 +32,7 @@ class MjlogEncoder:
             self.is_init_round = False
         self.xml += MjlogEncoder._parse_each_round(state)
         if state.terminal.is_game_over:
-            self.xml += """</mjloggm>"""
+            self.xml += """</mjloggm>\n"""
 
     def get(self) -> str:
         assert self.is_completed()

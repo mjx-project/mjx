@@ -3,7 +3,7 @@ import sys
 import json
 import argparse
 from mjlog_encoder import MjlogEncoder
-from mjlog_decoder import MjlogDecoder, reproduce_wall
+from mjlog_decoder import MjlogDecoder
 
 
 class Converter:
@@ -24,6 +24,10 @@ class Converter:
         self.fmt_from = Converter._detect_format(line)
         if self.fmt_from == "mjproto" and self.fmt_to == "mjlog":
             self.converter = MjlogEncoder()
+        elif self.fmt_from == "mjlog" and self.fmt_to == "mjproto":
+            self.converter = MjlogDecoder(modify=True)
+        elif self.fmt_from == "mjlog" and self.fmt_to == "mjproto_raw":
+            self.converter = MjlogDecoder(modify=False)
         else:
             raise NotImplementedError
 
@@ -37,6 +41,10 @@ class Converter:
                 return [self.converter.get()]
             else:
                 return []
+        if self.fmt_from == "mjlog" and self.fmt_to == "mjproto":
+            return self.converter.decode(line)
+        if self.fmt_from == "mjlog" and self.fmt_to == "mjproto_raw":
+            return self.converter.decode(line)
         else:
             raise NotImplementedError
 
@@ -74,6 +82,11 @@ if __name__ == "__main__":
       $ cat test.mjlog | mjconvert --to-mjproto
       $ cat test.mjlog | mjconvert --to-mjproto-raw
       $ cat test.json  | mjconvert --to-mjlog
+      
+    Difference between mjproto and mjproto-raw:
+    
+      1. Yaku is sorted in yaku number
+      2. Yakuman's fu is set to 0
     """)
     parser.add_argument('--to-mjproto', action='store_true', help="")
     parser.add_argument('--to-mjproto-raw', action='store_true', help="")
@@ -84,5 +97,5 @@ if __name__ == "__main__":
     itr = StdinIterator()
     for line in itr:
         for transformed in converter.convert(line):
-            sys.stdout.write(transformed + "\n")
+            sys.stdout.write(transformed)
 
