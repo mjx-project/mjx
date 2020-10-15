@@ -1,15 +1,13 @@
 from typing import List, Tuple, Dict, Iterator
-import os
 import json
 import copy
-import argparse
 import subprocess
 import urllib.parse
 import xml.etree.ElementTree as ET
 from xml.etree.ElementTree import Element
 from google.protobuf import json_format
 
-import mj_pb2
+from . import mj_pb2
 
 
 class MjlogDecoder:

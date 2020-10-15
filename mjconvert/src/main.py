@@ -3,8 +3,9 @@ import os
 import sys
 import json
 import argparse
-from mjlog_encoder import MjlogEncoder
-from mjlog_decoder import MjlogDecoder
+from argparse import RawTextHelpFormatter
+from .mjlog_encoder import MjlogEncoder
+from .mjlog_decoder import MjlogDecoder
 
 
 class Converter:
@@ -77,26 +78,26 @@ class StdinIterator(object):
             return
 
 
-if __name__ == "__main__":
+def main():
     parser = argparse.ArgumentParser(description="""Convert Mahjong log into another format.
 
-    Example (using stdin)
+Example (using stdin)
 
-      $ cat test.mjlog | mjconvert --to-mjproto
-      $ cat test.mjlog | mjconvert --to-mjproto-raw
-      $ cat test.json  | mjconvert --to-mjlog
+  $ cat test.mjlog | mjconvert --to-mjproto
+  $ cat test.mjlog | mjconvert --to-mjproto-raw
+  $ cat test.json  | mjconvert --to-mjlog
       
-    Example (using file inputs)
+Example (using file inputs)
     
-      $ mjconvert ./mjlog_dir ./mjproto_dir --to-mjproto
-      $ mjconvert ./mjlog_dir ./mjproto_dir --to-mjproto-raw
-      $ mjconvert ./mjproto_dir ./mjlog_dir --to-mjlog
+  $ mjconvert ./mjlog_dir ./mjproto_dir --to-mjproto
+  $ mjconvert ./mjlog_dir ./mjproto_dir --to-mjproto-raw
+  $ mjconvert ./mjproto_dir ./mjlog_dir --to-mjlog
     
-    Difference between mjproto and mjproto-raw:
+Difference between mjproto and mjproto-raw:
     
-      1. Yaku is sorted in yaku number
-      2. Yakuman's fu is set to 0
-    """)
+  1. Yaku is sorted in yaku number
+  2. Yakuman's fu is set to 0
+    """, formatter_class=RawTextHelpFormatter)
     parser.add_argument('dir_from', nargs='?', default="", help="")
     parser.add_argument('dir_to', nargs='?', default="", help="")
     parser.add_argument('--to-mjproto', action='store_true', help="")
@@ -143,4 +144,7 @@ if __name__ == "__main__":
                 for line in transformed_lines:
                     f.write(line)
 
+
+if __name__ == '__main__':
+    main()
 

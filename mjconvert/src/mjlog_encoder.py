@@ -1,12 +1,10 @@
 from typing import List
-import os
 import copy
-import argparse
 import json
 import urllib.parse
 from google.protobuf import json_format
 
-import mj_pb2
+from . import mj_pb2
 
 
 class MjlogEncoder:
