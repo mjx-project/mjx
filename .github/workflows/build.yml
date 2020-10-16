@@ -16,4 +16,4 @@ jobs:
         make test
     - name: Install mjconvert
       run: |
-        make install-mjconvert
+        cd mjconvert && make install
