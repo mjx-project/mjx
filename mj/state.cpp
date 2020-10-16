@@ -524,6 +524,8 @@ namespace mj
     }
 
     void State::NoWinner() {
+        assert(!std::any_of(players_.begin(), players_.end(),
+                        [&](const Player& player){ return player.is_ippatsu && hand(player.position).IsUnderRiichi(); }));
         // 四家立直, 三家和了, 四槓散了, 流し満貫
         auto set_terminal_vals = [&]() {
             state_.mutable_terminal()->mutable_final_score()->CopyFrom(curr_score_);
