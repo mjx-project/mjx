@@ -14,5 +14,6 @@ uninstall:
 	pip3 uninstall mjconvert -y
 
 install: uninstall clean proto
+	pip3 install -r requirements.txt 
 	python3 setup.py install 
 
