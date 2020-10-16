@@ -35,8 +35,8 @@ $ mjconvert resources/json resources/restored_mjlog --to-mjlog
 $ python diff.py resources/mjlog resources/restored_mjlog
 ```
 
-## 変換において失われる情報
+## 変換において変わってしまう・失われてしまう情報
 
 - mjlog => mjproto-raw: seed, dice, 接続切れ
 - mjlog => mjproto: mjproto-rawに加え、(1) 上がったときの役が役番号でソートされる (2) 役満のときの符が常に0にセットされる
-- mjproto => mjlog
+- mjproto => mjlog: ユーザ名の％エンコーディング
