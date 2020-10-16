@@ -16,7 +16,7 @@ uninstall:
 install: proto
 	python setup.py install 
 
-test-cli: install
+test-cli: uninstall clean install
 	cat resources/mjlog/* | mjconvert --to-mjproto --verbose | wc -l
 	cat resources/mjlog/* | mjconvert --to-mjproto-raw --verbose | wc -l
 	mjconvert resources/mjlog resources/mjproto --to-mjproto --verbose && cat resources/mjproto/* | wc -l
