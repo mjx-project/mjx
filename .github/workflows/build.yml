@@ -5,12 +5,18 @@ on: [push]
 jobs:
   build:
     runs-on: ubuntu-latest
-    container: sotetsuk/ubuntu-gcc-grpc:latest
+    container: sotetsuk/ubuntu-gcc-grpc:v0.0.4
     steps:
     - uses: actions/checkout@v2
-    - name: Build
+    - name: Build mj
       run: |
         make build
-    - name: Run tests
+    - name: Test mj
       run: |
         make test
+    - name: Install mjconvert
+      run: |
+        cd mjconvert && make install
+    - name: Test mjconvert (mjproto => mjlog)
+      run: |
+        cd mjconvert && make test-cli-mjproto-to-mjlog
