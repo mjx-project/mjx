@@ -17,3 +17,6 @@ jobs:
     - name: Install mjconvert
       run: |
         cd mjconvert && make install
+    - name: Run mjconvert test
+      run: |
+        cd mjconvert && make test-cli-mjproto-to-mjlog

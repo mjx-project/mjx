@@ -1,4 +1,4 @@
-.PHONY: proto install uninstall clean test-cli
+.PHONY: proto install uninstall clean test-cli test-cli-mjlog-to-proto test-cli-mjgproto-to-mjlog
 
 clean:
 	rm ./src/mj_pb2.py ./src/mj_pb2_grpc.py
@@ -16,8 +16,16 @@ uninstall:
 install: proto
 	python setup.py install 
 
-test-cli: uninstall clean install
+test-cli: uninstall clean install test-cli-mjlog-to-proto test-cli-mjproto-to-mjlog
+
+test-cli-mjlog-to-proto:
 	cat resources/mjlog/* | mjconvert --to-mjproto --verbose | wc -l
 	cat resources/mjlog/* | mjconvert --to-mjproto-raw --verbose | wc -l
 	mjconvert resources/mjlog resources/mjproto --to-mjproto --verbose && cat resources/mjproto/* | wc -l
 	mjconvert resources/mjlog resources/mjproto --to-mjproto-raw --verbose && cat resources/mjproto/* | wc -l
+	git checkout -- resources/mjproto
+
+test-cli-mjproto-to-mjlog:
+	cat resources/mjproto/* | mjconvert --to-mjlog --verbose | wc -l
+	mjconvert resources/mjproto resources/mjlog --to-mjlog --verbose && cat resources/mjlog/* | wc -l
+	git checkout -- resources/mjlog
