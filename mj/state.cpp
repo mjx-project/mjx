@@ -305,6 +305,7 @@ namespace mj
 
     void State::Riichi(AbsolutePos who) {
         assert(ten(who) >= 1000);
+        assert(wall_.HasNextDrawLeft());
         mutable_hand(who).Riichi(is_first_turn_wo_open);
 
         last_event_ = Event::CreateRiichi(who);
@@ -523,6 +524,12 @@ namespace mj
     }
 
     void State::NoWinner() {
+        // Handが最後リーチで終わってて、かつ一発が残っていることは四家立直以外ないはず
+        assert(!std::any_of(players_.begin(), players_.end(),
+                             [&](const Player& player){ return player.is_ippatsu && hand(player.position).IsUnderRiichi();})
+                ||std::all_of(players_.begin(), players_.end(),
+                            [&](const Player& player){ return hand(player.position).IsUnderRiichi(); }));
+
         // 四家立直, 三家和了, 四槓散了, 流し満貫
         auto set_terminal_vals = [&]() {
             state_.mutable_terminal()->mutable_final_score()->CopyFrom(curr_score_);
@@ -1110,7 +1117,7 @@ namespace mj
 
     bool State::CanRiichi(AbsolutePos who) const {
         if (hand(who).IsUnderRiichi()) return false;
-        // TODO: ツモ番があるかどうかをここで確認
+        if (!wall_.HasNextDrawLeft()) return false;
         return hand(who).CanRiichi(ten(who));
     }
 
