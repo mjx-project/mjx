@@ -8,12 +8,12 @@ clean:
 	find . -name "*pycache*" | xargs rm -rf
 
 proto:
-	python3 -m grpc_tools.protoc -I ../protos --python_out=./src/ --grpc_python_out=./src/ ../protos/mj.proto
+	python -m grpc_tools.protoc -I ../protos --python_out=./src/ --grpc_python_out=./src/ ../protos/mj.proto
 
 uninstall:
-	pip3 uninstall mjconvert -y
+	pip uninstall mjconvert -y
 
 install: uninstall clean proto
-	pip3 install -r requirements.txt 
-	python3 setup.py install 
+	pip install -r requirements.txt 
+	python setup.py install 
 
