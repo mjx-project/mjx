@@ -13,7 +13,5 @@ proto:
 uninstall:
 	pip uninstall mjconvert -y
 
-install: uninstall clean proto
-	pip install -r requirements.txt 
+install: proto
 	python setup.py install 
-
