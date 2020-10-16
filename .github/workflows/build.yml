@@ -17,6 +17,3 @@ jobs:
     - name: Install mjconvert
       run: |
         cd mjconvert && make install
-    - name: Runt mjconvert test
-      run: |
-        cd mjconvert && make test-cli
