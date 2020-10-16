@@ -11,12 +11,12 @@ jobs:
     - name: Build mj
       run: |
         make build
-    - name: Run mj tests
+    - name: Test mj
       run: |
         make test
     - name: Install mjconvert
       run: |
         cd mjconvert && make install
-    - name: Run mjconvert test
+    - name: Test mjconvert (mjproto => mjlog)
       run: |
         cd mjconvert && make test-cli-mjproto-to-mjlog
