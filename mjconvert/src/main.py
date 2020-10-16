@@ -22,7 +22,7 @@ class Converter:
         except:
             return "mjlog"
 
-    def _init_converter(self):
+    def _init_converter(self, line: str):
         self.fmt_from = Converter._detect_format(line)
         if self.fmt_from == "mjproto" and self.fmt_to == "mjlog":
             self.converter = MjlogEncoder()
@@ -37,7 +37,7 @@ class Converter:
 
     def convert(self, line: str) -> List[str]:
         if self.converter is None:
-            self._init_converter()
+            self._init_converter(line)
 
         if self.fmt_from == "mjproto" and self.fmt_to == "mjlog":
             self.converter.put(line)
