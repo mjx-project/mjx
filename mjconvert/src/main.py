@@ -33,7 +33,7 @@ class Converter:
         else:
             sys.stderr.write(f"Input format = {self.fmt_from}\n")
             sys.stderr.write(f"Output format = {self.fmt_from}\n")
-            raise NotImplementedError
+            raise ValueError("Input format and output format should be different")
 
     def convert(self, line: str) -> List[str]:
         if self.converter is None:
@@ -112,6 +112,8 @@ Difference between mjproto and mjproto-raw:
     converter = Converter(to(args))
 
     if not args.dir_from and not args.dir_to:
+        if args.verbose:
+            sys.stderr.write(f"Converting to {to(args)}. stdin => stdout\n")
         # From stdin
         itr = StdinIterator()
         for line in itr:
@@ -120,7 +122,7 @@ Difference between mjproto and mjproto-raw:
     else:
         # From files
         if args.verbose:
-            sys.stderr.write(f"Converting ... {args.dir_from} => {args.dir_to}\n")
+            sys.stderr.write(f"Converting to {to(args)}. {args.dir_from} => {args.dir_to}\n")
 
         to_type = to(args)
         to_ext = "mjlog" if to_type == "mjlog" else "json"

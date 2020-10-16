@@ -33,7 +33,8 @@ class MjlogEncoder:
             self.xml += """</mjloggm>\n"""
 
     def get(self) -> str:
-        assert self.is_completed()
+        if not self.is_completed():  # 終局していなくてもXMLを完成させ、可視化できるようにしている
+            self.xml += """</mjloggm>\n"""
         tmp = self.xml
         self._reset_xml()
         return tmp
