@@ -14,32 +14,31 @@ class LineBuffer:
     """Split lines of inputs by game end."""
     def __init__(self, fmt: str):
         self.fmt_: str = fmt
+        self.curr_: List[str] = []
         self.buffer_: List[List[str]] = []
-        self.is_game_end = False
 
     @staticmethod
-    def mjproto_game_end_(line):
+    def is_new_round_(line):
         d = json.loads(line)
         state = json_format.ParseDict(d, mj_pb2.State())
-        return state.terminal.is_game_over
+        return state.init_score.round == 0 and state.init_score.honba == 0
 
     def put(self, line) -> None:
-        assert not self.is_game_end  # please call get() before put new line
         if self.fmt_.startswith("mjproto"):
-            if len(self.buffer_) == 0:
-                self.buffer_.append([])
-            self.buffer_[-1].append(line)
-            self.is_game_end = False
-            if LineBuffer.mjproto_game_end_(line):
-                self.is_game_end = True
+            if LineBuffer.is_new_round_(line) and len(self.curr_) != 0:
+                self.buffer_.append(self.curr_)
+                self.curr_ = []
+            self.curr_.append(line)
         elif self.fmt_ == "mjlog":
             self.buffer_.append([line])  # each line corresponds to each game
-            self.is_game_end = True  # mjlogは各行が1試合に対応
 
-    def get(self) -> List[List[str]]:  # each List[str] corresponds to each game.
+    def get(self, get_all: bool = False) -> List[List[str]]:  # each List[str] corresponds to each game.
+        if get_all and len(self.curr_) != 0:
+            assert self.fmt_ != "mjlog"
+            self.buffer_.append(self.curr_)
+            self.curr_ = []
         tmp = self.buffer_
         self.buffer_ = []
-        self.is_game_end = False
         return tmp
 
     def empty(self) -> bool:
@@ -166,16 +165,14 @@ Difference between mjproto and mjproto-raw:
                 buffer = LineBuffer(fmt_from)
 
             buffer.put(line)
-            if buffer.is_game_end:  # 入力がmjprotoの場合は各lineが終局に対応していないため、終局のときだけ変換する
-                for lines in buffer.get():
-                    for transformed_line in converter.convert(lines):
-                        sys.stdout.write(transformed_line)
-
-        # stdin の最終行が終局になっていない場合のため
-        if not buffer.empty():
-            for lines in buffer.get():
+            for lines in buffer.get():  # 終局時以外は空のはず
                 for transformed_line in converter.convert(lines):
                     sys.stdout.write(transformed_line)
+
+        # 終局で終わっていないときのため
+        for lines in buffer.get(get_all=True):
+            for transformed_line in converter.convert(lines):
+                sys.stdout.write(transformed_line)
 
     else:  # From files
         if args.verbose:
@@ -207,7 +204,7 @@ Difference between mjproto and mjproto-raw:
                     buffer.put(line)
 
             # 変換
-            list_lines: List[List[str]] = buffer.get()
+            list_lines: List[List[str]] = buffer.get(get_all=True)
             assert len(list_lines) == 1  # each file has one game
             transformed_lines += converter.convert(list_lines[0])
 
