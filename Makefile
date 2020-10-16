@@ -33,5 +33,8 @@ docker-plantuml-start: docker-plantuml-stop
 docker-plantuml-stop:
 	docker rm -f mahjong-plantuml || true
 
+install-mjconvert:
+	cd mjconvert && make install
 
-.PHONY: clean test all docker-test docker-all docker-clion-stop docker-clion-start docker-plantuml-start docker-plantuml-stop
+
+.PHONY: clean test all docker-test docker-all docker-clion-stop docker-clion-start docker-plantuml-start docker-plantuml-stop install-mjconvert

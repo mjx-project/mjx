@@ -8,9 +8,12 @@ jobs:
     container: sotetsuk/ubuntu-gcc-grpc:latest
     steps:
     - uses: actions/checkout@v2
-    - name: Build
+    - name: Build mj
       run: |
         make build
-    - name: Run tests
+    - name: Run mj tests
       run: |
         make test
+	- name: Install mjconvert
+      run: |
+        make install-mjconvert
