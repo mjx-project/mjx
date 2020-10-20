@@ -3,6 +3,8 @@
 
 namespace mj
 {
+    Observation::Observation(const mjproto::Observation& proto) : proto_(proto) {}
+
     std::vector<PossibleAction> Observation::possible_actions() const {
         std::vector<PossibleAction> ret;
         for (const auto& possible_action: proto_.possible_actions()) {
@@ -40,6 +42,10 @@ namespace mj
         auto status = google::protobuf::util::MessageToJsonString(proto_, &serialized);
         assert(status.ok());
         return serialized;
+    }
+
+    mjproto::Observation Observation::proto() const {
+        return proto_;
     }
 
     Hand Observation::initial_hand() const {

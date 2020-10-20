@@ -15,6 +15,7 @@ namespace mj
     {
     public:
         Observation() = default;
+        Observation(const mjproto::Observation& proto);
 
         AbsolutePos who() const;
         [[nodiscard]] bool has_possible_action() const;
@@ -22,6 +23,7 @@ namespace mj
         Hand initial_hand() const;
         Hand current_hand() const;
         std::string ToJson() const;
+        mjproto::Observation proto() const;
 
         void add_possible_action(PossibleAction &&possible_action);
     private:
