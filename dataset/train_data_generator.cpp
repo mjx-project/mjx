@@ -25,6 +25,7 @@ namespace mj {
 
                 std::string event_json;
                 assert(google::protobuf::util::MessageToJsonString(event, &event_json).ok());
+
                 std::string train_data = observation.ToJson() + "\t" + event_json;
                 ofs << train_data << std::endl;
 
