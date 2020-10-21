@@ -1,7 +1,7 @@
 set -eu
 
 TEST_DIR="$(pwd)"
-TENHOU_DIR=${TEST_DIR}/../tenhou
+MJCONVERT_DIR=${TEST_DIR}/../mjconvert
 ZIP_DIR=${TEST_DIR}/resources/zip
 TMP_DIR=${TEST_DIR}/resources/tmp
 
@@ -42,8 +42,8 @@ for gzip_file in $(ls); do gzip -d ${gzip_file} &>/dev/null || true ; done
 check_gz
  
 echo "* Filtering ..."
-python3 ${TENHOU_DIR}/filter.py ${TMP_DIR} --hounan --rm-users "o(>ロ<*)o" "<>" ">_0@杏杏軍團" "HKG<>LHR"
+python3 ${MJCONVERT_DIR}/src/filter.py ${TMP_DIR} --hounan --ng-chars "><"
   
 echo "* Converting ..."
-python3 ${TENHOU_DIR}/mjlog_decoder.py ${TMP_DIR} ${TEST_DIR}/resources/json --modify
+mjconvert ${TMP_DIR} ${TEST_DIR}/resources/json --to-mjproto --verbose
  

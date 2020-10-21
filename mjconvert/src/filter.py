@@ -25,7 +25,7 @@ class Filter:
             return int(child.attrib["type"]) == 169
         assert False
 
-    def is_username_any_of(self, bad_usernames: List[str]) -> bool:
+    def is_username_any_of(self, ng_chars: str) -> bool:
         un = self.root.iter("UN")
         usernames = []
         for child in un:
@@ -36,8 +36,9 @@ class Filter:
             break
 
         for username in usernames:
-            if username in bad_usernames:
-                return True
+            for c in ng_chars:
+                if c in username:
+                    return True
 
         return False
 
@@ -56,7 +57,7 @@ if __name__ == '__main__':
     """)
     parser.add_argument('mjlog_dir', help='Path to mjlogs')
     parser.add_argument('--hounan', action='store_true', help="Only use 8 round match in Phonenix room with red dora.")
-    parser.add_argument('--rm-users', nargs='+', help='List of user names to be removed')
+    parser.add_argument('--ng-chars', type=str, help='NG characters in username')
     args = parser.parse_args()
 
     total_cnt, removed_cnt = 0, 0
@@ -70,7 +71,7 @@ if __name__ == '__main__':
         f = Filter(path_to_mjlog)
         if (not f.has_valid_seed()) or \
            (args.hounan and not f.is_hounan()) or \
-           (args.rm_users and f.is_username_any_of(args.rm_users)):
+           (args.ng_chars and f.is_username_any_of(args.ng_chars)):
             rm(path_to_mjlog)
             removed_cnt += 1
         total_cnt += 1
