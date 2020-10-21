@@ -442,6 +442,10 @@ namespace mj
         return v;
     }
 
+    bool test(Open open){
+        return true;
+    }
+
     std::vector<Open>
     Hand::PossibleOpensAfterOthersDiscard(Tile tile, RelativePos from) const {
         assert(stage_ == HandStage::kAfterDiscards);
@@ -456,7 +460,9 @@ namespace mj
         for (auto & pon : pons) v.push_back(std::move(pon));
         auto kan_openeds = PossibleKanOpened(tile, from);
         for (auto & kan_opened : kan_openeds) v.push_back(std::move(kan_opened));
-        return v;
+
+        // 喰いかえフィルター
+        return FilterDiscardableOpens(v);
     }
 
     std::vector<Open> Hand::PossibleOpensAfterDraw() const {
@@ -739,6 +745,30 @@ namespace mj
         assert(!Any(stage_, {HandStage::kAfterDraw, HandStage::kAfterDrawAfterKan}) || Any(last_tile_added_.value(), possible_discards));
         assert(!possible_discards.empty());
         return possible_discards;
+    }
+
+    std::vector<Open> Hand::FilterDiscardableOpens(const std::vector<Open> &opens) const {
+        auto filtered = std::vector<Open>();
+        for(auto open: opens){
+            auto undiscardables = open.UndiscardableTileTypes();
+            bool discardable = false;
+            auto closed_tiles_left = closed_tiles_;
+            for(auto tile: open.Tiles()){
+                if(tile==open.StolenTile()) continue;
+                closed_tiles_left.erase(tile);
+            }
+            for(const auto &tile : closed_tiles_left){
+                auto c = tile.Type();
+                if(std::find(undiscardables.begin(), undiscardables.end(), tile.Type())==undiscardables.end()){
+                    discardable=true;
+                    break;
+                }
+            }
+            if(discardable){
+                filtered.push_back(open);
+            }
+        }
+        return filtered;
     }
 
     HandParams::HandParams(const std::string &closed) {
