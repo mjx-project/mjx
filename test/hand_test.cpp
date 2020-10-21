@@ -332,6 +332,8 @@ TEST(hand, PossibleOpensAfterOthersDiscard) { // TODO: add more detailed test
     h = Hand(HandParams("m1,m1,m1,m2,m3,m5,m5,m6,m7,m8,m9,m9,m9"));
     opens = h.PossibleOpensAfterOthersDiscard(Tile("m5", 3), RelativePos::kMid);
     EXPECT_EQ(num_of_opens(opens, OpenType::kPon), 1);
+    EXPECT_EQ(opens[0].Type(), OpenType::kPon);
+    EXPECT_EQ(opens[0].At(0).Type(), TileType::kM5);
     // Two possible pons are expected (w/ red 5 and w/o red 5)
     h = Hand(HandParams("m1,m1,m1,m2,m5,m5,m5,m6,m7,m8,m9,m9,m9"));
     opens = h.PossibleOpensAfterOthersDiscard(Tile("m5", 3), RelativePos::kMid);

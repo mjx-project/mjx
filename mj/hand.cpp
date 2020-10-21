@@ -442,10 +442,6 @@ namespace mj
         return v;
     }
 
-    bool test(Open open){
-        return true;
-    }
-
     std::vector<Open>
     Hand::PossibleOpensAfterOthersDiscard(Tile tile, RelativePos from) const {
         assert(stage_ == HandStage::kAfterDiscards);
@@ -758,7 +754,6 @@ namespace mj
                 closed_tiles_left.erase(tile);
             }
             for(const auto &tile : closed_tiles_left){
-                auto c = tile.Type();
                 if(std::find(undiscardables.begin(), undiscardables.end(), tile.Type())==undiscardables.end()){
                     discardable=true;
                     break;
