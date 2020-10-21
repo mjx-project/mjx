@@ -457,7 +457,7 @@ namespace mj
         auto kan_openeds = PossibleKanOpened(tile, from);
         for (auto & kan_opened : kan_openeds) v.push_back(std::move(kan_opened));
         // 喰いかえフィルター
-        return FilterDiscardableOpens(v);
+        return SelectDiscardableOpens(v);
     }
 
     std::vector<Open> Hand::PossibleOpensAfterDraw() const {
@@ -742,7 +742,7 @@ namespace mj
         return possible_discards;
     }
 
-    std::vector<Open> Hand::FilterDiscardableOpens(const std::vector<Open> &opens) const {
+    std::vector<Open> Hand::SelectDiscardableOpens(const std::vector<Open> &opens) const {
         auto filtered = std::vector<Open>();
         for(auto open: opens){
             auto undiscardables = open.UndiscardableTileTypes();
