@@ -456,7 +456,6 @@ namespace mj
         for (auto & pon : pons) v.push_back(std::move(pon));
         auto kan_openeds = PossibleKanOpened(tile, from);
         for (auto & kan_opened : kan_openeds) v.push_back(std::move(kan_opened));
-
         // 喰いかえフィルター
         return FilterDiscardableOpens(v);
     }
