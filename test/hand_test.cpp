@@ -318,6 +318,10 @@ TEST(hand, PossibleOpensAfterOthersDiscard) { // TODO: add more detailed test
     h = Hand(HandParams("m1,m1,m1,m2,m3,m4,m5,m6,m7,m8,m9,m9,m9"));
     opens = h.PossibleOpensAfterOthersDiscard(Tile("m9", 2), RelativePos::kLeft);
     EXPECT_EQ(num_of_opens(opens, OpenType::kChi), 1);
+    // m4m5m6m7[m7] Kuikae: no chi is expected
+    h = Hand(HandParams("m4,m5,m6,m7").Chi("s1,s2,s3").Chi("s7,s8,s9").Pon("p3,p3,p3"));
+    opens = h.PossibleOpensAfterOthersDiscard(Tile("m7", 3), RelativePos::kLeft);
+    EXPECT_EQ(num_of_opens(opens, OpenType::kChi), 0);
 
     // Pon
     // No pon is expected

@@ -109,6 +109,8 @@ namespace mj
         // utils
         static bool IsTenpai(const TileTypeCount &closed_tile_types);
         std::vector<Tile> AllPossibleDiscards() const;
+        // 鳴いた後に捨てる牌がある鳴きだけを選ぶ
+        std::vector<Open> SelectDiscardableOpens(const std::vector<Open> &opens) const;
 
         explicit Hand(std::vector<std::string> closed,
              std::vector<std::vector<std::string>> chis = {},
