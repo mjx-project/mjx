@@ -271,7 +271,7 @@ namespace mj
         assert(last_tile_added_);
         assert(Any(SizeClosed(), {2, 5, 8, 11, 14}));
         if (under_riichi_) return { last_tile_added_.value() };
-        assert(AllPossibleDiscards().size()>0);
+        assert(!AllPossibleDiscards().empty());
         return AllPossibleDiscards();
     }
 
