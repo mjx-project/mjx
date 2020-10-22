@@ -36,8 +36,35 @@ namespace mj {
 
 } // namespace mj
 
-int main() {
-    mj::TrainDataGenerator::generate(
-            std::string(RESOURCES_DIR) + "/2010091009gm-00a9-0000-83af2648&tw=2.json",
-            std::string(RESOURCES_DIR) + "/sample.txt");
+namespace fs = std::filesystem;
+
+std::string dst_str(const fs::path& src) {
+    return src.stem().string() + ".txt";
+}
+
+void generate(const fs::path& path) {
+    auto entry = fs::directory_entry(path);
+    if (entry.is_directory()) {
+        for (const fs::directory_entry& child : fs::directory_iterator(path)) {
+            generate(child.path());
+        }
+    } else {
+        std::string src_path = path.string();
+        std::string dst_path = dst_str(path);
+        mj::TrainDataGenerator::generate(src_path, dst_path);
+    }
+}
+
+int main(int argc, char *argv[]) {
+    assert(argc == 3);
+    auto src_dir = fs::directory_entry(argv[1]);
+    auto dst_dir = fs::directory_entry(argv[2]);
+    for ( const fs::directory_entry& entry : fs::recursive_directory_iterator(src_dir) ) {
+        if (entry.is_directory()) continue;
+
+        std::string src_str = entry.path().string();
+        std::string dst_str = dst_dir.path().string() + "/" + entry.path().stem().string() + ".txt";
+
+        mj::TrainDataGenerator::generate(src_str, dst_str);
+    }
 }
