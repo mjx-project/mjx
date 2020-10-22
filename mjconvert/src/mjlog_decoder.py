@@ -322,7 +322,7 @@ def reproduce_wall(mjlog_str: str) -> List[Tuple[List[int], List[int]]]:
         assert len(x) == 2
         seed = repr(x[1])[1:-1]
     assert(seed)  # Old (~2009.xx) log does not have SHUFFLE item
-    out = subprocess.run(["docker", "run", "sotetsuk/twr:v0.0.1", "/twr",  seed, "100"], capture_output=True)
+    out = subprocess.run(["docker", "run", "--rm", "sotetsuk/twr:v0.0.1", "/twr",  seed, "100"], capture_output=True)
     wall_dices: List[Tuple[List[int], List[int]]] = []
     wall, dices = [], []
     for i, line in enumerate(out.stdout.decode('utf-8').strip('\n').split('\n')):
