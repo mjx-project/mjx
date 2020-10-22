@@ -2,6 +2,7 @@
 
 #include <fstream>
 #include <iostream>
+#include <filesystem>
 
 namespace mj {
 
@@ -36,8 +37,18 @@ namespace mj {
 
 } // namespace mj
 
-int main() {
-    mj::TrainDataGenerator::generate(
-            std::string(RESOURCES_DIR) + "/2010091009gm-00a9-0000-83af2648&tw=2.json",
-            std::string(RESOURCES_DIR) + "/sample.txt");
+namespace fs = std::filesystem;
+
+int main(int argc, char *argv[]) {
+    assert(argc == 3);
+    auto src_dir = fs::directory_entry(argv[1]);
+    auto dst_dir = fs::directory_entry(argv[2]);
+    for ( const fs::directory_entry& entry : fs::recursive_directory_iterator(src_dir) ) {
+        if (entry.is_directory()) continue;
+
+        std::string src_str = entry.path().string();
+        std::string dst_str = dst_dir.path().string() + "/" + entry.path().stem().string() + ".txt";
+
+        mj::TrainDataGenerator::generate(src_str, dst_str);
+    }
 }
