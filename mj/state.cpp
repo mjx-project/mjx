@@ -524,13 +524,7 @@ namespace mj
     }
 
     void State::NoWinner() {
-        // Handが最後リーチで終わってて、かつ一発が残っていることは四家立直以外ないはず
-        assert(!std::any_of(players_.begin(), players_.end(),
-                             [&](const Player& player){ return player.is_ippatsu && hand(player.position).IsUnderRiichi();})
-                ||std::all_of(players_.begin(), players_.end(),
-                            [&](const Player& player){ return hand(player.position).IsUnderRiichi(); }));
-
-        // 四家立直, 三家和了, 四槓散了, 流し満貫
+       // 四家立直, 三家和了, 四槓散了, 流し満貫
         auto set_terminal_vals = [&]() {
             state_.mutable_terminal()->mutable_final_score()->CopyFrom(curr_score_);
             for (int i = 0; i < 4; ++i) state_.mutable_terminal()->mutable_no_winner()->add_ten_changes(0);
@@ -565,13 +559,17 @@ namespace mj
             state_.mutable_terminal()->mutable_no_winner()->set_type(mjproto::NO_WINNER_TYPE_THREE_RONS);
             // 聴牌の情報が必要なため, ここでreturnしてはいけない.
         }
-
         // 四家立直
         if (std::all_of(players_.begin(), players_.end(),
                         [&](const Player& player){ return hand(player.position).IsUnderRiichi(); })) {
             state_.mutable_terminal()->mutable_no_winner()->set_type(mjproto::NO_WINNER_TYPE_FOUR_RIICHI);
             // 聴牌の情報が必要なため, ここでreturnしてはいけない.
         }
+
+        // Handが最後リーチで終わってて、かつ一発が残っていることはないはず（通常流局なら）
+        assert(state_.terminal().no_winner().type() != mjproto::NO_WINNER_TYPE_NORMAL ||
+                !std::any_of(players_.begin(), players_.end(),
+                            [&](const Player& player){ return player.is_ippatsu && hand(player.position).IsUnderRiichi();}));
 
         // set event
         last_event_ = Event::CreateNoWinner();
