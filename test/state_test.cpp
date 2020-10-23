@@ -12,7 +12,11 @@ using namespace mj;
 // Test utilities
 std::vector<std::string> LoadJson(const std::string &filename) {
     std::vector<std::string> ret;
-    auto json_path = std::string(TEST_RESOURCES_DIR) + "/json/" + filename;
+    auto json_path = filename;
+    // フルパスでない場合フルパスに変換
+    if(filename.find(std::string(TEST_RESOURCES_DIR) + "/json/")==std::string::npos){
+         json_path.insert(0, std::string(TEST_RESOURCES_DIR) + "/json/");
+    }
     std::ifstream ifs(json_path, std::ios::in);
     std::string buf;
     while (!ifs.eof()) {
@@ -194,7 +198,7 @@ TEST(state, ToJson) {
 
 TEST(state, Next) {
     std::string json_path = std::string(TEST_RESOURCES_DIR) + "/json";
-    if (json_path.empty()) return;
+//    if (json_path.empty()) return;
     for (const auto &filename : std::filesystem::directory_iterator(json_path)) {
         auto data_from_tenhou = LoadJson(filename.path().string());
         for (int i = 0; i < data_from_tenhou.size() - 1; ++i) {
