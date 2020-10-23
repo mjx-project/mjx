@@ -524,7 +524,7 @@ namespace mj
     }
 
     void State::NoWinner() {
-       // 四家立直, 三家和了, 四槓散了, 流し満貫
+        // 四家立直, 三家和了, 四槓散了, 流し満貫
         auto set_terminal_vals = [&]() {
             state_.mutable_terminal()->mutable_final_score()->CopyFrom(curr_score_);
             for (int i = 0; i < 4; ++i) state_.mutable_terminal()->mutable_no_winner()->add_ten_changes(0);
