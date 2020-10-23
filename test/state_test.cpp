@@ -198,7 +198,7 @@ TEST(state, ToJson) {
 
 TEST(state, Next) {
     std::string json_path = std::string(TEST_RESOURCES_DIR) + "/json";
-//    if (json_path.empty()) return;
+    if (json_path.empty()) return;
     for (const auto &filename : std::filesystem::directory_iterator(json_path)) {
         auto data_from_tenhou = LoadJson(filename.path().string());
         for (int i = 0; i < data_from_tenhou.size() - 1; ++i) {
