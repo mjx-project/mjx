@@ -10,11 +10,19 @@ import mj_pb2
 
 # ここを実装
 def mjproto_to_mjscore(state: mj_pb2.State) -> str:
-    # print(state.init_score.round)
-    # print(state.init_score.riichi)
+    #print(state.init_score.round)
+    #print(state.private_infos.ABSOLUTE_POS_INIT_EAST.init_hand)
     # print(state.init_score.honba)
-    # print(state.init_score.ten)
-    d = {}
+    #print(state.init_score.ten)
+    #print(state.private_infos)
+    round:int = state.init_score.round
+    honba:int = state.init_score.honba
+    riichi:int = state.init_score.riichi
+    doras:List[int] = [i for i in state.doras]
+    ura_doras:List[int] = [i for i in state.ura_doras]
+    init_score:List[int] = [i for i in state.init_score.ten]
+
+    d = {'title':[], 'name':[], 'rule':[],'log':[[[[round,honba,riichi],init_score,doras,ura_doras]]]}
     return json.dumps(d)
 
 
