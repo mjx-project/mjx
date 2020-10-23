@@ -13,7 +13,7 @@ using namespace mj;
 std::vector<std::string> LoadJson(const std::string &filename) {
     std::vector<std::string> ret;
     auto json_path = filename;
-    // フルパスでない場合フルパスに変換
+    // TEST_RESOURCESから始まっていない場合、パス先頭に追加
     if(filename.find(std::string(TEST_RESOURCES_DIR) + "/json/")==std::string::npos){
          json_path.insert(0, std::string(TEST_RESOURCES_DIR) + "/json/");
     }
