@@ -14,6 +14,7 @@ uninstall:
 	python3 -m pip uninstall mjconvert -y
 
 install: proto
+	python3 -m pip install -r requirements.txt
 	python3 setup.py install 
 
 test-cli: uninstall clean install test-cli-mjlog-to-proto test-cli-mjproto-to-mjlog
