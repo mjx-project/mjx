@@ -647,6 +647,16 @@ namespace mj
     bool State::IsGameOver() const {
         if (!IsRoundOver()) return false;
 
+        // 途中流局の場合は連荘
+        if(Any(state_.terminal().no_winner().type(),
+               {mjproto::NO_WINNER_TYPE_KYUUSYU,
+                mjproto::NO_WINNER_TYPE_FOUR_RIICHI,
+                mjproto::NO_WINNER_TYPE_THREE_RONS,
+                mjproto::NO_WINNER_TYPE_FOUR_KANS,
+                mjproto::NO_WINNER_TYPE_FOUR_WINDS})){
+            return false;
+        }
+
         auto tens_ = tens();
         for (int i = 0; i < 4; ++i) tens_[i] += 4 - i;  // 同点は起家から順に優先されるので +4, +3, +2, +1 する
         auto top_score = *std::max_element(tens_.begin(), tens_.end());
@@ -713,7 +723,14 @@ namespace mj
         assert(!IsGameOver());
         std::vector<PlayerId> player_ids(state_.player_ids().begin(), state_.player_ids().end());
         if (last_event_.type() == EventType::kNoWinner) {
-            if (hand(dealer()).IsTenpai()) {
+            // 途中流局や親テンパイで流局の場合は連荘
+            if(Any(state_.terminal().no_winner().type(),
+                   {mjproto::NO_WINNER_TYPE_KYUUSYU,
+                    mjproto::NO_WINNER_TYPE_FOUR_RIICHI,
+                    mjproto::NO_WINNER_TYPE_THREE_RONS,
+                    mjproto::NO_WINNER_TYPE_FOUR_KANS,
+                    mjproto::NO_WINNER_TYPE_FOUR_WINDS})
+                    || hand(dealer()).IsTenpai()) {
                 return State(player_ids, seed_, round(), honba() + 1, riichi(), tens());
             } else {
                 return State(player_ids, seed_, round() + 1, honba() + 1, riichi(), tens());
