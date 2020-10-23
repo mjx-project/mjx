@@ -198,6 +198,7 @@ TEST(state, Next) {
         auto curr_state = State(data_from_tenhou[i]);
         auto next_state = curr_state.Next();
         auto expected_next_state = State(data_from_tenhou[i + 1]);
+        EXPECT_EQ(next_state.dealer(), expected_next_state.dealer());
         EXPECT_EQ(next_state.round(), expected_next_state.round());
         EXPECT_EQ(next_state.honba(), expected_next_state.honba());
         EXPECT_EQ(next_state.riichi(), expected_next_state.init_riichi());
