@@ -9,7 +9,7 @@ namespace mj
     {
     public:
         RuleBasedAgent() = default;
-        RuleBasedAgent(PlayerId player_id);
+        explicit RuleBasedAgent(PlayerId player_id);
         ~RuleBasedAgent() final = default;
         [[nodiscard]] Action TakeAction(Observation &&observation) const final ;
     };

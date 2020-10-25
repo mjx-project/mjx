@@ -27,7 +27,7 @@ namespace mj
 
         void add_possible_action(PossibleAction &&possible_action);
     private:
-        friend class Agent;
+        // TODO: remove friends and use proto()
         friend class State;
         friend class TrainDataGenerator;
         Observation(AbsolutePos who, const mjproto::State& state);

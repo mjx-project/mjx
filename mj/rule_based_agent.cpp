@@ -3,7 +3,7 @@
 
 namespace mj
 {
-    RuleBasedAgent::RuleBasedAgent(PlayerId player_id): Agent(std::move(player_id)) {}
+    RuleBasedAgent::RuleBasedAgent(PlayerId player_id) : Agent(std::move(player_id)) {}
 
     Action RuleBasedAgent::TakeAction(Observation &&observation) const {
         // Currently this method only implements discard
