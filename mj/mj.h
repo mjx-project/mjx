@@ -1,7 +1,7 @@
 #include "abstruct_hand.h"
 #include "action.h"
 #include "agent.h"
-#include "agent_client_mock.h"
+#include "rule_based_agent.h"
 #include "agent_server.h"
 #include "agent_server_mock.h"
 #include "consts.h"
