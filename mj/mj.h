@@ -2,7 +2,7 @@
 #include "action.h"
 #include "agent.h"
 #include "rule_based_agent.h"
-#include "agent_server.h"
+#include "grpc_server_agent.h"
 #include "agent_server_mock.h"
 #include "consts.h"
 #include "environment.h"

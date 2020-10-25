@@ -3,7 +3,7 @@
 
 #include "mj.grpc.pb.h"
 
-#include "agent_server.h"
+#include "grpc_server_agent.h"
 
 namespace mj
 {
@@ -14,7 +14,7 @@ namespace mj
     };
 
 
-    class MockAgentServer final : public AgentServer
+    class MockAgentServer final : public GrpcServerAgent
     {
     public:
         MockAgentServer();
