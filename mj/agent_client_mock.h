@@ -1,7 +1,7 @@
 #ifndef MAHJONG_AGENT_CLIENT_MOCK_H
 #define MAHJONG_AGENT_CLIENT_MOCK_H
 
-#include "agent_client.h"
+#include "agent.h"
 
 namespace mj
 {

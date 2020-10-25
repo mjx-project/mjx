@@ -1,6 +1,6 @@
 #include "abstruct_hand.h"
 #include "action.h"
-#include "agent_client.h"
+#include "agent.h"
 #include "agent_client_mock.h"
 #include "agent_server.h"
 #include "agent_server_mock.h"

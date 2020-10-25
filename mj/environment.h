@@ -1,7 +1,7 @@
 #ifndef MAHJONG_ENVIRONMENT_H
 #define MAHJONG_ENVIRONMENT_H
 
-#include "agent_client.h"
+#include "agent.h"
 #include "state.h"
 
 namespace mj

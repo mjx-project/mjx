@@ -1,5 +1,5 @@
-#ifndef MAHJONG_AGENT_CLIENT_H
-#define MAHJONG_AGENT_CLIENT_H
+#ifndef MAHJONG_AGENT_H
+#define MAHJONG_AGENT_H
 
 #include <grpcpp/grpcpp.h>
 #include "mj.grpc.pb.h"
@@ -23,4 +23,4 @@ namespace mj
     };
 }  // namespace mj
 
-#endif //MAHJONG_AGENT_CLIENT_H
+#endif //MAHJONG_AGENT_H
