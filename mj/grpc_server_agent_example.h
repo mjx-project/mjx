@@ -1,5 +1,5 @@
-#ifndef MAHJONG_AGENT_SERVER_MOCK_H
-#define MAHJONG_AGENT_SERVER_MOCK_H
+#ifndef MAHJONG_GRPC_SERVER_AGENT_EXAMPLE_H
+#define MAHJONG_GRPC_SERVER_AGENT_EXAMPLE_H
 
 #include "mj.grpc.pb.h"
 
@@ -7,18 +7,18 @@
 
 namespace mj
 {
-    class MockAgentServiceImpl final : public mjproto::Agent::Service
+    class GrpcServerAgentExampleImpl final : public mjproto::Agent::Service
     {
     public:
         grpc::Status TakeAction(grpc::ServerContext* context, const mjproto::Observation* request, mjproto::Action* reply) final ;
     };
 
 
-    class MockAgentServer final : public GrpcServerAgent
+    class GrpcServerAgentExample final : public GrpcServerAgent
     {
     public:
-        MockAgentServer();
-        ~MockAgentServer() final = default;
+        GrpcServerAgentExample();
+        ~GrpcServerAgentExample() final = default;
         void RunServer(const std::string &socket_address) final ;
     private:
         std::unique_ptr<grpc::Service> agent_impl_;
@@ -26,4 +26,4 @@ namespace mj
 
 }  // namespace mj
 
-#endif //MAHJONG_AGENT_SERVER_MOCK_H
+#endif //MAHJONG_GRPC_SERVER_AGENT_EXAMPLE_H

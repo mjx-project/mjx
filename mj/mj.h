@@ -3,7 +3,7 @@
 #include "agent.h"
 #include "rule_based_agent.h"
 #include "grpc_server_agent.h"
-#include "agent_server_mock.h"
+#include "grpc_server_agent_example.h"
 #include "consts.h"
 #include "environment.h"
 #include "event.h"

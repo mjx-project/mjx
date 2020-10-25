@@ -5,15 +5,15 @@
 #include <grpcpp/health_check_service_interface.h>
 #include <grpcpp/ext/proto_server_reflection_plugin.h>
 
-#include "agent_server_mock.h"
+#include "grpc_server_agent_example.h"
 
 namespace mj
 {
-    MockAgentServer::MockAgentServer() {
-        agent_impl_ = std::make_unique<MockAgentServiceImpl>();
+    GrpcServerAgentExample::GrpcServerAgentExample() {
+        agent_impl_ = std::make_unique<GrpcServerAgentExampleImpl>();
     }
 
-    void MockAgentServer::RunServer(const std::string &socket_address) {
+    void GrpcServerAgentExample::RunServer(const std::string &socket_address) {
         std::cout << socket_address << std::endl;
         grpc::EnableDefaultHealthCheckService(true);
         grpc::reflection::InitProtoReflectionServerBuilderPlugin();
@@ -26,7 +26,7 @@ namespace mj
     }
 
     grpc::Status
-    MockAgentServiceImpl::TakeAction(grpc::ServerContext *context, const mjproto::Observation *request, mjproto::Action *reply) {
+    GrpcServerAgentExampleImpl::TakeAction(grpc::ServerContext *context, const mjproto::Observation *request, mjproto::Action *reply) {
         return grpc::Status::OK;
     }
 }  // namesapce mj
