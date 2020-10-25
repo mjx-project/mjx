@@ -1,5 +1,4 @@
 #include <grpcpp/grpcpp.h>
-#include <grpcpp/ext/proto_server_reflection_plugin.h>
 #include "grpc_server_agent_impl_example.h"
 
 namespace mj
