@@ -8,13 +8,13 @@
 
 namespace mj
 {
-    class AgentClient
+    class Agent
     {
     public:
-        AgentClient() = default;  // generate invalid object
-        explicit AgentClient(PlayerId player_id);
-        explicit AgentClient(PlayerId player_id, const std::shared_ptr<grpc::Channel>& channel);
-        virtual ~AgentClient() = default;
+        Agent() = default;  // generate invalid object
+        explicit Agent(PlayerId player_id);
+        explicit Agent(PlayerId player_id, const std::shared_ptr<grpc::Channel>& channel);
+        virtual ~Agent() = default;
         [[nodiscard]] virtual Action TakeAction(Observation &&observation) const;
         [[nodiscard]] PlayerId player_id() const;
     private:

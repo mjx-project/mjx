@@ -20,7 +20,7 @@ TEST(agent_client_mock, TakeAction) {
     };
 
     State state; Observation observation; Action action;
-    std::unique_ptr<AgentClient> agent = std::make_unique<AgentClientMock>();
+    std::unique_ptr<Agent> agent = std::make_unique<AgentClientMock>();
 
     // ツモれるときはツモ
     state = State(GetLastJsonLine("obs-draw-tsumo.json"));

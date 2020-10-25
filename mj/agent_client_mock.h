@@ -5,7 +5,7 @@
 
 namespace mj
 {
-    class AgentClientMock final: public AgentClient
+    class AgentClientMock final: public Agent
     {
     public:
         AgentClientMock() = default;

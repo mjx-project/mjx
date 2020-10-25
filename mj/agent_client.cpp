@@ -4,12 +4,12 @@
 
 namespace mj
 {
-    AgentClient::AgentClient(PlayerId player_id): player_id_(std::move(player_id)) {}
+    Agent::Agent(PlayerId player_id): player_id_(std::move(player_id)) {}
 
-    AgentClient::AgentClient(PlayerId player_id, const std::shared_ptr<grpc::Channel>& channel)
+    Agent::Agent(PlayerId player_id, const std::shared_ptr<grpc::Channel>& channel)
             : player_id_(std::move(player_id)), stub_(mjproto::Agent::NewStub(channel)) {}
 
-    Action AgentClient::TakeAction(Observation &&observation) const {
+    Action Agent::TakeAction(Observation &&observation) const {
         // TODO: verify that player_id is consistent (player_id_ == observation.player_id)
         assert(!player_id_.empty());
         assert(stub_);
@@ -24,14 +24,14 @@ namespace mj
         return action;
     }
 
-    PlayerId AgentClient::player_id() const {
+    PlayerId Agent::player_id() const {
         return player_id_;
     }
 }  // namespace mj
 
 
 // int main(int argc, char** argv) {
-//     mj::AgentClient agent(
+//     mj::Agent agent(
 //             grpc::CreateChannel("127.0.0.1:9090", grpc::InsecureChannelCredentials())
 //     );
 //
