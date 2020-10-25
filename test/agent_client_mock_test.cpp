@@ -1,6 +1,6 @@
 #include "gtest/gtest.h"
 #include <mj/state.h>
-#include <mj/rule_based_agent.h>
+#include <mj/agent_example.h>
 #include <fstream>
 
 using namespace mj;
@@ -20,7 +20,7 @@ TEST(agent_client_mock, TakeAction) {
     };
 
     State state; Observation observation; Action action;
-    std::unique_ptr<Agent> agent = std::make_unique<RuleBasedAgent>();
+    std::unique_ptr<Agent> agent = std::make_unique<AgentExample>();
 
     // ツモれるときはツモ
     state = State(GetLastJsonLine("obs-draw-tsumo.json"));

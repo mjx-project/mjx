@@ -1,7 +1,7 @@
 #include "abstruct_hand.h"
 #include "action.h"
 #include "agent.h"
-#include "rule_based_agent.h"
+#include "agent_example.h"
 #include "grpc_server_agent.h"
 #include "grpc_server_agent_impl_example.h"
 #include "consts.h"
