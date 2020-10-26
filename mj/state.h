@@ -56,7 +56,7 @@ namespace mj
         bool Equals(const State& other) const noexcept ;
         bool CanReach(const State& other) const noexcept ;
    private:
-        // player dependent information
+        // Internal structures
         struct Player
         {
             PlayerId player_id;
@@ -68,6 +68,12 @@ namespace mj
             std::bitset<34> missed_tiles = 0;  // 他家の打牌でロンを見逃した牌のbitset. フリテンの判定に使用する.
             bool is_ippatsu = false;
             bool has_nm = true;
+        };
+
+        struct HandInfo {
+            std::vector<Tile> closed_tiles;
+            std::vector<Open> opens;
+            std::optional<Tile> win_tile;
         };
 
         // protos

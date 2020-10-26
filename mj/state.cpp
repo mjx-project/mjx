@@ -681,7 +681,7 @@ namespace mj
         return !(dealer_win_or_tenpai && dealer_is_not_top);
     }
 
-    std::pair<HandInfo, WinScore> State::EvalWinHand(AbsolutePos who) const noexcept {
+    std::pair<State::HandInfo, WinScore> State::EvalWinHand(AbsolutePos who) const noexcept {
         return {HandInfo{hand(who).ToVectorClosed(true), hand(who).Opens(), hand(who).LastTileAdded()},
                 YakuEvaluator::Eval(WinInfo(std::move(win_state_info(who)), hand(who).win_info()))};
     }
@@ -1140,7 +1140,7 @@ namespace mj
         return YakuEvaluator::CanWin(WinInfo(std::move(win_state_info(who)), hand(who).win_info()));
     }
 
-    std::optional<HandInfo> State::EvalTenpai(AbsolutePos who) const noexcept {
+    std::optional<State::HandInfo> State::EvalTenpai(AbsolutePos who) const noexcept {
         if (!hand(who).IsTenpai()) return std::nullopt;
         return HandInfo{hand(who).ToVectorClosed(true), hand(who).Opens(), hand(who).LastTileAdded()};
     }

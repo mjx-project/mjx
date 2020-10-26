@@ -122,13 +122,7 @@ namespace mj
              bool riichi = false, bool after_kan = false);
     };
 
-    struct HandInfo {
-        std::vector<Tile> closed_tiles;
-        std::vector<Open> opens;
-        std::optional<Tile> win_tile;
-    };
-
-    class HandParams
+   class HandParams
     {
     public:
         // Usage:
