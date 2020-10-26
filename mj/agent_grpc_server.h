@@ -11,8 +11,7 @@ namespace mj
     public:
         AgentGrpcServer() = default;  // invalid constructor
         explicit AgentGrpcServer(std::unique_ptr<grpc::Service> agent_impl): agent_impl_(std::move(agent_impl)) {}
-        virtual ~AgentGrpcServer() = default;
-        virtual void RunServer(const std::string &socket_address) {
+        void RunServer(const std::string &socket_address) {
             std::cout << socket_address << std::endl;
             grpc::EnableDefaultHealthCheckService(true);
             grpc::reflection::InitProtoReflectionServerBuilderPlugin();
