@@ -7,7 +7,6 @@
 #include "mj.pb.h"
 #include "hand.h"
 #include "action.h"
-#include "player.h"
 
 namespace mj
 {
