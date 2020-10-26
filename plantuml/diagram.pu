@@ -87,7 +87,7 @@ mjproto::EventHistory "1" *-- "1..*" mjproto::Event
 
 
 class mj::Environment {
-    - agents: AgentClient
+    - agents: Agent
     - state: State
     + Run(): void
     + RunOneGame(): void
@@ -186,7 +186,7 @@ class mj::Observation <<(D,yellow) Data>> {
     - observation mjproto::Observation
 }
 
-abstract class mj::AgentClient {
+abstract class mj::Agent {
     + TakeAction(): Action
 }
 
@@ -289,7 +289,7 @@ class mj::Tile {
 }
 
 
-mj::Environment "1" *-- "4" mj::AgentClient
+mj::Environment "1" *-- "4" mj::Agent
 mj::Environment *-- mj::State 
 
 mj::State <-- mj::Action : UpdateStateByAction
@@ -301,7 +301,7 @@ mj::State --> mj::WinStateInfo
 
 mj::WinStateInfo --> mj::Player
 
-mj::Observation --> mj::AgentClient : TakeAction
+mj::Observation --> mj::Agent : TakeAction
 
 mj::Player *-- mj::Hand
 mj::Player *-- mj::River 
@@ -326,11 +326,11 @@ mj::YakuEvaluator --> mj::WinScore : Eval
 
 mj::WinScore --> mj::Player
 
-mj::AgentClient --> mj::AgentServer : <<mjproto::Observation>>
-mj::AgentClient --> mj::Action : TakeAction
-mj::AgentClient <|-- mj::AgentClientMock
+mj::Agent --> mj::AgentServer : <<mjproto::Observation>>
+mj::Agent --> mj::Action : TakeAction
+mj::Agent <|-- mj::AgentClientMock
 
-mj::AgentServer --> mj::AgentClient : <<mjproto::Action>>
+mj::AgentServer --> mj::Agent : <<mjproto::Action>>
 mj::AgentServer <|-- mj::AgentServerMock
 
 

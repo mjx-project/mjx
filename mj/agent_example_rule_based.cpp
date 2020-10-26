@@ -1,11 +1,11 @@
-#include "agent_client_mock.h"
+#include "agent_example_rule_based.h"
 #include "utils.h"
 
 namespace mj
 {
-    AgentClientMock::AgentClientMock(PlayerId player_id): AgentClient(std::move(player_id)) {}
+    AgentExampleRuleBased::AgentExampleRuleBased(PlayerId player_id) : Agent(std::move(player_id)) {}
 
-    Action AgentClientMock::TakeAction(Observation &&observation) const {
+    Action AgentExampleRuleBased::TakeAction(Observation &&observation) const {
         // Currently this method only implements discard
         mjproto::Action response;
         response.set_who(mjproto::AbsolutePos(observation.who()));
