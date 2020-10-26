@@ -1,7 +1,6 @@
 #ifndef MAHJONG_AGENT_H
 #define MAHJONG_AGENT_H
 
-#include <grpcpp/grpcpp.h>
 #include "action.h"
 #include "observation.h"
 
