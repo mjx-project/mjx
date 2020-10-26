@@ -1,90 +1,8 @@
 @startuml
 
+top to bottom direction
+
 set namespaceSeparator ::
-
-class mjproto::Score <<(D,yellow) Data>> {
-  + round
-  + honba 
-  + riichi 
-  + ten 
-}
-
-class mjproto::Event <<(D,yellow) Data>> {
-  + who
-  + type 
-  + tile
-  + open
-}
-
-class mjproto::EventHistory <<(D,yellow) Data>> {
-  + events: repeated Event
-}
-
-class mjproto::PrivateInfo <<(D,yellow) Data>> {
-  + who
-  + init_hand
-  + draws
-}
-
-class mjproto::PossibleAction <<(D,yellow) Data>> {
-  + type
-  + open 
-  + discard_candidates
-}
-
-class mjproto::State <<(D,yellow) Data>> {
-  + game_id
-  + player_ids
-  + init_score
-  + doras
-  + privae_infos
-  + event_history
-  + wall
-  + ura_dora
-  + end_info
-} 
-
-class mjproto::StateEndInfo <<(D,yellow) Data>> {
-  + end_score
-  + wins
-  + tenpais 
-  + no_winner_end_type
-  + is_game_over
-}
-
-class mjproto::Observation <<(D,yellow) Data>> {
-  + game_id
-  + player_ids
-  + init_score
-  + doras
-  + who
-  + init_hand
-  + draws
-  + event_history
-  + possible_actions
-}
-
-class mjproto::Action <<(D,yellow) Data>> { 
-  + game_id 
-  + who
-  + type
-  + yes
-  + discard
-  + open
-}
-
-mjproto::Observation *-- mjproto::Score
-mjproto::Observation *-- mjproto::EventHistory
-mjproto::Observation *-- mjproto::InitHand
-mjproto::Observation "1" *-- "1..*" mjproto::PossibleAction
-
-mjproto::State *-- mjproto::Score
-mjproto::State *-- mjproto::EventHistory
-mjproto::State "1" *-- "4" mjproto::PrivateInfo
-mjproto::State *-- mjproto::StateEndInfo
-
-mjproto::EventHistory "1" *-- "1..*" mjproto::Event
-
 
 class mj::Environment {
     - agents: Agent
@@ -100,6 +18,8 @@ class mj::YakuEvaluator <<(S,orange) Static>> {
 }
 
 class mj::WinHandCache <<(S,orchid) Singleton>> {
+    - win_cache
+    - tenpai_cache
     + Has(): bool
 }
 
@@ -138,12 +58,6 @@ class mj::WinHandInfo <<(D,yellow) Data>> {
     + is_menzen: bool
 }
 
-class mj::HandInfo <<(D,yellow) Data>> {
-    + closed_tiles
-    + opens
-    + win_tile
-}
-
 class mj::State {
     - score: Score
     - stage: RoundStage
@@ -163,25 +77,6 @@ class mj::State {
     - UpdateStateByActionCandidates(): void
 }
 
-class mj::Player {
-    - hand : Hand
-    - river : River
-    + PossibleDiscards()
-    + PossibleDiscardsAfterRiichi()
-    + PossibleOpensAfterOthersDiscard()
-    + PossibleOpensAfterDraw()
-    + CanRon()
-    + IsCompleted()
-    + CanRiichi()
-    + Draw()
-    + Riichi()
-    + ApplyOpen()
-    + Ron()
-    + RonAfterOthersKan()
-    + Tsumo()
-    + Discard()
-}
-
 class mj::Observation <<(D,yellow) Data>> {
     - observation mjproto::Observation
 }
@@ -190,20 +85,20 @@ abstract class mj::Agent {
     + TakeAction(): Action
 }
 
-class mj::AgentClientMock {
-
+class mj::AgentExampleRuleBased {
+    + TakeAction(): Action
 }
 
-abstract class mj::AgentServer {
+class mj::AgentGrpcClient {
+    + TakeAction(): Action
+}
+
+class mj::AgentGrpcServer {
     + RunServer(): void
 }
 
-class mj::AgentServerMock{
+class mj::AgentGrpcServerImplExample{
 
-}
-
-class mj::Score <<(D,yellow) Data>> {
-    - score mjproto::Score
 }
 
 class mj::Wall {
@@ -216,10 +111,6 @@ class mj::Wall {
     + AddKanDora()
     + HasDrawLeft(): bool
 }
-
-class mj::River {
-
-} 
 
 class mj::Action <<(D,yellow) Data>> {
     - action_response mjproto::Action
@@ -293,25 +184,16 @@ mj::Environment "1" *-- "4" mj::Agent
 mj::Environment *-- mj::State 
 
 mj::State <-- mj::Action : UpdateStateByAction
-mj::State *-- mj::Score 
 mj::State *-- mj::Wall
-mj::State "1" *-- "4" mj::Player
+mj::State "1" *-- "4" mj::Hand
 mj::State --> mj::Observation : CreateObservation
 mj::State --> mj::WinStateInfo
 
-mj::WinStateInfo --> mj::Player
-
 mj::Observation --> mj::Agent : TakeAction
 
-mj::Player *-- mj::Hand
-mj::Player *-- mj::River 
-mj::Player --> mj::WinInfo : ToWinInfo
-
 mj::Hand "0" *-- "1..4" mj::Open
-mj::Hand -- mj::WinHandCache : IsTenpai, CanRiichi
+mj::Hand -- mj::WinHandCache 
 mj::Hand --> mj::WinHandInfo
-
-mj::WinHandInfo --> mj::Player
 
 mj::Open <-- mj::Chi : Create
 mj::Open <-- mj::Pon : Create
@@ -319,19 +201,21 @@ mj::Open <-- mj::KanClosed : Create
 mj::Open <-- mj::KanOpened : Create
 mj::Open <-- mj::KanAdded : Create
 
+mj::WinHandInfo --> mj::WinInfo
+mj::WinStateInfo --> mj::WinInfo
 mj::WinInfo --> mj::YakuEvaluator : Has, Eval
+mj::WinScore --> mj::State
 
 mj::YakuEvaluator -- mj::WinHandCache
 mj::YakuEvaluator --> mj::WinScore : Eval
 
-mj::WinScore --> mj::Player
-
-mj::Agent --> mj::AgentServer : <<mjproto::Observation>>
 mj::Agent --> mj::Action : TakeAction
-mj::Agent <|-- mj::AgentClientMock
+mj::Agent <|-- mj::AgentExampleRuleBased
+mj::Agent <|-- mj::AgentGrpcClient
+mj::AgentGrpcClient --> mj::AgentGrpcServer : <<mjproto::Observation>>
 
-mj::AgentServer --> mj::Agent : <<mjproto::Action>>
-mj::AgentServer <|-- mj::AgentServerMock
+mj::AgentGrpcServer --> mj::AgentGrpcClient : <<mjproto::Action>>
+mj::AgentGrpcServer *-- mj::AgentGrpcServerImplExample
 
 
 @enduml
