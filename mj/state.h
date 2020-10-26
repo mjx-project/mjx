@@ -11,7 +11,6 @@
 #include "observation.h"
 #include "action.h"
 #include "event.h"
-#include "player.h"
 #include "wall.h"
 #include "hand.h"
 #include "mj.grpc.pb.h"

@@ -10,7 +10,6 @@
 #include "hand.h"
 #include "observation.h"
 #include "open.h"
-#include "player.h"
 #include "state.h"
 #include "tile.h"
 #include "types.h"
