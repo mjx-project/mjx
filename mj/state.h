@@ -57,14 +57,28 @@ namespace mj
         bool Equals(const State& other) const noexcept ;
         bool CanReach(const State& other) const noexcept ;
    private:
+        // player dependent information
+        struct Player
+        {
+            PlayerId player_id;
+            AbsolutePos position;
+            Hand hand;
+            // temporal memory
+            std::bitset<34> machi;    // 上がりの形になるための待ち(役の有無を考慮しない). bitsetで管理する
+            std::bitset<34> discards; // 今までに捨てた牌のset. bitsetで管理する
+            std::bitset<34> missed_tiles = 0;  // 他家の打牌でロンを見逃した牌のbitset. フリテンの判定に使用する.
+            bool is_ippatsu = false;
+            bool has_nm = true;
+        };
+
         // protos
         mjproto::State state_;
         mjproto::Score curr_score_;  // Using state_.terminal.final_score gives wrong serialization when round is not finished.
-        // container classes
+        // containers
         Wall wall_;
         std::array<Player, 4> players_;
-        // temporal memory
         std::uint32_t seed_;
+        // temporal memory
         Event last_event_;
         std::optional<Tile> last_ronable_tile;
         TileType last_discard_type_;
@@ -105,7 +119,6 @@ namespace mj
         bool IsFourKanNoWinner() const noexcept ;
         std::optional<AbsolutePos> HasPao(AbsolutePos winner) const noexcept ;
 
-        // #398 追加分
         // action validators
         bool CanRon(AbsolutePos who, Tile tile) const;
         bool CanRiichi(AbsolutePos who) const; // デフォルト25000点

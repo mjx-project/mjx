@@ -46,11 +46,11 @@ namespace mj
     }
 
 
-    const Player &State::player(AbsolutePos pos) const {
+    const State::Player &State::player(AbsolutePos pos) const {
         return players_.at(ToUType(pos));
     }
 
-    Player& State::mutable_player(AbsolutePos pos) {
+    State::Player& State::mutable_player(AbsolutePos pos) {
         return players_.at(ToUType(pos));
     }
 
