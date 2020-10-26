@@ -1,11 +1,11 @@
-#include "agent_example.h"
+#include "agent_example_rule_based.h"
 #include "utils.h"
 
 namespace mj
 {
-    AgentExample::AgentExample(PlayerId player_id) : Agent(std::move(player_id)) {}
+    AgentExampleRuleBased::AgentExampleRuleBased(PlayerId player_id) : Agent(std::move(player_id)) {}
 
-    Action AgentExample::TakeAction(Observation &&observation) const {
+    Action AgentExampleRuleBased::TakeAction(Observation &&observation) const {
         // Currently this method only implements discard
         mjproto::Action response;
         response.set_who(mjproto::AbsolutePos(observation.who()));

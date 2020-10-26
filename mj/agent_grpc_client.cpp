@@ -1,11 +1,11 @@
-#include "grpc_client_agent.h"
+#include "agent_grpc_client.h"
 
 namespace mj
 {
-    GrpcClientAgent::GrpcClientAgent(PlayerId player_id, const std::shared_ptr<grpc::Channel> &channel):
+    AgentGrpcClient::AgentGrpcClient(PlayerId player_id, const std::shared_ptr<grpc::Channel> &channel):
             Agent(std::move(player_id)), stub_(mjproto::Agent::NewStub(channel)) { }
 
-    Action GrpcClientAgent::TakeAction(Observation &&observation) const {
+    Action AgentGrpcClient::TakeAction(Observation &&observation) const {
         // TODO: verify that player_id is consistent (player_id_ == observation.player_id)
         assert(stub_);
         const mjproto::Observation request = observation.proto();

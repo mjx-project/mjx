@@ -1,17 +1,17 @@
-#ifndef MAHJONG_GRPC_SERVER_AGENT_H
-#define MAHJONG_GRPC_SERVER_AGENT_H
+#ifndef MAHJONG_AGENT_GRPC_SERVER_H
+#define MAHJONG_AGENT_GRPC_SERVER_H
 
 #include "mj.grpc.pb.h"
 #include <grpcpp/ext/proto_server_reflection_plugin.h>
 
 namespace mj
 {
-    class GrpcServerAgent
+    class AgentGrpcServer
     {
     public:
-        GrpcServerAgent() = default;  // invalid constructor
-        explicit GrpcServerAgent(std::unique_ptr<grpc::Service> agent_impl): agent_impl_(std::move(agent_impl)) {}
-        virtual ~GrpcServerAgent() = default;
+        AgentGrpcServer() = default;  // invalid constructor
+        explicit AgentGrpcServer(std::unique_ptr<grpc::Service> agent_impl): agent_impl_(std::move(agent_impl)) {}
+        virtual ~AgentGrpcServer() = default;
         virtual void RunServer(const std::string &socket_address) {
             std::cout << socket_address << std::endl;
             grpc::EnableDefaultHealthCheckService(true);
@@ -28,4 +28,4 @@ namespace mj
     };
 }  // namespace mj
 
-#endif //MAHJONG_GRPC_SERVER_AGENT_H
+#endif //MAHJONG_AGENT_GRPC_SERVER_H
