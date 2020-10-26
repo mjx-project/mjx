@@ -1,8 +1,9 @@
 #ifndef MAHJONG_AGENT_GRPC_SERVER_H
 #define MAHJONG_AGENT_GRPC_SERVER_H
 
-#include "mj.grpc.pb.h"
+#include <grpcpp/grpcpp.h>
 #include <grpcpp/ext/proto_server_reflection_plugin.h>
+#include "mj.grpc.pb.h"
 
 namespace mj
 {
