@@ -3,6 +3,7 @@
 #include <fstream>
 #include <iostream>
 #include <filesystem>
+#include "mj/utils.h"
 
 namespace mj {
 
@@ -43,12 +44,20 @@ int main(int argc, char *argv[]) {
     assert(argc == 3);
     auto src_dir = fs::directory_entry(argv[1]);
     auto dst_dir = fs::directory_entry(argv[2]);
+
+    // Prepare all filenames
+    std::vector<std::pair<std::string, std::string>> paths;
     for ( const fs::directory_entry& entry : fs::recursive_directory_iterator(src_dir) ) {
         if (entry.is_directory()) continue;
-
         std::string src_str = entry.path().string();
         std::string dst_str = dst_dir.path().string() + "/" + entry.path().stem().string() + ".txt";
-
-        mj::TrainDataGenerator::generate(src_str, dst_str);
+        paths.emplace_back(src_str, dst_str);
     }
+
+    // Parallel exec
+    mj::ptransform(paths.begin(), paths.end(), [](const std::pair<std::string, std::string>& p) {
+        const auto& [src_str, dst_str] = p;
+        mj::TrainDataGenerator::generate(src_str, dst_str);
+        return p;
+    });
 }
