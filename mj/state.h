@@ -136,6 +136,12 @@ namespace mj
         friend class TrainDataGenerator;
         void UpdateByEvent(const mjproto::Event& event);
     };
+
+   // 試合結果（半荘）
+   struct GameResult {
+       int seed;
+       std::map<PlayerId, int> ranking;  // 1~4
+   };
 }  // namespace mj
 
 #endif //MAHJONG_STATE_H
