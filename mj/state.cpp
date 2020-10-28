@@ -63,7 +63,31 @@ namespace mj
     }
 
     GameResult State::result() const {
-        return GameResult();
+        // 順位
+        const auto final_tens = tens();
+        std::vector<std::pair<int, int>> pos_ten;
+        for (int i = 0; i < 4; ++i) {
+            pos_ten.emplace_back(i, final_tens[i] + (4 - i));  // 同点は起家から順に優先されるので +4, +3, +2, +1 する
+        }
+        std::sort(pos_ten.begin(), pos_ten.end(), [](auto x, auto y){ return x.second < y.second; });
+        std::reverse(pos_ten.begin(), pos_ten.end());
+        for (int i = 0; i < 3; ++i) assert(pos_ten[i].second > pos_ten[i + 1].second);
+        std::map<PlayerId, int> rankings;
+        for (int i = 0; i < 4; ++i) {
+            int ranking = i + 1;
+            PlayerId player_id = player(AbsolutePos(pos_ten[i].first)).player_id;
+            rankings[player_id] = ranking;
+        }
+
+        // 点数
+        std::map<PlayerId, int> tens_map;
+        for (int i = 0; i < 4; ++i) {
+            PlayerId player_id = player(AbsolutePos(i)).player_id;
+            int ten = final_tens[i];
+            tens_map[player_id] = ten;
+        }
+
+        return GameResult{0, rankings, tens_map};
     }
 
     std::unordered_map<PlayerId, Observation> State::CreateObservations() const {

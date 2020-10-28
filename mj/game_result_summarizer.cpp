@@ -8,7 +8,7 @@ namespace mj
 
     void GameResultSummarizer::Add(GameResult&& game_result) {
         num_games_++;
-        for (const auto& [player_id, ranking]: game_result.ranking) {
+        for (const auto& [player_id, ranking]: game_result.rankings) {
             player_performances_[player_id].num_games++;
             player_performances_[player_id].num_ranking[ranking]++;
             player_performances_[player_id].avg_ranking = avg_ranking(player_performances_[player_id].num_ranking);

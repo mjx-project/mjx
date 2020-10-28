@@ -25,6 +25,10 @@ namespace mj
         }
         // ゲーム終了時のStateにはisGameOverが含まれるはず #428
         assert(state_.ToJson().find("isGameOver") != std::string::npos);
+        auto result = state_.result();
+        for (const auto& [player_id, ranking]: result.rankings) {
+            std::cerr << player_id << " " << ranking << " " << result.tens[player_id] << std::endl;
+        }
     }
 
     void Environment::RunOneRound() {

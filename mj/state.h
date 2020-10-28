@@ -22,7 +22,8 @@ namespace mj
     // 試合結果（半荘）
     struct GameResult {
         int seed;
-        std::map<PlayerId, int> ranking;  // 1~4
+        std::map<PlayerId, int> rankings;  // 1~4
+        std::map<PlayerId, int> tens;  // 25000スタート
     };
 
     class State
