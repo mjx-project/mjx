@@ -24,7 +24,7 @@ std::vector<std::string> LoadJson(const std::string &filename) {
         if (buf.empty()) break;
         // 改行コード\rを除去する
         if(*buf.rbegin() == '\r') {
-            buf.erase( buf.length()-1);
+            buf.erase(buf.length()-1);
         }
         ret.push_back(buf);
     }
