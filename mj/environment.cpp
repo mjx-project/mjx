@@ -17,7 +17,7 @@ namespace mj
         while(true) RunOneGame();
     }
 
-    void Environment::RunOneGame(std::uint32_t seed) {
+    GameResult Environment::RunOneGame(std::uint32_t seed) {
         while (true) {
             RunOneRound();
             if (state_.IsGameOver()) break;
@@ -25,10 +25,7 @@ namespace mj
         }
         // ゲーム終了時のStateにはisGameOverが含まれるはず #428
         assert(state_.ToJson().find("isGameOver") != std::string::npos);
-        auto result = state_.result();
-        for (const auto& [player_id, ranking]: result.rankings) {
-            std::cerr << player_id << " " << ranking << " " << result.tens[player_id] << std::endl;
-        }
+        return state_.result();
     }
 
     void Environment::RunOneRound() {
