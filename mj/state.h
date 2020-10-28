@@ -82,7 +82,6 @@ namespace mj
             std::optional<Tile> win_tile;
         };
 
-
         // protos
         mjproto::State state_;
         mjproto::Score curr_score_;  // Using state_.terminal.final_score gives wrong serialization when round is not finished.
