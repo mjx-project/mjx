@@ -20,7 +20,7 @@ namespace mj
         };
         [[nodiscard]] int num_games() const;
         [[nodiscard]] const PlayerPerformance& player_performance(const PlayerId& player_id) const;
-        std::string string() const;
+        [[nodiscard]] std::string string() const;
         void Add(GameResult&& game_result);
     private:
         int num_games_ = 0;
