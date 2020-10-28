@@ -7,7 +7,7 @@
 
 namespace mj {
 
-    void TrainDataGenerator::generate(const std::string& src_path, const std::string& dst_path) {
+    void TrainDataGenerator::generateDiscard(const std::string& src_path, const std::string& dst_path) {
         std::ifstream ifs(src_path, std::ios::in);
         std::ofstream ofs(dst_path, std::ios::out);
         std::string json;
@@ -23,13 +23,16 @@ namespace mj {
             auto state_ = State(state);
 
             for (auto event : events) {
-                auto observation = Observation(static_cast<AbsolutePos>(event.who()), state_.state_);
-
                 std::string event_json;
                 assert(google::protobuf::util::MessageToJsonString(event, &event_json).ok());
 
-                std::string train_data = observation.ToJson() + "\t" + event_json;
-                ofs << train_data << std::endl;
+                if (event.type() == mjproto::EVENT_TYPE_DISCARD_DRAWN_TILE or
+                    event.type() == mjproto::EVENT_TYPE_DISCARD_FROM_HAND)
+                {
+                    auto observation = Observation(static_cast<AbsolutePos>(event.who()), state_.state_);
+                    std::string train_data = observation.ToJson() + "\t" + event_json;
+                    ofs << train_data << std::endl;
+                }
 
                 state_.UpdateByEvent(event);
             }
@@ -50,14 +53,14 @@ int main(int argc, char *argv[]) {
     for ( const fs::directory_entry& entry : fs::recursive_directory_iterator(src_dir) ) {
         if (entry.is_directory()) continue;
         std::string src_str = entry.path().string();
-        std::string dst_str = dst_dir.path().string() + "/" + entry.path().stem().string() + ".txt";
+        std::string dst_str = dst_dir.path().string() + "/" + entry.path().stem().string() + ".discard.txt";
         paths.emplace_back(src_str, dst_str);
     }
 
     // Parallel exec
     mj::ptransform(paths.begin(), paths.end(), [](const std::pair<std::string, std::string>& p) {
         const auto& [src_str, dst_str] = p;
-        mj::TrainDataGenerator::generate(src_str, dst_str);
+        mj::TrainDataGenerator::generateDiscard(src_str, dst_str);
         return p;
     });
 }
