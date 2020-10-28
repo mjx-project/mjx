@@ -62,6 +62,10 @@ namespace mj
         return mutable_player(who).hand;
     }
 
+    const GameResult &State::result() const {
+        return result_;
+    }
+
     std::unordered_map<PlayerId, Observation> State::CreateObservations() const {
         switch (last_event_.type()) {
             case EventType::kDraw:

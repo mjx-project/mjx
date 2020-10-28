@@ -17,10 +17,15 @@
 #include "utils.h"
 #include "yaku_evaluator.h"
 
-//これを構造体に変える
 namespace mj
 {
-   class State
+    // 試合結果（半荘）
+    struct GameResult {
+        int seed;
+        std::map<PlayerId, int> ranking;  // 1~4
+    };
+
+    class State
     {
     public:
         State() = default;
@@ -76,6 +81,7 @@ namespace mj
             std::optional<Tile> win_tile;
         };
 
+
         // protos
         mjproto::State state_;
         mjproto::Score curr_score_;  // Using state_.terminal.final_score gives wrong serialization when round is not finished.
@@ -83,6 +89,7 @@ namespace mj
         Wall wall_;
         std::array<Player, 4> players_;
         std::uint32_t seed_;
+        GameResult result_;
         // temporal memory
         Event last_event_;
         std::optional<Tile> last_ronable_tile;
@@ -101,6 +108,7 @@ namespace mj
         [[nodiscard]] Player& mutable_player(AbsolutePos pos);
         [[nodiscard]] const Hand& hand(AbsolutePos who) const;
         [[nodiscard]] Hand& mutable_hand(AbsolutePos who);
+        [[nodiscard]] const GameResult& result() const;
         [[nodiscard]] WinStateInfo win_state_info(AbsolutePos who) const;
         [[nodiscard]] AbsolutePos top_player() const;
 
@@ -137,11 +145,7 @@ namespace mj
         void UpdateByEvent(const mjproto::Event& event);
     };
 
-   // 試合結果（半荘）
-   struct GameResult {
-       int seed;
-       std::map<PlayerId, int> ranking;  // 1~4
-   };
+
 }  // namespace mj
 
 #endif //MAHJONG_STATE_H
