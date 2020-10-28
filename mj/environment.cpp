@@ -24,7 +24,7 @@ namespace mj
             state_ = state_.Next();
         }
         // ゲーム終了時のStateにはisGameOverが含まれるはず #428
-        assert(state_.ToJson().find("isGameOver")!=std::string::npos);
+        assert(state_.ToJson().find("isGameOver") != std::string::npos);
     }
 
     void Environment::RunOneRound() {
