@@ -42,6 +42,7 @@ namespace mj
         std::unordered_map<PlayerId, Observation> CreateObservations() const;
         std::string ToJson() const;
         mjproto::State proto() const;
+        GameResult result() const;
         State Next() const;
 
         static std::vector<PlayerId> ShufflePlayerIds(std::uint32_t seed, std::vector<PlayerId> player_ids);
@@ -89,7 +90,6 @@ namespace mj
         Wall wall_;
         std::array<Player, 4> players_;
         std::uint32_t seed_;
-        GameResult result_;
         // temporal memory
         Event last_event_;
         std::optional<Tile> last_ronable_tile;
@@ -108,7 +108,6 @@ namespace mj
         [[nodiscard]] Player& mutable_player(AbsolutePos pos);
         [[nodiscard]] const Hand& hand(AbsolutePos who) const;
         [[nodiscard]] Hand& mutable_hand(AbsolutePos who);
-        [[nodiscard]] const GameResult& result() const;
         [[nodiscard]] WinStateInfo win_state_info(AbsolutePos who) const;
         [[nodiscard]] AbsolutePos top_player() const;
 
