@@ -44,7 +44,7 @@ namespace mj
 
     std::optional<double> GameResultSummarizer::avg_ranking(const std::map<int, int>& num_ranking) {
         int num_total = 0;
-        for (const auto& [ranking, num]: num_ranking) ++num_total;
+        for (const auto& [ranking, num]: num_ranking) num_total += num;
         if (num_total == 0) return std::nullopt;
         double ret = 0.0;
         for (const auto& [ranking, num]: num_ranking) ret += (double) num / num_total * ranking;

@@ -21,3 +21,4 @@
 #include "win_info.h"
 #include "win_score.h"
 #include "yaku_evaluator.h"
+#include "game_result_summarizer.h"
