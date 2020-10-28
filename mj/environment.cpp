@@ -37,7 +37,6 @@ namespace mj
             }
             state_.Update(std::move(actions));
         }
-        std::cerr << state_.ToJson() << std::endl;
     }
 
     std::shared_ptr<Agent> Environment::agent(AbsolutePos pos) const {
