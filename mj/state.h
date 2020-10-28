@@ -144,8 +144,6 @@ namespace mj
         friend class TrainDataGenerator;
         void UpdateByEvent(const mjproto::Event& event);
     };
-
-
 }  // namespace mj
 
 #endif //MAHJONG_STATE_H
