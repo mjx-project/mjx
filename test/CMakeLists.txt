@@ -13,7 +13,7 @@ include_directories(${gtest_SOURCE_DIR}/include ${gtest_SOURCE_DIR})
 add_subdirectory(${GOOGLETEST_DIR})
 
 file(GLOB TEST_FILES *.cpp)
-add_executable(${PROJECT_NAME} ${TEST_FILES} game_summarizer_test.cpp)
+add_executable(${PROJECT_NAME} ${TEST_FILES})
 
 target_link_libraries(${PROJECT_NAME} gtest gtest_main)
 target_link_libraries(${PROJECT_NAME} mj)
