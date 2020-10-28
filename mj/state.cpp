@@ -62,8 +62,8 @@ namespace mj
         return mutable_player(who).hand;
     }
 
-    const GameResult &State::result() const {
-        return result_;
+    GameResult State::result() const {
+        return GameResult();
     }
 
     std::unordered_map<PlayerId, Observation> State::CreateObservations() const {
