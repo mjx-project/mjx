@@ -17,10 +17,16 @@
 #include "utils.h"
 #include "yaku_evaluator.h"
 
-//これを構造体に変える
 namespace mj
 {
-   class State
+    // 試合結果（半荘）
+    struct GameResult {
+        int seed;
+        std::map<PlayerId, int> rankings;  // 1~4
+        std::map<PlayerId, int> tens;  // 25000スタート
+    };
+
+    class State
     {
     public:
         State() = default;
@@ -37,6 +43,7 @@ namespace mj
         std::unordered_map<PlayerId, Observation> CreateObservations() const;
         std::string ToJson() const;
         mjproto::State proto() const;
+        GameResult result() const;
         State Next() const;
 
         static std::vector<PlayerId> ShufflePlayerIds(std::uint32_t seed, std::vector<PlayerId> player_ids);

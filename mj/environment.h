@@ -12,7 +12,7 @@ namespace mj
         Environment(std::vector<std::shared_ptr<Agent>> agents);
 
         [[noreturn]] void Run();
-        void RunOneGame(std::uint32_t seed = 9999);
+        GameResult RunOneGame(std::uint32_t seed = 9999);
         void RunOneRound();
     private:
         const std::vector<std::shared_ptr<Agent>> agents_;
