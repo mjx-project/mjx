@@ -117,8 +117,13 @@ namespace mj
                 // => Ron (7)
                 // => Chi, Pon and KanOpened (8)
                 {
-                    assert(!CreateStealAndRonObservation().empty());
-                    return CreateStealAndRonObservation();
+                    auto ret = CreateStealAndRonObservation();
+                    if (ret.empty()) {
+                        std::cerr << "CreateStealAndRonObservation return empty." << std::endl;
+                    }
+                    return ret;
+                    //assert(!CreateStealAndRonObservation().empty());
+                    //return CreateStealAndRonObservation();
                 }
             case EventType::kKanAdded:
                 {
@@ -750,6 +755,10 @@ namespace mj
         std::array<std::int32_t, 4> tens_{};
         for (int i = 0; i < 4; ++i) tens_[i] = state_.init_score().ten(i);
         return tens_;
+    }
+
+    Event State::LastEvent() const {
+        return last_event_;
     }
 
 
