@@ -7,15 +7,22 @@ from google.protobuf import json_format
 
 import mj_pb2
 
-# 配牌をソートする関数
-def init_hand_sort(init_hand : List[int])->List[int]:
-    #11~19マンズ　21~29ピンズ　31~39ソウズ　#51~53赤マンピンソウ
-    reds = [51,52,53]#赤
-    init_key = [int(str(i)[::-1])if i in reds else i for i in init_hand]#ソートする辞書のキー赤は文字を反転させる。
-    init_hand_dict = [[k,v] for k,v in zip(init_key,init_hand)]
-    sorted_hand = sorted(init_hand_dict, key=lambda x:x[0])#ソート
+#mjproto 形式の牌の表現をmjscore形式の表現に変える関数
+def format_changer(protos :List[int])->List[int]:
+    reds_proto = [16,52,88]
+    reds_dict = {16:51,52:52,88:53}#{mjproto:mjscore}
+    scores = list(map(lambda x:((x//36)+1)*10 + ((x%36)//4)+1 if not x in reds_proto else reds_dict[x],protos))#mjproto形式の表現ををmjscore形式に変換
+    return scores
+
+def init_hand_sort(init_hand: List[int])->List[int]:
+    # 11~19マンズ　21~29ピンズ　31~39ソウズ　#51~53赤マンピンソウ
+    reds_score = [51, 52, 53]  # 赤
+    init_key = [int(str(i)[::-1]) if i in reds_score else i for i in init_hand]  # ソートする辞書のキー赤は文字を反転させる。
+    init_hand_dict = [[k, v] for k, v in zip(init_key, init_hand)]
+    sorted_hand = sorted(init_hand_dict, key=lambda x: x[0])
     sorted_hand = [i[1] for i in sorted_hand]
     return sorted_hand
+
 
 # ここを実装
 def mjproto_to_mjscore(state: mj_pb2.State) -> str:
@@ -25,7 +32,7 @@ def mjproto_to_mjscore(state: mj_pb2.State) -> str:
     #print(state.init_score.ten)
     print(type(state.private_infos))
     print(type(state.private_infos[0].init_hand))
-    print(init_hand_sort(state.private_infos[0].init_hand))
+    print(init_hand_sort(format_changer(state.private_infos[0].init_hand)))
     round:int = state.init_score.round
     honba:int = state.init_score.honba
     riichi:int = state.init_score.riichi
