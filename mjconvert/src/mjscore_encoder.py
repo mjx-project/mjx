@@ -7,6 +7,15 @@ from google.protobuf import json_format
 
 import mj_pb2
 
+# 配牌をソートする関数
+def init_hand_sort(init_hand : List[int])->List[int]:
+    #11~19マンズ　21~29ピンズ　31~39ソウズ　#51~53赤マンピンソウ
+    reds = [51,52,53]#赤
+    init_key = [int(str(i)[::-1])if i in reds else i for i in init_hand]#ソートする辞書のキー赤は文字を反転させる。
+    init_hand_dict = [[k,v] for k,v in zip(init_key,init_hand)]
+    sorted_hand = sorted(init_hand_dict, key=lambda x:x[0])#ソート
+    sorted_hand = [i[1] for i in sorted_hand]
+    return sorted_hand
 
 # ここを実装
 def mjproto_to_mjscore(state: mj_pb2.State) -> str:
@@ -14,7 +23,9 @@ def mjproto_to_mjscore(state: mj_pb2.State) -> str:
     #print(state.private_infos.ABSOLUTE_POS_INIT_EAST.init_hand)
     # print(state.init_score.honba)
     #print(state.init_score.ten)
-    #print(state.private_infos)
+    print(type(state.private_infos))
+    print(type(state.private_infos[0].init_hand))
+    print(init_hand_sort(state.private_infos[0].init_hand))
     round:int = state.init_score.round
     honba:int = state.init_score.honba
     riichi:int = state.init_score.riichi
@@ -24,7 +35,6 @@ def mjproto_to_mjscore(state: mj_pb2.State) -> str:
 
     d = {'title':[], 'name':[], 'rule':[],'log':[[[[round,honba,riichi],init_score,doras,ura_doras]]]}
     return json.dumps(d)
-
 
 if __name__ == '__main__':
     # 東1局0本場の mjproto
