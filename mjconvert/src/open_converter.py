@@ -28,7 +28,6 @@ def open_tile_types(bits: int) -> List[int]:
     """
     >>> open_tile_types(51306)  # Pon rd
     [33, 33, 33]
-    EXPECT_TRUE(check(o, {tt::kRD, tt::kRD, tt::kRD}, tt::kRD, RelativePos::kMid));
     >>> open_tile_types(49495)  # Chi s3s4s5
     [20, 21, 22]
     >>> open_tile_types(28722)  # 加槓 s1
