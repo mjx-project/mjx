@@ -5,9 +5,9 @@ import json
 import argparse
 from argparse import RawTextHelpFormatter
 from google.protobuf import json_format
-from . import mj_pb2
-from .mjlog_encoder import MjlogEncoder
-from .mjlog_decoder import MjlogDecoder
+from mjconvert import mj_pb2
+from mjconvert.mjlog_encoder import MjlogEncoder
+from mjconvert.mjlog_decoder import MjlogDecoder
 
 
 class LineBuffer:
@@ -205,7 +205,7 @@ Difference between mjproto and mjproto-raw:
 
             # 変換
             list_lines: List[List[str]] = buffer.get(get_all=True)
-            assert len(list_lines) == 1  # each file has one game
+            assert len(list_lines) == 1, "Each file should have one game"
             transformed_lines += converter.convert(list_lines[0])
 
             # 書き込み

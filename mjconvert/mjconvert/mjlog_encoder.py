@@ -4,7 +4,7 @@ import json
 import urllib.parse
 from google.protobuf import json_format
 
-from . import mj_pb2
+from mjconvert import mj_pb2
 
 
 class MjlogEncoder:

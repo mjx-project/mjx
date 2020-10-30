@@ -1,5 +1,5 @@
 from typing import List
-from . import mj_pb2
+from mjconvert import mj_pb2
 
 
 def open_event_type(bits: int) -> mj_pb2.EventType:

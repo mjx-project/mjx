@@ -10,7 +10,7 @@ setup(
     install_requires=[],
     packages=find_packages(),
     entry_points={
-        'console_scripts': 'mjconvert = src.main:main'
+        'console_scripts': 'mjconvert = mjconvert.main:main'
     },
     classifiers=[
         "Programming Language :: Python :: 3.8",
