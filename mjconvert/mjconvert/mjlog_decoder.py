@@ -7,7 +7,7 @@ import xml.etree.ElementTree as ET
 from xml.etree.ElementTree import Element
 from google.protobuf import json_format
 
-from . import mj_pb2
+from mjconvert import mj_pb2
 
 
 class MjlogDecoder:

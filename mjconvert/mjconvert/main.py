@@ -5,9 +5,9 @@ import json
 import argparse
 from argparse import RawTextHelpFormatter
 from google.protobuf import json_format
-from . import mj_pb2
-from .mjlog_encoder import MjlogEncoder
-from .mjlog_decoder import MjlogDecoder
+from mjconvert import mj_pb2
+from mjconvert.mjlog_encoder import MjlogEncoder
+from mjconvert.mjlog_decoder import MjlogDecoder
 
 
 class LineBuffer:

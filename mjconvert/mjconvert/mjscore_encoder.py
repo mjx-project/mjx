@@ -5,7 +5,7 @@ import json
 import urllib.parse
 from google.protobuf import json_format
 
-import mj_pb2
+from mjconvert import mj_pb2
 
 
 # ここを実装
