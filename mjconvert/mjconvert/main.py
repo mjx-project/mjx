@@ -205,7 +205,7 @@ Difference between mjproto and mjproto-raw:
 
             # 変換
             list_lines: List[List[str]] = buffer.get(get_all=True)
-            assert len(list_lines) == 1  # each file has one game
+            assert len(list_lines) == 1, "Each file should have one game"
             transformed_lines += converter.convert(list_lines[0])
 
             # 書き込み
