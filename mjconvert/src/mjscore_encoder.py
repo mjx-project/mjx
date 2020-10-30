@@ -5,52 +5,62 @@ import json
 import urllib.parse
 from google.protobuf import json_format
 
-import mj_pb2
+from . import mj_pb2
 
-#mjproto 形式の牌の表現をmjscore形式の表現に変える関数
-def format_changer(protos :List[int])->List[int]:
-    excepts = [16,52,88,"tumogiri"]#例外:赤５とツモぎり
-    excepts_dict = {16:51,52:52,88:53,"tumogiri":60}
-    scores = list(map(lambda x:((x//36)+1)*10 + ((x%36)//4)+1 if not x in excepts else excepts_dict[x],protos))#mjproto形式の表現ををmjscore形式に変換
+
+def change_tile_fmt(tile_id: int) -> int:
+    pass
+
+
+# mjproto 形式の牌の表現をmjscore形式の表現に変える関数
+def change_tiles_fmt(protos: List[int]) -> List[int]:
+    excepts = [16, 52, 88 , "tumogiri"]  # 例外:赤５とツモぎり
+    excepts_dict = {16: 51, 52: 52, 88: 53, "tumogiri": 60}
+    scores = list(map(lambda x: ((x // 36) + 1) * 10 + ((x % 36) // 4) + 1 if x not in excepts else excepts_dict[x], protos))  #mjproto形式の表現ををmjscore形式に変換
     return scores
-#mjscore形式の配牌をソートする関数。
-def init_hand_sort(init_hand: List[int])->List[int]:
+
+
+# mjscore形式の配牌をソートする関数。
+def sort_init_hand(init_hand: List[int]) -> List[int]:
     # 11~19マンズ　21~29ピンズ　31~39ソウズ　#51~53赤マンピンソウ
     reds_score = [51, 52, 53]  # 赤
-    init_key = [int(str(i)[::-1])+0.1 if i in reds_score else i for i in init_hand]  # ソートする辞書のキー。赤は文字を反転させて、同じ種類の牌の中で最後尾になるようにソートする値に0.1を足す。
-    init_hand_dict = [[k, v] for k, v in zip(init_key, init_hand)]
-    sorted_hand = sorted(init_hand_dict, key=lambda x: x[0])
+    sort_key = [int(str(i)[::-1]) + 0.1 if i in reds_score else i for i in init_hand]  # ソートする辞書のキー。赤は文字を反転させて、同じ種類の牌の中で最後尾になるようにソートする値に0.1を足す。
+    init_hand_list = [[k, v] for k, v in zip(sort_key, init_hand)]
+    sorted_hand = sorted(init_hand_list, key=lambda x: x[0])
     sorted_hand = [i[1] for i in sorted_hand]
     return sorted_hand
 
-#mjproto 形式のeventを受け取り、あるプレイヤーの捨て牌をmjscore形式で出力する関数。
-def discard_parser(events, abs_pos:int):
+
+# mjproto 形式のeventを受け取り、あるプレイヤーの捨て牌をmjscore形式で出力する関数。
+def parse_discards(events, abs_pos:int):
     discards = []
-    for i in range(len(events)):
-        event = events[i]
-        if event.type==1  and event.who==abs_pos:#手出し
+    for i, event in enumerate(events):
+        if event.type == mj_pb2.EVENT_TYPE_DISCARD_FROM_HAND and event.who == abs_pos:  # 手出し
             discards.append(event.tile)
-        elif event.type==2  and event.who==abs_pos:#ツモギリ
+        elif event.type == mj_pb2.EVENT_TYPE_DISCARD_DRAWN_TILE and event.who == abs_pos:  # ツモギリ
             discards.append("tumogiri")
-        elif event.type==3 and event.who==abs_pos:#リーチ
-            riichi = events[i+1].tile
-            riich_index = discards.index(riichi)#riichiのeventの次に宣言牌が記録されているのでそのindexを記録
-        else:
-            None
-    discards = format_changer(discards)#mjscore形式に変更
+        elif event.type == mj_pb2.EVENT_TYPE_RIICHI and event.who == abs_pos:  # リーチ
+            riichi = events[i + 1].tile
+            riich_index = discards.index(riichi)  # riichiのeventの次に宣言牌が記録されているのでそのindexを記録
+    discards = change_tiles_fmt(discards)  # mjscore形式に変更
     try:
-        discards[riich_index] = "r" + str(discards[riich_index])#リーチが行われていれば実行
+        discards[riich_index] = "r" + str(discards[riich_index])  #リーチが行われていれば実行
     except:
         None
     return discards
+
+
 def draw_parser(draws:List[int],events,abs_pos:int):
     """
-    mjscoreでは引いた牌のリストにチーやポンなどのアクションが含まれている。。
-    mjprotoの　drawsでは単に飛ばされていて、eventの方に情報がある。
-    方策
-    ①eventの方でアクション（ポン、チー、カン）と、直前の捨て牌を特定
-    ②drawsの方で直前の捨て牌の直後にアクションを挿入。
+    - mjscoreでは引いた牌のリストにチーやポンなどのアクションが含まれている
+    - mjprotoのdrawsでは単に飛ばされていて、eventの方に情報がある
+
+    方針
+    1. eventの方でアクション（ポン、チー、カン）と、直前の捨て牌を特定
+    2. drawsの方で直前の捨て牌の直後にアクションを挿入
     """
+
+
 # ここを実装
 def mjproto_to_mjscore(state: mj_pb2.State) -> str:
     #print(state.init_score.round)
@@ -59,7 +69,7 @@ def mjproto_to_mjscore(state: mj_pb2.State) -> str:
     #print(state.init_score.ten)
     #print(discard_parser(state.event_history.events,0))
     #print(len(state.private_infos[3].draws))
-    print(init_hand_sort(format_changer(state.private_infos[0].init_hand)))
+    print(sort_init_hand(change_tiles_fmt(state.private_infos[0].init_hand)))
     round:int = state.init_score.round
     honba:int = state.init_score.honba
     riichi:int = state.init_score.riichi
@@ -69,6 +79,7 @@ def mjproto_to_mjscore(state: mj_pb2.State) -> str:
 
     d = {'title':[], 'name':[], 'rule':[],'log':[[[[round,honba,riichi],init_score,doras,ura_doras]]]}
     return json.dumps(d)
+
 
 if __name__ == '__main__':
     # 東1局0本場の mjproto
