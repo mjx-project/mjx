@@ -96,8 +96,8 @@ namespace mj
 
     std::vector<PossibleAction> PossibleAction::CreateDiscard(const std::vector<Tile> &possible_discards) {
         std::vector<PossibleAction> ret;
-        for (auto tile : possible_discards) {
-            ret.push_back(CreateDiscard(std::move(tile)));
+        for (const auto& tile : possible_discards) {
+            ret.push_back(CreateDiscard(tile));
         }
         return ret;
     }

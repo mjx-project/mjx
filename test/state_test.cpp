@@ -124,8 +124,8 @@ std::string SwapTiles(const std::string &json_str, Tile a, Tile b){
     return serialized;
 }
 
-const PossibleAction& FindPossibleAction(mjproto::ActionType action_type, const Observation &observation) {
-    for (const auto &possible_action: observation.possible_actions())
+const PossibleAction FindPossibleAction(mjproto::ActionType action_type, const Observation &observation) {
+    for (const auto& possible_action: observation.possible_actions())
         if (possible_action.type() == action_type) return possible_action;
     std::cerr << "Cannot find the specified action type" << std::endl;
     assert(false);
