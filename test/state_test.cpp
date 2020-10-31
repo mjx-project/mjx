@@ -41,13 +41,7 @@ bool ActionTypeCheck(const std::vector<mjproto::ActionType>& action_types, const
     for (const auto &possible_action: observation.possible_actions()) {
         observation_action_types.insert(possible_action.type());
     }
-
     return observation_action_types == std::unordered_set<mjproto::ActionType>{action_types.begin(), action_types.end()};
-
-    //if (observation.possible_actions().size() != action_types.size()) return false;
-    //for (const auto &possible_action: observation.possible_actions())
-    //    if (!Any(possible_action.type(), action_types)) return false;
-    //return true;
 }
 
 bool YakuCheck(const State &state, AbsolutePos winner, std::vector<Yaku> &&yakus) {
@@ -804,11 +798,6 @@ std::vector<std::vector<Action>> ListUpAllActionCombinations(std::unordered_map<
             switch (possible_action.type()) {
                 case mjproto::ActionType::ACTION_TYPE_DISCARD:
                     actions_per_player.push_back(Action::CreateDiscard(who, possible_action.discard()));
-                //{
-                //    for (Tile tile: possible_action.discard_candidates()) {
-                //        actions_per_player.push_back(Action::CreateDiscard(who, tile));
-                //    }
-                //}
                     break;
                 case mjproto::ActionType::ACTION_TYPE_TSUMO:
                     actions_per_player.push_back(Action::CreateTsumo(who));
