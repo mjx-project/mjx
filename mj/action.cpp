@@ -35,7 +35,7 @@ namespace mj
     Action Action::CreateOpen(AbsolutePos who, Open open) {
         mjproto::Action proto;
         proto.set_who(mjproto::AbsolutePos(who));
-        proto.set_type(mjproto::ActionType(OpenTypeToActionType(open.Type())));
+        proto.set_type(OpenTypeToActionType(open.Type()));
         proto.set_open(open.GetBits());
         return Action(std::move(proto));
     }
@@ -53,17 +53,19 @@ namespace mj
         return AbsolutePos(proto_.who());
     }
 
-    ActionType Action::type() const {
-        return ActionType(proto_.type());
+    mjproto::ActionType Action::type() const {
+        return proto_.type();
     }
 
     Tile Action::discard() const {
-        assert(type() == ActionType::kDiscard);
+        assert(type() == mjproto::ActionType::ACTION_TYPE_DISCARD);
         return Tile(proto_.discard());
     }
 
     Open Action::open() const {
-        assert(Any(type(), {ActionType::kChi, ActionType::kPon, ActionType::kKanClosed, ActionType::kKanOpened, ActionType::kKanAdded}));
+        assert(Any(type(), {mjproto::ActionType::ACTION_TYPE_CHI, mjproto::ActionType::ACTION_TYPE_PON,
+                            mjproto::ActionType::ACTION_TYPE_KAN_CLOSED, mjproto::ActionType::ACTION_TYPE_KAN_OPENED,
+                            mjproto::ActionType::ACTION_TYPE_KAN_ADDED}));
         return Open(proto_.open());
     }
 
@@ -77,17 +79,19 @@ namespace mj
     PossibleAction::PossibleAction(mjproto::PossibleAction possible_action)
             : possible_action_(std::move(possible_action)) {}
 
-    ActionType PossibleAction::type() const {
-        return ActionType(possible_action_.type());
+    mjproto::ActionType PossibleAction::type() const {
+        return possible_action_.type();
     }
 
     Open PossibleAction::open() const {
-        assert(Any(type(), {ActionType::kChi, ActionType::kPon, ActionType::kKanClosed, ActionType::kKanOpened, ActionType::kKanAdded}));
+        assert(Any(type(), {mjproto::ActionType::ACTION_TYPE_CHI, mjproto::ActionType::ACTION_TYPE_PON,
+                            mjproto::ActionType::ACTION_TYPE_KAN_CLOSED, mjproto::ActionType::ACTION_TYPE_KAN_OPENED,
+                            mjproto::ActionType::ACTION_TYPE_KAN_ADDED}));
         return Open(possible_action_.open());
     }
 
     std::vector<Tile> PossibleAction::discard_candidates() const {
-        assert(type() == ActionType::kDiscard);
+        assert(type() == mjproto::ActionType::ACTION_TYPE_DISCARD);
         std::vector<Tile> ret;
         for (const auto& id: possible_action_.discard_candidates()) ret.emplace_back(Tile(id));
         return ret;
@@ -95,7 +99,7 @@ namespace mj
 
     PossibleAction PossibleAction::CreateDiscard(std::vector<Tile> &&possible_discards) {
         auto possible_action = PossibleAction();
-        possible_action.possible_action_.set_type(mjproto::ActionType(ActionType::kDiscard));
+        possible_action.possible_action_.set_type(mjproto::ActionType::ACTION_TYPE_DISCARD);
         auto discard_candidates = possible_action.possible_action_.mutable_discard_candidates();
         for (auto tile: possible_discards) discard_candidates->Add(tile.Id());
         assert(discard_candidates->size() <= 14);
@@ -104,38 +108,38 @@ namespace mj
 
     PossibleAction PossibleAction::CreateRiichi() {
         auto possible_action = PossibleAction();
-        possible_action.possible_action_.set_type(mjproto::ActionType(ActionType::kRiichi));
+        possible_action.possible_action_.set_type(mjproto::ActionType::ACTION_TYPE_RIICHI);
         return possible_action;
     }
 
     PossibleAction PossibleAction::CreateOpen(Open open) {
         auto possible_action = PossibleAction();
-        possible_action.possible_action_.set_type(mjproto::ActionType(OpenTypeToActionType(open.Type())));
+        possible_action.possible_action_.set_type(OpenTypeToActionType(open.Type()));
         possible_action.possible_action_.set_open(open.GetBits());
         return possible_action;
     }
 
     PossibleAction PossibleAction::CreateRon() {
         auto possible_action = PossibleAction();
-        possible_action.possible_action_.set_type(mjproto::ActionType(ActionType::kRon));
+        possible_action.possible_action_.set_type(mjproto::ActionType::ACTION_TYPE_RON);
         return possible_action;
     }
 
     PossibleAction PossibleAction::CreateTsumo() {
         auto possible_action = PossibleAction();
-        possible_action.possible_action_.set_type(mjproto::ActionType(ActionType::kTsumo));
+        possible_action.possible_action_.set_type(mjproto::ActionType::ACTION_TYPE_TSUMO);
         return possible_action;
     }
 
     PossibleAction PossibleAction::CreateNo() {
         auto possible_action = PossibleAction();
-        possible_action.possible_action_.set_type(mjproto::ActionType(ActionType::kNo));
+        possible_action.possible_action_.set_type(mjproto::ActionType::ACTION_TYPE_NO);
         return possible_action;
     }
 
     PossibleAction PossibleAction::CreateNineTiles() {
         auto possible_action = PossibleAction();
-        possible_action.possible_action_.set_type(mjproto::ActionType(ActionType::kKyushu));
+        possible_action.possible_action_.set_type(mjproto::ActionType::ACTION_TYPE_KYUSYU);
         return possible_action;
     }
 }  // namespace mj
