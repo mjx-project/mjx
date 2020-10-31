@@ -37,10 +37,17 @@ std::string GetLastJsonLine(const std::string &filename) {
 }
 
 bool ActionTypeCheck(const std::vector<mjproto::ActionType>& action_types, const Observation &observation) {
-    if (observation.possible_actions().size() != action_types.size()) return false;
-    for (const auto &possible_action: observation.possible_actions())
-        if (!Any(possible_action.type(), action_types)) return false;
-    return true;
+    std::unordered_set<mjproto::ActionType> observation_action_types;
+    for (const auto &possible_action: observation.possible_actions()) {
+        observation_action_types.insert(possible_action.type());
+    }
+
+    return observation_action_types == std::unordered_set<mjproto::ActionType>{action_types.begin(), action_types.end()};
+
+    //if (observation.possible_actions().size() != action_types.size()) return false;
+    //for (const auto &possible_action: observation.possible_actions())
+    //    if (!Any(possible_action.type(), action_types)) return false;
+    //return true;
 }
 
 bool YakuCheck(const State &state, AbsolutePos winner, std::vector<Yaku> &&yakus) {
@@ -271,7 +278,7 @@ TEST(state, CreateObservation) {
     EXPECT_TRUE(observations.find("-ron-") != observations.end());
     observation = observations["-ron-"];
     EXPECT_TRUE(ActionTypeCheck({mjproto::ActionType::ACTION_TYPE_DISCARD}, observation));
-    EXPECT_TRUE(Any(Tile(39), observation.possible_actions().front().discard_candidates()));
+    EXPECT_TRUE(Any(Tile(39), observation.possible_discards()));
 
     // 9. Riichiした後、可能なアクションはDiscardだけで、捨てられる牌も上がり系につながるものだけ
     // ここでは、可能なdiscardは南だけ
@@ -282,8 +289,8 @@ TEST(state, CreateObservation) {
     EXPECT_TRUE(observations.find("ASAPIN") != observations.end());
     observation = observations["ASAPIN"];
     EXPECT_TRUE(ActionTypeCheck({mjproto::ActionType::ACTION_TYPE_DISCARD}, observation));
-    EXPECT_EQ(observation.possible_actions().front().discard_candidates().size(), 1);
-    EXPECT_EQ(observation.possible_actions().front().discard_candidates().front().Type(), TileType::kSW);
+    EXPECT_EQ(observation.possible_discards().size(), 1);
+    EXPECT_EQ(observation.possible_discards().front().Type(), TileType::kSW);
 
     // 10. チーした後、可能なアクションはDiscardだけで、喰い替えはできない
     // 34566mから567mのチーで4mは喰い替えになるので切れない
@@ -294,7 +301,7 @@ TEST(state, CreateObservation) {
     EXPECT_TRUE(observations.find("ASAPIN") != observations.end());
     observation = observations["ASAPIN"];
     EXPECT_TRUE(ActionTypeCheck({mjproto::ActionType::ACTION_TYPE_DISCARD}, observation));
-    for (auto tile : observation.possible_actions().front().discard_candidates()) EXPECT_NE(tile.Type(), TileType::kM4);
+    for (auto tile : observation.possible_discards()) EXPECT_NE(tile.Type(), TileType::kM4);
 
     // 11. ポンした後、可能なアクションはDiscardだけ
     json = GetLastJsonLine("obs-pon-discard.json");
@@ -796,11 +803,12 @@ std::vector<std::vector<Action>> ListUpAllActionCombinations(std::unordered_map<
         for (const auto &possible_action: observation.possible_actions()) {
             switch (possible_action.type()) {
                 case mjproto::ActionType::ACTION_TYPE_DISCARD:
-                {
-                    for (Tile tile: possible_action.discard_candidates()) {
-                        actions_per_player.push_back(Action::CreateDiscard(who, tile));
-                    }
-                }
+                    actions_per_player.push_back(Action::CreateDiscard(who, possible_action.discard()));
+                //{
+                //    for (Tile tile: possible_action.discard_candidates()) {
+                //        actions_per_player.push_back(Action::CreateDiscard(who, tile));
+                //    }
+                //}
                     break;
                 case mjproto::ActionType::ACTION_TYPE_TSUMO:
                     actions_per_player.push_back(Action::CreateTsumo(who));

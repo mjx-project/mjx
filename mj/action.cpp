@@ -83,6 +83,10 @@ namespace mj
         return possible_action_.type();
     }
 
+    Tile PossibleAction::discard() const {
+        return static_cast<Tile>(possible_action_.discard());
+    }
+
     Open PossibleAction::open() const {
         assert(Any(type(), {mjproto::ActionType::ACTION_TYPE_CHI, mjproto::ActionType::ACTION_TYPE_PON,
                             mjproto::ActionType::ACTION_TYPE_KAN_CLOSED, mjproto::ActionType::ACTION_TYPE_KAN_OPENED,
@@ -90,20 +94,18 @@ namespace mj
         return Open(possible_action_.open());
     }
 
-    std::vector<Tile> PossibleAction::discard_candidates() const {
-        assert(type() == mjproto::ActionType::ACTION_TYPE_DISCARD);
-        std::vector<Tile> ret;
-        for (const auto& id: possible_action_.discard_candidates()) ret.emplace_back(Tile(id));
+    std::vector<PossibleAction> PossibleAction::CreateDiscard(const std::vector<Tile> &possible_discards) {
+        std::vector<PossibleAction> ret;
+        for (auto tile : possible_discards) {
+            ret.push_back(CreateDiscard(std::move(tile)));
+        }
         return ret;
     }
-
-    PossibleAction PossibleAction::CreateDiscard(std::vector<Tile> &&possible_discards) {
-        auto possible_action = PossibleAction();
-        possible_action.possible_action_.set_type(mjproto::ActionType::ACTION_TYPE_DISCARD);
-        auto discard_candidates = possible_action.possible_action_.mutable_discard_candidates();
-        for (auto tile: possible_discards) discard_candidates->Add(tile.Id());
-        assert(discard_candidates->size() <= 14);
-        return possible_action;
+    PossibleAction PossibleAction::CreateDiscard(Tile possible_discard) {
+        PossibleAction action;
+        action.possible_action_.set_type(mjproto::ActionType::ACTION_TYPE_DISCARD);
+        action.possible_action_.set_discard(possible_discard.Id());
+        return action;
     }
 
     PossibleAction PossibleAction::CreateRiichi() {
