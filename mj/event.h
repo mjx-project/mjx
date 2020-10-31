@@ -13,7 +13,7 @@ namespace mj
     {
     public:
         Event() = default;
-        EventType type() const;
+        mjproto::EventType type() const;
         AbsolutePos who() const;
         Tile tile() const;
         Open open() const;

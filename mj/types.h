@@ -73,23 +73,6 @@ namespace mj {
         kEmpty
     };
 
-    enum class EventType : std::uint8_t {
-        kDraw = mjproto::EVENT_TYPE_DRAW,
-        kDiscardFromHand = mjproto::EVENT_TYPE_DISCARD_FROM_HAND,
-        kDiscardDrawnTile = mjproto::EVENT_TYPE_DISCARD_DRAWN_TILE,  // ツモ切り, Tsumogiri
-        kRiichi = mjproto::EVENT_TYPE_RIICHI,
-        kTsumo = mjproto::EVENT_TYPE_TSUMO,
-        kRon = mjproto::EVENT_TYPE_RON,
-        kChi = mjproto::EVENT_TYPE_CHI,
-        kPon = mjproto::EVENT_TYPE_PON,
-        kKanClosed = mjproto::EVENT_TYPE_KAN_CLOSED,
-        kKanOpened = mjproto::EVENT_TYPE_KAN_OPENED,
-        kKanAdded = mjproto::EVENT_TYPE_KAN_ADDED,
-        kNewDora = mjproto::EVENT_TYPE_NEW_DORA,
-        kRiichiScoreChange = mjproto::EVENT_TYPE_RIICHI_SCORE_CHANGE,
-        kNoWinner = mjproto::EVENT_TYPE_NO_WINNER,
-    };
-
     enum class ActionType : std::uint8_t {
         // After draw
         kDiscard = mjproto::ACTION_TYPE_DISCARD,
@@ -261,7 +244,7 @@ namespace mj {
 
     RelativePos ToRelativePos(AbsolutePos origin, AbsolutePos target);
     Wind ToSeatWind(AbsolutePos who, AbsolutePos dealer);
-    EventType OpenTypeToEventType(OpenType open_type);
+    mjproto::EventType OpenTypeToEventType(OpenType open_type);
     ActionType OpenTypeToActionType(OpenType open_type);
     bool IsSameWind(TileType tile_type, Wind wind);
 }  // namespace mj
