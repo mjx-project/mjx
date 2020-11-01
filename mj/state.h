@@ -58,6 +58,7 @@ namespace mj
         [[nodiscard]] std::array<std::int32_t, 4> tens() const;
         [[nodiscard]] std::uint8_t init_riichi() const;
         [[nodiscard]] std::array<std::int32_t, 4> init_tens() const;
+        [[nodiscard]] Event LastEvent() const;
 
         // comparison
         bool Equals(const State& other) const noexcept ;

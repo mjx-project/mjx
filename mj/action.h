@@ -38,6 +38,7 @@ namespace mj
         mjproto::ActionType type() const;
         Open open() const;
         std::vector<Tile> discard_candidates() const;
+        std::string ToJson() const;
 
         static PossibleAction CreateDiscard(std::vector<Tile> &&possible_discards);
         static PossibleAction CreateRiichi();
