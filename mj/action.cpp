@@ -1,5 +1,6 @@
 #include "action.h"
 #include "utils.h"
+#include "mj.grpc.pb.h"
 
 namespace mj
 {
@@ -137,5 +138,12 @@ namespace mj
         auto possible_action = PossibleAction();
         possible_action.possible_action_.set_type(mjproto::ActionType(ActionType::kKyushu));
         return possible_action;
+    }
+
+    std::string PossibleAction::ToJson() const {
+        std::string serialized;
+        auto status = google::protobuf::util::MessageToJsonString(possible_action_, &serialized);
+        assert(status.ok());
+        return serialized;
     }
 }  // namespace mj
