@@ -74,21 +74,21 @@ namespace mj
     }
 
     AbsolutePos Event::who() const {
-        assert(!Any(type(), {mjproto::EventType::EVENT_TYPE_NEW_DORA, mjproto::EventType::EVENT_TYPE_NO_WINNER}));
+        assert(!Any(type(), {mjproto::EVENT_TYPE_NEW_DORA, mjproto::EVENT_TYPE_NO_WINNER}));
         return AbsolutePos(proto_.who());
     }
 
     Tile Event::tile() const {
-        assert(Any(type(), {mjproto::EventType::EVENT_TYPE_DRAW, mjproto::EventType::EVENT_TYPE_DISCARD_FROM_HAND,
-                            mjproto::EventType::EVENT_TYPE_DISCARD_DRAWN_TILE, mjproto::EventType::EVENT_TYPE_TSUMO,
-                            mjproto::EventType::EVENT_TYPE_RON, mjproto::EventType::EVENT_TYPE_NEW_DORA}));
+        assert(Any(type(), {mjproto::EVENT_TYPE_DRAW, mjproto::EVENT_TYPE_DISCARD_FROM_HAND,
+                            mjproto::EVENT_TYPE_DISCARD_DRAWN_TILE, mjproto::EVENT_TYPE_TSUMO,
+                            mjproto::EVENT_TYPE_RON, mjproto::EVENT_TYPE_NEW_DORA}));
         return Tile(proto_.tile());
     }
 
     Open Event::open() const {
-        assert(Any(type(), {mjproto::EventType::EVENT_TYPE_CHI, mjproto::EventType::EVENT_TYPE_PON,
-                            mjproto::EventType::EVENT_TYPE_KAN_CLOSED, mjproto::EventType::EVENT_TYPE_KAN_OPENED,
-                            mjproto::EventType::EVENT_TYPE_KAN_ADDED}));
+        assert(Any(type(), {mjproto::EVENT_TYPE_CHI, mjproto::EVENT_TYPE_PON,
+                            mjproto::EVENT_TYPE_KAN_CLOSED, mjproto::EVENT_TYPE_KAN_OPENED,
+                            mjproto::EVENT_TYPE_KAN_ADDED}));
         return Open(proto_.open());
     }
 
