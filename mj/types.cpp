@@ -95,15 +95,15 @@ namespace mj
     mjproto::ActionType OpenTypeToActionType(OpenType open_type) {
         switch (open_type) {
             case OpenType::kChi:
-                return mjproto::ActionType::ACTION_TYPE_CHI;
+                return mjproto::ACTION_TYPE_CHI;
             case OpenType::kPon:
-                return mjproto::ActionType::ACTION_TYPE_PON;
+                return mjproto::ACTION_TYPE_PON;
             case OpenType::kKanOpened:
-                return mjproto::ActionType::ACTION_TYPE_KAN_OPENED;
+                return mjproto::ACTION_TYPE_KAN_OPENED;
             case OpenType::kKanClosed:
-                return mjproto::ActionType::ACTION_TYPE_KAN_CLOSED;
+                return mjproto::ACTION_TYPE_KAN_CLOSED;
             case OpenType::kKanAdded:
-                return mjproto::ActionType::ACTION_TYPE_KAN_ADDED;
+                return mjproto::ACTION_TYPE_KAN_ADDED;
         }
     }
 

@@ -59,14 +59,14 @@ namespace mj
     }
 
     Tile Action::discard() const {
-        assert(type() == mjproto::ActionType::ACTION_TYPE_DISCARD);
+        assert(type() == mjproto::ACTION_TYPE_DISCARD);
         return Tile(proto_.discard());
     }
 
     Open Action::open() const {
-        assert(Any(type(), {mjproto::ActionType::ACTION_TYPE_CHI, mjproto::ActionType::ACTION_TYPE_PON,
-                            mjproto::ActionType::ACTION_TYPE_KAN_CLOSED, mjproto::ActionType::ACTION_TYPE_KAN_OPENED,
-                            mjproto::ActionType::ACTION_TYPE_KAN_ADDED}));
+        assert(Any(type(), {mjproto::ACTION_TYPE_CHI, mjproto::ACTION_TYPE_PON,
+                            mjproto::ACTION_TYPE_KAN_CLOSED, mjproto::ACTION_TYPE_KAN_OPENED,
+                            mjproto::ACTION_TYPE_KAN_ADDED}));
         return Open(proto_.open());
     }
 
@@ -85,14 +85,14 @@ namespace mj
     }
 
     Open PossibleAction::open() const {
-        assert(Any(type(), {mjproto::ActionType::ACTION_TYPE_CHI, mjproto::ActionType::ACTION_TYPE_PON,
-                            mjproto::ActionType::ACTION_TYPE_KAN_CLOSED, mjproto::ActionType::ACTION_TYPE_KAN_OPENED,
-                            mjproto::ActionType::ACTION_TYPE_KAN_ADDED}));
+        assert(Any(type(), {mjproto::ACTION_TYPE_CHI, mjproto::ACTION_TYPE_PON,
+                            mjproto::ACTION_TYPE_KAN_CLOSED, mjproto::ACTION_TYPE_KAN_OPENED,
+                            mjproto::ACTION_TYPE_KAN_ADDED}));
         return Open(possible_action_.open());
     }
 
     std::vector<Tile> PossibleAction::discard_candidates() const {
-        assert(type() == mjproto::ActionType::ACTION_TYPE_DISCARD);
+        assert(type() == mjproto::ACTION_TYPE_DISCARD);
         std::vector<Tile> ret;
         for (const auto& id: possible_action_.discard_candidates()) ret.emplace_back(Tile(id));
         return ret;
@@ -100,7 +100,7 @@ namespace mj
 
     PossibleAction PossibleAction::CreateDiscard(std::vector<Tile> &&possible_discards) {
         auto possible_action = PossibleAction();
-        possible_action.possible_action_.set_type(mjproto::ActionType::ACTION_TYPE_DISCARD);
+        possible_action.possible_action_.set_type(mjproto::ACTION_TYPE_DISCARD);
         auto discard_candidates = possible_action.possible_action_.mutable_discard_candidates();
         for (auto tile: possible_discards) discard_candidates->Add(tile.Id());
         assert(discard_candidates->size() <= 14);
@@ -109,7 +109,7 @@ namespace mj
 
     PossibleAction PossibleAction::CreateRiichi() {
         auto possible_action = PossibleAction();
-        possible_action.possible_action_.set_type(mjproto::ActionType::ACTION_TYPE_RIICHI);
+        possible_action.possible_action_.set_type(mjproto::ACTION_TYPE_RIICHI);
         return possible_action;
     }
 
@@ -122,25 +122,25 @@ namespace mj
 
     PossibleAction PossibleAction::CreateRon() {
         auto possible_action = PossibleAction();
-        possible_action.possible_action_.set_type(mjproto::ActionType::ACTION_TYPE_RON);
+        possible_action.possible_action_.set_type(mjproto::ACTION_TYPE_RON);
         return possible_action;
     }
 
     PossibleAction PossibleAction::CreateTsumo() {
         auto possible_action = PossibleAction();
-        possible_action.possible_action_.set_type(mjproto::ActionType::ACTION_TYPE_TSUMO);
+        possible_action.possible_action_.set_type(mjproto::ACTION_TYPE_TSUMO);
         return possible_action;
     }
 
     PossibleAction PossibleAction::CreateNo() {
         auto possible_action = PossibleAction();
-        possible_action.possible_action_.set_type(mjproto::ActionType::ACTION_TYPE_NO);
+        possible_action.possible_action_.set_type(mjproto::ACTION_TYPE_NO);
         return possible_action;
     }
 
     PossibleAction PossibleAction::CreateNineTiles() {
         auto possible_action = PossibleAction();
-        possible_action.possible_action_.set_type(mjproto::ActionType::ACTION_TYPE_KYUSYU);
+        possible_action.possible_action_.set_type(mjproto::ACTION_TYPE_KYUSYU);
         return possible_action;
     }
 

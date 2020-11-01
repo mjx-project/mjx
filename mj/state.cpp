@@ -159,8 +159,8 @@ namespace mj
                     assert(!observations.empty());
                     for (const auto &[player_id, observation]: observations)
                         for (const auto &possible_action: observation.possible_actions())
-                            assert(Any(possible_action.type(), {mjproto::ActionType::ACTION_TYPE_RON,
-                                                                mjproto::ActionType::ACTION_TYPE_NO}));
+                            assert(Any(possible_action.type(), {mjproto::ACTION_TYPE_RON,
+                                                                mjproto::ACTION_TYPE_NO}));
                     return observations;
                 }
             case mjproto::EventType::EVENT_TYPE_TSUMO:
@@ -844,11 +844,11 @@ namespace mj
     }
 
     void State::Update(std::vector<Action> &&action_candidates) {
-        static_assert(mjproto::ActionType::ACTION_TYPE_NO < mjproto::ActionType::ACTION_TYPE_CHI);
-        static_assert(mjproto::ActionType::ACTION_TYPE_CHI < mjproto::ActionType::ACTION_TYPE_PON);
-        static_assert(mjproto::ActionType::ACTION_TYPE_CHI < mjproto::ActionType::ACTION_TYPE_KAN_OPENED);
-        static_assert(mjproto::ActionType::ACTION_TYPE_PON < mjproto::ActionType::ACTION_TYPE_RON);
-        static_assert(mjproto::ActionType::ACTION_TYPE_KAN_OPENED < mjproto::ActionType::ACTION_TYPE_RON);
+        static_assert(mjproto::ACTION_TYPE_NO < mjproto::ACTION_TYPE_CHI);
+        static_assert(mjproto::ACTION_TYPE_CHI < mjproto::ACTION_TYPE_PON);
+        static_assert(mjproto::ACTION_TYPE_CHI < mjproto::ACTION_TYPE_KAN_OPENED);
+        static_assert(mjproto::ACTION_TYPE_PON < mjproto::ACTION_TYPE_RON);
+        static_assert(mjproto::ACTION_TYPE_KAN_OPENED < mjproto::ACTION_TYPE_RON);
         assert(!action_candidates.empty() && action_candidates.size() <= 3);
 
         if (action_candidates.size() == 1) {
@@ -857,10 +857,10 @@ namespace mj
             // sort in order Ron > KanOpened > Pon > Chi > No
             std::sort(action_candidates.begin(), action_candidates.end(),
                     [](const Action &x, const Action &y){ return x.type() > y.type(); });
-            bool has_ron = action_candidates.front().type() == mjproto::ActionType::ACTION_TYPE_RON;
+            bool has_ron = action_candidates.front().type() == mjproto::ACTION_TYPE_RON;
             if (has_ron) {
                 // ron以外の行動は取られないので消していく
-                while (action_candidates.back().type() != mjproto::ActionType::ACTION_TYPE_RON) action_candidates.pop_back();
+                while (action_candidates.back().type() != mjproto::ACTION_TYPE_RON) action_candidates.pop_back();
                 // 上家から順にsortする（ダブロン時に供託が上家取り）
                 AbsolutePos from_who = last_event_.who();
                 std::sort(action_candidates.begin(), action_candidates.end(),
@@ -870,7 +870,7 @@ namespace mj
                     // 三家和了
                     std::vector<int> ron = {0, 0, 0, 0};
                     for (const auto &action : action_candidates) {
-                        if (action.type() == mjproto::ActionType::ACTION_TYPE_RON) ron[ToUType(action.who())] = 1;
+                        if (action.type() == mjproto::ACTION_TYPE_RON) ron[ToUType(action.who())] = 1;
                     }
                     assert(std::accumulate(ron.begin(), ron.end(), 0) == 3);
                     for (int i = 0; i < 4; ++i) {
@@ -880,13 +880,13 @@ namespace mj
                     return;
                 }
                 for (auto &action: action_candidates) {
-                    if (action.type() != mjproto::ActionType::ACTION_TYPE_RON) break;
+                    if (action.type() != mjproto::ACTION_TYPE_RON) break;
                     Update(std::move(action));
                 }
             } else {
                 assert(Any(action_candidates.front().type(), {
-                    mjproto::ActionType::ACTION_TYPE_NO, mjproto::ActionType::ACTION_TYPE_CHI,
-                    mjproto::ActionType::ACTION_TYPE_PON, mjproto::ActionType::ACTION_TYPE_KAN_OPENED}));
+                    mjproto::ACTION_TYPE_NO, mjproto::ACTION_TYPE_CHI,
+                    mjproto::ACTION_TYPE_PON, mjproto::ACTION_TYPE_KAN_OPENED}));
                 Update(std::move(action_candidates.front()));
             }
         }
@@ -899,7 +899,7 @@ namespace mj
                                         mjproto::EventType::EVENT_TYPE_KAN_ADDED, mjproto::EventType::EVENT_TYPE_RON}));
         auto who = action.who();
         switch (action.type()) {
-            case mjproto::ActionType::ACTION_TYPE_DISCARD:
+            case mjproto::ACTION_TYPE_DISCARD:
                 {
                     assert(Any(last_event_.type(), {mjproto::EventType::EVENT_TYPE_DRAW, mjproto::EventType::EVENT_TYPE_CHI,
                                                     mjproto::EventType::EVENT_TYPE_PON, mjproto::EventType::EVENT_TYPE_RON,
@@ -945,33 +945,33 @@ namespace mj
                     }
                 }
                 return;
-            case mjproto::ActionType::ACTION_TYPE_RIICHI:
+            case mjproto::ACTION_TYPE_RIICHI:
                 assert(Any(last_event_.type(), {mjproto::EventType::EVENT_TYPE_DRAW}));
                 Riichi(who);
                 return;
-            case mjproto::ActionType::ACTION_TYPE_TSUMO:
+            case mjproto::ACTION_TYPE_TSUMO:
                 assert(Any(last_event_.type(), {mjproto::EventType::EVENT_TYPE_DRAW}));
                 Tsumo(who);
                 return;
-            case mjproto::ActionType::ACTION_TYPE_RON:
+            case mjproto::ACTION_TYPE_RON:
                 assert(Any(last_event_.type(), {
                     mjproto::EventType::EVENT_TYPE_DISCARD_FROM_HAND, mjproto::EventType::EVENT_TYPE_DISCARD_DRAWN_TILE,
                     mjproto::EventType::EVENT_TYPE_KAN_ADDED, mjproto::EventType::EVENT_TYPE_RON}));
                 Ron(who);
                 return;
-            case mjproto::ActionType::ACTION_TYPE_CHI:
-            case mjproto::ActionType::ACTION_TYPE_PON:
+            case mjproto::ACTION_TYPE_CHI:
+            case mjproto::ACTION_TYPE_PON:
                 assert(Any(last_event_.type(), {mjproto::EventType::EVENT_TYPE_DISCARD_FROM_HAND, mjproto::EventType::EVENT_TYPE_DISCARD_DRAWN_TILE}));
                 if (require_riichi_score_change_) RiichiScoreChange();
                 ApplyOpen(who, action.open());
                 return;
-            case mjproto::ActionType::ACTION_TYPE_KAN_OPENED:
+            case mjproto::ACTION_TYPE_KAN_OPENED:
                 assert(Any(last_event_.type(), {mjproto::EventType::EVENT_TYPE_DISCARD_FROM_HAND, mjproto::EventType::EVENT_TYPE_DISCARD_DRAWN_TILE}));
                 if (require_riichi_score_change_) RiichiScoreChange();
                 ApplyOpen(who, action.open());
                 Draw(who);
                 return;
-            case mjproto::ActionType::ACTION_TYPE_KAN_CLOSED:
+            case mjproto::ACTION_TYPE_KAN_CLOSED:
                 assert(Any(last_event_.type(), {mjproto::EventType::EVENT_TYPE_DRAW}));
                 ApplyOpen(who, action.open());
                 // 天鳳のカンの仕様については https://github.com/sotetsuk/mahjong/issues/199 で調べている
@@ -980,7 +980,7 @@ namespace mj
                 while(require_kan_dora_) AddNewDora();
                 Draw(who);
                 return;
-            case mjproto::ActionType::ACTION_TYPE_KAN_ADDED:
+            case mjproto::ACTION_TYPE_KAN_ADDED:
                 assert(Any(last_event_.type(), {mjproto::EventType::EVENT_TYPE_DRAW}));
                 ApplyOpen(who, action.open());
                 // TODO: CreateStealAndRonObservationが状態変化がないのに2回計算されている
@@ -990,7 +990,7 @@ namespace mj
                     Draw(who);
                 }
                 return;
-            case mjproto::ActionType::ACTION_TYPE_NO:
+            case mjproto::ACTION_TYPE_NO:
                 assert(Any(last_event_.type(), {
                     mjproto::EventType::EVENT_TYPE_DISCARD_DRAWN_TILE, mjproto::EventType::EVENT_TYPE_DISCARD_FROM_HAND,
                     mjproto::EventType::EVENT_TYPE_KAN_ADDED}));
@@ -1026,7 +1026,7 @@ namespace mj
                     NoWinner();
                 }
                 return;
-            case mjproto::ActionType::ACTION_TYPE_KYUSYU:
+            case mjproto::ACTION_TYPE_KYUSYU:
                 assert(Any(last_event_.type(), {mjproto::EventType::EVENT_TYPE_DRAW}));
                 NoWinner();
                 return;
