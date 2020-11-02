@@ -12,36 +12,36 @@ namespace mj
         auto possible_actions = observation.possible_actions();
         // この順番でソート
         std::unordered_map<mjproto::ActionType, int> action_priority = {
-                {mjproto::ActionType::ACTION_TYPE_TSUMO, 0},
-                {mjproto::ActionType::ACTION_TYPE_RIICHI, 1},
-                {mjproto::ActionType::ACTION_TYPE_KYUSYU, 2},
-                {mjproto::ActionType::ACTION_TYPE_KAN_CLOSED, 3},
-                {mjproto::ActionType::ACTION_TYPE_KAN_ADDED, 4},
-                {mjproto::ActionType::ACTION_TYPE_DISCARD, 5},
-                {mjproto::ActionType::ACTION_TYPE_RON, 6},
-                {mjproto::ActionType::ACTION_TYPE_PON, 7},
-                {mjproto::ActionType::ACTION_TYPE_KAN_OPENED, 8},
-                {mjproto::ActionType::ACTION_TYPE_CHI, 9},
-                {mjproto::ActionType::ACTION_TYPE_NO, 10},
+                {mjproto::ACTION_TYPE_TSUMO, 0},
+                {mjproto::ACTION_TYPE_RIICHI, 1},
+                {mjproto::ACTION_TYPE_KYUSYU, 2},
+                {mjproto::ACTION_TYPE_KAN_CLOSED, 3},
+                {mjproto::ACTION_TYPE_KAN_ADDED, 4},
+                {mjproto::ACTION_TYPE_DISCARD, 5},
+                {mjproto::ACTION_TYPE_RON, 6},
+                {mjproto::ACTION_TYPE_PON, 7},
+                {mjproto::ACTION_TYPE_KAN_OPENED, 8},
+                {mjproto::ACTION_TYPE_CHI, 9},
+                {mjproto::ACTION_TYPE_NO, 10},
         };
         std::sort(possible_actions.begin(), possible_actions.end(),
                 [&action_priority](const PossibleAction &x, const PossibleAction &y){ return action_priority.at(x.type()) < action_priority.at(y.type()); });
 
         const Hand curr_hand = observation.current_hand();
 
-        if (possible_actions.front().type() != mjproto::ActionType::ACTION_TYPE_DISCARD) {
+        if (possible_actions.front().type() != mjproto::ACTION_TYPE_DISCARD) {
             auto& possible_action = possible_actions.front();
 
             // 和了れるときは全て和了る。リーチできるときは全てリーチする。九種九牌も全て流す。
-            if (Any(possible_action.type(), {mjproto::ActionType::ACTION_TYPE_TSUMO, mjproto::ActionType::ACTION_TYPE_RIICHI,
-                                             mjproto::ActionType::ACTION_TYPE_RON, mjproto::ActionType::ACTION_TYPE_KYUSYU})) {
+            if (Any(possible_action.type(), {mjproto::ACTION_TYPE_TSUMO, mjproto::ACTION_TYPE_RIICHI,
+                                             mjproto::ACTION_TYPE_RON, mjproto::ACTION_TYPE_KYUSYU})) {
                 response.set_type(possible_action.type());
                 return Action(std::move(response));
             }
 
             // テンパっているときには他家から鳴かない
-            if (Any(possible_action.type(), {mjproto::ActionType::ACTION_TYPE_KAN_OPENED, mjproto::ActionType::ACTION_TYPE_PON,
-                                             mjproto::ActionType::ACTION_TYPE_CHI})) {
+            if (Any(possible_action.type(), {mjproto::ACTION_TYPE_KAN_OPENED, mjproto::ACTION_TYPE_PON,
+                                             mjproto::ACTION_TYPE_CHI})) {
                 if (curr_hand.IsTenpai()) {
                     possible_action = *possible_actions.rbegin();
                     assert(possible_action.type() == mjproto::ActionType::ACTION_TYPE_NO);
@@ -51,15 +51,15 @@ namespace mj
             }
 
             // 鳴ける場合にはランダムに行動選択
-            if (Any(possible_action.type(), {mjproto::ActionType::ACTION_TYPE_KAN_CLOSED, mjproto::ActionType::ACTION_TYPE_KAN_ADDED,
-                                             mjproto::ActionType::ACTION_TYPE_KAN_OPENED, mjproto::ActionType::ACTION_TYPE_PON,
-                                             mjproto::ActionType::ACTION_TYPE_CHI})) {
+            if (Any(possible_action.type(), {mjproto::ACTION_TYPE_KAN_CLOSED, mjproto::ACTION_TYPE_KAN_ADDED,
+                                             mjproto::ACTION_TYPE_KAN_OPENED, mjproto::ACTION_TYPE_PON,
+                                             mjproto::ACTION_TYPE_CHI})) {
                 possible_action = *SelectRandomly(possible_actions.begin(), possible_actions.end());
                 if (possible_action.type() != mjproto::ActionType::ACTION_TYPE_DISCARD) {
                     assert(Any(possible_action.type(), {
-                        mjproto::ActionType::ACTION_TYPE_KAN_CLOSED, mjproto::ActionType::ACTION_TYPE_KAN_ADDED,
-                        mjproto::ActionType::ACTION_TYPE_KAN_OPENED, mjproto::ActionType::ACTION_TYPE_PON,
-                        mjproto::ActionType::ACTION_TYPE_CHI, mjproto::ActionType::ACTION_TYPE_NO}));
+                        mjproto::ACTION_TYPE_KAN_CLOSED, mjproto::ACTION_TYPE_KAN_ADDED,
+                        mjproto::ACTION_TYPE_KAN_OPENED, mjproto::ACTION_TYPE_PON,
+                        mjproto::ACTION_TYPE_CHI, mjproto::ACTION_TYPE_NO}));
                     response.set_type(mjproto::ActionType(possible_action.type()));
                     if (possible_action.type() != mjproto::ActionType::ACTION_TYPE_NO) response.set_open(possible_action.open().GetBits());
                     return Action(std::move(response));
@@ -68,9 +68,7 @@ namespace mj
         }
 
         // Discardが選択されたとき（あるいはdiscardしかできないとき）、切る牌を選ぶ
-        //assert(possible_action.type() == mjproto::ActionType::ACTION_TYPE_DISCARD);
         std::vector<Tile> discard_candidates = observation.possible_discards();
-
         const TileTypeCount closed_tile_type_cnt = curr_hand.ClosedTileTypes();
         // 聴牌が取れるなら取れるように切る
         if (curr_hand.CanTakeTenpai()) {
