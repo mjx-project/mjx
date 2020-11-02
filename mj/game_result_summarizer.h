@@ -13,7 +13,7 @@ namespace mj
         GameResultSummarizer(GameResultSummarizer&&) = delete;
         GameResultSummarizer operator=(GameResultSummarizer&&) = delete;
 
-        static const GameResultSummarizer& instance();
+        static GameResultSummarizer& instance();
 
         struct PlayerPerformance
         {
