@@ -28,49 +28,52 @@ namespace mj
                 [&action_priority](const PossibleAction &x, const PossibleAction &y){ return action_priority.at(x.type()) < action_priority.at(y.type()); });
 
         const Hand curr_hand = observation.current_hand();
-        auto& possible_action = possible_actions.front();
 
-        // 和了れるときは全て和了る。リーチできるときは全てリーチする。九種九牌も全て流す。
-        if (Any(possible_action.type(), {mjproto::ACTION_TYPE_TSUMO, mjproto::ACTION_TYPE_RIICHI,
-                                         mjproto::ACTION_TYPE_RON, mjproto::ACTION_TYPE_KYUSYU})) {
-            response.set_type(possible_action.type());
-            return Action(std::move(response));
-        }
+        if (possible_actions.front().type() != mjproto::ACTION_TYPE_DISCARD) {
+            auto& possible_action = possible_actions.front();
 
-        // テンパっているときには他家から鳴かない
-        if (Any(possible_action.type(), {mjproto::ACTION_TYPE_KAN_OPENED, mjproto::ACTION_TYPE_PON,
-                                         mjproto::ACTION_TYPE_CHI})) {
-            if (curr_hand.IsTenpai()) {
-                possible_action = *possible_actions.rbegin();
-                assert(possible_action.type() == mjproto::ACTION_TYPE_NO);
+            // 和了れるときは全て和了る。リーチできるときは全てリーチする。九種九牌も全て流す。
+            if (Any(possible_action.type(), {mjproto::ACTION_TYPE_TSUMO, mjproto::ACTION_TYPE_RIICHI,
+                                             mjproto::ACTION_TYPE_RON, mjproto::ACTION_TYPE_KYUSYU})) {
                 response.set_type(possible_action.type());
                 return Action(std::move(response));
             }
-        }
 
-        // 鳴ける場合にはランダムに行動選択
-        if (Any(possible_action.type(), {mjproto::ACTION_TYPE_KAN_CLOSED, mjproto::ACTION_TYPE_KAN_ADDED,
-                                         mjproto::ACTION_TYPE_KAN_OPENED, mjproto::ACTION_TYPE_PON,
-                                         mjproto::ACTION_TYPE_CHI})) {
-            possible_action = *SelectRandomly(possible_actions.begin(), possible_actions.end());
-            if (possible_action.type() != mjproto::ACTION_TYPE_DISCARD) {
-                assert(Any(possible_action.type(), {
-                    mjproto::ACTION_TYPE_KAN_CLOSED, mjproto::ACTION_TYPE_KAN_ADDED,
-                    mjproto::ACTION_TYPE_KAN_OPENED, mjproto::ACTION_TYPE_PON,
-                    mjproto::ACTION_TYPE_CHI, mjproto::ACTION_TYPE_NO}));
-                response.set_type(mjproto::ActionType(possible_action.type()));
-                if (possible_action.type() != mjproto::ACTION_TYPE_NO) response.set_open(possible_action.open().GetBits());
-                return Action(std::move(response));
+            // テンパっているときには他家から鳴かない
+            if (Any(possible_action.type(), {mjproto::ACTION_TYPE_KAN_OPENED, mjproto::ACTION_TYPE_PON,
+                                             mjproto::ACTION_TYPE_CHI})) {
+                if (curr_hand.IsTenpai()) {
+                    possible_action = *possible_actions.rbegin();
+                    assert(possible_action.type() == mjproto::ActionType::ACTION_TYPE_NO);
+                    response.set_type(possible_action.type());
+                    return Action(std::move(response));
+                }
+            }
+
+            // 鳴ける場合にはランダムに行動選択
+            if (Any(possible_action.type(), {mjproto::ACTION_TYPE_KAN_CLOSED, mjproto::ACTION_TYPE_KAN_ADDED,
+                                             mjproto::ACTION_TYPE_KAN_OPENED, mjproto::ACTION_TYPE_PON,
+                                             mjproto::ACTION_TYPE_CHI})) {
+                possible_action = *SelectRandomly(possible_actions.begin(), possible_actions.end());
+                if (possible_action.type() != mjproto::ActionType::ACTION_TYPE_DISCARD) {
+                    assert(Any(possible_action.type(), {
+                        mjproto::ACTION_TYPE_KAN_CLOSED, mjproto::ACTION_TYPE_KAN_ADDED,
+                        mjproto::ACTION_TYPE_KAN_OPENED, mjproto::ACTION_TYPE_PON,
+                        mjproto::ACTION_TYPE_CHI, mjproto::ACTION_TYPE_NO}));
+                    response.set_type(mjproto::ActionType(possible_action.type()));
+                    if (possible_action.type() != mjproto::ActionType::ACTION_TYPE_NO) response.set_open(possible_action.open().GetBits());
+                    return Action(std::move(response));
+                }
             }
         }
 
         // Discardが選択されたとき（あるいはdiscardしかできないとき）、切る牌を選ぶ
-        assert(possible_action.type() == mjproto::ACTION_TYPE_DISCARD);
+        std::vector<Tile> discard_candidates = observation.possible_discards();
         const TileTypeCount closed_tile_type_cnt = curr_hand.ClosedTileTypes();
         // 聴牌が取れるなら取れるように切る
         if (curr_hand.CanTakeTenpai()) {
             auto tenpai_discards = curr_hand.PossibleDiscardsToTakeTenpai();
-            for (const auto tile: possible_action.discard_candidates()) {
+            for (const auto tile: discard_candidates) {
                 if (Any(tile, tenpai_discards)) {
                     response.set_discard(tile.Id());
                     return Action(std::move(response));
@@ -113,57 +116,56 @@ namespace mj
             return has_next(tile, 2) || has_prev(tile, 2);
         };
         // 字牌孤立牌があればまずそれを切り飛ばす
-        for (const auto tile: possible_action.discard_candidates()) {
+        for (const auto tile: discard_candidates) {
             if (!Is(tile.Type(), TileSetType::kHonours)) continue;
             if (is_head(tile) || is_pon(tile)) continue;
             response.set_discard(tile.Id());
             return Action(std::move(response));
         }
         // 19の孤立牌を切り飛ばす
-        for (const auto tile: possible_action.discard_candidates()) {
+        for (const auto tile: discard_candidates) {
             if (!Is(tile.Type(), TileSetType::kTerminals)) continue;
             if (is_head(tile) || is_pon(tile) || is_chi(tile) || has_neighbors(tile) || has_skip_neighbors(tile)) continue;
             response.set_discard(tile.Id());
             return Action(std::move(response));
         }
         // 断么九の孤立牌を切り飛ばす
-        for (const auto tile: possible_action.discard_candidates()) {
+        for (const auto tile: discard_candidates) {
             if (!Is(tile.Type(), TileSetType::kTanyao)) continue;
             if (is_head(tile) || is_pon(tile) || is_chi(tile) || has_neighbors(tile) || has_skip_neighbors(tile)) continue;
             response.set_discard(tile.Id());
             return Action(std::move(response));
         }
         // 19ペンチャンを外す
-        for (const auto tile: possible_action.discard_candidates()) {
+        for (const auto tile: discard_candidates) {
             if (!Is(tile.Type(), TileSetType::kTerminals)) continue;
             if (is_head(tile) || is_pon(tile) || is_chi(tile) || has_skip_neighbors(tile)) continue;
             response.set_discard(tile.Id());
             return Action(std::move(response));
         }
         // 19カンチャンを外す
-        for (const auto tile: possible_action.discard_candidates()) {
+        for (const auto tile: discard_candidates) {
             if (!Is(tile.Type(), TileSetType::kTerminals)) continue;
             if (is_head(tile) || is_pon(tile) || is_chi(tile) || has_neighbors(tile)) continue;
             response.set_discard(tile.Id());
             return Action(std::move(response));
         }
         // 断么九のカンチャンを外す
-        for (const auto tile: possible_action.discard_candidates()) {
+        for (const auto tile: discard_candidates) {
             if (!Is(tile.Type(), TileSetType::kTanyao)) continue;
             if (is_head(tile) || is_pon(tile) || is_chi(tile) || has_neighbors(tile)) continue;
             response.set_discard(tile.Id());
             return Action(std::move(response));
         }
         // 断么九の両面を外す
-        for (const auto tile: possible_action.discard_candidates()) {
+        for (const auto tile: discard_candidates) {
             if (!Is(tile.Type(), TileSetType::kTanyao)) continue;
             if (is_head(tile) || is_pon(tile) || is_chi(tile)) continue;
             response.set_discard(tile.Id());
             return Action(std::move(response));
         }
         // 上記以外のときは、ランダムに切る
-        auto possible_discards = possible_action.discard_candidates();
-        response.set_discard(SelectRandomly(possible_discards.begin(), possible_discards.end())->Id());
+        response.set_discard(SelectRandomly(discard_candidates.begin(), discard_candidates.end())->Id());
         return Action(std::move(response));
     }
 }

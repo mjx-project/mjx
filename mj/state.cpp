@@ -119,7 +119,7 @@ namespace mj
                         observation.add_possible_action(PossibleAction::CreateRiichi());
 
                     // => Discard (4)
-                    observation.add_possible_action(PossibleAction::CreateDiscard(hand(who).PossibleDiscards()));
+                    observation.add_possible_actions(PossibleAction::CreateDiscard(hand(who).PossibleDiscards()));
 
                     return { {player_id, std::move(observation)} };
                 }
@@ -128,7 +128,7 @@ namespace mj
                     // => Discard (5)
                     auto who = last_event_.who();
                     auto observation = Observation(who, state_);
-                    observation.add_possible_action(PossibleAction::CreateDiscard(hand(who).PossibleDiscardsJustAfterRiichi()));
+                    observation.add_possible_actions(PossibleAction::CreateDiscard(hand(who).PossibleDiscardsJustAfterRiichi()));
                     return { {player(who).player_id, std::move(observation)} };
                 }
             case mjproto::EVENT_TYPE_CHI:
@@ -137,7 +137,7 @@ namespace mj
                     // => Discard (6)
                     auto who = last_event_.who();
                     auto observation = Observation(who, state_);
-                    observation.add_possible_action(PossibleAction::CreateDiscard(hand(who).PossibleDiscards()));
+                    observation.add_possible_actions(PossibleAction::CreateDiscard(hand(who).PossibleDiscards()));
                     return { {player(who).player_id, std::move(observation)} };
                 }
             case mjproto::EVENT_TYPE_DISCARD_FROM_HAND:
