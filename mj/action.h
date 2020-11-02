@@ -30,6 +30,7 @@ namespace mj
         static Action CreateNineTiles(AbsolutePos who);
 
         mjproto::Action Proto() const;
+        std::string ToJson() const;
     private:
         mjproto::Action proto_;
     };

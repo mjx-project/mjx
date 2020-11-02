@@ -88,4 +88,11 @@ namespace mj
         proto.set_who(mjproto::AbsolutePos(who));
         return Action(std::move(proto));
     }
+
+    std::string Action::ToJson() const {
+        std::string serialized;
+        auto status = google::protobuf::util::MessageToJsonString(proto_, &serialized);
+        assert(status.ok());
+        return serialized;
+    }
 }  // namespace mj
