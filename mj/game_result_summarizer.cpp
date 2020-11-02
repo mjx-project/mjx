@@ -6,6 +6,11 @@ namespace mj
         return num_games_;
     }
 
+    void GameResultSummarizer::Initialize() {
+        num_games_ = 0;
+        player_performances_.clear();
+    }
+
     void GameResultSummarizer::Add(GameResult&& game_result) {
         num_games_++;
         for (const auto& [player_id, ranking]: game_result.rankings) {

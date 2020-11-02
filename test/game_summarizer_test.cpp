@@ -5,6 +5,7 @@ using namespace mj;
 TEST(GameResultSummarizer, Add)
 {
     GameResultSummarizer& summarizer = GameResultSummarizer::instance();
+    summarizer.Initialize();
     EXPECT_EQ(summarizer.num_games(), 0);
     summarizer.Add(GameResult{0, {{"A", 1}, {"B", 2}, {"C", 3}, {"D", 4}}});
     EXPECT_EQ(summarizer.num_games(), 1);
@@ -14,6 +15,7 @@ TEST(GameResultSummarizer, player_performance)
 {
     // avg ranking, stable dan
     GameResultSummarizer& summarizer = GameResultSummarizer::instance();
+    summarizer.Initialize();
     summarizer.Add(GameResult{0, {{"A", 1}, {"B", 2}, {"C", 3}, {"D", 4}}});
     summarizer.Add(GameResult{0, {{"A", 2}, {"B", 3}, {"C", 4}, {"D", 1}}});
     summarizer.Add(GameResult{0, {{"A", 3}, {"B", 4}, {"C", 1}, {"D", 2}}});
