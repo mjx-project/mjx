@@ -18,3 +18,4 @@ test/resources/*
 !test/resources/.gitkeep
 *.pb.cc
 *.pb.h
+dataset/resources
