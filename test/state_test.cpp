@@ -118,7 +118,7 @@ std::string SwapTiles(const std::string &json_str, Tile a, Tile b){
     return serialized;
 }
 
-PossibleAction FindPossibleAction(mjproto::ActionType action_type, const Observation &observation) {
+Action FindPossibleAction(mjproto::ActionType action_type, const Observation &observation) {
     for (const auto& possible_action: observation.possible_actions())
         if (possible_action.type() == action_type) return possible_action;
     std::cerr << "Cannot find the specified action type" << std::endl;
@@ -345,7 +345,7 @@ TEST(state, CreateObservation) {
 TEST(state, Update) {
     // 特に記述がないテストケースは下記から
     // https://tenhou.net/0/?log=2011020417gm-00a9-0000-b67fcaa3&tw=1
-    std::string json_before, json_after; State state_before, state_after; std::vector<Action> actions; std::unordered_map<PlayerId, Observation> observations; Observation observation; PossibleAction possible_action;
+    std::string json_before, json_after; State state_before, state_after; std::vector<Action> actions; std::unordered_map<PlayerId, Observation> observations; Observation observation; Action possible_action;
 
     // Draw後にDiscardでUpdate。これを誰も鳴けない場合は次のDrawまで進む
     json_before = GetLastJsonLine("upd-bef-draw-discard-draw.json");

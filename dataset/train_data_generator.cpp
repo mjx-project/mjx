@@ -59,6 +59,12 @@ namespace mj {
 
             auto state_ = State(state);
 
+            auto player_ids = state_.proto().player_ids();
+            std::map<PlayerId, AbsolutePos> player_id_to_absolute_pos;
+            for (int i = 0; i < 4; ++i) {
+                player_id_to_absolute_pos[player_ids[i]] = static_cast<AbsolutePos>(i);
+            }
+
             for (auto event : events) {
                 std::string event_json;
                 assert(google::protobuf::util::MessageToJsonString(event, &event_json).ok());
@@ -75,7 +81,7 @@ namespace mj {
                     })) continue;
                     ofs << observation.ToJson();
 
-                    auto selected_action = PossibleAction::CreateNo();
+                    auto selected_action = Action::CreateNo(player_id_to_absolute_pos[player_id]);
                     for (auto& possible_action : observation.possible_actions()) {
                         if (possible_action.type() != open_type) continue;
                         if (event.open() == possible_action.open().GetBits()) {
