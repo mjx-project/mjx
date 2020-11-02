@@ -112,7 +112,8 @@ message PrivateInfo {
 message PossibleAction {
   ActionType type = 1;
   uint32 open = 2;
-  repeated uint32 discard_candidates = 3;
+  uint32 discard = 3;
+  //repeated uint32 discard_candidates = 3;
 }
 
 message Observation {
