@@ -145,13 +145,7 @@ namespace mj
                 // => Ron (7)
                 // => Chi, Pon and KanOpened (8)
                 {
-                    auto ret = CreateStealAndRonObservation();
-                    if (ret.empty()) {
-                        std::cerr << "CreateStealAndRonObservation return empty." << std::endl;
-                    }
-                    return ret;
-                    //assert(!CreateStealAndRonObservation().empty());
-                    //return CreateStealAndRonObservation();
+                    return CreateStealAndRonObservation();
                 }
             case mjproto::EVENT_TYPE_KAN_ADDED:
                 {
