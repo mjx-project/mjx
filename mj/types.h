@@ -73,39 +73,6 @@ namespace mj {
         kEmpty
     };
 
-    enum class EventType : std::uint8_t {
-        kDraw = mjproto::EVENT_TYPE_DRAW,
-        kDiscardFromHand = mjproto::EVENT_TYPE_DISCARD_FROM_HAND,
-        kDiscardDrawnTile = mjproto::EVENT_TYPE_DISCARD_DRAWN_TILE,  // ツモ切り, Tsumogiri
-        kRiichi = mjproto::EVENT_TYPE_RIICHI,
-        kTsumo = mjproto::EVENT_TYPE_TSUMO,
-        kRon = mjproto::EVENT_TYPE_RON,
-        kChi = mjproto::EVENT_TYPE_CHI,
-        kPon = mjproto::EVENT_TYPE_PON,
-        kKanClosed = mjproto::EVENT_TYPE_KAN_CLOSED,
-        kKanOpened = mjproto::EVENT_TYPE_KAN_OPENED,
-        kKanAdded = mjproto::EVENT_TYPE_KAN_ADDED,
-        kNewDora = mjproto::EVENT_TYPE_NEW_DORA,
-        kRiichiScoreChange = mjproto::EVENT_TYPE_RIICHI_SCORE_CHANGE,
-        kNoWinner = mjproto::EVENT_TYPE_NO_WINNER,
-    };
-
-    enum class ActionType : std::uint8_t {
-        // After draw
-        kDiscard = mjproto::ACTION_TYPE_DISCARD,
-        kRiichi = mjproto::ACTION_TYPE_RIICHI,
-        kTsumo = mjproto::ACTION_TYPE_TSUMO,
-        kKanClosed = mjproto::ACTION_TYPE_KAN_CLOSED,
-        kKanAdded = mjproto::ACTION_TYPE_KAN_ADDED,
-        kKyushu = mjproto::ACTION_TYPE_KYUSYU,
-        // After other's discard
-        kNo = mjproto::ACTION_TYPE_NO,
-        kChi = mjproto::ACTION_TYPE_CHI,
-        kPon = mjproto::ACTION_TYPE_PON,
-        kKanOpened = mjproto::ACTION_TYPE_KAN_OPENED,
-        kRon = mjproto::ACTION_TYPE_RON,
-    };
-
     enum class HandStage : std::uint8_t {
         kAfterDiscards,
         kAfterDraw,
@@ -261,8 +228,8 @@ namespace mj {
 
     RelativePos ToRelativePos(AbsolutePos origin, AbsolutePos target);
     Wind ToSeatWind(AbsolutePos who, AbsolutePos dealer);
-    EventType OpenTypeToEventType(OpenType open_type);
-    ActionType OpenTypeToActionType(OpenType open_type);
+    mjproto::EventType OpenTypeToEventType(OpenType open_type);
+    mjproto::ActionType OpenTypeToActionType(OpenType open_type);
     bool IsSameWind(TileType tile_type, Wind wind);
 }  // namespace mj
 

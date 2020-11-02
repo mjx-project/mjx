@@ -66,13 +66,13 @@ namespace mj {
                 for (const auto& [player_id, observation] : state_.CreateObservations()) {
                     auto possible_actions = observation.possible_actions();
                     if (std::all_of(possible_actions.begin(), possible_actions.end(), [&](auto& action){
-                        return action.type() != ActionType::kChi;
+                        return action.type() != mjproto::ACTION_TYPE_CHI;
                     })) continue;
                     ofs << observation.ToJson();
 
                     auto selected_action = PossibleAction::CreateNo();
                     for (auto& possible_action : observation.possible_actions()) {
-                        if (possible_action.type() != ActionType::kChi) continue;
+                        if (possible_action.type() != mjproto::ACTION_TYPE_CHI) continue;
                         if (event.open() == possible_action.open().GetBits()) {
                             // eventのchiと一致
                             selected_action = possible_action;

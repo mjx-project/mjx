@@ -16,7 +16,7 @@ namespace mj
         Action() = default;
         explicit Action(mjproto::Action &&action_response);
         AbsolutePos who() const;
-        ActionType type() const;
+        mjproto::ActionType type() const;
         Tile discard() const;
         Open open() const;
 
@@ -35,7 +35,7 @@ namespace mj
     {
     public:
         PossibleAction() = default;
-        ActionType type() const;
+        mjproto::ActionType type() const;
         Open open() const;
         std::vector<Tile> discard_candidates() const;
         std::string ToJson() const;
