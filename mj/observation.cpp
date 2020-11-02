@@ -13,6 +13,7 @@ namespace mj
         }
         return ret;
     }
+
     std::vector<Tile> Observation::possible_discards() const {
         std::vector<Tile> ret;
         for (const auto& possible_action: proto_.possible_actions()) {
@@ -30,6 +31,7 @@ namespace mj
     void Observation::add_possible_action(PossibleAction possible_action) {
         proto_.mutable_possible_actions()->Add(std::move(possible_action.possible_action_));
     }
+
     void Observation::add_possible_actions(const std::vector<PossibleAction> &possible_actions) {
         for (const auto &possible_action : possible_actions) {
             add_possible_action(possible_action);
