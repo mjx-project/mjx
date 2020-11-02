@@ -100,26 +100,26 @@ namespace mj
 
                     // => NineTiles
                     if (is_first_turn_wo_open && hand(who).CanNineTiles()) {
-                        observation.add_possible_action(PossibleAction::CreateNineTiles());
+                        observation.add_possible_action(Action::CreateNineTiles(who));
                     }
 
                     // => Tsumo (1)
                     if (hand(who).IsCompleted() && CanTsumo(who))
-                        observation.add_possible_action(PossibleAction::CreateTsumo());
+                        observation.add_possible_action(Action::CreateTsumo(who));
 
                     // => Kan (2)
                     if (auto possible_kans = hand(who).PossibleOpensAfterDraw(); !possible_kans.empty()) {
                         for (const auto possible_kan: possible_kans) {
-                            observation.add_possible_action(PossibleAction::CreateOpen(possible_kan));
+                            observation.add_possible_action(Action::CreateOpen(who, possible_kan));
                         }
                     }
 
                     // => Riichi (3)
                     if (CanRiichi(who))
-                        observation.add_possible_action(PossibleAction::CreateRiichi());
+                        observation.add_possible_action(Action::CreateRiichi(who));
 
                     // => Discard (4)
-                    observation.add_possible_actions(PossibleAction::CreateDiscard(hand(who).PossibleDiscards()));
+                    observation.add_possible_actions(Action::CreateDiscards(who, hand(who).PossibleDiscards()));
 
                     return { {player_id, std::move(observation)} };
                 }
@@ -128,7 +128,7 @@ namespace mj
                     // => Discard (5)
                     auto who = last_event_.who();
                     auto observation = Observation(who, state_);
-                    observation.add_possible_actions(PossibleAction::CreateDiscard(hand(who).PossibleDiscardsJustAfterRiichi()));
+                    observation.add_possible_actions(Action::CreateDiscards(who, hand(who).PossibleDiscardsJustAfterRiichi()));
                     return { {player(who).player_id, std::move(observation)} };
                 }
             case mjproto::EVENT_TYPE_CHI:
@@ -137,7 +137,7 @@ namespace mj
                     // => Discard (6)
                     auto who = last_event_.who();
                     auto observation = Observation(who, state_);
-                    observation.add_possible_actions(PossibleAction::CreateDiscard(hand(who).PossibleDiscards()));
+                    observation.add_possible_actions(Action::CreateDiscards(who, hand(who).PossibleDiscards()));
                     return { {player(who).player_id, std::move(observation)} };
                 }
             case mjproto::EVENT_TYPE_DISCARD_FROM_HAND:
@@ -807,7 +807,7 @@ namespace mj
              // check ron
              if (hand(stealer).IsCompleted(tile) &&
                  CanRon(stealer, tile)) {
-                 observation.add_possible_action(PossibleAction::CreateRon());
+                 observation.add_possible_action(Action::CreateRon(stealer));
              }
 
              // check chi, pon and kan_opened
@@ -815,11 +815,11 @@ namespace mj
                 auto relative_pos = ToRelativePos(stealer, discarder);
                 auto possible_opens = hand(stealer).PossibleOpensAfterOthersDiscard(tile, relative_pos);
                 for (const auto & possible_open: possible_opens)
-                    observation.add_possible_action(PossibleAction::CreateOpen(possible_open));
+                    observation.add_possible_action(Action::CreateOpen(stealer, possible_open));
              }
 
              if (!observation.has_possible_action()) continue;
-             observation.add_possible_action(PossibleAction::CreateNo());
+             observation.add_possible_action(Action::CreateNo(stealer));
 
              observations[player(stealer).player_id] = std::move(observation);
          }
