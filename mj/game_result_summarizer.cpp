@@ -58,4 +58,9 @@ namespace mj
         double n4 = num_ranking.at(4);
         return (5.0 * n1 + 2.0 * n2) / n4 - 2.0;
     }
+
+    const GameResultSummarizer &GameResultSummarizer::instance() {
+        static GameResultSummarizer instance;  // Thread safe from C++ 11  https://cpprefjp.github.io/lang/cpp11/static_initialization_thread_safely.html
+        return instance;
+    };
 }  // namespace mj

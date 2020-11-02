@@ -8,6 +8,13 @@ namespace mj
     class GameResultSummarizer
     {
     public:
+        GameResultSummarizer(const GameResultSummarizer&) = delete;
+        GameResultSummarizer& operator=(GameResultSummarizer&) = delete;
+        GameResultSummarizer(GameResultSummarizer&&) = delete;
+        GameResultSummarizer operator=(GameResultSummarizer&&) = delete;
+
+        static const GameResultSummarizer& instance();
+
         struct PlayerPerformance
         {
             int num_games = 0;
@@ -23,6 +30,8 @@ namespace mj
         [[nodiscard]] std::string string() const;
         void Add(GameResult&& game_result);
     private:
+        GameResultSummarizer() = default;
+        ~GameResultSummarizer() = default;
         int num_games_ = 0;
         std::map<PlayerId, PlayerPerformance> player_performances_;
         static std::optional<double> avg_ranking(const std::map<int, int>& num_ranking);
