@@ -11,7 +11,7 @@ namespace mj
         GameResultSummarizer(const GameResultSummarizer&) = delete;
         GameResultSummarizer& operator=(GameResultSummarizer&) = delete;
         GameResultSummarizer(GameResultSummarizer&&) = delete;
-        GameResultSummarizer operator=(GameResultSummarizer&&) = delete;
+        GameResultSummarizer& operator=(GameResultSummarizer&&) = delete;
 
         static GameResultSummarizer& instance();
 
