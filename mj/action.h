@@ -38,7 +38,6 @@ namespace mj
         mjproto::ActionType type() const;
         Open open() const;
         Tile discard() const;
-        //std::vector<Tile> discard_candidates() const;
 
         static std::vector<PossibleAction> CreateDiscard(const std::vector<Tile> &possible_discards);
         static PossibleAction CreateDiscard(Tile possible_discards);
