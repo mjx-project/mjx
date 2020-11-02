@@ -37,6 +37,7 @@ namespace mj
         PossibleAction() = default;
         mjproto::ActionType type() const;
         Open open() const;
+        std::string ToJson() const;
         Tile discard() const;
 
         static std::vector<PossibleAction> CreateDiscard(const std::vector<Tile> &possible_discards);
