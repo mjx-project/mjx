@@ -102,11 +102,11 @@ std::string SwapTiles(const std::string &json_str, Tile a, Tile b){
     // event history
     for (int i = 0; i < state.event_history().events_size(); ++i) {
         auto mevent = state.mutable_event_history()->mutable_events(i);
-        if (Any(mevent->type(), {mjproto::EventType::EVENT_TYPE_DISCARD_FROM_HAND,
-                                 mjproto::EventType::EVENT_TYPE_DISCARD_DRAWN_TILE,
-                                 mjproto::EventType::EVENT_TYPE_TSUMO,
-                                 mjproto::EventType::EVENT_TYPE_RON,
-                                 mjproto::EventType::EVENT_TYPE_NEW_DORA})) {
+        if (Any(mevent->type(), {mjproto::EVENT_TYPE_DISCARD_FROM_HAND,
+                                 mjproto::EVENT_TYPE_DISCARD_DRAWN_TILE,
+                                 mjproto::EVENT_TYPE_TSUMO,
+                                 mjproto::EVENT_TYPE_RON,
+                                 mjproto::EVENT_TYPE_NEW_DORA})) {
             if (mevent->tile() == a.Id()) mevent->set_tile(b.Id());
             else if (mevent->tile() == b.Id()) mevent->set_tile(a.Id());
         }
