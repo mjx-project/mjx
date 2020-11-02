@@ -105,7 +105,7 @@ namespace mj
 
     PossibleAction PossibleAction::CreateDiscard(Tile possible_discard) {
         PossibleAction action;
-        action.possible_action_.set_type(mjproto::ActionType::ACTION_TYPE_DISCARD);
+        action.possible_action_.set_type(mjproto::ACTION_TYPE_DISCARD);
         action.possible_action_.set_discard(possible_discard.Id());
         return action;
     }
