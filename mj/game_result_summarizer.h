@@ -23,6 +23,7 @@ namespace mj
         [[nodiscard]] std::string string() const;
         void Add(GameResult&& game_result);
     private:
+        static std::recursive_mutex mtx_;
         int num_games_ = 0;
         std::map<PlayerId, PlayerPerformance> player_performances_;
         static std::optional<double> avg_ranking(const std::map<int, int>& num_ranking);

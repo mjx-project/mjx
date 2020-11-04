@@ -2,11 +2,15 @@
 
 namespace mj
 {
+    std::recursive_mutex GameResultSummarizer::mtx_;
+
     int GameResultSummarizer::num_games() const {
+        std::lock_guard<std::recursive_mutex> lock(mtx_);
         return num_games_;
     }
 
     void GameResultSummarizer::Add(GameResult&& game_result) {
+        std::lock_guard<std::recursive_mutex> lock(mtx_);
         num_games_++;
         for (const auto& [player_id, ranking]: game_result.rankings) {
             player_performances_[player_id].num_games++;
@@ -17,6 +21,7 @@ namespace mj
     }
 
     std::string GameResultSummarizer::string() const {
+        std::lock_guard<std::recursive_mutex> lock(mtx_);
         std::string s;
         s += "---------------------------------\n";
         s += "Game stats\n";
@@ -39,10 +44,12 @@ namespace mj
     }
 
     const GameResultSummarizer::PlayerPerformance &GameResultSummarizer::player_performance(const PlayerId& player_id) const {
+        std::lock_guard<std::recursive_mutex> lock(mtx_);
         return player_performances_.at(player_id);
     }
 
     std::optional<double> GameResultSummarizer::avg_ranking(const std::map<int, int>& num_ranking) {
+        std::lock_guard<std::recursive_mutex> lock(mtx_);
         int num_total = 0;
         for (const auto& [ranking, num]: num_ranking) num_total += num;
         if (num_total == 0) return std::nullopt;
@@ -52,6 +59,7 @@ namespace mj
     }
 
     std::optional<double> GameResultSummarizer::stable_dan(const std::map<int, int>& num_ranking) {
+        std::lock_guard<std::recursive_mutex> lock(mtx_);
         if (num_ranking.at(4) == 0) return std::nullopt;
         double n1 = num_ranking.at(1);
         double n2 = num_ranking.at(2);
