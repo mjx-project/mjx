@@ -54,7 +54,6 @@ namespace mj
     }
 
     std::optional<double> GameResultSummarizer::avg_ranking(const std::map<int, int>& num_ranking) {
-        std::lock_guard<std::recursive_mutex> lock(mtx_);
         int num_total = 0;
         for (const auto& [ranking, num]: num_ranking) num_total += num;
         if (num_total == 0) return std::nullopt;
@@ -64,7 +63,6 @@ namespace mj
     }
 
     std::optional<double> GameResultSummarizer::stable_dan(const std::map<int, int>& num_ranking) {
-        std::lock_guard<std::recursive_mutex> lock(mtx_);
         if (num_ranking.at(4) == 0) return std::nullopt;
         double n1 = num_ranking.at(1);
         double n2 = num_ranking.at(2);
