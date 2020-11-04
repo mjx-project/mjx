@@ -9,6 +9,21 @@ TEST(GameResultSummarizer, Add)
     EXPECT_EQ(summarizer.num_games(), 0);
     summarizer.Add(GameResult{0, {{"A", 1}, {"B", 2}, {"C", 3}, {"D", 4}}});
     EXPECT_EQ(summarizer.num_games(), 1);
+
+    // thread-safe test
+    std::thread th1([&]{
+       for(int i=0; i<1000; i++){
+           summarizer.Add(GameResult{0, {{"A", 1}, {"B", 2}, {"C", 3}, {"D", 4}}});
+       }
+    });
+    std::thread th2([&]{
+        for(int i=0; i<1000; i++){
+            summarizer.Add(GameResult{0, {{"A", 1}, {"B", 2}, {"C", 3}, {"D", 4}}});
+        }
+    });
+    th1.join();
+    th2.join();
+    EXPECT_EQ(summarizer.num_games(),2001);
 }
 
 TEST(GameResultSummarizer, player_performance)
