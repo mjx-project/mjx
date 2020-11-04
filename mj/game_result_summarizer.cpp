@@ -2,6 +2,8 @@
 
 namespace mj
 {
+    std::recursive_mutex GameResultSummarizer::mtx_;
+
     int GameResultSummarizer::num_games() const {
         return num_games_;
     }
