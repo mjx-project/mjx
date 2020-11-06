@@ -26,7 +26,7 @@ def change_tiles_fmt(tile_ids):
 
 
 # ["アクションの種類",晒した牌]の形式のリストを受け取ってmjscore形式に変更する関数
-def change_action_format(action_list: List) -> str:
+def change_action_format(bits: int) -> str:
     # まだわかっていない。
     return "yet"
 
@@ -79,9 +79,9 @@ def parse_draws(draws, events, abs_pos):
         elif event.type == mj_pb2.EVENT_TYPE_DISCARD_DRAWN_TILE and event.who == abs_pos:  # ツモギリ
             discards.append(60)
         elif event.type == mj_pb2.EVENT_TYPE_CHI and event.who == abs_pos:  # チー
-            discards.append(["chi", event.open])
+            discards.append(event.open)
         elif event.type == mj_pb2.EVENT_TYPE_PON and event.who == abs_pos:  # ポン
-            discards.append(["pon", event.open])
+            discards.append(event.open)
     for i in range(len(discards)):
         if type(discards[i]) == list:
             draws.insert(i, change_action_format(discards[i]))  # チーやポンのアクションをdrawsに挿入
