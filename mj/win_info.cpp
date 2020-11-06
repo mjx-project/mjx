@@ -1,14 +1,15 @@
 #include "win_info.h"
+#include "types.h"
 
+#include <boost/assert.hpp>
 #include <cassert>
 #include <utility>
 
-#include "types.h"
 
 namespace mj {
     WinInfo& WinInfo::Ron(Tile tile) noexcept {
-        assert(!hand.win_tile);
-        assert(hand.closed_tiles.find(tile) == hand.closed_tiles.end());
+        BOOST_ASSERT(!hand.win_tile);
+        BOOST_ASSERT(hand.closed_tiles.find(tile) == hand.closed_tiles.end());
         hand.closed_tiles.insert(tile);
         const auto tile_type = tile.Type();
         ++hand.closed_tile_types[tile_type];
@@ -39,13 +40,13 @@ namespace mj {
     }
 
     WinInfo& WinInfo::IsIppatsu(bool is_ippatsu) noexcept {
-        assert(hand.under_riichi);
+        BOOST_ASSERT(hand.under_riichi);
         state.is_ippatsu = is_ippatsu;
         return *this;
     }
 
     WinInfo& WinInfo::IsFirstTsumo(bool is_first_tsumo) noexcept {
-        assert(hand.stage == HandStage::kAfterTsumo);
+        BOOST_ASSERT(hand.stage == HandStage::kAfterTsumo);
         state.is_first_tsumo = is_first_tsumo;
         return *this;
     }

@@ -1,8 +1,9 @@
 #include "environment.h"
-
-#include <utility>
 #include "algorithm"
 #include "utils.h"
+
+#include <boost/assert.hpp>
+#include <utility>
 
 namespace mj
 {
@@ -24,14 +25,14 @@ namespace mj
             state_ = state_.Next();
         }
         // ゲーム終了時のStateにはisGameOverが含まれるはず #428
-        assert(state_.ToJson().find("isGameOver") != std::string::npos);
+        BOOST_ASSERT(state_.ToJson().find("isGameOver") != std::string::npos);
         return state_.result();
     }
 
     void Environment::RunOneRound() {
         while (!state_.IsRoundOver()) {
             auto observations = state_.CreateObservations();
-            assert(!observations.empty());
+            BOOST_ASSERT(!observations.empty());
             std::vector<Action> actions; actions.reserve(observations.size());
             for (auto& [player_id, obs]: observations) {
                 actions.emplace_back(agent(player_id)->TakeAction(std::move(obs)));

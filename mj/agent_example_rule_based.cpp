@@ -1,6 +1,8 @@
 #include "agent_example_rule_based.h"
 #include "utils.h"
 
+#include <boost/assert.hpp>
+
 namespace mj
 {
     AgentExampleRuleBased::AgentExampleRuleBased(PlayerId player_id) : Agent(std::move(player_id)) {}
@@ -44,7 +46,7 @@ namespace mj
                                              mjproto::ACTION_TYPE_CHI})) {
                 if (curr_hand.IsTenpai()) {
                     possible_action = *possible_actions.rbegin();
-                    assert(possible_action.type() == mjproto::ActionType::ACTION_TYPE_NO);
+                    BOOST_ASSERT(possible_action.type() == mjproto::ActionType::ACTION_TYPE_NO);
                     response.set_type(possible_action.type());
                     return Action(std::move(response));
                 }
@@ -56,7 +58,7 @@ namespace mj
                                              mjproto::ACTION_TYPE_CHI})) {
                 possible_action = *SelectRandomly(possible_actions.begin(), possible_actions.end());
                 if (possible_action.type() != mjproto::ActionType::ACTION_TYPE_DISCARD) {
-                    assert(Any(possible_action.type(), {
+                    BOOST_ASSERT(Any(possible_action.type(), {
                         mjproto::ACTION_TYPE_KAN_CLOSED, mjproto::ACTION_TYPE_KAN_ADDED,
                         mjproto::ACTION_TYPE_KAN_OPENED, mjproto::ACTION_TYPE_PON,
                         mjproto::ACTION_TYPE_CHI, mjproto::ACTION_TYPE_NO}));
@@ -79,7 +81,7 @@ namespace mj
                     return Action(std::move(response));
                 }
             }
-            assert(false);
+            BOOST_ASSERT(false);
         }
         // 判定ロジック
         auto is_head = [&closed_tile_type_cnt](Tile tile){

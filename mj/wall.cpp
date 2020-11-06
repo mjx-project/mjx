@@ -1,7 +1,9 @@
-#include <cassert>
-#include <array>
 #include "wall.h"
 #include "utils.h"
+
+#include <boost/assert.hpp>
+#include <cassert>
+#include <array>
 
 namespace mj
 {
@@ -17,8 +19,8 @@ namespace mj
     {}
 
     Tile Wall::Draw() {
-        assert(HasDrawLeft());
-        assert(abs(num_kan_draw_ - num_kan_dora_) <= 1);
+        BOOST_ASSERT(HasDrawLeft());
+        BOOST_ASSERT(abs(num_kan_draw_ - num_kan_dora_) <= 1);
         auto drawn_tile = tiles_[draw_ix_];
         draw_ix_++;
         return drawn_tile;
@@ -37,31 +39,31 @@ namespace mj
         }
         ix = (pos_ix % 4 - round_ % 4 + 4) % 4 + 48;
         tiles.emplace_back(tiles_.at(ix));
-        assert(tiles.size() == 13);
+        BOOST_ASSERT(tiles.size() == 13);
         return tiles;
     }
 
     Tile Wall::KanDraw() {
-        assert(abs(num_kan_draw_ - num_kan_dora_) <= 1);
-        assert(num_kan_draw_ <= 3);
+        BOOST_ASSERT(abs(num_kan_draw_ - num_kan_dora_) <= 1);
+        BOOST_ASSERT(num_kan_draw_ <= 3);
         auto kan_ixs = std::vector<int>{134, 135, 132, 133};
         auto drawn_tile = tiles_[kan_ixs[num_kan_draw_++]];
         return drawn_tile;
     }
 
     std::pair<Tile, Tile> Wall::AddKanDora() {
-        assert(abs(num_kan_draw_ - num_kan_dora_) <= 1);
-        assert(num_kan_dora_ <= 3);
+        BOOST_ASSERT(abs(num_kan_draw_ - num_kan_dora_) <= 1);
+        BOOST_ASSERT(num_kan_dora_ <= 3);
         num_kan_dora_++;
         auto kan_dora_indicator = tiles_[130 - 2 * num_kan_dora_];
         auto ura_kan_dora_indicator = tiles_[131 - 2 * num_kan_dora_];
-        assert(kan_dora_indicator == dora_indicators().back());
-        assert(ura_kan_dora_indicator == ura_dora_indicators().back());
+        BOOST_ASSERT(kan_dora_indicator == dora_indicators().back());
+        BOOST_ASSERT(ura_kan_dora_indicator == ura_dora_indicators().back());
         return {kan_dora_indicator, ura_kan_dora_indicator};
     }
 
     bool Wall::HasDrawLeft() const {
-        assert(abs(num_kan_draw_ - num_kan_dora_) <= 1);
+        BOOST_ASSERT(abs(num_kan_draw_ - num_kan_dora_) <= 1);
         return draw_ix_ + num_kan_draw_ < 122;
     }
 
@@ -70,14 +72,14 @@ namespace mj
     }
 
     std::vector<Tile> Wall::dora_indicators() const {
-        assert(abs(num_kan_draw_ - num_kan_dora_) <= 1);
+        BOOST_ASSERT(abs(num_kan_draw_ - num_kan_dora_) <= 1);
         std::vector<Tile> ret = {tiles_[130]};
         for (int i = 0; i < num_kan_dora_; ++i) ret.emplace_back(tiles_[128 - 2 * i]);
         return ret;
     }
 
     std::vector<Tile> Wall::ura_dora_indicators() const {
-        assert(abs(num_kan_draw_ - num_kan_dora_) <= 1);
+        BOOST_ASSERT(abs(num_kan_draw_ - num_kan_dora_) <= 1);
         std::vector<Tile> ret = {tiles_[131]};
         for (int i = 0; i < num_kan_dora_; ++i) ret.emplace_back(tiles_[129 - 2 * i]);
         return ret;

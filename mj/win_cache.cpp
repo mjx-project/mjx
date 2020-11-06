@@ -1,7 +1,7 @@
 #include "win_cache.h"
 
 #include <iostream>
-
+#include <boost/assert.hpp>
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/json_parser.hpp>
 
@@ -33,7 +33,7 @@ namespace mj {
                 cache_[hand].insert(pattern);
             }
         }
-        assert(cache_.size() == 9362);
+        BOOST_ASSERT(cache_.size() == 9362);
     }
 
     void WinHandCache::LoadTenpaiCache() {
@@ -42,7 +42,7 @@ namespace mj {
         for (auto& hand_pt : root.get_child("data")) {
             tenpai_cache_.insert(hand_pt.second.get_value<std::string>());
         }
-        assert(tenpai_cache_.size() == 34539);
+        BOOST_ASSERT(tenpai_cache_.size() == 34539);
     }
 
     bool WinHandCache::Has(const std::vector<int>& closed_hand) const noexcept {

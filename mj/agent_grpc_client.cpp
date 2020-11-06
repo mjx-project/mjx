@@ -1,5 +1,7 @@
 #include "agent_grpc_client.h"
 
+#include <boost/assert.hpp>
+
 namespace mj
 {
     AgentGrpcClient::AgentGrpcClient(PlayerId player_id, const std::shared_ptr<grpc::Channel> &channel):
@@ -7,7 +9,7 @@ namespace mj
 
     Action AgentGrpcClient::TakeAction(Observation &&observation) const {
         // TODO: verify that player_id is consistent (player_id_ == observation.player_id)
-        assert(stub_);
+        BOOST_ASSERT(stub_);
         const mjproto::Observation request = observation.proto();
         mjproto::Action response;
         grpc::ClientContext context;

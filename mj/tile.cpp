@@ -1,3 +1,4 @@
+#include <boost/assert.hpp>
 #include <cstdint>
 #include <cassert>
 #include <string>
@@ -12,12 +13,12 @@ namespace mj
 {
     Tile::Tile(TileId tile_id)
     : tile_id_(tile_id) {
-        assert(IsValid());
+        BOOST_ASSERT(IsValid());
     }
 
     Tile::Tile(TileType tile_type, std::uint8_t offset)
     : Tile(static_cast<std::uint8_t>(tile_type) * 4 + offset) {
-        assert(offset <= 3);
+        BOOST_ASSERT(offset <= 3);
     }
 
     Tile::Tile(const std::string &tile_type_str, std::uint8_t offset)
@@ -80,17 +81,17 @@ namespace mj
     }
 
     TileId Tile::Id() const noexcept {
-        assert(IsValid());
+        BOOST_ASSERT(IsValid());
         return tile_id_;
     }
 
     TileType Tile::Type() const noexcept {
-        assert(IsValid());
+        BOOST_ASSERT(IsValid());
         return TileType(TypeUint());
     }
 
     std::uint8_t Tile::TypeUint() const noexcept {
-        assert(IsValid());
+        BOOST_ASSERT(IsValid());
         return Id() / 4;
     }
 
@@ -98,11 +99,11 @@ namespace mj
         if (Is(TileSetType::kManzu)) return TileSetType::kManzu;
         if (Is(TileSetType::kPinzu)) return TileSetType::kPinzu;
         if (Is(TileSetType::kSouzu)) return TileSetType::kSouzu;
-        assert(false);
+        BOOST_ASSERT(false);
     }
 
     std::uint8_t Tile::Num() const noexcept {
-        assert(!Is(TileSetType::kHonours));
+        BOOST_ASSERT(!Is(TileSetType::kHonours));
         return TypeUint() % 9 + 1;
     }
 
@@ -345,7 +346,7 @@ namespace mj
         if (s == "wd") return TileType::kWD;
         if (s == "gd") return TileType::kGD;
         if (s == "rd") return TileType::kRD;
-        assert(false);  // TODO: fix
+        BOOST_ASSERT(false);  // TODO: fix
     }
 
     std::uint8_t Tile::Offset() const noexcept {

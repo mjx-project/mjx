@@ -1,6 +1,7 @@
 #include "event.h"
 #include "utils.h"
 
+#include <boost/assert.hpp>
 namespace mj
 {
     Event Event::CreateDraw(AbsolutePos who) {
@@ -74,19 +75,19 @@ namespace mj
     }
 
     AbsolutePos Event::who() const {
-        assert(!Any(type(), {mjproto::EVENT_TYPE_NEW_DORA, mjproto::EVENT_TYPE_NO_WINNER}));
+        BOOST_ASSERT(!Any(type(), {mjproto::EVENT_TYPE_NEW_DORA, mjproto::EVENT_TYPE_NO_WINNER}));
         return AbsolutePos(proto_.who());
     }
 
     Tile Event::tile() const {
-        assert(Any(type(), {mjproto::EVENT_TYPE_DRAW, mjproto::EVENT_TYPE_DISCARD_FROM_HAND,
+        BOOST_ASSERT(Any(type(), {mjproto::EVENT_TYPE_DRAW, mjproto::EVENT_TYPE_DISCARD_FROM_HAND,
                             mjproto::EVENT_TYPE_DISCARD_DRAWN_TILE, mjproto::EVENT_TYPE_TSUMO,
                             mjproto::EVENT_TYPE_RON, mjproto::EVENT_TYPE_NEW_DORA}));
         return Tile(proto_.tile());
     }
 
     Open Event::open() const {
-        assert(Any(type(), {mjproto::EVENT_TYPE_CHI, mjproto::EVENT_TYPE_PON,
+        BOOST_ASSERT(Any(type(), {mjproto::EVENT_TYPE_CHI, mjproto::EVENT_TYPE_PON,
                             mjproto::EVENT_TYPE_KAN_CLOSED, mjproto::EVENT_TYPE_KAN_OPENED,
                             mjproto::EVENT_TYPE_KAN_ADDED}));
         return Open(proto_.open());

@@ -1,12 +1,13 @@
 #include "types.h"
 #include "utils.h"
 
+#include <boost/assert.hpp>
 #include <cassert>
 
 namespace mj
 {
     std::uint8_t Num(TileType type) noexcept {
-        assert(type < TileType::kEW);
+        BOOST_ASSERT(type < TileType::kEW);
         return static_cast<uint8_t>(type) % 9 + 1;
     }
 
@@ -48,7 +49,7 @@ namespace mj
             case TileSetType::kEmpty:
                 return false;
             default:
-                assert(false);
+                BOOST_ASSERT(false);
         }
     }
 
@@ -56,7 +57,7 @@ namespace mj
         if (Is(type, TileSetType::kManzu)) return TileSetType::kManzu;
         if (Is(type, TileSetType::kPinzu)) return TileSetType::kPinzu;
         if (Is(type, TileSetType::kSouzu)) return TileSetType::kSouzu;
-        assert(false);
+        BOOST_ASSERT(false);
     }
 
     Wind ToSeatWind(AbsolutePos who, AbsolutePos dealer) {
@@ -74,7 +75,7 @@ namespace mj
             case 3:
                 return RelativePos::kLeft;
         }
-        assert(false);
+        BOOST_ASSERT(false);
     }
 
     mjproto::EventType OpenTypeToEventType(OpenType open_type) {

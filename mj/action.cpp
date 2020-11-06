@@ -2,6 +2,8 @@
 #include "utils.h"
 #include "mj.grpc.pb.h"
 
+#include <boost/assert.hpp>
+
 namespace mj
 {
     Action Action::CreateDiscard(AbsolutePos who, Tile discard) {
@@ -71,12 +73,12 @@ namespace mj
     }
 
     Tile Action::discard() const {
-        assert(type() == mjproto::ACTION_TYPE_DISCARD);
+        BOOST_ASSERT(type() == mjproto::ACTION_TYPE_DISCARD);
         return Tile(proto_.discard());
     }
 
     Open Action::open() const {
-        assert(Any(type(), {mjproto::ACTION_TYPE_CHI, mjproto::ACTION_TYPE_PON,
+        BOOST_ASSERT(Any(type(), {mjproto::ACTION_TYPE_CHI, mjproto::ACTION_TYPE_PON,
                             mjproto::ACTION_TYPE_KAN_CLOSED, mjproto::ACTION_TYPE_KAN_OPENED,
                             mjproto::ACTION_TYPE_KAN_ADDED}));
         return Open(proto_.open());
@@ -92,7 +94,7 @@ namespace mj
     std::string Action::ToJson() const {
         std::string serialized;
         auto status = google::protobuf::util::MessageToJsonString(proto_, &serialized);
-        assert(status.ok());
+        BOOST_ASSERT(status.ok());
         return serialized;
     }
 }  // namespace mj

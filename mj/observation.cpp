@@ -2,6 +2,8 @@
 #include "utils.h"
 #include "mj.grpc.pb.h"
 
+#include <boost/assert.hpp>
+
 namespace mj
 {
     Observation::Observation(const mjproto::Observation& proto) : proto_(proto) {}
@@ -57,7 +59,7 @@ namespace mj
     std::string Observation::ToJson() const {
         std::string serialized;
         auto status = google::protobuf::util::MessageToJsonString(proto_, &serialized);
-        assert(status.ok());
+        BOOST_ASSERT(status.ok());
         return serialized;
     }
 
