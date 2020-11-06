@@ -24,7 +24,6 @@ def open_event_type(bits: int) -> mj_pb2.EventType:
             return mj_pb2.EVENT_TYPE_KAN_OPENED
 
 
-
 def open_from(bits: int) -> mj_pb2.RelativePos:
     """
     >>> open_from(51306) == mj_pb2.RELATIVE_POS_MID  # 対面
@@ -48,50 +47,6 @@ def open_from(bits: int) -> mj_pb2.RelativePos:
         return mj_pb2.RELATIVE_POS_SELF
 
 
-ids = [[i, i + 1, i + 2, i + 3] for i in range(0, 136, 4)]  # こいつの位置をどうするか
-
-
-# チーで晒された牌のidのmod4をを小さい順に並べたものを返す
-def mod4_for_chi(bits: int):
-    return [(bits >> 3) & 3, (bits >> 5) & 3, (bits >> 7) & 3]
-
-
-# 　ポンカスのidのmod4
-def mod4_for_pon(bits: int):
-    return (bits >> 5) & 3
-
-
-# 　34までの牌の種類を表す数字を受け取ってmjproto形式で対応するidとしてあり得るものを出力
-def possible_ids(tile: int) -> List[int]:
-    return ids[tile]
-
-
-def open_tile_info_for_chi(bits: int):
-    x = (bits >> 10) // 3
-    min_tile = x if x <= 6 else (x + 2 if x <= 13 else x + 4)  # 8m,9m,8p,9pが抜けているので34種類でのインデックスに対応させる
-    stolen_tile_kind = min_tile + (bits >> 10) % 3
-    stolen_tile_mod3 = (bits >> 10) % 3  # 3種類のうち鳴いた牌のindex
-    pos_ids = possible_ids(stolen_tile_kind)
-    stolen_id_mod4 = mod4_for_chi(bits)[stolen_tile_mod3]  # 1種類につき4つあるidを決めるindex
-    stolen_id = pos_ids.pop(stolen_id_mod4)
-    open_ids = pos_ids
-    return [stolen_id, open_ids]
-
-
-def open_tile_info_for_pon(bits: int):
-    stolen_tile_kind = (bits >> 9) // 3
-    stolen_tile_mod3 = (bits >> 9) % 3  # 3つのidのうち鳴いた牌のindex
-    unused_id_mod4 = mod4_for_pon(bits)
-    pos_ids = possible_ids(stolen_tile_kind)
-    del pos_ids[unused_id_mod4]
-    stolen_id = pos_ids.pop(stolen_tile_mod3)
-    open_ids = pos_ids
-    return [stolen_id, open_ids]
-
-
-# def open_tile_info_for_kan_added(bits: int):
-
-
 def open_stolen_tile_type(bits: int) -> int:
     """
     >>> open_stolen_tile_type(51306)
@@ -101,16 +56,15 @@ def open_stolen_tile_type(bits: int) -> int:
     >>> open_stolen_tile_type(28722)
     18
     """
-    # chiとそれ以外のアクションでは取得できる牌の種類が異なる。
     event_type = open_event_type(bits)
     if event_type == mj_pb2.EVENT_TYPE_CHI:
-        stolen_id = open_tile_info_for_chi(bits)[0]
-        return stolen_id
-    elif event_type == mj_pb2.EVENT_TYPE_PON:
-        stolen_id = open_tile_info_for_pon(bits)[0]
-        return stolen_id
-    # elif event_type == mj_pb2.EVENT_TYPE_KAN_CLOSED or event_type == mj_pb2.EVENT_TYPE_KAN_OPENED:
-    # stolen_tile_kind =
+        x = (bits >> 10) // 3
+        min_tile = x if x <= 6 else (x + 2 if x <= 13 else x + 4)  # 8m,9m,8p,9pが抜けているので34種類でのインデックスに対応させる
+        stolen_tile_kind = min_tile + (bits >> 10) % 3
+        return stolen_tile_kind
+    elif event_type == mj_pb2.EVENT_TYPE_PON or event_type == mj_pb2.EVENT_TYPE_KAN_ADDED:
+        stolen_tile_kind = (bits >> 9) // 3
+        return stolen_tile_kind
 
 
 def open_tile_types(bits: int) -> List[int]:
@@ -124,17 +78,15 @@ def open_tile_types(bits: int) -> List[int]:
     """
     event_type = open_event_type(bits)
     if event_type == mj_pb2.EVENT_TYPE_CHI:
-        open_ids = open_tile_info_for_chi(bits)[1]
-        return open_ids
+        x = (bits >> 10) // 3
+        min_tile = x if x <= 6 else (x + 2 if x <= 13 else x + 4)  # 8m,9m,8p,9pが抜けているので34種類でのインデックスに対応させる
+        return [min_tile, min_tile + 1, min_tile + 2]
     elif event_type == mj_pb2.EVENT_TYPE_PON:
-        open_ids = open_tile_info_for_pon(bits)[1]
-        return open_ids
+        stolen_tile_kind = (bits >> 9) // 3
+        return [stolen_tile_kind] * 3
+    elif event_type == mj_pb2.EVENT_TYPE_KAN_ADDED:
+        stolen_tile_kind = (bits >> 9) // 3
+        return [stolen_tile_kind] * 4
 
-
-"""
-テスト
-"""
-
-print(open_from(49495) == mj_pb2.RELATIVE_POS_LEFT)
 
 
