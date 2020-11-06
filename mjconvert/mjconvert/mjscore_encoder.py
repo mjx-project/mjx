@@ -21,7 +21,7 @@ def change_tile_fmt(tile_id: int) -> int:
 
 # mjproto形式の牌のリストを引数にとり、表現をmjscore形式の表現に変える関数
 def change_tiles_fmt(tile_ids):
-    scores = list(map(change_tile_fmt, tile_ids))  # mjproto形式の表現ををmjscore形式に変換
+    scores = list(map(change_tile_fmt, tile_ids))
     return scores
 
 
