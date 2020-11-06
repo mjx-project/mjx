@@ -1,9 +1,10 @@
 #include "train_data_generator.h"
+#include "mj/utils.h"
 
+#include <boost/assert.hpp>
 #include <fstream>
 #include <iostream>
 #include <filesystem>
-#include "mj/utils.h"
 
 namespace mj {
 
