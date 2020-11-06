@@ -19,6 +19,7 @@ def open_event_type(bits: int) -> mj_pb2.EventType:
         return mj_pb2.EVENT_TYPE_KAN_ADDED
     else:
         if mj_pb2.RELATIVE_POS_SELF == bits & 3:
+
             return mj_pb2.EVENT_TYPE_KAN_CLOSED
         else:
             return mj_pb2.EVENT_TYPE_KAN_OPENED
@@ -33,6 +34,7 @@ def open_from(bits: int) -> mj_pb2.RelativePos:
     >>> open_from(28722) == mj_pb2.RELATIVE_POS_MID  # 加槓
     True
     """
+
     event_type = open_event_type(bits)
     if event_type == mj_pb2.EVENT_TYPE_CHI:
         return mj_pb2.RELATIVE_POS_LEFT
@@ -47,6 +49,34 @@ def open_from(bits: int) -> mj_pb2.RelativePos:
         return mj_pb2.RELATIVE_POS_SELF
 
 
+def transform_red_stolen_tile(bits: int, stolen_tile_kind: int) -> int:
+    reds = [51, 52, 53]
+    reds_dict = {4: 51, 14: 52, 22: 53}
+    event_type = open_event_type(bits)
+    if event_type == mj_pb2.EVENT_TYPE_CHI:
+        stolen_tile_mod3 = (bits >> 10) % 3  # 鳴いた牌のindex
+        if bits >> (3 + 2 * stolen_tile_mod3) & 3 == 0:  # mjprotoでは赤のidは 0 mod 4
+            return reds_dict[stolen_tile_kind]
+        else:
+            return stolen_tile_kind
+    elif event_type == mj_pb2.EVENT_TYPE_PON:
+        unused_id_mod3 = (bits >> 5) & 3
+        if unused_id_mod3 != 0 and (bits >> 9) % 3 == 0:  # 未使用牌が赤でなく、鳴いた牌のインデックスが0の時→赤
+            return reds_dict[stolen_tile_kind]
+        else:
+            return stolen_tile_kind
+    elif event_type == mj_pb2.EVENT_TYPE_KAN_ADDED:
+        if (bits >> 5) & 3 != 0 and (bits >> 9) % 3 == 0:
+            return reds_dict[stolen_tile_kind]
+        else:
+            return stolen_tile_kind
+    else:
+        if (bits >> 8) in reds:
+            return reds_dict[stolen_tile_kind]
+        else:
+            return stolen_tile_kind
+
+
 def open_stolen_tile_type(bits: int) -> int:
     """
     >>> open_stolen_tile_type(51306)
@@ -59,7 +89,7 @@ def open_stolen_tile_type(bits: int) -> int:
     event_type = open_event_type(bits)
     if event_type == mj_pb2.EVENT_TYPE_CHI:
         x = (bits >> 10) // 3
-        min_tile = (x // 7)*9 + x % 7  # 0~33 base 9
+        min_tile = (x // 7) * 9 + x % 7  # 0~33 base 9
         stolen_tile_kind = min_tile + (bits >> 10) % 3
         return stolen_tile_kind
     elif event_type == mj_pb2.EVENT_TYPE_PON or event_type == mj_pb2.EVENT_TYPE_KAN_ADDED:
@@ -82,18 +112,14 @@ def open_tile_types(bits: int) -> List[int]:
     event_type = open_event_type(bits)
     if event_type == mj_pb2.EVENT_TYPE_CHI:
         x = (bits >> 10) // 3  # 0~21
-        min_tile = (x // 7)*9 + x % 7  # 0~33 base 9
+        min_tile = (x // 7) * 9 + x % 7  # 0~33 base 9
         return [min_tile, min_tile + 1, min_tile + 2]
     elif event_type == mj_pb2.EVENT_TYPE_PON:
-        stolen_tile_kind = (bits >> 9) // 3
+        stolen_tile_kind = open_stolen_tile_type(bits)
         return [stolen_tile_kind] * 3
     elif event_type == mj_pb2.EVENT_TYPE_KAN_ADDED:
-        stolen_tile_kind = (bits >> 9) // 3
+        stolen_tile_kind = open_stolen_tile_type(bits)
         return [stolen_tile_kind] * 4
     else:
         stolen_tile_kind = (bits >> 8) // 4  # to_do:テスト
-        return [stolen_tile_kind]*4
-
-
-
-
+        return [stolen_tile_kind] * 4
