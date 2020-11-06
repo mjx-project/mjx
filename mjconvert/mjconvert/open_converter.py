@@ -24,18 +24,6 @@ def open_event_type(bits: int) -> mj_pb2.EventType:
             return mj_pb2.EVENT_TYPE_KAN_OPENED
 
 
-def open_tile_types(bits: int) -> List[int]:
-    """"
-    >> > open_tile_types(51306)  # Pon rd
-    [33, 33, 33]
-    >> > open_tile_types(49495)  # Chi s3s4s5
-    [20, 21, 22]
-    >> > open_tile_types(28722)  # 加槓 s
-    >> [18, 18, 18, 18]
-    """
-
-    return []
-
 
 def open_from(bits: int) -> mj_pb2.RelativePos:
     """
@@ -43,21 +31,19 @@ def open_from(bits: int) -> mj_pb2.RelativePos:
     True
     >>> open_from(49495) == mj_pb2.RELATIVE_POS_LEFT  # 上家
     True
-    >>> open_from(28722) == mj_pb2.RELATIVE_POS_SELF  # 加槓
+    >>> open_from(28722) == mj_pb2.RELATIVE_POS_MID  # 加槓
     True
     """
     event_type = open_event_type(bits)
     if event_type == mj_pb2.EVENT_TYPE_CHI:
         return mj_pb2.RELATIVE_POS_LEFT
-    elif event_type == mj_pb2.EVENT_TYPE_PON or event_type == mj_pb2.EVENT_TYPE_KAN_OPENED:
-        if 3 & bits:
+    elif event_type == mj_pb2.EVENT_TYPE_PON or event_type == mj_pb2.EVENT_TYPE_KAN_OPENED or event_type == mj_pb2.EVENT_TYPE_KAN_ADDED:
+        if 3 == (3 & bits):
             return mj_pb2.RELATIVE_POS_LEFT
-        elif 2 & bits:
+        elif 2 == (2 & bits) & bits:
             return mj_pb2.RELATIVE_POS_MID
-        elif 1 & bits:
+        elif 1 == (1 & bits) & bits:
             return mj_pb2.RELATIVE_POS_RIGHT
-    elif event_type == mj_pb2.EVENT_TYPE_KAN_ADDED:
-        return mj_pb2.RELATIVE_POS_SELF
     else:
         return mj_pb2.RELATIVE_POS_SELF
 
@@ -86,7 +72,7 @@ def open_tile_info_for_chi(bits: int):
     stolen_tile_kind = min_tile + (bits >> 10) % 3
     stolen_tile_mod3 = (bits >> 10) % 3  # 3種類のうち鳴いた牌のindex
     pos_ids = possible_ids(stolen_tile_kind)
-    stolen_id_mod4 = mod4_for_chi(bits)[stolen_tile_mod3]
+    stolen_id_mod4 = mod4_for_chi(bits)[stolen_tile_mod3]  # 1種類につき4つあるidを決めるindex
     stolen_id = pos_ids.pop(stolen_id_mod4)
     open_ids = pos_ids
     return [stolen_id, open_ids]
@@ -129,17 +115,26 @@ def open_stolen_tile_type(bits: int) -> int:
 
 def open_tile_types(bits: int) -> List[int]:
     """
-    >> > open_tile_types(51306)  # Pon rd
+    >>> open_tile_types(51306)  # Pon rd
     [33, 33, 33]
-    >> > open_tile_types(49495)  # Chi s3s4s5
+    >>> open_tile_types(49495)  # Chi s3s4s5
     [20, 21, 22]
-    >> > open_tile_types(28722)  # 加槓 s
+    >>> open_tile_types(28722)  # 加槓 s1
     >> [18, 18, 18, 18]
     """
+    event_type = open_event_type(bits)
+    if event_type == mj_pb2.EVENT_TYPE_CHI:
+        open_ids = open_tile_info_for_chi(bits)[1]
+        return open_ids
+    elif event_type == mj_pb2.EVENT_TYPE_PON:
+        open_ids = open_tile_info_for_pon(bits)[1]
+        return open_ids
 
-    return []
 
+"""
+テスト
+"""
 
-print(open_stolen_tile_type(49495))
+print(open_from(49495) == mj_pb2.RELATIVE_POS_LEFT)
 
 
