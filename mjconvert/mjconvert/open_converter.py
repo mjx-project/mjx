@@ -65,6 +65,11 @@ def open_stolen_tile_type(bits: int) -> int:
     elif event_type == mj_pb2.EVENT_TYPE_PON or event_type == mj_pb2.EVENT_TYPE_KAN_ADDED:
         stolen_tile_kind = (bits >> 9) // 3
         return stolen_tile_kind
+    else:
+        stolen_tile_kind = (bits >> 8) // 4 + 1  # to_do:テスト
+        return stolen_tile_kind
+
+
 
 
 def open_tile_types(bits: int) -> List[int]:
@@ -87,6 +92,10 @@ def open_tile_types(bits: int) -> List[int]:
     elif event_type == mj_pb2.EVENT_TYPE_KAN_ADDED:
         stolen_tile_kind = (bits >> 9) // 3
         return [stolen_tile_kind] * 4
+    else:
+        stolen_tile_kind = (bits >> 8) // 4 + 1  # to_do:テスト
+        return [stolen_tile_kind]*4
+
 
 
 
