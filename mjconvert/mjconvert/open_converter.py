@@ -66,14 +66,7 @@ def transform_red_stolen_tile(bits: int, stolen_tile_kind: int) -> int:  # to_do
             return reds_dict[stolen_tile_kind]
         else:
             return stolen_tile_kind
-    elif event_type == mj_pb2.EVENT_TYPE_PON:
-        unused_id_mod4 = (bits >> 5) & 3  # 未使用牌のid mod 4
-        stolen_tile_mod3 = (bits >> 9) % 3  # 鳴いた牌のindex
-        if unused_id_mod4 != 0 and stolen_tile_mod3 == 0:  # 未使用牌が赤でなく、鳴いた牌のインデックスが0の時→赤
-            return reds_dict[stolen_tile_kind]
-        else:
-            return stolen_tile_kind
-    elif event_type == mj_pb2.EVENT_TYPE_KAN_ADDED:
+    elif event_type == mj_pb2.EVENT_TYPE_PON or event_type == mj_pb2.EVENT_TYPE_KAN_ADDED:
         unused_id_mod4 = (bits >> 5) & 3  # 未使用牌のid mod 4
         stolen_tile_mod3 = (bits >> 9) % 3  # 鳴いた牌のindex
         if unused_id_mod4 != 0 and stolen_tile_mod3 == 0:  # 未使用牌が赤でなく、鳴いた牌のインデックスが0の時→赤
