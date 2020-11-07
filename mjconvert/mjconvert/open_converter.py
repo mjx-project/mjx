@@ -49,6 +49,12 @@ def open_from(bits: int) -> mj_pb2.RelativePos:
         return mj_pb2.RELATIVE_POS_SELF
 
 
+def _min_tile_chi(bits: int)-> int:
+    x = (bits >> 10) // 3  # 0~21
+    min_tile = (x // 7) * 9 + x % 7  # 0~33 base 9
+    return min_tile
+
+
 def transform_red_stolen_tile(bits: int, stolen_tile_kind: int) -> int:  # to_do: test  さらに小さい関数を作るか否か考えるべし
     reds = [51, 52, 53]
     reds_dict = {4: 51, 14: 52, 22: 53}
@@ -93,8 +99,7 @@ def open_stolen_tile_type(bits: int) -> int:
     event_type = open_event_type(bits)
     fives = [4, 14, 22]
     if event_type == mj_pb2.EVENT_TYPE_CHI:
-        x = (bits >> 10) // 3  # 0~21
-        min_tile = (x // 7) * 9 + x % 7  # 0~33 base 9
+        min_tile = _min_tile_chi(bits)
         stolen_tile_kind = min_tile + (bits >> 10) % 3
         if stolen_tile_kind in fives:
             return transform_red_stolen_tile(bits, stolen_tile_kind)
@@ -118,8 +123,7 @@ def transform_red_open_tile(bits: int):  # to_do:テスト
     reds_dict = {4: 51, 14: 52, 22: 53}
     event_type = open_event_type(bits)
     if event_type == mj_pb2.EVENT_TYPE_CHI:
-        x = (bits >> 10) // 3
-        min_tile = (x // 7) * 9 + x % 7
+        min_tile = _min_tile_chi(bits)
         start_from3 = min_tile % 9 == 2  # min_tile で場合分け
         start_from4 = min_tile % 9 == 3
         start_from5 = min_tile % 9 == 4
@@ -158,8 +162,7 @@ def open_tile_types(bits: int) -> List[int]:
     fives = [4, 14, 22, 51, 52, 53]  # open_stolen_tile_type()から赤が帰ってきた場合に備えて
     event_type = open_event_type(bits)
     if event_type == mj_pb2.EVENT_TYPE_CHI:
-        x = (bits >> 10) // 3  # 0~21
-        min_tile = (x // 7) * 9 + x % 7  # 0~33 base 9
+        min_tile = _min_tile_chi(bits)
         if min_tile % 9 in [2, 3, 4]:
             return transform_red_open_tile(bits)
         else:
