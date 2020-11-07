@@ -60,7 +60,7 @@ def transform_red_stolen_tile(bits: int, stolen_tile_kind: int) -> int:
         else:
             return stolen_tile_kind
     elif event_type == mj_pb2.EVENT_TYPE_PON:
-        unused_id_mod3 = (bits >> 5) & 3
+        unused_id_mod3 = (bits >> 5) & 3  # 未使用牌のid mod 4
         if unused_id_mod3 != 0 and (bits >> 9) % 3 == 0:  # 未使用牌が赤でなく、鳴いた牌のインデックスが0の時→赤
             return reds_dict[stolen_tile_kind]
         else:
@@ -98,6 +98,38 @@ def open_stolen_tile_type(bits: int) -> int:
     else:
         stolen_tile_kind = (bits >> 8) // 4  # to_do:テスト
         return stolen_tile_kind
+
+
+def transform_red_open_tile(bits: int):
+    reds_dict = {4: 51, 14: 52, 22: 53}
+    event_type = open_event_type(bits)
+    if event_type == mj_pb2.EVENT_TYPE_CHI:
+        x = (bits >> 10) // 3
+        min_tile = (x // 7) * 9 + x % 7
+        start_from3 = min_tile % 9 == 2
+        start_from4 = min_tile % 9 == 3
+        start_from5 = min_tile % 9 == 4
+        if start_from3 and (bits >> 7) & 3 == 0:  # 3から始まる→3番目の牌のid mod 4 =0 →赤
+            return [min_tile, min_tile + 1, reds_dict[min_tile + 2]]
+        elif start_from4 and (bits >> 5) & 3 == 0:
+            return [min_tile, reds_dict[min_tile + 1], min_tile + 2]
+        elif start_from5 and (bits >> 3) & 3 == 0:
+            return [reds_dict[min_tile], min_tile + 1, min_tile + 2]
+        else:
+            return [min_tile, min_tile + 1, min_tile + 2]
+    elif event_type == mj_pb2.EVENT_TYPE_PON:
+        unused_id_mod3 = (bits >> 5) & 3
+        stolen_tile_kind = (bits >> 9) // 3  # open_stolen_tile_typeで赤が吐き出された場合の処理がややこしいので再定義
+        if unused_id_mod3 != 0:
+            return [stolen_tile_kind, stolen_tile_kind, reds_dict[stolen_tile_kind]]
+        else:
+            return [stolen_tile_kind] * 3
+    elif event_type == mj_pb2.EVENT_TYPE_KAN_ADDED:
+        stolen_tile_kind = (bits >> 9) // 3
+        return [stolen_tile_kind, stolen_tile_kind, stolen_tile_kind, reds_dict[stolen_tile_kind]]
+    else:
+        stolen_tile_kind = (bits >> 8) // 4
+        return [stolen_tile_kind, stolen_tile_kind, stolen_tile_kind, reds_dict[stolen_tile_kind]]
 
 
 def open_tile_types(bits: int) -> List[int]:
