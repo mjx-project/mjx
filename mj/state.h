@@ -95,7 +95,6 @@ namespace mj
         std::array<Player, 4> players_;
         std::uint32_t seed_;
         // temporal memory
-        //std::optional<Tile> last_ronable_tile;
         TileType last_discard_type_;
         bool is_first_turn_wo_open = true;  // ダブル立直, 九種九牌, 四風連打, etc
         bool is_four_winds = true;
