@@ -7,6 +7,8 @@ from google.protobuf import json_format
 
 from mjconvert import mj_pb2
 
+from mjconvert import open_converter
+
 
 def change_tile_fmt(tile_id: int) -> int:
     reds_in_mjproto = [16, 52, 88]
@@ -21,14 +23,25 @@ def change_tile_fmt(tile_id: int) -> int:
 
 # mjproto形式の牌のリストを引数にとり、表現をmjscore形式の表現に変える関数
 def change_tiles_fmt(tile_ids):
-    scores = list(map(change_tile_fmt, tile_ids))
+    scores = list(map(change_tile_fmt, tile_ids))  # mjproto形式の表現ををmjscore形式に変換
     return scores
-
 
 # ["アクションの種類",晒した牌]の形式のリストを受け取ってmjscore形式に変更する関数
 def change_action_format(bits: int) -> str:
-    # まだわかっていない。
-    return "yet"
+    event_type = open_converter.open_event_type(bits)
+    stolen_tile = open_converter.open_stolen_tile_type(bits)
+
+    open_tiles = open_converter.open_tile_types(bits)
+
+    open_tiles.remove(stolen_tile)
+    if event_type == mj_pb2.EVENT_TYPE_CHI:
+        return "c" + str(stolen_tile) + str(open_tiles[0]) + str(open_tiles[1])
+    elif event_type == mj_pb2.EVENT_TYPE_PON:
+        return "r" + str(stolen_tile) + str(open_tiles[0]) + str(open_tiles[1])
+    else:
+        return " "  # カンはまだmjscoreのformatがわからない。
+
+    return open_tiles
 
 
 # mjscore形式の配牌をソートする関数。
@@ -95,10 +108,11 @@ def mjproto_to_mjscore(state: mj_pb2.State) -> str:
     # print(state.private_infos.ABSOLUTE_POS_INIT_EAST.init_hand)
     # print(state.init_score.honba)
     # print(state.init_score.ten)
-    # print(discard_parser(state.event_history.events,0))
+    print(parse_draws(state.private_infos[3].draws, state.event_history.events, 3))
+    print(change_action_format(49495))
     # print(len(state.private_infos[3].draws))
     # print(sort_init_hand(change_tiles_fmt(state.private_infos[0].init_hand)))
-    print(parse_discards(state.event_history.events, 1))
+    #print(parse_discards(state.event_history.events, 1))
     round: int = state.init_score.round
     honba: int = state.init_score.honba
     riichi: int = state.init_score.riichi
