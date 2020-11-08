@@ -107,6 +107,39 @@ def open_stolen_tile_type(bits: int) -> int:
         return transform_red_stolen_tile(bits, stolen_tile_kind)
 
 
+def red_open_five_tile_chi(bits: int, min_tile: int, reds_dict: dict) -> List[int]:
+    start_from3 = min_tile % 9 == 2  # min_tile で場合分け
+    start_from4 = min_tile % 9 == 3
+    start_from5 = min_tile % 9 == 4
+    if start_from3 and ((bits >> 7) & 3 == 0):  # 3から始まる→3番目の牌のid mod 4 =0 →赤
+        return [min_tile, min_tile + 1, reds_dict[min_tile + 2]]
+    elif start_from4 and ((bits >> 5) & 3) == 0:
+        return [min_tile, reds_dict[min_tile + 1], min_tile + 2]
+    elif start_from5 and ((bits >> 3) & 3 == 0):
+        return [reds_dict[min_tile], min_tile + 1, min_tile + 2]
+    else:
+        return [min_tile, min_tile + 1, min_tile + 2]
+
+
+def red_open_five_tile_pon(bits: int, reds_dict: dict) -> List[int]:
+    unused_id_mod3 = (bits >> 5) & 3
+    stolen_tile_kind = (bits >> 9) // 3  # open_stolen_tile_typeで赤が吐き出された場合の処理がややこしいので再定義
+    if unused_id_mod3 != 0:
+        return [stolen_tile_kind, stolen_tile_kind, reds_dict[stolen_tile_kind]]  # mjscoreでは同じ種類の牌のうち赤が最後に配置される。
+    else:
+        return [stolen_tile_kind] * 3
+
+
+def red_open_five_tile_kan_added(bits: int, reds_dict: dict) -> List[int]:
+    stolen_tile_kind = (bits >> 9) // 3  # open_stolen_tile_typeで赤が吐き出された場合の処理がややこしいので再定義
+    return [stolen_tile_kind, stolen_tile_kind, stolen_tile_kind, reds_dict[stolen_tile_kind]]
+
+
+def red_open_five_tile_kan_opend_and_closed(bits: int, reds_dict: dict) -> List[int]:
+    stolen_tile_kind = (bits >> 8) // 4
+    return [stolen_tile_kind, stolen_tile_kind, stolen_tile_kind, reds_dict[stolen_tile_kind]]
+
+
 def transform_red_open_tile(bits: int, stolen_tile_kind=0, min_tile=0) -> List[int]:  # to_do:テスト
     fives = [4, 14, 22, 51, 52, 53]
     min_starts_include5_mod9 = [2, 3, 4]
@@ -114,31 +147,13 @@ def transform_red_open_tile(bits: int, stolen_tile_kind=0, min_tile=0) -> List[i
     event_type = open_event_type(bits)
     if stolen_tile_kind in fives or min_tile % 9 in min_starts_include5_mod9:  # 5晒した牌に含まれるかどうかで場合分け。
         if event_type == mj_pb2.EVENT_TYPE_CHI:
-            start_from3 = min_tile % 9 == 2  # min_tile で場合分け
-            start_from4 = min_tile % 9 == 3
-            start_from5 = min_tile % 9 == 4
-            if start_from3 and ((bits >> 7) & 3 == 0):  # 3から始まる→3番目の牌のid mod 4 =0 →赤
-                return [min_tile, min_tile + 1, reds_dict[min_tile + 2]]
-            elif start_from4 and ((bits >> 5) & 3) == 0:
-                return [min_tile, reds_dict[min_tile + 1], min_tile + 2]
-            elif start_from5 and ((bits >> 3) & 3 == 0):
-                return [reds_dict[min_tile], min_tile + 1, min_tile + 2]
-            else:
-                return [min_tile, min_tile + 1, min_tile + 2]
+            red_open_five_tile_chi(bits, min_tile, reds_dict)
         elif event_type == mj_pb2.EVENT_TYPE_PON:
-            unused_id_mod3 = (bits >> 5) & 3
-            stolen_tile_kind = (bits >> 9) // 3  # open_stolen_tile_typeで赤が吐き出された場合の処理がややこしいので再定義
-            if unused_id_mod3 != 0:
-                return [stolen_tile_kind, stolen_tile_kind,
-                        reds_dict[stolen_tile_kind]]  # mjscoreでは同じ種類の牌のうち赤が最後に配置される。
-            else:
-                return [stolen_tile_kind] * 3
+            red_open_five_tile_pon(bits, reds_dict)
         elif event_type == mj_pb2.EVENT_TYPE_KAN_ADDED:
-            stolen_tile_kind = (bits >> 9) // 3  # open_stolen_tile_typeで赤が吐き出された場合の処理がややこしいので再定義
-            return [stolen_tile_kind, stolen_tile_kind, stolen_tile_kind, reds_dict[stolen_tile_kind]]
+            red_open_five_tile_kan_added(bits, reds_dict)
         else:
-            stolen_tile_kind = (bits >> 8) // 4
-            return [stolen_tile_kind, stolen_tile_kind, stolen_tile_kind, reds_dict[stolen_tile_kind]]
+            red_open_five_tile_kan_opend_and_closed(bits, reds_dict)
     else:
         if event_type == mj_pb2.EVENT_TYPE_CHI:
             return [min_tile, min_tile + 1, min_tile + 2]
@@ -157,7 +172,6 @@ def open_tile_types(bits: int) -> List[int]:
     >>> open_tile_types(28722)  # 加槓 s1
     [18, 18, 18, 18]
     """
-    fives = [4, 14, 22, 51, 52, 53]  # open_stolen_tile_type()から赤が帰ってきた場合に備えて
     event_type = open_event_type(bits)
     if event_type == mj_pb2.EVENT_TYPE_CHI:
         min_tile = _min_tile_chi(bits)
@@ -171,5 +185,3 @@ def open_tile_types(bits: int) -> List[int]:
     else:
         stolen_tile_kind = (bits >> 8) // 4  # to_do:テスト
         return transform_red_open_tile(bits, stolen_tile_kind=stolen_tile_kind)
-
-print(open_tile_types(51206))
