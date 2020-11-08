@@ -286,8 +286,6 @@ namespace mj
 
         // 加槓=>槍槓=>Noのときの一発消し。加槓時に自分の一発は外れている外れているはずなので、一発が残っているのは他家のだれか
         if (HasLastEvent() and LastEvent().type() == mjproto::EVENT_TYPE_KAN_ADDED) for (int i = 0; i < 4; ++i) mutable_player(AbsolutePos(i)).is_ippatsu = false;
-        // 槍槓
-        is_robbing_kan = false;
 
         state_.mutable_event_history()->mutable_events()->Add(Event::CreateDraw(who).proto());
         state_.mutable_private_infos(ToUType(who))->add_draws(draw.Id());
@@ -342,7 +340,6 @@ namespace mj
         // 加槓時は自分の一発だけ消して（一発・嶺上開花は併発しない）、その他のときには全員の一発を消す
         if (open.Type() == OpenType::kKanAdded) {
             mutable_player(who).is_ippatsu = false;
-            is_robbing_kan = true;  // 槍槓
         } else {
             for (int i = 0; i < 4; ++i) mutable_player(AbsolutePos(i)).is_ippatsu = false;
         }
@@ -824,6 +821,19 @@ namespace mj
         }
         return discarded_winds.size() == 1 and discarded_winds.begin()->second == 4;
     }
+    bool State::IsRobbingKan() const {
+        auto event_history = EventHistory();
+        std::reverse(event_history.begin(), event_history.end());
+        for (const auto& event : event_history) {
+            if (event.type() == mjproto::EventType::EVENT_TYPE_DRAW) {
+                return false;
+            }
+            if (event.type() == mjproto::EventType::EVENT_TYPE_KAN_ADDED) {
+                return true;
+            }
+        }
+        return false;
+    }
 
 
     std::unordered_map<PlayerId, Observation> State::CreateStealAndRonObservation() const {
@@ -870,7 +880,7 @@ namespace mj
                 IsFirstTurnWithoutOpen() && LastEvent().who() == who
                         && (Any(LastEvent().type(), {mjproto::EVENT_TYPE_DRAW, mjproto::EVENT_TYPE_TSUMO})),
                 seat_wind == Wind::kEast,
-                is_robbing_kan,
+                IsRobbingKan(),
                 wall_.dora_count(),
                 wall_.ura_dora_count());
         return win_state_info;
