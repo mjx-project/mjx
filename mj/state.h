@@ -62,6 +62,8 @@ namespace mj
         [[nodiscard]] Event LastEvent() const;
         [[nodiscard]] std::vector<Event> EventHistory() const;
         [[nodiscard]] std::optional<Tile> TargetTile() const;   // ロンされうる牌. 直前の捨牌or加槓した牌
+        [[nodiscard]] bool IsFirstTurnWithoutOpen() const;
+        [[nodiscard]] bool IsFourWinds() const;
 
         // comparison
         bool Equals(const State& other) const noexcept ;
@@ -95,9 +97,6 @@ namespace mj
         std::array<Player, 4> players_;
         std::uint32_t seed_;
         // temporal memory
-        TileType last_discard_type_;
-        bool is_first_turn_wo_open = true;  // ダブル立直, 九種九牌, 四風連打, etc
-        bool is_four_winds = true;
         std::optional<AbsolutePos> three_ronned_player = std::nullopt;
         bool is_round_over_ = false;
         bool require_riichi_score_change_ = false;

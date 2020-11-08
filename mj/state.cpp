@@ -98,7 +98,7 @@ namespace mj
                     auto observation = Observation(who, state_);
 
                     // => NineTiles
-                    if (is_first_turn_wo_open && hand(who).CanNineTiles()) {
+                    if (IsFirstTurnWithoutOpen() && hand(who).CanNineTiles()) {
                         observation.add_possible_action(Action::CreateNineTiles(who));
                     }
 
@@ -307,29 +307,17 @@ namespace mj
         assert(discard == discarded);
 
         mutable_player(who).is_ippatsu = false;
-        // set is_four_winds = false
-        if (is_first_turn_wo_open && is_four_winds) {
-            if (!Is(discard.Type(), TileSetType::kWinds)) is_four_winds = false;
-            if (dealer() != who && last_discard_type_ != discard.Type()) is_four_winds = false;
-        }
         if (Is(discard.Type(), TileSetType::kTanyao)) {
             mutable_player(who).has_nm=false;
         }
-        last_discard_type_ = discard.Type();
         state_.mutable_event_history()->mutable_events()->Add(Event::CreateDiscard(who, discard, tsumogiri).proto());
         // TODO: set discarded tile to river
-
-        bool is_first_discard_of_north_player = is_first_turn_wo_open && ToSeatWind(who, dealer()) == Wind::kNorth;
-        if (is_first_discard_of_north_player) {
-            if(is_four_winds) return;  //  go to NoWinner end
-            else is_first_turn_wo_open = false;
-        }
     }
 
     void State::Riichi(AbsolutePos who) {
         assert(ten(who) >= 1000);
         assert(wall_.HasNextDrawLeft());
-        mutable_hand(who).Riichi(is_first_turn_wo_open);
+        mutable_hand(who).Riichi(IsFirstTurnWithoutOpen());
 
         state_.mutable_event_history()->mutable_events()->Add(Event::CreateRiichi(who).proto());
 
@@ -350,7 +338,6 @@ namespace mj
             ++require_kan_dora_;
         }
 
-        is_first_turn_wo_open = false;
         // 一発解消は「純正巡消しは発声＆和了打診後（加槓のみ)、嶺上ツモの前（連続する加槓の２回目には一発は付かない）」なので、
         // 加槓時は自分の一発だけ消して（一発・嶺上開花は併発しない）、その他のときには全員の一発を消す
         if (open.Type() == OpenType::kKanAdded) {
@@ -547,7 +534,7 @@ namespace mj
             is_round_over_ = true;
         };
         // 九種九牌
-        if (is_first_turn_wo_open && LastEvent().type() == mjproto::EVENT_TYPE_DRAW) {
+        if (IsFirstTurnWithoutOpen() && LastEvent().type() == mjproto::EVENT_TYPE_DRAW) {
             state_.mutable_terminal()->mutable_no_winner()->set_type(mjproto::NO_WINNER_TYPE_KYUUSYU);
             mjproto::TenpaiHand tenpai;
             tenpai.set_who(mjproto::AbsolutePos(LastEvent().who()));
@@ -557,7 +544,7 @@ namespace mj
             return;
         }
         // 四風子連打
-        if (is_first_turn_wo_open && is_four_winds) {
+        if (IsFourWinds()) {
             state_.mutable_terminal()->mutable_no_winner()->set_type(mjproto::NO_WINNER_TYPE_FOUR_WINDS);
             set_terminal_vals();
             return;
@@ -796,6 +783,47 @@ namespace mj
         }
         return std::nullopt;
     }
+    bool State::IsFirstTurnWithoutOpen() const {
+        for (const auto& event: EventHistory()) {
+            switch (event.type()) {
+                case mjproto::EVENT_TYPE_CHI:
+                case mjproto::EVENT_TYPE_PON:
+                case mjproto::EVENT_TYPE_KAN_CLOSED:
+                case mjproto::EVENT_TYPE_KAN_OPENED:
+                case mjproto::EVENT_TYPE_KAN_ADDED:
+                    return false;
+                case mjproto::EVENT_TYPE_DISCARD_FROM_HAND:
+                case mjproto::EVENT_TYPE_DISCARD_DRAWN_TILE:
+                    if (ToSeatWind(event.who(), dealer()) == Wind::kNorth) {
+                        return false;
+                    }
+            }
+        }
+        return true;
+    }
+    bool State::IsFourWinds() const {
+        std::map<TileType,int> discarded_winds;
+        for (const auto& event: EventHistory()) {
+            switch (event.type()) {
+                case mjproto::EVENT_TYPE_CHI:
+                case mjproto::EVENT_TYPE_PON:
+                case mjproto::EVENT_TYPE_KAN_CLOSED:
+                case mjproto::EVENT_TYPE_KAN_OPENED:
+                case mjproto::EVENT_TYPE_KAN_ADDED:
+                    return false;
+                case mjproto::EVENT_TYPE_DISCARD_FROM_HAND:
+                case mjproto::EVENT_TYPE_DISCARD_DRAWN_TILE:
+                    if (!Is(event.tile().Type(), TileSetType::kWinds)) {
+                        return false;
+                    }
+                    ++discarded_winds[event.tile().Type()];
+                    if (discarded_winds.size() > 1) {
+                        return false;
+                    }
+            }
+        }
+        return discarded_winds.size() == 1 and discarded_winds.begin()->second == 4;
+    }
 
 
     std::unordered_map<PlayerId, Observation> State::CreateStealAndRonObservation() const {
@@ -839,7 +867,7 @@ namespace mj
                 prevalent_wind(),
                 !wall_.HasDrawLeft(),
                 player(who).is_ippatsu,
-                is_first_turn_wo_open && LastEvent().who() == who
+                IsFirstTurnWithoutOpen() && LastEvent().who() == who
                         && (Any(LastEvent().type(), {mjproto::EVENT_TYPE_DRAW, mjproto::EVENT_TYPE_TSUMO})),
                 seat_wind == Wind::kEast,
                 is_robbing_kan,
@@ -916,7 +944,7 @@ namespace mj
                     assert(require_kan_dora_ <= 1);
                     if (require_kan_dora_) AddNewDora();
                     Discard(who, action.discard());
-                    if (is_first_turn_wo_open && ToSeatWind(who, dealer()) == Wind::kNorth && is_four_winds) {  // 四風子連打
+                    if (IsFourWinds()) {  // 四風子連打
                         NoWinner();
                         return;
                     }
