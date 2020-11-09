@@ -280,8 +280,7 @@ namespace mj
         }
         if (!hand(who).IsUnderRiichi()) mutable_player(who).missed_tiles.reset();  // フリテン解除
 
-        auto draw = require_kan_draw_ ? wall_.KanDraw() : wall_.Draw();
-        require_kan_draw_ = false;
+        auto draw = RequireKanDraw() ? wall_.KanDraw() : wall_.Draw();
         mutable_hand(who).Draw(draw);
 
         // 加槓=>槍槓=>Noのときの一発消し。加槓時に自分の一発は外れている外れているはずなので、一発が残っているのは他家のだれか
@@ -331,10 +330,6 @@ namespace mj
         mutable_player(AbsolutePos(absolute_pos_from)).has_nm = false; // 鳴かれた人は流し満貫が成立しない
 
         state_.mutable_event_history()->mutable_events()->Add(Event::CreateOpen(who, open).proto());
-        if (Any(open.Type(), {OpenType::kKanClosed, OpenType::kKanOpened, OpenType::kKanAdded})) {
-            require_kan_draw_ = true;
-            ++require_kan_dora_;
-        }
 
         // 一発解消は「純正巡消しは発声＆和了打診後（加槓のみ)、嶺上ツモの前（連続する加槓の２回目には一発は付かない）」なので、
         // 加槓時は自分の一発だけ消して（一発・嶺上開花は併発しない）、その他のときには全員の一発を消す
@@ -351,8 +346,6 @@ namespace mj
         state_.mutable_event_history()->mutable_events()->Add(Event::CreateNewDora(new_dora_ind).proto());
         state_.add_doras(new_dora_ind.Id());
         state_.add_ura_doras(new_ura_dora_ind.Id());
-
-        --require_kan_dora_;
     }
 
     void State::RiichiScoreChange() {
@@ -842,6 +835,39 @@ namespace mj
         return false;
     }
 
+    int State::RequireKanDora() const {
+        int require_kan_dora = 0;
+        auto event_history = EventHistory();
+        for (const auto& event : event_history) {
+            switch (event.type()) {
+                case mjproto::EventType::EVENT_TYPE_KAN_ADDED:
+                case mjproto::EventType::EVENT_TYPE_KAN_CLOSED:
+                case mjproto::EventType::EVENT_TYPE_KAN_OPENED:
+                    ++require_kan_dora;
+                    break;
+                case mjproto::EventType::EVENT_TYPE_NEW_DORA:
+                    --require_kan_dora;
+                    break;
+            }
+        }
+        return require_kan_dora;
+    }
+
+    bool State::RequireKanDraw() const {
+        auto event_history = EventHistory();
+        std::reverse(event_history.begin(), event_history.end());
+        for (const auto& event : event_history) {
+            switch (event.type()) {
+                case mjproto::EventType::EVENT_TYPE_DRAW:
+                    return false;
+                case mjproto::EventType::EVENT_TYPE_KAN_ADDED:
+                case mjproto::EventType::EVENT_TYPE_KAN_CLOSED:
+                case mjproto::EventType::EVENT_TYPE_KAN_OPENED:
+                    return true;
+            }
+        }
+        return false;
+    }
 
     std::unordered_map<PlayerId, Observation> State::CreateStealAndRonObservation() const {
         std::unordered_map<PlayerId, Observation> observations;
@@ -958,8 +984,11 @@ namespace mj
                             [&action](Tile possible_discard){ return possible_discard.Equals(action.discard()); }));
                     assert(LastEvent().type() != mjproto::EVENT_TYPE_RIICHI || Any(hand(who).PossibleDiscardsJustAfterRiichi(),
                             [&action](Tile possible_discard){ return possible_discard.Equals(action.discard()); }));
-                    assert(require_kan_dora_ <= 1);
-                    if (require_kan_dora_) AddNewDora();
+                    {
+                        int require_kan_dora = RequireKanDora();
+                        assert(require_kan_dora <= 1);
+                        if (require_kan_dora) AddNewDora();
+                    }
                     Discard(who, action.discard());
                     if (IsFourWinds()) {  // 四風子連打
                         NoWinner();
@@ -1024,10 +1053,13 @@ namespace mj
             case mjproto::ACTION_TYPE_KAN_CLOSED:
                 assert(Any(LastEvent().type(), {mjproto::EVENT_TYPE_DRAW}));
                 ApplyOpen(who, action.open());
-                // 天鳳のカンの仕様については https://github.com/sotetsuk/mahjong/issues/199 で調べている
-                // 暗槓の分で最低一回は新ドラがめくられる
-                assert(require_kan_dora_ <= 2);
-                while(require_kan_dora_) AddNewDora();
+                {
+                    // 天鳳のカンの仕様については https://github.com/sotetsuk/mahjong/issues/199 で調べている
+                    // 暗槓の分で最低一回は新ドラがめくられる
+                    int require_kan_dora = RequireKanDora();
+                    assert(require_kan_dora <= 2);
+                    while (require_kan_dora--) AddNewDora();
+                }
                 Draw(who);
                 return;
             case mjproto::ACTION_TYPE_KAN_ADDED:
@@ -1035,8 +1067,9 @@ namespace mj
                 ApplyOpen(who, action.open());
                 // TODO: CreateStealAndRonObservationが状態変化がないのに2回計算されている
                 if (auto has_no_ron = CreateStealAndRonObservation().empty(); has_no_ron) {
-                    assert(require_kan_dora_ <= 2);
-                    while(require_kan_dora_ > 1) AddNewDora();  // 前のカンの分の新ドラをめくる。1回分はここでの加槓の分なので、ここではめくられない
+                    int require_kan_dora = RequireKanDora();
+                    assert(require_kan_dora <= 2);
+                    while (require_kan_dora-- > 1) AddNewDora();    // 前のカンの分の新ドラをめくる。1回分はここでの加槓の分なので、ここではめくられない
                     Draw(who);
                 }
                 return;
