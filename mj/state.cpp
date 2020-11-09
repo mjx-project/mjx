@@ -271,9 +271,9 @@ namespace mj
     }
 
     Tile State::Draw(AbsolutePos who) {
-        if (last_ronable_tile.has_value()) {
+        if (TargetTile().has_value()) {
             for (int i = 0; i < 4; ++i) {
-                auto type = last_ronable_tile.value().Type();
+                auto type = TargetTile().value().Type();
                 auto ix = ToUType(type);
                 mutable_player(AbsolutePos(i)).missed_tiles.set(ix);
             }
@@ -305,8 +305,6 @@ namespace mj
             }
         }
         assert(discard == discarded);
-
-        last_ronable_tile = discard; // ロンされうる牌を更新
 
         mutable_player(who).is_ippatsu = false;
         // set is_four_winds = false
@@ -345,10 +343,6 @@ namespace mj
 
         int absolute_pos_from = (ToUType(who) + ToUType(open.From())) % 4;
         mutable_player(AbsolutePos(absolute_pos_from)).has_nm = false; // 鳴かれた人は流し満貫が成立しない
-
-        if (open.Type() == OpenType::kKanAdded) {
-            last_ronable_tile = open.LastTile();    // KanAddedはロンされうる
-        }
 
         state_.mutable_event_history()->mutable_events()->Add(Event::CreateOpen(who, open).proto());
         if (Any(open.Type(), {OpenType::kKanClosed, OpenType::kKanOpened, OpenType::kKanAdded})) {
@@ -788,6 +782,23 @@ namespace mj
             event_history.emplace_back(std::move(event));
         }
         return event_history;
+    }
+
+    // Ronされる対象の牌
+    std::optional<Tile> State::TargetTile() const {
+        auto event_history = EventHistory();
+        std::reverse(event_history.begin(), event_history.end());
+
+        for (const auto& event : event_history) {
+            if (event.type() == mjproto::EventType::EVENT_TYPE_DISCARD_FROM_HAND or
+                event.type() == mjproto::EventType::EVENT_TYPE_DISCARD_DRAWN_TILE) {
+                return event.tile();
+            }
+            if (event.type() == mjproto::EventType::EVENT_TYPE_KAN_ADDED) {
+                return event.open().LastTile();
+            }
+        }
+        return std::nullopt;
     }
 
 
