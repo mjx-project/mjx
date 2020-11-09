@@ -783,6 +783,7 @@ namespace mj
         }
         return std::nullopt;
     }
+    
     bool State::IsFirstTurnWithoutOpen() const {
         for (const auto& event: EventHistory()) {
             switch (event.type()) {
