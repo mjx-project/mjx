@@ -41,7 +41,14 @@ namespace mj
     }
 
     bool State::IsRoundOver() const {
-        return is_round_over_;
+        switch (LastEvent().type()) {
+            case mjproto::EventType::EVENT_TYPE_TSUMO:
+            case mjproto::EventType::EVENT_TYPE_RON:
+            case mjproto::EventType::EVENT_TYPE_NO_WINNER:
+                return true;
+            default:
+                return false;
+        }
     }
 
 
@@ -418,7 +425,6 @@ namespace mj
         }
 
         // set terminal
-        is_round_over_ = true;
         if (IsGameOver()) {
             AbsolutePos top = top_player();
             curr_score_.set_ten(ToUType(top), curr_score_.ten(ToUType(top)) + 1000 * riichi());
@@ -501,7 +507,6 @@ namespace mj
         }
 
         // set win to terminal
-        is_round_over_ = true;
         if (IsGameOver()) {
             AbsolutePos top = top_player();
             curr_score_.set_ten(ToUType(top), curr_score_.ten(ToUType(top)) + 1000 * riichi());
@@ -518,7 +523,6 @@ namespace mj
             state_.mutable_terminal()->mutable_final_score()->CopyFrom(curr_score_);
             for (int i = 0; i < 4; ++i) state_.mutable_terminal()->mutable_no_winner()->add_ten_changes(0);
             state_.mutable_event_history()->mutable_events()->Add(Event::CreateNoWinner().proto());
-            is_round_over_ = true;
         };
         // 九種九牌
         if (IsFirstTurnWithoutOpen() && LastEvent().type() == mjproto::EVENT_TYPE_DRAW) {
@@ -619,7 +623,6 @@ namespace mj
         }
 
         // set terminal
-        is_round_over_ = true;
         if (IsGameOver()) {
             AbsolutePos top = top_player();
             curr_score_.set_ten(ToUType(top), curr_score_.ten(ToUType(top)) + 1000 * riichi());
