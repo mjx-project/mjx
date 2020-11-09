@@ -65,6 +65,8 @@ namespace mj
         [[nodiscard]] bool IsFirstTurnWithoutOpen() const;
         [[nodiscard]] bool IsFourWinds() const;
         [[nodiscard]] bool IsRobbingKan() const;
+        [[nodiscard]] int RequireKanDora() const; // 加槓 => 暗槓が続いたときに2回連続でカンドラを開く場合がある https://github.com/sotetsuk/mahjong/issues/199
+        [[nodiscard]] bool RequireKanDraw() const;
 
         // comparison
         bool Equals(const State& other) const noexcept ;
@@ -101,8 +103,6 @@ namespace mj
         std::optional<AbsolutePos> three_ronned_player = std::nullopt;
         bool is_round_over_ = false;
         bool require_riichi_score_change_ = false;
-        bool require_kan_draw_ = false;
-        int require_kan_dora_ = 0;  // 加槓 => 暗槓が続いたときに2回連続でカンドラを開く場合がある https://github.com/sotetsuk/mahjong/issues/199
 
         // accessors
         [[nodiscard]] const Player& player(AbsolutePos pos) const;
