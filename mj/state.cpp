@@ -802,6 +802,7 @@ namespace mj
         }
         return true;
     }
+    
     bool State::IsFourWinds() const {
         std::map<TileType,int> discarded_winds;
         for (const auto& event: EventHistory()) {
