@@ -26,22 +26,19 @@ def change_tiles_fmt(tile_ids):
     scores = list(map(change_tile_fmt, tile_ids))  # mjproto形式の表現ををmjscore形式に変換
     return scores
 
+
 # ["アクションの種類",晒した牌]の形式のリストを受け取ってmjscore形式に変更する関数
 def change_action_format(bits: int) -> str:
     event_type = open_converter.open_event_type(bits)
     stolen_tile = open_converter.open_stolen_tile_type(bits)
-
     open_tiles = open_converter.open_tile_types(bits)
-
     open_tiles.remove(stolen_tile)
-    if event_type == mj_pb2.EVENT_TYPE_CHI:
-        return "c" + str(stolen_tile) + str(open_tiles[0]) + str(open_tiles[1])
+    if event_type == mj_pb2.EVENT_TYPE_CHI:  # 現状書き方があまりにも冗長。なんとかしたい。
+        return "c" + str(open_converter.change_open_tile_fmt(stolen_tile)) + str(open_converter.change_open_tile_fmt(open_tiles[0])) + str(open_converter.change_open_tile_fmt(open_tiles[1]))
     elif event_type == mj_pb2.EVENT_TYPE_PON:
-        return "r" + str(stolen_tile) + str(open_tiles[0]) + str(open_tiles[1])
+        return "r" + str(open_converter.change_open_tile_fmt(stolen_tile)) + str(open_converter.change_open_tile_fmt(open_tiles[0])) + str(open_converter.change_open_tile_fmt(open_tiles[1]))
     else:
         return " "  # カンはまだmjscoreのformatがわからない。
-
-    return open_tiles
 
 
 # mjscore形式の配牌をソートする関数。
@@ -86,20 +83,22 @@ def parse_draws(draws, events, abs_pos):
     """
     draws = change_tiles_fmt(draws)
     discards = []
-    for event in events:
+    actions = []  #
+    for i, event in enumerate(events):
         if event.type == mj_pb2.EVENT_TYPE_DISCARD_FROM_HAND and event.who == abs_pos:  # 手出し
             discards.append(event.tile)
         elif event.type == mj_pb2.EVENT_TYPE_DISCARD_DRAWN_TILE and event.who == abs_pos:  # ツモギリ
             discards.append(60)
         elif event.type == mj_pb2.EVENT_TYPE_CHI and event.who == abs_pos:  # チー
             discards.append(event.open)
+            actions.append(event.open)
         elif event.type == mj_pb2.EVENT_TYPE_PON and event.who == abs_pos:  # ポン
             discards.append(event.open)
-    for i in range(len(discards)):
-        if type(discards[i]) == list:
-            draws.insert(i, change_action_format(discards[i]))  # チーやポンのアクションをdrawsに挿入
-
-    return draws
+            actions.append(event.open)
+    for i in actions:
+        action_index = discards.index(i)  #捨て牌でのactionのindex同じ順にdrawにアクションを挿入すれば良い
+        draws.insert(action_index, change_action_format(discards[action_index]))
+    return draws, discards
 
 
 # ここを実装
@@ -108,8 +107,9 @@ def mjproto_to_mjscore(state: mj_pb2.State) -> str:
     # print(state.private_infos.ABSOLUTE_POS_INIT_EAST.init_hand)
     # print(state.init_score.honba)
     # print(state.init_score.ten)
+    a = change_action_format(49495)
     print(parse_draws(state.private_infos[3].draws, state.event_history.events, 3))
-    print(change_action_format(49495))
+    print(a)
     # print(len(state.private_infos[3].draws))
     # print(sort_init_hand(change_tiles_fmt(state.private_infos[0].init_hand)))
     #print(parse_discards(state.event_history.events, 1))
