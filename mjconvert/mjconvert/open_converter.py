@@ -176,4 +176,19 @@ def open_tile_types(bits: int) -> List[int]:
     else:
         return transform_red_open_tiles_kan_opend_and_closed(bits, reds_dict, fives)
 
-print(open_tile_types(28722))
+
+def change_open_tile_fmt(tile_in_open_fmt: int) -> int:  # tile_in_open 0~33 tile_in_score 11~19, 21~29, 31~39,41~47
+
+    reds_in_score = [51, 52, 53]
+    if tile_in_open_fmt in reds_in_score:
+        return tile_in_open_fmt
+    else:
+        tile_in_score = 10 + 10 * (tile_in_open_fmt // 9) + (tile_in_open_fmt % 9 + 1)
+        return tile_in_score
+
+
+def change_open_tiles_fmt(tile_ids_in_open: List[int]) -> List[int]:
+    scores = list(map(change_open_tile_fmt(), tile_ids_in_open))
+    return scores
+
+
