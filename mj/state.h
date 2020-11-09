@@ -102,7 +102,6 @@ namespace mj
         std::uint32_t seed_;
         // temporal memory
         std::optional<AbsolutePos> three_ronned_player = std::nullopt;
-        bool is_round_over_ = false;
 
         // accessors
         [[nodiscard]] const Player& player(AbsolutePos pos) const;
