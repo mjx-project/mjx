@@ -58,7 +58,9 @@ namespace mj
         [[nodiscard]] std::array<std::int32_t, 4> tens() const;
         [[nodiscard]] std::uint8_t init_riichi() const;
         [[nodiscard]] std::array<std::int32_t, 4> init_tens() const;
+        [[nodiscard]] bool HasLastEvent() const;
         [[nodiscard]] Event LastEvent() const;
+        [[nodiscard]] std::vector<Event> EventHistory() const;
 
         // comparison
         bool Equals(const State& other) const noexcept ;
@@ -92,7 +94,6 @@ namespace mj
         std::array<Player, 4> players_;
         std::uint32_t seed_;
         // temporal memory
-        Event last_event_;
         std::optional<Tile> last_ronable_tile;
         TileType last_discard_type_;
         bool is_first_turn_wo_open = true;  // ダブル立直, 九種九牌, 四風連打, etc
