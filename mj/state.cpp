@@ -758,6 +758,8 @@ namespace mj
         assert(!event_history.empty());
         return event_history.back();
     }
+
+    // TODO: Profileしてみて遅かったらmjprotoオブジェクトのポインタを返す
     std::vector<Event> State::EventHistory() const {
         std::vector<Event> event_history;
         for (auto event : state_.event_history().events()) {
@@ -765,6 +767,8 @@ namespace mj
         }
         return event_history;
     }
+
+    // Ronされる対象の牌
     std::optional<Tile> State::TargetTile() const {
         auto event_history = EventHistory();
         std::reverse(event_history.begin(), event_history.end());
@@ -780,6 +784,7 @@ namespace mj
         }
         return std::nullopt;
     }
+
     bool State::IsFirstTurnWithoutOpen() const {
         for (const auto& event: EventHistory()) {
             switch (event.type()) {
@@ -798,6 +803,7 @@ namespace mj
         }
         return true;
     }
+
     bool State::IsFourWinds() const {
         std::map<TileType,int> discarded_winds;
         for (const auto& event: EventHistory()) {
@@ -821,6 +827,7 @@ namespace mj
         }
         return discarded_winds.size() == 1 and discarded_winds.begin()->second == 4;
     }
+  
     bool State::IsRobbingKan() const {
         auto event_history = EventHistory();
         std::reverse(event_history.begin(), event_history.end());
