@@ -774,6 +774,8 @@ namespace mj
         assert(!event_history.empty());
         return event_history.back();
     }
+
+    // TODO: Profileしてみて遅かったらmjprotoオブジェクトのポインタを返す
     std::vector<Event> State::EventHistory() const {
         std::vector<Event> event_history;
         for (auto event : state_.event_history().events()) {
