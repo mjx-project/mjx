@@ -13,6 +13,7 @@ namespace mj
     {
     public:
         Event() = default;
+        explicit Event(mjproto::Event &&event) : proto_(std::move(event)) {}
         mjproto::EventType type() const;
         AbsolutePos who() const;
         Tile tile() const;
@@ -29,7 +30,6 @@ namespace mj
         static Event CreateRon(AbsolutePos who, Tile tile);
         static Event CreateNoWinner();
     private:
-        explicit Event(mjproto::Event &&event) : proto_(std::move(event)) {}
         mjproto::Event proto_;
     };
 }  // namespace mj

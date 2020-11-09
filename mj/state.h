@@ -58,7 +58,13 @@ namespace mj
         [[nodiscard]] std::array<std::int32_t, 4> tens() const;
         [[nodiscard]] std::uint8_t init_riichi() const;
         [[nodiscard]] std::array<std::int32_t, 4> init_tens() const;
+        [[nodiscard]] bool HasLastEvent() const;
         [[nodiscard]] Event LastEvent() const;
+        [[nodiscard]] std::vector<Event> EventHistory() const;
+        [[nodiscard]] std::optional<Tile> TargetTile() const;   // ロンされうる牌. 直前の捨牌or加槓した牌
+        [[nodiscard]] bool IsFirstTurnWithoutOpen() const;
+        [[nodiscard]] bool IsFourWinds() const;
+        [[nodiscard]] bool IsRobbingKan() const;
 
         // comparison
         bool Equals(const State& other) const noexcept ;
@@ -92,17 +98,11 @@ namespace mj
         std::array<Player, 4> players_;
         std::uint32_t seed_;
         // temporal memory
-        Event last_event_;
-        std::optional<Tile> last_ronable_tile;
-        TileType last_discard_type_;
-        bool is_first_turn_wo_open = true;  // ダブル立直, 九種九牌, 四風連打, etc
-        bool is_four_winds = true;
         std::optional<AbsolutePos> three_ronned_player = std::nullopt;
         bool is_round_over_ = false;
         bool require_riichi_score_change_ = false;
         bool require_kan_draw_ = false;
         int require_kan_dora_ = 0;  // 加槓 => 暗槓が続いたときに2回連続でカンドラを開く場合がある https://github.com/sotetsuk/mahjong/issues/199
-        bool is_robbing_kan = false;
 
         // accessors
         [[nodiscard]] const Player& player(AbsolutePos pos) const;
