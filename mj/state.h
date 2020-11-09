@@ -67,6 +67,7 @@ namespace mj
         [[nodiscard]] bool IsRobbingKan() const;
         [[nodiscard]] int RequireKanDora() const; // 加槓 => 暗槓が続いたときに2回連続でカンドラを開く場合がある https://github.com/sotetsuk/mahjong/issues/199
         [[nodiscard]] bool RequireKanDraw() const;
+        [[nodiscard]] bool RequireRiichiScoreChange() const;
 
         // comparison
         bool Equals(const State& other) const noexcept ;
@@ -102,7 +103,6 @@ namespace mj
         // temporal memory
         std::optional<AbsolutePos> three_ronned_player = std::nullopt;
         bool is_round_over_ = false;
-        bool require_riichi_score_change_ = false;
 
         // accessors
         [[nodiscard]] const Player& player(AbsolutePos pos) const;

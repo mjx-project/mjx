@@ -317,8 +317,6 @@ namespace mj
         mutable_hand(who).Riichi(IsFirstTurnWithoutOpen());
 
         state_.mutable_event_history()->mutable_events()->Add(Event::CreateRiichi(who).proto());
-
-        require_riichi_score_change_ = true;
     }
 
     void State::ApplyOpen(AbsolutePos who, Open open) {
@@ -355,7 +353,6 @@ namespace mj
 
         state_.mutable_event_history()->mutable_events()->Add(Event::CreateRiichiScoreChange(who).proto());
 
-        require_riichi_score_change_ = false;
         mutable_player(who).is_ippatsu=true;
     }
 
@@ -869,6 +866,20 @@ namespace mj
         return false;
     }
 
+    bool State::RequireRiichiScoreChange() const {
+        auto event_history = EventHistory();
+        std::reverse(event_history.begin(), event_history.end());
+        for (const auto& event : event_history) {
+            switch (event.type()) {
+                case mjproto::EventType::EVENT_TYPE_RIICHI:
+                    return true;
+                case mjproto::EventType::EVENT_TYPE_RIICHI_SCORE_CHANGE:
+                    return false;
+            }
+        }
+        return false;
+    }
+
     std::unordered_map<PlayerId, Observation> State::CreateStealAndRonObservation() const {
         std::unordered_map<PlayerId, Observation> observations;
         auto discarder = LastEvent().who();
@@ -1017,7 +1028,7 @@ namespace mj
                     }
 
                     if (wall_.HasDrawLeft()) {
-                        if (require_riichi_score_change_) RiichiScoreChange();
+                        if (RequireRiichiScoreChange()) RiichiScoreChange();
                         Draw(AbsolutePos((ToUType(who) + 1) % 4));
                     } else {
                         NoWinner();
@@ -1041,12 +1052,12 @@ namespace mj
             case mjproto::ACTION_TYPE_CHI:
             case mjproto::ACTION_TYPE_PON:
                 assert(Any(LastEvent().type(), {mjproto::EVENT_TYPE_DISCARD_FROM_HAND, mjproto::EVENT_TYPE_DISCARD_DRAWN_TILE}));
-                if (require_riichi_score_change_) RiichiScoreChange();
+                if (RequireRiichiScoreChange()) RiichiScoreChange();
                 ApplyOpen(who, action.open());
                 return;
             case mjproto::ACTION_TYPE_KAN_OPENED:
                 assert(Any(LastEvent().type(), {mjproto::EVENT_TYPE_DISCARD_FROM_HAND, mjproto::EVENT_TYPE_DISCARD_DRAWN_TILE}));
-                if (require_riichi_score_change_) RiichiScoreChange();
+                if (RequireRiichiScoreChange()) RiichiScoreChange();
                 ApplyOpen(who, action.open());
                 Draw(who);
                 return;
@@ -1103,7 +1114,7 @@ namespace mj
                 }
 
                 if (wall_.HasDrawLeft()) {
-                    if (require_riichi_score_change_) RiichiScoreChange();
+                    if (RequireRiichiScoreChange()) RiichiScoreChange();
                     Draw(AbsolutePos((ToUType(LastEvent().who()) + 1) % 4));
                 } else {
                     NoWinner();
