@@ -781,6 +781,8 @@ namespace mj
         }
         return event_history;
     }
+
+    // Ronされる対象の牌
     std::optional<Tile> State::TargetTile() const {
         auto event_history = EventHistory();
         std::reverse(event_history.begin(), event_history.end());
