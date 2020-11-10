@@ -65,8 +65,9 @@ namespace mj {
             for (const auto& event : events) {
                 std::string event_json;
                 assert(google::protobuf::util::MessageToJsonString(event, &event_json).ok());
-                if (state_.LastEvent().proto().type() != mjproto::EVENT_TYPE_DISCARD_FROM_HAND and
-                    state_.LastEvent().proto().type() != mjproto::EVENT_TYPE_DISCARD_DRAWN_TILE) {
+                if (!state_.HasLastEvent() or (
+                    state_.LastEvent().proto().type() != mjproto::EVENT_TYPE_DISCARD_FROM_HAND and
+                    state_.LastEvent().proto().type() != mjproto::EVENT_TYPE_DISCARD_DRAWN_TILE)) {
                     state_.UpdateByEvent(event);
                     continue;
                 }
@@ -202,9 +203,10 @@ namespace mj {
 namespace fs = std::filesystem;
 
 int main(int argc, char *argv[]) {
-    assert(argc == 3);
-    auto src_dir = fs::directory_entry(argv[1]);
-    auto dst_dir = fs::directory_entry(argv[2]);
+    assert(argc == 4);
+    std::string action_type = argv[1];
+    auto src_dir = fs::directory_entry(argv[2]);
+    auto dst_dir = fs::directory_entry(argv[3]);
 
     // Prepare all filenames
     std::vector<std::pair<std::string, std::string>> paths;
@@ -216,9 +218,23 @@ int main(int argc, char *argv[]) {
     }
 
     // Parallel exec
-    mj::ptransform(paths.begin(), paths.end(), [](const std::pair<std::string, std::string>& p) {
+    mj::ptransform(paths.begin(), paths.end(), [&](const std::pair<std::string, std::string>& p) {
         const auto& [src_str, dst_str] = p;
-        mj::TrainDataGenerator::generateRiichi(src_str, dst_str);
+        if (action_type == "DISCARD") {
+            mj::TrainDataGenerator::generateDiscard(src_str, dst_str);
+        } else if (action_type == "CHI") {
+            mj::TrainDataGenerator::generateOpen(src_str, dst_str, mjproto::ActionType::ACTION_TYPE_CHI);
+        } else if (action_type == "PON") {
+            mj::TrainDataGenerator::generateOpen(src_str, dst_str, mjproto::ActionType::ACTION_TYPE_PON);
+        } else if (action_type == "KAN_CLOSED") {
+            mj::TrainDataGenerator::generateOpenYesNo(src_str, dst_str, mjproto::ActionType::ACTION_TYPE_KAN_CLOSED);
+        } else if (action_type == "KAN_OPENED") {
+            mj::TrainDataGenerator::generateOpenYesNo(src_str, dst_str, mjproto::ActionType::ACTION_TYPE_KAN_OPENED);
+        } else if (action_type == "KAN_ADDED") {
+            mj::TrainDataGenerator::generateOpenYesNo(src_str, dst_str, mjproto::ActionType::ACTION_TYPE_KAN_ADDED);
+        } else if (action_type == "RIICHI") {
+            mj::TrainDataGenerator::generateRiichi(src_str, dst_str);
+        }
         return p;
     });
 }
