@@ -13,7 +13,7 @@ namespace mj
     {
     public:
         Event() = default;
-        explicit Event(mjproto::Event &&event) : proto_(std::move(event)) {}
+        explicit Event(const mjproto::Event &event) : proto_(std::move(event)) {}
         mjproto::EventType type() const;
         AbsolutePos who() const;
         Tile tile() const;

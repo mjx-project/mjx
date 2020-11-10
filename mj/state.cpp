@@ -743,43 +743,33 @@ namespace mj
     }
 
     bool State::HasLastEvent() const {
-        auto event_history = EventHistory();
-        return !event_history.empty();
+        return !state_.event_history().events().empty();
     }
     Event State::LastEvent() const {
-        auto event_history = EventHistory();
-        assert(!event_history.empty());
-        return event_history.back();
-    }
-
-    // TODO: Profileしてみて遅かったらmjprotoオブジェクトのポインタを返す
-    std::vector<Event> State::EventHistory() const {
-        std::vector<Event> event_history;
-        for (auto event : state_.event_history().events()) {
-            event_history.emplace_back(std::move(event));
-        }
-        return event_history;
+        assert(HasLastEvent());
+        return Event(*state_.event_history().events().rbegin());
     }
 
     // Ronされる対象の牌
     std::optional<Tile> State::TargetTile() const {
-        auto event_history = EventHistory();
-        std::reverse(event_history.begin(), event_history.end());
+        for (auto it = state_.event_history().events().rbegin();
+             it != state_.event_history().events().rend();
+             ++it) {
+            auto event = *it;
 
-        for (const auto& event : event_history) {
             if (event.type() == mjproto::EventType::EVENT_TYPE_DISCARD_FROM_HAND or
                 event.type() == mjproto::EventType::EVENT_TYPE_DISCARD_DRAWN_TILE) {
-                return event.tile();
+                return Tile(event.tile());
             }
             if (event.type() == mjproto::EventType::EVENT_TYPE_KAN_ADDED) {
-                return event.open().LastTile();
+                return Open(event.open()).LastTile();
             }
         }
         return std::nullopt;
     }
 
     bool State::IsFirstTurnWithoutOpen() const {
-        for (const auto& event: EventHistory()) {
+        for (auto& event : state_.event_history().events()) {
             switch (event.type()) {
                 case mjproto::EVENT_TYPE_CHI:
                 case mjproto::EVENT_TYPE_PON:
@@ -789,7 +779,7 @@ namespace mj
                     return false;
                 case mjproto::EVENT_TYPE_DISCARD_FROM_HAND:
                 case mjproto::EVENT_TYPE_DISCARD_DRAWN_TILE:
-                    if (ToSeatWind(event.who(), dealer()) == Wind::kNorth) {
+                    if (ToSeatWind(static_cast<AbsolutePos>(event.who()), dealer()) == Wind::kNorth) {
                         return false;
                     }
             }
@@ -799,7 +789,7 @@ namespace mj
 
     bool State::IsFourWinds() const {
         std::map<TileType,int> discarded_winds;
-        for (const auto& event: EventHistory()) {
+        for (auto& event : state_.event_history().events()) {
             switch (event.type()) {
                 case mjproto::EVENT_TYPE_CHI:
                 case mjproto::EVENT_TYPE_PON:
@@ -809,10 +799,10 @@ namespace mj
                     return false;
                 case mjproto::EVENT_TYPE_DISCARD_FROM_HAND:
                 case mjproto::EVENT_TYPE_DISCARD_DRAWN_TILE:
-                    if (!Is(event.tile().Type(), TileSetType::kWinds)) {
+                    if (!Is(Tile(event.tile()).Type(), TileSetType::kWinds)) {
                         return false;
                     }
-                    ++discarded_winds[event.tile().Type()];
+                    ++discarded_winds[Tile(event.tile()).Type()];
                     if (discarded_winds.size() > 1) {
                         return false;
                     }
@@ -822,9 +812,10 @@ namespace mj
     }
   
     bool State::IsRobbingKan() const {
-        auto event_history = EventHistory();
-        std::reverse(event_history.begin(), event_history.end());
-        for (const auto& event : event_history) {
+        for (auto it = state_.event_history().events().rbegin();
+             it != state_.event_history().events().rend();
+             ++it) {
+            auto event = *it;
             if (event.type() == mjproto::EventType::EVENT_TYPE_DRAW) {
                 return false;
             }
@@ -837,8 +828,7 @@ namespace mj
 
     int State::RequireKanDora() const {
         int require_kan_dora = 0;
-        auto event_history = EventHistory();
-        for (const auto& event : event_history) {
+        for (auto& event : state_.event_history().events()) {
             switch (event.type()) {
                 case mjproto::EventType::EVENT_TYPE_KAN_ADDED:
                 case mjproto::EventType::EVENT_TYPE_KAN_CLOSED:
@@ -854,9 +844,10 @@ namespace mj
     }
 
     bool State::RequireKanDraw() const {
-        auto event_history = EventHistory();
-        std::reverse(event_history.begin(), event_history.end());
-        for (const auto& event : event_history) {
+        for (auto it = state_.event_history().events().rbegin();
+             it != state_.event_history().events().rend();
+             ++it) {
+            auto event = *it;
             switch (event.type()) {
                 case mjproto::EventType::EVENT_TYPE_DRAW:
                     return false;
@@ -870,9 +861,10 @@ namespace mj
     }
 
     bool State::RequireRiichiScoreChange() const {
-        auto event_history = EventHistory();
-        std::reverse(event_history.begin(), event_history.end());
-        for (const auto& event : event_history) {
+        for (auto it = state_.event_history().events().rbegin();
+             it != state_.event_history().events().rend();
+             ++it) {
+            auto event = *it;
             switch (event.type()) {
                 case mjproto::EventType::EVENT_TYPE_RIICHI:
                     return true;
