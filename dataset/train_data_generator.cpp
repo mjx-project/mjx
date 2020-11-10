@@ -39,7 +39,9 @@ namespace mj {
         }
     }
 
-    void TrainDataGenerator::generateChi(const std::string& src_path, const std::string& dst_path) {
+    void TrainDataGenerator::generateOpen(const std::string& src_path, const std::string& dst_path, mjproto::ActionType open_type) {
+        assert(open_type == mjproto::ActionType::ACTION_TYPE_CHI or
+               open_type == mjproto::ActionType::ACTION_TYPE_PON);
         std::ifstream ifs(src_path, std::ios::in);
         std::ofstream ofs(dst_path, std::ios::out);
         std::string json;
@@ -60,7 +62,7 @@ namespace mj {
                 player_id_to_absolute_pos[player_ids[i]] = static_cast<AbsolutePos>(i);
             }
 
-            for (auto event : events) {
+            for (const auto& event : events) {
                 std::string event_json;
                 assert(google::protobuf::util::MessageToJsonString(event, &event_json).ok());
                 if (state_.LastEvent().proto().type() != mjproto::EVENT_TYPE_DISCARD_FROM_HAND and
@@ -72,20 +74,76 @@ namespace mj {
                 for (const auto& [player_id, observation] : state_.CreateObservations()) {
                     auto possible_actions = observation.possible_actions();
                     if (std::all_of(possible_actions.begin(), possible_actions.end(), [&](auto& action){
-                        return action.type() != mjproto::ACTION_TYPE_CHI;
+                        return action.type() != open_type;
                     })) continue;
                     ofs << observation.ToJson();
 
                     auto selected_action = Action::CreateNo(player_id_to_absolute_pos[player_id]);
                     for (auto& possible_action : observation.possible_actions()) {
-                        if (possible_action.type() != mjproto::ACTION_TYPE_CHI) continue;
+                        if (possible_action.type() != open_type) continue;
                         if (event.open() == possible_action.open().GetBits()) {
-                            // eventのchiと一致
                             selected_action = possible_action;
                         }
                     }
-                    ofs << "\t" << selected_action.ToJson();
-                    ofs << std::endl;
+                    ofs << "\t" << selected_action.ToJson() << std::endl;
+                }
+
+                state_.UpdateByEvent(event);
+            }
+        }
+    }
+
+    void TrainDataGenerator::generateOpenYesNo(const std::string& src_path, const std::string& dst_path, mjproto::ActionType open_type) {
+        assert(open_type == mjproto::ActionType::ACTION_TYPE_KAN_ADDED or
+               open_type == mjproto::ActionType::ACTION_TYPE_KAN_CLOSED or
+               open_type == mjproto::ActionType::ACTION_TYPE_KAN_OPENED);
+        std::ifstream ifs(src_path, std::ios::in);
+        std::ofstream ofs(dst_path, std::ios::out);
+        std::string json;
+        while (std::getline(ifs, json)) {
+            mjproto::State state;
+            auto status = google::protobuf::util::JsonStringToMessage(json, &state);
+            assert(status.ok());
+
+            // eventのコピーを取ってから全て削除する
+            auto events = state.event_history().events();
+            state.mutable_event_history()->mutable_events()->Clear();
+
+            auto state_ = State(state);
+
+            auto player_ids = state_.proto().player_ids();
+            std::map<PlayerId, AbsolutePos> player_id_to_absolute_pos;
+            for (int i = 0; i < 4; ++i) {
+                player_id_to_absolute_pos[player_ids[i]] = static_cast<AbsolutePos>(i);
+            }
+
+            for (const auto& event : events) {
+                std::string event_json;
+                assert(google::protobuf::util::MessageToJsonString(event, &event_json).ok());
+
+                if (!state_.HasLastEvent() or
+                    (state_.LastEvent().proto().type() != mjproto::EVENT_TYPE_DISCARD_FROM_HAND and
+                    state_.LastEvent().proto().type() != mjproto::EVENT_TYPE_DISCARD_DRAWN_TILE and
+                    state_.LastEvent().proto().type() != mjproto::EVENT_TYPE_DRAW)) {
+                    state_.UpdateByEvent(event);
+                    continue;
+                }
+
+                for (const auto& [player_id, observation] : state_.CreateObservations()) {
+                    auto possible_actions = observation.possible_actions();
+                    if (std::all_of(possible_actions.begin(), possible_actions.end(), [&](auto& action){
+                        return action.type() != open_type;
+                    })) continue;
+                    ofs << observation.ToJson();
+
+                    bool selected = false;
+                    for (auto& possible_action : observation.possible_actions()) {
+                        if (possible_action.type() == open_type and
+                            event.open() == possible_action.open().GetBits()) {
+                            selected = true;
+                        }
+                    }
+                    ofs << "\t" << selected << std::endl;
                 }
 
                 state_.UpdateByEvent(event);
@@ -113,8 +171,7 @@ int main(int argc, char *argv[]) {
     // Parallel exec
     mj::ptransform(paths.begin(), paths.end(), [](const std::pair<std::string, std::string>& p) {
         const auto& [src_str, dst_str] = p;
-        //mj::TrainDataGenerator::generateDiscard(src_str, dst_str);
-        mj::TrainDataGenerator::generateChi(src_str, dst_str);
+        mj::TrainDataGenerator::generateOpenYesNo(src_str, dst_str, mjproto::ActionType::ACTION_TYPE_KAN_CLOSED);
         return p;
     });
 }
