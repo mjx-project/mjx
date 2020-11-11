@@ -9,6 +9,23 @@
 
 namespace mj
 {
+    // original assertion
+    #define Assert(fmt, ...) \
+        assert(fmt || Msg(__VA_ARGS__))
+
+    // 引数なし
+    bool Msg(){ return false; }
+
+    // 引数１つ以上
+    template < typename ...Args >
+    bool Msg(const Args& ...args ){
+        std::cout << "Assertion failed: " << std::endl;
+        for(const auto& arg : {args...}){
+            std::cout << arg << std::endl;
+        }
+        return false;
+    }
+
     template<typename T>
     bool Any(T target, const std::initializer_list<T> &v) {
         return std::any_of(v.begin(), v.end(), [&target](T elem) { return target == elem; });
