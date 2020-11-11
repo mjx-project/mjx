@@ -23,8 +23,6 @@ namespace mj
         static mjproto::Event CreateTsumo(AbsolutePos who, Tile tile);
         static mjproto::Event CreateRon(AbsolutePos who, Tile tile);
         static mjproto::Event CreateNoWinner();
-    private:
-        mjproto::Event proto_;
     };
 }  // namespace mj
 
