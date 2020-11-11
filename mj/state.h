@@ -39,7 +39,7 @@ namespace mj
         explicit State(const mjproto::State& state);
         bool IsRoundOver() const;
         bool IsGameOver() const;
-        void Update(std::vector<Action> &&action_candidates);
+        void Update(std::vector<mjproto::Action> &&action_candidates);
         std::unordered_map<PlayerId, Observation> CreateObservations() const;
         std::string ToJson() const;
         mjproto::State proto() const;
@@ -111,7 +111,7 @@ namespace mj
         [[nodiscard]] AbsolutePos top_player() const;
 
         // update
-        void Update(Action &&action);
+        void Update(mjproto::Action &&action);
 
         // event operations
         Tile Draw(AbsolutePos who);
