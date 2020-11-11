@@ -2,8 +2,6 @@
 #define MAHJONG_EVENT_H
 
 
-#include <utility>
-
 #include "mj.pb.h"
 #include "types.h"
 #include "tile.h"
