@@ -745,7 +745,7 @@ namespace mj
     bool State::HasLastEvent() const {
         return !state_.event_history().events().empty();
     }
-    mjproto::Event State::LastEvent() const {
+    const mjproto::Event & State::LastEvent() const {
         assert(HasLastEvent());
         return *state_.event_history().events().rbegin();
     }
