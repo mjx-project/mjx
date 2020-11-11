@@ -5,7 +5,7 @@ namespace mj
 {
     AgentExampleRuleBased::AgentExampleRuleBased(PlayerId player_id) : Agent(std::move(player_id)) {}
 
-    Action AgentExampleRuleBased::TakeAction(Observation &&observation) const {
+    mjproto::Action AgentExampleRuleBased::TakeAction(Observation &&observation) const {
         // Currently this method only implements discard
         mjproto::Action response;
         response.set_who(mjproto::AbsolutePos(observation.who()));
@@ -25,7 +25,7 @@ namespace mj
                 {mjproto::ACTION_TYPE_NO, 10},
         };
         std::sort(possible_actions.begin(), possible_actions.end(),
-                [&action_priority](const Action &x, const Action &y){ return action_priority.at(x.type()) < action_priority.at(y.type()); });
+                [&action_priority](const mjproto::Action &x, const mjproto::Action &y){ return action_priority.at(x.type()) < action_priority.at(y.type()); });
 
         const Hand curr_hand = observation.current_hand();
 
@@ -36,7 +36,7 @@ namespace mj
             if (Any(possible_action.type(), {mjproto::ACTION_TYPE_TSUMO, mjproto::ACTION_TYPE_RIICHI,
                                              mjproto::ACTION_TYPE_RON, mjproto::ACTION_TYPE_KYUSYU})) {
                 response.set_type(possible_action.type());
-                return Action(std::move(response));
+                return response;
             }
 
             // テンパっているときには他家から鳴かない
@@ -46,7 +46,7 @@ namespace mj
                     possible_action = *possible_actions.rbegin();
                     assert(possible_action.type() == mjproto::ActionType::ACTION_TYPE_NO);
                     response.set_type(possible_action.type());
-                    return Action(std::move(response));
+                    return response;
                 }
             }
 
@@ -61,8 +61,8 @@ namespace mj
                         mjproto::ACTION_TYPE_KAN_OPENED, mjproto::ACTION_TYPE_PON,
                         mjproto::ACTION_TYPE_CHI, mjproto::ACTION_TYPE_NO}));
                     response.set_type(mjproto::ActionType(possible_action.type()));
-                    if (possible_action.type() != mjproto::ActionType::ACTION_TYPE_NO) response.set_open(possible_action.open().GetBits());
-                    return Action(std::move(response));
+                    if (possible_action.type() != mjproto::ActionType::ACTION_TYPE_NO) response.set_open(possible_action.open());
+                    return response;
                 }
             }
         }
@@ -76,7 +76,7 @@ namespace mj
             for (const auto tile: discard_candidates) {
                 if (Any(tile, tenpai_discards)) {
                     response.set_discard(tile.Id());
-                    return Action(std::move(response));
+                    return response;
                 }
             }
             assert(false);
@@ -120,52 +120,52 @@ namespace mj
             if (!Is(tile.Type(), TileSetType::kHonours)) continue;
             if (is_head(tile) || is_pon(tile)) continue;
             response.set_discard(tile.Id());
-            return Action(std::move(response));
+            return response;
         }
         // 19の孤立牌を切り飛ばす
         for (const auto tile: discard_candidates) {
             if (!Is(tile.Type(), TileSetType::kTerminals)) continue;
             if (is_head(tile) || is_pon(tile) || is_chi(tile) || has_neighbors(tile) || has_skip_neighbors(tile)) continue;
             response.set_discard(tile.Id());
-            return Action(std::move(response));
+            return response;
         }
         // 断么九の孤立牌を切り飛ばす
         for (const auto tile: discard_candidates) {
             if (!Is(tile.Type(), TileSetType::kTanyao)) continue;
             if (is_head(tile) || is_pon(tile) || is_chi(tile) || has_neighbors(tile) || has_skip_neighbors(tile)) continue;
             response.set_discard(tile.Id());
-            return Action(std::move(response));
+            return response;
         }
         // 19ペンチャンを外す
         for (const auto tile: discard_candidates) {
             if (!Is(tile.Type(), TileSetType::kTerminals)) continue;
             if (is_head(tile) || is_pon(tile) || is_chi(tile) || has_skip_neighbors(tile)) continue;
             response.set_discard(tile.Id());
-            return Action(std::move(response));
+            return response;
         }
         // 19カンチャンを外す
         for (const auto tile: discard_candidates) {
             if (!Is(tile.Type(), TileSetType::kTerminals)) continue;
             if (is_head(tile) || is_pon(tile) || is_chi(tile) || has_neighbors(tile)) continue;
             response.set_discard(tile.Id());
-            return Action(std::move(response));
+            return response;
         }
         // 断么九のカンチャンを外す
         for (const auto tile: discard_candidates) {
             if (!Is(tile.Type(), TileSetType::kTanyao)) continue;
             if (is_head(tile) || is_pon(tile) || is_chi(tile) || has_neighbors(tile)) continue;
             response.set_discard(tile.Id());
-            return Action(std::move(response));
+            return response;
         }
         // 断么九の両面を外す
         for (const auto tile: discard_candidates) {
             if (!Is(tile.Type(), TileSetType::kTanyao)) continue;
             if (is_head(tile) || is_pon(tile) || is_chi(tile)) continue;
             response.set_discard(tile.Id());
-            return Action(std::move(response));
+            return response;
         }
         // 上記以外のときは、ランダムに切る
         response.set_discard(SelectRandomly(discard_candidates.begin(), discard_candidates.end())->Id());
-        return Action(std::move(response));
+        return response;
     }
 }

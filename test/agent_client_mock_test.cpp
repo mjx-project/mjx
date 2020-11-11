@@ -19,7 +19,7 @@ TEST(agent_client_mock, TakeAction) {
         return json_line;
     };
 
-    State state; Observation observation; Action action;
+    State state; Observation observation; mjproto::Action action;
     std::unique_ptr<Agent> agent = std::make_unique<AgentExampleRuleBased>();
 
     // ツモれるときはツモ

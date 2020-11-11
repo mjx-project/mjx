@@ -925,7 +925,7 @@ namespace mj
         return win_state_info;
     }
 
-    void State::Update(std::vector<Action> &&action_candidates) {
+    void State::Update(std::vector<mjproto::Action> &&action_candidates) {
         static_assert(mjproto::ACTION_TYPE_NO < mjproto::ACTION_TYPE_CHI);
         static_assert(mjproto::ACTION_TYPE_CHI < mjproto::ACTION_TYPE_PON);
         static_assert(mjproto::ACTION_TYPE_CHI < mjproto::ACTION_TYPE_KAN_OPENED);
@@ -938,15 +938,15 @@ namespace mj
         } else {
             // sort in order Ron > KanOpened > Pon > Chi > No
             std::sort(action_candidates.begin(), action_candidates.end(),
-                    [](const Action &x, const Action &y){ return x.type() > y.type(); });
+                    [](const mjproto::Action &x, const mjproto::Action &y){ return x.type() > y.type(); });
             bool has_ron = action_candidates.front().type() == mjproto::ACTION_TYPE_RON;
             if (has_ron) {
                 // ron以外の行動は取られないので消していく
                 while (action_candidates.back().type() != mjproto::ACTION_TYPE_RON) action_candidates.pop_back();
                 // 上家から順にsortする（ダブロン時に供託が上家取り）
-                AbsolutePos from_who = AbsolutePos(LastEvent().who());
+                auto from_who = AbsolutePos(LastEvent().who());
                 std::sort(action_candidates.begin(), action_candidates.end(),
-                          [&from_who](const Action &x, const Action &y){ return ((ToUType(x.who()) - ToUType(from_who) + 4) % 4) < ((ToUType(y.who()) - ToUType(from_who) + 4) % 4); });
+                          [&from_who](const mjproto::Action &x, const mjproto::Action &y){ return ((ToUType(x.who()) - ToUType(from_who) + 4) % 4) < ((ToUType(y.who()) - ToUType(from_who) + 4) % 4); });
                 int ron_count = action_candidates.size();
                 if (ron_count == 3) {
                     // 三家和了
@@ -974,12 +974,12 @@ namespace mj
         }
     }
 
-    void State::Update(Action &&action) {
+    void State::Update(mjproto::Action &&action) {
         assert(Any(LastEvent().type(), {mjproto::EVENT_TYPE_DRAW, mjproto::EVENT_TYPE_DISCARD_FROM_HAND,
                                         mjproto::EVENT_TYPE_DISCARD_DRAWN_TILE, mjproto::EVENT_TYPE_RIICHI,
                                         mjproto::EVENT_TYPE_CHI, mjproto::EVENT_TYPE_PON,
                                         mjproto::EVENT_TYPE_KAN_ADDED, mjproto::EVENT_TYPE_RON}));
-        auto who = action.who();
+        auto who = AbsolutePos(action.who());
         switch (action.type()) {
             case mjproto::ACTION_TYPE_DISCARD:
                 {
@@ -987,15 +987,15 @@ namespace mj
                                                     mjproto::EVENT_TYPE_PON, mjproto::EVENT_TYPE_RON,
                                                     mjproto::EVENT_TYPE_RIICHI}));
                     assert(LastEvent().type() == mjproto::EVENT_TYPE_RIICHI || Any(hand(who).PossibleDiscards(),
-                            [&action](Tile possible_discard){ return possible_discard.Equals(action.discard()); }));
+                            [&action](Tile possible_discard){ return possible_discard.Equals(Tile(action.discard())); }));
                     assert(LastEvent().type() != mjproto::EVENT_TYPE_RIICHI || Any(hand(who).PossibleDiscardsJustAfterRiichi(),
-                            [&action](Tile possible_discard){ return possible_discard.Equals(action.discard()); }));
+                            [&action](Tile possible_discard){ return possible_discard.Equals(Tile(action.discard())); }));
                     {
                         int require_kan_dora = RequireKanDora();
                         assert(require_kan_dora <= 1);
                         if (require_kan_dora) AddNewDora();
                     }
-                    Discard(who, action.discard());
+                    Discard(who, Tile(action.discard()));
                     if (IsFourWinds()) {  // 四風子連打
                         NoWinner();
                         return;
@@ -1048,17 +1048,17 @@ namespace mj
             case mjproto::ACTION_TYPE_PON:
                 assert(Any(LastEvent().type(), {mjproto::EVENT_TYPE_DISCARD_FROM_HAND, mjproto::EVENT_TYPE_DISCARD_DRAWN_TILE}));
                 if (RequireRiichiScoreChange()) RiichiScoreChange();
-                ApplyOpen(who, action.open());
+                ApplyOpen(who, Open(action.open()));
                 return;
             case mjproto::ACTION_TYPE_KAN_OPENED:
                 assert(Any(LastEvent().type(), {mjproto::EVENT_TYPE_DISCARD_FROM_HAND, mjproto::EVENT_TYPE_DISCARD_DRAWN_TILE}));
                 if (RequireRiichiScoreChange()) RiichiScoreChange();
-                ApplyOpen(who, action.open());
+                ApplyOpen(who, Open(action.open()));
                 Draw(who);
                 return;
             case mjproto::ACTION_TYPE_KAN_CLOSED:
                 assert(Any(LastEvent().type(), {mjproto::EVENT_TYPE_DRAW}));
-                ApplyOpen(who, action.open());
+                ApplyOpen(who, Open(action.open()));
                 {
                     // 天鳳のカンの仕様については https://github.com/sotetsuk/mahjong/issues/199 で調べている
                     // 暗槓の分で最低一回は新ドラがめくられる
@@ -1070,7 +1070,7 @@ namespace mj
                 return;
             case mjproto::ACTION_TYPE_KAN_ADDED:
                 assert(Any(LastEvent().type(), {mjproto::EVENT_TYPE_DRAW}));
-                ApplyOpen(who, action.open());
+                ApplyOpen(who, Open(action.open()));
                 // TODO: CreateStealAndRonObservationが状態変化がないのに2回計算されている
                 if (auto has_no_ron = CreateStealAndRonObservation().empty(); has_no_ron) {
                     int require_kan_dora = RequireKanDora();
