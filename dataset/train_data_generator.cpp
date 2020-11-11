@@ -66,8 +66,8 @@ namespace mj {
                 std::string event_json;
                 assert(google::protobuf::util::MessageToJsonString(event, &event_json).ok());
                 if (!state_.HasLastEvent() or (
-                    state_.LastEvent().proto().type() != mjproto::EVENT_TYPE_DISCARD_FROM_HAND and
-                    state_.LastEvent().proto().type() != mjproto::EVENT_TYPE_DISCARD_DRAWN_TILE)) {
+                    state_.LastEvent().type() != mjproto::EVENT_TYPE_DISCARD_FROM_HAND and
+                    state_.LastEvent().type() != mjproto::EVENT_TYPE_DISCARD_DRAWN_TILE)) {
                     state_.UpdateByEvent(event);
                     continue;
                 }
@@ -123,9 +123,9 @@ namespace mj {
                 assert(google::protobuf::util::MessageToJsonString(event, &event_json).ok());
 
                 if (!state_.HasLastEvent() or
-                    (state_.LastEvent().proto().type() != mjproto::EVENT_TYPE_DISCARD_FROM_HAND and
-                    state_.LastEvent().proto().type() != mjproto::EVENT_TYPE_DISCARD_DRAWN_TILE and
-                    state_.LastEvent().proto().type() != mjproto::EVENT_TYPE_DRAW)) {
+                    (state_.LastEvent().type() != mjproto::EVENT_TYPE_DISCARD_FROM_HAND and
+                    state_.LastEvent().type() != mjproto::EVENT_TYPE_DISCARD_DRAWN_TILE and
+                    state_.LastEvent().type() != mjproto::EVENT_TYPE_DRAW)) {
                     state_.UpdateByEvent(event);
                     continue;
                 }
@@ -178,7 +178,7 @@ namespace mj {
                 assert(google::protobuf::util::MessageToJsonString(event, &event_json).ok());
 
                 if (!state_.HasLastEvent() or
-                    state_.LastEvent().proto().type() != mjproto::EVENT_TYPE_DRAW) {
+                    state_.LastEvent().type() != mjproto::EVENT_TYPE_DRAW) {
                     state_.UpdateByEvent(event);
                     continue;
                 }

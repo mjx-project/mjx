@@ -59,7 +59,7 @@ namespace mj
         [[nodiscard]] std::uint8_t init_riichi() const;
         [[nodiscard]] std::array<std::int32_t, 4> init_tens() const;
         [[nodiscard]] bool HasLastEvent() const;
-        [[nodiscard]] Event LastEvent() const;
+        [[nodiscard]] const mjproto::Event & LastEvent() const;
         [[nodiscard]] std::optional<Tile> TargetTile() const;   // ロンされうる牌. 直前の捨牌or加槓した牌
         [[nodiscard]] bool IsFirstTurnWithoutOpen() const;
         [[nodiscard]] bool IsFourWinds() const;
