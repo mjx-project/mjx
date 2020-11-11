@@ -755,7 +755,7 @@ namespace mj
         for (auto it = state_.event_history().events().rbegin();
              it != state_.event_history().events().rend();
              ++it) {
-            auto event = *it;
+            const auto &event = *it;
 
             if (event.type() == mjproto::EventType::EVENT_TYPE_DISCARD_FROM_HAND or
                 event.type() == mjproto::EventType::EVENT_TYPE_DISCARD_DRAWN_TILE) {
@@ -769,7 +769,7 @@ namespace mj
     }
 
     bool State::IsFirstTurnWithoutOpen() const {
-        for (auto& event : state_.event_history().events()) {
+        for (const auto& event : state_.event_history().events()) {
             switch (event.type()) {
                 case mjproto::EVENT_TYPE_CHI:
                 case mjproto::EVENT_TYPE_PON:
@@ -789,7 +789,7 @@ namespace mj
 
     bool State::IsFourWinds() const {
         std::map<TileType,int> discarded_winds;
-        for (auto& event : state_.event_history().events()) {
+        for (const auto& event : state_.event_history().events()) {
             switch (event.type()) {
                 case mjproto::EVENT_TYPE_CHI:
                 case mjproto::EVENT_TYPE_PON:
@@ -815,7 +815,7 @@ namespace mj
         for (auto it = state_.event_history().events().rbegin();
              it != state_.event_history().events().rend();
              ++it) {
-            auto event = *it;
+            const auto &event = *it;
             if (event.type() == mjproto::EventType::EVENT_TYPE_DRAW) {
                 return false;
             }
@@ -828,7 +828,7 @@ namespace mj
 
     int State::RequireKanDora() const {
         int require_kan_dora = 0;
-        for (auto& event : state_.event_history().events()) {
+        for (const auto& event : state_.event_history().events()) {
             switch (event.type()) {
                 case mjproto::EventType::EVENT_TYPE_KAN_ADDED:
                 case mjproto::EventType::EVENT_TYPE_KAN_CLOSED:
@@ -847,7 +847,7 @@ namespace mj
         for (auto it = state_.event_history().events().rbegin();
              it != state_.event_history().events().rend();
              ++it) {
-            auto event = *it;
+            const auto &event = *it;
             switch (event.type()) {
                 case mjproto::EventType::EVENT_TYPE_DRAW:
                     return false;
@@ -864,7 +864,7 @@ namespace mj
         for (auto it = state_.event_history().events().rbegin();
              it != state_.event_history().events().rend();
              ++it) {
-            auto event = *it;
+            const auto &event = *it;
             switch (event.type()) {
                 case mjproto::EventType::EVENT_TYPE_RIICHI:
                     return true;
