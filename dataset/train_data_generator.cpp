@@ -82,11 +82,13 @@ namespace mj {
                     auto selected_action = Action::CreateNo(player_id_to_absolute_pos[player_id]);
                     for (auto& possible_action : observation.possible_actions()) {
                         if (possible_action.type() != open_type) continue;
-                        if (event.open() == possible_action.open().GetBits()) {
+                        if (event.open() == possible_action.open()) {
                             selected_action = possible_action;
                         }
                     }
-                    ofs << "\t" << selected_action.ToJson() << std::endl;
+                    std::string action_json;
+                    assert(google::protobuf::util::MessageToJsonString(selected_action, &action_json).ok());
+                    ofs << "\t" << action_json << std::endl;
                 }
 
                 state_.UpdateByEvent(event);
@@ -140,7 +142,7 @@ namespace mj {
                     bool selected = false;
                     for (auto& possible_action : observation.possible_actions()) {
                         if (possible_action.type() == open_type and
-                            event.open() == possible_action.open().GetBits()) {
+                            event.open() == possible_action.open()) {
                             selected = true;
                         }
                     }
