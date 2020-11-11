@@ -2,6 +2,8 @@
 #define MAHJONG_EVENT_H
 
 
+#include <utility>
+
 #include "mj.pb.h"
 #include "types.h"
 #include "tile.h"
@@ -13,7 +15,7 @@ namespace mj
     {
     public:
         Event() = default;
-        explicit Event(const mjproto::Event &event) : proto_(event) {}
+        explicit Event(mjproto::Event event) : proto_(std::move(event)) {}
         mjproto::EventType type() const;
         AbsolutePos who() const;
         Tile tile() const;
