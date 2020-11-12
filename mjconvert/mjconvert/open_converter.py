@@ -188,7 +188,8 @@ def change_open_tile_fmt(tile_in_open_fmt: int) -> int:  # tile_in_open 0~33 til
 
 
 def change_open_tiles_fmt(tile_ids_in_open: List[int]) -> List[int]:
-    scores = list(map(change_open_tile_fmt(), tile_ids_in_open))
+    scores = list(map(change_open_tile_fmt, tile_ids_in_open))
     return scores
+
 
 
