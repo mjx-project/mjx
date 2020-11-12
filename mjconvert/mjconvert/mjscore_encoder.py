@@ -27,16 +27,16 @@ def change_tiles_fmt(tile_ids):
     return scores
 
 
-# ["アクションの種類",晒した牌]の形式のリストを受け取ってmjscore形式に変更する関数
+# openの情報を受け取ってmjscore形式に変更する関数
 def change_action_format(bits: int) -> str:
     event_type = open_converter.open_event_type(bits)
-    stolen_tile = open_converter.open_stolen_tile_type(bits)
-    open_tiles = open_converter.open_tile_types(bits)
+    stolen_tile = open_converter.change_open_tile_fmt(open_converter.open_stolen_tile_type(bits))
+    open_tiles = open_converter.change_open_tiles_fmt(open_converter.open_tile_types(bits))
     open_tiles.remove(stolen_tile)
     if event_type == mj_pb2.EVENT_TYPE_CHI:  # 現状書き方があまりにも冗長。なんとかしたい。
-        return "c" + str(open_converter.change_open_tile_fmt(stolen_tile)) + str(open_converter.change_open_tile_fmt(open_tiles[0])) + str(open_converter.change_open_tile_fmt(open_tiles[1]))
+        return "c" + str(stolen_tile) + str(open_tiles[0]) + str(open_tiles[1])
     elif event_type == mj_pb2.EVENT_TYPE_PON:
-        return "r" + str(open_converter.change_open_tile_fmt(stolen_tile)) + str(open_converter.change_open_tile_fmt(open_tiles[0])) + str(open_converter.change_open_tile_fmt(open_tiles[1]))
+        return "r" + str(stolen_tile) + str(open_tiles[0]) + str(open_tiles[1])
     else:
         return " "  # カンはまだmjscoreのformatがわからない。
 
