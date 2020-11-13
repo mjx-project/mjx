@@ -46,7 +46,7 @@ bool ActionTypeCheck(const std::vector<mjproto::ActionType>& action_types, const
 
 bool YakuCheck(const State &state, AbsolutePos winner, std::vector<Yaku> &&yakus) {
     mjproto::State state_proto = state.proto();
-    assert(std::any_of(state_proto.terminal().wins().begin(), state_proto.terminal().wins().end(),
+    Assert(std::any_of(state_proto.terminal().wins().begin(), state_proto.terminal().wins().end(),
                        [&](const auto &win){ return AbsolutePos(win.who()) == winner; }));
     for (const auto & win: state_proto.terminal().wins()) {
         bool ok = true;
@@ -71,7 +71,7 @@ bool YakuCheck(const State &state, AbsolutePos winner, std::vector<Yaku> &&yakus
 std::string SwapTiles(const std::string &json_str, Tile a, Tile b){
     mjproto::State state = mjproto::State();
     auto status = google::protobuf::util::JsonStringToMessage(json_str, &state);
-    assert(status.ok());
+    Assert(status.ok());
     // wall
     for (int i = 0; i < state.wall_size(); ++i) {
         if (state.wall(i) == a.Id()) state.set_wall(i, b.Id());
@@ -114,7 +114,7 @@ std::string SwapTiles(const std::string &json_str, Tile a, Tile b){
 
     std::string serialized;
     status = google::protobuf::util::MessageToJsonString(state, &serialized);
-    assert(status.ok());
+    Assert(status.ok());
     return serialized;
 }
 
@@ -122,7 +122,7 @@ mjproto::Action FindPossibleAction(mjproto::ActionType action_type, const Observ
     for (const auto& possible_action: observation.possible_actions())
         if (possible_action.type() == action_type) return possible_action;
     std::cerr << "Cannot find the specified action type" << std::endl;
-    assert(false);
+    Assert(false);
 }
 
 template<typename F>
@@ -750,7 +750,7 @@ TEST(state, EncodeDecode) {
     const bool all_ok = ParallelTest([](const std::string& json){
         mjproto::State original_state;
         auto status = google::protobuf::util::JsonStringToMessage(json, &original_state);
-        assert(status.ok());
+        Assert(status.ok());
         const auto restored_state = State(json).proto();
         const bool ok = google::protobuf::util::MessageDifferencer::Equals(original_state, restored_state);
         if (!ok) {
@@ -845,14 +845,14 @@ std::vector<std::vector<mjproto::Action>> ListUpAllActionCombinations(std::unord
 std::string TruncateAfterFirstDraw(const std::string& json) {
     mjproto::State state = mjproto::State();
     auto status = google::protobuf::util::JsonStringToMessage(json, &state);
-    assert(status.ok());
+    Assert(status.ok());
     auto events = state.mutable_event_history()->mutable_events();
     events->erase(events->begin() + 1, events->end());
     state.clear_terminal();
     // drawについては消さなくても良い（wallから引いてsetされるので）
     std::string serialized;
     status = google::protobuf::util::MessageToJsonString(state, &serialized);
-    assert(status.ok());
+    Assert(status.ok());
     return serialized;
 };
 

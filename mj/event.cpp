@@ -7,7 +7,7 @@ namespace mj
         mjproto::Event proto;
         proto.set_who(mjproto::AbsolutePos(who));
         proto.set_type(mjproto::EVENT_TYPE_DRAW);
-        assert(IsValid(proto));
+        Assert(IsValid(proto));
         return proto;
     }
 
@@ -16,7 +16,7 @@ namespace mj
         proto.set_who(mjproto::AbsolutePos(who));
         proto.set_type(tsumogiri ? mjproto::EVENT_TYPE_DISCARD_DRAWN_TILE : mjproto::EVENT_TYPE_DISCARD_FROM_HAND);
         proto.set_tile(discard.Id());
-        assert(IsValid(proto));
+        Assert(IsValid(proto));
         return proto;
     }
 
@@ -24,7 +24,7 @@ namespace mj
         mjproto::Event proto;
         proto.set_who(mjproto::AbsolutePos(who));
         proto.set_type(mjproto::EVENT_TYPE_RIICHI);
-        assert(IsValid(proto));
+        Assert(IsValid(proto));
         return proto;
     }
 
@@ -33,7 +33,7 @@ namespace mj
         proto.set_who(mjproto::AbsolutePos(who));
         proto.set_type(mjproto::EventType(OpenTypeToEventType(open.Type())));
         proto.set_open(open.GetBits());
-        assert(IsValid(proto));
+        Assert(IsValid(proto));
         return proto;
     }
 
@@ -41,7 +41,7 @@ namespace mj
         mjproto::Event proto;
         proto.set_type(mjproto::EVENT_TYPE_NEW_DORA);
         proto.set_tile(dora_indicator.Id());
-        assert(IsValid(proto));
+        Assert(IsValid(proto));
         return proto;
     }
 
@@ -49,7 +49,7 @@ namespace mj
         mjproto::Event proto;
         proto.set_who(mjproto::AbsolutePos(who));
         proto.set_type(mjproto::EVENT_TYPE_RIICHI_SCORE_CHANGE);
-        assert(IsValid(proto));
+        Assert(IsValid(proto));
         return proto;
     }
 
@@ -58,7 +58,7 @@ namespace mj
         proto.set_who(mjproto::AbsolutePos(who));
         proto.set_type(mjproto::EVENT_TYPE_TSUMO);
         proto.set_tile(tile.Id());
-        assert(IsValid(proto));
+        Assert(IsValid(proto));
         return proto;
     }
 
@@ -67,14 +67,14 @@ namespace mj
         proto.set_who(mjproto::AbsolutePos(who));
         proto.set_type(mjproto::EVENT_TYPE_RON);
         proto.set_tile(tile.Id());
-        assert(IsValid(proto));
+        Assert(IsValid(proto));
         return proto;
     }
 
     mjproto::Event Event::CreateNoWinner() {
         mjproto::Event proto;
         proto.set_type(mjproto::EVENT_TYPE_NO_WINNER);
-        assert(IsValid(proto));
+        Assert(IsValid(proto));
         return proto;
     }
 

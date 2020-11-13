@@ -57,7 +57,7 @@ namespace mj
     std::string Observation::ToJson() const {
         std::string serialized;
         auto status = google::protobuf::util::MessageToJsonString(proto_, &serialized);
-        assert(status.ok());
+        Assert(status.ok());
         return serialized;
     }
 

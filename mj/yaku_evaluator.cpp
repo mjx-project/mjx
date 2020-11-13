@@ -39,7 +39,7 @@ namespace mj
     }
 
     WinScore YakuEvaluator::Eval(const WinInfo& win_info) noexcept {
-        assert(win_cache().Has(win_info.hand.closed_tile_types));
+        Assert(win_cache().Has(win_info.hand.closed_tile_types));
 
         WinScore score;
 
@@ -56,7 +56,7 @@ namespace mj
         score.set_fu(best_fu);
 
         // 役がないと上がれない.
-        assert(!score.yaku().empty());
+        Assert(!score.yaku().empty());
 
         // ドラ
         JudgeDora(win_info, score);
@@ -82,7 +82,7 @@ namespace mj
             } else if (win_info.hand.stage == HandStage::kAfterRon) {
                 return 30;
             } else {
-                assert(false);
+                Assert(false);
             }
         }
 
@@ -109,7 +109,7 @@ namespace mj
                     fu += is_yaocyu ? 32 : 16;
                     break;
                 case OpenType::kChi:
-                    assert(false);
+                    Assert(false);
             }
         }
         for (const auto& closed_set : closed_sets) {
@@ -124,7 +124,7 @@ namespace mj
         }
 
         // 雀頭
-        assert(heads.size() == 1);
+        Assert(heads.size() == 1);
         TileType head_type = heads[0].begin()->first;
         if (Is(head_type, TileSetType::kDragons)) fu += 2;
         // 場風,自風は2符.
@@ -135,12 +135,12 @@ namespace mj
 
         // 待ち
         bool has_bad_machi = false;
-        assert(win_info.hand.win_tile);
+        Assert(win_info.hand.win_tile);
         const TileType tsumo_type = win_info.hand.win_tile.value().Type();
         if (tsumo_type == head_type) has_bad_machi = true;    // 単騎
         for (const TileTypeCount& st : closed_sets) {
             if (st.size() == 1) continue;   // 刻子は弾く
-            assert(st.size() == 3);
+            Assert(st.size() == 3);
             auto it = st.begin();
             const TileType left = it->first; ++it;
             const TileType center = it->first; ++it;
@@ -179,7 +179,7 @@ namespace mj
         if (fu % 10) fu += 10 - fu % 10;
 
         // 門前ロンはピンフ以外40符以上はあるはず
-        assert(!(win_info.hand.is_menzen && win_info.hand.stage == HandStage::kAfterRon && !yakus.count(Yaku::kPinfu) && fu < 40));
+        Assert(!(win_info.hand.is_menzen && win_info.hand.stage == HandStage::kAfterRon && !yakus.count(Yaku::kPinfu) && fu < 40));
         return fu;
     }
 
@@ -483,7 +483,7 @@ namespace mj
         if (IsSameWind(head, win_info.state.seat_wind)) return std::nullopt;
         if (IsSameWind(head, win_info.state.prevalent_wind)) return std::nullopt;
 
-        assert(win_info.hand.win_tile);
+        Assert(win_info.hand.win_tile);
         const TileType tsumo_type = win_info.hand.win_tile.value().Type();
 
         for (const TileTypeCount& st : closed_sets) {
@@ -1041,7 +1041,7 @@ namespace mj
 
     bool YakuEvaluator::HasThirteenOrphans(const WinInfo& win_info) noexcept {
         const auto& all_tile_types = win_info.hand.all_tile_types;
-        assert(win_info.hand.win_tile);
+        Assert(win_info.hand.win_tile);
         const TileType tsumo_type = win_info.hand.win_tile.value().Type();
         std::map<TileType, int> yaocyu;
         for (const auto& [tile_type, n] : all_tile_types) {
@@ -1055,7 +1055,7 @@ namespace mj
 
     bool YakuEvaluator::HasCompletedThirteenOrphans(const WinInfo& win_info) noexcept {
         const auto& all_tile_types = win_info.hand.all_tile_types;
-        assert(win_info.hand.win_tile);
+        Assert(win_info.hand.win_tile);
         const TileType tsumo_type = win_info.hand.win_tile.value().Type();
         TileTypeCount yaocyu;
         for (const auto& [tile_type, n] : all_tile_types) {
@@ -1080,7 +1080,7 @@ namespace mj
 
         std::vector<int> required{0,3,1,1,1,1,1,1,1,3};
 
-        assert(win_info.hand.win_tile);
+        Assert(win_info.hand.win_tile);
         const TileType tsumo_type = win_info.hand.win_tile.value().Type();
 
         for (const auto& [tile_type, n] : all_tile_types) {
@@ -1104,7 +1104,7 @@ namespace mj
 
         std::vector<int> required{0,3,1,1,1,1,1,1,1,3};
 
-        assert(win_info.hand.win_tile);
+        Assert(win_info.hand.win_tile);
         const TileType tsumo_type = win_info.hand.win_tile.value().Type();
 
         for (const auto& [tile_type, n] : all_tile_types) {
@@ -1140,7 +1140,7 @@ namespace mj
         }
         if(count > 1) return false;
 
-        assert(win_info.hand.win_tile);
+        Assert(win_info.hand.win_tile);
         const TileType tsumo_type = win_info.hand.win_tile.value().Type();
 
         return all_tile_types.at(tsumo_type) > 2;
@@ -1158,7 +1158,7 @@ namespace mj
         }
         if(count > 1) return false;
 
-        assert(win_info.hand.win_tile);
+        Assert(win_info.hand.win_tile);
         const TileType tsumo_type = win_info.hand.win_tile.value().Type();
 
         return all_tile_types.at(tsumo_type) == 2;

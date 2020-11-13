@@ -9,7 +9,7 @@ namespace mj
         proto.set_type(mjproto::ACTION_TYPE_DISCARD);
         proto.set_who(mjproto::AbsolutePos(who));
         proto.set_discard(discard.Id());
-        assert(IsValid(proto));
+        Assert(IsValid(proto));
         return proto;
     }
 
@@ -25,7 +25,7 @@ namespace mj
         mjproto::Action proto;
         proto.set_type(mjproto::ACTION_TYPE_RIICHI);
         proto.set_who(mjproto::AbsolutePos(who));
-        assert(IsValid(proto));
+        Assert(IsValid(proto));
         return proto;
     }
 
@@ -33,7 +33,7 @@ namespace mj
         mjproto::Action proto;
         proto.set_type(mjproto::ACTION_TYPE_TSUMO);
         proto.set_who(mjproto::AbsolutePos(who));
-        assert(IsValid(proto));
+        Assert(IsValid(proto));
         return proto;
     }
 
@@ -41,7 +41,7 @@ namespace mj
         mjproto::Action proto;
         proto.set_type(mjproto::ACTION_TYPE_RON);
         proto.set_who(mjproto::AbsolutePos(who));
-        assert(IsValid(proto));
+        Assert(IsValid(proto));
         return proto;
     }
 
@@ -50,7 +50,7 @@ namespace mj
         proto.set_who(mjproto::AbsolutePos(who));
         proto.set_type(OpenTypeToActionType(open.Type()));
         proto.set_open(open.GetBits());
-        assert(IsValid(proto));
+        Assert(IsValid(proto));
         return proto;
     }
 
@@ -58,7 +58,7 @@ namespace mj
         mjproto::Action proto;
         proto.set_type(mjproto::ACTION_TYPE_NO);
         proto.set_who(mjproto::AbsolutePos(who));
-        assert(IsValid(proto));
+        Assert(IsValid(proto));
         return proto;
     }
 
@@ -66,7 +66,7 @@ namespace mj
         mjproto::Action proto;
         proto.set_type(mjproto::ACTION_TYPE_KYUSYU);
         proto.set_who(mjproto::AbsolutePos(who));
-        assert(IsValid(proto));
+        Assert(IsValid(proto));
         return proto;
     }
 
