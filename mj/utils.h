@@ -8,10 +8,8 @@
 #include <initializer_list>
 
 // original assertion
-#ifndef Assert
 #define Assert(fmt, ...) \
     assert(fmt || mj::Msg(__VA_ARGS__))
-#endif
 
 namespace mj
 {
