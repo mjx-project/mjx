@@ -21,7 +21,7 @@ class MjlogDecoder:
         self.modify = modify
 
     def decode(self, mjlog_str: str) -> List[mj_pb2.State]:
-        wall_dices = reproduce_wall(mjlog_str)
+        wall_dices = reproduce_wall_from_mjlog(mjlog_str)
         root = ET.fromstring(mjlog_str)
         ret = []
         for state in self._parse_each_game(root, wall_dices, self.modify):
@@ -315,7 +315,7 @@ class MjlogDecoder:
                 return mj_pb2.EVENT_TYPE_KAN_OPENED
 
 
-def reproduce_wall(mjlog_str: str, cache=False) -> List[Tuple[List[int], List[int]]]:
+def reproduce_wall_from_mjlog(mjlog_str: str, cache=False) -> List[Tuple[List[int], List[int]]]:
     # SeedをXMLから切り出す
     root = ET.fromstring(mjlog_str)
     shuffle = root.iter("SHUFFLE")
