@@ -24,7 +24,6 @@ namespace mj
         return false;
     }
 
-    // 引数なし
     template<typename T>
     bool Any(T target, const std::initializer_list<T> &v) {
         return std::any_of(v.begin(), v.end(), [&target](T elem) { return target == elem; });
