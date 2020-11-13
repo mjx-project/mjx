@@ -1,5 +1,6 @@
 from typing import List, Tuple, Dict, Iterator
 import os
+import sys
 import hashlib
 import json
 import copy
@@ -13,6 +14,7 @@ from mjconvert import mj_pb2
 
 
 SEED_CACHE_DIR = os.path.join(os.environ["HOME"], ".mjconvert/seed_cache")
+PKG_SEED_CACHE_DIR = ".mjconvert/seed_cache"
 
 
 class MjlogDecoder:
@@ -341,29 +343,36 @@ def reproduce_wall_from_seed(seed: str, store_cache=False) -> List[Tuple[List[in
     """牌山の情報をSeedから復元する。のキャッシュがあれば、それを返す
 
     >>> seed = "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"
-    >>> wall_dices = reproduce_wall_from_seed(seed, True)
+    >>> wall_dices = reproduce_wall_from_seed(seed, False)
     >>> len(wall_dices)
     100
     >>> wall_dices[0]
     ([52, 72, 106, 73, 43, 62, 33, 89, 38, 54, 44, 2, 90, 59, 110, 107, 1, 61, 98, 108, 11, 0, 77, 134, 48, 15, 112, 22, 102, 101, 10, 12, 4, 126, 84, 66, 83, 120, 71, 50, 64, 53, 78, 86, 19, 34, 13, 29, 40, 81, 3, 121, 51, 129, 24, 18, 119, 21, 132, 45, 42, 114, 135, 91, 49, 105, 93, 75, 116, 74, 41, 79, 60, 30, 46, 28, 70, 131, 100, 31, 113, 133, 7, 111, 99, 14, 36, 97, 58, 76, 94, 39, 5, 65, 25, 9, 23, 68, 47, 82, 17, 16, 117, 26, 63, 32, 88, 109, 85, 55, 96, 103, 56, 123, 6, 35, 128, 20, 118, 69, 130, 92, 57, 8, 95, 115, 67, 104, 87, 125, 127, 80, 27, 37, 122, 124], [4, 5])
     """
-    #
-    os.makedirs(SEED_CACHE_DIR, exist_ok=True)
     seed_md5 = hashlib.md5(seed.encode()).hexdigest()
     seed_cache = os.path.join(SEED_CACHE_DIR, seed_md5 + ".txt")
+    pkg_seed_cache = os.path.join(os.path.abspath(PKG_SEED_CACHE_DIR), seed_md5 + ".txt")
     out: List[str]
     if os.path.exists(seed_cache):
         with open(seed_cache, "r") as f:
             out = f.readlines()
+        sys.stderr.write(f"Read wall cache from {seed_cache}.\n")
+    elif os.path.exists(pkg_seed_cache):
+        with open(pkg_seed_cache, "r") as f:
+            out = f.readlines()
+        sys.stderr.write(f"Read wall cache from {pkg_seed_cache}.\n")
     else:
         # TODO: remove docker dependency
         tmp = subprocess.run(["docker", "run", "--rm", "sotetsuk/twr:v0.0.1", "/twr",  seed, "100"], capture_output=True)
         assert tmp.returncode == 0, "Failed to decode wall from given seed"
         out = tmp.stdout.decode('utf-8').strip('\n').split('\n')
         if store_cache:
+            os.makedirs(SEED_CACHE_DIR, exist_ok=True)
             with open(seed_cache, "w") as f:
                 for line in out:
                     f.write(line + "\n")
+            sys.stderr.write(f"Wall cache set to {seed_cache}.\n")
+        sys.stderr.write(f"Wall created by docker run. Cache were not found in: \n  {seed_cache}\n  {pkg_seed_cache}\n")
 
     return parse_wall(out)
 
