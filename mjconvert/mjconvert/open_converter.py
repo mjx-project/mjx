@@ -92,6 +92,38 @@ def is_unused_red(bits: int):
         return False
 
 
+def has_red_chi(bits: int) -> bool:  # to_do テスト
+    min_starts_include5_mod9 = [2, 3, 4]
+    min_tile = _min_tile_chi(bits)
+    if min_tile % 9 in min_starts_include5_mod9:
+        start_from3 = min_tile % 9 == 2  # min_tile で場合分け
+        start_from4 = min_tile % 9 == 3
+        start_from5 = min_tile % 9 == 4
+        if start_from3 and ((bits >> 7) & 3 == 0):  # 3から始まる→3番目の牌のid mod 4 =0 →赤
+            return True
+        elif start_from4 and ((bits >> 5) & 3) == 0:
+            return True
+        elif start_from5 and ((bits >> 3) & 3 == 0):
+            return True
+        else:
+            return False
+    else:
+        return False
+
+
+def has_red_pon_kan_added(bits: int) -> bool:  # to_do テスト
+    fives = [4, 14, 22, 51, 52, 53]
+    stolen_tile_kind = open_stolen_tile_type(bits)
+    if stolen_tile_kind in fives:
+        unused_id_mod3 = (bits >> 5) & 3
+        if unused_id_mod3 == 0:
+            return False
+        else:
+            return True
+    else:
+        return False
+
+
 def open_stolen_tile_type(bits: int) -> int:
     """
     >>> open_stolen_tile_type(51306)
@@ -102,7 +134,6 @@ def open_stolen_tile_type(bits: int) -> int:
     18
     """
     event_type = open_event_type(bits)
-    fives = [4, 14, 22]
     if event_type == mj_pb2.EVENT_TYPE_CHI:
         min_tile = _min_tile_chi(bits)
         stolen_tile_kind = min_tile + (bits >> 10) % 3
@@ -127,13 +158,14 @@ def open_tile_types(bits: int) -> List[int]:
     event_type = open_event_type(bits)
     if event_type == mj_pb2.EVENT_TYPE_CHI:
         min_tile = _min_tile_chi(bits)
-        return [min_tile, min_tile+1, min_tile+2]
+        return [min_tile, min_tile + 1, min_tile + 2]
     elif event_type == mj_pb2.EVENT_TYPE_PON:
         stolen_tile_kind = open_stolen_tile_type(bits)
-        return [stolen_tile_kind]*3
-    else:   #
+        return [stolen_tile_kind] * 3
+    else:  #
         stolen_tile_kind = open_stolen_tile_type(bits)
-        return [stolen_tile_kind]*4
+        return [stolen_tile_kind] * 4
+
 
 def change_open_tile_fmt(tile_in_open_fmt: int) -> int:  # tile_in_open 0~33 tile_in_score 11~19, 21~29, 31~39,41~47
     reds_in_score = [51, 52, 53]
@@ -150,5 +182,3 @@ def change_open_tiles_fmt(tile_ids_in_open: List[int]) -> List[int]:
 
 
 print()
-
-
