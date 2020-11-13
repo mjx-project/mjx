@@ -84,6 +84,14 @@ def is_stolen_red(bits: int) -> bool:  # to_do: test  さらに小さい関数�
         return False
 
 
+def is_unused_red(bits: int):
+    unused_id_mod4 = (bits >> 5) & 3
+    if unused_id_mod4 == 0:
+        return True
+    else:
+        return False
+
+
 def open_stolen_tile_type(bits: int) -> int:
     """
     >>> open_stolen_tile_type(51306)
