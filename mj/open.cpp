@@ -1,8 +1,10 @@
+#include "open.h"
+#include "utils.h"
+
 #include <bitset>
 #include <cassert>
 #include <algorithm>
 
-#include "open.h"
 
 namespace mj
 {
@@ -213,7 +215,7 @@ namespace mj
         return RelativePos::kLeft;
     }
     Tile Chi::At(std::uint16_t bits, std::size_t i) {
-        assert(i < 3);
+        Assert(i < 3);
         return at(bits, i, min_type(bits));
     }
     std::size_t Chi::Size(std::uint16_t bits) {
@@ -283,7 +285,7 @@ namespace mj
     // Pon
 
     Open Pon::Create(Tile stolen, Tile unused, RelativePos from) {
-        assert(stolen.Type() == unused.Type());
+        Assert(stolen.Type() == unused.Type());
         std::uint16_t bits = 0;
         bits |= (MASK_FROM & static_cast<std::uint16_t>(from));
         bits |= MASK_IS_PON;
@@ -298,7 +300,7 @@ namespace mj
         // 3   2  2  2  -
         std::uint16_t stolen_ix = static_cast<std::uint16_t>(stolen.Id() % 4);
         if (stolen_ix > unused_offset) --stolen_ix;
-        assert(stolen_ix < 3);
+        Assert(stolen_ix < 3);
         bits |= (base * 3 + stolen_ix) <<9;
         return Open(bits);
     }
@@ -439,7 +441,7 @@ namespace mj
         return RelativePos(static_cast<std::uint8_t>(bits & MASK_FROM));
     }
     Tile KanAdded::At(std::uint16_t bits, std::size_t i) {
-        assert(i < 4);
+        Assert(i < 4);
         std::uint16_t type = (bits >> 9) / 3;
         return Tile(static_cast<std::uint8_t>(type * 4 + i));
     }

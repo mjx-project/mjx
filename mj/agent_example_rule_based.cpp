@@ -44,7 +44,7 @@ namespace mj
                                              mjproto::ACTION_TYPE_CHI})) {
                 if (curr_hand.IsTenpai()) {
                     possible_action = *possible_actions.rbegin();
-                    assert(possible_action.type() == mjproto::ActionType::ACTION_TYPE_NO);
+                    Assert(possible_action.type() == mjproto::ActionType::ACTION_TYPE_NO);
                     response.set_type(possible_action.type());
                     return Action(std::move(response));
                 }
@@ -56,7 +56,7 @@ namespace mj
                                              mjproto::ACTION_TYPE_CHI})) {
                 possible_action = *SelectRandomly(possible_actions.begin(), possible_actions.end());
                 if (possible_action.type() != mjproto::ActionType::ACTION_TYPE_DISCARD) {
-                    assert(Any(possible_action.type(), {
+                    Assert(Any(possible_action.type(), {
                         mjproto::ACTION_TYPE_KAN_CLOSED, mjproto::ACTION_TYPE_KAN_ADDED,
                         mjproto::ACTION_TYPE_KAN_OPENED, mjproto::ACTION_TYPE_PON,
                         mjproto::ACTION_TYPE_CHI, mjproto::ACTION_TYPE_NO}));
@@ -79,7 +79,7 @@ namespace mj
                     return Action(std::move(response));
                 }
             }
-            assert(false);
+            Assert(false);
         }
         // 判定ロジック
         auto is_head = [&closed_tile_type_cnt](Tile tile){

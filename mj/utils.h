@@ -10,7 +10,7 @@
 // original assertion
 #ifndef Assert
 #define Assert(fmt, ...) \
-    assert(fmt || Msg(__VA_ARGS__))
+    assert(fmt || mj::Msg(__VA_ARGS__))
 #endif
 
 namespace mj
