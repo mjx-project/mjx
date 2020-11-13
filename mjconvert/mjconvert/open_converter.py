@@ -39,7 +39,7 @@ def open_from(bits: int) -> mj_pb2.RelativePos:
     if event_type == mj_pb2.EVENT_TYPE_CHI:
         return mj_pb2.RELATIVE_POS_LEFT
     elif event_type == mj_pb2.EVENT_TYPE_PON or event_type == mj_pb2.EVENT_TYPE_KAN_OPENED or event_type == mj_pb2.EVENT_TYPE_KAN_ADDED:
-        return mj_pb2.RELATIVE_POS(bits & 3)
+        return mj_pb2.RelativePos(bits & 3)
     else:
         return mj_pb2.RELATIVE_POS_SELF
 
