@@ -68,13 +68,13 @@ def open_stolen_tile_type(bits: int) -> int:
     if event_type == mj_pb2.EVENT_TYPE_CHI:
         min_tile = _min_tile_chi(bits)
         stolen_tile_kind = min_tile + (bits >> 10) % 3
-        return transform_red_stolen_tile(bits, stolen_tile_kind)
+        return stolen_tile_kind
     elif event_type == mj_pb2.EVENT_TYPE_PON or event_type == mj_pb2.EVENT_TYPE_KAN_ADDED:
         stolen_tile_kind = (bits >> 9) // 3
-        return transform_red_stolen_tile(bits, stolen_tile_kind)
+        return stolen_tile_kind
     else:
         stolen_tile_kind = (bits >> 8) // 4  # to_do:テスト
-        return transform_red_stolen_tile(bits, stolen_tile_kind)
+        return stolen_tile_kind
 
 
 def is_stolen_red(bits: int) -> bool:  # to_do: test  さらに小さい関数を作るか否か考えるべし
@@ -189,6 +189,3 @@ def change_open_tile_fmt(tile_in_open_fmt: int) -> int:  # tile_in_open 0~33 til
 def change_open_tiles_fmt(tile_ids_in_open: List[int]) -> List[int]:
     scores = list(map(change_open_tile_fmt, tile_ids_in_open))
     return scores
-
-
-print()
