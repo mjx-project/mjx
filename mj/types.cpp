@@ -6,7 +6,7 @@
 namespace mj
 {
     std::uint8_t Num(TileType type) noexcept {
-        assert(type < TileType::kEW);
+        Assert(type < TileType::kEW);
         return static_cast<uint8_t>(type) % 9 + 1;
     }
 
@@ -48,7 +48,7 @@ namespace mj
             case TileSetType::kEmpty:
                 return false;
             default:
-                assert(false);
+                Assert(false);
         }
     }
 
@@ -56,7 +56,7 @@ namespace mj
         if (Is(type, TileSetType::kManzu)) return TileSetType::kManzu;
         if (Is(type, TileSetType::kPinzu)) return TileSetType::kPinzu;
         if (Is(type, TileSetType::kSouzu)) return TileSetType::kSouzu;
-        assert(false);
+        Assert(false);
     }
 
     Wind ToSeatWind(AbsolutePos who, AbsolutePos dealer) {
@@ -74,7 +74,7 @@ namespace mj
             case 3:
                 return RelativePos::kLeft;
         }
-        assert(false);
+        Assert(false);
     }
 
     mjproto::EventType OpenTypeToEventType(OpenType open_type) {

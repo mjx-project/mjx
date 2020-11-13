@@ -24,14 +24,14 @@ namespace mj
             state_ = state_.Next();
         }
         // ゲーム終了時のStateにはisGameOverが含まれるはず #428
-        assert(state_.ToJson().find("isGameOver") != std::string::npos);
+        Assert(state_.ToJson().find("isGameOver") != std::string::npos);
         return state_.result();
     }
 
     void Environment::RunOneRound() {
         while (!state_.IsRoundOver()) {
             auto observations = state_.CreateObservations();
-            assert(!observations.empty());
+            Assert(!observations.empty());
             std::vector<mjproto::Action> actions; actions.reserve(observations.size());
             for (auto& [player_id, obs]: observations) {
                 actions.emplace_back(agent(player_id)->TakeAction(std::move(obs)));

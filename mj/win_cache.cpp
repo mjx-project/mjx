@@ -6,6 +6,7 @@
 #include <boost/property_tree/json_parser.hpp>
 
 #include "abstruct_hand.h"
+#include "utils.h"
 
 
 namespace mj {
@@ -33,7 +34,7 @@ namespace mj {
                 cache_[hand].insert(pattern);
             }
         }
-        assert(cache_.size() == 9362);
+        Assert(cache_.size() == 9362);
     }
 
     void WinHandCache::LoadTenpaiCache() {
@@ -42,7 +43,7 @@ namespace mj {
         for (auto& hand_pt : root.get_child("data")) {
             tenpai_cache_.insert(hand_pt.second.get_value<std::string>());
         }
-        assert(tenpai_cache_.size() == 34539);
+        Assert(tenpai_cache_.size() == 34539);
     }
 
     bool WinHandCache::Has(const std::vector<int>& closed_hand) const noexcept {

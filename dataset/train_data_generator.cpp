@@ -1,9 +1,9 @@
 #include "train_data_generator.h"
+#include "mj/utils.h"
 
 #include <fstream>
 #include <iostream>
 #include <filesystem>
-#include "mj/utils.h"
 
 namespace mj {
 
@@ -14,7 +14,7 @@ namespace mj {
         while (std::getline(ifs, json)) {
             mjproto::State state;
             auto status = google::protobuf::util::JsonStringToMessage(json, &state);
-            assert(status.ok());
+            Assert(status.ok());
 
             // eventのコピーを取ってから全て削除する
             auto events = state.event_history().events();
@@ -24,7 +24,7 @@ namespace mj {
 
             for (auto event : events) {
                 std::string event_json;
-                assert(google::protobuf::util::MessageToJsonString(event, &event_json).ok());
+                Assert(google::protobuf::util::MessageToJsonString(event, &event_json).ok());
 
                 if (event.type() == mjproto::EVENT_TYPE_DISCARD_DRAWN_TILE or
                     event.type() == mjproto::EVENT_TYPE_DISCARD_FROM_HAND)
@@ -40,7 +40,7 @@ namespace mj {
     }
 
     void TrainDataGenerator::generateOpen(const std::string& src_path, const std::string& dst_path, mjproto::ActionType open_type) {
-        assert(open_type == mjproto::ActionType::ACTION_TYPE_CHI or
+        Assert(open_type == mjproto::ActionType::ACTION_TYPE_CHI or
                open_type == mjproto::ActionType::ACTION_TYPE_PON);
         std::ifstream ifs(src_path, std::ios::in);
         std::ofstream ofs(dst_path, std::ios::out);
@@ -48,7 +48,7 @@ namespace mj {
         while (std::getline(ifs, json)) {
             mjproto::State state;
             auto status = google::protobuf::util::JsonStringToMessage(json, &state);
-            assert(status.ok());
+            Assert(status.ok());
 
             // eventのコピーを取ってから全て削除する
             auto events = state.event_history().events();
@@ -64,7 +64,7 @@ namespace mj {
 
             for (const auto& event : events) {
                 std::string event_json;
-                assert(google::protobuf::util::MessageToJsonString(event, &event_json).ok());
+                Assert(google::protobuf::util::MessageToJsonString(event, &event_json).ok());
                 if (!state_.HasLastEvent() or (
                     state_.LastEvent().type() != mjproto::EVENT_TYPE_DISCARD_FROM_HAND and
                     state_.LastEvent().type() != mjproto::EVENT_TYPE_DISCARD_DRAWN_TILE)) {
@@ -87,7 +87,7 @@ namespace mj {
                         }
                     }
                     std::string action_json;
-                    assert(google::protobuf::util::MessageToJsonString(selected_action, &action_json).ok());
+                    Assert(google::protobuf::util::MessageToJsonString(selected_action, &action_json).ok());
                     ofs << "\t" << action_json << std::endl;
                 }
 
@@ -97,7 +97,7 @@ namespace mj {
     }
 
     void TrainDataGenerator::generateOpenYesNo(const std::string& src_path, const std::string& dst_path, mjproto::ActionType open_type) {
-        assert(open_type == mjproto::ActionType::ACTION_TYPE_KAN_ADDED or
+        Assert(open_type == mjproto::ActionType::ACTION_TYPE_KAN_ADDED or
                open_type == mjproto::ActionType::ACTION_TYPE_KAN_CLOSED or
                open_type == mjproto::ActionType::ACTION_TYPE_KAN_OPENED);
         std::ifstream ifs(src_path, std::ios::in);
@@ -106,7 +106,7 @@ namespace mj {
         while (std::getline(ifs, json)) {
             mjproto::State state;
             auto status = google::protobuf::util::JsonStringToMessage(json, &state);
-            assert(status.ok());
+            Assert(status.ok());
 
             // eventのコピーを取ってから全て削除する
             auto events = state.event_history().events();
@@ -122,7 +122,7 @@ namespace mj {
 
             for (const auto& event : events) {
                 std::string event_json;
-                assert(google::protobuf::util::MessageToJsonString(event, &event_json).ok());
+                Assert(google::protobuf::util::MessageToJsonString(event, &event_json).ok());
 
                 if (!state_.HasLastEvent() or
                     (state_.LastEvent().type() != mjproto::EVENT_TYPE_DISCARD_FROM_HAND and
@@ -161,7 +161,7 @@ namespace mj {
         while (std::getline(ifs, json)) {
             mjproto::State state;
             auto status = google::protobuf::util::JsonStringToMessage(json, &state);
-            assert(status.ok());
+            Assert(status.ok());
 
             // eventのコピーを取ってから全て削除する
             auto events = state.event_history().events();
@@ -177,7 +177,7 @@ namespace mj {
 
             for (const auto& event : events) {
                 std::string event_json;
-                assert(google::protobuf::util::MessageToJsonString(event, &event_json).ok());
+                Assert(google::protobuf::util::MessageToJsonString(event, &event_json).ok());
 
                 if (!state_.HasLastEvent() or
                     state_.LastEvent().type() != mjproto::EVENT_TYPE_DRAW) {
@@ -205,7 +205,7 @@ namespace mj {
 namespace fs = std::filesystem;
 
 int main(int argc, char *argv[]) {
-    assert(argc == 4);
+    Assert(argc == 4);
     std::string action_type = argv[1];
     auto src_dir = fs::directory_entry(argv[2]);
     auto dst_dir = fs::directory_entry(argv[3]);
