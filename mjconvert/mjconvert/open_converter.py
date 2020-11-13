@@ -68,11 +68,11 @@ def open_stolen_tile_type(bits: int) -> int:
         stolen_tile_kind = (bits >> 9) // 3
         return stolen_tile_kind
     else:
-        stolen_tile_kind = (bits >> 8) // 4  # to_do:テスト
+        stolen_tile_kind = (bits >> 8) // 4  # TODO: add test case
         return stolen_tile_kind
 
 
-def is_stolen_red(bits: int) -> bool:  # to_do: test  さらに小さい関数を作るか否か考えるべし
+def is_stolen_red(bits: int) -> bool:  # TODO: test  さらに小さい関数を作るか否か考えるべし
     fives = [4, 14, 22]
     reds = [14, 52, 88]
     event_type = open_event_type(bits)
@@ -109,7 +109,7 @@ def is_unused_red(bits: int):
         return False
 
 
-def has_red_chi(bits: int) -> bool:  # to_do テスト
+def has_red_chi(bits: int) -> bool:  # TODO テスト
     min_starts_include5_mod9 = [2, 3, 4]
     min_tile = _min_tile_chi(bits)
     if min_tile % 9 in min_starts_include5_mod9:
@@ -128,7 +128,7 @@ def has_red_chi(bits: int) -> bool:  # to_do テスト
         return False
 
 
-def has_red_pon_kan_added(bits: int) -> bool:  # to_do テスト ポンとカカンは未使用牌が赤かどうかで鳴牌に赤があるか判断
+def has_red_pon_kan_added(bits: int) -> bool:  # TODO テスト ポンとカカンは未使用牌が赤かどうかで鳴牌に赤があるか判断
     fives = [4, 14, 22, 51, 52, 53]
     stolen_tile_kind = open_stolen_tile_type(bits)
     if stolen_tile_kind in fives:
