@@ -1,4 +1,6 @@
 from typing import List, Tuple, Dict, Iterator
+import os
+import hashlib
 import json
 import copy
 import subprocess
@@ -8,6 +10,9 @@ from xml.etree.ElementTree import Element
 from google.protobuf import json_format
 
 from mjconvert import mj_pb2
+
+
+SEED_CACHE_DIR = os.path.join(os.environ["HOME"], ".mjconvert/seed_cache")
 
 
 class MjlogDecoder:
@@ -310,8 +315,8 @@ class MjlogDecoder:
                 return mj_pb2.EVENT_TYPE_KAN_OPENED
 
 
-# TODO: remove docker dependency
-def reproduce_wall(mjlog_str: str) -> List[Tuple[List[int], List[int]]]:
+def reproduce_wall(mjlog_str: str, cache=False) -> List[Tuple[List[int], List[int]]]:
+    # SeedをXMLから切り出す
     root = ET.fromstring(mjlog_str)
     shuffle = root.iter("SHUFFLE")
     seed = ""
@@ -321,12 +326,29 @@ def reproduce_wall(mjlog_str: str) -> List[Tuple[List[int], List[int]]]:
         assert x[0] == "mt19937ar-sha512-n288-base64"
         assert len(x) == 2
         seed = repr(x[1])[1:-1]
-    assert seed  # Old (~2009.xx) log does not have SHUFFLE item
-    out = subprocess.run(["docker", "run", "--rm", "sotetsuk/twr:v0.0.1", "/twr",  seed, "100"], capture_output=True)
-    assert out.returncode == 0, "Failed to decode wall from given seed"
+    assert len(seed) != 0, "Old (~2009.xx) log does not have SHUFFLE item"
+
+    # 牌山の情報をSeedから復元する。のキャッシュがあれば、それを返す
+    os.makedirs(SEED_CACHE_DIR, exist_ok=True)
+    seed_md5 = hashlib.md5(seed.encode()).hexdigest()
+    seed_cache = os.path.exists(os.path.join(SEED_CACHE_DIR, seed_md5 + ".txt"))
+    out: List[str]
+    if seed_cache:
+        with open(seed_cache, "r") as f:
+            out = f.readlines()
+    else:
+        # TODO: remove docker dependency
+        tmp = subprocess.run(["docker", "run", "--rm", "sotetsuk/twr:v0.0.1", "/twr",  seed, "100"], capture_output=True)
+        assert tmp.returncode == 0, "Failed to decode wall from given seed"
+        out = tmp.stdout.decode('utf-8').strip('\n').split('\n')
+        if cache:
+            with open(seed_cache, "w") as f:
+                f.writelines(out)
+
+    # 牌山の前処理
     wall_dices: List[Tuple[List[int], List[int]]] = []
     wall, dices = [], []
-    for i, line in enumerate(out.stdout.decode('utf-8').strip('\n').split('\n')):
+    for i, line in enumerate(out):
         if i % 2 == 0:
             wall = [int(x) for x in line.split(',')]
             wall.reverse()
@@ -335,5 +357,6 @@ def reproduce_wall(mjlog_str: str) -> List[Tuple[List[int], List[int]]]:
             dices = [int(x) for x in line.split(',')]
             assert len(dices) == 2
             wall_dices.append((wall, dices))
+
     return wall_dices
 
