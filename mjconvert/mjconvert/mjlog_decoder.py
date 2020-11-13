@@ -315,7 +315,7 @@ class MjlogDecoder:
                 return mj_pb2.EVENT_TYPE_KAN_OPENED
 
 
-def reproduce_wall_from_mjlog(mjlog_str: str, cache=False) -> List[Tuple[List[int], List[int]]]:
+def reproduce_wall_from_mjlog(mjlog_str: str, use_cache=False) -> List[Tuple[List[int], List[int]]]:
     # SeedをXMLから切り出す
     root = ET.fromstring(mjlog_str)
     shuffle = root.iter("SHUFFLE")
@@ -328,6 +328,10 @@ def reproduce_wall_from_mjlog(mjlog_str: str, cache=False) -> List[Tuple[List[in
         seed = repr(x[1])[1:-1]
     assert len(seed) != 0, "Old (~2009.xx) log does not have SHUFFLE item"
 
+    return reproduce_wall_from_seed(seed, use_cache=use_cache)
+
+
+def reproduce_wall_from_seed(seed: str, use_cache=False) -> List[Tuple[List[int], List[int]]]:
     # 牌山の情報をSeedから復元する。のキャッシュがあれば、それを返す
     os.makedirs(SEED_CACHE_DIR, exist_ok=True)
     seed_md5 = hashlib.md5(seed.encode()).hexdigest()
@@ -341,22 +345,31 @@ def reproduce_wall_from_mjlog(mjlog_str: str, cache=False) -> List[Tuple[List[in
         tmp = subprocess.run(["docker", "run", "--rm", "sotetsuk/twr:v0.0.1", "/twr",  seed, "100"], capture_output=True)
         assert tmp.returncode == 0, "Failed to decode wall from given seed"
         out = tmp.stdout.decode('utf-8').strip('\n').split('\n')
-        if cache:
+        if use_cache:
             with open(seed_cache, "w") as f:
                 f.writelines(out)
 
-    # 牌山の前処理
+    return parse_wall(out)
+
+
+def parse_wall(wall_outputs: List[str]) -> List[Tuple[List[int], List[int]]]:
+    """牌山の前処理をする
+
+    >>> wall_outputs = ["124,122,37,27,80,127,125,87,104,67,115,95,8,57,92,130,69,118,20,128,35,6,123,56,103,96,55,85,109,88,32,63,26,117,16,17,82,47,68,23,9,25,65,5,39,94,76,58,97,36,14,99,111,7,133,113,31,100,131,70,28,46,30,60,79,41,74,116,75,93,105,49,91,135,114,42,45,132,21,119,18,24,129,51,121,3,81,40,29,13,34,19,86,78,53,64,50,71,120,83,66,84,126,4,12,10,101,102,22,112,15,48,134,77,0,11,108,98,61,1,107,110,59,90,2,44,54,38,89,33,62,43,73,106,72,52", "4,5"]
+    >>> parse_wall(wall_outputs)
+    [([52, 72, 106, 73, 43, 62, 33, 89, 38, 54, 44, 2, 90, 59, 110, 107, 1, 61, 98, 108, 11, 0, 77, 134, 48, 15, 112, 22, 102, 101, 10, 12, 4, 126, 84, 66, 83, 120, 71, 50, 64, 53, 78, 86, 19, 34, 13, 29, 40, 81, 3, 121, 51, 129, 24, 18, 119, 21, 132, 45, 42, 114, 135, 91, 49, 105, 93, 75, 116, 74, 41, 79, 60, 30, 46, 28, 70, 131, 100, 31, 113, 133, 7, 111, 99, 14, 36, 97, 58, 76, 94, 39, 5, 65, 25, 9, 23, 68, 47, 82, 17, 16, 117, 26, 63, 32, 88, 109, 85, 55, 96, 103, 56, 123, 6, 35, 128, 20, 118, 69, 130, 92, 57, 8, 95, 115, 67, 104, 87, 125, 127, 80, 27, 37, 122, 124], [4, 5])]
+    """
     wall_dices: List[Tuple[List[int], List[int]]] = []
     wall, dices = [], []
-    for i, line in enumerate(out):
+    for i, line in enumerate(wall_outputs):
+        line_splitted = line.strip().strip("\n").split(',')
         if i % 2 == 0:
-            wall = [int(x) for x in line.split(',')]
+            wall = [int(x) for x in line_splitted]
             wall.reverse()
             assert len(wall) == 136
         else:
-            dices = [int(x) for x in line.split(',')]
+            dices = [int(x) for x in line_splitted]
             assert len(dices) == 2
             wall_dices.append((wall, dices))
 
     return wall_dices
-
