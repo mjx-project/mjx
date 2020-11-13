@@ -118,7 +118,7 @@ std::string SwapTiles(const std::string &json_str, Tile a, Tile b){
     return serialized;
 }
 
-Action FindPossibleAction(mjproto::ActionType action_type, const Observation &observation) {
+mjproto::Action FindPossibleAction(mjproto::ActionType action_type, const Observation &observation) {
     for (const auto& possible_action: observation.possible_actions())
         if (possible_action.type() == action_type) return possible_action;
     std::cerr << "Cannot find the specified action type" << std::endl;
@@ -317,7 +317,7 @@ TEST(state, CreateObservation) {
     EXPECT_TRUE(observations.find("超ヒモリロ") != observations.end());
     observation = observations["超ヒモリロ"];
     EXPECT_TRUE(ActionTypeCheck({mjproto::ACTION_TYPE_CHI, mjproto::ACTION_TYPE_NO}, observation));
-    EXPECT_EQ(observation.possible_actions().front().open().GetBits(), 42031);
+    EXPECT_EQ(observation.possible_actions().front().open(), 42031);
 
     // 14. Discardした後、ロン可能なプレイヤーがいる場合にはロンが入る
     json = GetLastJsonLine("obs-discard-ron.json");
@@ -345,7 +345,7 @@ TEST(state, CreateObservation) {
 TEST(state, Update) {
     // 特に記述がないテストケースは下記から
     // https://tenhou.net/0/?log=2011020417gm-00a9-0000-b67fcaa3&tw=1
-    std::string json_before, json_after; State state_before, state_after; std::vector<Action> actions; std::unordered_map<PlayerId, Observation> observations; Observation observation; Action possible_action;
+    std::string json_before, json_after; State state_before, state_after; std::vector<mjproto::Action> actions; std::unordered_map<PlayerId, Observation> observations; Observation observation; mjproto::Action possible_action;
 
     // Draw後にDiscardでUpdate。これを誰も鳴けない場合は次のDrawまで進む
     json_before = GetLastJsonLine("upd-bef-draw-discard-draw.json");
@@ -686,7 +686,7 @@ TEST(state, Update) {
     observation = observations.begin()->second;
     EXPECT_TRUE(ActionTypeCheck({mjproto::ACTION_TYPE_DISCARD, mjproto::ACTION_TYPE_KAN_ADDED}, observation));
     possible_action = FindPossibleAction(mjproto::ACTION_TYPE_KAN_ADDED, observation);
-    actions = { Action::CreateOpen(observation.who(), possible_action.open()) };
+    actions = { Action::CreateOpen(observation.who(), Open(possible_action.open())) };
     state_before.Update(std::move(actions));
     // No
     observations = state_before.CreateObservations();
@@ -726,7 +726,7 @@ TEST(state, Update) {
     observation = observations.begin()->second;
     EXPECT_TRUE(ActionTypeCheck({mjproto::ACTION_TYPE_DISCARD, mjproto::ACTION_TYPE_KAN_ADDED}, observation));
     possible_action = FindPossibleAction(mjproto::ACTION_TYPE_KAN_ADDED, observation);
-    actions = { Action::CreateOpen(observation.who(), possible_action.open()) };
+    actions = { Action::CreateOpen(observation.who(), Open(possible_action.open())) };
     state_before.Update(std::move(actions));
     // KanAdded p8
     observations = state_before.CreateObservations();
@@ -734,7 +734,7 @@ TEST(state, Update) {
     observation = observations.begin()->second;
     EXPECT_TRUE(ActionTypeCheck({mjproto::ACTION_TYPE_DISCARD, mjproto::ACTION_TYPE_KAN_ADDED}, observation));
     possible_action = FindPossibleAction(mjproto::ACTION_TYPE_KAN_ADDED, observation);
-    actions = { Action::CreateOpen(observation.who(), possible_action.open()) };
+    actions = { Action::CreateOpen(observation.who(), Open(possible_action.open())) };
     state_before.Update(std::move(actions));
     // 槍槓（一発なし）
     observations = state_before.CreateObservations();
@@ -763,7 +763,7 @@ TEST(state, EncodeDecode) {
 }
 
 TEST(state, Equals) {
-    std::string json_before, json_after; State state_before, state_after; std::vector<Action> actions;
+    std::string json_before, json_after; State state_before, state_after; std::vector<mjproto::Action> actions;
     json_before = GetLastJsonLine("upd-bef-draw-discard-draw.json");
     json_after = GetLastJsonLine("upd-aft-draw-discard-draw.json");
     state_before = State(json_before);
@@ -789,15 +789,15 @@ TEST(state, CanReach) {
     EXPECT_TRUE(state_after.CanReach(state_after));
 }
 
-std::vector<std::vector<Action>> ListUpAllActionCombinations(std::unordered_map<PlayerId, Observation> &&observations) {
-    std::vector<std::vector<Action>> actions{{}};
+std::vector<std::vector<mjproto::Action>> ListUpAllActionCombinations(std::unordered_map<PlayerId, Observation> &&observations) {
+    std::vector<std::vector<mjproto::Action>> actions{{}};
     for (const auto &[player_id, observation]: observations) {
         auto who = observation.who();
-        std::vector<Action> actions_per_player;
+        std::vector<mjproto::Action> actions_per_player;
         for (const auto &possible_action: observation.possible_actions()) {
             switch (possible_action.type()) {
                 case mjproto::ACTION_TYPE_DISCARD:
-                    actions_per_player.push_back(Action::CreateDiscard(who, possible_action.discard()));
+                    actions_per_player.push_back(Action::CreateDiscard(who, Tile(possible_action.discard())));
                     break;
                 case mjproto::ACTION_TYPE_TSUMO:
                     actions_per_player.push_back(Action::CreateTsumo(who));
@@ -819,7 +819,7 @@ std::vector<std::vector<Action>> ListUpAllActionCombinations(std::unordered_map<
                 case mjproto::ACTION_TYPE_KAN_OPENED:
                 case mjproto::ACTION_TYPE_KAN_CLOSED:
                 case mjproto::ACTION_TYPE_KAN_ADDED:
-                    actions_per_player.push_back(Action::CreateOpen(who, possible_action.open()));
+                    actions_per_player.push_back(Action::CreateOpen(who, Open(possible_action.open())));
                     break;
                 default:
                     break;
@@ -827,11 +827,11 @@ std::vector<std::vector<Action>> ListUpAllActionCombinations(std::unordered_map<
         }
 
         // 直積を取る
-        std::vector<std::vector<Action>> next_actions;
+        std::vector<std::vector<mjproto::Action>> next_actions;
         next_actions.reserve(actions.size());
         for (int i = 0; i < actions.size(); ++i) {
             for (int j = 0; j < actions_per_player.size(); ++j) {
-                std::vector<Action> as = actions[i];
+                std::vector<mjproto::Action> as = actions[i];
                 as.push_back(actions_per_player[j]);
                 next_actions.push_back(std::move(as));
             }

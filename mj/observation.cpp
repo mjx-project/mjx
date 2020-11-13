@@ -6,8 +6,8 @@ namespace mj
 {
     Observation::Observation(const mjproto::Observation& proto) : proto_(proto) {}
 
-    std::vector<Action> Observation::possible_actions() const {
-        std::vector<Action> ret;
+    std::vector<mjproto::Action> Observation::possible_actions() const {
+        std::vector<mjproto::Action> ret;
         for (auto possible_action: proto_.possible_actions()) {
             ret.emplace_back(std::move(possible_action));
         }
@@ -28,11 +28,11 @@ namespace mj
         return AbsolutePos(proto_.who());
     }
 
-    void Observation::add_possible_action(Action &&possible_action) {
-        proto_.mutable_possible_actions()->Add(possible_action.Proto());
+    void Observation::add_possible_action(mjproto::Action &&possible_action) {
+        proto_.mutable_possible_actions()->Add(std::move(possible_action));
     }
 
-    void Observation::add_possible_actions(const std::vector<Action> &possible_actions) {
+    void Observation::add_possible_actions(const std::vector<mjproto::Action> &possible_actions) {
         for (auto possible_action : possible_actions) {
             add_possible_action(std::move(possible_action));
         }

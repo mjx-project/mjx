@@ -12,7 +12,7 @@ namespace mj
         AgentExampleRuleBased() = default;
         explicit AgentExampleRuleBased(PlayerId player_id);
         ~AgentExampleRuleBased() final = default;
-        [[nodiscard]] Action TakeAction(Observation &&observation) const final ;
+        [[nodiscard]] mjproto::Action TakeAction(Observation &&observation) const final ;
     };
 }
 
