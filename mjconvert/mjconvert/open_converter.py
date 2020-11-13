@@ -72,6 +72,27 @@ def open_stolen_tile_type(bits: int) -> int:
         return stolen_tile_kind
 
 
+def open_tile_types(bits: int) -> List[int]:
+    """
+    >>> open_tile_types(51306)  # Pon rd
+    [33, 33, 33]
+    >>> open_tile_types(49495)  # Chi s3s4s5
+    [20, 21, 22]
+    >>> open_tile_types(28722)  # 加槓 s1
+    [18, 18, 18, 18]
+    """
+    event_type = open_event_type(bits)
+    if event_type == mj_pb2.EVENT_TYPE_CHI:
+        min_tile = _min_tile_chi(bits)
+        return [min_tile, min_tile + 1, min_tile + 2]
+    elif event_type == mj_pb2.EVENT_TYPE_PON:
+        stolen_tile_kind = open_stolen_tile_type(bits)
+        return [stolen_tile_kind] * 3
+    else:
+        stolen_tile_kind = open_stolen_tile_type(bits)
+        return [stolen_tile_kind] * 4
+
+
 def is_stolen_red(bits: int) -> bool:  # TODO: test  さらに小さい関数を作るか否か考えるべし
     fives = [4, 14, 22]
     reds = [14, 52, 88]
@@ -149,27 +170,6 @@ def has_red(bits: int) -> bool:
         return has_red_pon_kan_added(bits)
     else:
         return True  # ダイミンカンとアンカンは必ず赤を含む
-
-
-def open_tile_types(bits: int) -> List[int]:
-    """
-    >>> open_tile_types(51306)  # Pon rd
-    [33, 33, 33]
-    >>> open_tile_types(49495)  # Chi s3s4s5
-    [20, 21, 22]
-    >>> open_tile_types(28722)  # 加槓 s1
-    [18, 18, 18, 18]
-    """
-    event_type = open_event_type(bits)
-    if event_type == mj_pb2.EVENT_TYPE_CHI:
-        min_tile = _min_tile_chi(bits)
-        return [min_tile, min_tile + 1, min_tile + 2]
-    elif event_type == mj_pb2.EVENT_TYPE_PON:
-        stolen_tile_kind = open_stolen_tile_type(bits)
-        return [stolen_tile_kind] * 3
-    else:  #
-        stolen_tile_kind = open_stolen_tile_type(bits)
-        return [stolen_tile_kind] * 4
 
 
 def change_open_tile_fmt(tile_in_open_fmt: int) -> int:  # tile_in_open 0~33 tile_in_score 11~19, 21~29, 31~39,41~47
