@@ -4,7 +4,8 @@ from mjconvert import mj_pb2
 
 def open_event_type(bits: int) -> mj_pb2.EventType:
     """
-    >>> open_event_type(47723) == mj_pb2.EVENT_TYPE_PON True
+    >>> open_event_type(47723) == mj_pb2.EVENT_TYPE_PON
+    True
     >>> open_event_type(49495) == mj_pb2.EVENT_TYPE_CHI
     True
     >>> open_event_type(28722) == mj_pb2.EVENT_TYPE_KAN_ADDED
