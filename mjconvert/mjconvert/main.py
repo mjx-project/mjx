@@ -10,6 +10,40 @@ from mjconvert.mjlog_encoder import MjlogEncoder
 from mjconvert.mjlog_decoder import MjlogDecoder
 
 
+parser = argparse.ArgumentParser(description="""Convert Mahjong log into another format.
+
+Example (using stdin)
+
+  $ cat test.mjlog | mjconvert --to-mjproto
+  $ cat test.mjlog | mjconvert --to-mjproto-raw
+  $ cat test.json  | mjconvert --to-mjlog
+
+Example (using file inputs) 
+
+[NOTE] File inputs assume that each file corresponds to each game in any format.
+
+  $ mjconvert ./mjlog_dir ./mjproto_dir --to-mjproto
+  $ mjconvert ./mjlog_dir ./mjproto_dir --to-mjproto-raw
+  $ mjconvert ./mjproto_dir ./mjlog_dir --to-mjlog
+
+Difference between mjproto and mjproto-raw:
+
+  1. Yaku is sorted in yaku number
+  2. Yakuman's fu is set to 0
+    """, formatter_class=RawTextHelpFormatter)
+parser.add_argument('dir_from', nargs='?', default="", help="")
+parser.add_argument('dir_to', nargs='?', default="", help="")
+parser.add_argument('--to-mjproto', action='store_true', help="")
+parser.add_argument('--to-mjproto-raw', action='store_true', help="")
+parser.add_argument('--to-mjlog', action='store_true', help="")
+parser.add_argument('--store-cache', action='store_true', help="")
+parser.add_argument('--verbose', action='store_true', help="")
+
+args = parser.parse_args()
+assert (args.dir_from and args.dir_to) or (not args.dir_from and not args.dir_to)
+assert args.to_mjproto or args.to_mjproto_raw or args.to_mjlog
+
+
 class LineBuffer:
     """Split lines of inputs by game end."""
     def __init__(self, fmt: str):
@@ -83,10 +117,10 @@ class Converter:
             return [self.mjproto2mjlog.get()]  # a mjlog line corresponds to one game
         if self.fmt_from == "mjlog" and self.fmt_to == "mjproto":
             assert len(lines) == 1  # each line has each game
-            return self.mjlog2mjproto.decode(lines[0])
+            return self.mjlog2mjproto.decode(lines[0], store_cache=args.store_cache)
         if self.fmt_from == "mjlog" and self.fmt_to == "mjproto_raw":
             assert len(lines) == 1  # each line has each game
-            return self.mjlog2mjproto.decode(lines[0])
+            return self.mjlog2mjproto.decode(lines[0], store_cache=args.store_cache)
         else:
             raise NotImplementedError
 
@@ -117,38 +151,6 @@ class StdinIterator(object):
 
 
 def main():
-    parser = argparse.ArgumentParser(description="""Convert Mahjong log into another format.
-
-Example (using stdin)
-
-  $ cat test.mjlog | mjconvert --to-mjproto
-  $ cat test.mjlog | mjconvert --to-mjproto-raw
-  $ cat test.json  | mjconvert --to-mjlog
-      
-Example (using file inputs) 
-
-[NOTE] File inputs assume that each file corresponds to each game in any format.
-    
-  $ mjconvert ./mjlog_dir ./mjproto_dir --to-mjproto
-  $ mjconvert ./mjlog_dir ./mjproto_dir --to-mjproto-raw
-  $ mjconvert ./mjproto_dir ./mjlog_dir --to-mjlog
-    
-Difference between mjproto and mjproto-raw:
-    
-  1. Yaku is sorted in yaku number
-  2. Yakuman's fu is set to 0
-    """, formatter_class=RawTextHelpFormatter)
-    parser.add_argument('dir_from', nargs='?', default="", help="")
-    parser.add_argument('dir_to', nargs='?', default="", help="")
-    parser.add_argument('--to-mjproto', action='store_true', help="")
-    parser.add_argument('--to-mjproto-raw', action='store_true', help="")
-    parser.add_argument('--to-mjlog', action='store_true', help="")
-    parser.add_argument('--verbose', action='store_true', help="")
-
-    args = parser.parse_args()
-    assert (args.dir_from and args.dir_to) or (not args.dir_from and not args.dir_to)
-    assert args.to_mjproto or args.to_mjproto_raw or args.to_mjlog
-
     fmt_from: str = ""
     converter: Converter = None
     buffer: LineBuffer = None
