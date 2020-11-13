@@ -22,8 +22,8 @@ class MjlogDecoder:
         self.state = None
         self.modify = modify
 
-    def decode(self, mjlog_str: str) -> List[mj_pb2.State]:
-        wall_dices = reproduce_wall_from_mjlog(mjlog_str)
+    def decode(self, mjlog_str: str, store_cache=False) -> List[mj_pb2.State]:
+        wall_dices = reproduce_wall_from_mjlog(mjlog_str, store_cache=store_cache)
         root = ET.fromstring(mjlog_str)
         ret = []
         for state in self._parse_each_game(root, wall_dices, self.modify):
