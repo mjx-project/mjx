@@ -12,25 +12,17 @@ namespace mj
     class Event
     {
     public:
-        Event() = default;
-        EventType type() const;
-        AbsolutePos who() const;
-        Tile tile() const;
-        Open open() const;
-        mjproto::Event proto() const;
-
-        static Event CreateDraw(AbsolutePos who);
-        static Event CreateDiscard(AbsolutePos who, Tile discard, bool tsumogiri);
-        static Event CreateRiichi(AbsolutePos who);
-        static Event CreateOpen(AbsolutePos who, Open open);
-        static Event CreateNewDora(Tile dora_indicator);
-        static Event CreateRiichiScoreChange(AbsolutePos who);
-        static Event CreateTsumo(AbsolutePos who, Tile tile);
-        static Event CreateRon(AbsolutePos who, Tile tile);
-        static Event CreateNoWinner();
-    private:
-        explicit Event(mjproto::Event &&event) : proto_(std::move(event)) {}
-        mjproto::Event proto_;
+        Event() = delete;
+        static bool IsValid(const mjproto::Event &event);
+        static mjproto::Event CreateDraw(AbsolutePos who);
+        static mjproto::Event CreateDiscard(AbsolutePos who, Tile discard, bool tsumogiri);
+        static mjproto::Event CreateRiichi(AbsolutePos who);
+        static mjproto::Event CreateOpen(AbsolutePos who, Open open);
+        static mjproto::Event CreateNewDora(Tile dora_indicator);
+        static mjproto::Event CreateRiichiScoreChange(AbsolutePos who);
+        static mjproto::Event CreateTsumo(AbsolutePos who, Tile tile);
+        static mjproto::Event CreateRon(AbsolutePos who, Tile tile);
+        static mjproto::Event CreateNoWinner();
     };
 }  // namespace mj
 

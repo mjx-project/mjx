@@ -1,37 +1,26 @@
-#include "agent_client.h"
-
-#include <utility>
+#include "agent_grpc_client.h"
 
 namespace mj
 {
-    AgentClient::AgentClient(PlayerId player_id): player_id_(std::move(player_id)) {}
+    AgentGrpcClient::AgentGrpcClient(PlayerId player_id, const std::shared_ptr<grpc::Channel> &channel):
+            Agent(std::move(player_id)), stub_(mjproto::Agent::NewStub(channel)) { }
 
-    AgentClient::AgentClient(PlayerId player_id, const std::shared_ptr<grpc::Channel>& channel)
-            : player_id_(std::move(player_id)), stub_(mjproto::Agent::NewStub(channel)) {}
-
-    Action AgentClient::TakeAction(Observation &&observation) const {
+    mjproto::Action AgentGrpcClient::TakeAction(Observation &&observation) const {
         // TODO: verify that player_id is consistent (player_id_ == observation.player_id)
-        assert(!player_id_.empty());
         assert(stub_);
-        const mjproto::Observation request = observation.proto_;
+        const mjproto::Observation request = observation.proto();
         mjproto::Action response;
         grpc::ClientContext context;
         grpc::Status status = stub_->TakeAction(&context, request, &response);
         if (!status.ok()) {
             std::cout << status.error_code() << ": " << status.error_message() << std::endl;
         }
-        auto action = Action(std::move(response));
-        return action;
-    }
-
-    PlayerId AgentClient::player_id() const {
-        return player_id_;
+        return response;
     }
 }  // namespace mj
 
-
 // int main(int argc, char** argv) {
-//     mj::AgentClient agent(
+//     mj::Agent agent(
 //             grpc::CreateChannel("127.0.0.1:9090", grpc::InsecureChannelCredentials())
 //     );
 //

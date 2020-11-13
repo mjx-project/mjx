@@ -1,0 +1,88 @@
+@startuml
+
+set namespaceSeparator ::
+
+class mjproto::Score <<(D,yellow) Data>> {
+  + round
+  + honba 
+  + riichi 
+  + ten 
+}
+
+class mjproto::Event <<(D,yellow) Data>> {
+  + who
+  + type 
+  + tile
+  + open
+}
+
+class mjproto::EventHistory <<(D,yellow) Data>> {
+  + events: repeated Event
+}
+
+class mjproto::PrivateInfo <<(D,yellow) Data>> {
+  + who
+  + init_hand
+  + draws
+}
+
+class mjproto::PossibleAction <<(D,yellow) Data>> {
+  + type
+  + open 
+  + discard_candidates
+}
+
+class mjproto::State <<(D,yellow) Data>> {
+  + game_id
+  + player_ids
+  + init_score
+  + doras
+  + privae_infos
+  + event_history
+  + wall
+  + ura_dora
+  + end_info
+} 
+
+class mjproto::StateEndInfo <<(D,yellow) Data>> {
+  + end_score
+  + wins
+  + tenpais 
+  + no_winner_end_type
+  + is_game_over
+}
+
+class mjproto::Observation <<(D,yellow) Data>> {
+  + game_id
+  + player_ids
+  + init_score
+  + doras
+  + who
+  + init_hand
+  + draws
+  + event_history
+  + possible_actions
+}
+
+class mjproto::Action <<(D,yellow) Data>> { 
+  + game_id 
+  + who
+  + type
+  + yes
+  + discard
+  + open
+}
+
+mjproto::Observation *-- mjproto::Score
+mjproto::Observation *-- mjproto::EventHistory
+mjproto::Observation *-- mjproto::InitHand
+mjproto::Observation "1" *-- "1..*" mjproto::PossibleAction
+
+mjproto::State *-- mjproto::Score
+mjproto::State *-- mjproto::EventHistory
+mjproto::State "1" *-- "4" mjproto::PrivateInfo
+mjproto::State *-- mjproto::StateEndInfo
+
+mjproto::EventHistory "1" *-- "1..*" mjproto::Event
+
+@enduml

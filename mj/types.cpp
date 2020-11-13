@@ -77,33 +77,33 @@ namespace mj
         assert(false);
     }
 
-    EventType OpenTypeToEventType(OpenType open_type) {
+    mjproto::EventType OpenTypeToEventType(OpenType open_type) {
         switch (open_type) {
             case OpenType::kChi:
-                return EventType::kChi;
+                return mjproto::EVENT_TYPE_CHI;
             case OpenType::kPon:
-                return EventType::kPon;
+                return mjproto::EVENT_TYPE_PON;
             case OpenType::kKanOpened:
-                return EventType::kKanOpened;
+                return mjproto::EVENT_TYPE_KAN_OPENED;
             case OpenType::kKanClosed:
-                return EventType::kKanClosed;
+                return mjproto::EVENT_TYPE_KAN_CLOSED;
             case OpenType::kKanAdded:
-                return EventType::kKanAdded;
+                return mjproto::EVENT_TYPE_KAN_ADDED;
         }
     }
 
-    ActionType OpenTypeToActionType(OpenType open_type) {
+    mjproto::ActionType OpenTypeToActionType(OpenType open_type) {
         switch (open_type) {
             case OpenType::kChi:
-                return ActionType::kChi;
+                return mjproto::ACTION_TYPE_CHI;
             case OpenType::kPon:
-                return ActionType::kPon;
+                return mjproto::ACTION_TYPE_PON;
             case OpenType::kKanOpened:
-                return ActionType::kKanOpened;
+                return mjproto::ACTION_TYPE_KAN_OPENED;
             case OpenType::kKanClosed:
-                return ActionType::kKanClosed;
+                return mjproto::ACTION_TYPE_KAN_CLOSED;
             case OpenType::kKanAdded:
-                return ActionType::kKanAdded;
+                return mjproto::ACTION_TYPE_KAN_ADDED;
         }
     }
 

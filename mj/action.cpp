@@ -1,141 +1,100 @@
 #include "action.h"
 #include "utils.h"
+#include "mj.grpc.pb.h"
 
 namespace mj
 {
-    Action Action::CreateDiscard(AbsolutePos who, Tile discard) {
+    mjproto::Action Action::CreateDiscard(AbsolutePos who, Tile discard) {
         mjproto::Action proto;
         proto.set_type(mjproto::ACTION_TYPE_DISCARD);
         proto.set_who(mjproto::AbsolutePos(who));
         proto.set_discard(discard.Id());
-        return Action(std::move(proto));
+        assert(IsValid(proto));
+        return proto;
     }
 
-    Action Action::CreateRiichi(AbsolutePos who) {
-        mjproto::Action proto;
-        proto.set_type(mjproto::ACTION_TYPE_RIICHI);
-        proto.set_who(mjproto::AbsolutePos(who));
-        return Action(std::move(proto));
-    }
-
-    Action Action::CreateTsumo(AbsolutePos who) {
-        mjproto::Action proto;
-        proto.set_type(mjproto::ACTION_TYPE_TSUMO);
-        proto.set_who(mjproto::AbsolutePos(who));
-        return Action(std::move(proto));
-    }
-
-    Action Action::CreateRon(AbsolutePos who) {
-        mjproto::Action proto;
-        proto.set_type(mjproto::ACTION_TYPE_RON);
-        proto.set_who(mjproto::AbsolutePos(who));
-        return Action(std::move(proto));
-    }
-
-    Action Action::CreateOpen(AbsolutePos who, Open open) {
-        mjproto::Action proto;
-        proto.set_who(mjproto::AbsolutePos(who));
-        proto.set_type(mjproto::ActionType(OpenTypeToActionType(open.Type())));
-        proto.set_open(open.GetBits());
-        return Action(std::move(proto));
-    }
-
-    Action Action::CreateNo(AbsolutePos who) {
-        mjproto::Action proto;
-        proto.set_type(mjproto::ACTION_TYPE_NO);
-        proto.set_who(mjproto::AbsolutePos(who));
-        return Action(std::move(proto));
-    }
-
-    Action::Action(mjproto::Action &&action_response) : proto_(std::move(action_response)) {}
-
-    AbsolutePos Action::who() const {
-        return AbsolutePos(proto_.who());
-    }
-
-    ActionType Action::type() const {
-        return ActionType(proto_.type());
-    }
-
-    Tile Action::discard() const {
-        assert(type() == ActionType::kDiscard);
-        return Tile(proto_.discard());
-    }
-
-    Open Action::open() const {
-        assert(Any(type(), {ActionType::kChi, ActionType::kPon, ActionType::kKanClosed, ActionType::kKanOpened, ActionType::kKanAdded}));
-        return Open(proto_.open());
-    }
-
-    Action Action::CreateNineTiles(AbsolutePos who) {
-        mjproto::Action proto;
-        proto.set_type(mjproto::ACTION_TYPE_KYUSYU);
-        proto.set_who(mjproto::AbsolutePos(who));
-        return Action(std::move(proto));
-    }
-
-    PossibleAction::PossibleAction(mjproto::PossibleAction possible_action)
-            : possible_action_(std::move(possible_action)) {}
-
-    ActionType PossibleAction::type() const {
-        return ActionType(possible_action_.type());
-    }
-
-    Open PossibleAction::open() const {
-        assert(Any(type(), {ActionType::kChi, ActionType::kPon, ActionType::kKanClosed, ActionType::kKanOpened, ActionType::kKanAdded}));
-        return Open(possible_action_.open());
-    }
-
-    std::vector<Tile> PossibleAction::discard_candidates() const {
-        assert(type() == ActionType::kDiscard);
-        std::vector<Tile> ret;
-        for (const auto& id: possible_action_.discard_candidates()) ret.emplace_back(Tile(id));
+    std::vector<mjproto::Action> Action::CreateDiscards(AbsolutePos who, const std::vector<Tile>& discards) {
+        std::vector<mjproto::Action> ret;
+        for (auto tile : discards) {
+            ret.push_back(CreateDiscard(who, tile));
+        }
         return ret;
     }
 
-    PossibleAction PossibleAction::CreateDiscard(std::vector<Tile> &&possible_discards) {
-        auto possible_action = PossibleAction();
-        possible_action.possible_action_.set_type(mjproto::ActionType(ActionType::kDiscard));
-        auto discard_candidates = possible_action.possible_action_.mutable_discard_candidates();
-        for (auto tile: possible_discards) discard_candidates->Add(tile.Id());
-        assert(discard_candidates->size() <= 14);
-        return possible_action;
+    mjproto::Action Action::CreateRiichi(AbsolutePos who) {
+        mjproto::Action proto;
+        proto.set_type(mjproto::ACTION_TYPE_RIICHI);
+        proto.set_who(mjproto::AbsolutePos(who));
+        assert(IsValid(proto));
+        return proto;
     }
 
-    PossibleAction PossibleAction::CreateRiichi() {
-        auto possible_action = PossibleAction();
-        possible_action.possible_action_.set_type(mjproto::ActionType(ActionType::kRiichi));
-        return possible_action;
+    mjproto::Action Action::CreateTsumo(AbsolutePos who) {
+        mjproto::Action proto;
+        proto.set_type(mjproto::ACTION_TYPE_TSUMO);
+        proto.set_who(mjproto::AbsolutePos(who));
+        assert(IsValid(proto));
+        return proto;
     }
 
-    PossibleAction PossibleAction::CreateOpen(Open open) {
-        auto possible_action = PossibleAction();
-        possible_action.possible_action_.set_type(mjproto::ActionType(OpenTypeToActionType(open.Type())));
-        possible_action.possible_action_.set_open(open.GetBits());
-        return possible_action;
+    mjproto::Action Action::CreateRon(AbsolutePos who) {
+        mjproto::Action proto;
+        proto.set_type(mjproto::ACTION_TYPE_RON);
+        proto.set_who(mjproto::AbsolutePos(who));
+        assert(IsValid(proto));
+        return proto;
     }
 
-    PossibleAction PossibleAction::CreateRon() {
-        auto possible_action = PossibleAction();
-        possible_action.possible_action_.set_type(mjproto::ActionType(ActionType::kRon));
-        return possible_action;
+    mjproto::Action Action::CreateOpen(AbsolutePos who, Open open) {
+        mjproto::Action proto;
+        proto.set_who(mjproto::AbsolutePos(who));
+        proto.set_type(OpenTypeToActionType(open.Type()));
+        proto.set_open(open.GetBits());
+        assert(IsValid(proto));
+        return proto;
     }
 
-    PossibleAction PossibleAction::CreateTsumo() {
-        auto possible_action = PossibleAction();
-        possible_action.possible_action_.set_type(mjproto::ActionType(ActionType::kTsumo));
-        return possible_action;
+    mjproto::Action Action::CreateNo(AbsolutePos who) {
+        mjproto::Action proto;
+        proto.set_type(mjproto::ACTION_TYPE_NO);
+        proto.set_who(mjproto::AbsolutePos(who));
+        assert(IsValid(proto));
+        return proto;
     }
 
-    PossibleAction PossibleAction::CreateNo() {
-        auto possible_action = PossibleAction();
-        possible_action.possible_action_.set_type(mjproto::ActionType(ActionType::kNo));
-        return possible_action;
+    mjproto::Action Action::CreateNineTiles(AbsolutePos who) {
+        mjproto::Action proto;
+        proto.set_type(mjproto::ACTION_TYPE_KYUSYU);
+        proto.set_who(mjproto::AbsolutePos(who));
+        assert(IsValid(proto));
+        return proto;
     }
 
-    PossibleAction PossibleAction::CreateNineTiles() {
-        auto possible_action = PossibleAction();
-        possible_action.possible_action_.set_type(mjproto::ActionType(ActionType::kKyushu));
-        return possible_action;
+    bool Action::IsValid(const mjproto::Action &action) {
+        auto type = action.type();
+        auto who = action.who();
+        if (!mjproto::AbsolutePos_IsValid(who)) return false;
+        switch (type) {
+            case mjproto::ACTION_TYPE_DISCARD:
+                if (!(0 <= action.discard() && action.discard() < 136)) return false;
+                if (action.open() != 0) return false;
+                break;
+            case mjproto::ACTION_TYPE_CHI:
+            case mjproto::ACTION_TYPE_PON:
+            case mjproto::ACTION_TYPE_KAN_CLOSED:
+            case mjproto::ACTION_TYPE_KAN_ADDED:
+            case mjproto::ACTION_TYPE_KAN_OPENED:
+                if (action.discard() != 0) return false;
+                break;
+            case mjproto::ACTION_TYPE_RIICHI:
+            case mjproto::ACTION_TYPE_TSUMO:
+            case mjproto::ACTION_TYPE_KYUSYU:
+            case mjproto::ACTION_TYPE_NO:
+            case mjproto::ACTION_TYPE_RON:
+                if (action.discard() != 0) return false;
+                if (action.open() != 0) return false;
+                break;
+        }
+        return true;
     }
 }  // namespace mj

@@ -1,6 +1,6 @@
 #include "gtest/gtest.h"
 #include <mj/state.h>
-#include <mj/agent_client_mock.h>
+#include <mj/agent_example_rule_based.h>
 #include <fstream>
 
 using namespace mj;
@@ -19,30 +19,30 @@ TEST(agent_client_mock, TakeAction) {
         return json_line;
     };
 
-    State state; Observation observation; Action action;
-    std::unique_ptr<AgentClient> agent = std::make_unique<AgentClientMock>();
+    State state; Observation observation; mjproto::Action action;
+    std::unique_ptr<Agent> agent = std::make_unique<AgentExampleRuleBased>();
 
     // ツモれるときはツモ
     state = State(GetLastJsonLine("obs-draw-tsumo.json"));
     observation = state.CreateObservations().begin()->second;
     action = agent->TakeAction(std::move(observation));
-    EXPECT_EQ(action.type(), ActionType::kTsumo);
+    EXPECT_EQ(action.type(), mjproto::ACTION_TYPE_TSUMO);
 
     // リーチできるときはリーチ
     state = State(GetLastJsonLine("obs-draw-riichi.json"));
     observation = state.CreateObservations().begin()->second;
     action = agent->TakeAction(std::move(observation));
-    EXPECT_EQ(action.type(), ActionType::kRiichi);
+    EXPECT_EQ(action.type(), mjproto::ACTION_TYPE_RIICHI);
 
    // ロンできるときはロン
     state = State(GetLastJsonLine("obs-discard-ron.json"));
     observation = state.CreateObservations().begin()->second;
     action = agent->TakeAction(std::move(observation));
-    EXPECT_EQ(action.type(), ActionType::kRon);
+    EXPECT_EQ(action.type(), mjproto::ACTION_TYPE_RON);
 
     // 九種九牌できるときは流す
     state = State(GetLastJsonLine("obs-draw-kyuusyu.json"));
     observation = state.CreateObservations().begin()->second;
     action = agent->TakeAction(std::move(observation));
-    EXPECT_EQ(action.type(), ActionType::kKyushu);
+    EXPECT_EQ(action.type(), mjproto::ACTION_TYPE_KYUSYU);
 }

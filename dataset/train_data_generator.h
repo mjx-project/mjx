@@ -5,6 +5,9 @@
 namespace mj {
     class TrainDataGenerator {
     public:
-        static void generate(const std::string& src_path, const std::string& dst_path);
+        static void generateDiscard(const std::string& src_path, const std::string& dst_path);
+        static void generateOpen(const std::string& src_path, const std::string& dst_path, mjproto::ActionType open_type);
+        static void generateOpenYesNo(const std::string& src_path, const std::string& dst_path, mjproto::ActionType open_type);
+        static void generateRiichi(const std::string& src_path, const std::string& dst_path);
     };
 }
