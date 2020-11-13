@@ -9,12 +9,12 @@ import urllib.parse
 import xml.etree.ElementTree as ET
 from xml.etree.ElementTree import Element
 from google.protobuf import json_format
+import pkg_resources
 
 from mjconvert import mj_pb2
 
 
 SEED_CACHE_DIR = os.path.join(os.environ["HOME"], ".mjconvert/seed_cache")
-PKG_SEED_CACHE_DIR = ".mjconvert/seed_cache"
 
 
 class MjlogDecoder:
@@ -351,13 +351,14 @@ def reproduce_wall_from_seed(seed: str, store_cache=False) -> List[Tuple[List[in
     """
     seed_md5 = hashlib.md5(seed.encode()).hexdigest()
     seed_cache = os.path.join(SEED_CACHE_DIR, seed_md5 + ".txt")
-    pkg_seed_cache = os.path.join(os.path.abspath(PKG_SEED_CACHE_DIR), seed_md5 + ".txt")
+    pkg_seed_cache_name = f".mjconvert/seed_cache/{seed_md5}.txt"
     out: List[str]
-    if os.path.exists(seed_cache):
+    if os.path.exists(seed_cache):  # if cache exists under home dir
         with open(seed_cache, "r") as f:
             out = f.readlines()
         sys.stderr.write(f"Read wall cache from {seed_cache}.\n")
-    elif os.path.exists(pkg_seed_cache):
+    elif pkg_resources.resource_exists(__name__, pkg_seed_cache_name):  # if cache exists in package data
+        pkg_seed_cache = pkg_resources.resource_filename(__name__, pkg_seed_cache_name)
         with open(pkg_seed_cache, "r") as f:
             out = f.readlines()
         sys.stderr.write(f"Read wall cache from {pkg_seed_cache}.\n")
@@ -372,7 +373,7 @@ def reproduce_wall_from_seed(seed: str, store_cache=False) -> List[Tuple[List[in
                 for line in out:
                     f.write(line + "\n")
             sys.stderr.write(f"Wall cache set to {seed_cache}.\n")
-        sys.stderr.write(f"Wall created by docker run. Cache were not found in: \n  {seed_cache}\n  {pkg_seed_cache}\n")
+        sys.stderr.write(f"Wall created by docker run. Cache were not found.")
 
     return parse_wall(out)
 

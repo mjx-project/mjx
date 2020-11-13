@@ -9,6 +9,8 @@ setup(
     license='MIT',
     install_requires=[],
     packages=find_packages(),
+    include_package_data=True,
+    package_data={'': ['.mjconvert/seed_cache/*.txt']},
     entry_points={
         'console_scripts': 'mjconvert = mjconvert.main:main'
     },
