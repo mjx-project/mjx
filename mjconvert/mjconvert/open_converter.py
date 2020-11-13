@@ -55,6 +55,28 @@ def _min_tile_chi(bits: int) -> int:
     return min_tile
 
 
+def open_stolen_tile_type(bits: int) -> int:
+    """
+    >>> open_stolen_tile_type(51306)
+    33
+    >>> open_stolen_tile_type(49495)
+    20
+    >>> open_stolen_tile_type(28722)
+    18
+    """
+    event_type = open_event_type(bits)
+    if event_type == mj_pb2.EVENT_TYPE_CHI:
+        min_tile = _min_tile_chi(bits)
+        stolen_tile_kind = min_tile + (bits >> 10) % 3
+        return transform_red_stolen_tile(bits, stolen_tile_kind)
+    elif event_type == mj_pb2.EVENT_TYPE_PON or event_type == mj_pb2.EVENT_TYPE_KAN_ADDED:
+        stolen_tile_kind = (bits >> 9) // 3
+        return transform_red_stolen_tile(bits, stolen_tile_kind)
+    else:
+        stolen_tile_kind = (bits >> 8) // 4  # to_do:テスト
+        return transform_red_stolen_tile(bits, stolen_tile_kind)
+
+
 def is_stolen_red(bits: int) -> bool:  # to_do: test  さらに小さい関数を作るか否か考えるべし
     fives = [4, 14, 22]
     reds = [14, 52, 88]
@@ -111,7 +133,7 @@ def has_red_chi(bits: int) -> bool:  # to_do テスト
         return False
 
 
-def has_red_pon_kan_added(bits: int) -> bool:  # to_do テスト
+def has_red_pon_kan_added(bits: int) -> bool:  # to_do テスト ポンとカカンは未使用牌が赤かどうかで鳴牌に赤があるか判断
     fives = [4, 14, 22, 51, 52, 53]
     stolen_tile_kind = open_stolen_tile_type(bits)
     if stolen_tile_kind in fives:
@@ -124,26 +146,14 @@ def has_red_pon_kan_added(bits: int) -> bool:  # to_do テスト
         return False
 
 
-def open_stolen_tile_type(bits: int) -> int:
-    """
-    >>> open_stolen_tile_type(51306)
-    33
-    >>> open_stolen_tile_type(49495)
-    20
-    >>> open_stolen_tile_type(28722)
-    18
-    """
+def has_red(bits: int) -> bool:
     event_type = open_event_type(bits)
     if event_type == mj_pb2.EVENT_TYPE_CHI:
-        min_tile = _min_tile_chi(bits)
-        stolen_tile_kind = min_tile + (bits >> 10) % 3
-        return transform_red_stolen_tile(bits, stolen_tile_kind)
+        return has_red_chi(bits)
     elif event_type == mj_pb2.EVENT_TYPE_PON or event_type == mj_pb2.EVENT_TYPE_KAN_ADDED:
-        stolen_tile_kind = (bits >> 9) // 3
-        return transform_red_stolen_tile(bits, stolen_tile_kind)
+        return has_red_pon_kan_added(bits)
     else:
-        stolen_tile_kind = (bits >> 8) // 4  # to_do:テスト
-        return transform_red_stolen_tile(bits, stolen_tile_kind)
+        return True  # ダイミンカンとアンカンは必ず赤を含む
 
 
 def open_tile_types(bits: int) -> List[int]:
