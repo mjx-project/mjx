@@ -1,14 +1,14 @@
 .PHONY: proto install uninstall clean test-cli test-cli-mjlog-to-proto test-cli-mjgproto-to-mjlog
 
 clean:
-	rm ./src/mj_pb2.py ./src/mj_pb2_grpc.py
+	rm ./mjconvert/mj_pb2.py ./mjconvert/mj_pb2_grpc.py
 	rm -rf build
 	rm -rf dist
 	rm -rf *.egg-info
 	find . -name "*pycache*" | xargs rm -rf
 
 proto:
-	python3 -m grpc_tools.protoc -I ../protos --python_out=./src/ --grpc_python_out=./src/ ../protos/mj.proto
+	python3 -m grpc_tools.protoc -I ../protos --python_out=./mjconvert/ --grpc_python_out=./mjconvert/ ../protos/mj.proto
 
 uninstall:
 	python3 -m pip uninstall mjconvert -y
