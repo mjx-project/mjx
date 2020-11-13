@@ -7,8 +7,24 @@
 #include <thread>
 #include <initializer_list>
 
+// original assertion
+#ifndef Assert
+#define Assert(fmt, ...) \
+    assert(fmt || Msg(__VA_ARGS__))
+#endif
+
 namespace mj
 {
+    template < typename... Args >
+    bool Msg(const Args&... args){
+        std::cout << "Assertion failed: " << std::endl;
+        for(const auto& str : std::initializer_list<std::string>{args...}){
+            std::cout << str << std::endl;
+        }
+        return false;
+    }
+
+    // 引数なし
     template<typename T>
     bool Any(T target, const std::initializer_list<T> &v) {
         return std::any_of(v.begin(), v.end(), [&target](T elem) { return target == elem; });
