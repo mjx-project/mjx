@@ -7,6 +7,16 @@ clean:
 	rm -rf *.egg-info
 	find . -name "*pycache*" | xargs rm -rf
 
+formats:
+	black mjconvert
+	blackdoc mjconvert
+	isort mjconvert
+
+checks:
+	black mjconvert --check --diff
+	blackdoc mjconvert --check
+	isort mjconvert --check --diff
+
 proto:
 	python3 -m grpc_tools.protoc -I ../protos --python_out=./mjconvert/ --grpc_python_out=./mjconvert/ ../protos/mj.proto
 
