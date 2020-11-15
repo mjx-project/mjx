@@ -3,3 +3,6 @@ protobuf
 grpcio
 grpcio-tools
 pytest
+black
+blackdoc
+isort

@@ -1,4 +1,5 @@
 from typing import List
+
 from mjconvert import mj_pb2
 
 
@@ -38,7 +39,11 @@ def open_from(bits: int) -> mj_pb2.RelativePos:
     event_type = open_event_type(bits)
     if event_type == mj_pb2.EVENT_TYPE_CHI:
         return mj_pb2.RELATIVE_POS_LEFT
-    elif event_type == mj_pb2.EVENT_TYPE_PON or event_type == mj_pb2.EVENT_TYPE_KAN_OPENED or event_type == mj_pb2.EVENT_TYPE_KAN_ADDED:
+    elif (
+        event_type == mj_pb2.EVENT_TYPE_PON
+        or event_type == mj_pb2.EVENT_TYPE_KAN_OPENED
+        or event_type == mj_pb2.EVENT_TYPE_KAN_ADDED
+    ):
         return bits & 3
     else:
         return mj_pb2.RELATIVE_POS_SELF
@@ -64,7 +69,9 @@ def open_stolen_tile_type(bits: int) -> int:
         min_tile = _min_tile_chi(bits)
         stolen_tile_kind = min_tile + (bits >> 10) % 3
         return stolen_tile_kind
-    elif event_type == mj_pb2.EVENT_TYPE_PON or event_type == mj_pb2.EVENT_TYPE_KAN_ADDED:
+    elif (
+        event_type == mj_pb2.EVENT_TYPE_PON or event_type == mj_pb2.EVENT_TYPE_KAN_ADDED
+    ):
         stolen_tile_kind = (bits >> 9) // 3
         return stolen_tile_kind
     else:
@@ -91,4 +98,3 @@ def open_tile_types(bits: int) -> List[int]:
     else:
         stolen_tile_kind = open_stolen_tile_type(bits)
         return [stolen_tile_kind] * 4
-
