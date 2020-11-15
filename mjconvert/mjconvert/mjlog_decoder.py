@@ -49,7 +49,7 @@ class MjlogDecoder:
         assert root.tag == "mjloggm"
         assert root.attrib["ver"] == "2.3"
 
-        shuffle = root.iter("SHUFFLE")
+        # shuffle = root.iter("SHUFFLE")
         go = root.iter("GO")
         for child in go:
             assert int(child.attrib["type"]) == 169  # only use 鳳南赤
@@ -62,7 +62,7 @@ class MjlogDecoder:
             state_.player_ids.append(urllib.parse.unquote(child.attrib["n2"]))
             state_.player_ids.append(urllib.parse.unquote(child.attrib["n3"]))
             break
-        taikyoku = root.iter("TAIKYOKU")
+        # taikyoku = root.iter("TAIKYOKU")
 
         kv: List[Tuple[str, Dict[str, str]]] = []
         i = 0
@@ -436,7 +436,7 @@ def reproduce_wall_from_seed(
                 for line in out:
                     f.write(line + "\n")
             sys.stderr.write(f"Wall cache set to {seed_cache}.\n")
-        sys.stderr.write(f"Wall created by docker run. Cache were not found.")
+        sys.stderr.write("Wall created by docker run. Cache were not found.")
 
     return parse_wall(out)
 

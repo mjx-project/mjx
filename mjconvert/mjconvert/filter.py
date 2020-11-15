@@ -2,7 +2,6 @@ import argparse
 import os
 import urllib.parse
 import xml.etree.ElementTree as ET
-from typing import List
 
 
 class Filter:
@@ -51,10 +50,10 @@ def rm(path_to_mjlog: str) -> None:
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description="""Filter Tenhou's mjlog.
-    
+
     Example:
-    
-      $ python mjlog_decoder.py resources/mjlog 
+
+      $ python mjlog_decoder.py resources/mjlog
     """
     )
     parser.add_argument("mjlog_dir", help="Path to mjlogs")

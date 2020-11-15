@@ -20,7 +20,7 @@ Example (using stdin)
   $ cat test.mjlog | mjconvert --to-mjproto-raw
   $ cat test.json  | mjconvert --to-mjlog
 
-Example (using file inputs) 
+Example (using file inputs)
 
 [NOTE] File inputs assume that each file corresponds to each game in any format.
 
