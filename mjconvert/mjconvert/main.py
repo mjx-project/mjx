@@ -1,16 +1,18 @@
-from typing import List
+import argparse
+import json
 import os
 import sys
-import json
-import argparse
 from argparse import RawTextHelpFormatter
+from typing import List
+
 from google.protobuf import json_format
+
 from mjconvert import mj_pb2
-from mjconvert.mjlog_encoder import MjlogEncoder
 from mjconvert.mjlog_decoder import MjlogDecoder
+from mjconvert.mjlog_encoder import MjlogEncoder
 
-
-parser = argparse.ArgumentParser(description="""Convert Mahjong log into another format.
+parser = argparse.ArgumentParser(
+    description="""Convert Mahjong log into another format.
 
 Example (using stdin)
 
@@ -30,14 +32,16 @@ Difference between mjproto and mjproto-raw:
 
   1. Yaku is sorted in yaku number
   2. Yakuman's fu is set to 0
-    """, formatter_class=RawTextHelpFormatter)
-parser.add_argument('dir_from', nargs='?', default="", help="")
-parser.add_argument('dir_to', nargs='?', default="", help="")
-parser.add_argument('--to-mjproto', action='store_true', help="")
-parser.add_argument('--to-mjproto-raw', action='store_true', help="")
-parser.add_argument('--to-mjlog', action='store_true', help="")
-parser.add_argument('--store-cache', action='store_true', help="")
-parser.add_argument('--verbose', action='store_true', help="")
+    """,
+    formatter_class=RawTextHelpFormatter,
+)
+parser.add_argument("dir_from", nargs="?", default="", help="")
+parser.add_argument("dir_to", nargs="?", default="", help="")
+parser.add_argument("--to-mjproto", action="store_true", help="")
+parser.add_argument("--to-mjproto-raw", action="store_true", help="")
+parser.add_argument("--to-mjlog", action="store_true", help="")
+parser.add_argument("--store-cache", action="store_true", help="")
+parser.add_argument("--verbose", action="store_true", help="")
 
 args = parser.parse_args()
 assert (args.dir_from and args.dir_to) or (not args.dir_from and not args.dir_to)
@@ -46,6 +50,7 @@ assert args.to_mjproto or args.to_mjproto_raw or args.to_mjlog
 
 class LineBuffer:
     """Split lines of inputs by game end."""
+
     def __init__(self, fmt: str):
         self.fmt_: str = fmt
         self.curr_: List[str] = []
@@ -66,7 +71,9 @@ class LineBuffer:
         elif self.fmt_ == "mjlog":
             self.buffer_.append([line])  # each line corresponds to each game
 
-    def get(self, get_all: bool = False) -> List[List[str]]:  # each List[str] corresponds to each game.
+    def get(
+        self, get_all: bool = False
+    ) -> List[List[str]]:  # each List[str] corresponds to each game.
         if get_all and len(self.curr_) != 0:
             assert self.fmt_ != "mjlog"
             self.buffer_.append(self.curr_)
@@ -178,7 +185,9 @@ def main():
 
     else:  # From files
         if args.verbose:
-            sys.stderr.write(f"Converting to {to(args)}. {args.dir_from} => {args.dir_to}\n")
+            sys.stderr.write(
+                f"Converting to {to(args)}. {args.dir_from} => {args.dir_to}\n"
+            )
 
         to_type = to(args)
         to_ext = "mjlog" if to_type == "mjlog" else "json"
@@ -187,14 +196,17 @@ def main():
                 continue
 
             path_from = os.path.join(args.dir_from, file_from)
-            path_to = os.path.join(args.dir_to, os.path.splitext(os.path.basename(path_from))[0] + '.' + to_ext)
+            path_to = os.path.join(
+                args.dir_to,
+                os.path.splitext(os.path.basename(path_from))[0] + "." + to_ext,
+            )
 
             if args.verbose:
                 sys.stderr.write(f"Converting {path_from} to {path_to}\n")
 
             # 読み込み（全てのフォーマットで、１ファイル１半荘を想定）
             transformed_lines = []
-            with open(path_from, 'r') as f:
+            with open(path_from, "r") as f:
                 for line in f:
                     if not line:
                         continue
@@ -211,11 +223,10 @@ def main():
             transformed_lines += converter.convert(list_lines[0])
 
             # 書き込み
-            with open(path_to, 'w') as f:
+            with open(path_to, "w") as f:
                 for line in transformed_lines:
                     f.write(line)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
-
