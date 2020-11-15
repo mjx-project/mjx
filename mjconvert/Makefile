@@ -15,6 +15,7 @@ formats:
 checks:
 	ls mjconvert/*.py | grep -v pb2 | xargs black --check --diff
 	ls mjconvert/*.py | grep -v pb2 | xargs blackdoc --check
+	ls mjconvert/*.py | grep -v pb2 | xargs flake8 --config pyproject.toml --ignore E501,E203,W503
 	ls mjconvert/*.py | grep -v pb2 | xargs isort --check --diff
 
 proto:
