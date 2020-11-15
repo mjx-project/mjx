@@ -13,7 +13,9 @@ mjconvert/resources/*
 mjconvert/build
 mjconvert/dist
 mjconvert/mjconvert.egg-info
+mjconvert/mjconvert/__pycache__
 !mjconvert/resources/.gitkeep
+mjconvert/mjconvert/tests/__pycache__/
 test/resources/*
 !test/resources/.gitkeep
 *.pb.cc

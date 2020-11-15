@@ -1,4 +1,4 @@
-.PHONY: proto install uninstall clean test-cli test-cli-mjlog-to-proto test-cli-mjgproto-to-mjlog
+.PHONY: proto install uninstall clean pytest test-cli test-cli-mjlog-to-proto test-cli-mjgproto-to-mjlog
 
 clean:
 	rm ./mjconvert/mj_pb2.py ./mjconvert/mj_pb2_grpc.py
@@ -15,7 +15,10 @@ uninstall:
 
 install: proto
 	python3 -m pip install -r requirements.txt
-	python3 setup.py install 
+	python3 setup.py install
+
+pytest: proto
+	python3 -m pytest --doctest-modules
 
 test-cli: uninstall clean install test-cli-mjlog-to-proto test-cli-mjproto-to-mjlog
 
