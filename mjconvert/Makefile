@@ -18,7 +18,7 @@ checks:
 	ls mjconvert/*.py | grep -v pb2 | xargs isort --check --diff
 
 proto:
-	python3 -m grpc_tools.protoc -I ../protos --python_out=./mjconvert/ --grpc_python_out=./mjconvert/ ../protos/mj.proto
+	python3 -m grpc_tools.protoc -I ../protos --python_betterproto_out=./mjconvert/ ../protos/mj.proto
 
 uninstall:
 	python3 -m pip uninstall mjconvert -y
