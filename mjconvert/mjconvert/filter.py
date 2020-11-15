@@ -6,11 +6,10 @@ from typing import List
 
 
 class Filter:
-    def __init__(self, path_to_mjlog: str):
+    def __init__(self, path_to_mjlog: str) -> None:
         self.path_to_mjlog = path_to_mjlog
         tree = ET.parse(path_to_mjlog)
         self.root = tree.getroot()
-        pass
 
     def has_valid_seed(self) -> bool:
         shuffle = self.root.iter("SHUFFLE")
@@ -18,6 +17,7 @@ class Filter:
             assert i == 0
             x = child.attrib["seed"].split(",")
             return x[0] == "mt19937ar-sha512-n288-base64"
+        assert False
 
     def is_hounan(self) -> bool:
         go = self.root.iter("GO")

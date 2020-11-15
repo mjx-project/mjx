@@ -3,9 +3,10 @@ import json
 import urllib.parse
 from typing import List
 
+import betterproto
 from google.protobuf import json_format
 
-from mjconvert import mj_pb2
+from mjconvert import mjproto
 
 
 class MjlogEncoder:
@@ -26,7 +27,7 @@ class MjlogEncoder:
     def put(self, line) -> None:
         assert not self.is_completed()
         d = json.loads(line)
-        state = json_format.ParseDict(d, mj_pb2.State())
+        state = mjproto.State().from_dict(d)
         if self.is_init_round:
             self.xml += MjlogEncoder._parse_player_id(state)
             self.xml += """<TAIKYOKU oya="0"/>"""
@@ -43,7 +44,7 @@ class MjlogEncoder:
         return tmp
 
     @staticmethod
-    def _parse_each_round(state: mj_pb2.State) -> str:
+    def _parse_each_round(state: mjproto.State) -> str:
         assert sum(state.init_score.ten) + state.init_score.riichi * 1000 == 100000
         ret = "<INIT "
         ret += f'seed="{state.init_score.round},{state.init_score.honba},{state.init_score.riichi},,,{state.doras[0]}" '
@@ -62,7 +63,7 @@ class MjlogEncoder:
         draw_ixs = [0, 0, 0, 0]
         under_riichi = [False, False, False, False]
         for event in state.event_history.events:
-            if event.type == mj_pb2.EVENT_TYPE_DRAW:
+            if event.type == mjproto.EventType.EVENT_TYPE_DRAW:
                 who_ix = int(event.who)
                 who = MjlogEncoder._encode_absolute_pos_for_draw(event.who)
                 assert event.tile == 0  # default
@@ -70,62 +71,75 @@ class MjlogEncoder:
                 draw_ixs[who_ix] += 1
                 ret += f"<{who}{draw}/>"
             elif event.type in [
-                mj_pb2.EVENT_TYPE_DISCARD_FROM_HAND,
-                mj_pb2.EVENT_TYPE_DISCARD_DRAWN_TILE,
+                mjproto.EventType.EVENT_TYPE_DISCARD_FROM_HAND,
+                mjproto.EventType.EVENT_TYPE_DISCARD_DRAWN_TILE,
             ]:
                 who = MjlogEncoder._encode_absolute_pos_for_discard(event.who)
                 discard = event.tile
                 ret += f"<{who}{discard}/>"
             elif event.type in [
-                mj_pb2.EVENT_TYPE_CHI,
-                mj_pb2.EVENT_TYPE_PON,
-                mj_pb2.EVENT_TYPE_KAN_CLOSED,
-                mj_pb2.EVENT_TYPE_KAN_OPENED,
-                mj_pb2.EVENT_TYPE_KAN_ADDED,
+                mjproto.EventType.EVENT_TYPE_CHI,
+                mjproto.EventType.EVENT_TYPE_PON,
+                mjproto.EventType.EVENT_TYPE_KAN_CLOSED,
+                mjproto.EventType.EVENT_TYPE_KAN_OPENED,
+                mjproto.EventType.EVENT_TYPE_KAN_ADDED,
             ]:
                 ret += f'<N who="{event.who}" '
                 ret += f'm="{event.open}" />'
-            elif event.type == mj_pb2.EVENT_TYPE_RIICHI:
+            elif event.type == mjproto.EventType.EVENT_TYPE_RIICHI:
                 ret += f'<REACH who="{event.who}" step="1"/>'
-            elif event.type == mj_pb2.EVENT_TYPE_RIICHI_SCORE_CHANGE:
+            elif event.type == mjproto.EventType.EVENT_TYPE_RIICHI_SCORE_CHANGE:
                 under_riichi[event.who] = True
                 curr_score.ten[event.who] -= 1000
                 curr_score.riichi += 1
                 ret += f'<REACH who="{event.who}" ten="{curr_score.ten[0] // 100},{curr_score.ten[1] // 100},{curr_score.ten[2] // 100},{curr_score.ten[3] // 100}" step="2"/>'
-            elif event.type == mj_pb2.EVENT_TYPE_NEW_DORA:
+            elif event.type == mjproto.EventType.EVENT_TYPE_NEW_DORA:
                 ret += f'<DORA hai="{event.tile}" />'
-            elif event.type in [mj_pb2.EVENT_TYPE_TSUMO, mj_pb2.EVENT_TYPE_RON]:
+            elif event.type in [
+                mjproto.EventType.EVENT_TYPE_TSUMO,
+                mjproto.EventType.EVENT_TYPE_RON,
+            ]:
                 assert len(state.terminal.wins) != 0
-            elif event.type == mj_pb2.EVENT_TYPE_NO_WINNER:
+            elif event.type == mjproto.EventType.EVENT_TYPE_NO_WINNER:
                 assert len(state.terminal.wins) == 0
 
-        if state.HasField("terminal"):
+        if betterproto.serialized_on_wire(state.terminal):  # HasField
             if len(state.terminal.wins) == 0:
                 ret += "<RYUUKYOKU "
-                if state.terminal.no_winner.type != mj_pb2.NO_WINNER_TYPE_NORMAL:
+                if (
+                    state.terminal.no_winner.type
+                    != mjproto.NoWinnerType.NO_WINNER_TYPE_NORMAL
+                ):
                     no_winner_type = ""
-                    if state.terminal.no_winner.type == mj_pb2.NO_WINNER_TYPE_KYUUSYU:
+                    if (
+                        state.terminal.no_winner.type
+                        == mjproto.NoWinnerType.NO_WINNER_TYPE_KYUUSYU
+                    ):
                         no_winner_type = "yao9"
                     elif (
                         state.terminal.no_winner.type
-                        == mj_pb2.NO_WINNER_TYPE_FOUR_RIICHI
+                        == mjproto.NoWinnerType.NO_WINNER_TYPE_FOUR_RIICHI
                     ):
                         no_winner_type = "reach4"
                     elif (
                         state.terminal.no_winner.type
-                        == mj_pb2.NO_WINNER_TYPE_THREE_RONS
+                        == mjproto.NoWinnerType.NO_WINNER_TYPE_THREE_RONS
                     ):
                         no_winner_type = "ron3"
                     elif (
-                        state.terminal.no_winner.type == mj_pb2.NO_WINNER_TYPE_FOUR_KANS
+                        state.terminal.no_winner.type
+                        == mjproto.NoWinnerType.NO_WINNER_TYPE_FOUR_KANS
                     ):
                         no_winner_type = "kan4"
                     elif (
                         state.terminal.no_winner.type
-                        == mj_pb2.NO_WINNER_TYPE_FOUR_WINDS
+                        == mjproto.NoWinnerType.NO_WINNER_TYPE_FOUR_WINDS
                     ):
                         no_winner_type = "kaze4"
-                    elif state.terminal.no_winner.type == mj_pb2.NO_WINNER_TYPE_NM:
+                    elif (
+                        state.terminal.no_winner.type
+                        == mjproto.NoWinnerType.NO_WINNER_TYPE_NM
+                    ):
                         no_winner_type = "nm"
                     assert no_winner_type
                     ret += f'type="{no_winner_type}" '
@@ -136,8 +150,7 @@ class MjlogEncoder:
                     change = state.terminal.no_winner.ten_changes[i]
                     sc.append(change // 100)
                     curr_score.ten[i] += change
-                sc = ",".join([str(x) for x in sc])
-                ret += f'sc="{sc}" '
+                ret += f'sc="{",".join([str(x) for x in sc])}" '
                 for tenpai in state.terminal.no_winner.tenpais:
                     closed_tiles = ",".join([str(x) for x in tenpai.closed_tiles])
                     ret += f'hai{tenpai.who}="{closed_tiles}" '
@@ -153,7 +166,7 @@ class MjlogEncoder:
                                 break
                     assert sum(curr_score.ten) == 100000
                     final_scores = MjlogEncoder._calc_final_score(
-                        state.terminal.final_score.ten
+                        [float(x) for x in state.terminal.final_score.ten]
                     )
                     ret += f'owari="{state.terminal.final_score.ten[0] // 100},{final_scores[0]:.1f},{state.terminal.final_score.ten[1] // 100},{final_scores[1]:.1f},{state.terminal.final_score.ten[2] // 100},{final_scores[2]:.1f},{state.terminal.final_score.ten[3] // 100},{final_scores[3]:.1f}" '
                 ret += "/>"
@@ -162,11 +175,9 @@ class MjlogEncoder:
                 for win in state.terminal.wins:
                     ret += "<AGARI "
                     ret += f'ba="{curr_score.honba},{curr_score.riichi}" '
-                    hai = ",".join([str(x) for x in win.closed_tiles])
-                    ret += f'hai="{hai}" '
+                    ret += f'hai="{",".join([str(x) for x in win.closed_tiles])}" '
                     if len(win.opens) > 0:
-                        m = ",".join([str(x) for x in win.opens])
-                        ret += f'm="{m}" '
+                        ret += f'm="{",".join([str(x) for x in win.opens])}" '
                     ret += f'machi="{win.win_tile}" '
                     win_rank = 0
                     if len(win.yakumans) > 0:
@@ -190,17 +201,13 @@ class MjlogEncoder:
                     for yaku, fan in zip(win.yakus, win.fans):
                         yaku_fan.append(yaku)
                         yaku_fan.append(fan)
-                    yaku_fan = ",".join([str(x) for x in yaku_fan])
                     if len(win.yakumans) == 0:
-                        ret += f'yaku="{yaku_fan}" '
+                        ret += f'yaku="{",".join([str(x) for x in yaku_fan])}" '
                     if len(win.yakumans) > 0:
-                        yakuman = ",".join([str(x) for x in win.yakumans])
-                        ret += f'yakuman="{yakuman}" '
-                    doras = ",".join([str(x) for x in state.doras])
-                    ret += f'doraHai="{doras}" '
+                        ret += f'yakuman="{",".join([str(x) for x in win.yakumans])}" '
+                    ret += f'doraHai="{",".join([str(x) for x in state.doras])}" '
                     if under_riichi[win.who]:  # if under riichi (or double riichi)
-                        ura_doras = ",".join([str(x) for x in state.ura_doras])
-                        ret += f'doraHaiUra="{ura_doras}" '
+                        ret += f'doraHaiUra="{",".join([str(x) for x in state.ura_doras])}" '
                     ret += f'who="{win.who}" fromWho="{win.from_who}" '
                     sc = []
                     for i in range(4):
@@ -209,15 +216,14 @@ class MjlogEncoder:
                         sc.append(prev // 100)
                         sc.append(change // 100)
                         curr_score.ten[i] += change
-                    sc = ",".join([str(x) for x in sc])
-                    ret += f'sc="{sc}" '
+                    ret += f'sc="{",".join([str(x) for x in sc])}" '
                     ret += "/>"
                     curr_score.riichi = 0  # ダブロンのときは上家がリー棒を総取りしてその時点で riichi = 0 となる
 
                 if state.terminal.is_game_over:
                     ret = ret[:-2]
                     final_scores = MjlogEncoder._calc_final_score(
-                        state.terminal.final_score.ten
+                        [float(x) for x in state.terminal.final_score.ten]
                     )
                     ret += f'owari="{state.terminal.final_score.ten[0] // 100},{final_scores[0]:.1f},{state.terminal.final_score.ten[1] // 100},{final_scores[1]:.1f},{state.terminal.final_score.ten[2] // 100},{final_scores[2]:.1f},{state.terminal.final_score.ten[3] // 100},{final_scores[3]:.1f}" '
                     ret += "/>"
@@ -233,20 +239,20 @@ class MjlogEncoder:
         return ret
 
     @staticmethod
-    def _parse_player_id(state: mj_pb2.State) -> str:
+    def _parse_player_id(state: mjproto.State) -> str:
         players = [urllib.parse.quote(player) for player in state.player_ids]
         return f'<UN n0="{players[0]}" n1="{players[1]}" n2="{players[2]}" n3="{players[3]}"/>'
 
     @staticmethod
-    def _encode_absolute_pos_for_draw(who: mj_pb2.AbsolutePos) -> str:
+    def _encode_absolute_pos_for_draw(who: mjproto.AbsolutePos) -> str:
         return ["T", "U", "V", "W"][int(who)]
 
     @staticmethod
-    def _encode_absolute_pos_for_discard(who: mj_pb2.AbsolutePos) -> str:
+    def _encode_absolute_pos_for_discard(who: mjproto.AbsolutePos) -> str:
         return ["D", "E", "F", "G"][int(who)]
 
     @staticmethod
-    def _to_final_score(ten: int, rank: int) -> int:
+    def _to_final_score(ten: float, rank: int) -> float:
         """
         >>> MjlogEncoder._to_final_score(-200, 3)  # 4th place
         -50.0
@@ -280,10 +286,10 @@ class MjlogEncoder:
         return ten
 
     @staticmethod
-    def _calc_final_score(ten: List[int]) -> List[int]:
+    def _calc_final_score(ten: List[float]) -> List[float]:
         # 10-20の3万点返し
         ixs = list(reversed(sorted(range(4), key=lambda i: ten[i] - i)))  # 同点のときのために -i
-        final_score = [0 for _ in range(4)]
+        final_score: List[float] = [0.0 for _ in range(4)]
         for i in range(1, 4):
             j = ixs[i]
             final_score[j] = MjlogEncoder._to_final_score(ten[j], i)
