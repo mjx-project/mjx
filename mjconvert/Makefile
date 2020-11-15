@@ -8,14 +8,14 @@ clean:
 	find . -name "*pycache*" | xargs rm -rf
 
 formats:
-	black mjconvert
-	blackdoc mjconvert
-	isort mjconvert
+	ls mjconvert/*.py | grep -v pb2 | xargs black
+	ls mjconvert/*.py | grep -v pb2 | xargs blackdoc
+	ls mjconvert/*.py | grep -v pb2 | xargs isort
 
 checks:
-	black mjconvert --check --diff
-	blackdoc mjconvert --check
-	isort mjconvert --check --diff
+	ls mjconvert/*.py | grep -v pb2 | xargs black --check --diff
+	ls mjconvert/*.py | grep -v pb2 | xargs blackdoc --check
+	ls mjconvert/*.py | grep -v pb2 | xargs isort --check --diff
 
 proto:
 	python3 -m grpc_tools.protoc -I ../protos --python_out=./mjconvert/ --grpc_python_out=./mjconvert/ ../protos/mj.proto
