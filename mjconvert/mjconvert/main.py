@@ -6,6 +6,7 @@ from argparse import RawTextHelpFormatter
 from typing import List
 
 from google.protobuf import json_format
+from google.protobuf.json_format import Error
 
 from mjconvert import mj_pb2
 from mjconvert.mjlog_decoder import MjlogDecoder
@@ -90,7 +91,7 @@ def detect_format(line: str) -> str:
     try:
         json.loads(line)
         return "mjproto"
-    except:
+    except ValueError:
         return "mjlog"
 
 
