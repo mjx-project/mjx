@@ -212,14 +212,14 @@ class MjlogEncoder:
     @staticmethod
     def _to_final_score(ten: int, rank: int) -> int:
         """
-        >>> MjlogEncoder._to_final_score(-200, 4)
+        >>> MjlogEncoder._to_final_score(-200, 3)  # 4th place
         -50.0
-        >>> MjlogEncoder._to_final_score(-2300, 4)
+        >>> MjlogEncoder._to_final_score(-2300, 3)  # 4th place
         -52.0
-        >>> MjlogEncoder._to_final_score(-800, 4)
+        >>> MjlogEncoder._to_final_score(-800, 3)  # 4th place
         -51.0
         """
-        assert 1 <= rank <= 3
+        assert 1 <= rank < 4
         ten //= 100
         if 1 <= abs(ten) % 10 <= 4:
             if ten >= 0:

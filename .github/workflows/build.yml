@@ -14,9 +14,12 @@ jobs:
     - name: Test mj
       run: |
         make test
-    - name: Install mjconvert
+    - name: Install mjconvert CLI
       run: |
         cd mjconvert && make install
-    - name: Test mjconvert (mjlog => mjproto, mjproto => mjlog)
+    - name: Run mjconvert pytest
+      run: |
+        cd mjconvert && make pytest
+    - name: Test mjconvert CLI (mjlog => mjproto, mjproto => mjlog)
       run: |
         cd mjconvert && make test-cli
