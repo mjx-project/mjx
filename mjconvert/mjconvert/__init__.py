@@ -1,1 +1,1 @@
-from mjconvert.diff import check_equality
+from mjconvert.diff import check_equality  # noqa: F401
