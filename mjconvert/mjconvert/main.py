@@ -5,7 +5,7 @@ import json
 import os
 import sys
 from argparse import RawTextHelpFormatter
-from typing import List
+from typing import List, Optional
 
 from google.protobuf import json_format
 
@@ -165,7 +165,7 @@ class StdinIterator(object):
 def main():
     fmt_from: str = ""
     converter: Converter = None
-    buffer: LineBuffer = None
+    buffer: Optional[LineBuffer] = None
 
     if not args.dir_from and not args.dir_to:  # From stdin
         if args.verbose:
@@ -173,7 +173,7 @@ def main():
 
         itr = StdinIterator()
         for line in itr:
-            if fmt_from == "":
+            if buffer is None:
                 fmt_from = detect_format(line)
                 converter = Converter(fmt_from, to(args))
                 buffer = LineBuffer(fmt_from)
@@ -213,7 +213,7 @@ def main():
                 for line in f:
                     if not line:
                         continue
-                    if fmt_from == "":
+                    if buffer is None:
                         fmt_from = detect_format(line)
                         converter = Converter(fmt_from, to(args))
                         buffer = LineBuffer(fmt_from)
