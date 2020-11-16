@@ -9,7 +9,7 @@ mjconvert/mjconvert/mj_pb2_grpc.py
 mjconvert/.idea
 mjconvert/venv
 mjconvert/__pycache__
-mjconvert/mjconvert/tests/resources/8
+mjconvert/mjconvert/tests/resources/*
 mjconvert/build
 mjconvert/dist
 mjconvert/mjconvert.egg-info
