@@ -164,7 +164,7 @@ class StdinIterator(object):
 
 def main():
     fmt_from: str = ""
-    converter: Converter = None
+    converter: Optional[Converter] = None
     buffer: Optional[LineBuffer] = None
 
     if not args.dir_from and not args.dir_to:  # From stdin
@@ -173,7 +173,8 @@ def main():
 
         itr = StdinIterator()
         for line in itr:
-            if buffer is None:
+            if buffer is None or converter is None:
+                assert buffer is None and converter is None
                 fmt_from = detect_format(line)
                 converter = Converter(fmt_from, to(args))
                 buffer = LineBuffer(fmt_from)
@@ -213,7 +214,8 @@ def main():
                 for line in f:
                     if not line:
                         continue
-                    if buffer is None:
+                    if buffer is None or converter is None:
+                        assert buffer is None and converter is None
                         fmt_from = detect_format(line)
                         converter = Converter(fmt_from, to(args))
                         buffer = LineBuffer(fmt_from)
