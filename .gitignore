@@ -8,12 +8,11 @@ mjconvert/mjconvert/mjproto.py
 mjconvert/.idea
 mjconvert/venv
 mjconvert/__pycache__
-mjconvert/resources/*
+mjconvert/mjconvert/tests/resources/*
 mjconvert/build
 mjconvert/dist
 mjconvert/mjconvert.egg-info
 mjconvert/mjconvert/__pycache__
-!mjconvert/resources/.gitkeep
 mjconvert/mjconvert/tests/__pycache__/
 test/resources/*
 !test/resources/.gitkeep

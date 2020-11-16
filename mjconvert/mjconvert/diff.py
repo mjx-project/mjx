@@ -1,13 +1,27 @@
 import argparse
 import difflib
 import os
+import sys
+from typing import List
 
 
-def show_diff(original: str, restored: str) -> None:
-    # for line in difflib.unified_diff(original.split('\n'), restored.split('\n'), n=0):
-    #     print(line)
+def check_equality(original: str, restored: str) -> bool:
+    original = original.strip().strip("\n")
+    restored = restored.strip().strip("\n")
+    assert len(original.split("\n")) == 1
+    assert len(restored.split("\n")) == 1
 
-    for line in difflib.unified_diff(original.split("\n"), restored.split("\n"), n=0):
+    def split_mjlog(mjlog: str) -> List[str]:
+        ret = []
+        elem = ""
+        for x in mjlog:
+            elem += x
+            if x == ">":
+                ret.append(elem)
+                elem = ""
+        return ret
+
+    for line in difflib.unified_diff(split_mjlog(original), split_mjlog(restored), n=0):
         if line.startswith("-<GO") or line.startswith("+<GO"):
             continue
         if line.startswith("-<INIT") or line.startswith("+<INIT"):
@@ -24,19 +38,18 @@ def show_diff(original: str, restored: str) -> None:
             continue
         if not line.strip():
             continue
-        print(line)
+        sys.stderr.write(line + "\n")
+        return False
+    return True
 
 
 def load_mjlog(path: str) -> str:
-    mjlog = ""
+    line = ""
     with open(path, "r") as f:
-        line = f.readline()
-        for x in line:
-            if x == ">":
-                mjlog += ">\n"
-            else:
-                mjlog += x
-    return mjlog
+        lines = f.readlines()
+        assert len(lines) == 1
+        line = lines[0]
+    return line
 
 
 if __name__ == "__main__":
@@ -74,4 +87,4 @@ if __name__ == "__main__":
         )
         original = load_mjlog(original_path)
         restored = load_mjlog(restored_path)
-        show_diff(original, restored)
+        check_equality(original, restored)
