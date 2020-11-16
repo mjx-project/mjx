@@ -16,6 +16,7 @@ checks:
 	ls mjconvert/*.py | grep -v pb2 | xargs black --check --diff
 	ls mjconvert/*.py | grep -v pb2 | xargs blackdoc --check
 	ls mjconvert/*.py | grep -v pb2 | xargs isort --check --diff
+	ls mjconvert/*.py | grep -v mjproto | xargs mypy --config pyproject.toml 
 
 proto:
 	python3 -m grpc_tools.protoc -I ../protos --python_betterproto_out=./mjconvert/ ../protos/mj.proto
