@@ -1,12 +1,11 @@
-import os
-from typing import List
-import copy
+from __future__ import annotations  # postpone type hint evaluation or doctest fails
+
 import json
-import urllib.parse
+from typing import Dict, List
+
 from google.protobuf import json_format
 
-from mjconvert import mj_pb2
-
+import mjproto
 from mjconvert import open_converter
 
 
@@ -45,8 +44,9 @@ def change_action_format(bits: int) -> str:
 def sort_init_hand(init_hand: List[int]) -> List[int]:
     # 11~19マンズ　21~29ピンズ　31~39ソウズ　#51~53赤マンピンソウ
     reds_score = [51, 52, 53]  # 赤
-    init_key = [int(str(i)[::-1]) + 0.1 if i in reds_score else i for i in
-                init_hand]  # ソートする辞書のキー。赤は文字を反転させて、同じ種類の牌の中で最後尾になるようにソートする値に0.1を足す。
+    init_key = [
+        int(str(i)[::-1]) + 0.1 if i in reds_score else i for i in init_hand
+    ]  # ソートする辞書のキー。赤は文字を反転させて、同じ種類の牌の中で最後尾になるようにソートする値に0.1を足す。
     init_hand_dict = [[k, v] for k, v in zip(init_key, init_hand)]
     sorted_hand = sorted(init_hand_dict, key=lambda x: x[0])
     sorted_hand = [i[1] for i in sorted_hand]
@@ -64,7 +64,9 @@ def parse_discards(events, abs_pos: int):
             discards.append(60)
         elif event.type == mj_pb2.EVENT_TYPE_RIICHI and event.who == abs_pos:  # リーチ
             is_reach = True
-            riichi_tile = change_tile_fmt(events[i + 1].tile)  # riichiの次のeventに宣言牌が記録されているのでそのtileを取得して後にindexを取得変更
+            riichi_tile = change_tile_fmt(
+                events[i + 1].tile
+            )  # riichiの次のeventに宣言牌が記録されているのでそのtileを取得して後にindexを取得変更
     riichi_index = discards.index(riichi_tile)
     if is_reach:
         discards[riichi_index] = "r" + str(discards[riichi_index])  # リーチ宣言牌の形式変更
@@ -96,13 +98,13 @@ def parse_draws(draws, events, abs_pos):
             discards.append(event.open)
             actions.append(event.open)
     for i in actions:
-        action_index = discards.index(i)  #捨て牌でのactionのindex同じ順にdrawにアクションを挿入すれば良い
+        action_index = discards.index(i)  # 捨て牌でのactionのindex同じ順にdrawにアクションを挿入すれば良い
         draws.insert(action_index, change_action_format(discards[action_index]))
     return draws, discards
 
 
 # ここを実装
-def mjproto_to_mjscore(state: mj_pb2.State) -> str:
+def mjproto_to_mjscore(state: mjproto.State) -> str:
     # print(state.init_score.round)
     # print(state.private_infos.ABSOLUTE_POS_INIT_EAST.init_hand)
     # print(state.init_score.honba)
@@ -112,7 +114,7 @@ def mjproto_to_mjscore(state: mj_pb2.State) -> str:
     print(a)
     # print(len(state.private_infos[3].draws))
     # print(sort_init_hand(change_tiles_fmt(state.private_infos[0].init_hand)))
-    #print(parse_discards(state.event_history.events, 1))
+    # print(parse_discards(state.event_history.events, 1))
     round: int = state.init_score.round
     honba: int = state.init_score.honba
     riichi: int = state.init_score.riichi
@@ -120,21 +122,26 @@ def mjproto_to_mjscore(state: mj_pb2.State) -> str:
     ura_doras: List[int] = [i for i in state.ura_doras]
     init_score: List[int] = [i for i in state.init_score.ten]
 
-    d = {'title': [], 'name': [], 'rule': [], 'log': [[[[round, honba, riichi], init_score, doras, ura_doras]]]}
+    d: Dict = {
+        "title": [],
+        "name": [],
+        "rule": [],
+        "log": [[[[round, honba, riichi], init_score, doras, ura_doras]]],
+    }
     return json.dumps(d)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     # 東1局0本場の mjproto
     path_to_mjproto_example = "../..//test/resources/json/first-example.json"
-    with open(path_to_mjproto_example, 'r') as f:
+    with open(path_to_mjproto_example, "r") as f:
         line = f.readline()
     d = json.loads(line)
-    state: mj_pb2.State = json_format.ParseDict(d, mj_pb2.State())
+    state: mjproto.State = json_format.ParseDict(d, mjproto.State())
 
     # 東1局0本場の mjscore
     path_to_mjscore_example = "../../test/resources/mjscore/first-example.json"
-    with open(path_to_mjscore_example, 'r') as f:
+    with open(path_to_mjscore_example, "r") as f:
         line = f.readline()
     mjscore_expected_dict = json.loads(line)
 

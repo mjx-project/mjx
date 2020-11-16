@@ -3,3 +3,9 @@ protobuf
 grpcio
 grpcio-tools
 pytest
+black
+blackdoc
+isort
+flake8
+mypy
+mypy-protobuf
