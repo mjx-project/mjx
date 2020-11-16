@@ -1,7 +1,7 @@
-.PHONY: proto install uninstall clean pytest test-cli
+.PHONY: proto requirements install uninstall clean pytest test-cli
 
 clean:
-	rm ./mjconvert/mj_pb2.py ./mjconvert/mj_pb2_grpc.py
+	rm ./mjproto/*pb2*
 	rm -rf build
 	rm -rf dist
 	rm -rf *.egg-info
@@ -18,13 +18,15 @@ checks:
 	ls mjconvert/*.py | grep -v pb2 | xargs isort --check --diff
 
 proto:
-	python3 -m grpc_tools.protoc -I ../protos --python_out=./mjconvert/ --grpc_python_out=./mjconvert/ ../protos/mj.proto
+	python3 -m grpc_tools.protoc -I ../protos --python_out=./mjproto/ --grpc_python_out=./mjproto/ --mypy_out=./mjproto/ ../protos/mj.proto
+
+requirements:
+	python3 -m pip install -r requirements.txt
 
 uninstall:
 	python3 -m pip uninstall mjconvert -y
 
-install: proto
-	python3 -m pip install -r requirements.txt
+install: requirements proto
 	python3 setup.py install
 
 pytest: proto

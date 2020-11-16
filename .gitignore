@@ -4,8 +4,7 @@ cmake-build-*/*
 build/*
 docker-build/*
 test/lib/*
-mjconvert/mjconvert/mj_pb2.py
-mjconvert/mjconvert/mj_pb2_grpc.py
+mjconvert/mjproto/*pb2*
 mjconvert/.idea
 mjconvert/venv
 mjconvert/__pycache__
