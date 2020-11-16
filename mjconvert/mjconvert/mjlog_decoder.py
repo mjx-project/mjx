@@ -214,23 +214,7 @@ class MjlogDecoder:
                         )
                     )
                 if "type" in val:
-                    no_winner_type = None
-                    if val["type"] == "yao9":
-                        no_winner_type = mjproto.NO_WINNER_TYPE_KYUUSYU
-                    elif val["type"] == "reach4":
-                        no_winner_type = mjproto.NO_WINNER_TYPE_FOUR_RIICHI
-                    elif val["type"] == "ron3":
-                        no_winner_type = mjproto.NO_WINNER_TYPE_THREE_RONS
-                    elif val["type"] == "kan4":
-                        no_winner_type = mjproto.NO_WINNER_TYPE_FOUR_KANS
-                    elif val["type"] == "kan4":
-                        no_winner_type = mjproto.NO_WINNER_TYPE_FOUR_KANS
-                    elif val["type"] == "kaze4":
-                        no_winner_type = mjproto.NO_WINNER_TYPE_FOUR_WINDS
-                    elif val["type"] == "nm":
-                        no_winner_type = mjproto.NO_WINNER_TYPE_NM
-                    assert no_winner_type is not None
-                    self.state.terminal.no_winner.type = no_winner_type
+                    self.state.terminal.no_winner.type = MjlogDecoder.parse_no_winner_type(val)
                 if "owari" in val:
                     # オーラス流局時のリーチ棒はトップ総取り
                     # TODO: 同着トップ時には上家が総取りしてるが正しい？
@@ -289,6 +273,27 @@ class MjlogDecoder:
             )
 
         yield copy.deepcopy(self.state)
+
+    @staticmethod
+    def parse_no_winner_type(val: Dict[str, str]) -> mjproto.NoWinnerTypeValue:
+        no_winner_type: mjproto.NoWinnerTypeValue
+        if val["type"] == "yao9":
+            no_winner_type = mjproto.NO_WINNER_TYPE_KYUUSYU
+        elif val["type"] == "reach4":
+            no_winner_type = mjproto.NO_WINNER_TYPE_FOUR_RIICHI
+        elif val["type"] == "ron3":
+            no_winner_type = mjproto.NO_WINNER_TYPE_THREE_RONS
+        elif val["type"] == "kan4":
+            no_winner_type = mjproto.NO_WINNER_TYPE_FOUR_KANS
+        elif val["type"] == "kan4":
+            no_winner_type = mjproto.NO_WINNER_TYPE_FOUR_KANS
+        elif val["type"] == "kaze4":
+            no_winner_type = mjproto.NO_WINNER_TYPE_FOUR_WINDS
+        elif val["type"] == "nm":
+            no_winner_type = mjproto.NO_WINNER_TYPE_NM
+        else:
+            assert False
+        return no_winner_type
 
     @staticmethod
     def make_win(
