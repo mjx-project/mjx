@@ -3,7 +3,7 @@ from __future__ import annotations  # postpone type hint evaluation or doctest f
 import copy
 import json
 import urllib.parse
-from typing import List, Tuple
+from typing import List
 
 from google.protobuf import json_format
 
@@ -105,50 +105,7 @@ class MjlogEncoder:
 
         if state.HasField("terminal"):
             if len(state.terminal.wins) == 0:
-                ret += "<RYUUKYOKU "
-                if state.terminal.no_winner.type != mjproto.NO_WINNER_TYPE_NORMAL:
-                    no_winner_type = ""
-                    if state.terminal.no_winner.type == mjproto.NO_WINNER_TYPE_KYUUSYU:
-                        no_winner_type = "yao9"
-                    elif state.terminal.no_winner.type == mjproto.NO_WINNER_TYPE_FOUR_RIICHI:
-                        no_winner_type = "reach4"
-                    elif state.terminal.no_winner.type == mjproto.NO_WINNER_TYPE_THREE_RONS:
-                        no_winner_type = "ron3"
-                    elif state.terminal.no_winner.type == mjproto.NO_WINNER_TYPE_FOUR_KANS:
-                        no_winner_type = "kan4"
-                    elif state.terminal.no_winner.type == mjproto.NO_WINNER_TYPE_FOUR_WINDS:
-                        no_winner_type = "kaze4"
-                    elif state.terminal.no_winner.type == mjproto.NO_WINNER_TYPE_NM:
-                        no_winner_type = "nm"
-                    assert no_winner_type
-                    ret += f'type="{no_winner_type}" '
-                ret += f'ba="{curr_score.honba},{curr_score.riichi}" '
-                sc = []
-                for i in range(4):
-                    sc.append(curr_score.ten[i] // 100)
-                    change = state.terminal.no_winner.ten_changes[i]
-                    sc.append(change // 100)
-                    curr_score.ten[i] += change
-                ret += f'sc="{",".join([str(x) for x in sc])}" '
-                for tenpai in state.terminal.no_winner.tenpais:
-                    closed_tiles = ",".join([str(x) for x in tenpai.closed_tiles])
-                    ret += f'hai{tenpai.who}="{closed_tiles}" '
-                if state.terminal.is_game_over:
-                    # オーラス流局時のリーチ棒はトップ総取り
-                    # TODO: 同着トップ時には上家が総取りしてるが正しい？
-                    # TODO: 上家総取りになってない。。。
-                    if curr_score.riichi != 0:
-                        max_ten = max(curr_score.ten)
-                        for i in range(4):
-                            if curr_score.ten[i] == max_ten:
-                                curr_score.ten[i] += 1000 * curr_score.riichi
-                                break
-                    assert sum(curr_score.ten) == 100000
-                    final_scores = MjlogEncoder._calc_final_score(
-                        [int(x) for x in state.terminal.final_score.ten]
-                    )
-                    ret += f'owari="{state.terminal.final_score.ten[0] // 100},{final_scores[0]:.1f},{state.terminal.final_score.ten[1] // 100},{final_scores[1]:.1f},{state.terminal.final_score.ten[2] // 100},{final_scores[2]:.1f},{state.terminal.final_score.ten[3] // 100},{final_scores[3]:.1f}" '
-                ret += "/>"
+                ret += MjlogEncoder.update_by_no_winner(state, curr_score)
             else:
                 # NOTE: ダブロン時、winsは上家から順になっている必要がある
                 for win in state.terminal.wins:
@@ -173,6 +130,54 @@ class MjlogEncoder:
                 == 100000
             )
 
+        return ret
+
+    @staticmethod
+    def update_by_no_winner(state, curr_score):
+        ret = "<RYUUKYOKU "
+        if state.terminal.no_winner.type != mjproto.NO_WINNER_TYPE_NORMAL:
+            no_winner_type = ""
+            if state.terminal.no_winner.type == mjproto.NO_WINNER_TYPE_KYUUSYU:
+                no_winner_type = "yao9"
+            elif state.terminal.no_winner.type == mjproto.NO_WINNER_TYPE_FOUR_RIICHI:
+                no_winner_type = "reach4"
+            elif state.terminal.no_winner.type == mjproto.NO_WINNER_TYPE_THREE_RONS:
+                no_winner_type = "ron3"
+            elif state.terminal.no_winner.type == mjproto.NO_WINNER_TYPE_FOUR_KANS:
+                no_winner_type = "kan4"
+            elif state.terminal.no_winner.type == mjproto.NO_WINNER_TYPE_FOUR_WINDS:
+                no_winner_type = "kaze4"
+            elif state.terminal.no_winner.type == mjproto.NO_WINNER_TYPE_NM:
+                no_winner_type = "nm"
+            assert no_winner_type
+            ret += f'type="{no_winner_type}" '
+        ret += f'ba="{curr_score.honba},{curr_score.riichi}" '
+        sc = []
+        for i in range(4):
+            sc.append(curr_score.ten[i] // 100)
+            change = state.terminal.no_winner.ten_changes[i]
+            sc.append(change // 100)
+            curr_score.ten[i] += change
+        ret += f'sc="{",".join([str(x) for x in sc])}" '
+        for tenpai in state.terminal.no_winner.tenpais:
+            closed_tiles = ",".join([str(x) for x in tenpai.closed_tiles])
+            ret += f'hai{tenpai.who}="{closed_tiles}" '
+        if state.terminal.is_game_over:
+            # オーラス流局時のリーチ棒はトップ総取り
+            # TODO: 同着トップ時には上家が総取りしてるが正しい？
+            # TODO: 上家総取りになってない。。。
+            if curr_score.riichi != 0:
+                max_ten = max(curr_score.ten)
+                for i in range(4):
+                    if curr_score.ten[i] == max_ten:
+                        curr_score.ten[i] += 1000 * curr_score.riichi
+                        break
+            assert sum(curr_score.ten) == 100000
+            final_scores = MjlogEncoder._calc_final_score(
+                [int(x) for x in state.terminal.final_score.ten]
+            )
+            ret += f'owari="{state.terminal.final_score.ten[0] // 100},{final_scores[0]:.1f},{state.terminal.final_score.ten[1] // 100},{final_scores[1]:.1f},{state.terminal.final_score.ten[2] // 100},{final_scores[2]:.1f},{state.terminal.final_score.ten[3] // 100},{final_scores[3]:.1f}" '
+        ret += "/>"
         return ret
 
     @staticmethod
