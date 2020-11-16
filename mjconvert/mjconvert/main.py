@@ -8,7 +8,6 @@ from argparse import RawTextHelpFormatter
 from typing import List
 
 from google.protobuf import json_format
-from google.protobuf.json_format import Error
 
 import mjproto
 from mjconvert.mjlog_decoder import MjlogDecoder
