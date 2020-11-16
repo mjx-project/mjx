@@ -1,31 +1,34 @@
-.PHONY: proto install uninstall clean pytest test-cli
+.PHONY: proto requirements install uninstall clean pytest test-cli
 
 clean:
-	rm ./mjconvert/mj_pb2.py ./mjconvert/mj_pb2_grpc.py
+	rm ./mjproto/*pb2*
 	rm -rf build
 	rm -rf dist
 	rm -rf *.egg-info
 	find . -name "*pycache*" | xargs rm -rf
 
 formats:
-	ls mjconvert/*.py | grep -v pb2 | xargs black
-	ls mjconvert/*.py | grep -v pb2 | xargs blackdoc
-	ls mjconvert/*.py | grep -v pb2 | xargs isort
+	black mjconvert
+	blackdoc mjconvert
+	isort mjconvert
 
 checks:
-	ls mjconvert/*.py | grep -v pb2 | xargs black --check --diff
-	ls mjconvert/*.py | grep -v pb2 | xargs blackdoc --check
-	ls mjconvert/*.py | grep -v pb2 | xargs flake8 --config pyproject.toml --ignore E501,E203,W503
-	ls mjconvert/*.py | grep -v pb2 | xargs isort --check --diff
+	black --check --diff mjconvert
+	blackdoc --check mjconvert
+	isort --check --diff mjconvert
+	flake8 --config pyproject.toml --ignore E501,E203,W503 mjconvert
+	mypy --config pyproject.toml mjconvert
 
 proto:
-	python3 -m grpc_tools.protoc -I ../protos --python_out=./mjconvert/ --grpc_python_out=./mjconvert/ ../protos/mj.proto
+	python3 -m grpc_tools.protoc -I ../protos --python_out=./mjproto/ --grpc_python_out=./mjproto/ --mypy_out=./mjproto/ ../protos/mj.proto
+
+requirements:
+	python3 -m pip install -r requirements.txt
 
 uninstall:
 	python3 -m pip uninstall mjconvert -y
 
-install: proto
-	python3 -m pip install -r requirements.txt
+install: requirements proto
 	python3 setup.py install
 
 pytest: proto

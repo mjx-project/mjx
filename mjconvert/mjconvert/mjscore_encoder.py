@@ -1,17 +1,20 @@
+from __future__ import annotations  # postpone type hint evaluation or doctest fails
+
 import json
+from typing import Dict
 
 from google.protobuf import json_format
 
-from mjconvert import mj_pb2
+import mjproto
 
 
 # ここを実装
-def mjproto_to_mjscore(state: mj_pb2.State) -> str:
+def mjproto_to_mjscore(state: mjproto.State) -> str:
     # print(state.init_score.round)
     # print(state.init_score.riichi)
     # print(state.init_score.honba)
     # print(state.init_score.ten)
-    d = {}
+    d: Dict = {}
     return json.dumps(d)
 
 
@@ -21,7 +24,7 @@ if __name__ == "__main__":
     with open(path_to_mjproto_example, "r") as f:
         line = f.readline()
     d = json.loads(line)
-    state: mj_pb2.State = json_format.ParseDict(d, mj_pb2.State())
+    state: mjproto.State = json_format.ParseDict(d, mjproto.State())
 
     # 東1局0本場の mjscore
     path_to_mjscore_example = "../../test/resources/mjscore/first-example.json"
