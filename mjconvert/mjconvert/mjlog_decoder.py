@@ -10,6 +10,7 @@ from typing import Dict, Iterator, List, Optional, Tuple
 from xml.etree.ElementTree import Element
 
 import pkg_resources
+from mjproto import mjproto
 
 
 SEED_CACHE_DIR = os.path.join(os.environ["HOME"], ".mjconvert/seed_cache")
