@@ -121,13 +121,16 @@ class Converter:
         :return: also correspond to completed (or non-completed) one game
         """
         if self.fmt_from == "mjproto" and self.fmt_to == "mjlog":
+            assert self.mjproto2mjlog is not None
             for line in lines:
                 self.mjproto2mjlog.put(line)
             return [self.mjproto2mjlog.get()]  # a mjlog line corresponds to one game
         if self.fmt_from == "mjlog" and self.fmt_to == "mjproto":
+            assert self.mjlog2mjproto is not None
             assert len(lines) == 1  # each line has each game
             return self.mjlog2mjproto.decode(lines[0], store_cache=args.store_cache)
         if self.fmt_from == "mjlog" and self.fmt_to == "mjproto_raw":
+            assert self.mjlog2mjproto is not None
             assert len(lines) == 1  # each line has each game
             return self.mjlog2mjproto.decode(lines[0], store_cache=args.store_cache)
         else:
