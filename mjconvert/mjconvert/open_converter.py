@@ -1,52 +1,54 @@
+from __future__ import annotations  # postpone type hint evaluation or doctest fails
+
 from typing import List
 
-from mjconvert import mj_pb2
+import mjproto
 
 
-def open_event_type(bits: int) -> mj_pb2.EventType:
+def open_event_type(bits: int) -> mjproto.EventTypeValue:
     """
-    >>> open_event_type(47723) == mj_pb2.EVENT_TYPE_PON
+    >>> open_event_type(47723) == mjproto.EVENT_TYPE_PON
     True
-    >>> open_event_type(49495) == mj_pb2.EVENT_TYPE_CHI
+    >>> open_event_type(49495) == mjproto.EVENT_TYPE_CHI
     True
-    >>> open_event_type(28722) == mj_pb2.EVENT_TYPE_KAN_ADDED
+    >>> open_event_type(28722) == mjproto.EVENT_TYPE_KAN_ADDED
     True
     """
     if 1 << 2 & bits:
-        return mj_pb2.EVENT_TYPE_CHI
+        return mjproto.EVENT_TYPE_CHI
     elif 1 << 3 & bits:
-        return mj_pb2.EVENT_TYPE_PON
+        return mjproto.EVENT_TYPE_PON
     elif 1 << 4 & bits:
-        return mj_pb2.EVENT_TYPE_KAN_ADDED
+        return mjproto.EVENT_TYPE_KAN_ADDED
     else:
-        if mj_pb2.RELATIVE_POS_SELF == bits & 3:
+        if mjproto.RELATIVE_POS_SELF == bits & 3:
 
-            return mj_pb2.EVENT_TYPE_KAN_CLOSED
+            return mjproto.EVENT_TYPE_KAN_CLOSED
         else:
-            return mj_pb2.EVENT_TYPE_KAN_OPENED
+            return mjproto.EVENT_TYPE_KAN_OPENED
 
 
-def open_from(bits: int) -> mj_pb2.RelativePos:
+def open_from(bits: int) -> mjproto.RelativePosValue:
     """
-    >>> open_from(51306) == mj_pb2.RELATIVE_POS_MID  # 対面
+    >>> open_from(51306) == mjproto.RELATIVE_POS_MID  # 対面
     True
-    >>> open_from(49495) == mj_pb2.RELATIVE_POS_LEFT  # 上家
+    >>> open_from(49495) == mjproto.RELATIVE_POS_LEFT  # 上家
     True
-    >>> open_from(28722) == mj_pb2.RELATIVE_POS_MID  # 加槓
+    >>> open_from(28722) == mjproto.RELATIVE_POS_MID  # 加槓
     True
     """
 
     event_type = open_event_type(bits)
-    if event_type == mj_pb2.EVENT_TYPE_CHI:
-        return mj_pb2.RELATIVE_POS_LEFT
+    if event_type == mjproto.EVENT_TYPE_CHI:
+        return mjproto.RELATIVE_POS_LEFT
     elif (
-        event_type == mj_pb2.EVENT_TYPE_PON
-        or event_type == mj_pb2.EVENT_TYPE_KAN_OPENED
-        or event_type == mj_pb2.EVENT_TYPE_KAN_ADDED
+        event_type == mjproto.EVENT_TYPE_PON
+        or event_type == mjproto.EVENT_TYPE_KAN_OPENED
+        or event_type == mjproto.EVENT_TYPE_KAN_ADDED
     ):
-        return bits & 3
+        return mjproto.RelativePos.values()[bits & 3]
     else:
-        return mj_pb2.RELATIVE_POS_SELF
+        return mjproto.RELATIVE_POS_SELF
 
 
 def _min_tile_chi(bits: int) -> int:
@@ -65,12 +67,13 @@ def open_stolen_tile_type(bits: int) -> int:
     18
     """
     event_type = open_event_type(bits)
-    if event_type == mj_pb2.EVENT_TYPE_CHI:
+    if event_type == mjproto.EVENT_TYPE_CHI:
         min_tile = _min_tile_chi(bits)
         stolen_tile_kind = min_tile + (bits >> 10) % 3
         return stolen_tile_kind
     elif (
-        event_type == mj_pb2.EVENT_TYPE_PON or event_type == mj_pb2.EVENT_TYPE_KAN_ADDED
+        event_type == mjproto.EVENT_TYPE_PON
+        or event_type == mjproto.EVENT_TYPE_KAN_ADDED
     ):
         stolen_tile_kind = (bits >> 9) // 3
         return stolen_tile_kind
@@ -89,10 +92,10 @@ def open_tile_types(bits: int) -> List[int]:
     [18, 18, 18, 18]
     """
     event_type = open_event_type(bits)
-    if event_type == mj_pb2.EVENT_TYPE_CHI:
+    if event_type == mjproto.EVENT_TYPE_CHI:
         min_tile = _min_tile_chi(bits)
         return [min_tile, min_tile + 1, min_tile + 2]
-    elif event_type == mj_pb2.EVENT_TYPE_PON:
+    elif event_type == mjproto.EVENT_TYPE_PON:
         stolen_tile_kind = open_stolen_tile_type(bits)
         return [stolen_tile_kind] * 3
     else:

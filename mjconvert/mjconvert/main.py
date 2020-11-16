@@ -1,3 +1,5 @@
+from __future__ import annotations  # postpone type hint evaluation or doctest fails
+
 import argparse
 import json
 import os
@@ -7,7 +9,7 @@ from typing import List
 
 from google.protobuf import json_format
 
-from mjconvert import mj_pb2
+import mjproto
 from mjconvert.mjlog_decoder import MjlogDecoder
 from mjconvert.mjlog_encoder import MjlogEncoder
 
@@ -59,7 +61,7 @@ class LineBuffer:
     @staticmethod
     def is_new_round_(line):
         d = json.loads(line)
-        state = json_format.ParseDict(d, mj_pb2.State())
+        state = json_format.ParseDict(d, mjproto.State())
         return state.init_score.round == 0 and state.init_score.honba == 0
 
     def put(self, line) -> None:
@@ -119,13 +121,16 @@ class Converter:
         :return: also correspond to completed (or non-completed) one game
         """
         if self.fmt_from == "mjproto" and self.fmt_to == "mjlog":
+            assert self.mjproto2mjlog is not None
             for line in lines:
                 self.mjproto2mjlog.put(line)
             return [self.mjproto2mjlog.get()]  # a mjlog line corresponds to one game
         if self.fmt_from == "mjlog" and self.fmt_to == "mjproto":
+            assert self.mjlog2mjproto is not None
             assert len(lines) == 1  # each line has each game
             return self.mjlog2mjproto.decode(lines[0], store_cache=args.store_cache)
         if self.fmt_from == "mjlog" and self.fmt_to == "mjproto_raw":
+            assert self.mjlog2mjproto is not None
             assert len(lines) == 1  # each line has each game
             return self.mjlog2mjproto.decode(lines[0], store_cache=args.store_cache)
         else:
