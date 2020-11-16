@@ -23,6 +23,8 @@ class MjlogDecoder:
     def __init__(self, modify: bool):
         self.state: mjproto.State = mjproto.State()
         self.modify = modify
+        self.last_drawer = None
+        self.last_draw = None
 
     def decode(self, mjlog_str: str, store_cache=False) -> List[str]:
         wall_dices = reproduce_wall_from_mjlog(mjlog_str, store_cache=store_cache)
@@ -135,28 +137,24 @@ class MjlogDecoder:
 
         event = None
         num_kan_dora = 0
-        last_drawer, last_draw = None, None
+        self.last_drawer = None
+        self.last_draw = None
         reach_terminal = False
         for key, val in kv[1:]:
             if key != "UN" and key[0] in ["T", "U", "V", "W"]:  # draw
-                who = MjlogDecoder._to_absolute_pos(key[0])
-                draw = int(key[1:])
+                who, draw = MjlogDecoder.parse_draw(key)
                 self.state.private_infos[int(who)].draws.append(draw)
-                event = mjproto.Event(
-                    who=who,
-                    type=mjproto.EVENT_TYPE_DRAW,
-                    # tile is set empty because this is private information
-                )
-                last_drawer, last_draw = who, draw
+                event = MjlogDecoder.make_draw_event(who)
+                self.last_drawer, self.last_draw = who, draw
             elif key != "DORA" and key[0] in ["D", "E", "F", "G"]:  # discard
                 who = MjlogDecoder._to_absolute_pos(key[0])
                 discard = int(key[1:])
                 type_ = mjproto.EVENT_TYPE_DISCARD_FROM_HAND
                 if (
-                    last_drawer is not None
-                    and last_draw is not None
-                    and last_drawer == who
-                    and last_draw == discard
+                    self.last_drawer is not None
+                    and self.last_draw is not None
+                    and self.last_drawer == who
+                    and self.last_draw == discard
                 ):
                     type_ = mjproto.EVENT_TYPE_DISCARD_DRAWN_TILE
                 event = mjproto.Event(
@@ -164,7 +162,7 @@ class MjlogDecoder:
                     type=type_,
                     tile=discard,
                 )
-                last_drawer, last_draw = None, None
+                self.last_drawer, self.last_draw = None, None
             elif key == "N":  # open
                 who = mjproto.AbsolutePos.values()[int(val["who"])]
                 open = int(val["m"])
@@ -322,6 +320,21 @@ class MjlogDecoder:
             )
 
         yield copy.deepcopy(self.state)
+
+    @staticmethod
+    def parse_draw(key: str) -> Tuple[mjproto.AbsolutePosValue, int]:
+        who = MjlogDecoder._to_absolute_pos(key[0])
+        draw = int(key[1:])
+        return who, draw
+
+    @staticmethod
+    def make_draw_event(who: mjproto.AbsolutePosValue) -> mjproto.Event:
+        event = mjproto.Event(
+            who=who,
+            type=mjproto.EVENT_TYPE_DRAW,
+            # tile is set empty because this is private information
+        )
+        return event
 
     @staticmethod
     def _to_absolute_pos(pos_str: str) -> mjproto.AbsolutePosValue:
