@@ -17,9 +17,7 @@ class MjlogEncoder:
         self._reset_xml()
 
     def _reset_xml(self):
-        self.xml = (
-            """<mjloggm ver="2.3"><SHUFFLE seed="" ref=""/><GO type="169" lobby="0"/>"""
-        )
+        self.xml = """<mjloggm ver="2.3"><SHUFFLE seed="" ref=""/><GO type="169" lobby="0"/>"""
         self.is_init_round = True
 
     def encode(self, mjproto_rounds: List[str]) -> str:
@@ -56,8 +54,7 @@ class MjlogEncoder:
         ret += f'seed="{state.init_score.round},{state.init_score.honba},{state.init_score.riichi},,,{state.doras[0]}" '
         ret += f'ten="{state.init_score.ten[0] // 100},{state.init_score.ten[1] // 100},{state.init_score.ten[2] // 100},{state.init_score.ten[3] // 100}" oya="{state.init_score.round % 4}" '
         hai = [
-            ",".join([str(t) for t in hand])
-            for hand in [y.init_hand for y in state.private_infos]
+            ",".join([str(t) for t in hand]) for hand in [y.init_hand for y in state.private_infos]
         ]
         ret += f'hai0="{hai[0]}" '
         ret += f'hai1="{hai[1]}" '
@@ -113,25 +110,13 @@ class MjlogEncoder:
                     no_winner_type = ""
                     if state.terminal.no_winner.type == mjproto.NO_WINNER_TYPE_KYUUSYU:
                         no_winner_type = "yao9"
-                    elif (
-                        state.terminal.no_winner.type
-                        == mjproto.NO_WINNER_TYPE_FOUR_RIICHI
-                    ):
+                    elif state.terminal.no_winner.type == mjproto.NO_WINNER_TYPE_FOUR_RIICHI:
                         no_winner_type = "reach4"
-                    elif (
-                        state.terminal.no_winner.type
-                        == mjproto.NO_WINNER_TYPE_THREE_RONS
-                    ):
+                    elif state.terminal.no_winner.type == mjproto.NO_WINNER_TYPE_THREE_RONS:
                         no_winner_type = "ron3"
-                    elif (
-                        state.terminal.no_winner.type
-                        == mjproto.NO_WINNER_TYPE_FOUR_KANS
-                    ):
+                    elif state.terminal.no_winner.type == mjproto.NO_WINNER_TYPE_FOUR_KANS:
                         no_winner_type = "kan4"
-                    elif (
-                        state.terminal.no_winner.type
-                        == mjproto.NO_WINNER_TYPE_FOUR_WINDS
-                    ):
+                    elif state.terminal.no_winner.type == mjproto.NO_WINNER_TYPE_FOUR_WINDS:
                         no_winner_type = "kaze4"
                     elif state.terminal.no_winner.type == mjproto.NO_WINNER_TYPE_NM:
                         no_winner_type = "nm"
@@ -229,8 +214,7 @@ class MjlogEncoder:
             for i in range(4):
                 assert curr_score.ten[i] == state.terminal.final_score.ten[i]
             assert (
-                sum(state.terminal.final_score.ten)
-                + state.terminal.final_score.riichi * 1000
+                sum(state.terminal.final_score.ten) + state.terminal.final_score.riichi * 1000
                 == 100000
             )
 

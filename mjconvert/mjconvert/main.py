@@ -190,9 +190,7 @@ def main():
 
     else:  # From files
         if args.verbose:
-            sys.stderr.write(
-                f"Converting to {to(args)}. {args.dir_from} => {args.dir_to}\n"
-            )
+            sys.stderr.write(f"Converting to {to(args)}. {args.dir_from} => {args.dir_to}\n")
 
         to_type = to(args)
         to_ext = "mjlog" if to_type == "mjlog" else "json"
