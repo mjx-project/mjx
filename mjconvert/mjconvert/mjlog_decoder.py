@@ -147,20 +147,9 @@ class MjlogDecoder:
                 event = MjlogDecoder.make_draw_event(who)
                 self.last_drawer, self.last_draw = who, draw
             elif key != "DORA" and key[0] in ["D", "E", "F", "G"]:  # discard
-                who = MjlogDecoder._to_absolute_pos(key[0])
-                discard = int(key[1:])
-                type_ = mjproto.EVENT_TYPE_DISCARD_FROM_HAND
-                if (
-                    self.last_drawer is not None
-                    and self.last_draw is not None
-                    and self.last_drawer == who
-                    and self.last_draw == discard
-                ):
-                    type_ = mjproto.EVENT_TYPE_DISCARD_DRAWN_TILE
-                event = mjproto.Event(
-                    who=who,
-                    type=type_,
-                    tile=discard,
+                who, discard = MjlogDecoder.parse_discard(key)
+                event = MjlogDecoder.make_discard_event(
+                    who, discard, self.last_drawer, self.last_draw
                 )
                 self.last_drawer, self.last_draw = None, None
             elif key == "N":  # open
@@ -273,6 +262,34 @@ class MjlogDecoder:
             )
 
         yield copy.deepcopy(self.state)
+
+    @staticmethod
+    def make_discard_event(
+        who: mjproto.AbsolutePosValue,
+        discard: int,
+        last_drawer: mjproto.AbsolutePosValue,
+        last_draw: int,
+    ) -> mjproto.Event:
+        type_ = mjproto.EVENT_TYPE_DISCARD_FROM_HAND
+        if (
+            last_drawer is not None
+            and last_draw is not None
+            and last_drawer == who
+            and last_draw == discard
+        ):
+            type_ = mjproto.EVENT_TYPE_DISCARD_DRAWN_TILE
+        event = mjproto.Event(
+            who=who,
+            type=type_,
+            tile=discard,
+        )
+        return event
+
+    @staticmethod
+    def parse_discard(key: str) -> Tuple[mjproto.AbsolutePosValue, int]:
+        who = MjlogDecoder._to_absolute_pos(key[0])
+        discard = int(key[1:])
+        return who, discard
 
     @staticmethod
     def parse_no_winner_type(val: Dict[str, str]) -> mjproto.NoWinnerTypeValue:
