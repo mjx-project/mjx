@@ -4,7 +4,7 @@ import copy
 import json
 import os
 import urllib.parse
-from typing import List
+from typing import Dict, List
 
 from google.protobuf import json_format
 
@@ -17,7 +17,7 @@ def mjproto_to_mjscore(state: mjproto.State) -> str:
     # print(state.init_score.riichi)
     # print(state.init_score.honba)
     # print(state.init_score.ten)
-    d = {}
+    d: Dict = {}
     return json.dumps(d)
 
 
