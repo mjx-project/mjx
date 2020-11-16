@@ -1,4 +1,4 @@
-.PHONY: proto install uninstall clean pytest test-cli test-cli-mjlog-to-proto test-cli-mjgproto-to-mjlog
+.PHONY: proto requirements install uninstall clean pytest test-cli test-cli-mjlog-to-proto test-cli-mjgproto-to-mjlog
 
 clean:
 	rm ./mjconvert/mjproto.py
@@ -6,6 +6,9 @@ clean:
 	rm -rf dist
 	rm -rf *.egg-info
 	find . -name "*pycache*" | xargs rm -rf
+
+requirements:
+	python3 -m pip install -r requirements.txt
 
 formats:
 	ls mjconvert/*.py | grep -v mjproto | xargs black
@@ -18,14 +21,13 @@ checks:
 	ls mjconvert/*.py | grep -v mjproto | xargs isort --check --diff
 	ls mjconvert/*.py | grep -v mjproto | xargs mypy --config pyproject.toml 
 
-proto:
+proto: requirements
 	python3 -m grpc_tools.protoc -I ../protos --python_betterproto_out=./mjconvert/ ../protos/mj.proto
 
 uninstall:
 	python3 -m pip uninstall mjconvert -y
 
-install: proto
-	python3 -m pip install -r requirements.txt
+install: requirements proto
 	python3 setup.py install
 
 pytest: proto
