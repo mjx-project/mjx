@@ -184,40 +184,9 @@ class MjlogDecoder:
                 event = mjproto.Event(type=mjproto.EVENT_TYPE_NEW_DORA, tile=dora)
             elif key == "RYUUKYOKU":
                 reach_terminal = True
-                ba, riichi = [int(x) for x in val["ba"].split(",")]
-                self.state.terminal.no_winner.ten_changes[:] = [
-                    int(x) * 100 for i, x in enumerate(val["sc"].split(",")) if i % 2 == 1
-                ]
-                for i in range(4):
-                    self.state.terminal.final_score.ten[
-                        i
-                    ] += self.state.terminal.no_winner.ten_changes[i]
-                for i in range(4):
-                    hai_key = "hai" + str(i)
-                    if hai_key not in val:
-                        continue
-                    self.state.terminal.no_winner.tenpais.append(
-                        mjproto.TenpaiHand(
-                            who=mjproto.AbsolutePos.values()[i],
-                            closed_tiles=[int(x) for x in val[hai_key].split(",")],
-                        )
-                    )
-                if "type" in val:
-                    self.state.terminal.no_winner.type = MjlogDecoder.parse_no_winner_type(val)
-                if "owari" in val:
-                    # オーラス流局時のリーチ棒はトップ総取り
-                    # TODO: 同着トップ時には上家が総取りしてるが正しい？
-                    # TODO: 上家総取りになってない。。。
-                    if self.state.terminal.final_score.riichi != 0:
-                        max_ten = max(self.state.terminal.final_score.ten)
-                        for i in range(4):
-                            if self.state.terminal.final_score.ten[i] == max_ten:
-                                self.state.terminal.final_score.ten[i] += (
-                                    1000 * self.state.terminal.final_score.riichi
-                                )
-                                break
-                    self.state.terminal.final_score.riichi = 0
-                    self.state.terminal.is_game_over = True
+                self.state.terminal.CopyFrom(
+                    MjlogDecoder.apply_no_winner_to_terminal(self.state.terminal, val)
+                )
                 event = mjproto.Event(type=mjproto.EVENT_TYPE_NO_WINNER)
             elif key == "AGARI":
                 reach_terminal = True
@@ -262,6 +231,40 @@ class MjlogDecoder:
             )
 
         yield copy.deepcopy(self.state)
+
+    @staticmethod
+    def apply_no_winner_to_terminal(terminal: mjproto.Terminal, val: Dict[str, str]) -> mjproto.Terminal:
+        ba, riichi = [int(x) for x in val["ba"].split(",")]
+        terminal.no_winner.ten_changes[:] = [
+            int(x) * 100 for i, x in enumerate(val["sc"].split(",")) if i % 2 == 1
+        ]
+        for i in range(4):
+            terminal.final_score.ten[i] += terminal.no_winner.ten_changes[i]
+        for i in range(4):
+            hai_key = "hai" + str(i)
+            if hai_key not in val:
+                continue
+            terminal.no_winner.tenpais.append(
+                mjproto.TenpaiHand(
+                    who=mjproto.AbsolutePos.values()[i],
+                    closed_tiles=[int(x) for x in val[hai_key].split(",")],
+                )
+            )
+        if "type" in val:
+            terminal.no_winner.type = MjlogDecoder.parse_no_winner_type(val)
+        if "owari" in val:
+            # オーラス流局時のリーチ棒はトップ総取り
+            # TODO: 同着トップ時には上家が総取りしてるが正しい？
+            # TODO: 上家総取りになってない。。。
+            if terminal.final_score.riichi != 0:
+                max_ten = max(terminal.final_score.ten)
+                for i in range(4):
+                    if terminal.final_score.ten[i] == max_ten:
+                        terminal.final_score.ten[i] += 1000 * terminal.final_score.riichi
+                        break
+            terminal.final_score.riichi = 0
+            terminal.is_game_over = True
+        return terminal
 
     @staticmethod
     def make_discard_event(
