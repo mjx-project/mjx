@@ -1,6 +1,6 @@
 from typing import List
 
-from mjconvert import mjproto
+from mjproto import mjproto
 
 
 def open_event_type(bits: int) -> mjproto.EventType:

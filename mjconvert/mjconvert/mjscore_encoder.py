@@ -6,7 +6,7 @@ from typing import Dict, List
 
 from google.protobuf import json_format
 
-from mjconvert import mjproto
+from mjproto import mjproto
 
 
 # ここを実装

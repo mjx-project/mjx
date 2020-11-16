@@ -24,7 +24,7 @@ mypy:
 	mypy --config pyproject.toml mjconvert
 
 proto: requirements
-	python3 -m grpc_tools.protoc -I ../protos --python_betterproto_out=./mjconvert/ ../protos/mj.proto
+	python3 -m grpc_tools.protoc -I ../protos --python_betterproto_out=./mjproto/ ../protos/mj.proto
 
 uninstall:
 	python3 -m pip uninstall mjconvert -y

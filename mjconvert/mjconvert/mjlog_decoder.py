@@ -11,7 +11,6 @@ from xml.etree.ElementTree import Element
 
 import pkg_resources
 
-from mjconvert import mjproto
 
 SEED_CACHE_DIR = os.path.join(os.environ["HOME"], ".mjconvert/seed_cache")
 

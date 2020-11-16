@@ -4,7 +4,7 @@ cmake-build-*/*
 build/*
 docker-build/*
 test/lib/*
-mjconvert/mjconvert/mjproto.py
+mjconvert/mjproto/*
 mjconvert/.idea
 mjconvert/venv
 mjconvert/__pycache__

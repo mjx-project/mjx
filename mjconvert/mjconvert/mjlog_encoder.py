@@ -6,7 +6,7 @@ from typing import List
 import betterproto
 from google.protobuf import json_format
 
-from mjconvert import mjproto
+from mjproto import mjproto
 
 
 class MjlogEncoder:

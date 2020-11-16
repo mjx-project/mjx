@@ -5,7 +5,7 @@ import sys
 from argparse import RawTextHelpFormatter
 from typing import List
 
-from mjconvert import mjproto
+from mjproto import mjproto
 from mjconvert.mjlog_decoder import MjlogDecoder
 from mjconvert.mjlog_encoder import MjlogEncoder
 
