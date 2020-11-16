@@ -1,4 +1,5 @@
 from __future__ import annotations  # postpone type hint evaluation or doctest fails
+
 import copy
 import json
 import urllib.parse
@@ -123,7 +124,8 @@ class MjlogEncoder:
                     ):
                         no_winner_type = "ron3"
                     elif (
-                        state.terminal.no_winner.type == mjproto.NO_WINNER_TYPE_FOUR_KANS
+                        state.terminal.no_winner.type
+                        == mjproto.NO_WINNER_TYPE_FOUR_KANS
                     ):
                         no_winner_type = "kan4"
                     elif (

@@ -1,4 +1,5 @@
 from __future__ import annotations  # postpone type hint evaluation or doctest fails
+
 from typing import List
 
 import mjproto
@@ -71,7 +72,8 @@ def open_stolen_tile_type(bits: int) -> int:
         stolen_tile_kind = min_tile + (bits >> 10) % 3
         return stolen_tile_kind
     elif (
-        event_type == mjproto.EVENT_TYPE_PON or event_type == mjproto.EVENT_TYPE_KAN_ADDED
+        event_type == mjproto.EVENT_TYPE_PON
+        or event_type == mjproto.EVENT_TYPE_KAN_ADDED
     ):
         stolen_tile_kind = (bits >> 9) // 3
         return stolen_tile_kind
