@@ -32,9 +32,9 @@ def change_action_format(bits: int) -> str:
     stolen_tile = open_converter.change_open_tile_fmt(open_converter.open_stolen_tile_type(bits))
     open_tiles = open_converter.change_open_tiles_fmt(open_converter.open_tile_types(bits))
     open_tiles.remove(stolen_tile)
-    if event_type == mj_pb2.EVENT_TYPE_CHI:  # 現状書き方があまりにも冗長。なんとかしたい。
+    if event_type == mjproto.EVENT_TYPE_CHI:  # 現状書き方があまりにも冗長。なんとかしたい。
         return "c" + str(stolen_tile) + str(open_tiles[0]) + str(open_tiles[1])
-    elif event_type == mj_pb2.EVENT_TYPE_PON:
+    elif event_type == mjproto.EVENT_TYPE_PON:
         return "r" + str(stolen_tile) + str(open_tiles[0]) + str(open_tiles[1])
     else:
         return " "  # カンはまだmjscoreのformatがわからない。
@@ -58,11 +58,11 @@ def parse_discards(events, abs_pos: int):
     discards = []
     is_reach = False  # リーチの有無
     for i, event in enumerate(events):
-        if event.type == mj_pb2.EVENT_TYPE_DISCARD_FROM_HAND and event.who == abs_pos:  # 手出し
+        if event.type == mjproto.EVENT_TYPE_DISCARD_FROM_HAND and event.who == abs_pos:  # 手出し
             discards.append(change_tile_fmt(event.tile))
-        elif event.type == mj_pb2.EVENT_TYPE_DISCARD_DRAWN_TILE and event.who == abs_pos:  # ツモギリ
+        elif event.type == mjproto.EVENT_TYPE_DISCARD_DRAWN_TILE and event.who == abs_pos:  # ツモギリ
             discards.append(60)
-        elif event.type == mj_pb2.EVENT_TYPE_RIICHI and event.who == abs_pos:  # リーチ
+        elif event.type == mjproto.EVENT_TYPE_RIICHI and event.who == abs_pos:  # リーチ
             is_reach = True
             riichi_tile = change_tile_fmt(
                 events[i + 1].tile
@@ -87,14 +87,14 @@ def parse_draws(draws, events, abs_pos):
     discards = []
     actions = []  #
     for i, event in enumerate(events):
-        if event.type == mj_pb2.EVENT_TYPE_DISCARD_FROM_HAND and event.who == abs_pos:  # 手出し
+        if event.type == mjproto.EVENT_TYPE_DISCARD_FROM_HAND and event.who == abs_pos:  # 手出し
             discards.append(event.tile)
-        elif event.type == mj_pb2.EVENT_TYPE_DISCARD_DRAWN_TILE and event.who == abs_pos:  # ツモギリ
+        elif event.type == mjproto.EVENT_TYPE_DISCARD_DRAWN_TILE and event.who == abs_pos:  # ツモギリ
             discards.append(60)
-        elif event.type == mj_pb2.EVENT_TYPE_CHI and event.who == abs_pos:  # チー
+        elif event.type == mjproto.EVENT_TYPE_CHI and event.who == abs_pos:  # チー
             discards.append(event.open)
             actions.append(event.open)
-        elif event.type == mj_pb2.EVENT_TYPE_PON and event.who == abs_pos:  # ポン
+        elif event.type == mjproto.EVENT_TYPE_PON and event.who == abs_pos:  # ポン
             discards.append(event.open)
             actions.append(event.open)
     for i in actions:

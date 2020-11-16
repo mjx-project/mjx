@@ -106,14 +106,14 @@ def is_stolen_red(bits: int) -> bool:  # TODO: test  さらに小さい関数を
     event_type = open_event_type(bits)
     stolen_tile_kind = open_stolen_tile_type(bits)
     if stolen_tile_kind in fives:
-        if event_type == mj_pb2.EVENT_TYPE_CHI:
+        if event_type == mjproto.EVENT_TYPE_CHI:
             stolen_tile_mod3 = (bits >> 10) % 3  # 鳴いた牌のindex
             stolen_tile_id_mod4 = bits >> (3 + 2 * stolen_tile_mod3) & 3  # 鳴いた牌のid mod 4
             if stolen_tile_id_mod4 == 0:  # 鳴いた牌のid mod 4=0→赤
                 return True
             else:
                 return False
-        elif event_type == mj_pb2.EVENT_TYPE_PON or event_type == mj_pb2.EVENT_TYPE_KAN_ADDED:
+        elif event_type == mjproto.EVENT_TYPE_PON or event_type == mjproto.EVENT_TYPE_KAN_ADDED:
             unused_id_mod4 = (bits >> 5) & 3  # 未使用牌のid mod 4
             stolen_tile_mod3 = (bits >> 9) % 3  # 鳴いた牌のindex
             if unused_id_mod4 != 0 and stolen_tile_mod3 == 0:  # 未使用牌が赤でなく、鳴いた牌のインデックスが0の時→赤
@@ -171,9 +171,9 @@ def has_red_pon_kan_added(bits: int) -> bool:  # TODO テスト ポンとカカ�
 
 def has_red(bits: int) -> bool:
     event_type = open_event_type(bits)
-    if event_type == mj_pb2.EVENT_TYPE_CHI:
+    if event_type == mjproto.EVENT_TYPE_CHI:
         return has_red_chi(bits)
-    elif event_type == mj_pb2.EVENT_TYPE_PON or event_type == mj_pb2.EVENT_TYPE_KAN_ADDED:
+    elif event_type == mjproto.EVENT_TYPE_PON or event_type == mjproto.EVENT_TYPE_KAN_ADDED:
         return has_red_pon_kan_added(bits)
     else:
         return True  # ダイミンカンとアンカンは必ず赤を含む
