@@ -185,7 +185,7 @@ class MjlogDecoder:
             elif key == "RYUUKYOKU":
                 reach_terminal = True
                 self.state.terminal.CopyFrom(
-                    MjlogDecoder.apply_no_winner_to_terminal(self.state.terminal, val)
+                    MjlogDecoder.update_terminal_by_no_winner(self.state.terminal, val)
                 )
                 event = mjproto.Event(type=mjproto.EVENT_TYPE_NO_WINNER)
             elif key == "AGARI":
@@ -233,7 +233,7 @@ class MjlogDecoder:
         yield copy.deepcopy(self.state)
 
     @staticmethod
-    def apply_no_winner_to_terminal(terminal: mjproto.Terminal, val: Dict[str, str]) -> mjproto.Terminal:
+    def update_terminal_by_no_winner(terminal: mjproto.Terminal, val: Dict[str, str]) -> mjproto.Terminal:
         ba, riichi = [int(x) for x in val["ba"].split(",")]
         terminal.no_winner.ten_changes[:] = [
             int(x) * 100 for i, x in enumerate(val["sc"].split(",")) if i % 2 == 1
