@@ -5,6 +5,7 @@ build/*
 docker-build/*
 test/lib/*
 mjconvert/mjproto/*pb2*
+mjconvert/mjproto/__pycache__/*
 mjconvert/.idea
 mjconvert/venv
 mjconvert/__pycache__
