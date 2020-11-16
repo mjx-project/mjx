@@ -144,8 +144,7 @@ class MjlogEncoder:
                     change = state.terminal.no_winner.ten_changes[i]
                     sc.append(change // 100)
                     curr_score.ten[i] += change
-                sc = ",".join([str(x) for x in sc])
-                ret += f'sc="{sc}" '
+                ret += f'sc="{",".join([str(x) for x in sc])}" '
                 for tenpai in state.terminal.no_winner.tenpais:
                     closed_tiles = ",".join([str(x) for x in tenpai.closed_tiles])
                     ret += f'hai{tenpai.who}="{closed_tiles}" '
@@ -170,8 +169,7 @@ class MjlogEncoder:
                 for win in state.terminal.wins:
                     ret += "<AGARI "
                     ret += f'ba="{curr_score.honba},{curr_score.riichi}" '
-                    hai = ",".join([str(x) for x in win.closed_tiles])
-                    ret += f'hai="{hai}" '
+                    ret += f'hai="{",".join([str(x) for x in win.closed_tiles])}" '
                     if len(win.opens) > 0:
                         m = ",".join([str(x) for x in win.opens])
                         ret += f'm="{m}" '
@@ -198,9 +196,8 @@ class MjlogEncoder:
                     for yaku, fan in zip(win.yakus, win.fans):
                         yaku_fan.append(yaku)
                         yaku_fan.append(fan)
-                    yaku_fan = ",".join([str(x) for x in yaku_fan])
                     if len(win.yakumans) == 0:
-                        ret += f'yaku="{yaku_fan}" '
+                        ret += f'yaku="{",".join([str(x) for x in yaku_fan])}" '
                     if len(win.yakumans) > 0:
                         yakuman = ",".join([str(x) for x in win.yakumans])
                         ret += f'yakuman="{yakuman}" '
@@ -217,8 +214,7 @@ class MjlogEncoder:
                         sc.append(prev // 100)
                         sc.append(change // 100)
                         curr_score.ten[i] += change
-                    sc = ",".join([str(x) for x in sc])
-                    ret += f'sc="{sc}" '
+                    ret += f'sc="{",".join([str(x) for x in sc])}" '
                     ret += "/>"
                     curr_score.riichi = 0  # ダブロンのときは上家がリー棒を総取りしてその時点で riichi = 0 となる
 
@@ -246,15 +242,15 @@ class MjlogEncoder:
         return f'<UN n0="{players[0]}" n1="{players[1]}" n2="{players[2]}" n3="{players[3]}"/>'
 
     @staticmethod
-    def _encode_absolute_pos_for_draw(who: mjproto.AbsolutePos) -> str:
+    def _encode_absolute_pos_for_draw(who: mjproto.AbsolutePosValue) -> str:
         return ["T", "U", "V", "W"][int(who)]
 
     @staticmethod
-    def _encode_absolute_pos_for_discard(who: mjproto.AbsolutePos) -> str:
+    def _encode_absolute_pos_for_discard(who: mjproto.AbsolutePosValue) -> str:
         return ["D", "E", "F", "G"][int(who)]
 
     @staticmethod
-    def _to_final_score(ten: int, rank: int) -> int:
+    def _to_final_score(ten: int, rank: int) -> float:
         """
         >>> MjlogEncoder._to_final_score(-200, 3)  # 4th place
         -50.0
@@ -278,14 +274,15 @@ class MjlogEncoder:
         ten -= 300
         ten //= 10
         # ウマは10-20
+        final_score = float(ten)
         if rank == 1:
-            ten += 10.0
+            final_score += 10.0
         elif rank == 2:
-            ten -= 10.0
+            final_score -= 10.0
         else:
-            ten -= 20.0
+            final_score -= 20.0
 
-        return ten
+        return final_score
 
     @staticmethod
     def _calc_final_score(ten: List[int]) -> List[int]:
