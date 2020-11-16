@@ -257,44 +257,13 @@ class MjlogDecoder:
                     type=mjproto.EVENT_TYPE_TSUMO if who == from_who else mjproto.EVENT_TYPE_RON,
                     tile=int(val["machi"]),
                 )
-                # set win info
-                # TODO(sotetsuk): yakuman
-                # TODO(sotetsuk): check double ron behavior
-                win = mjproto.Win(
-                    who=mjproto.AbsolutePos.values()[who],
-                    from_who=mjproto.AbsolutePos.values()[from_who],
-                    closed_tiles=[int(x) for x in val["hai"].split(",")],
-                    win_tile=int(val["machi"]),
-                )
-                win.ten_changes[:] = [
-                    int(x) * 100 for i, x in enumerate(val["sc"].split(",")) if i % 2 == 1
-                ]
-                for i in range(4):
-                    self.state.terminal.final_score.ten[i] += win.ten_changes[i]
-                self.state.terminal.final_score.riichi = 0
-                if "m" in val:
-                    win.opens[:] = [int(x) for x in val["m"].split(",")]
+                win = MjlogDecoder.make_win(val, who, from_who, modify)
                 assert self.state.doras == [int(x) for x in val["doraHai"].split(",")]
                 if "doraHaiUra" in val:
                     assert self.state.ura_doras == [int(x) for x in val["doraHaiUra"].split(",")]
-                win.fu, win.ten, _ = [int(x) for x in val["ten"].split(",")]
-                if modify and "yakuman" in val:
-                    win.fu = 0
-                if "yaku" in val:
-                    assert "yakuman" not in val
-                    yakus = [int(x) for i, x in enumerate(val["yaku"].split(",")) if i % 2 == 0]
-                    fans = [int(x) for i, x in enumerate(val["yaku"].split(",")) if i % 2 == 1]
-                    yaku_fan = [(yaku, fan) for yaku, fan in zip(yakus, fans)]
-                    if modify:
-                        yaku_fan.sort(key=lambda x: x[0])
-                    win.yakus[:] = [x[0] for x in yaku_fan]
-                    win.fans[:] = [x[1] for x in yaku_fan]
-                if "yakuman" in val:
-                    assert "yaku" not in val
-                    yakumans = [int(x) for i, x in enumerate(val["yakuman"].split(","))]
-                    if modify:
-                        yakumans.sort()
-                    win.yakumans[:] = yakumans
+                for i in range(4):
+                    self.state.terminal.final_score.ten[i] += win.ten_changes[i]
+                self.state.terminal.final_score.riichi = 0
                 self.state.terminal.wins.append(win)
                 if "owari" in val:
                     self.state.terminal.is_game_over = True
@@ -320,6 +289,47 @@ class MjlogDecoder:
             )
 
         yield copy.deepcopy(self.state)
+
+    @staticmethod
+    def make_win(
+        val: Dict[str, str],
+        who: mjproto.AbsolutePosValue,
+        from_who: mjproto.AbsolutePosValue,
+        modify: bool,
+    ) -> mjproto.Win:
+        # set win info
+        # TODO(sotetsuk): yakuman
+        # TODO(sotetsuk): check double ron behavior
+        win = mjproto.Win(
+            who=mjproto.AbsolutePos.values()[who],
+            from_who=mjproto.AbsolutePos.values()[from_who],
+            closed_tiles=[int(x) for x in val["hai"].split(",")],
+            win_tile=int(val["machi"]),
+        )
+        win.ten_changes[:] = [
+            int(x) * 100 for i, x in enumerate(val["sc"].split(",")) if i % 2 == 1
+        ]
+        if "m" in val:
+            win.opens[:] = [int(x) for x in val["m"].split(",")]
+        win.fu, win.ten, _ = [int(x) for x in val["ten"].split(",")]
+        if modify and "yakuman" in val:
+            win.fu = 0
+        if "yaku" in val:
+            assert "yakuman" not in val
+            yakus = [int(x) for i, x in enumerate(val["yaku"].split(",")) if i % 2 == 0]
+            fans = [int(x) for i, x in enumerate(val["yaku"].split(",")) if i % 2 == 1]
+            yaku_fan = [(yaku, fan) for yaku, fan in zip(yakus, fans)]
+            if modify:
+                yaku_fan.sort(key=lambda x: x[0])
+            win.yakus[:] = [x[0] for x in yaku_fan]
+            win.fans[:] = [x[1] for x in yaku_fan]
+        if "yakuman" in val:
+            assert "yaku" not in val
+            yakumans = [int(x) for i, x in enumerate(val["yakuman"].split(","))]
+            if modify:
+                yakumans.sort()
+            win.yakumans[:] = yakumans
+        return win
 
     @staticmethod
     def parse_draw(key: str) -> Tuple[mjproto.AbsolutePosValue, int]:
