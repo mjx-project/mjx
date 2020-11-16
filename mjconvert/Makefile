@@ -1,4 +1,4 @@
-.PHONY: proto requirements install uninstall clean pytest test-cli test-cli-mjlog-to-proto test-cli-mjgproto-to-mjlog
+.PHONY: proto mypy requirements install uninstall clean pytest test-cli test-cli-mjlog-to-proto test-cli-mjgproto-to-mjlog
 
 clean:
 	rm ./mjconvert/mjproto.py
@@ -19,7 +19,9 @@ checks:
 	ls mjconvert/*.py | grep -v mjproto | xargs black --check --diff
 	ls mjconvert/*.py | grep -v mjproto | xargs blackdoc --check
 	ls mjconvert/*.py | grep -v mjproto | xargs isort --check --diff
-	ls mjconvert/*.py | grep -v mjproto | xargs mypy --config pyproject.toml 
+
+mypy:
+	mypy --config pyproject.toml mjconvert
 
 proto: requirements
 	python3 -m grpc_tools.protoc -I ../protos --python_betterproto_out=./mjconvert/ ../protos/mj.proto
