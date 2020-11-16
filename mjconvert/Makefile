@@ -16,6 +16,7 @@ checks:
 	black --check --diff mjconvert
 	blackdoc --check mjconvert
 	isort --check --diff mjconvert
+	mypy --config pyproject.toml mjconvert
 
 proto:
 	python3 -m grpc_tools.protoc -I ../protos --python_out=./mjproto/ --grpc_python_out=./mjproto/ --mypy_out=./mjproto/ ../protos/mj.proto
