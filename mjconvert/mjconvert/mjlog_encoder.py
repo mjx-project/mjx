@@ -3,7 +3,7 @@ from __future__ import annotations  # postpone type hint evaluation or doctest f
 import copy
 import json
 import urllib.parse
-from typing import List
+from typing import List, Tuple
 
 from google.protobuf import json_format
 
@@ -152,56 +152,11 @@ class MjlogEncoder:
             else:
                 # NOTE: ダブロン時、winsは上家から順になっている必要がある
                 for win in state.terminal.wins:
-                    ret += "<AGARI "
-                    ret += f'ba="{curr_score.honba},{curr_score.riichi}" '
-                    ret += f'hai="{",".join([str(x) for x in win.closed_tiles])}" '
-                    if len(win.opens) > 0:
-                        m = ",".join([str(x) for x in win.opens])
-                        ret += f'm="{m}" '
-                    ret += f'machi="{win.win_tile}" '
-                    win_rank = 0
-                    if len(win.yakumans) > 0:
-                        win_rank = 5
-                    elif sum(win.fans) >= 13:
-                        win_rank = 5
-                    elif sum(win.fans) >= 11:
-                        win_rank = 4
-                    elif sum(win.fans) >= 8:
-                        win_rank = 3
-                    elif sum(win.fans) >= 6:
-                        win_rank = 2
-                    elif (
-                        (win.fu >= 70 and sum(win.fans) >= 3)
-                        or (win.fu >= 40 and sum(win.fans) >= 4)
-                        or sum(win.fans) >= 5
-                    ):
-                        win_rank = 1
-                    ret += f'ten="{win.fu},{win.ten},{win_rank}" '
-                    yaku_fan = []
-                    for yaku, fan in zip(win.yakus, win.fans):
-                        yaku_fan.append(yaku)
-                        yaku_fan.append(fan)
-                    if len(win.yakumans) == 0:
-                        ret += f'yaku="{",".join([str(x) for x in yaku_fan])}" '
-                    if len(win.yakumans) > 0:
-                        yakuman = ",".join([str(x) for x in win.yakumans])
-                        ret += f'yakuman="{yakuman}" '
-                    doras = ",".join([str(x) for x in state.doras])
-                    ret += f'doraHai="{doras}" '
-                    if under_riichi[win.who]:  # if under riichi (or double riichi)
-                        ura_doras = ",".join([str(x) for x in state.ura_doras])
-                        ret += f'doraHaiUra="{ura_doras}" '
-                    ret += f'who="{win.who}" fromWho="{win.from_who}" '
-                    sc = []
+                    win_str = MjlogEncoder.update_by_win(win, state, curr_score, under_riichi)
                     for i in range(4):
-                        prev = curr_score.ten[i]
-                        change = win.ten_changes[i]
-                        sc.append(prev // 100)
-                        sc.append(change // 100)
-                        curr_score.ten[i] += change
-                    ret += f'sc="{",".join([str(x) for x in sc])}" '
-                    ret += "/>"
+                        curr_score.ten[i] += win.ten_changes[i]
                     curr_score.riichi = 0  # ダブロンのときは上家がリー棒を総取りしてその時点で riichi = 0 となる
+                    ret += win_str
 
                 if state.terminal.is_game_over:
                     ret = ret[:-2]
@@ -218,6 +173,58 @@ class MjlogEncoder:
                 == 100000
             )
 
+        return ret
+
+    @staticmethod
+    def update_by_win(win, state, curr_score, under_riichi) -> str:
+        ret = "<AGARI "
+        ret += f'ba="{curr_score.honba},{curr_score.riichi}" '
+        ret += f'hai="{",".join([str(x) for x in win.closed_tiles])}" '
+        if len(win.opens) > 0:
+            m = ",".join([str(x) for x in win.opens])
+            ret += f'm="{m}" '
+        ret += f'machi="{win.win_tile}" '
+        win_rank = 0
+        if len(win.yakumans) > 0:
+            win_rank = 5
+        elif sum(win.fans) >= 13:
+            win_rank = 5
+        elif sum(win.fans) >= 11:
+            win_rank = 4
+        elif sum(win.fans) >= 8:
+            win_rank = 3
+        elif sum(win.fans) >= 6:
+            win_rank = 2
+        elif (
+            (win.fu >= 70 and sum(win.fans) >= 3)
+            or (win.fu >= 40 and sum(win.fans) >= 4)
+            or sum(win.fans) >= 5
+        ):
+            win_rank = 1
+        ret += f'ten="{win.fu},{win.ten},{win_rank}" '
+        yaku_fan = []
+        for yaku, fan in zip(win.yakus, win.fans):
+            yaku_fan.append(yaku)
+            yaku_fan.append(fan)
+        if len(win.yakumans) == 0:
+            ret += f'yaku="{",".join([str(x) for x in yaku_fan])}" '
+        if len(win.yakumans) > 0:
+            yakuman = ",".join([str(x) for x in win.yakumans])
+            ret += f'yakuman="{yakuman}" '
+        doras = ",".join([str(x) for x in state.doras])
+        ret += f'doraHai="{doras}" '
+        if under_riichi[win.who]:  # if under riichi (or double riichi)
+            ura_doras = ",".join([str(x) for x in state.ura_doras])
+            ret += f'doraHaiUra="{ura_doras}" '
+        ret += f'who="{win.who}" fromWho="{win.from_who}" '
+        sc = []
+        for i in range(4):
+            prev = curr_score.ten[i]
+            change = win.ten_changes[i]
+            sc.append(prev // 100)
+            sc.append(change // 100)
+        ret += f'sc="{",".join([str(x) for x in sc])}" '
+        ret += "/>"
         return ret
 
     @staticmethod
