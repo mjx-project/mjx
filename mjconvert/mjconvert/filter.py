@@ -20,6 +20,7 @@ class Filter:
             assert i == 0
             x = child.attrib["seed"].split(",")
             return x[0] == "mt19937ar-sha512-n288-base64"
+        assert False
 
     def is_hounan(self) -> bool:
         go = self.root.iter("GO")
