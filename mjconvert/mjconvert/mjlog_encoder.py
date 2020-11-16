@@ -1,3 +1,4 @@
+from __future__ import annotations  # postpone type hint evaluation or doctest fails
 import copy
 import json
 import urllib.parse
@@ -5,7 +6,7 @@ from typing import List
 
 from google.protobuf import json_format
 
-from mjconvert import mj_pb2
+import mjproto
 
 
 class MjlogEncoder:
@@ -31,7 +32,7 @@ class MjlogEncoder:
     def put(self, line) -> None:
         assert not self.is_completed()
         d = json.loads(line)
-        state = json_format.ParseDict(d, mj_pb2.State())
+        state = json_format.ParseDict(d, mjproto.State())
         if self.is_init_round:
             self.xml += MjlogEncoder._parse_player_id(state)
             self.xml += """<TAIKYOKU oya="0"/>"""
@@ -48,7 +49,7 @@ class MjlogEncoder:
         return tmp
 
     @staticmethod
-    def _parse_each_round(state: mj_pb2.State) -> str:
+    def _parse_each_round(state: mjproto.State) -> str:
         assert sum(state.init_score.ten) + state.init_score.riichi * 1000 == 100000
         ret = "<INIT "
         ret += f'seed="{state.init_score.round},{state.init_score.honba},{state.init_score.riichi},,,{state.doras[0]}" '
@@ -67,7 +68,7 @@ class MjlogEncoder:
         draw_ixs = [0, 0, 0, 0]
         under_riichi = [False, False, False, False]
         for event in state.event_history.events:
-            if event.type == mj_pb2.EVENT_TYPE_DRAW:
+            if event.type == mjproto.EVENT_TYPE_DRAW:
                 who_ix = int(event.who)
                 who = MjlogEncoder._encode_absolute_pos_for_draw(event.who)
                 assert event.tile == 0  # default
@@ -75,62 +76,62 @@ class MjlogEncoder:
                 draw_ixs[who_ix] += 1
                 ret += f"<{who}{draw}/>"
             elif event.type in [
-                mj_pb2.EVENT_TYPE_DISCARD_FROM_HAND,
-                mj_pb2.EVENT_TYPE_DISCARD_DRAWN_TILE,
+                mjproto.EVENT_TYPE_DISCARD_FROM_HAND,
+                mjproto.EVENT_TYPE_DISCARD_DRAWN_TILE,
             ]:
                 who = MjlogEncoder._encode_absolute_pos_for_discard(event.who)
                 discard = event.tile
                 ret += f"<{who}{discard}/>"
             elif event.type in [
-                mj_pb2.EVENT_TYPE_CHI,
-                mj_pb2.EVENT_TYPE_PON,
-                mj_pb2.EVENT_TYPE_KAN_CLOSED,
-                mj_pb2.EVENT_TYPE_KAN_OPENED,
-                mj_pb2.EVENT_TYPE_KAN_ADDED,
+                mjproto.EVENT_TYPE_CHI,
+                mjproto.EVENT_TYPE_PON,
+                mjproto.EVENT_TYPE_KAN_CLOSED,
+                mjproto.EVENT_TYPE_KAN_OPENED,
+                mjproto.EVENT_TYPE_KAN_ADDED,
             ]:
                 ret += f'<N who="{event.who}" '
                 ret += f'm="{event.open}" />'
-            elif event.type == mj_pb2.EVENT_TYPE_RIICHI:
+            elif event.type == mjproto.EVENT_TYPE_RIICHI:
                 ret += f'<REACH who="{event.who}" step="1"/>'
-            elif event.type == mj_pb2.EVENT_TYPE_RIICHI_SCORE_CHANGE:
+            elif event.type == mjproto.EVENT_TYPE_RIICHI_SCORE_CHANGE:
                 under_riichi[event.who] = True
                 curr_score.ten[event.who] -= 1000
                 curr_score.riichi += 1
                 ret += f'<REACH who="{event.who}" ten="{curr_score.ten[0] // 100},{curr_score.ten[1] // 100},{curr_score.ten[2] // 100},{curr_score.ten[3] // 100}" step="2"/>'
-            elif event.type == mj_pb2.EVENT_TYPE_NEW_DORA:
+            elif event.type == mjproto.EVENT_TYPE_NEW_DORA:
                 ret += f'<DORA hai="{event.tile}" />'
-            elif event.type in [mj_pb2.EVENT_TYPE_TSUMO, mj_pb2.EVENT_TYPE_RON]:
+            elif event.type in [mjproto.EVENT_TYPE_TSUMO, mjproto.EVENT_TYPE_RON]:
                 assert len(state.terminal.wins) != 0
-            elif event.type == mj_pb2.EVENT_TYPE_NO_WINNER:
+            elif event.type == mjproto.EVENT_TYPE_NO_WINNER:
                 assert len(state.terminal.wins) == 0
 
         if state.HasField("terminal"):
             if len(state.terminal.wins) == 0:
                 ret += "<RYUUKYOKU "
-                if state.terminal.no_winner.type != mj_pb2.NO_WINNER_TYPE_NORMAL:
+                if state.terminal.no_winner.type != mjproto.NO_WINNER_TYPE_NORMAL:
                     no_winner_type = ""
-                    if state.terminal.no_winner.type == mj_pb2.NO_WINNER_TYPE_KYUUSYU:
+                    if state.terminal.no_winner.type == mjproto.NO_WINNER_TYPE_KYUUSYU:
                         no_winner_type = "yao9"
                     elif (
                         state.terminal.no_winner.type
-                        == mj_pb2.NO_WINNER_TYPE_FOUR_RIICHI
+                        == mjproto.NO_WINNER_TYPE_FOUR_RIICHI
                     ):
                         no_winner_type = "reach4"
                     elif (
                         state.terminal.no_winner.type
-                        == mj_pb2.NO_WINNER_TYPE_THREE_RONS
+                        == mjproto.NO_WINNER_TYPE_THREE_RONS
                     ):
                         no_winner_type = "ron3"
                     elif (
-                        state.terminal.no_winner.type == mj_pb2.NO_WINNER_TYPE_FOUR_KANS
+                        state.terminal.no_winner.type == mjproto.NO_WINNER_TYPE_FOUR_KANS
                     ):
                         no_winner_type = "kan4"
                     elif (
                         state.terminal.no_winner.type
-                        == mj_pb2.NO_WINNER_TYPE_FOUR_WINDS
+                        == mjproto.NO_WINNER_TYPE_FOUR_WINDS
                     ):
                         no_winner_type = "kaze4"
-                    elif state.terminal.no_winner.type == mj_pb2.NO_WINNER_TYPE_NM:
+                    elif state.terminal.no_winner.type == mjproto.NO_WINNER_TYPE_NM:
                         no_winner_type = "nm"
                     assert no_winner_type
                     ret += f'type="{no_winner_type}" '
@@ -238,16 +239,16 @@ class MjlogEncoder:
         return ret
 
     @staticmethod
-    def _parse_player_id(state: mj_pb2.State) -> str:
+    def _parse_player_id(state: mjproto.State) -> str:
         players = [urllib.parse.quote(player) for player in state.player_ids]
         return f'<UN n0="{players[0]}" n1="{players[1]}" n2="{players[2]}" n3="{players[3]}"/>'
 
     @staticmethod
-    def _encode_absolute_pos_for_draw(who: mj_pb2.AbsolutePos) -> str:
+    def _encode_absolute_pos_for_draw(who: mjproto.AbsolutePos) -> str:
         return ["T", "U", "V", "W"][int(who)]
 
     @staticmethod
-    def _encode_absolute_pos_for_discard(who: mj_pb2.AbsolutePos) -> str:
+    def _encode_absolute_pos_for_discard(who: mjproto.AbsolutePos) -> str:
         return ["D", "E", "F", "G"][int(who)]
 
     @staticmethod

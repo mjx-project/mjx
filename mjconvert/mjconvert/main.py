@@ -1,3 +1,4 @@
+from __future__ import annotations  # postpone type hint evaluation or doctest fails
 import argparse
 import json
 import os
@@ -7,7 +8,7 @@ from typing import List
 
 from google.protobuf import json_format
 
-from mjconvert import mj_pb2
+import mjproto
 from mjconvert.mjlog_decoder import MjlogDecoder
 from mjconvert.mjlog_encoder import MjlogEncoder
 
@@ -59,7 +60,7 @@ class LineBuffer:
     @staticmethod
     def is_new_round_(line):
         d = json.loads(line)
-        state = json_format.ParseDict(d, mj_pb2.State())
+        state = json_format.ParseDict(d, mjproto.State())
         return state.init_score.round == 0 and state.init_score.honba == 0
 
     def put(self, line) -> None:
