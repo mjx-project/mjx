@@ -1,7 +1,7 @@
 .PHONY: proto mypy requirements install uninstall clean pytest test-cli
 
 clean:
-	rm ./mjconvert/mjproto.py
+	rm ./mjproto/* || echo "mjproto is alredy deleted"
 	rm -rf build
 	rm -rf dist
 	rm -rf *.egg-info
