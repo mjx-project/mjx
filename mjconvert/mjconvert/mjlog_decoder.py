@@ -8,7 +8,7 @@ import subprocess
 import sys
 import urllib.parse
 import xml.etree.ElementTree as ET
-from typing import Dict, Iterator, List, Tuple
+from typing import Dict, Iterator, List, Optional, Tuple
 from xml.etree.ElementTree import Element
 
 import pkg_resources
@@ -23,6 +23,8 @@ class MjlogDecoder:
     def __init__(self, modify: bool):
         self.state: mjproto.State = mjproto.State()
         self.modify = modify
+        self.last_drawer: Optional[mjproto.AbsolutePosValue] = None
+        self.last_draw: Optional[int] = None
 
     def decode(self, mjlog_str: str, store_cache=False) -> List[str]:
         wall_dices = reproduce_wall_from_mjlog(mjlog_str, store_cache=store_cache)
@@ -32,9 +34,7 @@ class MjlogDecoder:
             # No spaces
             x = (
                 json.dumps(
-                    json_format.MessageToDict(
-                        state, including_default_value_fields=False
-                    ),
+                    json_format.MessageToDict(state, including_default_value_fields=False),
                     ensure_ascii=False,
                     separators=(",", ":"),
                 )
@@ -51,20 +51,18 @@ class MjlogDecoder:
         assert root.tag == "mjloggm"
         assert root.attrib["ver"] == "2.3"
 
-        shuffle = root.iter("SHUFFLE")
+        # shuffle = root.iter("SHUFFLE")
         go = root.iter("GO")
         for child in go:
             assert int(child.attrib["type"]) == 169  # only use 鳳南赤
-        un = root.iter(
-            "UN"
-        )  # TODO(sotetsuk): if there are > 2 "UN", some user became offline
+        un = root.iter("UN")  # TODO(sotetsuk): if there are > 2 "UN", some user became offline
         for child in un:
             state_.player_ids.append(urllib.parse.unquote(child.attrib["n0"]))
             state_.player_ids.append(urllib.parse.unquote(child.attrib["n1"]))
             state_.player_ids.append(urllib.parse.unquote(child.attrib["n2"]))
             state_.player_ids.append(urllib.parse.unquote(child.attrib["n3"]))
             break
-        taikyoku = root.iter("TAIKYOKU")
+        # taikyoku = root.iter("TAIKYOKU")
 
         kv: List[Tuple[str, Dict[str, str]]] = []
         i = 0
@@ -112,9 +110,7 @@ class MjlogDecoder:
         """
         key, val = kv[0]
         assert key == "INIT"
-        round_, honba, riichi, dice1, dice2, dora = [
-            int(x) for x in val["seed"].split(",")
-        ]
+        round_, honba, riichi, dice1, dice2, dora = [int(x) for x in val["seed"].split(",")]
         self.state.init_score.round = round_
         self.state.init_score.honba = honba
         self.state.init_score.riichi = riichi
@@ -122,9 +118,7 @@ class MjlogDecoder:
         self.state.terminal.final_score.round = round_
         self.state.terminal.final_score.honba = honba
         self.state.terminal.final_score.riichi = riichi
-        self.state.terminal.final_score.ten[:] = [
-            int(x) * 100 for x in val["ten"].split(",")
-        ]
+        self.state.terminal.final_score.ten[:] = [int(x) * 100 for x in val["ten"].split(",")]
         self.state.wall[:] = wall
         self.state.doras.append(dora)
         self.state.ura_doras.append(wall[131])
@@ -137,44 +131,27 @@ class MjlogDecoder:
                 )
             )
         for i in range(4 * 12):
-            assert (
-                wall[i] in self.state.private_infos[((i // 4) + round_) % 4].init_hand
-            )
+            assert wall[i] in self.state.private_infos[((i // 4) + round_) % 4].init_hand
         for i in range(4 * 12, 4 * 13):
             assert wall[i] in self.state.private_infos[(i + round_) % 4].init_hand
 
         event = None
         num_kan_dora = 0
-        last_drawer, last_draw = None, None
+        self.last_drawer = None
+        self.last_draw = None
         reach_terminal = False
         for key, val in kv[1:]:
             if key != "UN" and key[0] in ["T", "U", "V", "W"]:  # draw
-                who = MjlogDecoder._to_absolute_pos(key[0])
-                draw = int(key[1:])
+                who, draw = MjlogDecoder.parse_draw(key)
                 self.state.private_infos[int(who)].draws.append(draw)
-                event = mjproto.Event(
-                    who=who,
-                    type=mjproto.EVENT_TYPE_DRAW,
-                    # tile is set empty because this is private information
-                )
-                last_drawer, last_draw = who, draw
+                event = MjlogDecoder.make_draw_event(who)
+                self.last_drawer, self.last_draw = who, draw
             elif key != "DORA" and key[0] in ["D", "E", "F", "G"]:  # discard
-                who = MjlogDecoder._to_absolute_pos(key[0])
-                discard = int(key[1:])
-                type_ = mjproto.EVENT_TYPE_DISCARD_FROM_HAND
-                if (
-                    last_drawer is not None
-                    and last_draw is not None
-                    and last_drawer == who
-                    and last_draw == discard
-                ):
-                    type_ = mjproto.EVENT_TYPE_DISCARD_DRAWN_TILE
-                event = mjproto.Event(
-                    who=who,
-                    type=type_,
-                    tile=discard,
+                who, discard = MjlogDecoder.parse_discard(key)
+                event = MjlogDecoder.make_discard_event(
+                    who, discard, self.last_drawer, self.last_draw
                 )
-                last_drawer, last_draw = None, None
+                self.last_drawer, self.last_draw = None, None
             elif key == "N":  # open
                 who = mjproto.AbsolutePos.values()[int(val["who"])]
                 open = int(val["m"])
@@ -207,58 +184,9 @@ class MjlogDecoder:
                 event = mjproto.Event(type=mjproto.EVENT_TYPE_NEW_DORA, tile=dora)
             elif key == "RYUUKYOKU":
                 reach_terminal = True
-                ba, riichi = [int(x) for x in val["ba"].split(",")]
-                self.state.terminal.no_winner.ten_changes[:] = [
-                    int(x) * 100
-                    for i, x in enumerate(val["sc"].split(","))
-                    if i % 2 == 1
-                ]
-                for i in range(4):
-                    self.state.terminal.final_score.ten[
-                        i
-                    ] += self.state.terminal.no_winner.ten_changes[i]
-                for i in range(4):
-                    hai_key = "hai" + str(i)
-                    if hai_key not in val:
-                        continue
-                    self.state.terminal.no_winner.tenpais.append(
-                        mjproto.TenpaiHand(
-                            who=mjproto.AbsolutePos.values()[i],
-                            closed_tiles=[int(x) for x in val[hai_key].split(",")],
-                        )
-                    )
-                if "type" in val:
-                    no_winner_type = None
-                    if val["type"] == "yao9":
-                        no_winner_type = mjproto.NO_WINNER_TYPE_KYUUSYU
-                    elif val["type"] == "reach4":
-                        no_winner_type = mjproto.NO_WINNER_TYPE_FOUR_RIICHI
-                    elif val["type"] == "ron3":
-                        no_winner_type = mjproto.NO_WINNER_TYPE_THREE_RONS
-                    elif val["type"] == "kan4":
-                        no_winner_type = mjproto.NO_WINNER_TYPE_FOUR_KANS
-                    elif val["type"] == "kan4":
-                        no_winner_type = mjproto.NO_WINNER_TYPE_FOUR_KANS
-                    elif val["type"] == "kaze4":
-                        no_winner_type = mjproto.NO_WINNER_TYPE_FOUR_WINDS
-                    elif val["type"] == "nm":
-                        no_winner_type = mjproto.NO_WINNER_TYPE_NM
-                    assert no_winner_type is not None
-                    self.state.terminal.no_winner.type = no_winner_type
-                if "owari" in val:
-                    # オーラス流局時のリーチ棒はトップ総取り
-                    # TODO: 同着トップ時には上家が総取りしてるが正しい？
-                    # TODO: 上家総取りになってない。。。
-                    if self.state.terminal.final_score.riichi != 0:
-                        max_ten = max(self.state.terminal.final_score.ten)
-                        for i in range(4):
-                            if self.state.terminal.final_score.ten[i] == max_ten:
-                                self.state.terminal.final_score.ten[i] += (
-                                    1000 * self.state.terminal.final_score.riichi
-                                )
-                                break
-                    self.state.terminal.final_score.riichi = 0
-                    self.state.terminal.is_game_over = True
+                self.state.terminal.CopyFrom(
+                    MjlogDecoder.update_terminal_by_no_winner(self.state.terminal, val)
+                )
                 event = mjproto.Event(type=mjproto.EVENT_TYPE_NO_WINNER)
             elif key == "AGARI":
                 reach_terminal = True
@@ -268,64 +196,17 @@ class MjlogDecoder:
                 # set event
                 event = mjproto.Event(
                     who=mjproto.AbsolutePos.values()[who],
-                    type=mjproto.EVENT_TYPE_TSUMO
-                    if who == from_who
-                    else mjproto.EVENT_TYPE_RON,
+                    type=mjproto.EVENT_TYPE_TSUMO if who == from_who else mjproto.EVENT_TYPE_RON,
                     tile=int(val["machi"]),
                 )
-                # set win info
-                # TODO(sotetsuk): yakuman
-                # TODO(sotetsuk): check double ron behavior
-                win = mjproto.Win(
-                    who=mjproto.AbsolutePos.values()[who],
-                    from_who=mjproto.AbsolutePos.values()[from_who],
-                    closed_tiles=[int(x) for x in val["hai"].split(",")],
-                    win_tile=int(val["machi"]),
-                )
-                win.ten_changes[:] = [
-                    int(x) * 100
-                    for i, x in enumerate(val["sc"].split(","))
-                    if i % 2 == 1
-                ]
-                for i in range(4):
-                    self.state.terminal.final_score.ten[i] += win.ten_changes[i]
-                self.state.terminal.final_score.riichi = 0
-                if "m" in val:
-                    win.opens[:] = [int(x) for x in val["m"].split(",")]
+                win = MjlogDecoder.make_win(val, who, from_who, modify)
                 assert self.state.doras == [int(x) for x in val["doraHai"].split(",")]
                 if "doraHaiUra" in val:
-                    assert self.state.ura_doras == [
-                        int(x) for x in val["doraHaiUra"].split(",")
-                    ]
-                win.fu, win.ten, _ = [int(x) for x in val["ten"].split(",")]
-                if modify and "yakuman" in val:
-                    win.fu = 0
-                if "yaku" in val:
-                    assert "yakuman" not in val
-                    yakus = [
-                        int(x)
-                        for i, x in enumerate(val["yaku"].split(","))
-                        if i % 2 == 0
-                    ]
-                    fans = [
-                        int(x)
-                        for i, x in enumerate(val["yaku"].split(","))
-                        if i % 2 == 1
-                    ]
-                    yaku_fan = [(yaku, fan) for yaku, fan in zip(yakus, fans)]
-                    if modify:
-                        yaku_fan.sort(key=lambda x: x[0])
-                    win.yakus[:] = [x[0] for x in yaku_fan]
-                    win.fans[:] = [x[1] for x in yaku_fan]
-                if "yakuman" in val:
-                    assert "yaku" not in val
-                    yakumans = [int(x) for i, x in enumerate(val["yakuman"].split(","))]
-                    if modify:
-                        yakumans.sort()
-                    win.yakumans[:] = yakumans
-                self.state.terminal.wins.append(win)
-                if "owari" in val:
-                    self.state.terminal.is_game_over = True
+                    assert self.state.ura_doras == [int(x) for x in val["doraHaiUra"].split(",")]
+                self.state.terminal.CopyFrom(
+                    MjlogDecoder.update_terminal_by_win(self.state.terminal, win, val)
+                )
+
             elif key == "BYE":  # 接続切れ
                 pass
             elif key == "UN":  # 再接続
@@ -348,6 +229,159 @@ class MjlogDecoder:
             )
 
         yield copy.deepcopy(self.state)
+
+    @staticmethod
+    def update_terminal_by_win(
+        terminal: mjproto.Terminal, win: mjproto.Win, val: Dict[str, str]
+    ) -> mjproto.Terminal:
+        for i in range(4):
+            terminal.final_score.ten[i] += win.ten_changes[i]
+        terminal.final_score.riichi = 0
+        terminal.wins.append(win)
+        if "owari" in val:
+            terminal.is_game_over = True
+        return terminal
+
+    @staticmethod
+    def update_terminal_by_no_winner(
+        terminal: mjproto.Terminal, val: Dict[str, str]
+    ) -> mjproto.Terminal:
+        ba, riichi = [int(x) for x in val["ba"].split(",")]
+        terminal.no_winner.ten_changes[:] = [
+            int(x) * 100 for i, x in enumerate(val["sc"].split(",")) if i % 2 == 1
+        ]
+        for i in range(4):
+            terminal.final_score.ten[i] += terminal.no_winner.ten_changes[i]
+        for i in range(4):
+            hai_key = "hai" + str(i)
+            if hai_key not in val:
+                continue
+            terminal.no_winner.tenpais.append(
+                mjproto.TenpaiHand(
+                    who=mjproto.AbsolutePos.values()[i],
+                    closed_tiles=[int(x) for x in val[hai_key].split(",")],
+                )
+            )
+        if "type" in val:
+            terminal.no_winner.type = MjlogDecoder.parse_no_winner_type(val)
+        if "owari" in val:
+            # オーラス流局時のリーチ棒はトップ総取り
+            # TODO: 同着トップ時には上家が総取りしてるが正しい？
+            # TODO: 上家総取りになってない。。。
+            if terminal.final_score.riichi != 0:
+                max_ten = max(terminal.final_score.ten)
+                for i in range(4):
+                    if terminal.final_score.ten[i] == max_ten:
+                        terminal.final_score.ten[i] += 1000 * terminal.final_score.riichi
+                        break
+            terminal.final_score.riichi = 0
+            terminal.is_game_over = True
+        return terminal
+
+    @staticmethod
+    def make_discard_event(
+        who: mjproto.AbsolutePosValue,
+        discard: int,
+        last_drawer: Optional[mjproto.AbsolutePosValue],
+        last_draw: Optional[int],
+    ) -> mjproto.Event:
+        type_ = mjproto.EVENT_TYPE_DISCARD_FROM_HAND
+        if (
+            last_drawer is not None
+            and last_draw is not None
+            and last_drawer == who
+            and last_draw == discard
+        ):
+            type_ = mjproto.EVENT_TYPE_DISCARD_DRAWN_TILE
+        event = mjproto.Event(
+            who=who,
+            type=type_,
+            tile=discard,
+        )
+        return event
+
+    @staticmethod
+    def parse_discard(key: str) -> Tuple[mjproto.AbsolutePosValue, int]:
+        who = MjlogDecoder._to_absolute_pos(key[0])
+        discard = int(key[1:])
+        return who, discard
+
+    @staticmethod
+    def parse_no_winner_type(val: Dict[str, str]) -> mjproto.NoWinnerTypeValue:
+        no_winner_type: mjproto.NoWinnerTypeValue
+        if val["type"] == "yao9":
+            no_winner_type = mjproto.NO_WINNER_TYPE_KYUUSYU
+        elif val["type"] == "reach4":
+            no_winner_type = mjproto.NO_WINNER_TYPE_FOUR_RIICHI
+        elif val["type"] == "ron3":
+            no_winner_type = mjproto.NO_WINNER_TYPE_THREE_RONS
+        elif val["type"] == "kan4":
+            no_winner_type = mjproto.NO_WINNER_TYPE_FOUR_KANS
+        elif val["type"] == "kan4":
+            no_winner_type = mjproto.NO_WINNER_TYPE_FOUR_KANS
+        elif val["type"] == "kaze4":
+            no_winner_type = mjproto.NO_WINNER_TYPE_FOUR_WINDS
+        elif val["type"] == "nm":
+            no_winner_type = mjproto.NO_WINNER_TYPE_NM
+        else:
+            assert False
+        return no_winner_type
+
+    @staticmethod
+    def make_win(
+        val: Dict[str, str],
+        who: mjproto.AbsolutePosValue,
+        from_who: mjproto.AbsolutePosValue,
+        modify: bool,
+    ) -> mjproto.Win:
+        # set win info
+        # TODO(sotetsuk): yakuman
+        # TODO(sotetsuk): check double ron behavior
+        win = mjproto.Win(
+            who=mjproto.AbsolutePos.values()[who],
+            from_who=mjproto.AbsolutePos.values()[from_who],
+            closed_tiles=[int(x) for x in val["hai"].split(",")],
+            win_tile=int(val["machi"]),
+        )
+        win.ten_changes[:] = [
+            int(x) * 100 for i, x in enumerate(val["sc"].split(",")) if i % 2 == 1
+        ]
+        if "m" in val:
+            win.opens[:] = [int(x) for x in val["m"].split(",")]
+        win.fu, win.ten, _ = [int(x) for x in val["ten"].split(",")]
+        if modify and "yakuman" in val:
+            win.fu = 0
+        if "yaku" in val:
+            assert "yakuman" not in val
+            yakus = [int(x) for i, x in enumerate(val["yaku"].split(",")) if i % 2 == 0]
+            fans = [int(x) for i, x in enumerate(val["yaku"].split(",")) if i % 2 == 1]
+            yaku_fan = [(yaku, fan) for yaku, fan in zip(yakus, fans)]
+            if modify:
+                yaku_fan.sort(key=lambda x: x[0])
+            win.yakus[:] = [x[0] for x in yaku_fan]
+            win.fans[:] = [x[1] for x in yaku_fan]
+        if "yakuman" in val:
+            assert "yaku" not in val
+            yakumans = [int(x) for i, x in enumerate(val["yakuman"].split(","))]
+            if modify:
+                yakumans.sort()
+            win.yakumans[:] = yakumans
+        return win
+
+    @staticmethod
+    def parse_draw(key: str) -> Tuple[mjproto.AbsolutePosValue, int]:
+        who = MjlogDecoder._to_absolute_pos(key[0])
+        draw = int(key[1:])
+        return who, draw
+
+    @staticmethod
+    def make_draw_event(who: mjproto.AbsolutePosValue) -> mjproto.Event:
+        event = mjproto.Event(
+            who=who,
+            type=mjproto.EVENT_TYPE_DRAW,
+            # tile is set empty because this is private information
+        )
+        return event
 
     @staticmethod
     def _to_absolute_pos(pos_str: str) -> mjproto.AbsolutePosValue:
@@ -393,9 +427,7 @@ def reproduce_wall_from_mjlog(
     for i, child in enumerate(shuffle):
         assert i == 0
         x = child.attrib["seed"].split(",")
-        assert (
-            x[0] == "mt19937ar-sha512-n288-base64"
-        ), f"seed = {x}\nmjlog = {mjlog_str}"
+        assert x[0] == "mt19937ar-sha512-n288-base64", f"seed = {x}\nmjlog = {mjlog_str}"
         assert len(x) == 2, f"seed = {x}\nmjlog = {mjlog_str}"
         seed = repr(x[1])[1:-1]
     assert len(seed) != 0, "Old (~2009.xx) log does not have SHUFFLE item"
@@ -403,9 +435,7 @@ def reproduce_wall_from_mjlog(
     return reproduce_wall_from_seed(seed, store_cache=store_cache)
 
 
-def reproduce_wall_from_seed(
-    seed: str, store_cache=False
-) -> List[Tuple[List[int], List[int]]]:
+def reproduce_wall_from_seed(seed: str, store_cache=False) -> List[Tuple[List[int], List[int]]]:
     """牌山の情報をSeedから復元する。のキャッシュがあれば、それを返す
 
     >>> seed = "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"
@@ -444,7 +474,7 @@ def reproduce_wall_from_seed(
                 for line in out:
                     f.write(line + "\n")
             sys.stderr.write(f"Wall cache set to {seed_cache}.\n")
-        sys.stderr.write(f"Wall created by docker run. Cache were not found.")
+        sys.stderr.write("Wall created by docker run. Cache were not found.")
 
     return parse_wall(out)
 

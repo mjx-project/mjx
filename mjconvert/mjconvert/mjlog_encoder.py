@@ -17,9 +17,7 @@ class MjlogEncoder:
         self._reset_xml()
 
     def _reset_xml(self):
-        self.xml = (
-            """<mjloggm ver="2.3"><SHUFFLE seed="" ref=""/><GO type="169" lobby="0"/>"""
-        )
+        self.xml = """<mjloggm ver="2.3"><SHUFFLE seed="" ref=""/><GO type="169" lobby="0"/>"""
         self.is_init_round = True
 
     def encode(self, mjproto_rounds: List[str]) -> str:
@@ -56,8 +54,7 @@ class MjlogEncoder:
         ret += f'seed="{state.init_score.round},{state.init_score.honba},{state.init_score.riichi},,,{state.doras[0]}" '
         ret += f'ten="{state.init_score.ten[0] // 100},{state.init_score.ten[1] // 100},{state.init_score.ten[2] // 100},{state.init_score.ten[3] // 100}" oya="{state.init_score.round % 4}" '
         hai = [
-            ",".join([str(t) for t in hand])
-            for hand in [y.init_hand for y in state.private_infos]
+            ",".join([str(t) for t in hand]) for hand in [y.init_hand for y in state.private_infos]
         ]
         ret += f'hai0="{hai[0]}" '
         ret += f'hai1="{hai[1]}" '
@@ -108,115 +105,15 @@ class MjlogEncoder:
 
         if state.HasField("terminal"):
             if len(state.terminal.wins) == 0:
-                ret += "<RYUUKYOKU "
-                if state.terminal.no_winner.type != mjproto.NO_WINNER_TYPE_NORMAL:
-                    no_winner_type = ""
-                    if state.terminal.no_winner.type == mjproto.NO_WINNER_TYPE_KYUUSYU:
-                        no_winner_type = "yao9"
-                    elif (
-                        state.terminal.no_winner.type
-                        == mjproto.NO_WINNER_TYPE_FOUR_RIICHI
-                    ):
-                        no_winner_type = "reach4"
-                    elif (
-                        state.terminal.no_winner.type
-                        == mjproto.NO_WINNER_TYPE_THREE_RONS
-                    ):
-                        no_winner_type = "ron3"
-                    elif (
-                        state.terminal.no_winner.type
-                        == mjproto.NO_WINNER_TYPE_FOUR_KANS
-                    ):
-                        no_winner_type = "kan4"
-                    elif (
-                        state.terminal.no_winner.type
-                        == mjproto.NO_WINNER_TYPE_FOUR_WINDS
-                    ):
-                        no_winner_type = "kaze4"
-                    elif state.terminal.no_winner.type == mjproto.NO_WINNER_TYPE_NM:
-                        no_winner_type = "nm"
-                    assert no_winner_type
-                    ret += f'type="{no_winner_type}" '
-                ret += f'ba="{curr_score.honba},{curr_score.riichi}" '
-                sc = []
-                for i in range(4):
-                    sc.append(curr_score.ten[i] // 100)
-                    change = state.terminal.no_winner.ten_changes[i]
-                    sc.append(change // 100)
-                    curr_score.ten[i] += change
-                ret += f'sc="{",".join([str(x) for x in sc])}" '
-                for tenpai in state.terminal.no_winner.tenpais:
-                    closed_tiles = ",".join([str(x) for x in tenpai.closed_tiles])
-                    ret += f'hai{tenpai.who}="{closed_tiles}" '
-                if state.terminal.is_game_over:
-                    # オーラス流局時のリーチ棒はトップ総取り
-                    # TODO: 同着トップ時には上家が総取りしてるが正しい？
-                    # TODO: 上家総取りになってない。。。
-                    if curr_score.riichi != 0:
-                        max_ten = max(curr_score.ten)
-                        for i in range(4):
-                            if curr_score.ten[i] == max_ten:
-                                curr_score.ten[i] += 1000 * curr_score.riichi
-                                break
-                    assert sum(curr_score.ten) == 100000
-                    final_scores = MjlogEncoder._calc_final_score(
-                        [int(x) for x in state.terminal.final_score.ten]
-                    )
-                    ret += f'owari="{state.terminal.final_score.ten[0] // 100},{final_scores[0]:.1f},{state.terminal.final_score.ten[1] // 100},{final_scores[1]:.1f},{state.terminal.final_score.ten[2] // 100},{final_scores[2]:.1f},{state.terminal.final_score.ten[3] // 100},{final_scores[3]:.1f}" '
-                ret += "/>"
+                ret += MjlogEncoder.update_by_no_winner(state, curr_score)
             else:
                 # NOTE: ダブロン時、winsは上家から順になっている必要がある
                 for win in state.terminal.wins:
-                    ret += "<AGARI "
-                    ret += f'ba="{curr_score.honba},{curr_score.riichi}" '
-                    ret += f'hai="{",".join([str(x) for x in win.closed_tiles])}" '
-                    if len(win.opens) > 0:
-                        m = ",".join([str(x) for x in win.opens])
-                        ret += f'm="{m}" '
-                    ret += f'machi="{win.win_tile}" '
-                    win_rank = 0
-                    if len(win.yakumans) > 0:
-                        win_rank = 5
-                    elif sum(win.fans) >= 13:
-                        win_rank = 5
-                    elif sum(win.fans) >= 11:
-                        win_rank = 4
-                    elif sum(win.fans) >= 8:
-                        win_rank = 3
-                    elif sum(win.fans) >= 6:
-                        win_rank = 2
-                    elif (
-                        (win.fu >= 70 and sum(win.fans) >= 3)
-                        or (win.fu >= 40 and sum(win.fans) >= 4)
-                        or sum(win.fans) >= 5
-                    ):
-                        win_rank = 1
-                    ret += f'ten="{win.fu},{win.ten},{win_rank}" '
-                    yaku_fan = []
-                    for yaku, fan in zip(win.yakus, win.fans):
-                        yaku_fan.append(yaku)
-                        yaku_fan.append(fan)
-                    if len(win.yakumans) == 0:
-                        ret += f'yaku="{",".join([str(x) for x in yaku_fan])}" '
-                    if len(win.yakumans) > 0:
-                        yakuman = ",".join([str(x) for x in win.yakumans])
-                        ret += f'yakuman="{yakuman}" '
-                    doras = ",".join([str(x) for x in state.doras])
-                    ret += f'doraHai="{doras}" '
-                    if under_riichi[win.who]:  # if under riichi (or double riichi)
-                        ura_doras = ",".join([str(x) for x in state.ura_doras])
-                        ret += f'doraHaiUra="{ura_doras}" '
-                    ret += f'who="{win.who}" fromWho="{win.from_who}" '
-                    sc = []
+                    win_str = MjlogEncoder.update_by_win(win, state, curr_score, under_riichi)
                     for i in range(4):
-                        prev = curr_score.ten[i]
-                        change = win.ten_changes[i]
-                        sc.append(prev // 100)
-                        sc.append(change // 100)
-                        curr_score.ten[i] += change
-                    ret += f'sc="{",".join([str(x) for x in sc])}" '
-                    ret += "/>"
+                        curr_score.ten[i] += win.ten_changes[i]
                     curr_score.riichi = 0  # ダブロンのときは上家がリー棒を総取りしてその時点で riichi = 0 となる
+                    ret += win_str
 
                 if state.terminal.is_game_over:
                     ret = ret[:-2]
@@ -229,11 +126,110 @@ class MjlogEncoder:
             for i in range(4):
                 assert curr_score.ten[i] == state.terminal.final_score.ten[i]
             assert (
-                sum(state.terminal.final_score.ten)
-                + state.terminal.final_score.riichi * 1000
+                sum(state.terminal.final_score.ten) + state.terminal.final_score.riichi * 1000
                 == 100000
             )
 
+        return ret
+
+    @staticmethod
+    def update_by_no_winner(state, curr_score):
+        ret = "<RYUUKYOKU "
+        if state.terminal.no_winner.type != mjproto.NO_WINNER_TYPE_NORMAL:
+            no_winner_type = ""
+            if state.terminal.no_winner.type == mjproto.NO_WINNER_TYPE_KYUUSYU:
+                no_winner_type = "yao9"
+            elif state.terminal.no_winner.type == mjproto.NO_WINNER_TYPE_FOUR_RIICHI:
+                no_winner_type = "reach4"
+            elif state.terminal.no_winner.type == mjproto.NO_WINNER_TYPE_THREE_RONS:
+                no_winner_type = "ron3"
+            elif state.terminal.no_winner.type == mjproto.NO_WINNER_TYPE_FOUR_KANS:
+                no_winner_type = "kan4"
+            elif state.terminal.no_winner.type == mjproto.NO_WINNER_TYPE_FOUR_WINDS:
+                no_winner_type = "kaze4"
+            elif state.terminal.no_winner.type == mjproto.NO_WINNER_TYPE_NM:
+                no_winner_type = "nm"
+            assert no_winner_type
+            ret += f'type="{no_winner_type}" '
+        ret += f'ba="{curr_score.honba},{curr_score.riichi}" '
+        sc = []
+        for i in range(4):
+            sc.append(curr_score.ten[i] // 100)
+            change = state.terminal.no_winner.ten_changes[i]
+            sc.append(change // 100)
+            curr_score.ten[i] += change
+        ret += f'sc="{",".join([str(x) for x in sc])}" '
+        for tenpai in state.terminal.no_winner.tenpais:
+            closed_tiles = ",".join([str(x) for x in tenpai.closed_tiles])
+            ret += f'hai{tenpai.who}="{closed_tiles}" '
+        if state.terminal.is_game_over:
+            # オーラス流局時のリーチ棒はトップ総取り
+            # TODO: 同着トップ時には上家が総取りしてるが正しい？
+            # TODO: 上家総取りになってない。。。
+            if curr_score.riichi != 0:
+                max_ten = max(curr_score.ten)
+                for i in range(4):
+                    if curr_score.ten[i] == max_ten:
+                        curr_score.ten[i] += 1000 * curr_score.riichi
+                        break
+            assert sum(curr_score.ten) == 100000
+            final_scores = MjlogEncoder._calc_final_score(
+                [int(x) for x in state.terminal.final_score.ten]
+            )
+            ret += f'owari="{state.terminal.final_score.ten[0] // 100},{final_scores[0]:.1f},{state.terminal.final_score.ten[1] // 100},{final_scores[1]:.1f},{state.terminal.final_score.ten[2] // 100},{final_scores[2]:.1f},{state.terminal.final_score.ten[3] // 100},{final_scores[3]:.1f}" '
+        ret += "/>"
+        return ret
+
+    @staticmethod
+    def update_by_win(win, state, curr_score, under_riichi) -> str:
+        ret = "<AGARI "
+        ret += f'ba="{curr_score.honba},{curr_score.riichi}" '
+        ret += f'hai="{",".join([str(x) for x in win.closed_tiles])}" '
+        if len(win.opens) > 0:
+            m = ",".join([str(x) for x in win.opens])
+            ret += f'm="{m}" '
+        ret += f'machi="{win.win_tile}" '
+        win_rank = 0
+        if len(win.yakumans) > 0:
+            win_rank = 5
+        elif sum(win.fans) >= 13:
+            win_rank = 5
+        elif sum(win.fans) >= 11:
+            win_rank = 4
+        elif sum(win.fans) >= 8:
+            win_rank = 3
+        elif sum(win.fans) >= 6:
+            win_rank = 2
+        elif (
+            (win.fu >= 70 and sum(win.fans) >= 3)
+            or (win.fu >= 40 and sum(win.fans) >= 4)
+            or sum(win.fans) >= 5
+        ):
+            win_rank = 1
+        ret += f'ten="{win.fu},{win.ten},{win_rank}" '
+        yaku_fan = []
+        for yaku, fan in zip(win.yakus, win.fans):
+            yaku_fan.append(yaku)
+            yaku_fan.append(fan)
+        if len(win.yakumans) == 0:
+            ret += f'yaku="{",".join([str(x) for x in yaku_fan])}" '
+        if len(win.yakumans) > 0:
+            yakuman = ",".join([str(x) for x in win.yakumans])
+            ret += f'yakuman="{yakuman}" '
+        doras = ",".join([str(x) for x in state.doras])
+        ret += f'doraHai="{doras}" '
+        if under_riichi[win.who]:  # if under riichi (or double riichi)
+            ura_doras = ",".join([str(x) for x in state.ura_doras])
+            ret += f'doraHaiUra="{ura_doras}" '
+        ret += f'who="{win.who}" fromWho="{win.from_who}" '
+        sc = []
+        for i in range(4):
+            prev = curr_score.ten[i]
+            change = win.ten_changes[i]
+            sc.append(prev // 100)
+            sc.append(change // 100)
+        ret += f'sc="{",".join([str(x) for x in sc])}" '
+        ret += "/>"
         return ret
 
     @staticmethod

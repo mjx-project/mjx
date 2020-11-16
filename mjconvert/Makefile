@@ -16,6 +16,7 @@ checks:
 	black --check --diff mjconvert
 	blackdoc --check mjconvert
 	isort --check --diff mjconvert
+	flake8 --config pyproject.toml --ignore E203,E501,W503 mjconvert
 	mypy --config pyproject.toml mjconvert
 
 proto:

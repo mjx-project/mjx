@@ -6,5 +6,6 @@ pytest
 black
 blackdoc
 isort
+flake8
 mypy
 mypy-protobuf

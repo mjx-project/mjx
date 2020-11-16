@@ -22,7 +22,7 @@ Example (using stdin)
   $ cat test.mjlog | mjconvert --to-mjproto-raw
   $ cat test.json  | mjconvert --to-mjlog
 
-Example (using file inputs) 
+Example (using file inputs)
 
 [NOTE] File inputs assume that each file corresponds to each game in any format.
 
@@ -92,7 +92,7 @@ def detect_format(line: str) -> str:
     try:
         json.loads(line)
         return "mjproto"
-    except:
+    except ValueError:
         return "mjlog"
 
 
@@ -190,9 +190,7 @@ def main():
 
     else:  # From files
         if args.verbose:
-            sys.stderr.write(
-                f"Converting to {to(args)}. {args.dir_from} => {args.dir_to}\n"
-            )
+            sys.stderr.write(f"Converting to {to(args)}. {args.dir_from} => {args.dir_to}\n")
 
         to_type = to(args)
         to_ext = "mjlog" if to_type == "mjlog" else "json"

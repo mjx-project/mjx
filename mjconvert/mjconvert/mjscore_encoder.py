@@ -1,10 +1,7 @@
 from __future__ import annotations  # postpone type hint evaluation or doctest fails
 
-import copy
 import json
-import os
-import urllib.parse
-from typing import Dict, List
+from typing import Dict
 
 from google.protobuf import json_format
 
