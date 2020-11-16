@@ -28,7 +28,7 @@ def open_event_type(bits: int) -> mjproto.EventTypeValue:
             return mjproto.EVENT_TYPE_KAN_OPENED
 
 
-def open_from(bits: int) -> mjproto.RelativePos:
+def open_from(bits: int) -> mjproto.RelativePosValue:
     """
     >>> open_from(51306) == mjproto.RELATIVE_POS_MID  # 対面
     True
@@ -46,7 +46,7 @@ def open_from(bits: int) -> mjproto.RelativePos:
         or event_type == mjproto.EVENT_TYPE_KAN_OPENED
         or event_type == mjproto.EVENT_TYPE_KAN_ADDED
     ):
-        return bits & 3
+        return mjproto.RelativePos.values()[bits & 3]
     else:
         return mjproto.RELATIVE_POS_SELF
 
