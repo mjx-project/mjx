@@ -1,21 +1,21 @@
 .PHONY: proto install uninstall clean pytest test-cli test-cli-mjlog-to-proto test-cli-mjgproto-to-mjlog
 
 clean:
-	rm ./mjconvert/mj_pb2.py ./mjconvert/mj_pb2_grpc.py
+	rm ./mjconvert/mjproto.py
 	rm -rf build
 	rm -rf dist
 	rm -rf *.egg-info
 	find . -name "*pycache*" | xargs rm -rf
 
 formats:
-	ls mjconvert/*.py | grep -v pb2 | xargs black
-	ls mjconvert/*.py | grep -v pb2 | xargs blackdoc
-	ls mjconvert/*.py | grep -v pb2 | xargs isort
+	ls mjconvert/*.py | grep -v mjproto | xargs black
+	ls mjconvert/*.py | grep -v mjproto | xargs blackdoc
+	ls mjconvert/*.py | grep -v mjproto | xargs isort
 
 checks:
-	ls mjconvert/*.py | grep -v pb2 | xargs black --check --diff
-	ls mjconvert/*.py | grep -v pb2 | xargs blackdoc --check
-	ls mjconvert/*.py | grep -v pb2 | xargs isort --check --diff
+	ls mjconvert/*.py | grep -v mjproto | xargs black --check --diff
+	ls mjconvert/*.py | grep -v mjproto | xargs blackdoc --check
+	ls mjconvert/*.py | grep -v mjproto | xargs isort --check --diff
 	ls mjconvert/*.py | grep -v mjproto | xargs mypy --config pyproject.toml 
 
 proto:
