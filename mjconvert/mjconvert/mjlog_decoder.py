@@ -8,7 +8,7 @@ import subprocess
 import sys
 import urllib.parse
 import xml.etree.ElementTree as ET
-from typing import Dict, Iterator, List, Tuple
+from typing import Dict, Iterator, List, Optional, Tuple
 from xml.etree.ElementTree import Element
 
 import pkg_resources
@@ -23,8 +23,8 @@ class MjlogDecoder:
     def __init__(self, modify: bool):
         self.state: mjproto.State = mjproto.State()
         self.modify = modify
-        self.last_drawer = None
-        self.last_draw = None
+        self.last_drawer: Optional[mjproto.AbsolutePosValue] = None
+        self.last_draw: Optional[int] = None
 
     def decode(self, mjlog_str: str, store_cache=False) -> List[str]:
         wall_dices = reproduce_wall_from_mjlog(mjlog_str, store_cache=store_cache)
@@ -282,8 +282,8 @@ class MjlogDecoder:
     def make_discard_event(
         who: mjproto.AbsolutePosValue,
         discard: int,
-        last_drawer: mjproto.AbsolutePosValue,
-        last_draw: int,
+        last_drawer: Optional[mjproto.AbsolutePosValue],
+        last_draw: Optional[int],
     ) -> mjproto.Event:
         type_ = mjproto.EVENT_TYPE_DISCARD_FROM_HAND
         if (
