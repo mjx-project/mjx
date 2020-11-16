@@ -132,7 +132,8 @@ class MjlogDecoder:
         for i in range(4):
             self.state.private_infos.append(
                 mjproto.PrivateInfo(
-                    who=i, init_hand=[int(x) for x in val["hai" + str(i)].split(",")]
+                    who=mjproto.AbsolutePos.values()[i],
+                    init_hand=[int(x) for x in val["hai" + str(i)].split(",")],
                 )
             )
         for i in range(4 * 12):
@@ -175,20 +176,24 @@ class MjlogDecoder:
                 )
                 last_drawer, last_draw = None, None
             elif key == "N":  # open
-                who = int(val["who"])
+                who = mjproto.AbsolutePos.values()[int(val["who"])]
                 open = int(val["m"])
                 event = mjproto.Event(
-                    who=who,
+                    who=mjproto.AbsolutePos.values()[who],
                     type=MjlogDecoder._open_type(open),
                     open=open,
                 )
             elif key == "REACH":
-                who = int(val["who"])
+                who = mjproto.AbsolutePos.values()[int(val["who"])]
                 if int(val["step"]) == 1:
-                    event = mjproto.Event(who=who, type=mjproto.EVENT_TYPE_RIICHI)
+                    event = mjproto.Event(
+                        who=mjproto.AbsolutePos.values()[who],
+                        type=mjproto.EVENT_TYPE_RIICHI,
+                    )
                 else:
                     event = mjproto.Event(
-                        who=who, type=mjproto.EVENT_TYPE_RIICHI_SCORE_CHANGE
+                        who=mjproto.AbsolutePos.values()[who],
+                        type=mjproto.EVENT_TYPE_RIICHI_SCORE_CHANGE,
                     )
                     self.state.terminal.final_score.riichi += 1
                     self.state.terminal.final_score.ten[who] -= 1000
@@ -218,7 +223,7 @@ class MjlogDecoder:
                         continue
                     self.state.terminal.no_winner.tenpais.append(
                         mjproto.TenpaiHand(
-                            who=i,
+                            who=mjproto.AbsolutePos.values()[i],
                             closed_tiles=[int(x) for x in val[hai_key].split(",")],
                         )
                     )
@@ -258,11 +263,11 @@ class MjlogDecoder:
             elif key == "AGARI":
                 reach_terminal = True
                 ba, riichi = [int(x) for x in val["ba"].split(",")]
-                who = int(val["who"])
-                from_who = int(val["fromWho"])
+                who = mjproto.AbsolutePos.values()[int(val["who"])]
+                from_who = mjproto.AbsolutePos.values()[int(val["fromWho"])]
                 # set event
                 event = mjproto.Event(
-                    who=who,
+                    who=mjproto.AbsolutePos.values()[who],
                     type=mjproto.EVENT_TYPE_TSUMO
                     if who == from_who
                     else mjproto.EVENT_TYPE_RON,
@@ -272,8 +277,8 @@ class MjlogDecoder:
                 # TODO(sotetsuk): yakuman
                 # TODO(sotetsuk): check double ron behavior
                 win = mjproto.Win(
-                    who=who,
-                    from_who=from_who,
+                    who=mjproto.AbsolutePos.values()[who],
+                    from_who=mjproto.AbsolutePos.values()[from_who],
                     closed_tiles=[int(x) for x in val["hai"].split(",")],
                     win_tile=int(val["machi"]),
                 )
@@ -345,7 +350,7 @@ class MjlogDecoder:
         yield copy.deepcopy(self.state)
 
     @staticmethod
-    def _to_absolute_pos(pos_str: str) -> mjproto.AbsolutePos:
+    def _to_absolute_pos(pos_str: str) -> mjproto.AbsolutePosValue:
         assert pos_str in ["T", "U", "V", "W", "D", "E", "F", "G"]
         if pos_str in ["T", "D"]:
             return mjproto.ABSOLUTE_POS_INIT_EAST
@@ -355,9 +360,10 @@ class MjlogDecoder:
             return mjproto.ABSOLUTE_POS_INIT_WEST
         elif pos_str in ["W", "G"]:
             return mjproto.ABSOLUTE_POS_INIT_NORTH
+        assert False
 
     @staticmethod
-    def _open_type(bits: int) -> mjproto.EventType:
+    def _open_type(bits: int) -> mjproto.EventTypeValue:
         if 1 << 2 & bits:
             return mjproto.EVENT_TYPE_CHI
         elif 1 << 3 & bits:
