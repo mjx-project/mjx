@@ -7,3 +7,4 @@ black
 blackdoc
 isort
 betterproto
+jinja2
