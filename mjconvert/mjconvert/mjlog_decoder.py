@@ -21,10 +21,10 @@ SEED_CACHE_DIR = os.path.join(os.environ["HOME"], ".mjconvert/seed_cache")
 
 class MjlogDecoder:
     def __init__(self, modify: bool):
-        self.state = None
+        self.state: mjproto.State = mjproto.State()
         self.modify = modify
 
-    def decode(self, mjlog_str: str, store_cache=False) -> List[mjproto.State]:
+    def decode(self, mjlog_str: str, store_cache=False) -> List[str]:
         wall_dices = reproduce_wall_from_mjlog(mjlog_str, store_cache=store_cache)
         root = ET.fromstring(mjlog_str)
         ret = []
