@@ -203,12 +203,10 @@ class MjlogDecoder:
                 assert self.state.doras == [int(x) for x in val["doraHai"].split(",")]
                 if "doraHaiUra" in val:
                     assert self.state.ura_doras == [int(x) for x in val["doraHaiUra"].split(",")]
-                for i in range(4):
-                    self.state.terminal.final_score.ten[i] += win.ten_changes[i]
-                self.state.terminal.final_score.riichi = 0
-                self.state.terminal.wins.append(win)
-                if "owari" in val:
-                    self.state.terminal.is_game_over = True
+                self.state.terminal.CopyFrom(
+                    MjlogDecoder.update_terminal_by_win(self.state.terminal, win, val)
+                )
+
             elif key == "BYE":  # 接続切れ
                 pass
             elif key == "UN":  # 再接続
@@ -233,7 +231,21 @@ class MjlogDecoder:
         yield copy.deepcopy(self.state)
 
     @staticmethod
-    def update_terminal_by_no_winner(terminal: mjproto.Terminal, val: Dict[str, str]) -> mjproto.Terminal:
+    def update_terminal_by_win(
+        terminal: mjproto.Terminal, win: mjproto.Win, val: Dict[str, str]
+    ) -> mjproto.Terminal:
+        for i in range(4):
+            terminal.final_score.ten[i] += win.ten_changes[i]
+        terminal.final_score.riichi = 0
+        terminal.wins.append(win)
+        if "owari" in val:
+            terminal.is_game_over = True
+        return terminal
+
+    @staticmethod
+    def update_terminal_by_no_winner(
+        terminal: mjproto.Terminal, val: Dict[str, str]
+    ) -> mjproto.Terminal:
         ba, riichi = [int(x) for x in val["ba"].split(",")]
         terminal.no_winner.ten_changes[:] = [
             int(x) * 100 for i, x in enumerate(val["sc"].split(",")) if i % 2 == 1
