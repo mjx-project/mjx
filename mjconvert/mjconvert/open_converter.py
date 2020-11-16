@@ -29,7 +29,7 @@ def open_from(bits: int) -> mjproto.RelativePos:
     """
     >>> open_from(51306) == mjproto.RelativePos.RELATIVE_POS_MID  # 対面
     True
-    >>> open_from(49495) == mjproto.RelativePos.RELATIVE_POS_LEFT   # 上家
+    >>> open_from(49495) == mjproto.RelativePos.RELATIVE_POS_LEFT  # 上家
     True
     >>> open_from(28722) == mjproto.RelativePos.RELATIVE_POS_MID  # 加槓
     True
