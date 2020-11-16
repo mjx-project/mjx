@@ -160,7 +160,7 @@ class MjlogEncoder:
                                 break
                     assert sum(curr_score.ten) == 100000
                     final_scores = MjlogEncoder._calc_final_score(
-                        state.terminal.final_score.ten
+                        [int(x) for x in state.terminal.final_score.ten]
                     )
                     ret += f'owari="{state.terminal.final_score.ten[0] // 100},{final_scores[0]:.1f},{state.terminal.final_score.ten[1] // 100},{final_scores[1]:.1f},{state.terminal.final_score.ten[2] // 100},{final_scores[2]:.1f},{state.terminal.final_score.ten[3] // 100},{final_scores[3]:.1f}" '
                 ret += "/>"
@@ -221,7 +221,7 @@ class MjlogEncoder:
                 if state.terminal.is_game_over:
                     ret = ret[:-2]
                     final_scores = MjlogEncoder._calc_final_score(
-                        state.terminal.final_score.ten
+                        [int(x) for x in state.terminal.final_score.ten]
                     )
                     ret += f'owari="{state.terminal.final_score.ten[0] // 100},{final_scores[0]:.1f},{state.terminal.final_score.ten[1] // 100},{final_scores[1]:.1f},{state.terminal.final_score.ten[2] // 100},{final_scores[2]:.1f},{state.terminal.final_score.ten[3] // 100},{final_scores[3]:.1f}" '
                     ret += "/>"
@@ -285,10 +285,10 @@ class MjlogEncoder:
         return final_score
 
     @staticmethod
-    def _calc_final_score(ten: List[int]) -> List[int]:
+    def _calc_final_score(ten: List[int]) -> List[float]:
         # 10-20の3万点返し
         ixs = list(reversed(sorted(range(4), key=lambda i: ten[i] - i)))  # 同点のときのために -i
-        final_score = [0 for _ in range(4)]
+        final_score = [0.0 for _ in range(4)]
         for i in range(1, 4):
             j = ixs[i]
             final_score[j] = MjlogEncoder._to_final_score(ten[j], i)
