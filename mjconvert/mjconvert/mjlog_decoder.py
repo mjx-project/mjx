@@ -171,7 +171,7 @@ class MjlogDecoder:
                 )
                 last_drawer, last_draw = None, None
             elif key == "N":  # open
-                who = mjproto.AbsolutePos(val["who"])
+                who = mjproto.AbsolutePos(int(val["who"]))
                 open = int(val["m"])
                 event = mjproto.Event(
                     who=mjproto.AbsolutePos(who),
@@ -179,7 +179,7 @@ class MjlogDecoder:
                     open=open,
                 )
             elif key == "REACH":
-                who = mjproto.AbsolutePos(val["who"])
+                who = mjproto.AbsolutePos(int(val["who"]))
                 if int(val["step"]) == 1:
                     event = mjproto.Event(
                         who=mjproto.AbsolutePos(who),
@@ -260,7 +260,7 @@ class MjlogDecoder:
             elif key == "AGARI":
                 reach_terminal = True
                 ba, riichi = [int(x) for x in val["ba"].split(",")]
-                who = mjproto.AbsolutePos(val["who"])
+                who = mjproto.AbsolutePos(int(val["who"]))
                 from_who = int(val["fromWho"])
                 # set event
                 event = mjproto.Event(
