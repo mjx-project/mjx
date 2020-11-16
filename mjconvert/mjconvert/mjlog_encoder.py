@@ -20,6 +20,11 @@ class MjlogEncoder:
         )
         self.is_init_round = True
 
+    def encode(self, mjproto_rounds: List[str]) -> str:
+        for p in mjproto_rounds:
+            self.put(p)
+        return self.get()
+
     def is_completed(self):
         return self.xml.endswith("""</mjloggm>\n""")
 
