@@ -181,7 +181,9 @@ class MjlogEncoder:
         return ret
 
     @staticmethod
-    def update_by_win(win, state, curr_score, under_riichi) -> str:
+    def update_by_win(
+        win: mjproto.Win, state: mjproto.State, curr_score: mjproto.Score, under_riichi: List[bool]
+    ) -> str:
         ret = "<AGARI "
         ret += f'ba="{curr_score.honba},{curr_score.riichi}" '
         ret += f'hai="{",".join([str(x) for x in win.closed_tiles])}" '
@@ -213,9 +215,16 @@ class MjlogEncoder:
             yaku_fan.append(fan)
         if len(win.yakumans) == 0:
             ret += f'yaku="{",".join([str(x) for x in yaku_fan])}" '
+        is_pao = True
+        if win.who != win.from_who:
+            is_pao = False
         if len(win.yakumans) > 0:
+            if 39 not in win.yakumans and 49 not in win.yakumans:  # 大三元 大四喜
+                is_pao = False
             yakuman = ",".join([str(x) for x in win.yakumans])
             ret += f'yakuman="{yakuman}" '
+        else:
+            is_pao = False
         doras = ",".join([str(x) for x in state.doras])
         ret += f'doraHai="{doras}" '
         if under_riichi[win.who]:  # if under riichi (or double riichi)
@@ -223,11 +232,23 @@ class MjlogEncoder:
             ret += f'doraHaiUra="{ura_doras}" '
         ret += f'who="{win.who}" fromWho="{win.from_who}" '
         sc = []
+        num_under_8k = sum([1 for x in win.ten_changes if x <= -8000])
+        if num_under_8k >= 3:  # Tsumo (= not pao)
+            is_pao = False
         for i in range(4):
             prev = curr_score.ten[i]
             change = win.ten_changes[i]
             sc.append(prev // 100)
             sc.append(change // 100)
+        pao_from = None
+        if is_pao:
+            for i, x in enumerate(win.ten_changes):
+                if mjproto.AbsolutePos.values()[i] == win.from_who:
+                    continue
+                if x <= -8000:
+                    pao_from = mjproto.AbsolutePos.values()[i]
+        if pao_from is not None:
+            ret += f'paoWho="{pao_from}" '
         ret += f'sc="{",".join([str(x) for x in sc])}" '
         ret += "/>"
         return ret
