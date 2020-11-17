@@ -181,6 +181,23 @@ class MjlogEncoder:
         return ret
 
     @staticmethod
+    def get_win_rank(yakumans: List[int], fans: List[int], fu: int):
+        win_rank = 0
+        if len(yakumans) > 0:
+            win_rank = 5
+        elif sum(fans) >= 13:
+            win_rank = 5
+        elif sum(fans) >= 11:
+            win_rank = 4
+        elif sum(fans) >= 8:
+            win_rank = 3
+        elif sum(fans) >= 6:
+            win_rank = 2
+        elif (fu >= 70 and sum(fans) >= 3) or (fu >= 40 and sum(fans) >= 4) or sum(fans) >= 5:
+            win_rank = 1
+        return win_rank
+
+    @staticmethod
     def update_by_win(
         win: mjproto.Win, state: mjproto.State, curr_score: mjproto.Score, under_riichi: List[bool]
     ) -> str:
@@ -191,23 +208,9 @@ class MjlogEncoder:
             m = ",".join([str(x) for x in win.opens])
             ret += f'm="{m}" '
         ret += f'machi="{win.win_tile}" '
-        win_rank = 0
-        if len(win.yakumans) > 0:
-            win_rank = 5
-        elif sum(win.fans) >= 13:
-            win_rank = 5
-        elif sum(win.fans) >= 11:
-            win_rank = 4
-        elif sum(win.fans) >= 8:
-            win_rank = 3
-        elif sum(win.fans) >= 6:
-            win_rank = 2
-        elif (
-            (win.fu >= 70 and sum(win.fans) >= 3)
-            or (win.fu >= 40 and sum(win.fans) >= 4)
-            or sum(win.fans) >= 5
-        ):
-            win_rank = 1
+        win_rank = MjlogEncoder.get_win_rank(
+            [int(x) for x in win.yakumans], [int(x) for x in win.fans], win.fu
+        )
         ret += f'ten="{win.fu},{win.ten},{win_rank}" '
         yaku_fan = []
         for yaku, fan in zip(win.yakus, win.fans):
