@@ -64,13 +64,20 @@ class LineBuffer:
         state = json_format.ParseDict(d, mjproto.State())
         return state.init_score.round == 0 and state.init_score.honba == 0
 
-    def put(self, line) -> None:
+    def put(self, line: str) -> None:
+        line = line.strip().strip("\n")
+        if len(line) == 0:
+            return
         if self.fmt_.startswith("mjproto"):
+            cnt = line.count("initScore")
+            assert cnt == 1, f"Each line should only has one round but has {cnt}"
             if LineBuffer.is_new_round_(line) and len(self.curr_) != 0:
                 self.buffer_.append(self.curr_)
                 self.curr_ = []
             self.curr_.append(line)
         elif self.fmt_ == "mjlog":
+            cnt = line.count("</mjloggm>")
+            assert cnt == 1, f"Each line should only has one game but has {cnt}"
             self.buffer_.append([line])  # each line corresponds to each game
 
     def get(
@@ -173,6 +180,10 @@ def main():
 
         itr = StdinIterator()
         for line in itr:
+            line = line.strip().strip("\n")
+            if len(line) == 0:
+                continue
+
             if buffer is None or converter is None:
                 assert buffer is None and converter is None
                 fmt_from = detect_format(line)
@@ -195,6 +206,14 @@ def main():
 
         to_type = to(args)
         to_ext = "mjlog" if to_type == "mjlog" else "json"
+        num_mjlog = sum([1 for x in os.listdir(args.dir_from) if x.endswith("mjlog")])
+        num_mjproto = sum([1 for x in os.listdir(args.dir_from) if x.endswith("json")])
+        assert not (
+            num_mjlog > 0 and num_mjproto > 0
+        ), "There are two different formats in source directory."
+        assert (
+            num_mjlog > 0 or num_mjproto > 0
+        ), "There are no valid file formats in the source directory."
         for file_from in os.listdir(args.dir_from):
             if not file_from.endswith("json") and not file_from.endswith("mjlog"):
                 continue
@@ -212,8 +231,10 @@ def main():
             transformed_lines = []
             with open(path_from, "r") as f:
                 for line in f:
-                    if not line:
+                    line = line.strip().strip("\n")
+                    if len(line) == 0:
                         continue
+
                     if buffer is None or converter is None:
                         assert buffer is None and converter is None
                         fmt_from = detect_format(line)
