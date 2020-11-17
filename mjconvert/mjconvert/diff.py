@@ -40,7 +40,7 @@ def check_equality(original: str, restored: str) -> bool:
             continue
         if not line.strip():
             continue
-        sys.stderr.write(line + "\n")
+        sys.stdout.write(line + "\n")
         return False
     return True
 
@@ -82,6 +82,7 @@ if __name__ == "__main__":
         ]
     )
 
+    all_ok = True
     for original_path, restored_path in zip(original_paths, restored_paths):
         assert (
             original_path.split("/")[-1].split(".")[0]
@@ -89,4 +90,7 @@ if __name__ == "__main__":
         )
         original = load_mjlog(original_path)
         restored = load_mjlog(restored_path)
-        check_equality(original, restored)
+        all_ok = all_ok and check_equality(original, restored)
+
+    if not all_ok:
+        exit(1)
