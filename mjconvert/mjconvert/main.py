@@ -64,7 +64,10 @@ class LineBuffer:
         state = json_format.ParseDict(d, mjproto.State())
         return state.init_score.round == 0 and state.init_score.honba == 0
 
-    def put(self, line) -> None:
+    def put(self, line: str) -> None:
+        line = line.strip().strip("\n")
+        if len(line) == 0:
+            return
         if self.fmt_.startswith("mjproto"):
             if LineBuffer.is_new_round_(line) and len(self.curr_) != 0:
                 self.buffer_.append(self.curr_)
@@ -173,6 +176,10 @@ def main():
 
         itr = StdinIterator()
         for line in itr:
+            line = line.strip().strip("\n")
+            if len(line) == 0:
+                continue
+
             if buffer is None or converter is None:
                 assert buffer is None and converter is None
                 fmt_from = detect_format(line)
@@ -212,8 +219,10 @@ def main():
             transformed_lines = []
             with open(path_from, "r") as f:
                 for line in f:
-                    if not line:
+                    line = line.strip().strip("\n")
+                    if len(line) == 0:
                         continue
+
                     if buffer is None or converter is None:
                         assert buffer is None and converter is None
                         fmt_from = detect_format(line)
