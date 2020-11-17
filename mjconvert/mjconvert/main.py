@@ -54,9 +54,9 @@ class LineBuffer:
     """Split lines of inputs by game end."""
 
     def __init__(self, fmt: str):
-        self._fmt: str = fmt
-        self._curr: List[str] = []
-        self._buffer: List[List[str]] = []
+        self.fmt_: str = fmt
+        self.curr_: List[str] = []
+        self.buffer_: List[List[str]] = []
 
     @staticmethod
     def is_new_round_(line):
@@ -68,27 +68,27 @@ class LineBuffer:
         line = line.strip().strip("\n")
         if len(line) == 0:
             return
-        if self._fmt.startswith("mjproto"):
-            if LineBuffer.is_new_round_(line) and len(self._curr) != 0:
-                self._buffer.append(self._curr)
-                self._curr = []
-            self._curr.append(line)
-        elif self._fmt == "mjlog":
-            self._buffer.append([line])  # each line corresponds to each game
+        if self.fmt_.startswith("mjproto"):
+            if LineBuffer.is_new_round_(line) and len(self.curr_) != 0:
+                self.buffer_.append(self.curr_)
+                self.curr_ = []
+            self.curr_.append(line)
+        elif self.fmt_ == "mjlog":
+            self.buffer_.append([line])  # each line corresponds to each game
 
     def get(
         self, get_all: bool = False
     ) -> List[List[str]]:  # each List[str] corresponds to each game.
-        if get_all and len(self._curr) != 0:
-            assert self._fmt != "mjlog"
-            self._buffer.append(self._curr)
-            self._curr = []
-        tmp = self._buffer
-        self._buffer = []
+        if get_all and len(self.curr_) != 0:
+            assert self.fmt_ != "mjlog"
+            self.buffer_.append(self.curr_)
+            self.curr_ = []
+        tmp = self.buffer_
+        self.buffer_ = []
         return tmp
 
     def empty(self) -> bool:
-        return len(self._buffer) == 0
+        return len(self.buffer_) == 0
 
 
 def detect_format(line: str) -> str:
