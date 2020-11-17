@@ -202,6 +202,14 @@ def main():
 
         to_type = to(args)
         to_ext = "mjlog" if to_type == "mjlog" else "json"
+        num_mjlog = sum([1 for x in os.listdir(args.dir_from) if x.endswith("mjlog")])
+        num_mjproto = sum([1 for x in os.listdir(args.dir_from) if x.endswith("json")])
+        assert not (
+            num_mjlog > 0 and num_mjproto > 0
+        ), "There are two different formats in source directory."
+        assert (
+            num_mjlog > 0 or num_mjproto > 0
+        ), "There are no valid file formats in the source directory."
         for file_from in os.listdir(args.dir_from):
             if not file_from.endswith("json") and not file_from.endswith("mjlog"):
                 continue
