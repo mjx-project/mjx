@@ -98,7 +98,7 @@ namespace mj
         // containers
         Wall wall_;
         std::array<Player, 4> players_;
-        std::uint32_t seed_;
+        std::uint64_t seed_;
         // temporal memory
         std::optional<AbsolutePos> three_ronned_player = std::nullopt;
 
