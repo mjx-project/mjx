@@ -12,7 +12,7 @@ namespace mj {
         [[nodiscard]] const std::uint64_t Seed() const;
 
     private:
-        std::uint64_t seed, round_base = 1000, honba_base = 1;
+        std::uint64_t seed, round_base = 1000, honba_base = 1; // fix base-value
         std::mt19937_64& mt();
     };
 } // namespace mj
