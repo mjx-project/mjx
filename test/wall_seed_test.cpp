@@ -1,5 +1,6 @@
 #include "gtest/gtest.h"
 #include <mj/wall_seed.h>
+#include <mj/state.h>
 
 using namespace mj;
 
@@ -18,8 +19,8 @@ TEST(WallSeedTest, constructor) {
 }
 
 TEST(WallSeedTest, fixed_seed) {
-    auto seeds1 = WallSeed(9999, 7, 53);
-    auto seeds2 = WallSeed(9999, 7, 53);
+    auto seeds1 = WallSeed(9999);
+    auto seeds2 = WallSeed(9999);
     const int ROUND = 10, HONBA = 10;
     for (int r = 0; r < ROUND; ++r) {
         for (int h = 0; h < HONBA; ++h) {
