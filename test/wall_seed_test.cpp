@@ -1,5 +1,6 @@
 #include "gtest/gtest.h"
 #include <mj/wall_seed.h>
+#include <mj/state.h>
 
 using namespace mj;
 
@@ -24,6 +25,19 @@ TEST(WallSeedTest, fixed_seed) {
     for (int r = 0; r < ROUND; ++r) {
         for (int h = 0; h < HONBA; ++h) {
             EXPECT_EQ(seeds1.Get(r, h), seeds2.Get(r, h));
+        }
+    }
+}
+
+TEST(WallSeedTest, wall_constructor){
+    const int ROUND = 5, HONBA = 5, SEED=1234;
+    for (int r = 0; r < ROUND; ++r) {
+        for (int h = 0; h < HONBA; ++h) {
+            auto wall1 = Wall(r, h, SEED).tiles();
+            auto wall2 = Wall(r, h, SEED).tiles();
+            for(int i = 0; i < wall1.size(); i++){
+                EXPECT_EQ(wall1[i], wall2[i]);
+            }
         }
     }
 }
