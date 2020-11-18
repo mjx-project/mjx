@@ -99,3 +99,15 @@ TEST(wall, ura_doras) {
     EXPECT_EQ(wall.ura_dora_indicators(), Tile::Create({66, 77}));
 }
 
+TEST(wall, wall_seed_constructor){
+    const int ROUND = 5, HONBA = 5, SEED=1234;
+    for (int r = 0; r < ROUND; ++r) {
+        for (int h = 0; h < HONBA; ++h) {
+            auto wall1 = Wall(r, h, SEED).tiles();
+            auto wall2 = Wall(r, h, SEED).tiles();
+            for(int i = 0; i < wall1.size(); i++){
+                EXPECT_EQ(wall1[i], wall2[i]);
+            }
+        }
+    }
+}
