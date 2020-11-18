@@ -7,8 +7,9 @@ namespace mj {
     class WallSeed {
     public:
         WallSeed();
-        WallSeed(std::uint64_t seed, std::uint64_t round_base, std::uint64_t honba_base);
+        WallSeed(std::uint64_t seed);
         std::uint64_t Get(int round, int honba) const;
+        [[nodiscard]] const std::uint64_t Seed() const;
 
     private:
         std::uint64_t seed, round_base, honba_base;
