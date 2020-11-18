@@ -24,6 +24,7 @@ namespace mj
     public:
         Wall() = default;
         explicit Wall(std::uint32_t round, std::uint32_t seed = 9999);  // round info is necessary due to Tenhou's implementation
+        explicit Wall(std::uint64_t round, std::uint64_t honba, std::uint64_t seed = 9999); // for WallSeed Class
         Wall(std::uint32_t round, std::vector<Tile> tiles);
         [[nodiscard]] std::vector<Tile> initial_hand_tiles(AbsolutePos pos) const;
         [[nodiscard]] std::vector<Tile> dora_indicators() const;

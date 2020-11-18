@@ -6,8 +6,8 @@
 
 namespace mj
 {
-    State::State(std::vector<PlayerId> player_ids, std::uint32_t seed, int round, int honba, int riichi, std::array<int, 4> tens)
-    : seed_(seed), wall_(0, seed) {
+    State::State(std::vector<PlayerId> player_ids, std::uint64_t seed, int round, int honba, int riichi, std::array<int, 4> tens)
+    : seed_(seed), wall_(round, honba, seed) {
         // TODO: use seed_
         Assert(std::set<PlayerId>(player_ids.begin(), player_ids.end()).size() == 4);  // player_ids should be identical
         for (int i = 0; i < 4; ++i) {

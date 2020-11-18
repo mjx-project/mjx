@@ -10,6 +10,10 @@ namespace mj
               tiles_(Tile::CreateAllShuffled(seed))
     {}
 
+    Wall::Wall(std::uint64_t round, std::uint64_t honba, std::uint64_t seed)
+            : round_(round), seed_(seed),
+              tiles_(Tile::CreateAllShuffled(WallSeed(seed), round, honba))
+    {}
 
     Wall::Wall(std::uint32_t round, std::vector<Tile> tiles)
             : round_(round), seed_(-1),
