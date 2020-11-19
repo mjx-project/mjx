@@ -26,7 +26,9 @@ class MjlogDecoder:
         self.last_drawer: Optional[mjproto.AbsolutePosValue] = None
         self.last_draw: Optional[int] = None
 
-    def decode(self, mjlog_str: str, store_cache: bool = False, compress: bool = False) -> List[str]:
+    def decode(
+        self, mjlog_str: str, store_cache: bool = False, compress: bool = False
+    ) -> List[str]:
         wall_dices = reproduce_wall_from_mjlog(mjlog_str, store_cache=store_cache)
         root = ET.fromstring(mjlog_str)
         ret = []
@@ -34,10 +36,11 @@ class MjlogDecoder:
             # No spaces
             x = (
                 json.dumps(
-                    json_format.MessageToDict(state,
-                                              including_default_value_fields=False,
-                                              use_integers_for_enums=compress,
-                                              ),
+                    json_format.MessageToDict(
+                        state,
+                        including_default_value_fields=False,
+                        use_integers_for_enums=compress,
+                    ),
                     ensure_ascii=False,
                     separators=(",", ":"),
                 )
