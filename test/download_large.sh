@@ -42,8 +42,8 @@ for gzip_file in $(ls); do gzip -d ${gzip_file} &>/dev/null || true ; done
 check_gz
  
 echo "* Filtering ..."
-python3 ${MJCONVERT_DIR}/src/filter.py ${TMP_DIR} --hounan --ng-chars "><"
+python3 ${MJCONVERT_DIR}/mjconvert/filter.py ${TMP_DIR} --hounan --ng-chars "><"
   
 echo "* Converting ..."
-mjconvert ${TMP_DIR} ${TEST_DIR}/resources/json --to-mjproto --verbose
+mjconvert ${TMP_DIR} ${TEST_DIR}/resources/json --to-mjproto --verbose --store-cache
  
