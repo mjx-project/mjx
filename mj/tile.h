@@ -2,7 +2,6 @@
 #define MAHJONG_TILE_H
 
 #include "types.h"
-#include "wall_seed.h"
 
 namespace mj
 {
@@ -17,8 +16,7 @@ namespace mj
         static std::vector<Tile> Create(const std::vector<TileId> &vector, bool sorted = false) noexcept;
         static std::vector<Tile> Create(const std::vector<TileType> &vector, bool sorted = false) noexcept;
         static std::vector<Tile> Create(const std::vector<std::string> &vector, bool sorted = false) noexcept;
-        static std::vector<Tile> CreateAll(bool sorted = false) noexcept;
-        static std::vector<Tile> CreateAllShuffled(WallSeed seeds, int round, int honba) noexcept;
+        static std::vector<Tile> CreateAll() noexcept;  // tiles are sorted
 
         [[nodiscard]] TileId Id() const noexcept;  // 0 ~ 135
         [[nodiscard]] TileType Type() const noexcept;  // 0 ~ 33
