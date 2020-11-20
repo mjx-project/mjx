@@ -10,7 +10,7 @@ namespace mj
     : seed_(seed), wall_(round, honba, seed) {
         // TODO: use seed_
         Assert(std::set<PlayerId>(player_ids.begin(), player_ids.end()).size() == 4);  // player_ids should be identical
-        Assert(seed != 0);
+        Assert(seed != 0, std::to_string(seed));
         for (int i = 0; i < 4; ++i) {
             auto hand = Hand(wall_.initial_hand_tiles(AbsolutePos(i)));
             players_[i] = Player{player_ids[i], AbsolutePos(i), std::move(hand)};
