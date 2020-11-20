@@ -22,4 +22,6 @@ def test_mjproto_to_mjscore():
             assert len(mjprotos) == len(mjscores)
             for mjproto, mjscore_original in zip(mjprotos, mjscores):
                 mjscore_converted = mjproto_to_mjscore(mjproto)
-                assert mjscore_original == mjscore_converted  # TODO: replace with equality check function
+                assert (
+                    mjscore_original == mjscore_converted
+                )  # TODO: replace with equality check function
