@@ -6,7 +6,7 @@
 
 namespace mj
 {
-    State::State(std::vector<PlayerId> player_ids, std::uint32_t seed, int round, int honba, int riichi, std::array<int, 4> tens)
+    State::State(std::vector<PlayerId> player_ids, std::uint64_t seed, int round, int honba, int riichi, std::array<int, 4> tens)
     : seed_(seed), wall_(0, seed) {
         // TODO: use seed_
         Assert(std::set<PlayerId>(player_ids.begin(), player_ids.end()).size() == 4);  // player_ids should be identical
@@ -14,7 +14,8 @@ namespace mj
             auto hand = Hand(wall_.initial_hand_tiles(AbsolutePos(i)));
             players_[i] = Player{player_ids[i], AbsolutePos(i), std::move(hand)};
         }
-
+        // set seed
+        state_.set_seed(seed);
         // set protos
         // player_ids
         for (int i = 0; i < 4; ++i) state_.add_player_ids(player_ids[i]);
