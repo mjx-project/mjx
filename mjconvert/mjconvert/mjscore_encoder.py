@@ -29,13 +29,19 @@ def change_tiles_fmt(tile_ids):
 # openの情報を受け取ってmjscore形式に変更する関数
 def change_action_format(bits: int) -> str:
     event_type = open_converter.open_event_type(bits)
+    open_from = open_converter.open_from(bits)
     stolen_tile = open_converter.change_open_tile_fmt(open_converter.open_stolen_tile_type(bits))
     open_tiles = open_converter.change_open_tiles_fmt(open_converter.open_tile_types(bits))
     open_tiles.remove(stolen_tile)
     if event_type == mjproto.EVENT_TYPE_CHI:  # 現状書き方があまりにも冗長。なんとかしたい。
         return "c" + str(stolen_tile) + str(open_tiles[0]) + str(open_tiles[1])
     elif event_type == mjproto.EVENT_TYPE_PON:
-        return "r" + str(stolen_tile) + str(open_tiles[0]) + str(open_tiles[1])
+        if open_from == mjproto.RELATIVE_POS_LEFT:
+            return "p" + str(stolen_tile) + str(open_tiles[0]) + str(open_tiles[1])
+        elif open_from == mjproto.RELATIVE_POS_LEFT:
+            return str(stolen_tile) + "p" + str(open_tiles[0]) + str(open_tiles[1])
+        else:
+            return str(stolen_tile) + str(open_tiles[0]) + "p" + str(open_tiles[1])
     else:
         return " "  # カンはまだmjscoreのformatがわからない。
 
@@ -57,6 +63,7 @@ def sort_init_hand(init_hand: List[int]) -> List[int]:
 def parse_discards(events, abs_pos: int):
     discards = []
     is_reach = False  # リーチの有無
+    riichi_tile = 0
     for i, event in enumerate(events):
         if event.type == mjproto.EVENT_TYPE_DISCARD_FROM_HAND and event.who == abs_pos:  # 手出し
             discards.append(change_tile_fmt(event.tile))
@@ -67,8 +74,8 @@ def parse_discards(events, abs_pos: int):
             riichi_tile = change_tile_fmt(
                 events[i + 1].tile
             )  # riichiの次のeventに宣言牌が記録されているのでそのtileを取得して後にindexを取得変更
-    riichi_index = discards.index(riichi_tile)
     if is_reach:
+        riichi_index = discards.index(riichi_tile)
         discards[riichi_index] = "r" + str(discards[riichi_index])  # リーチ宣言牌の形式変更
     return discards
 
@@ -100,7 +107,7 @@ def parse_draws(draws, events, abs_pos):
     for i in actions:
         action_index = discards.index(i)  # 捨て牌でのactionのindex同じ順にdrawにアクションを挿入すれば良い
         draws.insert(action_index, change_action_format(discards[action_index]))
-    return draws, discards
+    return draws
 
 
 # ここを実装
@@ -109,9 +116,9 @@ def mjproto_to_mjscore(state: mjproto.State) -> str:
     # print(state.private_infos.ABSOLUTE_POS_INIT_EAST.init_hand)
     # print(state.init_score.honba)
     # print(state.init_score.ten)
-    a = change_action_format(49495)
-    print(parse_draws(state.private_infos[3].draws, state.event_history.events, 3))
-    print(a)
+    #a = change_action_format(49495)
+    #print(parse_draws(state.private_infos[3].draws, state.event_history.events, 3))
+    #print(a)
     # print(len(state.private_infos[3].draws))
     # print(sort_init_hand(change_tiles_fmt(state.private_infos[0].init_hand)))
     # print(parse_discards(state.event_history.events, 1))
@@ -121,12 +128,19 @@ def mjproto_to_mjscore(state: mjproto.State) -> str:
     doras: List[int] = [i for i in state.doras]
     ura_doras: List[int] = [i for i in state.ura_doras]
     init_score: List[int] = [i for i in state.init_score.ten]
+    log = [[round, honba, riichi], init_score, doras, ura_doras]
+    absolute_pos = [mjproto.ABSOLUTE_POS_INIT_EAST, mjproto.ABSOLUTE_POS_INIT_SOUTH, mjproto.ABSOLUTE_POS_INIT_WEST, mjproto.ABSOLUTE_POS_INIT_NORTH]
+    for abs_pos in absolute_pos:
+        log.append(sort_init_hand(change_tiles_fmt(state.private_infos[abs_pos].init_hand)))
+        log.append(parse_draws(state.private_infos[abs_pos].draws, state.event_history.events, abs_pos))
+        log.append(parse_discards(state.event_history.events, abs_pos))
+
 
     d: Dict = {
         "title": [],
         "name": [],
         "rule": [],
-        "log": [[[[round, honba, riichi], init_score, doras, ura_doras]]],
+        "log": log
     }
     return json.dumps(d)
 
@@ -152,4 +166,5 @@ if __name__ == "__main__":
     # 比較
     print(mjscore_expected_dict)
     print(mjscore_dict)
-    print(mjscore_expected_dict == mjscore_dict)
+    #print(mjscore_expected_dict == mjscore_dict)
+    #print(mjproto.ABSOLUTE_POS_INIT_WEST)
