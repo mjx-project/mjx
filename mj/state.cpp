@@ -6,6 +6,11 @@
 
 namespace mj
 {
+    State::State(State::ScoreInfo score_info)
+    : State(score_info.player_ids, score_info.seed,
+            score_info.round, score_info.honba, score_info.riichi,
+            score_info.tens) {}
+
     State::State(std::vector<PlayerId> player_ids, std::uint64_t seed, int round, int honba, int riichi, std::array<int, 4> tens)
     : seed_(seed), wall_(round, honba, seed) {
         // TODO: use seed_
