@@ -49,7 +49,7 @@ class MjlogDecoder:
         state_ = mjproto.State()
 
         # set seed
-        state_.seed = -1
+        state_.seed = 0
 
         assert root.tag == "mjloggm"
         assert root.attrib["ver"] == "2.3"
