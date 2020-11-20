@@ -21,7 +21,8 @@ namespace mj
         while (true) {
             RunOneRound();
             if (state_.IsGameOver()) break;
-            state_ = state_.Next();
+            auto next_state_info = state_.Next();
+            state_ = State(next_state_info);
         }
         // ゲーム終了時のStateにはisGameOverが含まれるはず #428
         Assert(state_.ToJson().find("isGameOver") != std::string::npos);

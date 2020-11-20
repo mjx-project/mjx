@@ -49,7 +49,7 @@ namespace mj
         std::string ToJson() const;
         mjproto::State proto() const;
         GameResult result() const;
-        State Next() const;
+        State::ScoreInfo Next() const;
 
         static std::vector<PlayerId> ShufflePlayerIds(std::uint32_t seed, std::vector<PlayerId> player_ids);
 
