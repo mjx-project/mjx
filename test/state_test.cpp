@@ -914,8 +914,9 @@ TEST(state, StateTrans) {
 }
 
 TEST(state, seed){
-    auto state_origin = State({"A","B","C","D"},9999);
-    auto wall_origin = state_origin.proto().wall();
+    uint64_t SEED = 1234;
+    auto wall_origin = Wall(SEED).tiles();
+    auto state_origin = State({"A","B","C","D"},SEED);
     // mjprotoからの復元
     auto seed_restored = State(state_origin.ToJson()).seed();
     auto wall_restored = Wall(seed_restored).tiles();
