@@ -198,6 +198,8 @@ namespace mj
         for (auto tile_id: state.wall()) wall_tiles.emplace_back(Tile(tile_id));
         wall_ = Wall(round(), wall_tiles);
         state_.mutable_wall()->CopyFrom(state.wall());
+        // Set seed
+        seed_ = state.seed();
         // Set dora
         state_.add_doras(wall_.dora_indicators().front().Id());
         state_.add_ura_doras(wall_.ura_dora_indicators().front().Id());
