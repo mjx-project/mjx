@@ -696,6 +696,10 @@ namespace mj
         return curr_score_.riichi();
     }
 
+    std::uint64_t State::seed() const{
+        return seed_;
+    }
+
     std::array<std::int32_t, 4> State::tens() const {
         std::array<std::int32_t, 4> tens_{};
         for (int i = 0; i < 4; ++i) tens_[i] = curr_score_.ten(i);
