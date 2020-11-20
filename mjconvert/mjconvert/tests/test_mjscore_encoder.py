@@ -27,7 +27,7 @@ def test_mjproto_to_mjscore():
                 mjscore_original_dict = json.loads(mjscore_original)
                 original_log = mjscore_original_dict["log"][0]  # logのみを比べる
                 converted_log = mjscore_converted_dict["log"][0]
-                for i in range(len(original_log)):
+                for i in range(len(original_log[:-1])):  # 現状は局の結果は評価に入れない
                     assert (
                         original_log[i] == converted_log[i]
                     )  # TODO: replace with equality check function

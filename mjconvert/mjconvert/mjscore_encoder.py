@@ -140,7 +140,7 @@ def mjproto_to_mjscore(state: mjproto.State) -> str:
         "title": [],
         "name": [],
         "rule": [],
-        "log": log
+        "log": [log]
     }
     return json.dumps(d)
 
