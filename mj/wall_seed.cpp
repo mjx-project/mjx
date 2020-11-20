@@ -5,17 +5,20 @@
 namespace mj {
 
     WallSeed::WallSeed() {
-        seed = mt()();
-        round_base = mt()();
-        honba_base = mt()();
+        seed_ = mt()();
+        round_base_ = mt()();
+        honba_base_ = mt()();
     }
 
-    WallSeed::WallSeed(std::uint64_t seed, std::uint64_t round_base, std::uint64_t honba_base) :
-            seed(seed), round_base(round_base), honba_base(honba_base) {}
+    WallSeed::WallSeed(std::uint64_t seed) : seed_(seed){}
+
+    std::uint64_t WallSeed::seed() const {
+        return seed_;
+    }
 
     std::uint64_t WallSeed::Get(int round, int honba) const {
         using i128 = __uint128_t;
-        return (i128)seed + (i128)round_base * round + (i128)honba_base * honba;
+        return (i128)seed_ + (i128)round_base_ * round + (i128)honba_base_ * honba;
     }
 
     std::mt19937_64& WallSeed::mt() {

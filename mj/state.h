@@ -32,7 +32,7 @@ namespace mj
         State() = default;
         explicit State(
                 std::vector<PlayerId> player_ids,  // 起家, ..., ラス親
-                std::uint32_t seed = 9999,
+                std::uint64_t seed = 9999,
                 int round = 0, int honba = 0, int riichi = 0,
                 std::array<int, 4> tens = {25000, 25000, 25000, 25000});
         explicit State(const std::string &json_str);
