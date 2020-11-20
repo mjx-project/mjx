@@ -9,15 +9,14 @@ namespace mj
 
     Environment::Environment(std::vector<std::shared_ptr<Agent>> agents) : agents_(std::move(agents)) {
         for (const auto &agent: agents_) map_agents_[agent->player_id()] = agent;
+        state_ = State();
+    }
+
+    GameResult Environment::RunOneGame(std::uint64_t seed) {
+        Assert(seed != 0, "Seed zero is preserved only for human logs.");
         std::vector<PlayerId> player_ids(4); for (int i = 0; i < 4; ++i) player_ids[i] = agents_.at(i)->player_id();
-        state_ = State(player_ids);
-    }
-
-    [[noreturn]] void Environment::Run() {
-        while(true) RunOneGame();
-    }
-
-    GameResult Environment::RunOneGame(std::uint32_t seed) {
+        state_ = State(player_ids, seed);
+        Assert(state_.seed() != 0, "Seed zero is preserved only for human logs.");
         while (true) {
             RunOneRound();
             if (state_.IsGameOver()) break;
@@ -29,6 +28,7 @@ namespace mj
     }
 
     void Environment::RunOneRound() {
+        Assert(state_.seed() != 0, "Seed zero is preserved only for human logs. round = " + std::to_string(state_.round()) + ", honba = " + std::to_string(state_.honba()));
         while (!state_.IsRoundOver()) {
             auto observations = state_.CreateObservations();
             Assert(!observations.empty());

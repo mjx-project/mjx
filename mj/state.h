@@ -32,7 +32,7 @@ namespace mj
         State() = default;
         explicit State(
                 std::vector<PlayerId> player_ids,  // 起家, ..., ラス親
-                std::uint64_t seed = 9999,
+                std::uint64_t seed,
                 int round = 0, int honba = 0, int riichi = 0,
                 std::array<int, 4> tens = {25000, 25000, 25000, 25000});
         explicit State(const std::string &json_str);
@@ -99,7 +99,6 @@ namespace mj
         // containers
         Wall wall_;
         std::array<Player, 4> players_;
-        std::uint64_t seed_;
         // temporal memory
         std::optional<AbsolutePos> three_ronned_player = std::nullopt;
 
@@ -110,6 +109,19 @@ namespace mj
         [[nodiscard]] Hand& mutable_hand(AbsolutePos who);
         [[nodiscard]] WinStateInfo win_state_info(AbsolutePos who) const;
         [[nodiscard]] AbsolutePos top_player() const;
+
+        void InitState(
+                std::vector<PlayerId> player_ids,  // 起家, ..., ラス親
+                std::uint64_t seed,
+                int round = 0, int honba = 0, int riichi = 0,
+                std::array<int, 4> tens = {25000, 25000, 25000, 25000});
+
+        // The output State may use seed = 0
+        static State CreateState(
+                std::vector<PlayerId> player_ids,  // 起家, ..., ラス親
+                std::uint64_t seed,
+                int round = 0, int honba = 0, int riichi = 0,
+                std::array<int, 4> tens = {25000, 25000, 25000, 25000});
 
         // update
         void Update(mjproto::Action &&action);

@@ -4,42 +4,15 @@
 #include <google/protobuf/util/json_util.h>
 #include <google/protobuf/util/message_differencer.h>
 
+#include <utility>
+
 namespace mj
 {
     State::State(std::vector<PlayerId> player_ids, std::uint64_t seed, int round, int honba, int riichi, std::array<int, 4> tens)
-    : seed_(seed), wall_(round, honba, seed) {
-        // TODO: use seed_
-        Assert(std::set<PlayerId>(player_ids.begin(), player_ids.end()).size() == 4);  // player_ids should be identical
-        Assert(seed != 0, std::to_string(seed));
-        for (int i = 0; i < 4; ++i) {
-            auto hand = Hand(wall_.initial_hand_tiles(AbsolutePos(i)));
-            players_[i] = Player{player_ids[i], AbsolutePos(i), std::move(hand)};
-        }
-        // set seed
-        state_.set_seed(seed);
-        // set protos
-        // player_ids
-        for (int i = 0; i < 4; ++i) state_.add_player_ids(player_ids[i]);
-        // init_score
-        state_.mutable_init_score()->set_round(round);
-        state_.mutable_init_score()->set_honba(honba);
-        state_.mutable_init_score()->set_riichi(riichi);
-        for (int i = 0; i < 4; ++i) state_.mutable_init_score()->add_ten(tens[i]);
-        curr_score_.CopyFrom(state_.init_score());
-        // wall
-        for(auto t: wall_.tiles()) state_.mutable_wall()->Add(t.Id());
-        // doras, ura_doras
-        state_.add_doras(wall_.dora_indicators().front().Id());
-        state_.add_ura_doras(wall_.ura_dora_indicators().front().Id());
-        // private info
-        for (int i = 0; i < 4; ++i) {
-            state_.add_private_infos()->set_who(mjproto::AbsolutePos(i));
-            for (const auto tile: wall_.initial_hand_tiles(AbsolutePos(i)))
-                state_.mutable_private_infos(i)->mutable_init_hand()->Add(tile.Id());
-        }
-
-        // dealer draws the first tusmo
-        Draw(dealer());
+    {
+        Assert(seed != 0, "Seed zero is preserved only for human logs. round = " + std::to_string(this->round()) + ", honba = " + std::to_string(this->honba()));
+        InitState(std::move(player_ids), seed, round, honba, riichi, tens);
+        Assert(this->seed() != 0, "Seed zero is preserved only for human logs. round = " + std::to_string(this->round()) + ", honba = " + std::to_string(this->honba()));
     }
 
     bool State::IsRoundOver() const {
@@ -201,7 +174,7 @@ namespace mj
         wall_ = Wall(round(), wall_tiles);
         state_.mutable_wall()->CopyFrom(state.wall());
         // Set seed
-        seed_ = state.seed();
+        state_.set_seed(state.seed());
         // Set dora
         state_.add_doras(wall_.dora_indicators().front().Id());
         state_.add_ura_doras(wall_.ura_dora_indicators().front().Id());
@@ -697,7 +670,7 @@ namespace mj
     }
 
     std::uint64_t State::seed() const{
-        return seed_;
+        return state_.seed();
     }
 
     std::array<std::int32_t, 4> State::tens() const {
@@ -727,15 +700,15 @@ namespace mj
                     mjproto::NO_WINNER_TYPE_FOUR_KANS,
                     mjproto::NO_WINNER_TYPE_FOUR_WINDS})
                     || hand(dealer()).IsTenpai()) {
-                return State(player_ids, seed_, round(), honba() + 1, riichi(), tens());
+                return CreateState(player_ids, seed(), round(), honba() + 1, riichi(), tens());
             } else {
-                return State(player_ids, seed_, round() + 1, honba() + 1, riichi(), tens());
+                return CreateState(player_ids, seed(), round() + 1, honba() + 1, riichi(), tens());
             }
         } else {
             if (AbsolutePos(LastEvent().who()) == dealer()) {
-                return State(player_ids, seed_, round(), honba() + 1, riichi(), tens());
+                return CreateState(player_ids, seed(), round(), honba() + 1, riichi(), tens());
             } else {
-                return State(player_ids, seed_, round() + 1, 0, riichi(), tens());
+                return CreateState(player_ids, seed(), round() + 1, 0, riichi(), tens());
             }
         }
     }
@@ -1290,5 +1263,48 @@ namespace mj
     std::optional<State::HandInfo> State::EvalTenpai(AbsolutePos who) const noexcept {
         if (!hand(who).IsTenpai()) return std::nullopt;
         return HandInfo{hand(who).ToVectorClosed(true), hand(who).Opens(), hand(who).LastTileAdded()};
+    }
+
+    void State::InitState(std::vector<PlayerId> player_ids, std::uint64_t seed, int round, int honba, int riichi,
+                          std::array<int, 4> tens) {
+        Assert(std::set<PlayerId>(player_ids.begin(), player_ids.end()).size() == 4);  // player_ids should be identical
+        for (int i = 0; i < 4; ++i) {
+            auto hand = Hand(wall_.initial_hand_tiles(AbsolutePos(i)));
+            players_[i] = Player{player_ids[i], AbsolutePos(i), std::move(hand)};
+        }
+        // set wall
+        wall_ = Wall(round, honba, seed);
+        // set protos
+        // set seed
+        state_.set_seed(seed);
+        // player_ids
+        for (int i = 0; i < 4; ++i) state_.add_player_ids(player_ids[i]);
+        // init_score
+        state_.mutable_init_score()->set_round(round);
+        state_.mutable_init_score()->set_honba(honba);
+        state_.mutable_init_score()->set_riichi(riichi);
+        for (int i = 0; i < 4; ++i) state_.mutable_init_score()->add_ten(tens[i]);
+        curr_score_.CopyFrom(state_.init_score());
+        // wall
+        for(auto t: wall_.tiles()) state_.mutable_wall()->Add(t.Id());
+        // doras, ura_doras
+        state_.add_doras(wall_.dora_indicators().front().Id());
+        state_.add_ura_doras(wall_.ura_dora_indicators().front().Id());
+        // private info
+        for (int i = 0; i < 4; ++i) {
+            state_.add_private_infos()->set_who(mjproto::AbsolutePos(i));
+            for (const auto tile: wall_.initial_hand_tiles(AbsolutePos(i)))
+                state_.mutable_private_infos(i)->mutable_init_hand()->Add(tile.Id());
+        }
+
+        // dealer draws the first tusmo
+        Draw(dealer());
+    }
+
+    State State::CreateState(std::vector<PlayerId> player_ids, std::uint64_t seed, int round, int honba, int riichi,
+                             std::array<int, 4> tens) {
+        auto state = State();
+        state.InitState(std::move(player_ids), seed, round, honba, riichi, tens);
+        return state;
     }
 }  // namespace mj
