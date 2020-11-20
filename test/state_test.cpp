@@ -912,3 +912,15 @@ TEST(state, StateTrans) {
     );
     EXPECT_TRUE(all_ok);
 }
+
+TEST(state, seed){
+    auto state_origin = State({"A","B","C","D"},9999);
+    // mjprotoからの復元
+    auto state_restored = State(state_origin.ToJson());
+    auto wall_origin = state_origin.proto().wall();
+    auto wall_restored = state_restored.proto().wall();
+    EXPECT_EQ(wall_origin.size(),wall_restored.size());
+    for(int i = 0; i < wall_origin.size(); ++i){
+        EXPECT_EQ(wall_origin[i], wall_restored[i]);
+    }
+}
