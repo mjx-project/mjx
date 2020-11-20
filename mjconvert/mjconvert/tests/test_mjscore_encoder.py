@@ -1,5 +1,6 @@
 import os
 from typing import List
+import json
 
 from mjconvert.mjlog_decoder import MjlogDecoder
 from mjconvert.mjscore_encoder import mjproto_to_mjscore
@@ -22,6 +23,11 @@ def test_mjproto_to_mjscore():
             assert len(mjprotos) == len(mjscores)
             for mjproto, mjscore_original in zip(mjprotos, mjscores):
                 mjscore_converted = mjproto_to_mjscore(mjproto)
-                assert (
-                    mjscore_original == mjscore_converted
-                )  # TODO: replace with equality check function
+                mjscore_converted_dict = json.loads(mjscore_converted)
+                mjscore_original_dict = json.loads(mjscore_original)
+                original_log = mjscore_original_dict["log"][0]  # logのみを比べる
+                converted_log = mjscore_converted_dict["log"][0]
+                for i in range(len(original_log)):
+                    assert (
+                        original_log[i] == converted_log[i]
+                    )  # TODO: replace with equality check function
