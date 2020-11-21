@@ -208,13 +208,12 @@ TEST(state, Next) {
         auto data_from_tenhou = LoadJson(filename.path().string());
         for (int i = 0; i < data_from_tenhou.size() - 1; ++i) {
             auto curr_state = State(data_from_tenhou[i]);
-            auto next_state = curr_state.Next();
+            auto next_state_info = curr_state.Next();
             auto expected_next_state = State(data_from_tenhou[i + 1]);
-            EXPECT_EQ(next_state.dealer(), expected_next_state.dealer());
-            EXPECT_EQ(next_state.round(), expected_next_state.round());
-            EXPECT_EQ(next_state.honba(), expected_next_state.honba());
-            EXPECT_EQ(next_state.riichi(), expected_next_state.init_riichi());
-            EXPECT_EQ(next_state.tens(), expected_next_state.init_tens());
+            EXPECT_EQ(next_state_info.round, expected_next_state.round());
+            EXPECT_EQ(next_state_info.honba, expected_next_state.honba());
+            EXPECT_EQ(next_state_info.riichi, expected_next_state.init_riichi());
+            EXPECT_EQ(next_state_info.tens, expected_next_state.init_tens());
         }
     }
 }

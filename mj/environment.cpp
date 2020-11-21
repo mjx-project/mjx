@@ -10,7 +10,7 @@ namespace mj
     Environment::Environment(std::vector<std::shared_ptr<Agent>> agents) : agents_(std::move(agents)) {
         for (const auto &agent: agents_) map_agents_[agent->player_id()] = agent;
         std::vector<PlayerId> player_ids(4); for (int i = 0; i < 4; ++i) player_ids[i] = agents_.at(i)->player_id();
-        state_ = State(player_ids);
+        state_ = State(State::ScoreInfo{player_ids});
     }
 
     [[noreturn]] void Environment::Run() {
@@ -21,7 +21,8 @@ namespace mj
         while (true) {
             RunOneRound();
             if (state_.IsGameOver()) break;
-            state_ = state_.Next();
+            auto next_state_info = state_.Next();
+            state_ = State(next_state_info);
         }
         // ゲーム終了時のStateにはisGameOverが含まれるはず #428
         Assert(state_.ToJson().find("isGameOver") != std::string::npos);
