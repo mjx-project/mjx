@@ -6,6 +6,11 @@
 
 namespace mj
 {
+    State::State(State::ScoreInfo score_info)
+    : State(score_info.player_ids, score_info.seed,
+            score_info.round, score_info.honba, score_info.riichi,
+            score_info.tens) {}
+
     State::State(std::vector<PlayerId> player_ids, std::uint64_t seed, int round, int honba, int riichi, std::array<int, 4> tens)
     : seed_(seed), wall_(round, honba, seed) {
         // TODO: use seed_
@@ -706,7 +711,7 @@ namespace mj
         return curr_score_.ten(ToUType(who));
     }
 
-    State State::Next() const {
+    State::ScoreInfo State::Next() const {
         // Assert(IsRoundOver());
         Assert(!IsGameOver());
         std::vector<PlayerId> player_ids(state_.player_ids().begin(), state_.player_ids().end());
@@ -719,15 +724,15 @@ namespace mj
                     mjproto::NO_WINNER_TYPE_FOUR_KANS,
                     mjproto::NO_WINNER_TYPE_FOUR_WINDS})
                     || hand(dealer()).IsTenpai()) {
-                return State(player_ids, seed_, round(), honba() + 1, riichi(), tens());
+                return ScoreInfo{player_ids, seed_, round(), honba() + 1, riichi(), tens()};
             } else {
-                return State(player_ids, seed_, round() + 1, honba() + 1, riichi(), tens());
+                return ScoreInfo{player_ids, seed_, round() + 1, honba() + 1, riichi(), tens()};
             }
         } else {
             if (AbsolutePos(LastEvent().who()) == dealer()) {
-                return State(player_ids, seed_, round(), honba() + 1, riichi(), tens());
+                return ScoreInfo{player_ids, seed_, round(), honba() + 1, riichi(), tens()};
             } else {
-                return State(player_ids, seed_, round() + 1, 0, riichi(), tens());
+                return ScoreInfo{player_ids, seed_, round() + 1, 0, riichi(), tens()};
             }
         }
     }

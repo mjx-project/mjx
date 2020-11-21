@@ -29,12 +29,17 @@ namespace mj
     class State
     {
     public:
+        struct ScoreInfo
+        {
+            std::vector<PlayerId> player_ids;  // 起家, ..., ラス親
+            std::uint64_t seed = 0;
+            int round = 0;
+            int honba = 0;
+            int riichi = 0;
+            std::array<int, 4> tens = {25000, 25000, 25000, 25000};
+        };
         State() = default;
-        explicit State(
-                std::vector<PlayerId> player_ids,  // 起家, ..., ラス親
-                std::uint64_t seed = 9999,
-                int round = 0, int honba = 0, int riichi = 0,
-                std::array<int, 4> tens = {25000, 25000, 25000, 25000});
+        explicit State(ScoreInfo score_info);
         explicit State(const std::string &json_str);
         explicit State(const mjproto::State& state);
         bool IsRoundOver() const;
@@ -44,7 +49,7 @@ namespace mj
         std::string ToJson() const;
         mjproto::State proto() const;
         GameResult result() const;
-        State Next() const;
+        State::ScoreInfo Next() const;
 
         static std::vector<PlayerId> ShufflePlayerIds(std::uint32_t seed, std::vector<PlayerId> player_ids);
 
@@ -72,6 +77,12 @@ namespace mj
         bool Equals(const State& other) const noexcept ;
         bool CanReach(const State& other) const noexcept ;
    private:
+        explicit State(
+                std::vector<PlayerId> player_ids,  // 起家, ..., ラス親
+                std::uint64_t seed = 0,
+                int round = 0, int honba = 0, int riichi = 0,
+                std::array<int, 4> tens = {25000, 25000, 25000, 25000});
+
         // Internal structures
         struct Player
         {
