@@ -9,6 +9,7 @@ namespace mj
             : round_(round), seed_(seed),
               tiles_(Tile::CreateAll())
     {
+        std::cout << seed_.Get(round, honba) << std::endl;
         std::shuffle(tiles_.begin(), tiles_.end(), std::mt19937_64(seed_.Get(round, honba)));
     }
 
