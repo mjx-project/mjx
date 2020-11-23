@@ -121,7 +121,7 @@ namespace mj
     }
 
     std::uint64_t Wall::seed() const {
-        return seed_.seed();
+        return seed_.game_seed();
     }
 
     template<class RandomIt, class URBG>

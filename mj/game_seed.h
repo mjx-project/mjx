@@ -10,12 +10,12 @@ namespace mj {
         GameSeed() = default;
         explicit GameSeed(std::uint64_t wall_seed);
         [[nodiscard]] std::uint64_t GetWallSeed(int round, int honba) const;
-        [[nodiscard]] std::uint64_t seed() const;
+        [[nodiscard]] std::uint64_t game_seed() const;
         static std::mt19937_64 CreateMtEngine(std::uint64_t seed);
         static std::mt19937_64 CreateRandomMtEngine();
 
     private:
-        std::uint64_t wall_seed_ = 0;  // Note: seed_ = 0 preserved as a special seed for the wall reproduced by human data.
+        std::uint64_t game_seed_ = 0;  // Note: game_seed_ = 0 preserved as a special seed for the wall reproduced by human data.
         std::vector<std::uint64_t> seeds_;
         static constexpr std::uint64_t kRoundBase = 32;  // assumes that honba < 32
         static constexpr std::uint64_t kHonbaBase = 1;
