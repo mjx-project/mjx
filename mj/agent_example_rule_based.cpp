@@ -13,7 +13,6 @@ namespace mj
                 + 1 * observation.proto().who();
         auto mt = std::mt19937_64(seed);
 
-        // Currently this method only implements discard
         mjproto::Action response;
         response.set_who(mjproto::AbsolutePos(observation.who()));
         auto possible_actions = observation.possible_actions();
