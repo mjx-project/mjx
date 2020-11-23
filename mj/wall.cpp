@@ -128,7 +128,7 @@ namespace mj
     template<class RandomIt, class URBG>
     void Wall::shuffle(RandomIt first, RandomIt last, URBG &&g) {
         typedef typename std::iterator_traits<RandomIt>::difference_type diff_t;
-        typedef boost::random::uniform_int_distribution<diff_t> distr_t;
+        typedef boost::random::uniform_int_distribution<diff_t> distr_t;  // use boost ver instead of std to avoid implementation dependency
         typedef typename distr_t::param_type param_t;
 
         distr_t D;
