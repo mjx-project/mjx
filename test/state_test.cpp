@@ -915,7 +915,8 @@ TEST(state, StateTrans) {
 TEST(state, seed){
     uint64_t SEED = 1234;
     auto wall_origin = Wall(SEED).tiles();
-    auto state_origin = State({"A","B","C","D"},SEED);
+    auto score_info = State::ScoreInfo{{"A","B","C","D"}, SEED};
+    auto state_origin = State(score_info);
     // mjprotoからの復元
     auto seed_restored = State(state_origin.ToJson()).seed();
     auto wall_restored = Wall(seed_restored).tiles();
