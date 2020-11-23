@@ -11,7 +11,7 @@ TEST(environment, RunOneGame) {
             std::make_shared<AgentExampleRuleBased>("agent04")
     };
     Environment env(agents);
-    auto result = env.RunOneGame();
+    auto result = env.RunOneGame(1234);
     for (const auto& [player_id, ranking]: result.rankings) {
         std::cerr << player_id << " " << ranking << " " << result.tens[player_id] << std::endl;
     }
