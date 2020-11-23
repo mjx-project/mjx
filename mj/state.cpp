@@ -7,21 +7,21 @@
 namespace mj
 {
     State::State(State::ScoreInfo score_info)
-    : State(score_info.player_ids, score_info.seed,
+    : State(score_info.player_ids, score_info.game_seed,
             score_info.round, score_info.honba, score_info.riichi,
             score_info.tens) {}
 
-    State::State(std::vector<PlayerId> player_ids, std::uint64_t seed, int round, int honba, int riichi, std::array<int, 4> tens)
-    : wall_(round, honba, seed) {
+    State::State(std::vector<PlayerId> player_ids, std::uint64_t game_seed, int round, int honba, int riichi, std::array<int, 4> tens)
+    : wall_(round, honba, game_seed) {
         Assert(std::set<PlayerId>(player_ids.begin(), player_ids.end()).size() == 4);  // player_ids should be identical
-        Assert(seed != 0 && wall_.seed() != 0, "Seed cannot be zero. round = " + std::to_string(round) + ", honba = " + std::to_string(honba));
+        Assert(game_seed != 0 && wall_.game_seed() != 0, "Seed cannot be zero. round = " + std::to_string(round) + ", honba = " + std::to_string(honba));
 
         for (int i = 0; i < 4; ++i) {
             auto hand = Hand(wall_.initial_hand_tiles(AbsolutePos(i)));
             players_[i] = Player{player_ids[i], AbsolutePos(i), std::move(hand)};
         }
-        // set seed
-        state_.set_seed(seed);
+        // set game_seed
+        state_.set_game_seed(game_seed);
         // set protos
         // player_ids
         for (int i = 0; i < 4; ++i) state_.add_player_ids(player_ids[i]);
@@ -100,7 +100,7 @@ namespace mj
             tens_map[player_id] = ten;
         }
 
-        return GameResult{0, rankings, tens_map};
+        return GameResult{game_seed(), rankings, tens_map};
     }
 
     std::unordered_map<PlayerId, Observation> State::CreateObservations() const {
@@ -206,7 +206,7 @@ namespace mj
         wall_ = Wall(round(), wall_tiles);
         state_.mutable_wall()->CopyFrom(state.wall());
         // Set seed
-        state_.set_seed(state.seed());
+        state_.set_game_seed(state.game_seed());
         // Set dora
         state_.add_doras(wall_.dora_indicators().front().Id());
         state_.add_ura_doras(wall_.ura_dora_indicators().front().Id());
@@ -701,8 +701,8 @@ namespace mj
         return curr_score_.riichi();
     }
 
-    std::uint64_t State::seed() const{
-        return state_.seed();
+    std::uint64_t State::game_seed() const{
+        return state_.game_seed();
     }
 
     std::array<std::int32_t, 4> State::tens() const {
@@ -732,15 +732,15 @@ namespace mj
                     mjproto::NO_WINNER_TYPE_FOUR_KANS,
                     mjproto::NO_WINNER_TYPE_FOUR_WINDS})
                     || hand(dealer()).IsTenpai()) {
-                return ScoreInfo{player_ids, seed(), round(), honba() + 1, riichi(), tens()};
+                return ScoreInfo{player_ids, game_seed(), round(), honba() + 1, riichi(), tens()};
             } else {
-                return ScoreInfo{player_ids, seed(), round() + 1, honba() + 1, riichi(), tens()};
+                return ScoreInfo{player_ids, game_seed(), round() + 1, honba() + 1, riichi(), tens()};
             }
         } else {
             if (AbsolutePos(LastEvent().who()) == dealer()) {
-                return ScoreInfo{player_ids, seed(), round(), honba() + 1, riichi(), tens()};
+                return ScoreInfo{player_ids, game_seed(), round(), honba() + 1, riichi(), tens()};
             } else {
-                return ScoreInfo{player_ids, seed(), round() + 1, 0, riichi(), tens()};
+                return ScoreInfo{player_ids, game_seed(), round() + 1, 0, riichi(), tens()};
             }
         }
     }

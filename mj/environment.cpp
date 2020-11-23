@@ -17,9 +17,9 @@ namespace mj
         while(true) RunOneGame();
     }
 
-    GameResult Environment::RunOneGame(std::uint64_t seed) {
+    GameResult Environment::RunOneGame(std::uint64_t game_seed) {
         std::vector<PlayerId> player_ids(4); for (int i = 0; i < 4; ++i) player_ids[i] = agents_.at(i)->player_id();
-        state_ = State(State::ScoreInfo{player_ids, seed});
+        state_ = State(State::ScoreInfo{player_ids, game_seed});
         while (true) {
             RunOneRound();
             if (state_.IsGameOver()) break;
@@ -32,7 +32,7 @@ namespace mj
     }
 
     void Environment::RunOneRound() {
-        Assert(state_.seed() != 0, "Seed cannot be zero. round = " + std::to_string(state_.round()) + ", honba = " + std::to_string(state_.honba()));
+        Assert(state_.game_seed() != 0, "Seed cannot be zero. round = " + std::to_string(state_.round()) + ", honba = " + std::to_string(state_.honba()));
         while (!state_.IsRoundOver()) {
             auto observations = state_.CreateObservations();
             Assert(!observations.empty());

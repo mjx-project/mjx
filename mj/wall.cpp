@@ -6,17 +6,17 @@
 
 namespace mj
 {
-    Wall::Wall(std::uint64_t round, std::uint64_t honba, std::uint64_t seed)
-            : round_(round), seed_(seed),
+    Wall::Wall(std::uint64_t round, std::uint64_t honba, std::uint64_t game_seed)
+            : round_(round), game_seed_(game_seed),
               tiles_(Tile::CreateAll())
     {
-        auto wall_seed = seed_.Get(round, honba);
+        auto wall_seed = game_seed_.GetWallSeed(round, honba);
         // std::cout << "round: " << std::to_string(round) << ", honba: " << std::to_string(honba) << ", game_seed: " << std::to_string(seed) << ", wall_seed: " << std::to_string(wall_seed) << std::endl;
         Wall::shuffle(tiles_.begin(), tiles_.end(), std::mt19937_64(wall_seed));
     }
 
     Wall::Wall(std::uint32_t round, std::vector<Tile> tiles)
-            : round_(round), seed_(-1),
+            : round_(round), game_seed_(-1),
               tiles_(std::move(tiles))
     {}
 
@@ -120,8 +120,8 @@ namespace mj
         return counter;
     }
 
-    std::uint64_t Wall::seed() const {
-        return seed_.seed();
+    std::uint64_t Wall::game_seed() const {
+        return game_seed_.game_seed();
     }
 
     template<class RandomIt, class URBG>

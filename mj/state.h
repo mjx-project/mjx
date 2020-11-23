@@ -21,7 +21,7 @@ namespace mj
 {
     // 試合結果（半荘）
     struct GameResult {
-        int seed;
+        std::uint64_t game_seed;
         std::map<PlayerId, int> rankings;  // 1~4
         std::map<PlayerId, int> tens;  // 25000スタート
     };
@@ -32,7 +32,7 @@ namespace mj
         struct ScoreInfo
         {
             std::vector<PlayerId> player_ids;  // 起家, ..., ラス親
-            std::uint64_t seed = 0;
+            std::uint64_t game_seed = 0;
             int round = 0;
             int honba = 0;
             int riichi = 0;
@@ -51,7 +51,7 @@ namespace mj
         GameResult result() const;
         State::ScoreInfo Next() const;
 
-        static std::vector<PlayerId> ShufflePlayerIds(std::uint32_t seed, std::vector<PlayerId> player_ids);
+        static std::vector<PlayerId> ShufflePlayerIds(std::uint32_t game_seed, std::vector<PlayerId> player_ids);
 
         // accessors
         [[nodiscard]] AbsolutePos dealer() const;
@@ -59,7 +59,7 @@ namespace mj
         [[nodiscard]] std::uint8_t round() const;  // 局
         [[nodiscard]] std::uint8_t honba() const;  // 本場
         [[nodiscard]] std::uint8_t riichi() const;  // リー棒
-        [[nodiscard]] std::uint64_t seed() const; // シード値
+        [[nodiscard]] std::uint64_t game_seed() const; // シード値
         [[nodiscard]] std::int32_t ten(AbsolutePos who) const;  // 点 25000点スタート
         [[nodiscard]] std::array<std::int32_t, 4> tens() const;
         [[nodiscard]] std::uint8_t init_riichi() const;
@@ -80,7 +80,7 @@ namespace mj
    private:
         explicit State(
                 std::vector<PlayerId> player_ids,  // 起家, ..., ラス親
-                std::uint64_t seed = 0,
+                std::uint64_t game_seed = 0,
                 int round = 0, int honba = 0, int riichi = 0,
                 std::array<int, 4> tens = {25000, 25000, 25000, 25000});
 

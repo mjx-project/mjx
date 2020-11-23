@@ -3,7 +3,7 @@
 
 #include "vector"
 #include "tile.h"
-#include "wall_seed.h"
+#include "game_seed.h"
 
 namespace mj
 {
@@ -24,7 +24,7 @@ namespace mj
          */
     public:
         Wall() = default;
-        explicit Wall(std::uint64_t round, std::uint64_t honba, std::uint64_t seed);
+        explicit Wall(std::uint64_t round, std::uint64_t honba, std::uint64_t game_seed);
         // Constructor only for reproducing wall from human data. round info is necessary due to Tenhou's wall format.
         Wall(std::uint32_t round, std::vector<Tile> tiles);
         [[nodiscard]] std::vector<Tile> initial_hand_tiles(AbsolutePos pos) const;
@@ -35,13 +35,13 @@ namespace mj
         [[nodiscard]] const std::vector<Tile>& tiles() const;
         [[nodiscard]] bool HasDrawLeft() const;
         [[nodiscard]] bool HasNextDrawLeft() const;
-        [[nodiscard]] std::uint64_t seed() const;
+        [[nodiscard]] std::uint64_t game_seed() const;
         Tile Draw();
         Tile KanDraw();
         std::pair<Tile, Tile> AddKanDora();
     private:
         std::uint32_t round_;
-        WallSeed seed_;
+        GameSeed game_seed_;
         std::vector<Tile> tiles_;
         int draw_ix_ = 52;
         int num_kan_draw_ = 0;
