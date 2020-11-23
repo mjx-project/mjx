@@ -10,9 +10,7 @@ namespace mj
     {
     public:
         Environment(std::vector<std::shared_ptr<Agent>> agents);
-
-        [[noreturn]] void Run();
-        GameResult RunOneGame(std::uint64_t game_seed = 9999);
+        GameResult RunOneGame(std::uint64_t game_seed);
     private:
         void RunOneRound();
         const std::vector<std::shared_ptr<Agent>> agents_;
