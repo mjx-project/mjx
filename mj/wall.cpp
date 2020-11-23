@@ -6,8 +6,8 @@
 
 namespace mj
 {
-    Wall::Wall(std::uint64_t round, std::uint64_t honba, std::uint64_t seed)
-            : round_(round), game_seed_(seed),
+    Wall::Wall(std::uint64_t round, std::uint64_t honba, std::uint64_t game_seed)
+            : round_(round), game_seed_(game_seed),
               tiles_(Tile::CreateAll())
     {
         auto wall_seed = game_seed_.GetWallSeed(round, honba);

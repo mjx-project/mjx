@@ -24,7 +24,7 @@ namespace mj
          */
     public:
         Wall() = default;
-        explicit Wall(std::uint64_t round, std::uint64_t honba, std::uint64_t seed);
+        explicit Wall(std::uint64_t round, std::uint64_t honba, std::uint64_t game_seed);
         // Constructor only for reproducing wall from human data. round info is necessary due to Tenhou's wall format.
         Wall(std::uint32_t round, std::vector<Tile> tiles);
         [[nodiscard]] std::vector<Tile> initial_hand_tiles(AbsolutePos pos) const;
