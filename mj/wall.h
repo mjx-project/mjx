@@ -3,7 +3,7 @@
 
 #include "vector"
 #include "tile.h"
-#include "wall_seed.h"
+#include "game_seed.h"
 
 namespace mj
 {

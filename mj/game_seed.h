@@ -1,5 +1,5 @@
-#ifndef MAHJONG_WALL_SEED_H
-#define MAHJONG_WALL_SEED_H
+#ifndef MAHJONG_GAME_SEED_H
+#define MAHJONG_GAME_SEED_H
 
 #include <vector>
 #include <random>
@@ -23,4 +23,4 @@ namespace mj {
     };
 } // namespace mj
 
-#endif //MAHJONG_WALL_SEED_H
+#endif //MAHJONG_GAME_SEED_H

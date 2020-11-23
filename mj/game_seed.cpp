@@ -1,5 +1,5 @@
 #include <cstdint>
-#include "wall_seed.h"
+#include "game_seed.h"
 #include "utils.h"
 
 namespace mj {
