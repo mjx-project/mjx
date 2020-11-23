@@ -13,8 +13,8 @@ namespace mj
 
         [[noreturn]] void Run();
         GameResult RunOneGame(std::uint32_t seed = 9999);
-        void RunOneRound();
     private:
+        void RunOneRound();
         const std::vector<std::shared_ptr<Agent>> agents_;
         std::unordered_map<PlayerId, std::shared_ptr<Agent>> map_agents_;
         State state_;
