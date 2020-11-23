@@ -27,7 +27,7 @@ TEST(wall, initial_hand) {
 
 TEST(wall, Draw) {
     // カンなしで70回ツモが存在する
-    auto wall = Wall(0);
+    auto wall = Wall(0, 0, 9999);
     for (int i = 0; i < 70; ++i) {
         EXPECT_TRUE(wall.HasDrawLeft());
         wall.Draw();
@@ -37,7 +37,7 @@ TEST(wall, Draw) {
 
 TEST(wall, KanDraw) {
     // カンがあると、その分ツモ数が減る
-    auto wall = Wall(0);
+    auto wall = Wall(0, 0, 9999);
     for (int i = 0; i < 35; ++i) {
         EXPECT_TRUE(wall.HasDrawLeft());
         wall.Draw();
@@ -61,7 +61,7 @@ TEST(wall, KanDraw) {
 }
 
 TEST(wall, AddKanDra) {
-    auto wall = Wall(3);
+    auto wall = Wall(0, 0, 9999);
     wall.KanDraw();
     auto [kan_dora_ind1, ura_kan_dora_ind1] = wall.AddKanDora();
     EXPECT_EQ(kan_dora_ind1, wall.dora_indicators().back());
@@ -72,7 +72,7 @@ TEST(wall, AddKanDra) {
 }
 
 TEST(wall, doras) {
-    auto wall = Wall(0);
+    auto wall = Wall(0, 0, 9999);
     EXPECT_EQ(wall.dora_indicators().size(), 1);
     EXPECT_EQ(wall.ura_dora_indicators().size(), 1);
     for (int i = 0; i < 4; ++i) {
