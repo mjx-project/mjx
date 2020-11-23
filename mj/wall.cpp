@@ -120,7 +120,7 @@ namespace mj
         return counter;
     }
 
-    std::uint64_t Wall::seed() const {
+    std::uint64_t Wall::game_seed() const {
         return game_seed_.game_seed();
     }
 

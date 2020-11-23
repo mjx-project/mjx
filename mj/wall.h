@@ -35,7 +35,7 @@ namespace mj
         [[nodiscard]] const std::vector<Tile>& tiles() const;
         [[nodiscard]] bool HasDrawLeft() const;
         [[nodiscard]] bool HasNextDrawLeft() const;
-        [[nodiscard]] std::uint64_t seed() const;
+        [[nodiscard]] std::uint64_t game_seed() const;
         Tile Draw();
         Tile KanDraw();
         std::pair<Tile, Tile> AddKanDora();
