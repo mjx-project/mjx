@@ -32,7 +32,10 @@ namespace mj
                 {mjproto::ACTION_TYPE_NO, 10},
         };
         std::sort(possible_actions.begin(), possible_actions.end(),
-                [&action_priority](const mjproto::Action &x, const mjproto::Action &y){ return action_priority.at(x.type()) < action_priority.at(y.type()); });
+                [&action_priority](const mjproto::Action &x, const mjproto::Action &y){
+            if (x.type() != y.type()) return action_priority.at(x.type()) < action_priority.at(y.type());
+            else return x.open() < y.open();
+        });
 
         const Hand curr_hand = observation.current_hand();
 
