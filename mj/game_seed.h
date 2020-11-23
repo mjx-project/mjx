@@ -11,7 +11,6 @@ namespace mj {
         explicit GameSeed(std::uint64_t game_seed);
         [[nodiscard]] std::uint64_t GetWallSeed(int round, int honba) const;
         [[nodiscard]] std::uint64_t game_seed() const;
-        static std::mt19937_64 CreateMTEngine(std::uint64_t seed);
         static std::mt19937_64 CreateRandomMTEngine();
 
     private:
