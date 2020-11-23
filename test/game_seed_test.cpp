@@ -10,7 +10,7 @@ TEST(WallSeedTest, constructor) {
     for (int i = 0; i < 100; ++i) {
         for (int r = 0; r < ROUND; ++r) {
             for (int h = 0; h < HONBA; ++h) {
-                st.insert(seeds.Get(r, h));
+                st.insert(seeds.GetWallSeed(r, h));
             }
         }
     }
@@ -23,7 +23,7 @@ TEST(WallSeedTest, fixed_seed) {
     const int ROUND = 10, HONBA = 10;
     for (int r = 0; r < ROUND; ++r) {
         for (int h = 0; h < HONBA; ++h) {
-            EXPECT_EQ(seeds1.Get(r, h), seeds2.Get(r, h));
+            EXPECT_EQ(seeds1.GetWallSeed(r, h), seeds2.GetWallSeed(r, h));
         }
     }
 }
@@ -31,7 +31,7 @@ TEST(WallSeedTest, fixed_seed) {
 
 TEST(WallSeedTest, WallSeedEqualityOverDevice) {
     auto ws = GameSeed(9999);
-    EXPECT_EQ(ws.Get(0, 0), 7613689384667096742ULL);
-    EXPECT_EQ(ws.Get(1, 0), 18049619590696111298ULL);
-    EXPECT_EQ(ws.Get(0, 1), 9100361418872076222ULL);
+    EXPECT_EQ(ws.GetWallSeed(0, 0), 7613689384667096742ULL);
+    EXPECT_EQ(ws.GetWallSeed(1, 0), 18049619590696111298ULL);
+    EXPECT_EQ(ws.GetWallSeed(0, 1), 9100361418872076222ULL);
 }

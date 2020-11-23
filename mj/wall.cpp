@@ -10,7 +10,7 @@ namespace mj
             : round_(round), seed_(seed),
               tiles_(Tile::CreateAll())
     {
-        auto wall_seed = seed_.Get(round, honba);
+        auto wall_seed = seed_.GetWallSeed(round, honba);
         // std::cout << "round: " << std::to_string(round) << ", honba: " << std::to_string(honba) << ", game_seed: " << std::to_string(seed) << ", wall_seed: " << std::to_string(wall_seed) << std::endl;
         Wall::shuffle(tiles_.begin(), tiles_.end(), std::mt19937_64(wall_seed));
     }

@@ -15,7 +15,7 @@ namespace mj {
         return wall_seed_;
     }
 
-    std::uint64_t GameSeed::Get(int round, int honba) const {
+    std::uint64_t GameSeed::GetWallSeed(int round, int honba) const {
         Assert(wall_seed_ != 0, "Seed cannot be zero. round = " + std::to_string(round) + ", honba = " + std::to_string(honba));
         std::uint64_t seed = seeds_.at(round * kRoundBase + honba * kHonbaBase);
         return seed;
