@@ -7,7 +7,7 @@
 namespace mj
 {
     State::State(State::ScoreInfo score_info)
-    : State(score_info.player_ids, score_info.seed,
+    : State(score_info.player_ids, score_info.game_seed,
             score_info.round, score_info.honba, score_info.riichi,
             score_info.tens) {}
 
