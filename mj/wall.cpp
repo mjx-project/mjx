@@ -11,7 +11,7 @@ namespace mj
     {
         auto wall_seed = seed_.Get(round, honba);
         std::cout << "round: " << std::to_string(round) << ", honba: " << std::to_string(honba)
-        << ", game_seed: " << std::to_string(seed) << ", wall_seed: " << std::to_string(wall_seed);
+        << ", game_seed: " << std::to_string(seed) << ", wall_seed: " << std::to_string(wall_seed) << std::endl;
         std::shuffle(tiles_.begin(), tiles_.end(), std::mt19937_64(wall_seed));
     }
 
