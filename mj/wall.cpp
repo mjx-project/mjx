@@ -116,4 +116,8 @@ namespace mj
         for (const auto &t: ura_dora_indicators()) counter[Wall::IndicatorToDora(t)]++;
         return counter;
     }
+
+    std::uint64_t Wall::seed() const {
+        return seed_.seed();
+    }
 }  // namespace mj
