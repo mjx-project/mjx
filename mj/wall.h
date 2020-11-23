@@ -24,6 +24,7 @@ namespace mj
          */
     public:
         explicit Wall(std::uint64_t round = 0, std::uint64_t honba = 0, std::uint64_t seed = 9999);
+        // Constructor only for reproducing wall from human data. round info is necessary due to Tenhou's wall format.
         Wall(std::uint32_t round, std::vector<Tile> tiles);
         [[nodiscard]] std::vector<Tile> initial_hand_tiles(AbsolutePos pos) const;
         [[nodiscard]] std::vector<Tile> dora_indicators() const;
