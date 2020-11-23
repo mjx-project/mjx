@@ -12,7 +12,7 @@ namespace mj
             score_info.tens) {}
 
     State::State(std::vector<PlayerId> player_ids, std::uint64_t seed, int round, int honba, int riichi, std::array<int, 4> tens)
-    : seed_(seed), wall_(round, honba, seed) {
+    : wall_(round, honba, seed) {
         // TODO: use seed_
         Assert(std::set<PlayerId>(player_ids.begin(), player_ids.end()).size() == 4);  // player_ids should be identical
         Assert(seed != 0, "Seed cannot be zero. round = " + std::to_string(round) + ", honba = " + std::to_string(honba));
@@ -206,7 +206,7 @@ namespace mj
         wall_ = Wall(round(), wall_tiles);
         state_.mutable_wall()->CopyFrom(state.wall());
         // Set seed
-        seed_ = state.seed();
+        state_.set_seed(state.seed());
         // Set dora
         state_.add_doras(wall_.dora_indicators().front().Id());
         state_.add_ura_doras(wall_.ura_dora_indicators().front().Id());
@@ -702,7 +702,7 @@ namespace mj
     }
 
     std::uint64_t State::seed() const{
-        return seed_;
+        return state_.seed();
     }
 
     std::array<std::int32_t, 4> State::tens() const {
@@ -732,15 +732,15 @@ namespace mj
                     mjproto::NO_WINNER_TYPE_FOUR_KANS,
                     mjproto::NO_WINNER_TYPE_FOUR_WINDS})
                     || hand(dealer()).IsTenpai()) {
-                return ScoreInfo{player_ids, seed_, round(), honba() + 1, riichi(), tens()};
+                return ScoreInfo{player_ids, seed(), round(), honba() + 1, riichi(), tens()};
             } else {
-                return ScoreInfo{player_ids, seed_, round() + 1, honba() + 1, riichi(), tens()};
+                return ScoreInfo{player_ids, seed(), round() + 1, honba() + 1, riichi(), tens()};
             }
         } else {
             if (AbsolutePos(LastEvent().who()) == dealer()) {
-                return ScoreInfo{player_ids, seed_, round(), honba() + 1, riichi(), tens()};
+                return ScoreInfo{player_ids, seed(), round(), honba() + 1, riichi(), tens()};
             } else {
-                return ScoreInfo{player_ids, seed_, round() + 1, 0, riichi(), tens()};
+                return ScoreInfo{player_ids, seed(), round() + 1, 0, riichi(), tens()};
             }
         }
     }
