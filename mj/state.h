@@ -21,7 +21,7 @@ namespace mj
 {
     // 試合結果（半荘）
     struct GameResult {
-        int game_seed;
+        std::uint64_t game_seed;
         std::map<PlayerId, int> rankings;  // 1~4
         std::map<PlayerId, int> tens;  // 25000スタート
     };

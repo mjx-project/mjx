@@ -100,7 +100,7 @@ namespace mj
             tens_map[player_id] = ten;
         }
 
-        return GameResult{0, rankings, tens_map};
+        return GameResult{game_seed(), rankings, tens_map};
     }
 
     std::unordered_map<PlayerId, Observation> State::CreateObservations() const {
