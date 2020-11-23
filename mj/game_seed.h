@@ -16,7 +16,7 @@ namespace mj {
 
     private:
         std::uint64_t game_seed_ = 0;  // Note: game_seed_ = 0 preserved as a special seed for the wall reproduced by human data.
-        std::vector<std::uint64_t> seeds_;
+        std::vector<std::uint64_t> wall_seeds_;
         static constexpr std::uint64_t kRoundBase = 32;  // assumes that honba < 32
         static constexpr std::uint64_t kHonbaBase = 1;
 

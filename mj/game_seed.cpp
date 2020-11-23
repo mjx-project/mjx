@@ -7,7 +7,7 @@ namespace mj {
     GameSeed::GameSeed(std::uint64_t wall_seed) : game_seed_(wall_seed) {
         auto mt = GameSeed::CreateMtEngine(wall_seed);
         for (int i = 0; i < 512; ++i) {
-            seeds_.emplace_back(mt());
+            wall_seeds_.emplace_back(mt());
         }
     }
 
@@ -17,7 +17,7 @@ namespace mj {
 
     std::uint64_t GameSeed::GetWallSeed(int round, int honba) const {
         Assert(game_seed_ != 0, "Seed cannot be zero. round = " + std::to_string(round) + ", honba = " + std::to_string(honba));
-        std::uint64_t seed = seeds_.at(round * kRoundBase + honba * kHonbaBase);
+        std::uint64_t seed = wall_seeds_.at(round * kRoundBase + honba * kHonbaBase);
         return seed;
     }
 
