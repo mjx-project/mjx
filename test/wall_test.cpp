@@ -116,7 +116,9 @@ TEST(wall, WallEqualityOverDevices) {
     auto wall = Wall(0, 0, 9999);
     auto tiles = wall.tiles();
     std::cout << std::to_string(tiles.at(0).Id()) << std::endl;
-    ASSERT_EQ(tiles.at(0), Tile(123));
-    ASSERT_EQ(tiles.at(1), Tile(17));
-    ASSERT_EQ(tiles.at(2), Tile(103));
+    std::cout << std::to_string(tiles.at(1).Id()) << std::endl;
+    std::cout << std::to_string(tiles.at(2).Id()) << std::endl;
+    ASSERT_EQ(tiles.at(0), Tile(42));
+    ASSERT_EQ(tiles.at(1), Tile(38));
+    ASSERT_EQ(tiles.at(2), Tile(111));
 }

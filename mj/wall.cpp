@@ -2,6 +2,7 @@
 #include <array>
 #include "wall.h"
 #include "utils.h"
+#include <boost/random/uniform_int_distribution.hpp>
 
 namespace mj
 {
@@ -127,7 +128,7 @@ namespace mj
     template<class RandomIt, class URBG>
     void Wall::shuffle(RandomIt first, RandomIt last, URBG &&g) {
         typedef typename std::iterator_traits<RandomIt>::difference_type diff_t;
-        typedef std::uniform_int_distribution<diff_t> distr_t;
+        typedef boost::random::uniform_int_distribution<diff_t> distr_t;
         typedef typename distr_t::param_type param_t;
 
         distr_t D;
