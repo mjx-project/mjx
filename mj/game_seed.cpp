@@ -5,7 +5,7 @@
 namespace mj {
 
     GameSeed::GameSeed(std::uint64_t game_seed) : game_seed_(game_seed) {
-        auto mt = GameSeed::CreateMtEngine(game_seed);
+        auto mt = GameSeed::CreateMTEngine(game_seed);
         for (int i = 0; i < 512; ++i) {
             wall_seeds_.emplace_back(mt());
         }
@@ -21,11 +21,11 @@ namespace mj {
         return wall_seed;
     }
 
-    std::mt19937_64 GameSeed::CreateMtEngine(std::uint64_t seed) {
+    std::mt19937_64 GameSeed::CreateMTEngine(std::uint64_t seed) {
         return std::mt19937_64(seed);
     }
 
-    std::mt19937_64 GameSeed::CreateRandomMtEngine() {
-        return GameSeed::CreateMtEngine(std::random_device{}());
+    std::mt19937_64 GameSeed::CreateRandomMTEngine() {
+        return GameSeed::CreateMTEngine(std::random_device{}());
     }
 }
