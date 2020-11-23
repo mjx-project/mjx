@@ -51,7 +51,7 @@ namespace mj
         GameResult result() const;
         State::ScoreInfo Next() const;
 
-        static std::vector<PlayerId> ShufflePlayerIds(std::uint32_t seed, std::vector<PlayerId> player_ids);
+        static std::vector<PlayerId> ShufflePlayerIds(std::uint32_t game_seed, std::vector<PlayerId> player_ids);
 
         // accessors
         [[nodiscard]] AbsolutePos dealer() const;
