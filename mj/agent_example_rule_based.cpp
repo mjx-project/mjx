@@ -6,6 +6,13 @@ namespace mj
     AgentExampleRuleBased::AgentExampleRuleBased(PlayerId player_id) : Agent(std::move(player_id)) {}
 
     mjproto::Action AgentExampleRuleBased::TakeAction(Observation &&observation) const {
+        // Prepare some seed and MT engine for reproducibility
+        const std::uint64_t seed = 12345
+                + 4096 * observation.proto().event_history().events_size()
+                + 16 * observation.possible_actions().size()
+                + 1 * observation.proto().who();
+        auto mt = std::mt19937_64(seed);
+
         // Currently this method only implements discard
         mjproto::Action response;
         response.set_who(mjproto::AbsolutePos(observation.who()));
@@ -54,7 +61,7 @@ namespace mj
             if (Any(possible_action.type(), {mjproto::ACTION_TYPE_KAN_CLOSED, mjproto::ACTION_TYPE_KAN_ADDED,
                                              mjproto::ACTION_TYPE_KAN_OPENED, mjproto::ACTION_TYPE_PON,
                                              mjproto::ACTION_TYPE_CHI})) {
-                possible_action = *SelectRandomly(possible_actions.begin(), possible_actions.end());
+                possible_action = *SelectRandomly(possible_actions.begin(), possible_actions.end(), mt);
                 if (possible_action.type() != mjproto::ActionType::ACTION_TYPE_DISCARD) {
                     Assert(Any(possible_action.type(), {
                         mjproto::ACTION_TYPE_KAN_CLOSED, mjproto::ACTION_TYPE_KAN_ADDED,
@@ -165,7 +172,7 @@ namespace mj
             return response;
         }
         // 上記以外のときは、ランダムに切る
-        response.set_discard(SelectRandomly(discard_candidates.begin(), discard_candidates.end())->Id());
+        response.set_discard(SelectRandomly(discard_candidates.begin(), discard_candidates.end(), mt)->Id());
         return response;
     }
 }
