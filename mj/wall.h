@@ -3,6 +3,7 @@
 
 #include "vector"
 #include "tile.h"
+#include "wall_seed.h"
 
 namespace mj
 {
@@ -37,7 +38,7 @@ namespace mj
         std::pair<Tile, Tile> AddKanDora();
     private:
         std::uint32_t round_;
-        std::uint32_t seed_;
+        WallSeed seed_;
         std::vector<Tile> tiles_;
         int draw_ix_ = 52;
         int num_kan_draw_ = 0;

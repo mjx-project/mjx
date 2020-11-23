@@ -7,8 +7,10 @@ namespace mj
 {
     Wall::Wall(std::uint64_t round, std::uint64_t honba, std::uint64_t seed)
             : round_(round), seed_(seed),
-              tiles_(Tile::CreateAllShuffled(WallSeed(seed), round, honba))
-    {}
+              tiles_(Tile::CreateAll())
+    {
+        std::shuffle(tiles_.begin(), tiles_.end(), std::mt19937_64(seed_.Get(round, honba)));
+    }
 
     Wall::Wall(std::uint32_t round, std::vector<Tile> tiles)
             : round_(round), seed_(-1),
