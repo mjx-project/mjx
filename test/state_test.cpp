@@ -911,3 +911,17 @@ TEST(state, StateTrans) {
     );
     EXPECT_TRUE(all_ok);
 }
+
+TEST(state, seed){
+    uint64_t SEED = 1234;
+    auto wall_origin = Wall(SEED).tiles();
+    auto score_info = State::ScoreInfo{{"A","B","C","D"}, SEED};
+    auto state_origin = State(score_info);
+    // mjprotoからの復元
+    auto seed_restored = State(state_origin.ToJson()).seed();
+    auto wall_restored = Wall(seed_restored).tiles();
+    EXPECT_EQ(wall_origin.size(),wall_restored.size());
+    for(int i = 0; i < wall_origin.size(); ++i){
+        EXPECT_EQ(wall_origin[i], wall_restored[i]);
+    }
+}

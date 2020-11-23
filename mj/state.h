@@ -59,6 +59,7 @@ namespace mj
         [[nodiscard]] std::uint8_t round() const;  // 局
         [[nodiscard]] std::uint8_t honba() const;  // 本場
         [[nodiscard]] std::uint8_t riichi() const;  // リー棒
+        [[nodiscard]] std::uint64_t seed() const; // シード値
         [[nodiscard]] std::int32_t ten(AbsolutePos who) const;  // 点 25000点スタート
         [[nodiscard]] std::array<std::int32_t, 4> tens() const;
         [[nodiscard]] std::uint8_t init_riichi() const;
@@ -109,7 +110,7 @@ namespace mj
         // containers
         Wall wall_;
         std::array<Player, 4> players_;
-        std::uint32_t seed_;
+        std::uint64_t seed_;
         // temporal memory
         std::optional<AbsolutePos> three_ronned_player = std::nullopt;
 

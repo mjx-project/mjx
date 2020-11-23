@@ -161,8 +161,9 @@ message State {
   repeated uint32 wall = 5;
   repeated uint32 ura_doras = 6;
   repeated PrivateInfo private_infos = 7;
+  uint64 seed = 8;
   // win/ryuukyoku information
-  Terminal terminal = 8;
+  Terminal terminal = 9;
 }
 
 message Action {

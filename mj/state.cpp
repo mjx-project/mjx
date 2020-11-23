@@ -15,11 +15,13 @@ namespace mj
     : seed_(seed), wall_(round, honba, seed) {
         // TODO: use seed_
         Assert(std::set<PlayerId>(player_ids.begin(), player_ids.end()).size() == 4);  // player_ids should be identical
+        Assert(seed != 0, "Seed cannot be zero. round = " + std::to_string(round) + ", honba = " + std::to_string(honba));
         for (int i = 0; i < 4; ++i) {
             auto hand = Hand(wall_.initial_hand_tiles(AbsolutePos(i)));
             players_[i] = Player{player_ids[i], AbsolutePos(i), std::move(hand)};
         }
-
+        // set seed
+        state_.set_seed(seed);
         // set protos
         // player_ids
         for (int i = 0; i < 4; ++i) state_.add_player_ids(player_ids[i]);
@@ -203,6 +205,8 @@ namespace mj
         for (auto tile_id: state.wall()) wall_tiles.emplace_back(Tile(tile_id));
         wall_ = Wall(round(), wall_tiles);
         state_.mutable_wall()->CopyFrom(state.wall());
+        // Set seed
+        seed_ = state.seed();
         // Set dora
         state_.add_doras(wall_.dora_indicators().front().Id());
         state_.add_ura_doras(wall_.ura_dora_indicators().front().Id());
@@ -695,6 +699,10 @@ namespace mj
 
     std::uint8_t State::riichi() const {
         return curr_score_.riichi();
+    }
+
+    std::uint64_t State::seed() const{
+        return seed_;
     }
 
     std::array<std::int32_t, 4> State::tens() const {
