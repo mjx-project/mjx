@@ -11,6 +11,7 @@ namespace mj
                 + 4096 * observation.proto().event_history().events_size()
                 + 16 * observation.possible_actions().size()
                 + 1 * observation.proto().who();
+        std::cout << seed << std::endl;
         auto mt = std::mt19937_64(seed);
 
         mjproto::Action response;
