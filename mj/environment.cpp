@@ -40,9 +40,6 @@ namespace mj
             for (auto& [player_id, obs]: observations) {
                 actions.emplace_back(agent(player_id)->TakeAction(std::move(obs)));
             }
-            std::cout << "who: " << std::to_string(actions.at(0).who())
-            << ", discard: " << actions.at(0).discard()
-            << ", open: " << actions.at(0).open() << std::endl;
             state_.Update(std::move(actions));
         }
     }
