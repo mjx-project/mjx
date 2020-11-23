@@ -76,6 +76,7 @@ namespace mj
 
         // Discardが選択されたとき（あるいはdiscardしかできないとき）、切る牌を選ぶ
         std::vector<Tile> discard_candidates = observation.possible_discards();
+        std::sort(discard_candidates.begin(), discard_candidates.end());
         const TileTypeCount closed_tile_type_cnt = curr_hand.ClosedTileTypes();
         // 聴牌が取れるなら取れるように切る
         if (curr_hand.CanTakeTenpai()) {
