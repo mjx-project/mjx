@@ -5,10 +5,10 @@
 #include <random>
 
 namespace mj {
-    class WallSeed {
+    class GameSeed {
     public:
-        WallSeed() = default;
-        explicit WallSeed(std::uint64_t wall_seed);
+        GameSeed() = default;
+        explicit GameSeed(std::uint64_t wall_seed);
         [[nodiscard]] std::uint64_t Get(int round, int honba) const;
         [[nodiscard]] std::uint64_t seed() const;
         static std::mt19937_64 CreateMtEngine(std::uint64_t seed);

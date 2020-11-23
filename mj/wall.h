@@ -41,7 +41,7 @@ namespace mj
         std::pair<Tile, Tile> AddKanDora();
     private:
         std::uint32_t round_;
-        WallSeed seed_;
+        GameSeed seed_;
         std::vector<Tile> tiles_;
         int draw_ix_ = 52;
         int num_kan_draw_ = 0;
