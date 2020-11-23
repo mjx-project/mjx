@@ -21,7 +21,7 @@ namespace mj {
         return wall_seed;
     }
 
-    std::mt19937_64 GameSeed::CreateRandomMTEngine() {
-        return GameSeed::CreateMTEngine(std::random_device{}());
+    std::mt19937_64 GameSeed::CreateRandomGameSeedGenerator() {
+        return std::mt19937_64(std::random_device{}());
     }
 }
