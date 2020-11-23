@@ -32,7 +32,7 @@ namespace mj
     }
 
     void Environment::RunOneRound() {
-        Assert(state_.seed() != 0, "Seed cannot be zero. round = " + std::to_string(state_.round()) + ", honba = " + std::to_string(state_.honba()));
+        Assert(state_.game_seed() != 0, "Seed cannot be zero. round = " + std::to_string(state_.round()) + ", honba = " + std::to_string(state_.honba()));
         while (!state_.IsRoundOver()) {
             auto observations = state_.CreateObservations();
             Assert(!observations.empty());

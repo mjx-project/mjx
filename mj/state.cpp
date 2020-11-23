@@ -701,7 +701,7 @@ namespace mj
         return curr_score_.riichi();
     }
 
-    std::uint64_t State::seed() const{
+    std::uint64_t State::game_seed() const{
         return state_.seed();
     }
 
@@ -732,15 +732,15 @@ namespace mj
                     mjproto::NO_WINNER_TYPE_FOUR_KANS,
                     mjproto::NO_WINNER_TYPE_FOUR_WINDS})
                     || hand(dealer()).IsTenpai()) {
-                return ScoreInfo{player_ids, seed(), round(), honba() + 1, riichi(), tens()};
+                return ScoreInfo{player_ids, game_seed(), round(), honba() + 1, riichi(), tens()};
             } else {
-                return ScoreInfo{player_ids, seed(), round() + 1, honba() + 1, riichi(), tens()};
+                return ScoreInfo{player_ids, game_seed(), round() + 1, honba() + 1, riichi(), tens()};
             }
         } else {
             if (AbsolutePos(LastEvent().who()) == dealer()) {
-                return ScoreInfo{player_ids, seed(), round(), honba() + 1, riichi(), tens()};
+                return ScoreInfo{player_ids, game_seed(), round(), honba() + 1, riichi(), tens()};
             } else {
-                return ScoreInfo{player_ids, seed(), round() + 1, 0, riichi(), tens()};
+                return ScoreInfo{player_ids, game_seed(), round() + 1, 0, riichi(), tens()};
             }
         }
     }

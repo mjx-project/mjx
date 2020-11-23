@@ -918,7 +918,7 @@ TEST(state, seed){
     auto score_info = State::ScoreInfo{{"A","B","C","D"}, seed};
     auto state_origin = State(score_info);
     // mjprotoからの復元
-    auto seed_restored = State(state_origin.ToJson()).seed();
+    auto seed_restored = State(state_origin.ToJson()).game_seed();
     auto wall_restored = Wall(0, 0, seed_restored).tiles();
     EXPECT_EQ(wall_origin.size(),wall_restored.size());
     for(int i = 0; i < wall_origin.size(); ++i){
