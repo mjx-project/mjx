@@ -21,7 +21,7 @@ namespace mj
             players_[i] = Player{player_ids[i], AbsolutePos(i), std::move(hand)};
         }
         // set seed
-        state_.set_seed(seed);
+        state_.set_game_seed(seed);
         // set protos
         // player_ids
         for (int i = 0; i < 4; ++i) state_.add_player_ids(player_ids[i]);
@@ -206,7 +206,7 @@ namespace mj
         wall_ = Wall(round(), wall_tiles);
         state_.mutable_wall()->CopyFrom(state.wall());
         // Set seed
-        state_.set_seed(state.seed());
+        state_.set_game_seed(state.game_seed());
         // Set dora
         state_.add_doras(wall_.dora_indicators().front().Id());
         state_.add_ura_doras(wall_.ura_dora_indicators().front().Id());
@@ -702,7 +702,7 @@ namespace mj
     }
 
     std::uint64_t State::game_seed() const{
-        return state_.seed();
+        return state_.game_seed();
     }
 
     std::array<std::int32_t, 4> State::tens() const {
