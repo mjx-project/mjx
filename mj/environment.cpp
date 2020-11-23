@@ -21,6 +21,11 @@ namespace mj
         std::vector<PlayerId> player_ids(4); for (int i = 0; i < 4; ++i) player_ids[i] = agents_.at(i)->player_id();
         state_ = State(State::ScoreInfo{player_ids, game_seed});
         while (true) {
+            std::cout << "Round: " << std::to_string(state_.round()) << ", ";
+            std::cout << "Honba: " << std::to_string(state_.honba()) << ", ";
+            std::cout << "Wall: ";
+            for (int i = 0; i < 5; ++i) std::cout << state_.proto().wall(i) << " ";
+            std::cout << std::endl;
             RunOneRound();
             if (state_.IsGameOver()) break;
             auto next_state_info = state_.Next();
