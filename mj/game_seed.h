@@ -8,7 +8,7 @@ namespace mj {
     class GameSeed {
     public:
         GameSeed() = default;
-        explicit GameSeed(std::uint64_t wall_seed);
+        explicit GameSeed(std::uint64_t game_seed);
         [[nodiscard]] std::uint64_t GetWallSeed(int round, int honba) const;
         [[nodiscard]] std::uint64_t game_seed() const;
         static std::mt19937_64 CreateMtEngine(std::uint64_t seed);

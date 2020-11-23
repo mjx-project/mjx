@@ -4,8 +4,8 @@
 
 namespace mj {
 
-    GameSeed::GameSeed(std::uint64_t wall_seed) : game_seed_(wall_seed) {
-        auto mt = GameSeed::CreateMtEngine(wall_seed);
+    GameSeed::GameSeed(std::uint64_t game_seed) : game_seed_(game_seed) {
+        auto mt = GameSeed::CreateMtEngine(game_seed);
         for (int i = 0; i < 512; ++i) {
             wall_seeds_.emplace_back(mt());
         }
