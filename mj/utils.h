@@ -1,6 +1,8 @@
 #ifndef MAHJONG_UTILS_H
 #define MAHJONG_UTILS_H
 
+#include <iostream>
+#include <cassert>
 #include <random>
 #include <iterator>
 #include <algorithm>

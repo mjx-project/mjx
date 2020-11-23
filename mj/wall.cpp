@@ -2,6 +2,7 @@
 #include <array>
 #include "wall.h"
 #include "utils.h"
+#include <boost/random/uniform_int_distribution.hpp>
 
 namespace mj
 {
@@ -9,7 +10,9 @@ namespace mj
             : round_(round), seed_(seed),
               tiles_(Tile::CreateAll())
     {
-        std::shuffle(tiles_.begin(), tiles_.end(), std::mt19937_64(seed_.Get(round, honba)));
+        auto wall_seed = seed_.Get(round, honba);
+        // std::cout << "round: " << std::to_string(round) << ", honba: " << std::to_string(honba) << ", game_seed: " << std::to_string(seed) << ", wall_seed: " << std::to_string(wall_seed) << std::endl;
+        Wall::shuffle(tiles_.begin(), tiles_.end(), std::mt19937_64(wall_seed));
     }
 
     Wall::Wall(std::uint32_t round, std::vector<Tile> tiles)
@@ -119,5 +122,19 @@ namespace mj
 
     std::uint64_t Wall::seed() const {
         return seed_.seed();
+    }
+
+    template<class RandomIt, class URBG>
+    void Wall::shuffle(RandomIt first, RandomIt last, URBG &&g) {
+        typedef typename std::iterator_traits<RandomIt>::difference_type diff_t;
+        typedef boost::random::uniform_int_distribution<diff_t> distr_t;  // use boost ver instead of std to avoid implementation dependency
+        typedef typename distr_t::param_type param_t;
+
+        distr_t D;
+        diff_t n = last - first;
+        for (diff_t i = n-1; i > 0; --i) {
+            using std::swap;
+            swap(first[i], first[D(g, param_t(0, i))]);
+        }
     }
 }  // namespace mj

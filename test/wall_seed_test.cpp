@@ -1,11 +1,10 @@
 #include "gtest/gtest.h"
 #include <mj/wall_seed.h>
-#include <mj/state.h>
 
 using namespace mj;
 
 TEST(WallSeedTest, constructor) {
-    auto seeds = WallSeed();
+    auto seeds = WallSeed(9999);
     std::set<std::uint64_t> st;
     const int ROUND = 10, HONBA = 10;
     for (int i = 0; i < 100; ++i) {
@@ -27,4 +26,12 @@ TEST(WallSeedTest, fixed_seed) {
             EXPECT_EQ(seeds1.Get(r, h), seeds2.Get(r, h));
         }
     }
+}
+
+
+TEST(WallSeedTest, WallSeedEqualityOverDevice) {
+    auto ws = WallSeed(9999);
+    EXPECT_EQ(ws.Get(0, 0), 7613689384667096742ULL);
+    EXPECT_EQ(ws.Get(1, 0), 18049619590696111298ULL);
+    EXPECT_EQ(ws.Get(0, 1), 9100361418872076222ULL);
 }

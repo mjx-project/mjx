@@ -111,3 +111,11 @@ TEST(wall, wall_seed_constructor){
         }
     }
 }
+
+TEST(wall, WallEqualityOverDevices) {
+    auto wall = Wall(0, 0, 9999);
+    auto tiles = wall.tiles();
+    ASSERT_EQ(tiles.at(0), Tile(42));
+    ASSERT_EQ(tiles.at(1), Tile(38));
+    ASSERT_EQ(tiles.at(2), Tile(111));
+}

@@ -1,28 +1,31 @@
+#include <cstdint>
 #include "wall_seed.h"
-#include <random>
-#include <cassert>
+#include "utils.h"
 
 namespace mj {
 
-    WallSeed::WallSeed() {
-        seed_ = mt()();
-        round_base_ = mt()();
-        honba_base_ = mt()();
+    WallSeed::WallSeed(std::uint64_t wall_seed) : wall_seed_(wall_seed) {
+        auto mt = WallSeed::CreateMtEngine(wall_seed);
+        for (int i = 0; i < 512; ++i) {
+            seeds_.emplace_back(mt());
+        }
     }
 
-    WallSeed::WallSeed(std::uint64_t seed) : seed_(seed){}
-
     std::uint64_t WallSeed::seed() const {
-        return seed_;
+        return wall_seed_;
     }
 
     std::uint64_t WallSeed::Get(int round, int honba) const {
-        using i128 = __uint128_t;
-        return (i128)seed_ + (i128)round_base_ * round + (i128)honba_base_ * honba;
+        Assert(wall_seed_ != 0, "Seed cannot be zero. round = " + std::to_string(round) + ", honba = " + std::to_string(honba));
+        std::uint64_t seed = seeds_.at(round * kRoundBase + honba * kHonbaBase);
+        return seed;
     }
 
-    std::mt19937_64& WallSeed::mt() {
-        static std::mt19937_64 mt(std::random_device{}());
-        return mt;
+    std::mt19937_64 WallSeed::CreateMtEngine(std::uint64_t seed) {
+        return std::mt19937_64(seed);
+    }
+
+    std::mt19937_64 WallSeed::CreateRandomMtEngine() {
+        return WallSeed::CreateMtEngine(std::random_device{}());
     }
 }
