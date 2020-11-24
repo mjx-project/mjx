@@ -129,6 +129,22 @@ yaku_list_ron = ["門前清自摸和(1飜)", "立直(1飜)", "一発(1飜)", "�
                   "清一色(5飜)", "人和(サンプルを見れていない)", "天和(役満)", "地和(役満)", "大三元(役満)", "四暗刻(役満)", "四暗刻単騎(役満)", "字一色(役満)", "緑一色(役満)", "清老頭(役満)",
                   "九蓮宝燈(役満)", "純正九蓮宝燈(役満)", "国士無双(役満)", "国士無双１３面(役満)", "大四喜(役満)", "小四喜(役満)", "四槓子(役満)",
                   "ドラ(1飜)", "裏ドラ(1飜)", "赤ドラ(1飜)"]
+yaku_list_keys = [i for i in range(55)]
+yaku_dict_tumo = {k: v for k, v in zip(yaku_list_keys, yaku_list_tumo)}
+yaku_dict_ron = {k: v for k, v in zip(yaku_list_keys, yaku_list_ron)}
+
+
+def correspond_yakus(yakus: List[int])-> List[str]:
+    """
+    >>>correspond_yakus([0,1,23])
+    ["門前清自摸和(1飜)", "立直(1飜)", "混全帯幺九(2飜)"]
+    >>>coresspond_yakus([23])
+    ["混全帯幺九(1飜)"]
+    """
+    if 0 in yakus:  # ツモの有無によって役の翻数がかわる。
+        return list(map(lambda x: yaku_dict_tumo[x], yakus))
+    else:
+        return list(map(lambda x: yaku_dict_tumo[x], yakus))
 
 
 def pares_terminal(state: mjproto.State) -> List:
@@ -213,5 +229,5 @@ if __name__ == "__main__":
     e = json.loads(line)
     state1: mjproto.State = json_format.ParseDict(e, mjproto.State())
 
-    print(state1.terminal.wins[0].ten)
+    print(state1.terminal.wins[0].ten_changes)
 
