@@ -34,4 +34,13 @@ TEST(WallSeedTest, WallSeedEqualityOverDevice) {
     EXPECT_EQ(ws.GetWallSeed(0, 0), 7613689384667096742ULL);
     EXPECT_EQ(ws.GetWallSeed(1, 0), 18049619590696111298ULL);
     EXPECT_EQ(ws.GetWallSeed(0, 1), 9100361418872076222ULL);
+    // 同じオブジェクトで2回呼び出しても結果は同じ
+    EXPECT_EQ(ws.GetWallSeed(0, 0), 7613689384667096742ULL);
+    EXPECT_EQ(ws.GetWallSeed(1, 0), 18049619590696111298ULL);
+    EXPECT_EQ(ws.GetWallSeed(0, 1), 9100361418872076222ULL);
+    // 違うオブジェクトでも結果は同じ
+    ws = GameSeed(9999);
+    EXPECT_EQ(ws.GetWallSeed(0, 0), 7613689384667096742ULL);
+    EXPECT_EQ(ws.GetWallSeed(1, 0), 18049619590696111298ULL);
+    EXPECT_EQ(ws.GetWallSeed(0, 1), 9100361418872076222ULL);
 }
