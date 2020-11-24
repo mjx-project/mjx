@@ -1,11 +1,14 @@
 #ifndef MAHJONG_UTILS_H
 #define MAHJONG_UTILS_H
 
+#include <iostream>
+#include <cassert>
 #include <random>
 #include <iterator>
 #include <algorithm>
 #include <thread>
 #include <initializer_list>
+#include <boost/random/uniform_int_distribution.hpp>
 
 // original assertion
 #define Assert(fmt, ...) \
@@ -40,16 +43,9 @@ namespace mj
     // https://stackoverflow.com/questions/6942273/how-to-get-a-random-element-from-a-c-container
     template<typename Iter, typename RandomGenerator>
     Iter SelectRandomly(Iter start, Iter end, RandomGenerator& g) {
-        std::uniform_int_distribution<> dis(0, std::distance(start, end) - 1);
+        boost::random::uniform_int_distribution<> dis(0, std::distance(start, end) - 1);  // use boost ver instead of std to avoid implementation dependency
         std::advance(start, dis(g));
         return start;
-    }
-
-    template<typename Iter>
-    Iter SelectRandomly(Iter start, Iter end) {
-        static std::random_device rd;
-        static std::mt19937 gen(rd());
-        return SelectRandomly(start, end, gen);
     }
 
     // From Effective Modern C++

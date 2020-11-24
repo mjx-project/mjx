@@ -54,6 +54,9 @@ class MjlogDecoder:
     ) -> Iterator[mjproto.State]:
         state_ = mjproto.State()
 
+        # set seed
+        state_.game_seed = 0
+
         assert root.tag == "mjloggm"
         assert root.attrib["ver"] == "2.3"
 
