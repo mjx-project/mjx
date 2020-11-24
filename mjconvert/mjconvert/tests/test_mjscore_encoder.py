@@ -6,6 +6,19 @@ from mjconvert.mjlog_decoder import MjlogDecoder
 from mjconvert.mjscore_encoder import mjproto_to_mjscore
 
 
+def mjscore_log_equal(mjscore_original_dict, mjscore_converted_dict) -> bool:
+    original_log = mjscore_original_dict["log"][0]  # logのみを比べる
+    converted_log = mjscore_converted_dict["log"][0]
+    is_equal = True
+    for i in range(len(original_log)):
+        if original_log[i] != converted_log[i]:
+            is_equal = False
+        else:
+            is_equal = True
+    return is_equal
+
+
+
 def test_mjproto_to_mjscore():
     mjlog_decoder = MjlogDecoder(modify=False)
     mjscore_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "resources/mjscore")
@@ -25,9 +38,6 @@ def test_mjproto_to_mjscore():
                 mjscore_converted = mjproto_to_mjscore(mjproto)
                 mjscore_converted_dict = json.loads(mjscore_converted)
                 mjscore_original_dict = json.loads(mjscore_original)
-                original_log = mjscore_original_dict["log"][0]  # logのみを比べる
-                converted_log = mjscore_converted_dict["log"][0]
-                for i in range(len(original_log[:-1])):  # 現状は局の結果は評価に入れない
-                    assert (
-                        original_log[i] == converted_log[i]
-                    )  # TODO: replace with equality check function
+                assert(
+                    mjscore_log_equal(mjscore_original_dict, mjscore_converted_dict)
+                )  # TODO: replace with equality check function
