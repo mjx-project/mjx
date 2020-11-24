@@ -110,23 +110,30 @@ def parse_draws(draws, events, abs_pos):
     return draws
 
 
+def pares_terminal(state: mjproto.State) -> List:
+    if len(state.terminal.wins) == 0:  # あがった人がいない場合,# state.terminal.winsの長さは0
+        return ["流局", state.terminal.no_winner.ten_changes]
+    else:
+        return []
+
+
 # ここを実装
 def mjproto_to_mjscore(state: mjproto.State) -> str:
     # print(state.init_score.round)
     # print(state.private_infos.ABSOLUTE_POS_INIT_EAST.init_hand)
     # print(state.init_score.honba)
     # print(state.init_score.ten)
-    #a = change_action_format(49495)
-    #print(parse_draws(state.private_infos[3].draws, state.event_history.events, 3))
-    #print(a)
+    # a = change_action_format(49495)
+    # print(parse_draws(state.private_infos[3].draws, state.event_history.events, 3))
+    # print(a)
     # print(len(state.private_infos[3].draws))
     # print(sort_init_hand(change_tiles_fmt(state.private_infos[0].init_hand)))
     # print(parse_discards(state.event_history.events, 1))
     round: int = state.init_score.round
     honba: int = state.init_score.honba
     riichi: int = state.init_score.riichi
-    doras: List[int] = [i for i in state.doras]
-    ura_doras: List[int] = [i for i in state.ura_doras]
+    doras: List[int] = [change_tile_fmt(i) for i in state.doras]
+    ura_doras: List[int] = []  # [change_tile_fmt(i) for i in state.ura_doras]
     init_score: List[int] = [i for i in state.init_score.ten]
     log = [[round, honba, riichi], init_score, doras, ura_doras]
     absolute_pos = [mjproto.ABSOLUTE_POS_INIT_EAST, mjproto.ABSOLUTE_POS_INIT_SOUTH, mjproto.ABSOLUTE_POS_INIT_WEST, mjproto.ABSOLUTE_POS_INIT_NORTH]
@@ -135,7 +142,7 @@ def mjproto_to_mjscore(state: mjproto.State) -> str:
         log.append(parse_draws(state.private_infos[abs_pos].draws, state.event_history.events, abs_pos))
         log.append(parse_discards(state.event_history.events, abs_pos))
 
-
+    #log.append(pares_terminal(state))
     d: Dict = {
         "title": [],
         "name": [],
@@ -165,6 +172,17 @@ if __name__ == "__main__":
 
     # 比較
     print(mjscore_expected_dict)
-    print(mjscore_dict)
-    #print(mjscore_expected_dict == mjscore_dict)
+    #print(mjscore_dict)
+    print(mjscore_expected_dict["log"][0] == mjscore_dict["log"][0])
+    print(state.terminal.no_winner.ten_changes)
     #print(mjproto.ABSOLUTE_POS_INIT_WEST)
+
+    path_to_mjproto_example1 = "../..//test/resources/json/encdec-chanta.json"
+    with open(path_to_mjproto_example1, "r") as f:
+        line = f.readline()
+    e = json.loads(line)
+    state1: mjproto.State = json_format.ParseDict(e, mjproto.State())
+
+    print(len(state1.terminal.wins))
+    print(len(state.terminal.wins))
+
