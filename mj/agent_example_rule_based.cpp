@@ -6,7 +6,13 @@ namespace mj
     AgentExampleRuleBased::AgentExampleRuleBased(PlayerId player_id) : Agent(std::move(player_id)) {}
 
     mjproto::Action AgentExampleRuleBased::TakeAction(Observation &&observation) const {
-        // Currently this method only implements discard
+        // Prepare some seed and MT engine for reproducibility
+        const std::uint64_t seed = 12345
+                + 4096 * observation.proto().event_history().events_size()
+                + 16 * observation.possible_actions().size()
+                + 1 * observation.proto().who();
+        auto mt = std::mt19937_64(seed);
+
         mjproto::Action response;
         response.set_who(mjproto::AbsolutePos(observation.who()));
         auto possible_actions = observation.possible_actions();
@@ -25,7 +31,10 @@ namespace mj
                 {mjproto::ACTION_TYPE_NO, 10},
         };
         std::sort(possible_actions.begin(), possible_actions.end(),
-                [&action_priority](const mjproto::Action &x, const mjproto::Action &y){ return action_priority.at(x.type()) < action_priority.at(y.type()); });
+                [&action_priority](const mjproto::Action &x, const mjproto::Action &y){
+            if (x.type() != y.type()) return action_priority.at(x.type()) < action_priority.at(y.type());
+            else return x.open() < y.open();
+        });
 
         const Hand curr_hand = observation.current_hand();
 
@@ -54,7 +63,7 @@ namespace mj
             if (Any(possible_action.type(), {mjproto::ACTION_TYPE_KAN_CLOSED, mjproto::ACTION_TYPE_KAN_ADDED,
                                              mjproto::ACTION_TYPE_KAN_OPENED, mjproto::ACTION_TYPE_PON,
                                              mjproto::ACTION_TYPE_CHI})) {
-                possible_action = *SelectRandomly(possible_actions.begin(), possible_actions.end());
+                possible_action = *SelectRandomly(possible_actions.begin(), possible_actions.end(), mt);
                 if (possible_action.type() != mjproto::ActionType::ACTION_TYPE_DISCARD) {
                     Assert(Any(possible_action.type(), {
                         mjproto::ACTION_TYPE_KAN_CLOSED, mjproto::ACTION_TYPE_KAN_ADDED,
@@ -69,6 +78,7 @@ namespace mj
 
         // Discardが選択されたとき（あるいはdiscardしかできないとき）、切る牌を選ぶ
         std::vector<Tile> discard_candidates = observation.possible_discards();
+        std::sort(discard_candidates.begin(), discard_candidates.end());
         const TileTypeCount closed_tile_type_cnt = curr_hand.ClosedTileTypes();
         // 聴牌が取れるなら取れるように切る
         if (curr_hand.CanTakeTenpai()) {
@@ -165,7 +175,7 @@ namespace mj
             return response;
         }
         // 上記以外のときは、ランダムに切る
-        response.set_discard(SelectRandomly(discard_candidates.begin(), discard_candidates.end())->Id());
+        response.set_discard(SelectRandomly(discard_candidates.begin(), discard_candidates.end(), mt)->Id());
         return response;
     }
 }

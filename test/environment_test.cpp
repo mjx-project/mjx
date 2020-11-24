@@ -13,6 +13,12 @@ TEST(environment, RunOneGame) {
     Environment env(agents);
     auto result = env.RunOneGame(1234);
     for (const auto& [player_id, ranking]: result.rankings) {
-        std::cerr << player_id << " " << ranking << " " << result.tens[player_id] << std::endl;
+        std::cout << player_id << " " << ranking << " " << result.tens[player_id] << std::endl;
     }
+
+    // Rule based agents have no randomness. Results should be reproducible.
+    ASSERT_EQ(result.tens["agent01"], 30400);
+    ASSERT_EQ(result.tens["agent02"], 26500);
+    ASSERT_EQ(result.tens["agent03"], 12000);
+    ASSERT_EQ(result.tens["agent04"], 31100);
 }
