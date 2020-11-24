@@ -110,10 +110,39 @@ def parse_draws(draws, events, abs_pos):
     return draws
 
 
+yaku_list_tumo = ["門前清自摸和(1飜)", "立直(1飜)", "一発(1飜)", "槍槓(1飜)", "嶺上開花(1飜)", "海底摸月(1飜)", "河底撈魚(1飜)", "平和(1飜)", "断幺九(1飜)",
+                  "一盃口(1飜)", "自風 東(1飜)", "自風 南(1飜)", "自風 西(1飜)", "自風 北(1飜)", "場風 東(1飜)", "場風 南(1飜)", "場風 西(1飜)",
+                  "場風 北(1飜)", "役牌 白(1飜)", "役牌 發(1飜)", "役牌 中(1飜)",
+                  "両立直(2飜)", "七対子(2飜)", "混全帯幺九(2飜)", "一気通貫(2飜)", "三色同順(2飜)", "三色同刻(2飜)", "三槓子(2飜)", "対々和(2飜)",
+                  "三暗刻(2飜)", "小三元(2飜)", "混老頭(2飜)",
+                  "二盃口(3飜)", "純全帯幺九(3飜)", "混一色(3飜)",
+                  "清一色(6飜)", "人和(サンプルを見れていない)", "天和(役満)", "地和(役満)", "大三元(役満)", "四暗刻(役満)", "四暗刻単騎(役満)", "字一色(役満)", "緑一色(役満)", "清老頭(役満)",
+                  "九蓮宝燈(役満)", "純正九蓮宝燈(役満)", "国士無双(役満)", "国士無双１３面(役満)", "大四喜(役満)", "小四喜(役満)", "四槓子(役満)",
+                  "ドラ(1飜)", "裏ドラ(1飜)", "赤ドラ(1飜)"]
+
+yaku_list_ron = ["門前清自摸和(1飜)", "立直(1飜)", "一発(1飜)", "槍槓(1飜)", "嶺上開花(1飜)", "海底摸月(1飜)", "河底撈魚(1飜)", "平和(1飜)", "断幺九(1飜)",
+                  "一盃口(1飜)", "自風 東(1飜)", "自風 南(1飜)", "自風 西(1飜)", "自風 北(1飜)", "場風 東(1飜)", "場風 南(1飜)", "場風 西(1飜)",
+                  "場風 北(1飜)", "役牌 白(1飜)", "役牌 發(1飜)", "役牌 中(1飜)",
+                  "両立直(2飜)", "七対子(2飜)", "混全帯幺九(1飜)", "一気通貫(1飜)", "三色同順(1飜)", "三色同刻(2飜)", "三槓子(2飜)", "対々和(2飜)",
+                  "三暗刻(2飜)", "小三元(2飜)", "混老頭(2飜)",
+                  "二盃口(3飜)", "純全帯幺九(2飜)", "混一色(2飜)",
+                  "清一色(5飜)", "人和(サンプルを見れていない)", "天和(役満)", "地和(役満)", "大三元(役満)", "四暗刻(役満)", "四暗刻単騎(役満)", "字一色(役満)", "緑一色(役満)", "清老頭(役満)",
+                  "九蓮宝燈(役満)", "純正九蓮宝燈(役満)", "国士無双(役満)", "国士無双１３面(役満)", "大四喜(役満)", "小四喜(役満)", "四槓子(役満)",
+                  "ドラ(1飜)", "裏ドラ(1飜)", "赤ドラ(1飜)"]
+
+
 def pares_terminal(state: mjproto.State) -> List:
     if len(state.terminal.wins) == 0:  # あがった人がいない場合,# state.terminal.winsの長さは0
         return ["流局", state.terminal.no_winner.ten_changes]
     else:
+        ten_changes = state.terminal.wins[0].ten_changes
+        yakus = state.terminal.wins[0].yakus
+        """
+        情報
+        fnas:[役での翻数, ドラでの翻数]
+        yakus: [役とドラの種類]
+        ten: 純粋に上がり点が表示される。ツモ上がりの際の対応が必要
+        """
         return []
 
 
@@ -136,13 +165,14 @@ def mjproto_to_mjscore(state: mjproto.State) -> str:
     ura_doras: List[int] = []  # [change_tile_fmt(i) for i in state.ura_doras]
     init_score: List[int] = [i for i in state.init_score.ten]
     log = [[round, honba, riichi], init_score, doras, ura_doras]
-    absolute_pos = [mjproto.ABSOLUTE_POS_INIT_EAST, mjproto.ABSOLUTE_POS_INIT_SOUTH, mjproto.ABSOLUTE_POS_INIT_WEST, mjproto.ABSOLUTE_POS_INIT_NORTH]
+    absolute_pos = [mjproto.ABSOLUTE_POS_INIT_EAST, mjproto.ABSOLUTE_POS_INIT_SOUTH, mjproto.ABSOLUTE_POS_INIT_WEST,
+                    mjproto.ABSOLUTE_POS_INIT_NORTH]
     for abs_pos in absolute_pos:
         log.append(sort_init_hand(change_tiles_fmt(state.private_infos[abs_pos].init_hand)))
         log.append(parse_draws(state.private_infos[abs_pos].draws, state.event_history.events, abs_pos))
         log.append(parse_discards(state.event_history.events, abs_pos))
 
-    #log.append(pares_terminal(state))
+    # log.append(pares_terminal(state))
     d: Dict = {
         "title": [],
         "name": [],
@@ -172,17 +202,16 @@ if __name__ == "__main__":
 
     # 比較
     print(mjscore_expected_dict)
-    #print(mjscore_dict)
+    # print(mjscore_dict)
     print(mjscore_expected_dict["log"][0] == mjscore_dict["log"][0])
     print(state.terminal.no_winner.ten_changes)
-    #print(mjproto.ABSOLUTE_POS_INIT_WEST)
+    # print(mjproto.ABSOLUTE_POS_INIT_WEST)
 
-    path_to_mjproto_example1 = "../..//test/resources/json/encdec-chanta.json"
+    path_to_mjproto_example1 = "../..//test/resources/json/trans-furiten-false-pos.json"
     with open(path_to_mjproto_example1, "r") as f:
         line = f.readline()
     e = json.loads(line)
     state1: mjproto.State = json_format.ParseDict(e, mjproto.State())
 
-    print(len(state1.terminal.wins))
-    print(len(state.terminal.wins))
+    print(state1.terminal.wins[0].ten)
 
