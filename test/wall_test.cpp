@@ -118,4 +118,9 @@ TEST(wall, WallEqualityOverDevices) {
     ASSERT_EQ(tiles.at(0), Tile(42));
     ASSERT_EQ(tiles.at(1), Tile(38));
     ASSERT_EQ(tiles.at(2), Tile(111));
+    wall = Wall(4, 4, 1234);
+    tiles = wall.tiles();
+    ASSERT_EQ(tiles.at(0), Tile(121));
+    ASSERT_EQ(tiles.at(1), Tile(113));
+    ASSERT_EQ(tiles.at(2), Tile(100));
 }
