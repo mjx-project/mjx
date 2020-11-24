@@ -100,11 +100,11 @@ TEST(wall, ura_doras) {
 }
 
 TEST(wall, wall_seed_constructor){
-    const int ROUND = 5, HONBA = 5, SEED = 1234;
-    for (int r = 0; r < ROUND; ++r) {
-        for (int h = 0; h < HONBA; ++h) {
-            auto wall1 = Wall(r, h, SEED).tiles();
-            auto wall2 = Wall(r, h, SEED).tiles();
+    const int kROUND = 5, kHONBA = 5, kSEED = 1234;
+    for (int r = 0; r < kROUND; ++r) {
+        for (int h = 0; h < kHONBA; ++h) {
+            auto wall1 = Wall(r, h, kSEED).tiles();
+            auto wall2 = Wall(r, h, kSEED).tiles();
             for(int i = 0; i < wall1.size(); ++i){
                 EXPECT_EQ(wall1[i], wall2[i]);
             }
@@ -118,4 +118,9 @@ TEST(wall, WallEqualityOverDevices) {
     ASSERT_EQ(tiles.at(0), Tile(42));
     ASSERT_EQ(tiles.at(1), Tile(38));
     ASSERT_EQ(tiles.at(2), Tile(111));
+    wall = Wall(4, 4, 1234);
+    tiles = wall.tiles();
+    ASSERT_EQ(tiles.at(0), Tile(121));
+    ASSERT_EQ(tiles.at(1), Tile(113));
+    ASSERT_EQ(tiles.at(2), Tile(100));
 }
