@@ -9,6 +9,7 @@
 #include <thread>
 #include <initializer_list>
 #include <boost/random/uniform_int_distribution.hpp>
+#include <boost/random/uniform_real_distribution.hpp>
 
 // original assertion
 #define Assert(fmt, ...) \
@@ -46,6 +47,12 @@ namespace mj
         boost::random::uniform_int_distribution<> dis(0, std::distance(start, end) - 1);  // use boost ver instead of std to avoid implementation dependency
         std::advance(start, dis(g));
         return start;
+    }
+
+    template<typename RandomGenerator>
+    double RandomProb(RandomGenerator& g) {
+        boost::random::uniform_real_distribution<double> uniform(0.0, 1.0);  // use boost ver instead of std to avoid implementation dependency
+        return uniform(g);
     }
 
     // From Effective Modern C++
