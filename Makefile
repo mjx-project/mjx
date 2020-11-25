@@ -5,8 +5,8 @@ clean:
 	rm -rf docker-build
 
 install-spdlog:
-	git clone https://github.com/gabime/spdlog.git
-	cd spdlog && mkdir -p build && cd build && cmake .. && make -j && cd ../..
+	cd mj && mkdir -p include && cd include && git clone https://github.com/gabime/spdlog.git
+	cd spdlog && mkdir -p build && cd build && cmake .. && make -j
 
 build: install-spdlog
 	mkdir -p build && cd build && cmake .. && make -j
