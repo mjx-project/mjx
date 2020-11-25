@@ -59,19 +59,18 @@ namespace mj
         }
 
         // 鳴ける場合にはランダムに行動選択
-        if (Any(possible_action.type(), {mjproto::ACTION_TYPE_KAN_CLOSED, mjproto::ACTION_TYPE_KAN_ADDED,
-                                         mjproto::ACTION_TYPE_KAN_OPENED, mjproto::ACTION_TYPE_PON,
-                                         mjproto::ACTION_TYPE_CHI})) {
-            possible_action = *SelectRandomly(possible_actions.begin(), possible_actions.end(), mt);
-            if (possible_action.type() != mjproto::ActionType::ACTION_TYPE_DISCARD) {
-                Assert(Any(possible_action.type(), {
-                    mjproto::ACTION_TYPE_KAN_CLOSED, mjproto::ACTION_TYPE_KAN_ADDED,
+        if (Any(possible_action.type(), {mjproto::ACTION_TYPE_KAN_OPENED, mjproto::ACTION_TYPE_PON, mjproto::ACTION_TYPE_CHI})) {
+            response = *SelectRandomly(possible_actions.begin(), possible_actions.end(), mt);
+            Assert(Any(possible_action.type(), {
                     mjproto::ACTION_TYPE_KAN_OPENED, mjproto::ACTION_TYPE_PON,
                     mjproto::ACTION_TYPE_CHI, mjproto::ACTION_TYPE_NO}));
-                response.set_type(mjproto::ActionType(possible_action.type()));
-                if (possible_action.type() != mjproto::ActionType::ACTION_TYPE_NO) response.set_open(possible_action.open());
-                return response;
-            }
+            return response;
+        }
+
+        // 暗槓、加槓ができるときはランダムに実行
+        if (Any(possible_action.type(), {mjproto::ACTION_TYPE_KAN_CLOSED, mjproto::ACTION_TYPE_KAN_ADDED})) {
+            auto prob = RandomProb(mt);
+            if (prob > 0.5) return possible_action;
         }
 
         // Discardが選択されたとき（あるいはdiscardしかできないとき）、切る牌を選ぶ
