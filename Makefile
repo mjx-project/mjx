@@ -4,9 +4,11 @@ clean:
 	rm -rf build
 	rm -rf docker-build
 
-build:
+install-spdlog:
 	git clone https://github.com/gabime/spdlog.git
 	cd spdlog && mkdir -p build && cd build && cmake .. && make -j && cd ../..
+
+build: install-spdlog
 	mkdir -p build && cd build && cmake .. && make -j
 
 test: build
