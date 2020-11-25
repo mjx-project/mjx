@@ -38,41 +38,39 @@ namespace mj
 
         const Hand curr_hand = observation.current_hand();
 
-        if (possible_actions.front().type() != mjproto::ACTION_TYPE_DISCARD) {
-            auto& possible_action = possible_actions.front();
+        auto& possible_action = possible_actions.front();
 
-            // 和了れるときは全て和了る。リーチできるときは全てリーチする。九種九牌も全て流す。
-            if (Any(possible_action.type(), {mjproto::ACTION_TYPE_TSUMO, mjproto::ACTION_TYPE_RIICHI,
-                                             mjproto::ACTION_TYPE_RON, mjproto::ACTION_TYPE_KYUSYU})) {
+        // 和了れるときは全て和了る。リーチできるときは全てリーチする。九種九牌も全て流す。
+        if (Any(possible_action.type(), {mjproto::ACTION_TYPE_TSUMO, mjproto::ACTION_TYPE_RIICHI,
+                                         mjproto::ACTION_TYPE_RON, mjproto::ACTION_TYPE_KYUSYU})) {
+            response.set_type(possible_action.type());
+            return response;
+        }
+
+        // テンパっているときには他家から鳴かない
+        if (Any(possible_action.type(), {mjproto::ACTION_TYPE_KAN_OPENED, mjproto::ACTION_TYPE_PON,
+                                         mjproto::ACTION_TYPE_CHI})) {
+            if (curr_hand.IsTenpai()) {
+                possible_action = *possible_actions.rbegin();
+                Assert(possible_action.type() == mjproto::ActionType::ACTION_TYPE_NO);
                 response.set_type(possible_action.type());
                 return response;
             }
+        }
 
-            // テンパっているときには他家から鳴かない
-            if (Any(possible_action.type(), {mjproto::ACTION_TYPE_KAN_OPENED, mjproto::ACTION_TYPE_PON,
-                                             mjproto::ACTION_TYPE_CHI})) {
-                if (curr_hand.IsTenpai()) {
-                    possible_action = *possible_actions.rbegin();
-                    Assert(possible_action.type() == mjproto::ActionType::ACTION_TYPE_NO);
-                    response.set_type(possible_action.type());
-                    return response;
-                }
-            }
-
-            // 鳴ける場合にはランダムに行動選択
-            if (Any(possible_action.type(), {mjproto::ACTION_TYPE_KAN_CLOSED, mjproto::ACTION_TYPE_KAN_ADDED,
-                                             mjproto::ACTION_TYPE_KAN_OPENED, mjproto::ACTION_TYPE_PON,
-                                             mjproto::ACTION_TYPE_CHI})) {
-                possible_action = *SelectRandomly(possible_actions.begin(), possible_actions.end(), mt);
-                if (possible_action.type() != mjproto::ActionType::ACTION_TYPE_DISCARD) {
-                    Assert(Any(possible_action.type(), {
-                        mjproto::ACTION_TYPE_KAN_CLOSED, mjproto::ACTION_TYPE_KAN_ADDED,
-                        mjproto::ACTION_TYPE_KAN_OPENED, mjproto::ACTION_TYPE_PON,
-                        mjproto::ACTION_TYPE_CHI, mjproto::ACTION_TYPE_NO}));
-                    response.set_type(mjproto::ActionType(possible_action.type()));
-                    if (possible_action.type() != mjproto::ActionType::ACTION_TYPE_NO) response.set_open(possible_action.open());
-                    return response;
-                }
+        // 鳴ける場合にはランダムに行動選択
+        if (Any(possible_action.type(), {mjproto::ACTION_TYPE_KAN_CLOSED, mjproto::ACTION_TYPE_KAN_ADDED,
+                                         mjproto::ACTION_TYPE_KAN_OPENED, mjproto::ACTION_TYPE_PON,
+                                         mjproto::ACTION_TYPE_CHI})) {
+            possible_action = *SelectRandomly(possible_actions.begin(), possible_actions.end(), mt);
+            if (possible_action.type() != mjproto::ActionType::ACTION_TYPE_DISCARD) {
+                Assert(Any(possible_action.type(), {
+                    mjproto::ACTION_TYPE_KAN_CLOSED, mjproto::ACTION_TYPE_KAN_ADDED,
+                    mjproto::ACTION_TYPE_KAN_OPENED, mjproto::ACTION_TYPE_PON,
+                    mjproto::ACTION_TYPE_CHI, mjproto::ACTION_TYPE_NO}));
+                response.set_type(mjproto::ActionType(possible_action.type()));
+                if (possible_action.type() != mjproto::ActionType::ACTION_TYPE_NO) response.set_open(possible_action.open());
+                return response;
             }
         }
 
