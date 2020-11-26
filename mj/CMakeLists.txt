@@ -60,6 +60,15 @@ include_directories("${CMAKE_CURRENT_SOURCE_DIR}")
 # endforeach()
 
 ####################################################################################
+# For spdlog
+####################################################################################
+
+if(NOT TARGET spdlog)
+    # Stand-alone build
+    find_package(spdlog REQUIRED)
+endif()
+
+####################################################################################
 # For mj library
 ####################################################################################
 
@@ -67,7 +76,7 @@ file(GLOB SOURCE_FILES *.cpp)
 file(GLOB HEADER_FILES *.h)
 add_library(${PROJECT_NAME} STATIC
         ${SOURCE_FILES} ${HEADER_FILES} ${mj_proto_srcs} ${mj_grpc_srcs})
-target_link_libraries(${PROJECT_NAME} ${_REFLECTION} ${_GRPC_GRPCPP} ${_PROTOBUF_LIBPROTOBUF})
+target_link_libraries(${PROJECT_NAME} ${_REFLECTION} ${_GRPC_GRPCPP} ${_PROTOBUF_LIBPROTOBUF} spdlog::spdlog)
 
 ####################################################################################
 # For winning hand cache
