@@ -61,7 +61,7 @@ namespace mj
         return serialized;
     }
 
-    mjproto::Observation Observation::proto() const {
+    const mjproto::Observation& Observation::proto() const {
         return proto_;
     }
 
