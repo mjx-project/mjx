@@ -63,7 +63,6 @@ include_directories("${CMAKE_CURRENT_SOURCE_DIR}")
 # For spdlog
 ####################################################################################
 
-# include spdlog
 if(NOT TARGET spdlog)
     # Stand-alone build
     find_package(spdlog REQUIRED)
