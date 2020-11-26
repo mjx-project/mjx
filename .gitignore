@@ -2,7 +2,7 @@
 mj/cmake-build-debug/*
 cmake-build-*/*
 build/*
-spdlog/*
+external_libs/*
 docker-build/*
 test/lib/*
 mjconvert/mjproto/*pb2*

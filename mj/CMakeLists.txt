@@ -59,6 +59,10 @@ include_directories("${CMAKE_CURRENT_SOURCE_DIR}")
 #             ${_PROTOBUF_LIBPROTOBUF})
 # endforeach()
 
+####################################################################################
+# For spdlog
+####################################################################################
+
 # include spdlog
 if(NOT TARGET spdlog)
     # Stand-alone build

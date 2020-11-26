@@ -11,7 +11,7 @@ add_executable(${PROJECT_NAME}.out ${SOURCE_FILES})
 
 include_directories(.)
 
-add_subdirectory(spdlog)
+add_subdirectory(external_libs/spdlog)
 add_subdirectory(mj)
 add_subdirectory(test)
 add_subdirectory(dataset)
