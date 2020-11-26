@@ -12,7 +12,8 @@ RUN apt-get update && apt-get install -y \
   libboost-dev \
   autoconf \
   libtool \
-  pkg-config
+  pkg-config \
+  unzip
 
 # install gRPC
 RUN cd / && \
