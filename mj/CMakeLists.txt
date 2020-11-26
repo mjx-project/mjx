@@ -60,7 +60,6 @@ include_directories("${CMAKE_CURRENT_SOURCE_DIR}")
 # endforeach()
 
 # include spdlog
-add_subdirectory(include/spdlog)
 if(NOT TARGET spdlog)
     # Stand-alone build
     find_package(spdlog REQUIRED)
@@ -69,7 +68,6 @@ endif()
 ####################################################################################
 # For mj library
 ####################################################################################
-
 
 file(GLOB SOURCE_FILES *.cpp)
 file(GLOB HEADER_FILES *.h)
