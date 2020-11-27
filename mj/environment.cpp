@@ -14,7 +14,7 @@ namespace mj
         state_ = State();
     }
 
-    void Environment::ParallelRunGame(int num_thread) {
+    void Environment::ParallelRunGame(int num_game, int num_thread) {
         std::vector<std::thread> threads;
         // スレッド生成
         for(int i = 0; i < num_thread; i++){
@@ -27,7 +27,7 @@ namespace mj
                         std::make_shared<AgentExampleRuleBased>("agent04")
                 };
                 Environment env(agents);
-                for(int j = 0; j < 5; j++){
+                for(int j = 0; j < num_game/num_thread; j++){
                     env.RunOneGame(seed);
                 }
             }, i + 1));
