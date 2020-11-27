@@ -146,10 +146,10 @@ no_dealer_point_dict = {8000: "満貫", 12000: "跳満", 16000: "倍満", 24000:
 
 def fan_fu(who, fans: List[int], fu: int, ten) -> str:
     """
-    >>>fan_fu(0, [3,1], 40, 12000)
-    満貫
-    >>>fan_fu(1, [2,1], 40, 5200)
-    40符3翻
+    >>> fan_fu(0, [3,1], 40, 12000)
+    '満貫'
+    >>> fan_fu(1, [2,1], 40, 5200)
+    '40符3翻'
     """
     fan = sum(fans)
     if who == mjproto.ABSOLUTE_POS_INIT_EAST:
@@ -166,10 +166,10 @@ def fan_fu(who, fans: List[int], fu: int, ten) -> str:
 
 def winner_point(who: int, from_who: int, fans: List[int], fu: int, ten: int) -> str:
     """
-    >>>winner_point(0, 0, [0,1,2], [3,0], 30, 6000)
-    "30符3翻2000点∀"
-    >>>winner_point(2, 0, [35], [5,0],[20], 8000)
-    "満貫8000点"
+    >>> winner_point(0, 0, [3,0], 30, 6000)
+    '30符3翻2000点∀'
+    >>> winner_point(2, 0, [5,0],[20], 8000)
+    '満貫8000点'
     """
     is_tsumo = who == from_who  # ツモあがりかどうかを判定
     if is_tsumo:
@@ -186,15 +186,15 @@ def winner_point(who: int, from_who: int, fans: List[int], fu: int, ten: int) ->
 
 def winner_yakus(yakus: List[int]) -> List[str]:
     """
-    >>>winner_yakus([0,1,23])
-    ["門前清自摸和(1飜)", "立直(1飜)", "混全帯幺九(2飜)"]
-    >>>winner_yakus([23])
-    ["混全帯幺九(1飜)"]
+    >>> winner_yakus([0,1,23])
+    ['門前清自摸和(1飜)', '立直(1飜)', '混全帯幺九(2飜)']
+    >>> winner_yakus([23])
+    ['混全帯幺九(1飜)']
     """
     if 0 in yakus:  # ツモの有無によって役の翻数がかわる。
         return list(map(lambda x: yaku_dict_tumo[x], yakus))
     else:
-        return list(map(lambda x: yaku_dict_tumo[x], yakus))
+        return list(map(lambda x: yaku_dict_ron[x], yakus))
 
 
 def parse_terminal(state: mjproto.State) -> List:
@@ -230,7 +230,6 @@ def mjproto_to_mjscore(state: mjproto.State) -> str:
     # print(a)
     # print(len(state.private_infos[3].draws))
     # print(sort_init_hand(change_tiles_fmt(state.private_infos[0].init_hand)))
-    print(parse_terminal(state))
     round: int = state.init_score.round
     honba: int = state.init_score.honba
     riichi: int = state.init_score.riichi
