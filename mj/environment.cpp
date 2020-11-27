@@ -4,6 +4,7 @@
 #include "algorithm"
 #include "utils.h"
 #include "spdlog/spdlog.h"
+#include <mj/agent_example_rule_based.h>
 
 namespace mj
 {
@@ -11,6 +12,30 @@ namespace mj
         for (const auto &agent: agents_) map_agents_[agent->player_id()] = agent;
         std::vector<PlayerId> player_ids(4); for (int i = 0; i < 4; ++i) player_ids[i] = agents_.at(i)->player_id();
         state_ = State();
+    }
+
+    void Environment::ParallelRunGame(int num_thread) {
+        std::vector<std::thread> threads;
+        // スレッド生成
+        for(int i = 0; i < num_thread; i++){
+            // Todo: シード値の設定（現在: i+1）
+            threads.emplace_back(std::thread([&](std::uint64_t seed){
+                const std::vector<std::shared_ptr<Agent>> agents = {
+                        std::make_shared<AgentExampleRuleBased>("agent01"),
+                        std::make_shared<AgentExampleRuleBased>("agent02"),
+                        std::make_shared<AgentExampleRuleBased>("agent03"),
+                        std::make_shared<AgentExampleRuleBased>("agent04")
+                };
+                Environment env(agents);
+                for(int j = 0; j < 5; j++){
+                    env.RunOneGame(seed);
+                }
+            }, i + 1));
+        }
+        // スレッド終了待機
+        for(auto &thread: threads){
+            thread.join();
+        }
     }
 
     GameResult Environment::RunOneGame(std::uint64_t game_seed) {
