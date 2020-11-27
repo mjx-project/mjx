@@ -104,9 +104,9 @@ def parse_draws(draws, events, abs_pos):
         elif event.type == mjproto.EVENT_TYPE_PON and event.who == abs_pos:  # ポン
             discards.append(event.open)
             actions.append(event.open)
-    for i in actions:
-        action_index = discards.index(i)  # 捨て牌でのactionのindex同じ順にdrawにアクションを挿入すれば良い
-        draws.insert(action_index, change_action_format(discards[action_index]))
+    for i, action in enumerate(actions):
+        action_index = discards.index(action) - i  # 捨て牌でのactionのindex同じ順にdrawにアクションを挿入すれば良い
+        draws.insert(action_index, change_action_format(action))
     return draws
 
 
@@ -149,17 +149,17 @@ def fan_fu(who, fans: List[int], fu: int, ten) -> str:
     >>> fan_fu(0, [3,1], 40, 12000)
     '満貫'
     >>> fan_fu(1, [2,1], 40, 5200)
-    '40符3翻'
+    '40符3飜'
     """
     fan = sum(fans)
     if who == mjproto.ABSOLUTE_POS_INIT_EAST:
         if ten < 12000:
-            return str(fu) + "符" + str(fan) + "翻"
+            return str(fu) + "符" + str(fan) + "飜"
         else:
             return dealer_point_dict[ten]
     else:
         if int(ten) < 8000:
-            return str(fu) + "符" + str(fan) + "翻"
+            return str(fu) + "符" + str(fan) + "飜"
         else:
             return no_dealer_point_dict[ten]
 
@@ -167,7 +167,7 @@ def fan_fu(who, fans: List[int], fu: int, ten) -> str:
 def winner_point(who: int, from_who: int, fans: List[int], fu: int, ten: int) -> str:
     """
     >>> winner_point(0, 0, [3,0], 30, 6000)
-    '30符3翻2000点∀'
+    '30符3飜2000点∀'
     >>> winner_point(2, 0, [5,0],[20], 8000)
     '満貫8000点'
     """
@@ -184,14 +184,26 @@ def winner_point(who: int, from_who: int, fans: List[int], fu: int, ten: int) ->
             return fan_fu(who, fans, fu, ten) + str(ten) + "点"
 
 
+def check_uradoras(fans: List[int], yakus: List[int]) -> List[int]:  # リーチがかかるとprotoではyakus
+    # に強制的にウラドラの情報が入るが、乗っているかどうかを確認する必要がある
+    """
+    >>> check_uradoras([1, 1, 1, 0], [1, 0, 7, 53])
+    [1, 0, 7]
+    """
+    if sum(fans) < len(yakus):
+        return [i for i in yakus if i != 53]
+    else:
+        return yakus
+
+
 def winner_yakus(yakus: List[int]) -> List[str]:
     """
     >>> winner_yakus([0,1,23])
-    ['門前清自摸和(1飜)', '立直(1飜)', '混全帯幺九(2飜)']
+    ["門前清自摸和(1飜)", "立直(1飜)", "混全帯幺九(2飜)"]
     >>> winner_yakus([23])
-    ['混全帯幺九(1飜)']
+    ["混全帯幺九(1飜)"]
     """
-    if 0 in yakus:  # ツモの有無によって役の翻数がかわる。
+    if 0 in yakus:  # ツモの有無によって役の飜数がかわる。
         return list(map(lambda x: yaku_dict_tumo[x], yakus))
     else:
         return list(map(lambda x: yaku_dict_ron[x], yakus))
@@ -204,18 +216,17 @@ def parse_terminal(state: mjproto.State) -> List:
     else:
         who = state.terminal.wins[0].who
         from_who = state.terminal.wins[0].from_who
-        ten_changes = [i for i in state.terminal.wins[0].ten_changes]  # defa
-        yakus = [i for i in state.terminal.wins[0].yakus]
-        fans = [i for i in state.terminal.wins[0].fans]
+        ten_changes = [i for i in state.terminal.wins[0].ten_changes]
+        fans = [i for i in state.terminal.wins[0].fans]  # [役での飜数, ドラの数]
+        yakus = check_uradoras( fans, [i for i in state.terminal.wins[0].yakus])
         fu = state.terminal.wins[0].fu
         ten = state.terminal.wins[0].ten
         """
         情報
-        fnas:[役での翻数, ドラでの翻数]
+        fnas:[役での飜数, ドラでの飜数]
         yakus: [役とドラの種類]
         ten: 純粋に上がり点が表示される。ツモ上がりの際の対応が必要
         """
-        print(type(yakus), type(fans))
         return ["和了", ten_changes, [who, from_who, who, winner_point(who, from_who, fans, fu, ten)] + winner_yakus(yakus)]
 
 
@@ -234,7 +245,10 @@ def mjproto_to_mjscore(state: mjproto.State) -> str:
     honba: int = state.init_score.honba
     riichi: int = state.init_score.riichi
     doras: List[int] = [change_tile_fmt(i) for i in state.doras]
-    ura_doras: List[int] = []  # [change_tile_fmt(i) for i in state.ura_doras]
+    if len(state.terminal.wins) == 0:  # あがり者の有無でウラどらが表示されるかどうかが決まる
+        ura_doras = []
+    else:
+        ura_doras: List[int] = [change_tile_fmt(i) for i in state.ura_doras]
     init_score: List[int] = [i for i in state.init_score.ten]
     log = [[round, honba, riichi], init_score, doras, ura_doras]
     absolute_pos = [mjproto.ABSOLUTE_POS_INIT_EAST, mjproto.ABSOLUTE_POS_INIT_SOUTH, mjproto.ABSOLUTE_POS_INIT_WEST,
