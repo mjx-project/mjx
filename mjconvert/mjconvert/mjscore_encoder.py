@@ -134,10 +134,10 @@ yaku_dict_tumo = {k: v for k, v in zip(yaku_list_keys, yaku_list_tumo)}
 yaku_dict_ron = {k: v for k, v in zip(yaku_list_keys, yaku_list_ron)}
 
 
-non_dealer_tsumo_dict = {1000: "300-500", 1300: "400-700", 1600: "800-1600", 2000: "1000-2000", 2300: "600-1200",
-                         2600: "700-1300", 2900: "800-1500", 3200: "800-1600", 3600: "900-1800", 3900: "1000-2000",
-                         4500: "1200-2300", 5200: "1300-2600", 5800: "1500-2900", 6400: "1600-3200", 7100: "1800-3600",
-                         7700: "2000-3900", 8000: "2000-4000", 12000: "3000-6000", 16000: "4000-8000", 24000: "6000-12000", 32000: "8000-16000"}
+non_dealer_tsumo_dict = {1100: "300-500", 1500: "400-700", 1600: "800-1600", 2000: "1000-2000", 2400: "600-1200",
+                         2700: "700-1300", 3100: "800-1500", 3200: "800-1600", 3600: "900-1800", 4000: "1000-2000",
+                         4700: "1200-2300", 5200: "1300-2600", 5900: "1500-2900", 6400: "1600-3200", 7200: "1800-3600",
+                         7900: "2000-3900", 8000: "2000-4000", 12000: "3000-6000", 16000: "4000-8000", 24000: "6000-12000", 32000: "8000-16000"}
 
 
 dealer_point_dict = {12000: "満貫", 18000: "跳満", 24000: "倍満", 36000: "三倍満", 48000: "役満"}
@@ -158,7 +158,7 @@ def fan_fu(who, fans: List[int], fu: int, ten) -> str:
         else:
             return dealer_point_dict[ten]
     else:
-        if ten < 8000:
+        if int(ten) < 8000:
             return str(fu) + "符" + str(fan) + "翻"
         else:
             return no_dealer_point_dict[ten]
@@ -166,15 +166,15 @@ def fan_fu(who, fans: List[int], fu: int, ten) -> str:
 
 def winner_point(who: int, from_who: int, fans: List[int], fu: int, ten: int) -> str:
     """
-    >>>correspond_ten(0, 0, [0,1,2], [3,0], 30, 6000)
+    >>>winner_point(0, 0, [0,1,2], [3,0], 30, 6000)
     "30符3翻2000点∀"
-    >>>correspond_ten(2, 0, [35], [5,0],[20], 8000)
+    >>>winner_point(2, 0, [35], [5,0],[20], 8000)
     "満貫8000点"
     """
     is_tsumo = who == from_who  # ツモあがりかどうかを判定
     if is_tsumo:
         if who == mjproto.ABSOLUTE_POS_INIT_EAST:  # 親かどうか
-            return fan_fu(who, fans, fu, ten) + str(ten/3) + "点∀"
+            return fan_fu(who, fans, fu, ten) + str(int(ten/3)) + "点∀"
         else:
             return fan_fu(who, fans, fu, ten) + non_dealer_tsumo_dict[ten] + "点"
     else:
@@ -186,9 +186,9 @@ def winner_point(who: int, from_who: int, fans: List[int], fu: int, ten: int) ->
 
 def winner_yakus(yakus: List[int]) -> List[str]:
     """
-    >>>correspond_yakus([0,1,23])
+    >>>winner_yakus([0,1,23])
     ["門前清自摸和(1飜)", "立直(1飜)", "混全帯幺九(2飜)"]
-    >>>coresspond_yakus([23])
+    >>>winner_yakus([23])
     ["混全帯幺九(1飜)"]
     """
     if 0 in yakus:  # ツモの有無によって役の翻数がかわる。
@@ -197,24 +197,26 @@ def winner_yakus(yakus: List[int]) -> List[str]:
         return list(map(lambda x: yaku_dict_tumo[x], yakus))
 
 
-def pares_terminal(state: mjproto.State) -> List:
+def parse_terminal(state: mjproto.State) -> List:
     if len(state.terminal.wins) == 0:  # あがった人がいない場合,# state.terminal.winsの長さは0
-        return ["流局", state.terminal.no_winner.ten_changes]
+        ten_changes = [i for i in state.terminal.no_winner.ten_changes]
+        return ["流局", ten_changes]
     else:
         who = state.terminal.wins[0].who
         from_who = state.terminal.wins[0].from_who
-        ten_changes = state.terminal.wins[0].ten_changes
-        yakus = state.terminal.wins[0].yakus
-        fans = state.terminal.wins[0].fans
+        ten_changes = [i for i in state.terminal.wins[0].ten_changes]  # defa
+        yakus = [i for i in state.terminal.wins[0].yakus]
+        fans = [i for i in state.terminal.wins[0].fans]
         fu = state.terminal.wins[0].fu
-        ten = state.terminal.wins[0].ten_changes
+        ten = state.terminal.wins[0].ten
         """
         情報
         fnas:[役での翻数, ドラでの翻数]
         yakus: [役とドラの種類]
         ten: 純粋に上がり点が表示される。ツモ上がりの際の対応が必要
         """
-        return ["和了", ten_changes, [winner_point(who, from_who, fans, fu, ten), winner_yakus(yakus)]]
+        print(type(yakus), type(fans))
+        return ["和了", ten_changes, [who, from_who, who, winner_point(who, from_who, fans, fu, ten)] + winner_yakus(yakus)]
 
 
 # ここを実装
@@ -228,7 +230,7 @@ def mjproto_to_mjscore(state: mjproto.State) -> str:
     # print(a)
     # print(len(state.private_infos[3].draws))
     # print(sort_init_hand(change_tiles_fmt(state.private_infos[0].init_hand)))
-    # print(parse_discards(state.event_history.events, 1))
+    print(parse_terminal(state))
     round: int = state.init_score.round
     honba: int = state.init_score.honba
     riichi: int = state.init_score.riichi
@@ -243,7 +245,7 @@ def mjproto_to_mjscore(state: mjproto.State) -> str:
         log.append(parse_draws(state.private_infos[abs_pos].draws, state.event_history.events, abs_pos))
         log.append(parse_discards(state.event_history.events, abs_pos))
 
-    # log.append(pares_terminal(state))
+    log.append(parse_terminal(state))
     d: Dict = {
         "title": [],
         "name": [],
@@ -273,21 +275,24 @@ if __name__ == "__main__":
 
     # 比較
     print(mjscore_expected_dict)
-    # print(mjscore_dict)
+    print(mjscore_dict)
     print(mjscore_expected_dict["log"][0] == mjscore_dict["log"][0])
     print(state.terminal.no_winner.ten_changes)
-    # print(mjproto.ABSOLUTE_POS_INIT_WEST)
+    print(mjproto.ABSOLUTE_POS_INIT_WEST)
 
-    path_to_mjproto_example1 = "../..//test/resources/json/encdec-double-riichi.json"
+    path_to_mjproto_example1 = "../..//test/resources/json/trans-furiten-false-pos.json"
     with open(path_to_mjproto_example1, "r") as f:
         line = f.readline()
     e = json.loads(line)
     state1: mjproto.State = json_format.ParseDict(e, mjproto.State())
 
-    print(state1.terminal.wins[0].fans)
-    print(state1.terminal.wins[0].yakus)
-    print(state1.terminal.wins[0].from_who)
-    print(state1.terminal.wins[0].ten_changes)
-    print(state1.terminal.wins[0].yakumans)
-    #ツモのみfrom_who →２
+    print(type(state1.terminal.wins[0].fans))
+    print(type(state1.terminal.wins[0].fu))
+    print(type(state1.terminal.wins[0].yakus))
+    print(type(state1.terminal.wins[0].from_who))
+    print(type(state1.terminal.wins[0].ten_changes))
+    print(type(state1.terminal.wins[0].ten))
+    print(type(fan_fu(state1.terminal.wins[0].who, state1.terminal.wins[0].fans, state1.terminal.wins[0].fu, state1.terminal.wins[0].ten)))
+    print(type(winner_point(state1.terminal.wins[0].who, state1.terminal.wins[0].from_who, state1.terminal.wins[0].fans, state1.terminal.wins[0].fu, state1.terminal.wins[0].ten)))
+    print(parse_terminal(state1))
 
