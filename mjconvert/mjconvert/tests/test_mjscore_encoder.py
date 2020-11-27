@@ -18,7 +18,6 @@ def mjscore_log_equal(mjscore_original_dict, mjscore_converted_dict) -> bool:
     return is_equal
 
 
-
 def test_mjproto_to_mjscore():
     mjlog_decoder = MjlogDecoder(modify=False)
     mjscore_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "resources/mjscore")
