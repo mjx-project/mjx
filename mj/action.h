@@ -23,6 +23,7 @@ namespace mj
         static mjproto::Action CreateOpen(AbsolutePos who, Open open);
         static mjproto::Action CreateNo(AbsolutePos who);
         static mjproto::Action CreateNineTiles(AbsolutePos who);
+        static bool Equal(const mjproto::Action& lhs, const mjproto::Action& rhs);
     };
 }  // namespace mj
 
