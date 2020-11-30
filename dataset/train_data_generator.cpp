@@ -39,6 +39,49 @@ namespace mj {
         }
     }
 
+    void TrainDataGenerator::generateDiscardWithPossibleAction(const std::string& src_path, const std::string& dst_path) {
+        std::ifstream ifs(src_path, std::ios::in);
+        std::ofstream ofs(dst_path, std::ios::out);
+        std::string json;
+        while (std::getline(ifs, json)) {
+            mjproto::State state;
+            auto status = google::protobuf::util::JsonStringToMessage(json, &state);
+            Assert(status.ok());
+
+            // eventのコピーを取ってから全て削除する
+            auto events = state.event_history().events();
+            state.mutable_event_history()->mutable_events()->Clear();
+
+            auto state_ = State(state);
+
+            auto player_ids = state_.proto().player_ids();
+            std::map<PlayerId, mjproto::AbsolutePos> player_id_to_absolute_pos;
+            for (int i = 0; i < 4; ++i) {
+                player_id_to_absolute_pos[player_ids[i]] = static_cast<mjproto::AbsolutePos>(i);
+            }
+
+            for (const auto& event : events) {
+                if (!state_.HasLastEvent() or
+                    state_.LastEvent().type() != mjproto::EVENT_TYPE_DRAW or
+                        (event.type() != mjproto::EVENT_TYPE_DISCARD_FROM_HAND and
+                         event.type() != mjproto::EVENT_TYPE_DISCARD_DRAWN_TILE)) {
+                    state_.UpdateByEvent(event);
+                    continue;
+                }
+
+                for (const auto& [player_id, observation] : state_.CreateObservations()) {
+                    if (event.who() != player_id_to_absolute_pos[player_id]) continue;
+                    auto possible_actions = observation.possible_actions();
+                    std::string event_json;
+                    Assert(google::protobuf::util::MessageToJsonString(event, &event_json).ok());
+                    ofs << observation.ToJson() << '\t' << event_json << std::endl;
+                }
+
+                state_.UpdateByEvent(event);
+            }
+        }
+    }
+
     void TrainDataGenerator::generateOpen(const std::string& src_path, const std::string& dst_path, mjproto::ActionType open_type) {
         Assert(open_type == mjproto::ActionType::ACTION_TYPE_CHI or
                open_type == mjproto::ActionType::ACTION_TYPE_PON);
@@ -208,14 +251,13 @@ int main(int argc, char *argv[]) {
     Assert(argc == 4);
     std::string action_type = argv[1];
     auto src_dir = fs::directory_entry(argv[2]);
-    auto dst_dir = fs::directory_entry(argv[3]);
+    std::string dst_str = argv[3];
 
     // Prepare all filenames
     std::vector<std::pair<std::string, std::string>> paths;
     for ( const fs::directory_entry& entry : fs::recursive_directory_iterator(src_dir) ) {
         if (entry.is_directory()) continue;
         std::string src_str = entry.path().string();
-        std::string dst_str = dst_dir.path().string() + "/" + entry.path().stem().string() + ".txt";
         paths.emplace_back(src_str, dst_str);
     }
 
@@ -224,6 +266,8 @@ int main(int argc, char *argv[]) {
         const auto& [src_str, dst_str] = p;
         if (action_type == "DISCARD") {
             mj::TrainDataGenerator::generateDiscard(src_str, dst_str);
+        } else if (action_type == "DISCARD_WITH_POSSIBLE_ACTION") {
+            mj::TrainDataGenerator::generateDiscardWithPossibleAction(src_str, dst_str);
         } else if (action_type == "CHI") {
             mj::TrainDataGenerator::generateOpen(src_str, dst_str, mjproto::ActionType::ACTION_TYPE_CHI);
         } else if (action_type == "PON") {
