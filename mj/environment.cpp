@@ -4,7 +4,6 @@
 #include "algorithm"
 #include "utils.h"
 #include "spdlog/spdlog.h"
-#include <mj/agent_example_rule_based.h>
 
 namespace mj
 {
