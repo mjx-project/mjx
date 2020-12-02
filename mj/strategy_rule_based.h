@@ -14,7 +14,7 @@ namespace mj
         StrategyRuleBased(StrategyRuleBased&&) = delete;
         StrategyRuleBased& operator=(StrategyRuleBased&&) = delete;
 
-        [[nodiscard]] static mjproto::Action TakeAction(Observation &&observation);
+        [[nodiscard]] static mjproto::Action SelectAction(Observation &&observation);
     private:
         // インスタンス化禁止
         StrategyRuleBased() = default;
