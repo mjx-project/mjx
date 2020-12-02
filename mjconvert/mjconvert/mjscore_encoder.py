@@ -47,7 +47,7 @@ def change_action_format(bits: int) -> str:
 
 
 # mjscore形式の配牌をソートする関数。
-def sort_init_hand(init_hand: List[int]) -> List[int]:
+def sort_init_hand(init_hand: List) -> List:
     # 11~19マンズ　21~29ピンズ　31~39ソウズ　#51~53赤マンピンソウ
     reds_score = [51, 52, 53]  # 赤
     init_key = [
@@ -61,9 +61,9 @@ def sort_init_hand(init_hand: List[int]) -> List[int]:
 
 # mjproto形式のeventを受け取り、あるプレイヤーの捨て牌をmjscore形式で出力する関数。
 def parse_discards(events, abs_pos: int):
-    discards = []
-    is_reach = False  # リーチの有無
-    riichi_tile = 0
+    discards: List[object] = []
+    is_reach: bool = False  # リーチの有無
+    riichi_tile_list: List[int] = []  # リーチは一人一回なので論理的におかしいが、リーチ宣言牌をスコープを跨いで保存してmypyでエラーを出さないため。
     for i, event in enumerate(events):
         if event.type == mjproto.EVENT_TYPE_DISCARD_FROM_HAND and event.who == abs_pos:  # 手出し
             discards.append(change_tile_fmt(event.tile))
@@ -71,12 +71,12 @@ def parse_discards(events, abs_pos: int):
             discards.append(60)
         elif event.type == mjproto.EVENT_TYPE_RIICHI and event.who == abs_pos:  # リーチ
             is_reach = True
-            riichi_tile = change_tile_fmt(
-                events[i + 1].tile
+            riichi_tile_list.append(
+                change_tile_fmt(events[i + 1].tile)
             )  # riichiの次のeventに宣言牌が記録されているのでそのtileを取得して後にindexを取得変更
     if is_reach:
-        riichi_index = discards.index(riichi_tile)
-        discards[riichi_index] = "r" + str(discards[riichi_index])  # リーチ宣言牌の形式変更
+        riichi_tile = riichi_tile_list[0]
+        discards = [i if i != riichi_tile else "r" + str(i) for i in discards]  # リーチ宣言牌の形式変更
     return discards
 
 
@@ -110,34 +110,148 @@ def parse_draws(draws, events, abs_pos):
     return draws
 
 
-yaku_list_tumo = ["門前清自摸和(1飜)", "立直(1飜)", "一発(1飜)", "槍槓(1飜)", "嶺上開花(1飜)", "海底摸月(1飜)", "河底撈魚(1飜)", "平和(1飜)", "断幺九(1飜)",
-                  "一盃口(1飜)", "自風 東(1飜)", "自風 南(1飜)", "自風 西(1飜)", "自風 北(1飜)", "場風 東(1飜)", "場風 南(1飜)", "場風 西(1飜)",
-                  "場風 北(1飜)", "役牌 白(1飜)", "役牌 發(1飜)", "役牌 中(1飜)",
-                  "両立直(2飜)", "七対子(2飜)", "混全帯幺九(2飜)", "一気通貫(2飜)", "三色同順(2飜)", "三色同刻(2飜)", "三槓子(2飜)", "対々和(2飜)",
-                  "三暗刻(2飜)", "小三元(2飜)", "混老頭(2飜)",
-                  "二盃口(3飜)", "純全帯幺九(3飜)", "混一色(3飜)",
-                  "清一色(6飜)", "人和(サンプルを見れていない)", "天和(役満)", "地和(役満)", "大三元(役満)", "四暗刻(役満)", "四暗刻単騎(役満)", "字一色(役満)",
-                  "緑一色(役満)", "清老頭(役満)", "九蓮宝燈(役満)", "純正九蓮宝燈(役満)", "国士無双(役満)", "国士無双１３面(役満)", "大四喜(役満)", "小四喜(役満)",
-                  "四槓子(役満)", "ドラ(1飜)", "裏ドラ(1飜)", "赤ドラ(1飜)"]
+yaku_list_tumo = [
+    "門前清自摸和(1飜)",
+    "立直(1飜)",
+    "一発(1飜)",
+    "槍槓(1飜)",
+    "嶺上開花(1飜)",
+    "海底摸月(1飜)",
+    "河底撈魚(1飜)",
+    "平和(1飜)",
+    "断幺九(1飜)",
+    "一盃口(1飜)",
+    "自風 東(1飜)",
+    "自風 南(1飜)",
+    "自風 西(1飜)",
+    "自風 北(1飜)",
+    "場風 東(1飜)",
+    "場風 南(1飜)",
+    "場風 西(1飜)",
+    "場風 北(1飜)",
+    "役牌 白(1飜)",
+    "役牌 發(1飜)",
+    "役牌 中(1飜)",
+    "両立直(2飜)",
+    "七対子(2飜)",
+    "混全帯幺九(2飜)",
+    "一気通貫(2飜)",
+    "三色同順(2飜)",
+    "三色同刻(2飜)",
+    "三槓子(2飜)",
+    "対々和(2飜)",
+    "三暗刻(2飜)",
+    "小三元(2飜)",
+    "混老頭(2飜)",
+    "二盃口(3飜)",
+    "純全帯幺九(3飜)",
+    "混一色(3飜)",
+    "清一色(6飜)",
+    "人和(サンプルを見れていない)",
+    "天和(役満)",
+    "地和(役満)",
+    "大三元(役満)",
+    "四暗刻(役満)",
+    "四暗刻単騎(役満)",
+    "字一色(役満)",
+    "緑一色(役満)",
+    "清老頭(役満)",
+    "九蓮宝燈(役満)",
+    "純正九蓮宝燈(役満)",
+    "国士無双(役満)",
+    "国士無双１３面(役満)",
+    "大四喜(役満)",
+    "小四喜(役満)",
+    "四槓子(役満)",
+    "ドラ(1飜)",
+    "裏ドラ(1飜)",
+    "赤ドラ(1飜)",
+]
 
-yaku_list_ron = ["門前清自摸和(1飜)", "立直(1飜)", "一発(1飜)", "槍槓(1飜)", "嶺上開花(1飜)", "海底摸月(1飜)", "河底撈魚(1飜)", "平和(1飜)", "断幺九(1飜)",
-                 "一盃口(1飜)", "自風 東(1飜)", "自風 南(1飜)", "自風 西(1飜)", "自風 北(1飜)", "場風 東(1飜)", "場風 南(1飜)", "場風 西(1飜)",
-                 "場風 北(1飜)", "役牌 白(1飜)", "役牌 發(1飜)", "役牌 中(1飜)",
-                 "両立直(2飜)", "七対子(2飜)", "混全帯幺九(1飜)", "一気通貫(1飜)", "三色同順(1飜)", "三色同刻(2飜)", "三槓子(2飜)", "対々和(2飜)",
-                 "三暗刻(2飜)", "小三元(2飜)", "混老頭(2飜)",
-                 "二盃口(3飜)", "純全帯幺九(2飜)", "混一色(2飜)",
-                 "清一色(5飜)", "人和(サンプルを見れていない)", "天和(役満)", "地和(役満)", "大三元(役満)", "四暗刻(役満)", "四暗刻単騎(役満)", "字一色(役満)",
-                 "緑一色(役満)", "清老頭(役満)", "九蓮宝燈(役満)", "純正九蓮宝燈(役満)", "国士無双(役満)", "国士無双１３面(役満)", "大四喜(役満)", "小四喜(役満)",
-                 "四槓子(役満)", "ドラ(1飜)", "裏ドラ(1飜)", "赤ドラ(1飜)"]
+yaku_list_ron = [
+    "門前清自摸和(1飜)",
+    "立直(1飜)",
+    "一発(1飜)",
+    "槍槓(1飜)",
+    "嶺上開花(1飜)",
+    "海底摸月(1飜)",
+    "河底撈魚(1飜)",
+    "平和(1飜)",
+    "断幺九(1飜)",
+    "一盃口(1飜)",
+    "自風 東(1飜)",
+    "自風 南(1飜)",
+    "自風 西(1飜)",
+    "自風 北(1飜)",
+    "場風 東(1飜)",
+    "場風 南(1飜)",
+    "場風 西(1飜)",
+    "場風 北(1飜)",
+    "役牌 白(1飜)",
+    "役牌 發(1飜)",
+    "役牌 中(1飜)",
+    "両立直(2飜)",
+    "七対子(2飜)",
+    "混全帯幺九(1飜)",
+    "一気通貫(1飜)",
+    "三色同順(1飜)",
+    "三色同刻(2飜)",
+    "三槓子(2飜)",
+    "対々和(2飜)",
+    "三暗刻(2飜)",
+    "小三元(2飜)",
+    "混老頭(2飜)",
+    "二盃口(3飜)",
+    "純全帯幺九(2飜)",
+    "混一色(2飜)",
+    "清一色(5飜)",
+    "人和",  # 天鳳は人和なし
+    "天和(役満)",
+    "地和(役満)",
+    "大三元(役満)",
+    "四暗刻(役満)",
+    "四暗刻単騎(役満)",
+    "字一色(役満)",
+    "緑一色(役満)",
+    "清老頭(役満)",
+    "九蓮宝燈(役満)",
+    "純正九蓮宝燈(役満)",
+    "国士無双(役満)",
+    "国士無双１３面(役満)",
+    "大四喜(役満)",
+    "小四喜(役満)",
+    "四槓子(役満)",
+    "ドラ(1飜)",
+    "裏ドラ(1飜)",
+    "赤ドラ(1飜)",
+]
 yaku_list_keys = [i for i in range(55)]
 yaku_dict_tumo = {k: v for k, v in zip(yaku_list_keys, yaku_list_tumo)}
 yaku_dict_ron = {k: v for k, v in zip(yaku_list_keys, yaku_list_ron)}
 
-non_dealer_tsumo_dict = {1100: "300-500", 1500: "400-700", 1600: "800-1600", 2000: "1000-2000", 2400: "600-1200",
-                         2700: "700-1300", 3100: "800-1500", 3200: "800-1600", 3600: "900-1800", 4000: "1000-2000",
-                         4700: "1200-2300", 5200: "1300-2600", 5900: "1500-2900", 6400: "1600-3200", 7200: "1800-3600",
-                         7900: "2000-3900", 8000: "2000-4000", 12000: "3000-6000", 16000: "4000-8000",
-                         24000: "6000-12000", 32000: "8000-16000"}
+non_dealer_tsumo_dict = {
+    1100: "300-500",
+    1500: "400-700",
+    1600: "800-1600",
+    2000: "1000-2000",
+    2400: "600-1200",
+    2700: "700-1300",
+    3100: "800-1500",
+    3200: "800-1600",
+    3600: "900-1800",
+    4000: "1000-2000",
+    4700: "1200-2300",
+    5200: "1300-2600",
+    5900: "1500-2900",
+    6400: "1600-3200",
+    7200: "1800-3600",
+    7900: "2000-3900",
+    8000: "2000-4000",
+    12000: "3000-6000",
+    16000: "4000-8000",
+    24000: "6000-12000",
+    32000: "8000-16000",
+}
 
 dealer_point_dict = {12000: "満貫", 18000: "跳満", 24000: "倍満", 36000: "三倍満", 48000: "役満"}
 no_dealer_point_dict = {8000: "満貫", 12000: "跳満", 16000: "倍満", 24000: "三倍満", 32000: "役満"}
@@ -145,9 +259,9 @@ no_dealer_point_dict = {8000: "満貫", 12000: "跳満", 16000: "倍満", 24000:
 
 def fan_fu(who, fans: List[int], fu: int, ten) -> str:
     """
-    >>> fan_fu(0, [3,1], 40, 12000)
+    >>> fan_fu(0, [3, 1], 40, 12000)
     '満貫'
-    >>> fan_fu(1, [2,1], 40, 5200)
+    >>> fan_fu(1, [2, 1], 40, 5200)
     '40符3飜'
     """
     fan = sum(fans)
@@ -165,9 +279,9 @@ def fan_fu(who, fans: List[int], fu: int, ten) -> str:
 
 def winner_point(who: int, from_who: int, fans: List[int], fu: int, ten: int) -> str:
     """
-    >>> winner_point(0, 0, [3,0], 30, 6000)
+    >>> winner_point(0, 0, [3, 0], 30, 6000)
     '30符3飜2000点∀'
-    >>> winner_point(2, 0, [5,0], 40, 8000)
+    >>> winner_point(2, 0, [5, 0], 40, 8000)
     '満貫8000点'
     """
     is_tsumo = who == from_who  # ツモあがりかどうかを判定
@@ -197,7 +311,7 @@ def check_uradoras(fans: List[int], yakus: List[int]) -> List[int]:  # リーチ
 
 def winner_yakus(yakus: List[int]) -> List[str]:
     """
-    >>> winner_yakus([0,1,23])
+    >>> winner_yakus([0, 1, 23])
     ['門前清自摸和(1飜)', '立直(1飜)', '混全帯幺九(2飜)']
     >>> winner_yakus([23])
     ['混全帯幺九(1飜)']
@@ -208,7 +322,7 @@ def winner_yakus(yakus: List[int]) -> List[str]:
         return list(map(lambda x: yaku_dict_ron[x], yakus))
 
 
-def parse_terminal(state: mjproto.State) -> List:
+def parse_terminal(state: mjproto.State):
     if len(state.terminal.wins) == 0:  # あがった人がいない場合,# state.terminal.winsの長さは0
         ten_changes = [i for i in state.terminal.no_winner.ten_changes]
         return ["流局", ten_changes]
@@ -226,8 +340,20 @@ def parse_terminal(state: mjproto.State) -> List:
         yakus: [役とドラの種類]
         ten: 純粋に上がり点が表示される。ツモ上がりの際の対応が必要
         """
-        return ["和了", ten_changes,
-                [who, from_who, who, winner_point(who, from_who, fans, fu, ten)] + winner_yakus(yakus)]
+        yaku_point_infos = [who, from_who, who, winner_point(who, from_who, fans, fu, ten)]
+        yaku_point_infos.extend(winner_yakus(yakus))
+        return [
+            "和了",
+            ten_changes,
+            yaku_point_infos,
+        ]
+
+
+def determine_ura_doras_list(state: mjproto.State) -> List:
+    if len(state.terminal.wins) == 0:  # あがり者の有無でウラどらが表示されるかどうかが決まる
+        return []
+    else:
+        return [change_tile_fmt(i) for i in state.ura_doras]
 
 
 # ここを実装
@@ -236,26 +362,24 @@ def mjproto_to_mjscore(state: mjproto.State) -> str:
     honba: int = state.init_score.honba
     riichi: int = state.init_score.riichi
     doras: List[int] = [change_tile_fmt(i) for i in state.doras]
-    if len(state.terminal.wins) == 0:  # あがり者の有無でウラどらが表示されるかどうかが決まる
-        ura_doras = []
-    else:
-        ura_doras: List[int] = [change_tile_fmt(i) for i in state.ura_doras]
+    ura_doras = determine_ura_doras_list(state)
     init_score: List[int] = [i for i in state.init_score.ten]
     log = [[round, honba, riichi], init_score, doras, ura_doras]
-    absolute_pos = [mjproto.ABSOLUTE_POS_INIT_EAST, mjproto.ABSOLUTE_POS_INIT_SOUTH, mjproto.ABSOLUTE_POS_INIT_WEST,
-                    mjproto.ABSOLUTE_POS_INIT_NORTH]
+    absolute_pos = [
+        mjproto.ABSOLUTE_POS_INIT_EAST,
+        mjproto.ABSOLUTE_POS_INIT_SOUTH,
+        mjproto.ABSOLUTE_POS_INIT_WEST,
+        mjproto.ABSOLUTE_POS_INIT_NORTH,
+    ]
     for abs_pos in absolute_pos:
         log.append(sort_init_hand(change_tiles_fmt(state.private_infos[abs_pos].init_hand)))
-        log.append(parse_draws(state.private_infos[abs_pos].draws, state.event_history.events, abs_pos))
+        log.append(
+            parse_draws(state.private_infos[abs_pos].draws, state.event_history.events, abs_pos)
+        )
         log.append(parse_discards(state.event_history.events, abs_pos))
 
     log.append(parse_terminal(state))
-    d: Dict = {
-        "title": [],
-        "name": [],
-        "rule": [],
-        "log": [log]
-    }
+    d: Dict = {"title": [], "name": [], "rule": [], "log": [log]}
     return json.dumps(d)
 
 
@@ -276,3 +400,5 @@ if __name__ == "__main__":
     # 実装を使って変換
     mjscore_str = mjproto_to_mjscore(state)
     mjscore_dict = json.loads(mjscore_str)
+
+    print(mjscore_expected_dict["log"] == mjscore_dict["log"])
