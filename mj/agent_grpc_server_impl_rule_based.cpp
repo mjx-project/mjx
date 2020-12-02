@@ -1,10 +1,10 @@
 #include <grpcpp/grpcpp.h>
-#include "agent_grpc_server_impl_example.h"
+#include "agent_grpc_server_impl_rule_based.h"
 
 namespace mj
 {
     grpc::Status
-    AgentGrpcServerImplExample::TakeAction(grpc::ServerContext *context, const mjproto::Observation *request, mjproto::Action *reply) {
+    AgentGrpcServerImplRuleBased::TakeAction(grpc::ServerContext *context, const mjproto::Observation *request, mjproto::Action *reply) {
         return grpc::Status::OK;
     }
 }  // namesapce mj
