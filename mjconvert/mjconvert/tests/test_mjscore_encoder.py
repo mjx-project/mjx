@@ -1,7 +1,8 @@
+import json
 import os
 from typing import List
-import json
 
+import mjproto
 from mjconvert.mjlog_decoder import MjlogDecoder
 from mjconvert.mjscore_encoder import mjproto_to_mjscore
 
@@ -33,10 +34,10 @@ def test_mjproto_to_mjscore():
             mjprotos: List[mjproto.State] = mjlog_decoder.to_states(mjlog, store_cache=False)
             mjscores = fs.readlines()
             assert len(mjprotos) == len(mjscores)
-            for mjproto, mjscore_original in zip(mjprotos, mjscores):
-                mjscore_converted = mjproto_to_mjscore(mjproto)
-                mjscore_converted_dict = json.loads(mjscore_converted)
-                mjscore_original_dict = json.loads(mjscore_original)
-                assert(
-                    mjscore_log_equal(mjscore_original_dict, mjscore_converted_dict)
+            for proto, score_original in zip(mjprotos, mjscores):
+                score_converted = mjproto_to_mjscore(proto)
+                score_converted_dict = json.loads(score_converted)
+                score_original_dict = json.loads(score_original)
+                assert mjscore_log_equal(
+                    score_original_dict, score_converted_dict
                 )  # TODO: replace with equality check function
