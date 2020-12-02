@@ -18,7 +18,7 @@ namespace mj
         std::vector<std::thread> threads;
         // スレッド生成
         for(int i = 0; i < num_thread; i++){
-            // Todo: シード値の設定（現在: i+1）
+            // TODO: シード値の設定（現在: i+1）
             threads.emplace_back(std::thread([&](std::uint64_t seed){
                 const std::vector<std::shared_ptr<Agent>> agents = {
                         std::make_shared<AgentExampleRuleBased>("agent01"),
