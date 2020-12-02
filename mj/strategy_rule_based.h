@@ -6,7 +6,7 @@
 namespace mj
 {
     // rule-based strategy (only methods)
-    class StrategyRuleBased:
+    class StrategyRuleBased
     {
     public:
         StrategyRuleBased(const StrategyRuleBased&) = delete;
