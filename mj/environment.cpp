@@ -14,18 +14,12 @@ namespace mj
         state_ = State();
     }
 
-    void Environment::ParallelRunGame(int num_game, int num_thread) {
+    void Environment::ParallelRunGame(int num_game, int num_thread, std::vector<std::shared_ptr<Agent>> agents) {
         std::vector<std::thread> threads;
         // スレッド生成
         for(int i = 0; i < num_thread; i++){
             // Todo: シード値の設定（現在: i+1）
             threads.emplace_back(std::thread([&](std::uint64_t seed){
-                const std::vector<std::shared_ptr<Agent>> agents = {
-                        std::make_shared<AgentExampleRuleBased>("agent01"),
-                        std::make_shared<AgentExampleRuleBased>("agent02"),
-                        std::make_shared<AgentExampleRuleBased>("agent03"),
-                        std::make_shared<AgentExampleRuleBased>("agent04")
-                };
                 Environment env(agents);
                 for(int j = 0; j < num_game/num_thread; j++){
                     env.RunOneGame(seed);

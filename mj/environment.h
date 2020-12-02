@@ -12,7 +12,7 @@ namespace mj
         Environment(std::vector<std::shared_ptr<Agent>> agents);
         GameResult RunOneGame(std::uint64_t game_seed);
         // マルチスレッドで試合進行
-        static void ParallelRunGame(int num_game, int num_thread);
+        static void ParallelRunGame(int num_game, int num_thread, std::vector<std::shared_ptr<Agent>> agents);
     private:
         void RunOneRound();
         const std::vector<std::shared_ptr<Agent>> agents_;
