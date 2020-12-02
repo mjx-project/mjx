@@ -24,7 +24,8 @@ namespace mj {
 
             for (auto event : events) {
                 std::string event_json;
-                Assert(google::protobuf::util::MessageToJsonString(event, &event_json).ok());
+                status = google::protobuf::util::MessageToJsonString(event, &event_json);
+                Assert(status.ok());
 
                 if (event.type() == mjproto::EVENT_TYPE_DISCARD_DRAWN_TILE or
                     event.type() == mjproto::EVENT_TYPE_DISCARD_FROM_HAND)
@@ -73,7 +74,8 @@ namespace mj {
                     if (event.who() != player_id_to_absolute_pos[player_id]) continue;
                     auto possible_actions = observation.possible_actions();
                     std::string event_json;
-                    Assert(google::protobuf::util::MessageToJsonString(event, &event_json).ok());
+                    status = google::protobuf::util::MessageToJsonString(event, &event_json);
+                    Assert(status.ok());
                     ofs << observation.ToJson() << '\t' << event_json << std::endl;
                 }
 
@@ -107,7 +109,8 @@ namespace mj {
 
             for (const auto& event : events) {
                 std::string event_json;
-                Assert(google::protobuf::util::MessageToJsonString(event, &event_json).ok());
+                status = google::protobuf::util::MessageToJsonString(event, &event_json);
+                Assert(status.ok());
                 if (!state_.HasLastEvent() or (
                     state_.LastEvent().type() != mjproto::EVENT_TYPE_DISCARD_FROM_HAND and
                     state_.LastEvent().type() != mjproto::EVENT_TYPE_DISCARD_DRAWN_TILE)) {
@@ -130,7 +133,8 @@ namespace mj {
                         }
                     }
                     std::string action_json;
-                    Assert(google::protobuf::util::MessageToJsonString(selected_action, &action_json).ok());
+                    status = google::protobuf::util::MessageToJsonString(selected_action, &action_json);
+                    Assert(status.ok());
                     ofs << "\t" << action_json << std::endl;
                 }
 
@@ -165,7 +169,8 @@ namespace mj {
 
             for (const auto& event : events) {
                 std::string event_json;
-                Assert(google::protobuf::util::MessageToJsonString(event, &event_json).ok());
+                status = google::protobuf::util::MessageToJsonString(event, &event_json);
+                Assert(status.ok());
 
                 if (!state_.HasLastEvent() or
                     (state_.LastEvent().type() != mjproto::EVENT_TYPE_DISCARD_FROM_HAND and
@@ -220,7 +225,8 @@ namespace mj {
 
             for (const auto& event : events) {
                 std::string event_json;
-                Assert(google::protobuf::util::MessageToJsonString(event, &event_json).ok());
+                status = google::protobuf::util::MessageToJsonString(event, &event_json);
+                Assert(status.ok());
 
                 if (!state_.HasLastEvent() or
                     state_.LastEvent().type() != mjproto::EVENT_TYPE_DRAW) {
