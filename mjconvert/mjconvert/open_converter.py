@@ -108,13 +108,13 @@ def is_stolen_red(bits: int) -> bool:  # TODO: test  さらに小さい関数を
     if stolen_tile_kind in fives:
         if event_type == mjproto.EVENT_TYPE_CHI:
             stolen_tile_mod3 = (bits >> 10) % 3  # 鳴いた牌のindex
-            stolen_tile_id_mod4 = bits >> (3 + 2 * stolen_tile_mod3) & 3  # 鳴いた牌のid mod 4
+            stolen_tile_id_mod4 = bits >> (3 + 2 * stolen_tile_mod3) % 4  # 鳴いた牌のid mod 4
             if stolen_tile_id_mod4 == 0:  # 鳴いた牌のid mod 4=0→赤
                 return True
             else:
                 return False
         elif event_type == mjproto.EVENT_TYPE_PON or event_type == mjproto.EVENT_TYPE_KAN_ADDED:
-            unused_id_mod4 = (bits >> 5) & 3  # 未使用牌のid mod 4
+            unused_id_mod4 = (bits >> 5) % 4  # 未使用牌のid mod 4
             stolen_tile_mod3 = (bits >> 9) % 3  # 鳴いた牌のindex
             if unused_id_mod4 != 0 and stolen_tile_mod3 == 0:  # 未使用牌が赤でなく、鳴いた牌のインデックスが0の時→赤
                 return True
@@ -130,7 +130,7 @@ def is_stolen_red(bits: int) -> bool:  # TODO: test  さらに小さい関数を
 
 
 def is_unused_red(bits: int):
-    unused_id_mod4 = (bits >> 5) & 3
+    unused_id_mod4 = (bits >> 5) % 4
     if unused_id_mod4 == 0:
         return True
     else:
@@ -144,11 +144,11 @@ def has_red_chi(bits: int) -> bool:  # TODO テスト
         start_from3 = min_tile % 9 == 2  # min_tile で場合分け
         start_from4 = min_tile % 9 == 3
         start_from5 = min_tile % 9 == 4
-        if start_from3 and ((bits >> 7) & 3 == 0):  # 3から始まる→3番目の牌のid mod 4 =0 →赤
+        if start_from3 and (bits >> 7) % 4 == 0:  # 3から始まる→3番目の牌のid mod 4 =0 →赤
             return True
-        elif start_from4 and ((bits >> 5) & 3) == 0:
+        elif start_from4 and (bits >> 5) % 4 == 0:
             return True
-        elif start_from5 and ((bits >> 3) & 3 == 0):
+        elif start_from5 and (bits >> 3) % 4 == 0:
             return True
         else:
             return False
