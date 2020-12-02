@@ -356,7 +356,6 @@ def determine_ura_doras_list(state: mjproto.State) -> List:
         return [change_tile_fmt(i) for i in state.ura_doras]
 
 
-
 # ここを実装
 def mjproto_to_mjscore(state: mjproto.State) -> str:
     round: int = state.init_score.round
