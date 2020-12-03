@@ -2,7 +2,6 @@ from __future__ import annotations  # postpone type hint evaluation or doctest f
 
 import json
 from typing import Dict, List
-
 from google.protobuf import json_format
 
 import mjproto
