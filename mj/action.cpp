@@ -97,4 +97,11 @@ namespace mj
         }
         return true;
     }
+    bool Action::Equal(const mjproto::Action& lhs, const mjproto::Action& rhs) {
+        return lhs.game_id() == rhs.game_id() and
+               lhs.who() == rhs.who() and
+               lhs.type() == rhs.type() and
+               lhs.discard() == rhs.discard() and
+               lhs.open() == rhs.open();
+    }
 }  // namespace mj

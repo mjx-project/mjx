@@ -1,10 +1,14 @@
 clean:
-	rm tenhou/*pb2.py tenhou/*pb2_grpc.py
-	rm mj/*.pb.cc mj/*.pb.h
+	cd mjconvert && make clean
 	rm -rf build
 	rm -rf docker-build
+	rm -rf external_libs/*
 
-build: 
+external_libs/spdlog:
+	cd external_libs && git clone https://github.com/gabime/spdlog.git
+	cd external_libs/spdlog && mkdir -p build && cd build && cmake .. && make -j && cd ../..
+
+build: external_libs/spdlog
 	mkdir -p build && cd build && cmake .. && make -j
 
 test: build

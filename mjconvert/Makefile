@@ -1,7 +1,7 @@
 .PHONY: proto requirements install uninstall clean pytest test-cli
 
 clean:
-	rm ./mjproto/*pb2*
+	rm ./mjproto/*pb2* || echo "Already deleted"
 	rm -rf build
 	rm -rf dist
 	rm -rf *.egg-info
@@ -37,8 +37,11 @@ pytest: proto
 test-cli: uninstall clean install
 	echo "From mjlog => mjproto"
 	cat mjconvert/tests/resources/mjlog/*.mjlog | mjconvert --to-mjproto --verbose | wc -l
+	cat mjconvert/tests/resources/mjlog/*.mjlog | mjconvert --to-mjproto --compress --verbose | wc -l
 	cat mjconvert/tests/resources/mjlog/*.mjlog | mjconvert --to-mjproto-raw --verbose | wc -l
 	mjconvert mjconvert/tests/resources/mjlog mjconvert/tests/resources/mjproto --to-mjproto --verbose && cat mjconvert/tests/resources/mjproto/* | wc -l
+	rm mjconvert/tests/resources/mjproto/*.json
+	mjconvert mjconvert/tests/resources/mjlog mjconvert/tests/resources/mjproto --to-mjproto --compress --verbose && cat mjconvert/tests/resources/mjproto/* | wc -l
 	rm mjconvert/tests/resources/mjproto/*.json
 	mjconvert mjconvert/tests/resources/mjlog mjconvert/tests/resources/mjproto --to-mjproto-raw --verbose && cat mjconvert/tests/resources/mjproto/* | wc -l
 	echo "From mjproto => mjlog_recovered"

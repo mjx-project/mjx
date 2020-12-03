@@ -24,7 +24,8 @@ namespace mj {
 
             for (auto event : events) {
                 std::string event_json;
-                Assert(google::protobuf::util::MessageToJsonString(event, &event_json).ok());
+                status = google::protobuf::util::MessageToJsonString(event, &event_json);
+                Assert(status.ok());
 
                 if (event.type() == mjproto::EVENT_TYPE_DISCARD_DRAWN_TILE or
                     event.type() == mjproto::EVENT_TYPE_DISCARD_FROM_HAND)
@@ -32,6 +33,50 @@ namespace mj {
                     auto observation = Observation(static_cast<AbsolutePos>(event.who()), state_.state_);
                     std::string train_data = observation.ToJson() + "\t" + event_json;
                     ofs << train_data << std::endl;
+                }
+
+                state_.UpdateByEvent(event);
+            }
+        }
+    }
+
+    void TrainDataGenerator::generateDiscardWithPossibleAction(const std::string& src_path, const std::string& dst_path) {
+        std::ifstream ifs(src_path, std::ios::in);
+        std::ofstream ofs(dst_path, std::ios::out);
+        std::string json;
+        while (std::getline(ifs, json)) {
+            mjproto::State state;
+            auto status = google::protobuf::util::JsonStringToMessage(json, &state);
+            Assert(status.ok());
+
+            // eventのコピーを取ってから全て削除する
+            auto events = state.event_history().events();
+            state.mutable_event_history()->mutable_events()->Clear();
+
+            auto state_ = State(state);
+
+            auto player_ids = state_.proto().player_ids();
+            std::map<PlayerId, mjproto::AbsolutePos> player_id_to_absolute_pos;
+            for (int i = 0; i < 4; ++i) {
+                player_id_to_absolute_pos[player_ids[i]] = static_cast<mjproto::AbsolutePos>(i);
+            }
+
+            for (const auto& event : events) {
+                if (!state_.HasLastEvent() or
+                    state_.LastEvent().type() != mjproto::EVENT_TYPE_DRAW or
+                        (event.type() != mjproto::EVENT_TYPE_DISCARD_FROM_HAND and
+                         event.type() != mjproto::EVENT_TYPE_DISCARD_DRAWN_TILE)) {
+                    state_.UpdateByEvent(event);
+                    continue;
+                }
+
+                for (const auto& [player_id, observation] : state_.CreateObservations()) {
+                    if (event.who() != player_id_to_absolute_pos[player_id]) continue;
+                    auto possible_actions = observation.possible_actions();
+                    std::string event_json;
+                    status = google::protobuf::util::MessageToJsonString(event, &event_json);
+                    Assert(status.ok());
+                    ofs << observation.ToJson() << '\t' << event_json << std::endl;
                 }
 
                 state_.UpdateByEvent(event);
@@ -64,7 +109,8 @@ namespace mj {
 
             for (const auto& event : events) {
                 std::string event_json;
-                Assert(google::protobuf::util::MessageToJsonString(event, &event_json).ok());
+                status = google::protobuf::util::MessageToJsonString(event, &event_json);
+                Assert(status.ok());
                 if (!state_.HasLastEvent() or (
                     state_.LastEvent().type() != mjproto::EVENT_TYPE_DISCARD_FROM_HAND and
                     state_.LastEvent().type() != mjproto::EVENT_TYPE_DISCARD_DRAWN_TILE)) {
@@ -87,7 +133,8 @@ namespace mj {
                         }
                     }
                     std::string action_json;
-                    Assert(google::protobuf::util::MessageToJsonString(selected_action, &action_json).ok());
+                    status = google::protobuf::util::MessageToJsonString(selected_action, &action_json);
+                    Assert(status.ok());
                     ofs << "\t" << action_json << std::endl;
                 }
 
@@ -122,7 +169,8 @@ namespace mj {
 
             for (const auto& event : events) {
                 std::string event_json;
-                Assert(google::protobuf::util::MessageToJsonString(event, &event_json).ok());
+                status = google::protobuf::util::MessageToJsonString(event, &event_json);
+                Assert(status.ok());
 
                 if (!state_.HasLastEvent() or
                     (state_.LastEvent().type() != mjproto::EVENT_TYPE_DISCARD_FROM_HAND and
@@ -177,7 +225,8 @@ namespace mj {
 
             for (const auto& event : events) {
                 std::string event_json;
-                Assert(google::protobuf::util::MessageToJsonString(event, &event_json).ok());
+                status = google::protobuf::util::MessageToJsonString(event, &event_json);
+                Assert(status.ok());
 
                 if (!state_.HasLastEvent() or
                     state_.LastEvent().type() != mjproto::EVENT_TYPE_DRAW) {
@@ -224,6 +273,8 @@ int main(int argc, char *argv[]) {
         const auto& [src_str, dst_str] = p;
         if (action_type == "DISCARD") {
             mj::TrainDataGenerator::generateDiscard(src_str, dst_str);
+        } else if (action_type == "DISCARD_WITH_POSSIBLE_ACTION") {
+            mj::TrainDataGenerator::generateDiscardWithPossibleAction(src_str, dst_str);
         } else if (action_type == "CHI") {
             mj::TrainDataGenerator::generateOpen(src_str, dst_str, mjproto::ActionType::ACTION_TYPE_CHI);
         } else if (action_type == "PON") {
