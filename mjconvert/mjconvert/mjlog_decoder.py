@@ -26,7 +26,6 @@ class MjlogDecoder:
         self.last_drawer: Optional[mjproto.AbsolutePosValue] = None
         self.last_draw: Optional[int] = None
 
-
     def to_states(self, mjlog_str: str, store_cache=False) -> List[mjproto.State]:
         wall_dices = reproduce_wall_from_mjlog(mjlog_str, store_cache=store_cache)
         root = ET.fromstring(mjlog_str)
@@ -35,7 +34,7 @@ class MjlogDecoder:
             ret.append(state)
         return ret
 
-    def decode(self, mjlog_str: str, store_cache=False) -> List[str]:
+    def decode(self, mjlog_str: str, store_cache=False, compress: bool = False) -> List[str]:
         states = self.to_states(mjlog_str, store_cache)
         ret = []
         for state in states:
