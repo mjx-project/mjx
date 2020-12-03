@@ -105,28 +105,19 @@ def is_stolen_red(bits: int) -> bool:  # TODO: test  さらに小さい関数を
     reds = [14, 52, 88]
     event_type = open_event_type(bits)
     stolen_tile_kind = open_stolen_tile_type(bits)
-    if stolen_tile_kind in fives:
+    if stolen_tile_kind not in fives:
+        return False
+    else:
         if event_type == mjproto.EVENT_TYPE_CHI:
             stolen_tile_mod3 = (bits >> 10) % 3  # 鳴いた牌のindex
             stolen_tile_id_mod4 = bits >> (3 + 2 * stolen_tile_mod3) % 4  # 鳴いた牌のid mod 4
-            if stolen_tile_id_mod4 == 0:  # 鳴いた牌のid mod 4=0→赤
-                return True
-            else:
-                return False
+            return stolen_tile_id_mod4 == 0  # 鳴いた牌のid mod 4=0→赤
         elif event_type == mjproto.EVENT_TYPE_PON or event_type == mjproto.EVENT_TYPE_KAN_ADDED:
             unused_id_mod4 = (bits >> 5) % 4  # 未使用牌のid mod 4
             stolen_tile_mod3 = (bits >> 9) % 3  # 鳴いた牌のindex
-            if unused_id_mod4 != 0 and stolen_tile_mod3 == 0:  # 未使用牌が赤でなく、鳴いた牌のインデックスが0の時→赤
-                return True
-            else:
-                return False
+            return unused_id_mod4 != 0 and stolen_tile_mod3 == 0  # 未使用牌が赤でなく、鳴いた牌のインデックスが0の時→赤
         else:
-            if (bits >> 8) in reds:
-                return True
-            else:
-                return False
-    else:
-        return False
+            return (bits >> 8) in reds
 
 
 def is_unused_red(bits: int):
@@ -140,20 +131,20 @@ def is_unused_red(bits: int):
 def has_red_chi(bits: int) -> bool:  # TODO テスト
     min_starts_include5_mod9 = [2, 3, 4]
     min_tile = _min_tile_chi(bits)
-    if min_tile % 9 in min_starts_include5_mod9:
+    if min_tile % 9 not in min_starts_include5_mod9:
+        return False
+    else:
         start_from3 = min_tile % 9 == 2  # min_tile で場合分け
         start_from4 = min_tile % 9 == 3
         start_from5 = min_tile % 9 == 4
-        if start_from3 and (bits >> 7) % 4 == 0:  # 3から始まる→3番目の牌のid mod 4 =0 →赤
-            return True
-        elif start_from4 and (bits >> 5) % 4 == 0:
-            return True
-        elif start_from5 and (bits >> 3) % 4 == 0:
-            return True
+        if start_from3:  # 3から始まる→3番目の牌のid mod 4 =0 →赤
+            return (bits >> 7) % 4 == 0
+        elif start_from4:
+            return (bits >> 5) % 4 == 0
+        elif start_from5:
+            return (bits >> 3) % 4 == 0
         else:
-            return False
-    else:
-        return False
+            assert False
 
 
 def has_red_pon_kan_added(bits: int) -> bool:  # TODO テスト ポンとカカンは未使用牌が赤かどうかで鳴牌に赤があるか判断
