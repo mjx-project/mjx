@@ -122,10 +122,7 @@ def is_stolen_red(bits: int) -> bool:  # TODO: test  さらに小さい関数を
 
 def is_unused_red(bits: int):
     unused_id_mod4 = (bits >> 5) % 4
-    if unused_id_mod4 == 0:
-        return True
-    else:
-        return False
+    return unused_id_mod4 == 0
 
 
 def has_red_chi(bits: int) -> bool:  # TODO テストgit
