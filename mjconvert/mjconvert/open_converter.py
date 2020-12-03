@@ -128,7 +128,7 @@ def is_unused_red(bits: int):
         return False
 
 
-def has_red_chi(bits: int) -> bool:  # TODO テスト
+def has_red_chi(bits: int) -> bool:  # TODO テストgit
     min_starts_include5_mod9 = [2, 3, 4]
     min_tile = _min_tile_chi(bits)
     if min_tile % 9 not in min_starts_include5_mod9:
