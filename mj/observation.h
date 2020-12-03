@@ -23,7 +23,7 @@ namespace mj
         Hand initial_hand() const;
         Hand current_hand() const;
         std::string ToJson() const;
-        mjproto::Observation proto() const;
+        const mjproto::Observation& proto() const;
 
         void add_possible_action(mjproto::Action &&possible_action);
         void add_possible_actions(const std::vector<mjproto::Action> &possible_actions);

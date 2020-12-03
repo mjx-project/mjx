@@ -26,6 +26,7 @@ class MjlogDecoder:
         self.last_drawer: Optional[mjproto.AbsolutePosValue] = None
         self.last_draw: Optional[int] = None
 
+
     def to_states(self, mjlog_str: str, store_cache=False) -> List[mjproto.State]:
         wall_dices = reproduce_wall_from_mjlog(mjlog_str, store_cache=store_cache)
         root = ET.fromstring(mjlog_str)
@@ -41,7 +42,11 @@ class MjlogDecoder:
             # No spaces
             x = (
                 json.dumps(
-                    json_format.MessageToDict(state, including_default_value_fields=False),
+                    json_format.MessageToDict(
+                        state,
+                        including_default_value_fields=False,
+                        use_integers_for_enums=compress,
+                    ),
                     ensure_ascii=False,
                     separators=(",", ":"),
                 )
@@ -54,6 +59,9 @@ class MjlogDecoder:
         self, root: Element, wall_dices: List[Tuple[List[int], List[int]]], modify: bool
     ) -> Iterator[mjproto.State]:
         state_ = mjproto.State()
+
+        # set seed
+        state_.game_seed = 0
 
         assert root.tag == "mjloggm"
         assert root.attrib["ver"] == "2.3"

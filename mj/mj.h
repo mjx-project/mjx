@@ -15,7 +15,7 @@
 #include "types.h"
 #include "utils.h"
 #include "wall.h"
-#include "wall_seed.h"
+#include "game_seed.h"
 #include "win_cache.h"
 #include "win_cache_generator.h"
 #include "win_info.h"

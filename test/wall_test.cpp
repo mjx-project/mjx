@@ -27,7 +27,7 @@ TEST(wall, initial_hand) {
 
 TEST(wall, Draw) {
     // カンなしで70回ツモが存在する
-    auto wall = Wall(0);
+    auto wall = Wall(0, 0, 9999);
     for (int i = 0; i < 70; ++i) {
         EXPECT_TRUE(wall.HasDrawLeft());
         wall.Draw();
@@ -37,7 +37,7 @@ TEST(wall, Draw) {
 
 TEST(wall, KanDraw) {
     // カンがあると、その分ツモ数が減る
-    auto wall = Wall(0);
+    auto wall = Wall(0, 0, 9999);
     for (int i = 0; i < 35; ++i) {
         EXPECT_TRUE(wall.HasDrawLeft());
         wall.Draw();
@@ -61,7 +61,7 @@ TEST(wall, KanDraw) {
 }
 
 TEST(wall, AddKanDra) {
-    auto wall = Wall(3);
+    auto wall = Wall(0, 0, 9999);
     wall.KanDraw();
     auto [kan_dora_ind1, ura_kan_dora_ind1] = wall.AddKanDora();
     EXPECT_EQ(kan_dora_ind1, wall.dora_indicators().back());
@@ -72,7 +72,7 @@ TEST(wall, AddKanDra) {
 }
 
 TEST(wall, doras) {
-    auto wall = Wall(0);
+    auto wall = Wall(0, 0, 9999);
     EXPECT_EQ(wall.dora_indicators().size(), 1);
     EXPECT_EQ(wall.ura_dora_indicators().size(), 1);
     for (int i = 0; i < 4; ++i) {
@@ -100,14 +100,27 @@ TEST(wall, ura_doras) {
 }
 
 TEST(wall, wall_seed_constructor){
-    const int ROUND = 5, HONBA = 5, SEED = 1234;
-    for (int r = 0; r < ROUND; ++r) {
-        for (int h = 0; h < HONBA; ++h) {
-            auto wall1 = Wall(r, h, SEED).tiles();
-            auto wall2 = Wall(r, h, SEED).tiles();
+    const int kROUND = 5, kHONBA = 5, kSEED = 1234;
+    for (int r = 0; r < kROUND; ++r) {
+        for (int h = 0; h < kHONBA; ++h) {
+            auto wall1 = Wall(r, h, kSEED).tiles();
+            auto wall2 = Wall(r, h, kSEED).tiles();
             for(int i = 0; i < wall1.size(); ++i){
                 EXPECT_EQ(wall1[i], wall2[i]);
             }
         }
     }
+}
+
+TEST(wall, WallEqualityOverDevices) {
+    auto wall = Wall(0, 0, 9999);
+    auto tiles = wall.tiles();
+    ASSERT_EQ(tiles.at(0), Tile(42));
+    ASSERT_EQ(tiles.at(1), Tile(38));
+    ASSERT_EQ(tiles.at(2), Tile(111));
+    wall = Wall(4, 4, 1234);
+    tiles = wall.tiles();
+    ASSERT_EQ(tiles.at(0), Tile(121));
+    ASSERT_EQ(tiles.at(1), Tile(113));
+    ASSERT_EQ(tiles.at(2), Tile(100));
 }

@@ -3,6 +3,7 @@
 
 #include "vector"
 #include "tile.h"
+#include "game_seed.h"
 
 namespace mj
 {
@@ -22,7 +23,9 @@ namespace mj
          *  - [132, ..., 135]  Kan draw 2, 3, 0, 1  TODO (sotetsuk) check and test this.
          */
     public:
-        explicit Wall(std::uint64_t round = 0, std::uint64_t honba = 0, std::uint64_t seed = 9999);
+        Wall() = default;
+        explicit Wall(std::uint64_t round, std::uint64_t honba, std::uint64_t game_seed);
+        // Constructor only for reproducing wall from human data. round info is necessary due to Tenhou's wall format.
         Wall(std::uint32_t round, std::vector<Tile> tiles);
         [[nodiscard]] std::vector<Tile> initial_hand_tiles(AbsolutePos pos) const;
         [[nodiscard]] std::vector<Tile> dora_indicators() const;
@@ -32,18 +35,24 @@ namespace mj
         [[nodiscard]] const std::vector<Tile>& tiles() const;
         [[nodiscard]] bool HasDrawLeft() const;
         [[nodiscard]] bool HasNextDrawLeft() const;
+        [[nodiscard]] std::uint64_t game_seed() const;
         Tile Draw();
         Tile KanDraw();
         std::pair<Tile, Tile> AddKanDora();
     private:
         std::uint32_t round_;
-        std::uint32_t seed_;
+        GameSeed game_seed_;
         std::vector<Tile> tiles_;
         int draw_ix_ = 52;
         int num_kan_draw_ = 0;
         int num_kan_dora_ = 0;
 
         static TileType IndicatorToDora(Tile dora_indicator);
+
+        // This implementation is from https://en.cppreference.com/w/cpp/algorithm/random_shuffle#Possible_implementation
+        // As the std::shuffle implementation is not specified in the standard, we cannot reproduce the results with std::shuffle.
+        template<class RandomIt, class URBG>
+        static void shuffle(RandomIt first, RandomIt last, URBG&& g);
     };
 }  // namespace mj
 
