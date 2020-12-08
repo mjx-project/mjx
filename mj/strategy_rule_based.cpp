@@ -85,7 +85,14 @@ namespace mj{
                     return tile;
                 }
             }
-            Assert(false);
+            std::string tiles = "";
+            for (auto tile: curr_hand.PossibleDiscardsToTakeTenpai()) {
+                tiles += tile.ToString(true);
+            }
+            Assert(false, "CanTakeTenpai return true but no possible discards to take tenpai.\n  CanTakeTenpai(): " +
+                          std::to_string(curr_hand.CanTakeTenpai()) + "\n  " +
+                          curr_hand.ToString(true) + "\n  " +
+                          tiles);
         }
         // 判定ロジック
         auto is_head = [&closed_tile_type_cnt](Tile tile){
