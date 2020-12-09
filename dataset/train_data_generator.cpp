@@ -24,7 +24,8 @@ namespace mj {
 
             for (auto event : events) {
                 std::string event_json;
-                Assert(google::protobuf::util::MessageToJsonString(event, &event_json).ok());
+                status = google::protobuf::util::MessageToJsonString(event, &event_json);
+                Assert(status.ok());
 
                 if (event.type() == mjproto::EVENT_TYPE_DISCARD_DRAWN_TILE or
                     event.type() == mjproto::EVENT_TYPE_DISCARD_FROM_HAND)
@@ -73,7 +74,8 @@ namespace mj {
                     if (event.who() != player_id_to_absolute_pos[player_id]) continue;
                     auto possible_actions = observation.possible_actions();
                     std::string event_json;
-                    Assert(google::protobuf::util::MessageToJsonString(event, &event_json).ok());
+                    status = google::protobuf::util::MessageToJsonString(event, &event_json);
+                    Assert(status.ok());
                     ofs << observation.ToJson() << '\t' << event_json << std::endl;
                 }
 
@@ -107,7 +109,8 @@ namespace mj {
 
             for (const auto& event : events) {
                 std::string event_json;
-                Assert(google::protobuf::util::MessageToJsonString(event, &event_json).ok());
+                status = google::protobuf::util::MessageToJsonString(event, &event_json);
+                Assert(status.ok());
                 if (!state_.HasLastEvent() or (
                     state_.LastEvent().type() != mjproto::EVENT_TYPE_DISCARD_FROM_HAND and
                     state_.LastEvent().type() != mjproto::EVENT_TYPE_DISCARD_DRAWN_TILE)) {
@@ -130,7 +133,8 @@ namespace mj {
                         }
                     }
                     std::string action_json;
-                    Assert(google::protobuf::util::MessageToJsonString(selected_action, &action_json).ok());
+                    status = google::protobuf::util::MessageToJsonString(selected_action, &action_json);
+                    Assert(status.ok());
                     ofs << "\t" << action_json << std::endl;
                 }
 
@@ -165,7 +169,8 @@ namespace mj {
 
             for (const auto& event : events) {
                 std::string event_json;
-                Assert(google::protobuf::util::MessageToJsonString(event, &event_json).ok());
+                status = google::protobuf::util::MessageToJsonString(event, &event_json);
+                Assert(status.ok());
 
                 if (!state_.HasLastEvent() or
                     (state_.LastEvent().type() != mjproto::EVENT_TYPE_DISCARD_FROM_HAND and
@@ -220,7 +225,8 @@ namespace mj {
 
             for (const auto& event : events) {
                 std::string event_json;
-                Assert(google::protobuf::util::MessageToJsonString(event, &event_json).ok());
+                status = google::protobuf::util::MessageToJsonString(event, &event_json);
+                Assert(status.ok());
 
                 if (!state_.HasLastEvent() or
                     state_.LastEvent().type() != mjproto::EVENT_TYPE_DRAW) {
@@ -251,13 +257,14 @@ int main(int argc, char *argv[]) {
     Assert(argc == 4);
     std::string action_type = argv[1];
     auto src_dir = fs::directory_entry(argv[2]);
-    std::string dst_str = argv[3];
+    auto dst_dir = fs::directory_entry(argv[3]);
 
     // Prepare all filenames
     std::vector<std::pair<std::string, std::string>> paths;
     for ( const fs::directory_entry& entry : fs::recursive_directory_iterator(src_dir) ) {
         if (entry.is_directory()) continue;
         std::string src_str = entry.path().string();
+        std::string dst_str = dst_dir.path().string() + "/" + entry.path().stem().string() + ".txt";
         paths.emplace_back(src_str, dst_str);
     }
 

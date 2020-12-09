@@ -50,7 +50,7 @@ class mj::agent::AgentGrpcServer {
     + RunServer(): void
 }
 
-class mj::agent::AgentGrpcServerImplExample{
+class mj::agent::AgentGrpcServerImplRuleBased{
 
 }
 
@@ -204,7 +204,7 @@ mj::agent::Agent <|-- mj::agent::AgentExampleRuleBased
 mj::agent::Agent <|-- mj::agent::AgentGrpcClient
 mj::agent::AgentGrpcClient --> mj::agent::AgentGrpcServer : <<mjproto::Observation>>
 mj::agent::AgentGrpcServer --> mj::agent::AgentGrpcClient : <<mjproto::Action>>
-mj::agent::AgentGrpcServer *-- mj::agent::AgentGrpcServerImplExample
+mj::agent::AgentGrpcServer *-- mj::agent::AgentGrpcServerImplRuleBased
 
 mj::mahjong::State *-- mj::mahjong::Wall
 mj::mahjong::State "1" *-- "4" mj::mahjong::Hand
