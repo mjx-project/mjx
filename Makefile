@@ -3,6 +3,9 @@ clean:
 	rm -rf build
 	rm -rf docker-build
 
+build:
+	mkdir -p build && cd build && cmake .. && make -j
+
 test: build
 	./build/test/mj_test
 
