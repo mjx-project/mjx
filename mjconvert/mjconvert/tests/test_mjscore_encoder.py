@@ -39,5 +39,3 @@ def test_mjproto_to_mjscore():
                 score_converted_dict = json.loads(score_converted)
                 score_original_dict = json.loads(score_original)
                 assert mjscore_log_equal(score_original_dict, score_converted_dict)
-
-test_mjproto_to_mjscore()
