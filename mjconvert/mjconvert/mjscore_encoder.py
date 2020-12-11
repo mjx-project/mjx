@@ -163,9 +163,9 @@ yaku_list_tumo = [
     "大四喜(役満)",
     "小四喜(役満)",
     "四槓子(役満)",
-    "ドラ(1飜)",
-    "裏ドラ(1飜)",
-    "赤ドラ(1飜)",
+    "ドラ",
+    "裏ドラ",
+    "赤ドラ",
 ]
 
 yaku_list_ron = [
@@ -221,9 +221,9 @@ yaku_list_ron = [
     "大四喜(役満)",
     "小四喜(役満)",
     "四槓子(役満)",
-    "ドラ(1飜)",
-    "裏ドラ(1飜)",
-    "赤ドラ(1飜)",
+    "ドラ",
+    "裏ドラ",
+    "赤ドラ",
 ]
 yaku_list_keys = [i for i in range(55)]
 yaku_dict_tumo = {k: v for k, v in zip(yaku_list_keys, yaku_list_tumo)}
@@ -307,6 +307,22 @@ def check_uradoras(fans: List[int], yakus: List[int]) -> List[int]:  # リーチ
         return [i for i in yakus if i != 53]
     else:
         return yakus
+
+
+def correspond_yakus(yaku_dict, yakus):
+    """
+    >>> correspond_yakus(yaku_dict_tumo, [0, 52, 52])
+    ['門前清自摸和(1飜)', 'ドラ(2飜)']
+    """
+    doras = [52,53,54]
+    yakus_in_japanese = []
+    for i in yakus:
+        if i not in doras:
+            yakus_in_japanese.append(yaku_dict[i])
+    for i in doras:
+        if i in yakus:
+            yakus_in_japanese.append(yaku_dict[i] + "({}飜)".format(str(yakus.count(i))))  # ドラは複数ある場合はまとめてドラ(3飜)の様に表記
+    return yakus_in_japanese
 
 
 def winner_yakus(yakus: List[int]) -> List[str]:
