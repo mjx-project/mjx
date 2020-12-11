@@ -59,6 +59,12 @@ def sort_init_hand(init_hand: List) -> List:
     return sorted_hand
 
 
+def change_tumogiri_riich_fmt(tile: int) -> int:  # ツモギリリーチ専用の番号90を60ツモぎりの番号60に直す
+    if tile == 90:
+        return 60
+    return tile
+
+
 # mjproto形式のeventを受け取り、あるプレイヤーの捨て牌をmjscore形式で出力する関数。
 def parse_discards(events, abs_pos: int):
     discards: List[object] = []
@@ -68,15 +74,22 @@ def parse_discards(events, abs_pos: int):
         if event.type == mjproto.EVENT_TYPE_DISCARD_FROM_HAND and event.who == abs_pos:  # 手出し
             discards.append(change_tile_fmt(event.tile))
         elif event.type == mjproto.EVENT_TYPE_DISCARD_DRAWN_TILE and event.who == abs_pos:  # ツモギリ
-            discards.append(60)
+            if events[i - 1].type == mjproto.EVENT_TYPE_RIICHI:
+                discards.append(90)  # ツモギリリーチ専用の番号
+            else:
+                discards.append(60)
         elif event.type == mjproto.EVENT_TYPE_RIICHI and event.who == abs_pos:  # リーチ
             is_reach = True
-            riichi_tile_list.append(
-                change_tile_fmt(events[i + 1].tile)
-            )  # riichiの次のeventに宣言牌が記録されているのでそのtileを取得して後にindexを取得変更
+            if events[i + 1].type == mjproto.EVENT_TYPE_DISCARD_DRAWN_TILE:
+                riichi_tile_list.append(90)
+            else:
+                riichi_tile_list.append(change_tile_fmt(events[i + 1].tile))
+            # riichiの次のeventに宣言牌が記録されているのでそのtileを取得して後にindexを取得変更
     if is_reach:
         riichi_tile = riichi_tile_list[0]
-        discards = [i if i != riichi_tile else "r" + str(i) for i in discards]  # リーチ宣言牌の形式変更
+        discards = [
+            i if i != riichi_tile else "r" + str(change_tumogiri_riich_fmt(i)) for i in discards
+        ]  # リーチ宣言牌の形式変更
     return discards
 
 
@@ -314,14 +327,16 @@ def correspond_yakus(yaku_dict, yakus):
     >>> correspond_yakus(yaku_dict_tumo, [0, 52, 52])
     ['門前清自摸和(1飜)', 'ドラ(2飜)']
     """
-    doras = [52,53,54]
+    doras = [52, 53, 54]
     yakus_in_japanese = []
     for i in yakus:
         if i not in doras:
             yakus_in_japanese.append(yaku_dict[i])
     for i in doras:
         if i in yakus:
-            yakus_in_japanese.append(yaku_dict[i] + "({}飜)".format(str(yakus.count(i))))  # ドラは複数ある場合はまとめてドラ(3飜)の様に表記
+            yakus_in_japanese.append(
+                yaku_dict[i] + "({}飜)".format(str(yakus.count(i)))
+            )  # ドラは複数ある場合はまとめてドラ(3飜)の様に表記
     return yakus_in_japanese
 
 
@@ -332,10 +347,11 @@ def winner_yakus(yakus: List[int]) -> List[str]:
     >>> winner_yakus([23])
     ['混全帯幺九(1飜)']
     """
+    print(yakus)
     if 0 in yakus:  # ツモの有無によって役の飜数がかわる。
-        return list(map(lambda x: yaku_dict_tumo[x], yakus))
+        return correspond_yakus(yaku_dict_tumo, yakus)
     else:
-        return list(map(lambda x: yaku_dict_ron[x], yakus))
+        return correspond_yakus(yaku_dict_ron, yakus)
 
 
 def parse_terminal(state: mjproto.State):
@@ -348,6 +364,7 @@ def parse_terminal(state: mjproto.State):
         ten_changes = [i for i in state.terminal.wins[0].ten_changes]
         fans = [i for i in state.terminal.wins[0].fans]  # [役での飜数, ドラの数]
         yakus = check_uradoras(fans, [i for i in state.terminal.wins[0].yakus])
+        print(yakus)
         fu = state.terminal.wins[0].fu
         ten = state.terminal.wins[0].ten
         """
@@ -367,6 +384,8 @@ def parse_terminal(state: mjproto.State):
 
 def determine_ura_doras_list(state: mjproto.State) -> List:
     if len(state.terminal.wins) == 0:  # あがり者の有無でウラどらが表示されるかどうかが決まる
+        return []
+    elif 1 not in state.terminal.wins[0].yakus:  # リーチがかかっていないと、上がって裏ドラが表示されない.
         return []
     else:
         return [change_tile_fmt(i) for i in state.ura_doras]
@@ -400,15 +419,16 @@ def mjproto_to_mjscore(state: mjproto.State) -> str:
 
 
 if __name__ == "__main__":
+
     # 東1局0本場の mjproto
-    path_to_mjproto_example = "../..//test/resources/json/first-example.json"
+    path_to_mjproto_example = "/Users/nishimorihajimeichirou/github/mahjong/mjconvert/mjconvert/tests/resources/mjscore/test12010102910gm-00a9-0000-cdb9804c.mjlog"
     with open(path_to_mjproto_example, "r") as f:
         line = f.readline()
     d = json.loads(line)
     state: mjproto.State = json_format.ParseDict(d, mjproto.State())
 
     # 東1局0本場の mjscore
-    path_to_mjscore_example = "../../test/resources/mjscore/first-example.json"
+    path_to_mjscore_example = "/Users/nishimorihajimeichirou/github/mahjong/mjconvert/mjconvert/tests/resources/mjscore/test12010102910gm-00a9-0000-cdb9804c.json"
     with open(path_to_mjscore_example, "r") as f:
         line = f.readline()
     mjscore_expected_dict = json.loads(line)
