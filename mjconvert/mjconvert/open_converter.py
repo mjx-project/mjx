@@ -101,7 +101,7 @@ def open_tile_types(bits: int) -> List[int]:
 
 
 def is_stolen_red(bits: int) -> bool:  # TODO: test  さらに小さい関数を作るか否か考えるべし
-    fives = [4, 14, 22]
+    fives = [4, 13, 22]
     reds = [14, 52, 88]
     event_type = open_event_type(bits)
     stolen_tile_kind = open_stolen_tile_type(bits)
@@ -145,7 +145,7 @@ def has_red_chi(bits: int) -> bool:  # TODO テストgit
 
 
 def has_red_pon_kan_added(bits: int) -> bool:  # TODO テスト ポンとカカンは未使用牌が赤かどうかで鳴牌に赤があるか判断
-    fives = [4, 14, 22, 51, 52, 53]
+    fives = [4, 13, 22]
     stolen_tile_kind = open_stolen_tile_type(bits)
     if stolen_tile_kind in fives:
         unused_id_mod3 = (bits >> 5) & 3
@@ -165,6 +165,28 @@ def has_red(bits: int) -> bool:
         return has_red_pon_kan_added(bits)
     else:
         return True  # ダイミンカンとアンカンは必ず赤を含む
+
+
+def transform_red_stolen(bits: int, stolen_tile: int) -> int:
+    red_dict = {4: 51, 13: 52, 22: 53}  # openの5:mjscoreの赤５
+    if is_stolen_red(bits):
+        return red_dict(stolen_tile)
+    else:
+        return stolen_tile
+
+
+def transform_red_opne(bits: int, open: List[int], event_type) -> int:
+    red_dict = {4: 51, 13: 52, 22: 53}
+    fives = [4, 13, 22]
+    if is_stolen_red(bits) or not has_red(bits):
+        return open
+    if event_type == mjproto.EVENT_TYPE_CHI:
+        return [red_dict[i] if i in fives else i for i in open]
+    elif event_type == mjproto.EVENT_TYPE_PON:
+        open[-1] = red_dict[open[-1]]
+        return open
+    else:
+        return 0  # TODO カン
 
 
 def change_open_tile_fmt(
