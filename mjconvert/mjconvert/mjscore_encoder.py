@@ -9,7 +9,7 @@ import mjproto
 from mjconvert import open_converter
 
 
-def change_tile_fmt(tile_id: int) -> int:
+def _change_tile_fmt(tile_id: int) -> int:
     reds_in_mjproto = [16, 52, 88]
     reds_in_mjscore = [51, 52, 53]
     reds_dict = dict(zip(reds_in_mjproto, reds_in_mjscore))
@@ -21,13 +21,13 @@ def change_tile_fmt(tile_id: int) -> int:
 
 
 # mjproto形式の牌のリストを引数にとり、表現をmjscore形式の表現に変える関数
-def change_tiles_fmt(tile_ids):
-    scores = list(map(change_tile_fmt, tile_ids))  # mjproto形式の表現ををmjscore形式に変換
+def _change_tiles_fmt(tile_ids):
+    scores = list(map(_change_tile_fmt, tile_ids))  # mjproto形式の表現ををmjscore形式に変換
     return scores
 
 
 # openの情報を受け取ってmjscore形式に変更する関数
-def change_action_format(bits: int) -> str:
+def _change_action_format(bits: int) -> str:  # TODO カン
     event_type = open_converter.open_event_type(bits)
     open_from = open_converter.open_from(bits)
     stolen_tile = open_converter.change_open_tile_fmt(open_converter.open_stolen_tile_type(bits))
@@ -43,7 +43,7 @@ def change_action_format(bits: int) -> str:
         else:
             return str(stolen_tile) + str(open_tiles[0]) + "p" + str(open_tiles[1])
     else:
-        return " "  # カンはまだmjscoreのformatがわからない。
+        return " "
 
 
 # mjscore形式の配牌をソートする関数。
@@ -59,7 +59,7 @@ def sort_init_hand(init_hand: List) -> List:
     return sorted_hand
 
 
-def change_tumogiri_riich_fmt(tile: int) -> int:  # ツモギリリーチ専用の番号90を60ツモぎりの番号60に直す
+def __change_tumogiri_riich_fmt(tile: int) -> int:  # ツモギリリーチ専用の番号90を60ツモぎりの番号60に直す
     if tile == 90:
         return 60
     return tile
@@ -72,7 +72,7 @@ def parse_discards(events, abs_pos: int):
     riichi_tile_list: List[int] = []  # リーチは一人一回なので論理的におかしいが、リーチ宣言牌をスコープを跨いで保存してmypyでエラーを出さないため。
     for i, event in enumerate(events):
         if event.type == mjproto.EVENT_TYPE_DISCARD_FROM_HAND and event.who == abs_pos:  # 手出し
-            discards.append(change_tile_fmt(event.tile))
+            discards.append(_change_tile_fmt(event.tile))
         elif event.type == mjproto.EVENT_TYPE_DISCARD_DRAWN_TILE and event.who == abs_pos:  # ツモギリ
             if events[i - 1].type == mjproto.EVENT_TYPE_RIICHI:
                 discards.append(90)  # ツモギリリーチ専用の番号
@@ -83,12 +83,12 @@ def parse_discards(events, abs_pos: int):
             if events[i + 1].type == mjproto.EVENT_TYPE_DISCARD_DRAWN_TILE:
                 riichi_tile_list.append(90)
             else:
-                riichi_tile_list.append(change_tile_fmt(events[i + 1].tile))
+                riichi_tile_list.append(_change_tile_fmt(events[i + 1].tile))
             # riichiの次のeventに宣言牌が記録されているのでそのtileを取得して後にindexを取得変更
     if is_reach:
         riichi_tile = riichi_tile_list[0]
         discards = [
-            i if i != riichi_tile else "r" + str(change_tumogiri_riich_fmt(i)) for i in discards
+            i if i != riichi_tile else "r" + str(__change_tumogiri_riich_fmt(i)) for i in discards
         ]  # リーチ宣言牌の形式変更
     return discards
 
@@ -103,7 +103,7 @@ def parse_draws(draws, events, abs_pos):
     1. チーポンも含めたdiscardsを作成
     2. drawsの方で直前の捨て牌の直後にアクションを挿入
     """
-    draws = change_tiles_fmt(draws)
+    draws = _change_tiles_fmt(draws)
     discards = []
     actions = []  #
     for i, event in enumerate(events):
@@ -119,7 +119,7 @@ def parse_draws(draws, events, abs_pos):
             actions.append(event.open)
     for i, action in enumerate(actions):
         action_index = discards.index(action) - i  # 捨て牌でのactionのindex同じ順にdrawにアクションを挿入すれば良い
-        draws.insert(action_index, change_action_format(action))
+        draws.insert(action_index, _change_action_format(action))
     return draws
 
 
@@ -270,7 +270,7 @@ dealer_point_dict = {12000: "満貫", 18000: "跳満", 24000: "倍満", 36000: "
 no_dealer_point_dict = {8000: "満貫", 12000: "跳満", 16000: "倍満", 24000: "三倍満", 32000: "役満"}
 
 
-def fan_fu(who, fans: List[int], fu: int, ten) -> str:
+def __fan_fu(who, fans: List[int], fu: int, ten) -> str:
     """
     >>> fan_fu(0, [3, 1], 40, 12000)
     '満貫'
@@ -290,7 +290,7 @@ def fan_fu(who, fans: List[int], fu: int, ten) -> str:
             return no_dealer_point_dict[ten]
 
 
-def winner_point(who: int, from_who: int, fans: List[int], fu: int, ten: int) -> str:
+def _winner_point(who: int, from_who: int, fans: List[int], fu: int, ten: int) -> str:
     """
     >>> winner_point(0, 0, [3, 0], 30, 6000)
     '30符3飜2000点∀'
@@ -300,17 +300,17 @@ def winner_point(who: int, from_who: int, fans: List[int], fu: int, ten: int) ->
     is_tsumo = who == from_who  # ツモあがりかどうかを判定
     if is_tsumo:
         if who == mjproto.ABSOLUTE_POS_INIT_EAST:  # 親かどうか
-            return fan_fu(who, fans, fu, ten) + str(int(ten / 3)) + "点∀"
+            return __fan_fu(who, fans, fu, ten) + str(int(ten / 3)) + "点∀"
         else:
-            return fan_fu(who, fans, fu, ten) + non_dealer_tsumo_dict[ten] + "点"
+            return __fan_fu(who, fans, fu, ten) + non_dealer_tsumo_dict[ten] + "点"
     else:
         if who == mjproto.ABSOLUTE_POS_INIT_EAST:
-            return fan_fu(who, fans, fu, ten) + str(ten) + "点"
+            return __fan_fu(who, fans, fu, ten) + str(ten) + "点"
         else:
-            return fan_fu(who, fans, fu, ten) + str(ten) + "点"
+            return __fan_fu(who, fans, fu, ten) + str(ten) + "点"
 
 
-def check_uradoras(fans: List[int], yakus: List[int]) -> List[int]:  # リーチがかかるとprotoではyakus
+def _check_uradoras(fans: List[int], yakus: List[int]) -> List[int]:  # リーチがかかるとprotoではyakus
     # に強制的にウラドラの情報が入るが、乗っているかどうかを確認する必要がある
     """
     >>> check_uradoras([1, 1, 1, 0], [1, 0, 7, 53])
@@ -326,7 +326,7 @@ def check_uradoras(fans: List[int], yakus: List[int]) -> List[int]:  # リーチ
         return yakus
 
 
-def correspond_yakus(yaku_dict, yakus: int, fans: int):
+def __correspond_yakus(yaku_dict, yakus: int, fans: int):
     """
     >>> correspond_yakus(yaku_dict_tumo, [0, 52], [1 , 2])
     ['門前清自摸和(1飜)', 'ドラ(2飜)']
@@ -345,7 +345,7 @@ def correspond_yakus(yaku_dict, yakus: int, fans: int):
     return yakus_in_japanese
 
 
-def winner_yakus(yakus: List[int], fans: int) -> List[str]:
+def _winner_yakus(yakus: List[int], fans: int) -> List[str]:
     """
     >>> winner_yakus([0, 1, 23])
     ['門前清自摸和(1飜)', '立直(1飜)', '混全帯幺九(2飜)']
@@ -354,9 +354,9 @@ def winner_yakus(yakus: List[int], fans: int) -> List[str]:
     """
     print(yakus)
     if 0 in yakus:  # ツモの有無によって役の飜数がかわる。
-        return correspond_yakus(yaku_dict_tumo, yakus, fans)
+        return __correspond_yakus(yaku_dict_tumo, yakus, fans)
     else:
-        return correspond_yakus(yaku_dict_ron, yakus, fans)
+        return __correspond_yakus(yaku_dict_ron, yakus, fans)
 
 
 def parse_terminal(state: mjproto.State):
@@ -368,7 +368,7 @@ def parse_terminal(state: mjproto.State):
         from_who = state.terminal.wins[0].from_who
         ten_changes = [i for i in state.terminal.wins[0].ten_changes]
         fans = [i for i in state.terminal.wins[0].fans]  # [役での飜数, ドラの数]
-        yakus = check_uradoras(fans, [i for i in state.terminal.wins[0].yakus])
+        yakus = _check_uradoras(fans, [i for i in state.terminal.wins[0].yakus])
         print(yakus)
         print(fans)
         fu = state.terminal.wins[0].fu
@@ -379,8 +379,8 @@ def parse_terminal(state: mjproto.State):
         yakus: [役とドラの種類]
         ten: 純粋に上がり点が表示される。ツモ上がりの際の対応が必要
         """
-        yaku_point_infos = [who, from_who, who, winner_point(who, from_who, fans, fu, ten)]
-        yaku_point_infos.extend(winner_yakus(yakus, fans))
+        yaku_point_infos = [who, from_who, who, _winner_point(who, from_who, fans, fu, ten)]
+        yaku_point_infos.extend(_winner_yakus(yakus, fans))
         return [
             "和了",
             ten_changes,
@@ -394,7 +394,7 @@ def determine_ura_doras_list(state: mjproto.State) -> List:
     elif 1 not in state.terminal.wins[0].yakus:  # リーチがかかっていないと、上がって裏ドラが表示されない.
         return []
     else:
-        return [change_tile_fmt(i) for i in state.ura_doras]
+        return [_change_tile_fmt(i) for i in state.ura_doras]
 
 
 # ここを実装
@@ -402,7 +402,7 @@ def mjproto_to_mjscore(state: mjproto.State) -> str:
     round: int = state.init_score.round
     honba: int = state.init_score.honba
     riichi: int = state.init_score.riichi
-    doras: List[int] = [change_tile_fmt(i) for i in state.doras]
+    doras: List[int] = [_change_tile_fmt(i) for i in state.doras]
     ura_doras = determine_ura_doras_list(state)
     init_score: List[int] = [i for i in state.init_score.ten]
     log = [[round, honba, riichi], init_score, doras, ura_doras]
@@ -413,7 +413,7 @@ def mjproto_to_mjscore(state: mjproto.State) -> str:
         mjproto.ABSOLUTE_POS_INIT_NORTH,
     ]
     for abs_pos in absolute_pos:
-        log.append(sort_init_hand(change_tiles_fmt(state.private_infos[abs_pos].init_hand)))
+        log.append(sort_init_hand(_change_tiles_fmt(state.private_infos[abs_pos].init_hand)))
         log.append(
             parse_draws(state.private_infos[abs_pos].draws, state.event_history.events, abs_pos)
         )
