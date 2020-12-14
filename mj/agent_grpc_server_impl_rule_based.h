@@ -4,6 +4,7 @@
 #include <bits/stdc++.h>
 #include <boost/uuid/uuid.hpp>
 #include <boost/uuid/uuid_generators.hpp>
+#include <boost/uuid/uuid_io.hpp>
 #include "mj.grpc.pb.h"
 #include "agent_grpc_server.h"
 #include "strategy_rule_based.h"
@@ -15,13 +16,17 @@ namespace mj
     {
     public:
         grpc::Status TakeAction(grpc::ServerContext* context, const mjproto::Observation* request, mjproto::Action* reply) final ;
+        void InferenceAction();
 
     private:
         struct ObservationInfo{
             boost::uuids::uuid id;
             Observation obs;
         };
-        std::queue<ObservationInfo> obs_q_;
+        std::mutex mtx_que_, mtx_map_;
+        std::queue<ObservationInfo> obs_que_;
+        std::map<boost::uuids::uuid, mjproto::Action> act_map_;
+        int batch_size_ = 3;
     };
 }  // namespace mj
 
