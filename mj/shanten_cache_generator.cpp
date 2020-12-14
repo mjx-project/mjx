@@ -1,7 +1,10 @@
 #include "shanten_cache_generator.h"
 
+#include <boost/property_tree/ptree.hpp>
+#include <boost/property_tree/json_parser.hpp>
 #include <vector>
 #include <map>
+#include <unordered_map>
 #include <deque>
 #include <algorithm>
 #include <numeric>
@@ -112,12 +115,12 @@ namespace mj {
         clock_t start = clock();
 
 
-        std::map<std::string, int> cache;
+        std::unordered_map<std::string, int> cache;
         // 01-BFS
-        for (int x : {4}) {
-            for (int y : {1}) {
-        //for (int x : {0, 1, 2, 3, 4}) {
-        //    for (int y : {0, 1}) {
+        //for (int x : {4}) {
+        //    for (int y : {1}) {
+        for (int x : {0, 1, 2, 3, 4}) {
+            for (int y : {0, 1}) {
                 std::cout << "dists[{x, y}].size():" << dists[{x, y}].size() << std::endl;
                 std::cout << "x:" << x << std::endl;
                 std::cout << "y:" << y << std::endl;
@@ -178,7 +181,16 @@ namespace mj {
         const double time = static_cast<double>(end - start) / CLOCKS_PER_SEC * 1000.0;
         printf("time %lf[ms]\n", time);
 
-        // TODO: convert cache to json
+        std::cerr << "convert to json: start" << std::endl;
+        std::cerr << "cache.size():" << cache.size() << std::endl;
+        {
+            boost::property_tree::ptree root;
+            for (auto& [code, dist] : cache) {
+                root.put(code, dist);
+            }
+            boost::property_tree::write_json(std::string(WIN_CACHE_DIR) + "/shanten_cache.json", root);
+        }
+        std::cerr << "convert to json: end" << std::endl;
     }
 } // namespace mj
 
