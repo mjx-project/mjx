@@ -121,40 +121,42 @@ namespace mj {
         //    for (int y : {1}) {
         for (int x : {0, 1, 2, 3, 4}) {
             for (int y : {0, 1}) {
+                if (x == 0 and y == 0) continue;
                 std::cout << "dists[{x, y}].size():" << dists[{x, y}].size() << std::endl;
                 std::cout << "x:" << x << std::endl;
                 std::cout << "y:" << y << std::endl;
                 auto dist = dists[{x, y}];
-                std::deque<std::vector<int>> deq;
+                std::deque<std::pair<std::vector<int>, int>> deq;
                 for (auto& [tiles, d] : dist) {
-                    deq.emplace_back(tiles);
+                    deq.emplace_back(tiles, d);
                 }
                 int cnt = 0;
                 while (!deq.empty()) {
+                    auto [tiles, d] = deq.front();
+                    deq.pop_front();
+                    if (dist[tiles] < d) continue;
                     if (++cnt % 10000 == 0) {
                         std::cout << cnt << "/" << 405350 << std::endl;
-                        std::cout << dist[deq.front()] << std::endl;
+                        std::cout << d << std::endl;
                     }
-                    auto tiles = deq.front();
-                    deq.pop_front();
                     for (int i = 0; i < 9; ++i) {
                         if (tiles[i] < 4 and std::accumulate(tiles.begin(), tiles.end(), 0) < 14) {
                             // add tile (cost 0)
-                            int nxt_dist = dist[tiles];
+                            int nxt_dist = d;
                             ++tiles[i];
                             if (!dist.count(tiles) or dist[tiles] > nxt_dist) {
                                 dist[tiles] = nxt_dist;
-                                deq.emplace_front(tiles);
+                                deq.emplace_front(tiles, nxt_dist);
                             }
                             --tiles[i];
                         }
                         if (tiles[i] > 0) {
                             // sub tile (cost +1)
-                            int nxt_dist = dist[tiles] + 1;
+                            int nxt_dist = d;
                             --tiles[i];
                             if (!dist.count(tiles) or dist[tiles] > nxt_dist) {
                                 dist[tiles] = nxt_dist;
-                                deq.emplace_back(tiles);
+                                deq.emplace_back(tiles, nxt_dist);
                             }
                             ++tiles[i];
                         }
