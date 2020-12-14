@@ -13,6 +13,7 @@ namespace mj {
 
         [[nodiscard]] static const ShantenCache& instance();
         [[nodiscard]] int Require(const std::vector<uint8_t>& count, int sets, int heads) const;
+
     private:
         ShantenCache();
         ~ShantenCache() = default;

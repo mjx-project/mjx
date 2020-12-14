@@ -105,3 +105,6 @@ add_definitions(-DWIN_CACHE_DIR="${CMAKE_CURRENT_SOURCE_DIR}/cache")
 # Generate cache file
 add_executable(win_cache_generator win_cache_generator.cpp)
 target_link_libraries(win_cache_generator ${PROJECT_NAME})
+
+add_executable(shanten_cache_generator shanten_cache_generator.cpp)
+target_link_libraries(shanten_cache_generator ${PROJECT_NAME})
