@@ -12,8 +12,8 @@ namespace mj {
         [[nodiscard]] static int ShantenNumber(const std::array<uint8_t, 34>& count);
         [[nodiscard]] static const ShantenCache& shanten_cache();
         [[nodiscard]] static int ShantenNormal(const std::array<uint8_t, 34>& count);
-        [[nodiscard]] static int ShantenSevenPairs(const std::array<uint8_t, 34>& count);
         [[nodiscard]] static int ShantenThirteenOrphans(const std::array<uint8_t, 34>& count);
+        [[nodiscard]] static int ShantenSevenPairs(const std::array<uint8_t, 34>& count);
 
     };
 } // namespace mj
