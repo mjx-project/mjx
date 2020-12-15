@@ -152,7 +152,7 @@ namespace mj {
                         }
                         if (tiles[i] > 0) {
                             // sub tile (cost +1)
-                            int nxt_dist = d;
+                            int nxt_dist = d + 1;
                             --tiles[i];
                             if (!dist.count(tiles) or dist[tiles] > nxt_dist) {
                                 dist[tiles] = nxt_dist;
