@@ -2,6 +2,8 @@
 #define MAHJONG_SHANTEN_CACHE_H
 
 #include <vector>
+#include <unordered_map>
+#include <string>
 
 namespace mj {
     class ShantenCache {
@@ -17,6 +19,8 @@ namespace mj {
     private:
         ShantenCache();
         ~ShantenCache() = default;
+        void LoadCache();
+        std::unordered_map<std::string, int> cache_;
     };
 } // namespace mj
 
