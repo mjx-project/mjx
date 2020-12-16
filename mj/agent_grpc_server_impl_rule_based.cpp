@@ -35,7 +35,8 @@ namespace mj
 
     void AgentGrpcServerImplRuleBased::InferenceAction(){
         // データが溜まるまで待機
-        while(obs_que_.size() < batch_size_){}
+        auto start = std::chrono::system_clock::now();
+        while(obs_que_.size() < batch_size_ && std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now()-start).count() < wait_count_){}
 
         // 各データについて推論
         std::lock_guard<std::mutex> lock(mtx_que_);
