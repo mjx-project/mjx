@@ -7,8 +7,8 @@
 using namespace mj;
 
 int main(int argc, char* argv[]) {
-    std::cout << argc << std::endl;
-    assert(argc <= 2);
+    std::cout << "cnt_args: " <<  argc << std::endl;
+    assert(argc == 1 || argc == 3);
     if(argc == 1){
         AgentGrpcServer server(std::make_unique<AgentGrpcServerImplRuleBased>());
         server.RunServer("0.0.0.0:50051");
@@ -22,9 +22,11 @@ int main(int argc, char* argv[]) {
                 std::make_shared<AgentGrpcClient>("agent04", channel),
         };
         auto start = std::chrono::system_clock::now();
-        Environment::ParallelRunGame(100, std::atoi(argv[1]), agents);
+        Environment::ParallelRunGame(std::atoi(argv[1]), std::atoi(argv[2]), agents);
         auto end = std::chrono::system_clock::now();
-        std::cout <<  *argv[1] << " " << std::chrono::duration_cast<std::chrono::milliseconds>(end-start).count() << std::endl;
+        std::cout << "n_game: " << std::atoi(argv[1]) << std::endl;
+        std::cout << "n_thread: " << std::atoi(argv[2]) << std::endl;
+        std::cout << "time_ms: " << std::chrono::duration_cast<std::chrono::milliseconds>(end-start).count() << std::endl;
     }
     return 0;
 }
