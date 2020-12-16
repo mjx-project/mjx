@@ -2,6 +2,20 @@
 
 namespace mj
 {
+    AgentGrpcServerImplRuleBased::AgentGrpcServerImplRuleBased(){
+        thread_inference_ = std::thread([this](){
+            while(!stop_flag_){
+                this->InferenceAction();
+            }
+        });
+    }
+
+
+    AgentGrpcServerImplRuleBased::~AgentGrpcServerImplRuleBased(){
+        stop_flag_ = true;
+        thread_inference_.join();
+    }
+
     grpc::Status
     AgentGrpcServerImplRuleBased::TakeAction(grpc::ServerContext *context, const mjproto::Observation *request, mjproto::Action *reply) {
         mtx_que_.lock();
@@ -18,6 +32,7 @@ namespace mj
     void AgentGrpcServerImplRuleBased::InferenceAction(){
         // 待機
         while(obs_que_.size() < batch_size_){}
+        std::cout << "inference now" << std::endl;
 
         std::lock_guard<std::mutex> lock(mtx_que_);
         while(obs_que_.size()){

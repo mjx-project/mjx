@@ -15,18 +15,25 @@ namespace mj
     class AgentGrpcServerImplRuleBased final : public mjproto::Agent::Service
     {
     public:
+        AgentGrpcServerImplRuleBased();
+        ~AgentGrpcServerImplRuleBased();
         grpc::Status TakeAction(grpc::ServerContext* context, const mjproto::Observation* request, mjproto::Action* reply) final ;
         void InferenceAction();
-
     private:
         struct ObservationInfo{
             boost::uuids::uuid id;
             Observation obs;
         };
+
         std::mutex mtx_que_, mtx_map_;
         std::queue<ObservationInfo> obs_que_;
         std::map<boost::uuids::uuid, mjproto::Action> act_map_;
-        int batch_size_ = 3;
+        // 推論を始めるデータ数の閾値
+        int batch_size_ = 2;
+
+        // 常駐する推論スレッド
+        std::thread thread_inference_;
+        bool stop_flag_ = false;
     };
 }  // namespace mj
 
