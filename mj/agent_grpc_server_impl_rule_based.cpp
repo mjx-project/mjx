@@ -18,11 +18,15 @@ namespace mj
 
     grpc::Status
     AgentGrpcServerImplRuleBased::TakeAction(grpc::ServerContext *context, const mjproto::Observation *request, mjproto::Action *reply) {
+        // Observationデータ追加
         mtx_que_.lock();
         auto id = boost::uuids::random_generator()();
         obs_que_.push({id, Observation(*request)});
         mtx_que_.unlock();
+
+        // 推論待ち
         while(!act_map_.count(id)){}
+
         std::lock_guard<std::mutex> lock(mtx_map_);
         reply->CopyFrom(act_map_[id]);
         act_map_.erase(id);
@@ -30,10 +34,10 @@ namespace mj
     }
 
     void AgentGrpcServerImplRuleBased::InferenceAction(){
-        // 待機
+        // データが溜まるまで待機
         while(obs_que_.size() < batch_size_){}
-        std::cout << "inference now" << std::endl;
 
+        // 各データについて推論
         std::lock_guard<std::mutex> lock(mtx_que_);
         while(obs_que_.size()){
             std::lock_guard<std::mutex> lock(mtx_map_);
