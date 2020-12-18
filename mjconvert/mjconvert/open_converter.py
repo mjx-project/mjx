@@ -57,7 +57,7 @@ def _min_tile_chi(bits: int) -> int:
     return min_tile
 
 
-def is_stolen_red(bits: int) -> bool:  # TODO: test  さらに小さい関数を作るか否か考えるべし
+def is_stolen_red(bits: int, stolen_tile_kind) -> bool:  # TODO: test  さらに小さい関数を作るか否か考えるべし
     """
     >>> is_stolen_red(51306)
     False
@@ -65,20 +65,19 @@ def is_stolen_red(bits: int) -> bool:  # TODO: test  さらに小さい関数を
     fives = [4, 13, 22]
     reds = [14, 52, 88]
     event_type = open_event_type(bits)
-    stolen_tile_kind = open_stolen_tile_type(bits)
     if stolen_tile_kind not in fives:
         return False
+
+    if event_type == mjproto.EVENT_TYPE_CHI:
+        stolen_tile_mod3 = (bits >> 10) % 3  # 鳴いた牌のindex
+        stolen_tile_id_mod4 = bits >> (3 + 2 * stolen_tile_mod3) % 4  # 鳴いた牌のid mod 4
+        return stolen_tile_id_mod4 == 0  # 鳴いた牌のid mod 4=0→赤
+    elif event_type == mjproto.EVENT_TYPE_PON or event_type == mjproto.EVENT_TYPE_KAN_ADDED:
+        unused_id_mod4 = (bits >> 5) % 4  # 未使用牌のid mod 4
+        stolen_tile_mod3 = (bits >> 9) % 3  # 鳴いた牌のindex
+        return unused_id_mod4 != 0 and stolen_tile_mod3 == 0  # 未使用牌が赤でなく、鳴いた牌のインデックスが0の時→赤
     else:
-        if event_type == mjproto.EVENT_TYPE_CHI:
-            stolen_tile_mod3 = (bits >> 10) % 3  # 鳴いた牌のindex
-            stolen_tile_id_mod4 = bits >> (3 + 2 * stolen_tile_mod3) % 4  # 鳴いた牌のid mod 4
-            return stolen_tile_id_mod4 == 0  # 鳴いた牌のid mod 4=0→赤
-        elif event_type == mjproto.EVENT_TYPE_PON or event_type == mjproto.EVENT_TYPE_KAN_ADDED:
-            unused_id_mod4 = (bits >> 5) % 4  # 未使用牌のid mod 4
-            stolen_tile_mod3 = (bits >> 9) % 3  # 鳴いた牌のindex
-            return unused_id_mod4 != 0 and stolen_tile_mod3 == 0  # 未使用牌が赤でなく、鳴いた牌のインデックスが0の時→赤
-        else:
-            return (bits >> 8) in reds
+        return (bits >> 8) in reds
 
 
 def is_unused_red(bits: int):
@@ -132,6 +131,33 @@ def has_red(bits: int) -> bool:
         return True  # ダイミンカンとアンカンは必ず赤を含む
 
 
+def transform_red_stolen(bits: int, stolen_tile: int) -> int:
+    red_dict = {4: 51, 13: 52, 22: 53}  # openの5:mjscoreの赤５
+    if is_stolen_red(bits, stolen_tile):
+        return red_dict(stolen_tile)
+    else:
+        return stolen_tile
+
+
+def transform_red_open(bits: int, open: List[int], event_type, stolen_tile_kind) -> int:
+    """
+    >>> transform_red_open(52503, [21, 22, 23], mjproto.EVENT_TYPE_CHI, 21)
+    [21, 53, 23]
+    """
+    red_dict = {4: 51, 13: 52, 22: 53}
+    fives = [4, 13, 22]
+    if is_stolen_red(bits, stolen_tile_kind) or not has_red(bits):
+        return open
+    if event_type == mjproto.EVENT_TYPE_CHI:
+        return [red_dict[i] if i in fives else i for i in open]
+    elif event_type == mjproto.EVENT_TYPE_PON:
+        open[-1] = red_dict[open[-1]]
+        return open
+    else:
+        return 0  # TODO カン
+
+
+
 def open_stolen_tile_type(bits: int) -> int:
     """
     >>> open_stolen_tile_type(51306)
@@ -165,6 +191,8 @@ def open_tile_types(bits: int) -> List[int]:
     """
     event_type = open_event_type(bits)
     if event_type == mjproto.EVENT_TYPE_CHI:
+        if has_red(bits):
+            print(bits)
         min_tile = _min_tile_chi(bits)
         return [min_tile, min_tile + 1, min_tile + 2]
     elif event_type == mjproto.EVENT_TYPE_PON:
