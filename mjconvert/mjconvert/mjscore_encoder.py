@@ -3,8 +3,6 @@ from __future__ import annotations  # postpone type hint evaluation or doctest f
 import json
 from typing import Dict, List
 
-from google.protobuf import json_format
-
 import mjproto
 from mjconvert import open_converter
 
@@ -59,7 +57,7 @@ def sort_init_hand(init_hand: List) -> List:
     return sorted_hand
 
 
-def __change_tumogiri_riich_fmt(tile: int) -> int:  # ツモギリリーチ専用の番号90を60ツモぎりの番号60に直す
+def __change_tumogiri_riich_fmt(tile):  # ツモギリリーチ専用の番号90を60ツモぎりの番号60に直す
     if tile == 90:
         return 60
     return tile
@@ -326,9 +324,9 @@ def _check_uradoras(fans: List[int], yakus: List[int]) -> List[int]:  # リー�
         return yakus
 
 
-def __correspond_yakus(yaku_dict, yakus: int, fans: int):
+def __correspond_yakus(yaku_dict, yakus: List[int], fans: List[int]):
     """
-    >>> correspond_yakus(yaku_dict_tumo, [0, 52], [1 , 2])
+    >>> correspond_yakus(yaku_dict_tumo, [0, 52], [1, 2])
     ['門前清自摸和(1飜)', 'ドラ(2飜)']
     """
     doras = [52, 53, 54]
@@ -345,14 +343,13 @@ def __correspond_yakus(yaku_dict, yakus: int, fans: int):
     return yakus_in_japanese
 
 
-def _winner_yakus(yakus: List[int], fans: int) -> List[str]:
+def _winner_yakus(yakus: List[int], fans: List[int]) -> List[str]:
     """
     >>> winner_yakus([0, 1, 23])
     ['門前清自摸和(1飜)', '立直(1飜)', '混全帯幺九(2飜)']
     >>> winner_yakus([23])
     ['混全帯幺九(1飜)']
     """
-    print(yakus)
     if 0 in yakus:  # ツモの有無によって役の飜数がかわる。
         return __correspond_yakus(yaku_dict_tumo, yakus, fans)
     else:
@@ -369,8 +366,6 @@ def parse_terminal(state: mjproto.State):
         ten_changes = [i for i in state.terminal.wins[0].ten_changes]
         fans = [i for i in state.terminal.wins[0].fans]  # [役での飜数, ドラの数]
         yakus = _check_uradoras(fans, [i for i in state.terminal.wins[0].yakus])
-        print(yakus)
-        print(fans)
         fu = state.terminal.wins[0].fu
         ten = state.terminal.wins[0].ten
         """
@@ -422,25 +417,3 @@ def mjproto_to_mjscore(state: mjproto.State) -> str:
     log.append(parse_terminal(state))
     d: Dict = {"title": [], "name": [], "rule": [], "log": [log]}
     return json.dumps(d)
-
-
-if __name__ == "__main__":
-
-    # 東1局0本場の mjproto
-    path_to_mjproto_example = "/Users/nishimorihajimeichirou/github/mahjong/mjconvert/mjconvert/tests/resources/mjscore/test12010102910gm-00a9-0000-cdb9804c.mjlog"
-    with open(path_to_mjproto_example, "r") as f:
-        line = f.readline()
-    d = json.loads(line)
-    state: mjproto.State = json_format.ParseDict(d, mjproto.State())
-
-    # 東1局0本場の mjscore
-    path_to_mjscore_example = "/Users/nishimorihajimeichirou/github/mahjong/mjconvert/mjconvert/tests/resources/mjscore/test12010102910gm-00a9-0000-cdb9804c.json"
-    with open(path_to_mjscore_example, "r") as f:
-        line = f.readline()
-    mjscore_expected_dict = json.loads(line)
-
-    # 実装を使って変換
-    mjscore_str = mjproto_to_mjscore(state)
-    mjscore_dict = json.loads(mjscore_str)
-
-    print(mjscore_expected_dict["log"] == mjscore_dict["log"])

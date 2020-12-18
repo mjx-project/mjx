@@ -134,12 +134,12 @@ def has_red(bits: int) -> bool:
 def transform_red_stolen(bits: int, stolen_tile: int) -> int:
     red_dict = {4: 51, 13: 52, 22: 53}  # openの5:mjscoreの赤５
     if is_stolen_red(bits, stolen_tile):
-        return red_dict(stolen_tile)
+        return red_dict[stolen_tile]
     else:
         return stolen_tile
 
 
-def transform_red_open(bits: int, open: List[int], event_type) -> int:
+def transform_red_open(bits: int, open: List[int], event_type) -> List[int]:
     """
     >>> transform_red_open(52503, [21, 22, 23], mjproto.EVENT_TYPE_CHI, 21)
     [21, 53, 23]
@@ -154,8 +154,7 @@ def transform_red_open(bits: int, open: List[int], event_type) -> int:
         open[-1] = red_dict[open[-1]]
         return open
     else:
-        return 0  # TODO カン
-
+        return [0, 0, 0]  # TODO カン
 
 
 def open_stolen_tile_type(bits: int) -> int:
@@ -202,6 +201,7 @@ def open_tile_types(bits: int) -> List[int]:
         stolen_tile_kind = open_stolen_tile_type(bits)
         open = [stolen_tile_kind] * 4
         return transform_red_open(bits, open, event_type)
+
 
 def change_open_tile_fmt(
     tile_in_open_fmt: int,
