@@ -46,9 +46,9 @@ namespace mj
         }
 
         // 各データについて推論
-        std::lock_guard<std::mutex> lock(mtx_que_);
+        std::lock_guard<std::mutex> lock_que(mtx_que_);
+        std::lock_guard<std::mutex> lock_map(mtx_map_);
         while(obs_que_.size()){
-            std::lock_guard<std::mutex> lock(mtx_map_);
             ObservationInfo obsinfo = obs_que_.front();
             act_map_.emplace(obsinfo.id, StrategyRuleBased::SelectAction(std::move(obsinfo.obs)));
             obs_que_.pop();
