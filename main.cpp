@@ -24,9 +24,11 @@ int main(int argc, char* argv[]) {
         auto start = std::chrono::system_clock::now();
         Environment::ParallelRunGame(std::atoi(argv[1]), std::atoi(argv[2]), agents);
         auto end = std::chrono::system_clock::now();
-        std::cout << "n_game: " << std::atoi(argv[1]) << std::endl;
-        std::cout << "n_thread: " << std::atoi(argv[2]) << std::endl;
-        std::cout << "time_ms: " << std::chrono::duration_cast<std::chrono::milliseconds>(end-start).count() << std::endl;
+        std::cout << "# games: " << std::atoi(argv[1]) << std::endl;
+        std::cout << "# threads: " << std::atoi(argv[2]) << std::endl;
+        auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(end-start).count();
+        std::cout << "total [sec]: " << ms / 1000.0 << std::endl;
+        std::cout << "sec/game: " << ms / 1000.0 / std::atoi(argv[1]) << std::endl;
     }
     return 0;
 }
