@@ -2,14 +2,15 @@
 
 namespace mj
 {
-    AgentGrpcServerImplRuleBased::AgentGrpcServerImplRuleBased(){
+    AgentGrpcServerImplRuleBased::AgentGrpcServerImplRuleBased(int batch_size, int wait_ms) :
+    batch_size_(batch_size), wait_ms_(wait_ms)
+    {
         thread_inference_ = std::thread([this](){
             while(!stop_flag_){
                 this->InferenceAction();
             }
         });
     }
-
 
     AgentGrpcServerImplRuleBased::~AgentGrpcServerImplRuleBased(){
         stop_flag_ = true;
@@ -46,7 +47,7 @@ namespace mj
         while(true) {
             std::lock_guard<std::mutex> lock(mtx_que_);
             if(obs_que_.size() >= batch_size_
-               or std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now()-start).count() >= wait_count_) break;
+               or std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now()-start).count() >= wait_ms_) break;
         }
 
         // 各データについて推論

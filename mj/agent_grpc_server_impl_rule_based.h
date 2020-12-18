@@ -17,7 +17,7 @@ namespace mj
     class AgentGrpcServerImplRuleBased final : public mjproto::Agent::Service
     {
     public:
-        AgentGrpcServerImplRuleBased();
+        explicit AgentGrpcServerImplRuleBased(int batch_size = 8, int wait_ms = 1);
         ~AgentGrpcServerImplRuleBased() final;
         grpc::Status TakeAction(grpc::ServerContext* context, const mjproto::Observation* request, mjproto::Action* reply) final ;
         void InferenceAction();
@@ -27,14 +27,14 @@ namespace mj
             Observation obs;
         };
 
+        // 推論を始めるデータ数の閾値
+        int batch_size_;
+        // 推論を始める時間間隔
+        int wait_ms_;
+
         std::mutex mtx_que_, mtx_map_;
         std::queue<ObservationInfo> obs_que_;
         std::unordered_map<boost::uuids::uuid, mjproto::Action, boost::hash<boost::uuids::uuid>> act_map_;
-        // 推論を始めるデータ数の閾値
-        int batch_size_ = 8;
-        // 推論を始める時間間隔
-        int wait_count_ = 1;
-
         // 常駐する推論スレッド
         std::thread thread_inference_;
         bool stop_flag_ = false;
