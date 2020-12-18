@@ -116,6 +116,14 @@ def has_red_pon_kan_added(bits: int) -> bool:  # TODO テスト ポンとカカ�
     else:
         return False
 
+def has_red_kan_closed(bits: int) -> bool:
+    fives = [4, 13, 22]
+    stolen_tile_kind = open_stolen_tile_type(bits)
+    if stolen_tile_kind in fives:
+        return True
+    else:
+        return False
+
 
 def has_red(bits: int) -> bool:
     """
@@ -128,7 +136,7 @@ def has_red(bits: int) -> bool:
     elif event_type == mjproto.EVENT_TYPE_PON or event_type == mjproto.EVENT_TYPE_KAN_ADDED:
         return has_red_pon_kan_added(bits)
     else:
-        return True  # ダイミンカンとアンカンは必ず赤を含む
+        return has_red_kan_closed(bits)  # ダイミンカンとアンカンは必ず赤を含む
 
 
 def transform_red_stolen(bits: int, stolen_tile: int) -> int:
@@ -154,7 +162,8 @@ def transform_red_open(bits: int, open: List[int], event_type) -> List[int]:
         open[-1] = red_dict[open[-1]]
         return open
     else:
-        return [0, 0, 0]  # TODO カン
+        open[-1] = red_dict[open[-1]]
+        return open # TODO カン
 
 
 def open_stolen_tile_type(bits: int) -> int:
@@ -165,6 +174,8 @@ def open_stolen_tile_type(bits: int) -> int:
     20
     >>> open_stolen_tile_type(28722)
     18
+    >>> open_stolen_tile_type(31744)  #  暗槓　白
+    31
     """
     event_type = open_event_type(bits)
     if event_type == mjproto.EVENT_TYPE_CHI:
@@ -175,7 +186,7 @@ def open_stolen_tile_type(bits: int) -> int:
         stolen_tile_kind = (bits >> 9) // 3
         return transform_red_stolen(bits, stolen_tile_kind)
     else:
-        stolen_tile_kind = (bits >> 8) // 4  # TODO: add test case
+        stolen_tile_kind = (bits >> 8) // 4
         return transform_red_stolen(bits, stolen_tile_kind)
 
 
@@ -187,6 +198,8 @@ def open_tile_types(bits: int) -> List[int]:
     [20, 21, 22]
     >>> open_tile_types(28722)  # 加槓 s1
     [18, 18, 18, 18]
+    >>> open_tile_types(31744)  # 暗槓　白
+    [31, 31, 31, 31]
     """
     event_type = open_event_type(bits)
     if event_type == mjproto.EVENT_TYPE_CHI:
