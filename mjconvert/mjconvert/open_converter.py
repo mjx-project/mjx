@@ -139,14 +139,14 @@ def transform_red_stolen(bits: int, stolen_tile: int) -> int:
         return stolen_tile
 
 
-def transform_red_open(bits: int, open: List[int], event_type, stolen_tile_kind) -> int:
+def transform_red_open(bits: int, open: List[int], event_type) -> int:
     """
     >>> transform_red_open(52503, [21, 22, 23], mjproto.EVENT_TYPE_CHI, 21)
     [21, 53, 23]
     """
     red_dict = {4: 51, 13: 52, 22: 53}
     fives = [4, 13, 22]
-    if is_stolen_red(bits, stolen_tile_kind) or not has_red(bits):
+    if not has_red(bits):
         return open
     if event_type == mjproto.EVENT_TYPE_CHI:
         return [red_dict[i] if i in fives else i for i in open]
@@ -215,5 +215,9 @@ def change_open_tile_fmt(
 
 
 def change_open_tiles_fmt(tile_ids_in_open: List[int]) -> List[int]:
+    """
+    >>> change_open_tiles_fmt([21, 22, 23])
+    [34, 35, 36]
+    """
     scores = list(map(change_open_tile_fmt, tile_ids_in_open))
     return scores
