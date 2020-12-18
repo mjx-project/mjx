@@ -996,13 +996,18 @@ namespace mj
         switch (action.type()) {
             case mjproto::ACTION_TYPE_DISCARD:
                 {
+                    Assert(Any(hand(who).SizeClosed(), {2, 5, 8, 14}),
+                            "State = " + ToJson() + "\n" + "Hand = " + hand(who).ToString(true));
                     Assert(Any(LastEvent().type(), {mjproto::EVENT_TYPE_DRAW, mjproto::EVENT_TYPE_CHI,
                                                     mjproto::EVENT_TYPE_PON, mjproto::EVENT_TYPE_RON,
-                                                    mjproto::EVENT_TYPE_RIICHI}));
+                                                    mjproto::EVENT_TYPE_RIICHI}),
+                           "State = " + ToJson() + "\n" + "Hand = " + hand(who).ToString(true));
                     Assert(LastEvent().type() == mjproto::EVENT_TYPE_RIICHI || Any(hand(who).PossibleDiscards(),
-                            [&action](Tile possible_discard){ return possible_discard.Equals(Tile(action.discard())); }));
+                            [&action](Tile possible_discard){ return possible_discard.Equals(Tile(action.discard())); }),
+                           "State = " + ToJson() + "\n" + "Hand = " + hand(who).ToString(true));
                     Assert(LastEvent().type() != mjproto::EVENT_TYPE_RIICHI || Any(hand(who).PossibleDiscardsJustAfterRiichi(),
-                            [&action](Tile possible_discard){ return possible_discard.Equals(Tile(action.discard())); }));
+                            [&action](Tile possible_discard){ return possible_discard.Equals(Tile(action.discard())); }),
+                           "State = " + ToJson() + "\n" + "Hand = " + hand(who).ToString(true));
                     {
                         int require_kan_dora = RequireKanDora();
                         Assert(require_kan_dora <= 1);

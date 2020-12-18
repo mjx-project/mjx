@@ -233,7 +233,8 @@ namespace mj
     std::pair<Tile, bool> Hand::Discard(Tile tile) {
         Assert(Any(SizeClosed(),  {2, 5, 8, 11, 14}));
         Assert(!Any(stage_, {HandStage::kAfterDiscards, HandStage::kAfterTsumo, HandStage::kAfterTsumoAfterKan, HandStage::kAfterRon}));
-        Assert(closed_tiles_.count(tile));
+        Assert(closed_tiles_.count(tile), "Hand = " + ToString(true) + "\nHand stage = " + std::to_string(
+                static_cast<int>(stage()))+ "\nDiscard = " + tile.ToString(true) + "\n");
         Assert(!undiscardable_tiles_.count(tile));
         Assert(last_tile_added_);
         Assert(!(IsUnderRiichi() && stage_ != HandStage::kAfterRiichi) || tile == last_tile_added_.value());
