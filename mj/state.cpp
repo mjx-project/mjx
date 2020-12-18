@@ -996,8 +996,8 @@ namespace mj
         switch (action.type()) {
             case mjproto::ACTION_TYPE_DISCARD:
                 {
-                    Assert(Any(hand(who).SizeClosed(), {2, 5, 8, 14}),
-                            "State = " + ToJson() + "\n" + "Hand = " + hand(who).ToString(true));
+                    Assert(Any(hand(who).SizeClosed(), {2, 5, 8, 11, 14}),
+                            std::to_string(hand(who).SizeClosed()));
                     Assert(Any(LastEvent().type(), {mjproto::EVENT_TYPE_DRAW, mjproto::EVENT_TYPE_CHI,
                                                     mjproto::EVENT_TYPE_PON, mjproto::EVENT_TYPE_RON,
                                                     mjproto::EVENT_TYPE_RIICHI}),
