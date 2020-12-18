@@ -290,9 +290,9 @@ def __fan_fu(who, fans: List[int], fu: int, ten) -> str:
 
 def _winner_point(who: int, from_who: int, fans: List[int], fu: int, ten: int) -> str:
     """
-    >>> winner_point(0, 0, [3, 0], 30, 6000)
+    >>> _winner_point(0, 0, [3, 0], 30, 6000)
     '30符3飜2000点∀'
-    >>> winner_point(2, 0, [5, 0], 40, 8000)
+    >>> _winner_point(2, 0, [5, 0], 40, 8000)
     '満貫8000点'
     """
     is_tsumo = who == from_who  # ツモあがりかどうかを判定
@@ -311,9 +311,9 @@ def _winner_point(who: int, from_who: int, fans: List[int], fu: int, ten: int) -
 def _check_uradoras(fans: List[int], yakus: List[int]) -> List[int]:  # リーチがかかるとprotoではyakus
     # に強制的にウラドラの情報が入るが、乗っているかどうかを確認する必要がある
     """
-    >>> check_uradoras([1, 1, 1, 0], [1, 0, 7, 53])
+    >>> _check_uradoras([1, 1, 1, 0], [1, 0, 7, 53])
     [1, 0, 7]
-    >>> check_uradoras([1, 1, 2, 1, 2, 0], [1, 0, 29, 8, 54, 53])
+    >>> _check_uradoras([1, 1, 2, 1, 2, 0], [1, 0, 29, 8, 54, 53])
     [1, 0, 29, 8, 54]
     """
     if sum(fans) < len(yakus):
@@ -326,7 +326,7 @@ def _check_uradoras(fans: List[int], yakus: List[int]) -> List[int]:  # リー�
 
 def __correspond_yakus(yaku_dict, yakus: List[int], fans: List[int]):
     """
-    >>> correspond_yakus(yaku_dict_tumo, [0, 52], [1, 2])
+    >>> __correspond_yakus(yaku_dict_tumo, [0, 52], [1, 2])
     ['門前清自摸和(1飜)', 'ドラ(2飜)']
     """
     doras = [52, 53, 54]
@@ -345,9 +345,9 @@ def __correspond_yakus(yaku_dict, yakus: List[int], fans: List[int]):
 
 def _winner_yakus(yakus: List[int], fans: List[int]) -> List[str]:
     """
-    >>> winner_yakus([0, 1, 23])
+    >>> _winner_yakus([0, 1, 23], [1 , 1, 2])
     ['門前清自摸和(1飜)', '立直(1飜)', '混全帯幺九(2飜)']
-    >>> winner_yakus([23])
+    >>> _winner_yakus([23], [1])
     ['混全帯幺九(1飜)']
     """
     if 0 in yakus:  # ツモの有無によって役の飜数がかわる。

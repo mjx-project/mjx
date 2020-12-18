@@ -59,7 +59,7 @@ def _min_tile_chi(bits: int) -> int:
 
 def is_stolen_red(bits: int, stolen_tile_kind) -> bool:  # TODO: test  さらに小さい関数を作るか否か考えるべし
     """
-    >>> is_stolen_red(51306)
+    >>> is_stolen_red(51306, 33)
     False
     """
     fives = [4, 13, 22]
@@ -141,7 +141,7 @@ def transform_red_stolen(bits: int, stolen_tile: int) -> int:
 
 def transform_red_open(bits: int, open: List[int], event_type) -> List[int]:
     """
-    >>> transform_red_open(52503, [21, 22, 23], mjproto.EVENT_TYPE_CHI, 21)
+    >>> transform_red_open(52503, [21, 22, 23], mjproto.EVENT_TYPE_CHI)
     [21, 53, 23]
     """
     red_dict = {4: 51, 13: 52, 22: 53}
