@@ -19,10 +19,11 @@ namespace mj
     grpc::Status
     AgentGrpcServerImplRuleBased::TakeAction(grpc::ServerContext *context, const mjproto::Observation *request, mjproto::Action *reply) {
         // Observationデータ追加
-        mtx_que_.lock();
         auto id = boost::uuids::random_generator()();
-        obs_que_.push({id, Observation(*request)});
-        mtx_que_.unlock();
+        {
+            std::lock_guard<std::mutex> lock_que(mtx_que_);
+            obs_que_.push({id, Observation(*request)});
+        }
 
         // 推論待ち
         while(true) {
