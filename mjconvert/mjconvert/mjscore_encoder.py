@@ -244,7 +244,7 @@ non_dealer_tsumo_dict = {
     1100: "300-500",
     1500: "400-700",
     1600: "800-1600",
-    2000: "1000-2000",
+    2000: "500-1000",
     2400: "600-1200",
     2700: "700-1300",
     3100: "800-1500",
@@ -288,16 +288,29 @@ def __fan_fu(who, fans: List[int], fu: int, ten) -> str:
             return no_dealer_point_dict[ten]
 
 
-def _winner_point(who: int, from_who: int, fans: List[int], fu: int, ten: int) -> str:
+def __is_oya(who: int, round: int)  -> bool:  # 和了者が親かどうか判定する。
     """
-    >>> _winner_point(0, 0, [3, 0], 30, 6000)
+    >>> __is_oya(0, 3)
+    False
+    >>> __is_oya(0, 4)
+    True
+    """
+    if round % 4 == who:
+        return True
+    else:
+        return False
+
+def _winner_point(who: int, from_who: int, fans: List[int], fu: int, ten: int, round: int) -> str:
+    """
+    >>> _winner_point(0, 0, [3, 0], 30, 6000, 0)
     '30符3飜2000点∀'
-    >>> _winner_point(2, 0, [5, 0], 40, 8000)
+    >>> _winner_point(2, 0, [5, 0], 40, 8000, 0)
     '満貫8000点'
     """
     is_tsumo = who == from_who  # ツモあがりかどうかを判定
     if is_tsumo:
-        if who == mjproto.ABSOLUTE_POS_INIT_EAST:  # 親かどうか
+        if __is_oya(who, round):  # 親かどうか
+            print(who, mjproto.ABSOLUTE_POS_INIT_EAST, ten)
             return __fan_fu(who, fans, fu, ten) + str(int(ten / 3)) + "点∀"
         else:
             return __fan_fu(who, fans, fu, ten) + non_dealer_tsumo_dict[ten] + "点"
@@ -361,6 +374,7 @@ def parse_terminal(state: mjproto.State):
         ten_changes = [i for i in state.terminal.no_winner.ten_changes]
         return ["流局", ten_changes]
     else:
+        round = state.init_score.round
         who = state.terminal.wins[0].who
         from_who = state.terminal.wins[0].from_who
         ten_changes = [i for i in state.terminal.wins[0].ten_changes]
@@ -374,7 +388,7 @@ def parse_terminal(state: mjproto.State):
         yakus: [役とドラの種類]
         ten: 純粋に上がり点が表示される。ツモ上がりの際の対応が必要
         """
-        yaku_point_infos = [who, from_who, who, _winner_point(who, from_who, fans, fu, ten)]
+        yaku_point_infos = [who, from_who, who, _winner_point(who, from_who, fans, fu, ten, round)]
         yaku_point_infos.extend(_winner_yakus(yakus, fans))
         return [
             "和了",
