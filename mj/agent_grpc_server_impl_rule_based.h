@@ -1,7 +1,8 @@
 #ifndef MAHJONG_AGENT_GRPC_SERVER_IMPL_RULE_BASED_H
 #define MAHJONG_AGENT_GRPC_SERVER_IMPL_RULE_BASED_H
 
-#include <bits/stdc++.h>
+#include <queue>
+#include <thread>
 #include <boost/uuid/uuid.hpp>
 #include <boost/uuid/uuid_generators.hpp>
 #include <boost/uuid/uuid_io.hpp>
