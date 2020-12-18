@@ -31,9 +31,12 @@ namespace mj
             if(act_map_.count(id)) break;
         }
 
-        std::lock_guard<std::mutex> lock(mtx_map_);
-        reply->CopyFrom(act_map_[id]);
-        act_map_.erase(id);
+        // 推論結果をmapに返す
+        {
+            std::lock_guard<std::mutex> lock_map(mtx_map_);
+            reply->CopyFrom(act_map_[id]);
+            act_map_.erase(id);
+        }
         return grpc::Status::OK;
     }
 
@@ -47,12 +50,14 @@ namespace mj
         }
 
         // 各データについて推論
-        std::lock_guard<std::mutex> lock_que(mtx_que_);
-        std::lock_guard<std::mutex> lock_map(mtx_map_);
-        while(!obs_que_.empty()){
-            ObservationInfo obsinfo = obs_que_.front();
-            act_map_.emplace(obsinfo.id, StrategyRuleBased::SelectAction(std::move(obsinfo.obs)));
-            obs_que_.pop();
+        {
+            std::lock_guard<std::mutex> lock_que(mtx_que_);
+            std::lock_guard<std::mutex> lock_map(mtx_map_);
+            while(!obs_que_.empty()){
+                ObservationInfo obsinfo = obs_que_.front();
+                act_map_.emplace(obsinfo.id, StrategyRuleBased::SelectAction(std::move(obsinfo.obs)));
+                obs_que_.pop();
+            }
         }
     }
 }  // namesapce mj
