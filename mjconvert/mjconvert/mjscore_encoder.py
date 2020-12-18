@@ -36,7 +36,7 @@ def _change_action_format(bits: int) -> str:  # TODO カン
     elif event_type == mjproto.EVENT_TYPE_PON:
         if open_from == mjproto.RELATIVE_POS_LEFT:
             return "p" + str(stolen_tile) + str(open_tiles[0]) + str(open_tiles[1])
-        elif open_from == mjproto.RELATIVE_POS_LEFT:
+        elif open_from == mjproto.RELATIVE_POS_MID:
             return str(stolen_tile) + "p" + str(open_tiles[0]) + str(open_tiles[1])
         else:
             return str(stolen_tile) + str(open_tiles[0]) + "p" + str(open_tiles[1])
