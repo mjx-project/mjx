@@ -25,7 +25,7 @@ namespace mj
         mtx_que_.unlock();
 
         // 推論待ち
-        while(1){
+        while(true) {
             std::lock_guard<std::mutex> lock(mtx_map_);
             if(act_map_.count(id)) break;
         }
@@ -39,7 +39,7 @@ namespace mj
     void AgentGrpcServerImplRuleBased::InferenceAction(){
         // データが溜まるまで待機
         auto start = std::chrono::system_clock::now();
-        while(1){
+        while(true) {
             std::lock_guard<std::mutex> lock(mtx_que_);
             if(obs_que_.size() >= batch_size_
                or std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now()-start).count() >= wait_count_) break;
@@ -48,7 +48,7 @@ namespace mj
         // 各データについて推論
         std::lock_guard<std::mutex> lock_que(mtx_que_);
         std::lock_guard<std::mutex> lock_map(mtx_map_);
-        while(obs_que_.size()){
+        while(!obs_que_.empty()){
             ObservationInfo obsinfo = obs_que_.front();
             act_map_.emplace(obsinfo.id, StrategyRuleBased::SelectAction(std::move(obsinfo.obs)));
             obs_que_.pop();
