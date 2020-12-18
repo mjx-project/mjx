@@ -171,13 +171,13 @@ def open_stolen_tile_type(bits: int) -> int:
     if event_type == mjproto.EVENT_TYPE_CHI:
         min_tile = _min_tile_chi(bits)
         stolen_tile_kind = min_tile + (bits >> 10) % 3
-        return stolen_tile_kind
+        return transform_red_stolen(bits, stolen_tile_kind)
     elif event_type == mjproto.EVENT_TYPE_PON or event_type == mjproto.EVENT_TYPE_KAN_ADDED:
         stolen_tile_kind = (bits >> 9) // 3
-        return stolen_tile_kind
+        return transform_red_stolen(bits, stolen_tile_kind)
     else:
         stolen_tile_kind = (bits >> 8) // 4  # TODO: add test case
-        return stolen_tile_kind
+        return transform_red_stolen(bits, stolen_tile_kind)
 
 
 def open_tile_types(bits: int) -> List[int]:
@@ -191,17 +191,17 @@ def open_tile_types(bits: int) -> List[int]:
     """
     event_type = open_event_type(bits)
     if event_type == mjproto.EVENT_TYPE_CHI:
-        if has_red(bits):
-            print(bits)
         min_tile = _min_tile_chi(bits)
-        return [min_tile, min_tile + 1, min_tile + 2]
+        open = [min_tile, min_tile + 1, min_tile + 2]
+        return transform_red_open(bits, open, event_type)
     elif event_type == mjproto.EVENT_TYPE_PON:
         stolen_tile_kind = open_stolen_tile_type(bits)
-        return [stolen_tile_kind] * 3
+        open = [stolen_tile_kind] * 3
+        return transform_red_open(bits, open, event_type)
     else:
         stolen_tile_kind = open_stolen_tile_type(bits)
-        return [stolen_tile_kind] * 4
-
+        open = [stolen_tile_kind] * 4
+        return transform_red_open(bits, open, event_type)
 
 def change_open_tile_fmt(
     tile_in_open_fmt: int,
