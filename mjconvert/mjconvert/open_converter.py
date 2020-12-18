@@ -116,7 +116,7 @@ def has_red_pon_kan_added(bits: int) -> bool:  # TODO テスト ポンとカカ�
     else:
         return False
 
-def has_red_kan_closed(bits: int) -> bool:
+def has_red_kan_closed_kan_opend(bits: int) -> bool:
     fives = [4, 13, 22]
     stolen_tile_kind = open_stolen_tile_type(bits)
     if stolen_tile_kind in fives:
@@ -136,7 +136,7 @@ def has_red(bits: int) -> bool:
     elif event_type == mjproto.EVENT_TYPE_PON or event_type == mjproto.EVENT_TYPE_KAN_ADDED:
         return has_red_pon_kan_added(bits)
     else:
-        return has_red_kan_closed(bits)  # ダイミンカンとアンカンは必ず赤を含む
+        return has_red_kan_closed_kan_opend(bits)  # ダイミンカンとアンカンは必ず赤を含む
 
 
 def transform_red_stolen(bits: int, stolen_tile: int) -> int:

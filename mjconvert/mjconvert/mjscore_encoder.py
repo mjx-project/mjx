@@ -40,8 +40,8 @@ def _change_action_format(bits: int) -> str:  # TODO カン
             return str(stolen_tile) + "p" + str(open_tiles[0]) + str(open_tiles[1])
         else:
             return str(stolen_tile) + str(open_tiles[0]) + "p" + str(open_tiles[1])
-    else:
-        return " "
+    elif event_type == mjproto.EVENT_TYPE_KAN_CLOSED:
+        return str(stolen_tile) + str(stolen_tile) + str(stolen_tile) + "a" + str(stolen_tile)
 
 
 # mjscore形式の配牌をソートする関数。
@@ -83,6 +83,8 @@ def parse_discards(events, abs_pos: int):
             else:
                 riichi_tile_list.append(_change_tile_fmt(events[i + 1].tile))
             # riichiの次のeventに宣言牌が記録されているのでそのtileを取得して後にindexを取得変更
+        elif event.type == mjproto.EVENT_TYPE_KAN_CLOSED:
+            discards.append(_change_action_format(event.open))
     if is_reach:
         riichi_tile = riichi_tile_list[0]
         discards = [

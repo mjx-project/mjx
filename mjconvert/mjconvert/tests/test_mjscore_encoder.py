@@ -13,6 +13,8 @@ def mjscore_log_equal(mjscore_original_dict, mjscore_converted_dict) -> bool:
     is_equal = True
     for i in range(len(original_log)):
         if original_log[i] != converted_log[i]:
+            print(i, original_log[i])
+            print(i, converted_log[i])
             is_equal = False
     return is_equal
 
