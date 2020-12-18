@@ -57,7 +57,7 @@ def sort_init_hand(init_hand: List) -> List:
     return sorted_hand
 
 
-def __change_tumogiri_riich_fmt(tile):  # ツモギリリーチ専用の番号90を60ツモぎりの番号60に直す
+def _change_tumogiri_riich_fmt(tile):  # ツモギリリーチ専用の番号90を60ツモぎりの番号60に直す
     if tile == 90:
         return 60
     return tile
@@ -88,7 +88,7 @@ def parse_discards(events, abs_pos: int):
     if is_reach:
         riichi_tile = riichi_tile_list[0]
         discards = [
-            i if i != riichi_tile else "r" + str(__change_tumogiri_riich_fmt(i)) for i in discards
+            i if i != riichi_tile else "r" + str(_change_tumogiri_riich_fmt(i)) for i in discards
         ]  # リーチ宣言牌の形式変更
     return discards
 
