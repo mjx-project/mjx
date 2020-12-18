@@ -18,7 +18,7 @@ namespace mj
     {
     public:
         AgentGrpcServerImplRuleBased();
-        ~AgentGrpcServerImplRuleBased();
+        ~AgentGrpcServerImplRuleBased() final;
         grpc::Status TakeAction(grpc::ServerContext* context, const mjproto::Observation* request, mjproto::Action* reply) final ;
         void InferenceAction();
     private:
