@@ -31,9 +31,9 @@ namespace mj
         std::queue<ObservationInfo> obs_que_;
         std::unordered_map<boost::uuids::uuid, mjproto::Action, boost::hash<boost::uuids::uuid>> act_map_;
         // 推論を始めるデータ数の閾値
-        int batch_size_ = 16;
+        int batch_size_ = 8;
         // 推論を始める時間間隔
-        int wait_count_ = 10;
+        int wait_count_ = 1;
 
         // 常駐する推論スレッド
         std::thread thread_inference_;
