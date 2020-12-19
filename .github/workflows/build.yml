@@ -9,6 +9,8 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Pull Git LFS
+      with:
+        lfs: true
       run: |
         git lfs pull
     - name: Build mj
