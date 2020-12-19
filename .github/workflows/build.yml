@@ -8,9 +8,9 @@ jobs:
     container: sotetsuk/ubuntu-gcc-grpc:v0.0.5
     steps:
     - uses: actions/checkout@v2
-    - name: Pull Git LFS
       with:
         lfs: true
+    - name: Pull Git LFS
       run: |
         git lfs pull
     - name: Build mj
