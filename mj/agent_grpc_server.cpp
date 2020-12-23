@@ -13,7 +13,7 @@ namespace mj
     {
         thread_inference_ = std::thread([this](){
             while(!stop_flag_){
-                this->InferenceAction();
+                this->InferAction();
             }
         });
     }
@@ -47,7 +47,7 @@ namespace mj
         return grpc::Status::OK;
     }
 
-    void AgentGrpcServerImpl::InferenceAction(){
+    void AgentGrpcServerImpl::InferAction(){
         // データが溜まるまで待機
         auto start = std::chrono::system_clock::now();
         while(true) {

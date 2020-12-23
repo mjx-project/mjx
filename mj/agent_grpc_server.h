@@ -32,7 +32,7 @@ namespace mj
             Observation obs;
         };
 
-        void InferenceAction();
+        void InferAction();
 
         // Agent logic
         std::unique_ptr<Strategy> strategy_;
