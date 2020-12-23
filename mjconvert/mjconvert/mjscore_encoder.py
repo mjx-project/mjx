@@ -76,29 +76,20 @@ def parse_discards(events, abs_pos: int):
     riichi_tile_list: List[int] = []  # リーチは一人一回なので論理的におかしいが、リーチ宣言牌をスコープを跨いで保存してmypyでエラーを出さないため。
     for i, event in enumerate(events):
         if event.type == mjproto.EVENT_TYPE_DISCARD_FROM_HAND and event.who == abs_pos:  # 手出し
-            discards.append(_change_tile_fmt(event.tile))
-        elif event.type == mjproto.EVENT_TYPE_DISCARD_DRAWN_TILE and event.who == abs_pos:  # ツモギリ
             if events[i - 1].type == mjproto.EVENT_TYPE_RIICHI:
-                discards.append(90)  # ツモギリリーチ専用の番号
+                discards.append("r" + str(_change_tile_fmt(event.tile)))  # 一つ前のeventがriichiかどうか
+            else:
+                discards.append(_change_tile_fmt(event.tile))
+        elif event.type == mjproto.EVENT_TYPE_DISCARD_DRAWN_TILE and event.who == abs_pos:  # ツモギリ
+            if events[i - 1].type == mjproto.EVENT_TYPE_RIICHI:  # 一つ前のeventがriichiかどうか
+                discards.append("r60")
             else:
                 discards.append(60)
-        elif event.type == mjproto.EVENT_TYPE_RIICHI and event.who == abs_pos:  # リーチ
-            is_reach = True
-            if events[i + 1].type == mjproto.EVENT_TYPE_DISCARD_DRAWN_TILE:
-                riichi_tile_list.append(90)
-            else:
-                riichi_tile_list.append(_change_tile_fmt(events[i + 1].tile))
-            # riichiの次のeventに宣言牌が記録されているのでそのtileを取得して後にindexを取得変更
         elif event.type == mjproto.EVENT_TYPE_KAN_CLOSED and event.who == abs_pos:
             discards.append(_change_action_format(event.open))
 
         elif event.type == mjproto.EVENT_TYPE_KAN_ADDED and event.who == abs_pos:
             discards.append(_change_action_format(event.open))
-    if is_reach:
-        riichi_tile = riichi_tile_list[0]
-        discards = [
-            i if i != riichi_tile else "r" + str(_change_tumogiri_riich_fmt(i)) for i in discards
-        ]  # リーチ宣言牌の形式変更
     return discards
 
 
