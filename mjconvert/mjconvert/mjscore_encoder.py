@@ -42,6 +42,8 @@ def _change_action_format(bits: int) -> str:  # TODO カン
             return str(stolen_tile) + str(open_tiles[0]) + "p" + str(open_tiles[1])
     elif event_type == mjproto.EVENT_TYPE_KAN_CLOSED:
         return str(stolen_tile) + str(stolen_tile) + str(stolen_tile) + "a" + str(stolen_tile)
+    else:
+        return ""
 
 
 # mjscore形式の配牌をソートする関数。
@@ -83,7 +85,7 @@ def parse_discards(events, abs_pos: int):
             else:
                 riichi_tile_list.append(_change_tile_fmt(events[i + 1].tile))
             # riichiの次のeventに宣言牌が記録されているのでそのtileを取得して後にindexを取得変更
-        elif event.type == mjproto.EVENT_TYPE_KAN_CLOSED:
+        elif event.type == mjproto.EVENT_TYPE_KAN_CLOSED and event.who == abs_pos:
             discards.append(_change_action_format(event.open))
     if is_reach:
         riichi_tile = riichi_tile_list[0]
@@ -292,9 +294,9 @@ def _fan_fu(who, fans: List[int], fu: int, ten) -> str:
 
 def _is_oya(who: int, round: int) -> bool:  # 和了者が親かどうか判定する。
     """
-    >>> __is_oya(0, 3)
+    >>> _is_oya(0, 3)
     False
-    >>> __is_oya(0, 4)
+    >>> _is_oya(0, 4)
     True
     """
     if round % 4 == who:
@@ -313,7 +315,6 @@ def _winner_point(who: int, from_who: int, fans: List[int], fu: int, ten: int, r
     is_tsumo = who == from_who  # ツモあがりかどうかを判定
     if is_tsumo:
         if _is_oya(who, round):  # 親かどうか
-            print(who, mjproto.ABSOLUTE_POS_INIT_EAST, ten)
             return _fan_fu(who, fans, fu, ten) + str(int(ten / 3)) + "点∀"
         else:
             return _fan_fu(who, fans, fu, ten) + non_dealer_tsumo_dict[ten] + "点"
