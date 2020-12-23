@@ -2,7 +2,6 @@
 #include "action.h"
 #include "agent.h"
 #include "agent_example_rule_based.h"
-#include "agent_grpc_server.h"
 #include "agent_grpc_server_imipl.h"
 #include "consts.h"
 #include "environment.h"

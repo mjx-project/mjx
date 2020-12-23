@@ -1,6 +1,5 @@
 #include <iostream>
 #include <mj/mj.h>
-#include "mj/agent_grpc_server.h"
 #include "mj/agent_grpc_client.h"
 #include "mj/agent_grpc_server_imipl.h"
 #include "mj/strategy_rule_based.h"

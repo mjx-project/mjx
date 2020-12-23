@@ -8,7 +8,6 @@
 #include <boost/uuid/uuid_io.hpp>
 #include <boost/functional/hash.hpp>
 #include "mj.grpc.pb.h"
-#include "agent_grpc_server.h"
 #include "strategy_rule_based.h"
 #include "observation.h"
 
