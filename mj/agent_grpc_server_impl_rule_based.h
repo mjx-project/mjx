@@ -17,7 +17,7 @@ namespace mj
     class AgentGrpcServerImplRuleBased final : public mjproto::Agent::Service
     {
     public:
-        explicit AgentGrpcServerImplRuleBased(int batch_size = 8, int wait_ms = 0);
+        explicit AgentGrpcServerImplRuleBased(std::unique_ptr<Strategy> strategy, int batch_size = 8, int wait_ms = 0);
         ~AgentGrpcServerImplRuleBased() final;
         grpc::Status TakeAction(grpc::ServerContext* context, const mjproto::Observation* request, mjproto::Action* reply) final ;
         void InferenceAction();
@@ -26,6 +26,9 @@ namespace mj
             boost::uuids::uuid id;
             Observation obs;
         };
+
+        // Agent logic
+        std::unique_ptr<Strategy> strategy_;
 
         // 推論を始めるデータ数の閾値
         int batch_size_;
@@ -39,7 +42,6 @@ namespace mj
         std::thread thread_inference_;
         bool stop_flag_ = false;
 
-        std::unique_ptr<Strategy> strategy = std::make_unique<StrategyRuleBased>();
     };
 }  // namespace mj
 

@@ -3,8 +3,8 @@
 
 namespace mj
 {
-    AgentGrpcServerImplRuleBased::AgentGrpcServerImplRuleBased(int batch_size, int wait_ms) :
-    batch_size_(batch_size), wait_ms_(wait_ms)
+    AgentGrpcServerImplRuleBased::AgentGrpcServerImplRuleBased(std::unique_ptr<Strategy> strategy, int batch_size, int wait_ms) :
+            strategy_(std::move(strategy)), batch_size_(batch_size), wait_ms_(wait_ms)
     {
         thread_inference_ = std::thread([this](){
             while(!stop_flag_){
@@ -65,7 +65,7 @@ namespace mj
         }
 
         // 推論する
-        std::vector<mjproto::Action> actions = strategy->TakeActions(std::move(observations));
+        std::vector<mjproto::Action> actions = strategy_->TakeActions(std::move(observations));
         Assert(ids.size() == actions.size(), "Number of ids and actison should be same.\n  # ids = "
             + std::to_string(ids.size()) + "\n  # actions = " + std::to_string(actions.size()));
 
