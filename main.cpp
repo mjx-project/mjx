@@ -11,8 +11,9 @@ int main(int argc, char* argv[]) {
     std::cout << "cnt_args: " <<  argc << std::endl;
     assert(argc == 1 || argc == 3);
     if(argc == 1){
-        AgentGrpcServer server(std::make_unique<AgentGrpcServerImpl>(std::make_unique<StrategyRuleBased>()));
-        server.RunServer("0.0.0.0:50051");
+        AgentGrpcServerImpl::RunServer(
+                std::make_unique<StrategyRuleBased>(), "0.0.0.0:50051"
+        );
     }
     else{
         auto channel = grpc::CreateChannel("localhost:50051",grpc::InsecureChannelCredentials());

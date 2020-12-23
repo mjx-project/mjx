@@ -77,6 +77,20 @@ namespace mj
             }
         }
     }
+
+    void
+    AgentGrpcServerImpl::RunServer(std::unique_ptr<Strategy> strategy, const std::string &socket_address, int batch_size,
+                                   int wait_ms) {
+        std::unique_ptr<grpc::Service> agent_impl = std::make_unique<AgentGrpcServerImpl>(std::move(strategy), batch_size, wait_ms);
+        std::cout << socket_address << std::endl;
+        grpc::EnableDefaultHealthCheckService(true);
+        grpc::reflection::InitProtoReflectionServerBuilderPlugin();
+        grpc::ServerBuilder builder;
+        builder.AddListeningPort(socket_address, grpc::InsecureServerCredentials());
+        builder.RegisterService(agent_impl.get());
+        std::unique_ptr<grpc::Server> server(builder.BuildAndStart());
+        server->Wait();
+    }
 }  // namesapce mj
 
 

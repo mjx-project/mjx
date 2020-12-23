@@ -21,6 +21,8 @@ namespace mj
         ~AgentGrpcServerImpl() final;
         grpc::Status TakeAction(grpc::ServerContext* context, const mjproto::Observation* request, mjproto::Action* reply) final ;
         void InferenceAction();
+        static void RunServer(std::unique_ptr<Strategy> strategy, const std::string &socket_address,
+                              int batch_size = 8, int wait_ms = 0);
     private:
         struct ObservationInfo{
             boost::uuids::uuid id;
