@@ -26,12 +26,13 @@ namespace mj
         explicit AgentGrpcServerImpl(std::unique_ptr<Strategy> strategy, int batch_size = 8, int wait_ms = 0);
         ~AgentGrpcServerImpl() final;
         grpc::Status TakeAction(grpc::ServerContext* context, const mjproto::Observation* request, mjproto::Action* reply) final ;
-        void InferenceAction();
     private:
         struct ObservationInfo{
             boost::uuids::uuid id;
             Observation obs;
         };
+
+        void InferenceAction();
 
         // Agent logic
         std::unique_ptr<Strategy> strategy_;
