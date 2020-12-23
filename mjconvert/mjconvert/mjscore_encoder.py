@@ -42,7 +42,9 @@ def _change_action_format(bits: int) -> str:  # TODO カン
         else:
             return str(stolen_tile) + str(open_tiles[0]) + "p" + str(open_tiles[1])
     elif event_type == mjproto.EVENT_TYPE_KAN_ADDED:
-        return "k" + str(stolen_tile) + str(open_tiles[0]) + str(open_tiles[1]) + str(open_tiles[2])
+        return (
+            "k" + str(stolen_tile) + str(open_tiles[0]) + str(open_tiles[1]) + str(open_tiles[2])
+        )
     elif event_type == mjproto.EVENT_TYPE_KAN_CLOSED:
         return str(stolen_tile) + str(stolen_tile) + str(stolen_tile) + "a" + str(stolen_tile)
     else:
@@ -328,7 +330,7 @@ def _winner_point(who: int, from_who: int, fans: List[int], fu: int, ten: int, r
         if who == mjproto.ABSOLUTE_POS_INIT_EAST:
             return _fan_fu(who, fans, fu, ten, round) + str(ten) + "点"
         else:
-            return _fan_fu(who, fans, fu, ten,  round) + str(ten) + "点"
+            return _fan_fu(who, fans, fu, ten, round) + str(ten) + "点"
 
 
 def _check_uradoras(fans: List[int], yakus: List[int]) -> List[int]:  # リーチがかかるとprotoではyakus
