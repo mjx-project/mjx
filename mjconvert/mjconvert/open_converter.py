@@ -159,12 +159,9 @@ def transform_red_open(bits: int, open: List[int], event_type) -> List[int]:
         return open
     if event_type == mjproto.EVENT_TYPE_CHI:
         return [red_dict[i] if i in fives else i for i in open]
-    elif event_type == mjproto.EVENT_TYPE_PON:
-        open[-1] = red_dict[open[-1]]
-        return open
     else:
         open[-1] = red_dict[open[-1]]
-        return open  # TODO カン
+        return open
 
 
 def open_stolen_tile_type(bits: int) -> int:
@@ -207,7 +204,7 @@ def open_tile_types(bits: int) -> List[int]:
         min_tile = _min_tile_chi(bits)
         open = [min_tile, min_tile + 1, min_tile + 2]
         return transform_red_open(bits, open, event_type)
-    elif event_type == mjproto.EVENT_TYPE_PON:
+    elif event_type == mjproto.EVENT_TYPE_PON or event_type == mjproto.EVENT_TYPE_KAN_ADDED:
         stolen_tile_kind = open_stolen_tile_type(bits)
         open = [stolen_tile_kind] * 3
         return transform_red_open(bits, open, event_type)
