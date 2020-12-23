@@ -14,12 +14,12 @@
 
 namespace mj
 {
-    class AgentGrpcServerImpl final : public mjproto::Agent::Service
+    class AgentGrpcServerImpl : public mjproto::Agent::Service
     {
     public:
         explicit AgentGrpcServerImpl(int batch_size = 8, int wait_ms = 1);
-        ~AgentGrpcServerImpl() final;
-        grpc::Status TakeAction(grpc::ServerContext* context, const mjproto::Observation* request, mjproto::Action* reply) final ;
+        ~AgentGrpcServerImpl() override ;
+        grpc::Status TakeAction(grpc::ServerContext* context, const mjproto::Observation* request, mjproto::Action* reply) override ;
         void InferenceAction();
     private:
         struct ObservationInfo{
