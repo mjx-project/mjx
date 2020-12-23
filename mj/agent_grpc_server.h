@@ -1,5 +1,5 @@
-#ifndef MAHJONG_AGENT_GRPC_SERVER_IMIPL_H
-#define MAHJONG_AGENT_GRPC_SERVER_IMIPL_H
+#ifndef MAHJONG_AGENT_GRPC_SERVER_H
+#define MAHJONG_AGENT_GRPC_SERVER_H
 
 #include <queue>
 #include <thread>
@@ -13,6 +13,13 @@
 
 namespace mj
 {
+    class AgentGrpcServer
+    {
+    public:
+        static void RunServer(std::unique_ptr<Strategy> strategy, const std::string &socket_address,
+                              int batch_size = 8, int wait_ms = 0);
+    };
+
     class AgentGrpcServerImpl final : public mjproto::Agent::Service
     {
     public:
@@ -20,8 +27,6 @@ namespace mj
         ~AgentGrpcServerImpl() final;
         grpc::Status TakeAction(grpc::ServerContext* context, const mjproto::Observation* request, mjproto::Action* reply) final ;
         void InferenceAction();
-        static void RunServer(std::unique_ptr<Strategy> strategy, const std::string &socket_address,
-                              int batch_size = 8, int wait_ms = 0);
     private:
         struct ObservationInfo{
             boost::uuids::uuid id;
@@ -46,4 +51,4 @@ namespace mj
     };
 }  // namespace mj
 
-#endif //MAHJONG_AGENT_GRPC_SERVER_IMIPL_H
+#endif //MAHJONG_AGENT_GRPC_SERVER_H

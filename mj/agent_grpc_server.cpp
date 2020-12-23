@@ -3,7 +3,7 @@
 #include <grpcpp/security/server_credentials.h>
 #include <grpcpp/server.h>
 #include <grpcpp/server_builder.h>
-#include "agent_grpc_server_imipl.h"
+#include "agent_grpc_server.h"
 #include "utils.h"
 
 namespace mj
@@ -84,8 +84,8 @@ namespace mj
     }
 
     void
-    AgentGrpcServerImpl::RunServer(std::unique_ptr<Strategy> strategy, const std::string &socket_address, int batch_size,
-                                   int wait_ms) {
+    AgentGrpcServer::RunServer(std::unique_ptr<Strategy> strategy, const std::string &socket_address, int batch_size,
+                               int wait_ms) {
         std::unique_ptr<grpc::Service> agent_impl = std::make_unique<AgentGrpcServerImpl>(std::move(strategy), batch_size, wait_ms);
         std::cout << socket_address << std::endl;
         grpc::EnableDefaultHealthCheckService(true);

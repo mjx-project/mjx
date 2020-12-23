@@ -1,7 +1,7 @@
 #include <iostream>
 #include <mj/mj.h>
 #include "mj/agent_grpc_client.h"
-#include "mj/agent_grpc_server_imipl.h"
+#include "mj/agent_grpc_server.h"
 #include "mj/strategy_rule_based.h"
 
 using namespace mj;
@@ -10,7 +10,7 @@ int main(int argc, char* argv[]) {
     std::cout << "cnt_args: " <<  argc << std::endl;
     assert(argc == 1 || argc == 3);
     if(argc == 1){
-        AgentGrpcServerImpl::RunServer(
+        AgentGrpcServer::RunServer(
                 std::make_unique<StrategyRuleBased>(), "0.0.0.0:50051"
         );
     }
