@@ -8,8 +8,14 @@ jobs:
     container: sotetsuk/ubuntu-gcc-grpc:v0.0.6
     steps:
     - uses: actions/checkout@v2
+    - name: Create LFS file list
+      run: git lfs ls-files -l | cut -d' ' -f1 | sort > .lfs-assets-id
+    - name: Restore LFS cache
+      uses: actions/cache@v2
+      id: lfs-cache
       with:
-        lfs: true
+        path: .git/lfs
+        key: ${{ runner.os }}-lfs-${{ hashFiles('.lfs-assets-id') }}-v1
     - name: Pull Git LFS
       run: |
         git lfs pull
