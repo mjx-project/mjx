@@ -30,11 +30,10 @@ def _change_action_format(bits: int) -> str:  # TODO カン
     open_from = open_converter.open_from(bits)
     stolen_tile = open_converter.change_open_tile_fmt(open_converter.open_stolen_tile_type(bits))
     open_tiles = open_converter.change_open_tiles_fmt(open_converter.open_tile_types(bits))
+    open_tiles.remove(stolen_tile)
     if event_type == mjproto.EVENT_TYPE_CHI:  # 現状書き方があまりにも冗長。なんとかしたい。
-        open_tiles.remove(stolen_tile)  #
         return "c" + str(stolen_tile) + str(open_tiles[0]) + str(open_tiles[1])
     elif event_type == mjproto.EVENT_TYPE_PON:
-        open_tiles.remove(stolen_tile)
         if open_from == mjproto.RELATIVE_POS_LEFT:
             return "p" + str(stolen_tile) + str(open_tiles[0]) + str(open_tiles[1])
         elif open_from == mjproto.RELATIVE_POS_MID:

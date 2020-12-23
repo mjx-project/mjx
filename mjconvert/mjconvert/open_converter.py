@@ -206,7 +206,7 @@ def open_tile_types(bits: int) -> List[int]:
         min_tile = _min_tile_chi(bits)
         open = [min_tile, min_tile + 1, min_tile + 2]
         return transform_red_open(bits, open, event_type)
-    elif event_type == mjproto.EVENT_TYPE_PON or event_type == mjproto.EVENT_TYPE_KAN_ADDED:
+    elif event_type == mjproto.EVENT_TYPE_PON:
         stolen_tile_kind = open_stolen_tile_type(bits)
         open = [stolen_tile_kind] * 3
         return transform_red_open(bits, open, event_type)
