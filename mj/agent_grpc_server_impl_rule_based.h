@@ -17,7 +17,7 @@ namespace mj
     class AgentGrpcServerImplRuleBased final : public mjproto::Agent::Service
     {
     public:
-        explicit AgentGrpcServerImplRuleBased(int batch_size = 8, int wait_ms = 1);
+        explicit AgentGrpcServerImplRuleBased(int batch_size = 8, int wait_ms = 0);
         ~AgentGrpcServerImplRuleBased() final;
         grpc::Status TakeAction(grpc::ServerContext* context, const mjproto::Observation* request, mjproto::Action* reply) final ;
         void InferenceAction();
@@ -38,6 +38,8 @@ namespace mj
         // 常駐する推論スレッド
         std::thread thread_inference_;
         bool stop_flag_ = false;
+
+        std::unique_ptr<Strategy> strategy = std::make_unique<StrategyRuleBased>();
     };
 }  // namespace mj
 

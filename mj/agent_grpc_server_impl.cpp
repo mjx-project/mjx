@@ -56,7 +56,7 @@ namespace mj
             std::lock_guard<std::mutex> lock_map(mtx_map_);
             while(!obs_que_.empty()){
                 ObservationInfo obsinfo = obs_que_.front();
-                act_map_.emplace(obsinfo.id, StrategyRuleBased::SelectAction(std::move(obsinfo.obs)));
+                act_map_.emplace(obsinfo.id, StrategyRuleBased::TakeAction(std::move(obsinfo.obs)));
                 obs_que_.pop();
             }
         }

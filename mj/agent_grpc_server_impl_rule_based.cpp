@@ -1,4 +1,5 @@
 #include "agent_grpc_server_impl_rule_based.h"
+#include "utils.h"
 
 namespace mj
 {
@@ -50,14 +51,29 @@ namespace mj
                or std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now()-start).count() >= wait_ms_) break;
         }
 
-        // 各データについて推論
+        // Queueからデータを取り出す
+        std::vector<boost::uuids::uuid> ids;
+        std::vector<Observation> observations;
         {
             std::lock_guard<std::mutex> lock_que(mtx_que_);
-            std::lock_guard<std::mutex> lock_map(mtx_map_);
             while(!obs_que_.empty()){
                 ObservationInfo obsinfo = obs_que_.front();
-                act_map_.emplace(obsinfo.id, StrategyRuleBased::SelectAction(std::move(obsinfo.obs)));
                 obs_que_.pop();
+                ids.push_back(obsinfo.id);
+                observations.push_back(std::move(obsinfo.obs));
+            }
+        }
+
+        // 推論する
+        std::vector<mjproto::Action> actions = strategy->TakeActions(std::move(observations));
+        Assert(ids.size() == actions.size(), "Number of ids and actison should be same.\n  # ids = "
+            + std::to_string(ids.size()) + "\n  # actions = " + std::to_string(actions.size()));
+
+        // Mapにデータを返す
+        {
+            std::lock_guard<std::mutex> lock_map(mtx_map_);
+            for (int i = 0; i < ids.size(); ++i) {
+                act_map_.emplace(ids[i], std::move(actions[i]));
             }
         }
     }
