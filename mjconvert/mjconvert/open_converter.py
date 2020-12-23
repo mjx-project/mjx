@@ -61,6 +61,8 @@ def is_stolen_red(bits: int, stolen_tile_kind) -> bool:  # TODO: test  さらに
     """
     >>> is_stolen_red(51306, 33)
     False
+    >>> is_stolen_red(51247, 22)
+    True
     """
     fives = [4, 13, 22]
     reds = [14, 52, 88]
@@ -70,7 +72,7 @@ def is_stolen_red(bits: int, stolen_tile_kind) -> bool:  # TODO: test  さらに
 
     if event_type == mjproto.EVENT_TYPE_CHI:
         stolen_tile_mod3 = (bits >> 10) % 3  # 鳴いた牌のindex
-        stolen_tile_id_mod4 = bits >> (3 + 2 * stolen_tile_mod3) % 4  # 鳴いた牌のid mod 4
+        stolen_tile_id_mod4 = (bits >> (3 + 2 * stolen_tile_mod3)) % 4  # 鳴いた牌のid mod 4
         return stolen_tile_id_mod4 == 0  # 鳴いた牌のid mod 4=0→赤
     elif event_type == mjproto.EVENT_TYPE_PON or event_type == mjproto.EVENT_TYPE_KAN_ADDED:
         unused_id_mod4 = (bits >> 5) % 4  # 未使用牌のid mod 4
