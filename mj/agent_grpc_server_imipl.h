@@ -1,5 +1,5 @@
-#ifndef MAHJONG_AGENT_GRPC_SERVER_IMPL_RULE_BASED_H
-#define MAHJONG_AGENT_GRPC_SERVER_IMPL_RULE_BASED_H
+#ifndef MAHJONG_AGENT_GRPC_SERVER_IMIPL_H
+#define MAHJONG_AGENT_GRPC_SERVER_IMIPL_H
 
 #include <queue>
 #include <thread>
@@ -14,11 +14,11 @@
 
 namespace mj
 {
-    class AgentGrpcServerImplRuleBased final : public mjproto::Agent::Service
+    class AgentGrpcServerImpl final : public mjproto::Agent::Service
     {
     public:
-        explicit AgentGrpcServerImplRuleBased(std::unique_ptr<Strategy> strategy, int batch_size = 8, int wait_ms = 0);
-        ~AgentGrpcServerImplRuleBased() final;
+        explicit AgentGrpcServerImpl(std::unique_ptr<Strategy> strategy, int batch_size = 8, int wait_ms = 0);
+        ~AgentGrpcServerImpl() final;
         grpc::Status TakeAction(grpc::ServerContext* context, const mjproto::Observation* request, mjproto::Action* reply) final ;
         void InferenceAction();
     private:
@@ -45,4 +45,4 @@ namespace mj
     };
 }  // namespace mj
 
-#endif //MAHJONG_AGENT_GRPC_SERVER_IMPL_RULE_BASED_H
+#endif //MAHJONG_AGENT_GRPC_SERVER_IMIPL_H

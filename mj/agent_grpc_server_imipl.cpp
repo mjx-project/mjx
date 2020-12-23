@@ -1,9 +1,9 @@
-#include "agent_grpc_server_impl_rule_based.h"
+#include "agent_grpc_server_imipl.h"
 #include "utils.h"
 
 namespace mj
 {
-    AgentGrpcServerImplRuleBased::AgentGrpcServerImplRuleBased(std::unique_ptr<Strategy> strategy, int batch_size, int wait_ms) :
+    AgentGrpcServerImpl::AgentGrpcServerImpl(std::unique_ptr<Strategy> strategy, int batch_size, int wait_ms) :
             strategy_(std::move(strategy)), batch_size_(batch_size), wait_ms_(wait_ms)
     {
         thread_inference_ = std::thread([this](){
@@ -13,13 +13,13 @@ namespace mj
         });
     }
 
-    AgentGrpcServerImplRuleBased::~AgentGrpcServerImplRuleBased(){
+    AgentGrpcServerImpl::~AgentGrpcServerImpl(){
         stop_flag_ = true;
         thread_inference_.join();
     }
 
     grpc::Status
-    AgentGrpcServerImplRuleBased::TakeAction(grpc::ServerContext *context, const mjproto::Observation *request, mjproto::Action *reply) {
+    AgentGrpcServerImpl::TakeAction(grpc::ServerContext *context, const mjproto::Observation *request, mjproto::Action *reply) {
         // Observationデータ追加
         auto id = boost::uuids::random_generator()();
         {
@@ -42,7 +42,7 @@ namespace mj
         return grpc::Status::OK;
     }
 
-    void AgentGrpcServerImplRuleBased::InferenceAction(){
+    void AgentGrpcServerImpl::InferenceAction(){
         // データが溜まるまで待機
         auto start = std::chrono::system_clock::now();
         while(true) {
