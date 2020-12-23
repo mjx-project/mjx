@@ -33,7 +33,7 @@ get_filename_component(mj_proto_path "${mj_proto}" PATH)
 # Generated sources
 set(mj_proto_srcs "${CMAKE_CURRENT_SOURCE_DIR}/mj.pb.cc")
 set(mj_proto_hdrs "${CMAKE_CURRENT_SOURCE_DIR}/mj.pb.h")
-set(mj_grpc_srcs "${CMAKE_CURRENT_SOURCE_DIR}/mj.grpc.pb.cc" agent_grpc_server_impl.cpp agent_grpc_server_impl.h)
+set(mj_grpc_srcs "${CMAKE_CURRENT_SOURCE_DIR}/mj.grpc.pb.cc")
 set(mj_grpc_hdrs "${CMAKE_CURRENT_SOURCE_DIR}/mj.grpc.pb.h")
 add_custom_command(
         OUTPUT "${mj_proto_srcs}" "${mj_proto_hdrs}" "${mj_grpc_srcs}" "${mj_grpc_hdrs}"
