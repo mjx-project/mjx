@@ -13,7 +13,8 @@ RUN apt-get update && apt-get install -y \
   autoconf \
   libtool \
   pkg-config \
-  unzip
+  unzip \
+  git-lfs
 
 # install gRPC
 RUN cd / && \

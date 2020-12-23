@@ -270,11 +270,11 @@ dealer_point_dict = {12000: "満貫", 18000: "跳満", 24000: "倍満", 36000: "
 no_dealer_point_dict = {8000: "満貫", 12000: "跳満", 16000: "倍満", 24000: "三倍満", 32000: "役満"}
 
 
-def __fan_fu(who, fans: List[int], fu: int, ten) -> str:
+def _fan_fu(who, fans: List[int], fu: int, ten) -> str:
     """
-    >>> __fan_fu(0, [3, 1], 40, 12000)
+    >>> _fan_fu(0, [3, 1], 40, 12000)
     '満貫'
-    >>> __fan_fu(1, [2, 1], 40, 5200)
+    >>> _fan_fu(1, [2, 1], 40, 5200)
     '40符3飜'
     """
     fan = sum(fans)
@@ -290,7 +290,7 @@ def __fan_fu(who, fans: List[int], fu: int, ten) -> str:
             return no_dealer_point_dict[ten]
 
 
-def __is_oya(who: int, round: int)  -> bool:  # 和了者が親かどうか判定する。
+def _is_oya(who: int, round: int) -> bool:  # 和了者が親かどうか判定する。
     """
     >>> __is_oya(0, 3)
     False
@@ -302,6 +302,7 @@ def __is_oya(who: int, round: int)  -> bool:  # 和了者が親かどうか判�
     else:
         return False
 
+
 def _winner_point(who: int, from_who: int, fans: List[int], fu: int, ten: int, round: int) -> str:
     """
     >>> _winner_point(0, 0, [3, 0], 30, 6000, 0)
@@ -311,16 +312,16 @@ def _winner_point(who: int, from_who: int, fans: List[int], fu: int, ten: int, r
     """
     is_tsumo = who == from_who  # ツモあがりかどうかを判定
     if is_tsumo:
-        if __is_oya(who, round):  # 親かどうか
+        if _is_oya(who, round):  # 親かどうか
             print(who, mjproto.ABSOLUTE_POS_INIT_EAST, ten)
-            return __fan_fu(who, fans, fu, ten) + str(int(ten / 3)) + "点∀"
+            return _fan_fu(who, fans, fu, ten) + str(int(ten / 3)) + "点∀"
         else:
-            return __fan_fu(who, fans, fu, ten) + non_dealer_tsumo_dict[ten] + "点"
+            return _fan_fu(who, fans, fu, ten) + non_dealer_tsumo_dict[ten] + "点"
     else:
         if who == mjproto.ABSOLUTE_POS_INIT_EAST:
-            return __fan_fu(who, fans, fu, ten) + str(ten) + "点"
+            return _fan_fu(who, fans, fu, ten) + str(ten) + "点"
         else:
-            return __fan_fu(who, fans, fu, ten) + str(ten) + "点"
+            return _fan_fu(who, fans, fu, ten) + str(ten) + "点"
 
 
 def _check_uradoras(fans: List[int], yakus: List[int]) -> List[int]:  # リーチがかかるとprotoではyakus
@@ -339,9 +340,9 @@ def _check_uradoras(fans: List[int], yakus: List[int]) -> List[int]:  # リー�
         return yakus
 
 
-def __correspond_yakus(yaku_dict, yakus: List[int], fans: List[int]):
+def _correspond_yakus(yaku_dict, yakus: List[int], fans: List[int]):
     """
-    >>> __correspond_yakus(yaku_dict_tumo, [0, 52], [1, 2])
+    >>> _correspond_yakus(yaku_dict_tumo, [0, 52], [1, 2])
     ['門前清自摸和(1飜)', 'ドラ(2飜)']
     """
     doras = [52, 53, 54]
@@ -366,9 +367,9 @@ def _winner_yakus(yakus: List[int], fans: List[int]) -> List[str]:
     ['混全帯幺九(1飜)']
     """
     if 0 in yakus:  # ツモの有無によって役の飜数がかわる。
-        return __correspond_yakus(yaku_dict_tumo, yakus, fans)
+        return _correspond_yakus(yaku_dict_tumo, yakus, fans)
     else:
-        return __correspond_yakus(yaku_dict_ron, yakus, fans)
+        return _correspond_yakus(yaku_dict_ron, yakus, fans)
 
 
 def parse_terminal(state: mjproto.State):

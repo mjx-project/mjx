@@ -7,9 +7,9 @@
 using namespace mj;
 
 int main(int argc, char* argv[]) {
-    std::cout << argc << std::endl;
-    assert(argc == 2);
-    if(*argv[1]=='0'){
+    std::cout << "cnt_args: " <<  argc << std::endl;
+    assert(argc == 1 || argc == 3);
+    if(argc == 1){
         AgentGrpcServer server(std::make_unique<AgentGrpcServerImplRuleBased>());
         server.RunServer("0.0.0.0:50051");
     }
@@ -21,12 +21,14 @@ int main(int argc, char* argv[]) {
                 std::make_shared<AgentGrpcClient>("agent03", channel),
                 std::make_shared<AgentGrpcClient>("agent04", channel),
         };
-        for(auto thread_num : {1, 2, 3, 4, 10}){
-            auto start = std::chrono::system_clock::now();
-            Environment::ParallelRunGame(100, thread_num, agents);
-            auto end = std::chrono::system_clock::now();
-            std::cout <<  thread_num << " " << std::chrono::duration_cast<std::chrono::milliseconds>(end-start).count() << std::endl;
-        }
+        auto start = std::chrono::system_clock::now();
+        Environment::ParallelRunGame(std::atoi(argv[1]), std::atoi(argv[2]), agents);
+        auto end = std::chrono::system_clock::now();
+        std::cout << "# games: " << std::atoi(argv[1]) << std::endl;
+        std::cout << "# threads: " << std::atoi(argv[2]) << std::endl;
+        auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(end-start).count();
+        std::cout << "total [sec]: " << ms / 1000.0 << std::endl;
+        std::cout << "sec/game: " << ms / 1000.0 / std::atoi(argv[1]) << std::endl;
     }
     return 0;
 }

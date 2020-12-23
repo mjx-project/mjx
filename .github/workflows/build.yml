@@ -5,9 +5,14 @@ on: [push]
 jobs:
   build:
     runs-on: ubuntu-latest
-    container: sotetsuk/ubuntu-gcc-grpc:v0.0.5
+    container: sotetsuk/ubuntu-gcc-grpc:v0.0.6
     steps:
     - uses: actions/checkout@v2
+      with:
+        lfs: true
+    - name: Pull Git LFS
+      run: |
+        git lfs pull
     - name: Build mj
       run: |
         make build
