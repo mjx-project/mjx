@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='mjconvert',
-    version="0.0.3",
+    version="0.0.4",
     description='Converter for Mahjong log files',
     author='sotetsuk',
     author_email='koyamada-s@sys.i.kyoto-u.ac.jp',
