@@ -40,6 +40,10 @@ def _change_action_format(bits: int) -> str:  # TODO カン
             return str(stolen_tile) + "p" + str(open_tiles[0]) + str(open_tiles[1])
         else:
             return str(stolen_tile) + str(open_tiles[0]) + "p" + str(open_tiles[1])
+    elif event_type == mjproto.EVENT_TYPE_KAN_ADDED:
+        return (
+            "k" + str(stolen_tile) + str(open_tiles[0]) + str(open_tiles[1]) + str(open_tiles[2])
+        )
     elif event_type == mjproto.EVENT_TYPE_KAN_CLOSED:
         return str(stolen_tile) + str(stolen_tile) + str(stolen_tile) + "a" + str(stolen_tile)
     else:
@@ -86,6 +90,8 @@ def parse_discards(events, abs_pos: int):
                 riichi_tile_list.append(_change_tile_fmt(events[i + 1].tile))
             # riichiの次のeventに宣言牌が記録されているのでそのtileを取得して後にindexを取得変更
         elif event.type == mjproto.EVENT_TYPE_KAN_CLOSED and event.who == abs_pos:
+            discards.append(_change_action_format(event.open))
+        elif event.type == mjproto.EVENT_TYPE_KAN_ADDED and event.who == abs_pos:
             discards.append(_change_action_format(event.open))
     if is_reach:
         riichi_tile = riichi_tile_list[0]
@@ -272,15 +278,15 @@ dealer_point_dict = {12000: "満貫", 18000: "跳満", 24000: "倍満", 36000: "
 no_dealer_point_dict = {8000: "満貫", 12000: "跳満", 16000: "倍満", 24000: "三倍満", 32000: "役満"}
 
 
-def _fan_fu(who, fans: List[int], fu: int, ten) -> str:
+def _fan_fu(who, fans: List[int], fu: int, ten, round: int) -> str:
     """
-    >>> _fan_fu(0, [3, 1], 40, 12000)
+    >>> _fan_fu(0, [3, 1], 40, 12000, 0)
     '満貫'
-    >>> _fan_fu(1, [2, 1], 40, 5200)
+    >>> _fan_fu(1, [2, 1], 40, 5200, 0)
     '40符3飜'
     """
     fan = sum(fans)
-    if who == mjproto.ABSOLUTE_POS_INIT_EAST:
+    if _is_oya(who, round):  # 親かどうかを判定
         if ten < 12000:
             return str(fu) + "符" + str(fan) + "飜"
         else:
@@ -315,14 +321,14 @@ def _winner_point(who: int, from_who: int, fans: List[int], fu: int, ten: int, r
     is_tsumo = who == from_who  # ツモあがりかどうかを判定
     if is_tsumo:
         if _is_oya(who, round):  # 親かどうか
-            return _fan_fu(who, fans, fu, ten) + str(int(ten / 3)) + "点∀"
+            return _fan_fu(who, fans, fu, ten, round) + str(int(ten / 3)) + "点∀"
         else:
-            return _fan_fu(who, fans, fu, ten) + non_dealer_tsumo_dict[ten] + "点"
+            return _fan_fu(who, fans, fu, ten, round) + non_dealer_tsumo_dict[ten] + "点"
     else:
         if who == mjproto.ABSOLUTE_POS_INIT_EAST:
-            return _fan_fu(who, fans, fu, ten) + str(ten) + "点"
+            return _fan_fu(who, fans, fu, ten, round) + str(ten) + "点"
         else:
-            return _fan_fu(who, fans, fu, ten) + str(ten) + "点"
+            return _fan_fu(who, fans, fu, ten, round) + str(ten) + "点"
 
 
 def _check_uradoras(fans: List[int], yakus: List[int]) -> List[int]:  # リーチがかかるとprotoではyakus
