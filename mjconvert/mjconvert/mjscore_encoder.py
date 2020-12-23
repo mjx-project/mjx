@@ -63,17 +63,9 @@ def sort_init_hand(init_hand: List) -> List:
     return sorted_hand
 
 
-def _change_tumogiri_riich_fmt(tile):  # ツモギリリーチ専用の番号90を60ツモぎりの番号60に直す
-    if tile == 90:
-        return 60
-    return tile
-
-
 # mjproto形式のeventを受け取り、あるプレイヤーの捨て牌をmjscore形式で出力する関数。
 def parse_discards(events, abs_pos: int):
     discards: List[object] = []
-    is_reach: bool = False  # リーチの有無
-    riichi_tile_list: List[int] = []  # リーチは一人一回なので論理的におかしいが、リーチ宣言牌をスコープを跨いで保存してmypyでエラーを出さないため。
     for i, event in enumerate(events):
         if event.type == mjproto.EVENT_TYPE_DISCARD_FROM_HAND and event.who == abs_pos:  # 手出し
             if events[i - 1].type == mjproto.EVENT_TYPE_RIICHI:
