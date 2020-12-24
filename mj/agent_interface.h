@@ -15,6 +15,7 @@ namespace mj
         AgentInterface() = default;
         virtual ~AgentInterface() = default;
         [[nodiscard]] virtual mjproto::Action TakeAction(Observation &&observation) const = 0;
+        [[nodiscard]] virtual PlayerId player_id() const = 0;
     };
 
     class AgentInterfaceGrpc final: public AgentInterface
@@ -24,6 +25,7 @@ namespace mj
         explicit AgentInterfaceGrpc(const std::shared_ptr<grpc::Channel>& channel);
         ~AgentInterfaceGrpc() final = default;
         [[nodiscard]] mjproto::Action TakeAction(Observation &&observation) const final ;
+        [[nodiscard]] PlayerId player_id() const final;
     private:
         std::unique_ptr<mjproto::Agent::Stub> stub_;
     };
@@ -34,6 +36,7 @@ namespace mj
         explicit AgentInterfaceLocal(std::unique_ptr<Agent> agent);
         ~AgentInterfaceLocal() final = default;
         [[nodiscard]] mjproto::Action TakeAction(Observation &&observation) const final = 0;
+        [[nodiscard]] PlayerId player_id() const final;
     private:
         std::unique_ptr<Agent> agent_;
     };

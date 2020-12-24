@@ -24,10 +24,18 @@ namespace mj
         return response;
     }
 
+    PlayerId AgentInterfaceGrpc::player_id() const {
+        return "TO BE IMPLEMENTED";
+    }
+
     AgentInterfaceLocal::AgentInterfaceLocal(std::unique_ptr<Agent> agent): agent_(std::move(agent)) {}
 
     mjproto::Action AgentInterfaceLocal::TakeAction(Observation &&observation) const {
         return agent_->TakeActions({std::move(observation)}).front();
+    }
+
+    PlayerId AgentInterfaceLocal::player_id() const {
+        return agent_->player_id();
     }
 }  // namespace mj
 
