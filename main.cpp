@@ -16,7 +16,7 @@ int main(int argc, char* argv[]) {
     }
     else{
         auto channel = grpc::CreateChannel("localhost:50051",grpc::InsecureChannelCredentials());
-        const std::vector<std::shared_ptr<Agent>> agents = {
+        const std::vector<std::shared_ptr<AgentInterface>> agents = {
                 std::make_shared<AgentGrpcClient>("agent01", channel),
                 std::make_shared<AgentGrpcClient>("agent02", channel),
                 std::make_shared<AgentGrpcClient>("agent03", channel),

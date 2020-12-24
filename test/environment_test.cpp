@@ -4,7 +4,7 @@
 using namespace mj;
 
 TEST(environment, RunOneGame) {
-    const std::vector<std::shared_ptr<Agent>> agents = {
+    const std::vector<std::shared_ptr<AgentInterface>> agents = {
             std::make_shared<AgentExampleRuleBased>("agent01"),
             std::make_shared<AgentExampleRuleBased>("agent02"),
             std::make_shared<AgentExampleRuleBased>("agent03"),

@@ -7,13 +7,13 @@
 
 namespace mj
 {
-    Environment::Environment(std::vector<std::shared_ptr<Agent>> agents) : agents_(std::move(agents)) {
+    Environment::Environment(std::vector<std::shared_ptr<AgentInterface>> agents) : agents_(std::move(agents)) {
         for (const auto &agent: agents_) map_agents_[agent->player_id()] = agent;
         std::vector<PlayerId> player_ids(4); for (int i = 0; i < 4; ++i) player_ids[i] = agents_.at(i)->player_id();
         state_ = State();
     }
 
-    void Environment::ParallelRunGame(int num_game, int num_thread, std::vector<std::shared_ptr<Agent>> agents) {
+    void Environment::ParallelRunGame(int num_game, int num_thread, std::vector<std::shared_ptr<AgentInterface>> agents) {
         std::vector<std::thread> threads;
         // スレッド生成
         for(int i = 0; i < num_thread; i++){
@@ -61,11 +61,11 @@ namespace mj
         }
     }
 
-    std::shared_ptr<Agent> Environment::agent(AbsolutePos pos) const {
+    std::shared_ptr<AgentInterface> Environment::agent(AbsolutePos pos) const {
         return agents_.at(ToUType(pos));
     }
 
-    std::shared_ptr<Agent> Environment::agent(PlayerId player_id) const {
+    std::shared_ptr<AgentInterface> Environment::agent(PlayerId player_id) const {
         return map_agents_.at(player_id);
     }
 }

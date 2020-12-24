@@ -4,7 +4,7 @@
 
 namespace mj
 {
-    AgentExampleRuleBased::AgentExampleRuleBased(PlayerId player_id) : Agent(std::move(player_id)) {}
+    AgentExampleRuleBased::AgentExampleRuleBased(PlayerId player_id) : AgentInterface(std::move(player_id)) {}
 
     mjproto::Action AgentExampleRuleBased::TakeAction(Observation &&observation) const {
         return StrategyRuleBased::TakeAction(std::forward<Observation>(observation));

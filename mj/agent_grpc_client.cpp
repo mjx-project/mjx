@@ -4,7 +4,7 @@
 namespace mj
 {
     AgentGrpcClient::AgentGrpcClient(PlayerId player_id, const std::shared_ptr<grpc::Channel> &channel):
-            Agent(std::move(player_id)), stub_(mjproto::Agent::NewStub(channel)) { }
+            AgentInterface(std::move(player_id)), stub_(mjproto::Agent::NewStub(channel)) { }
 
     mjproto::Action AgentGrpcClient::TakeAction(Observation &&observation) const {
         // TODO: verify that player_id is consistent (player_id_ == observation.player_id)

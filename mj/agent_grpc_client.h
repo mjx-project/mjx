@@ -3,13 +3,13 @@
 
 #include <grpcpp/grpcpp.h>
 #include "mj.grpc.pb.h"
-#include "agent.h"
+#include "agent_interface.h"
 #include "action.h"
 #include "observation.h"
 
 namespace mj
 {
-    class AgentGrpcClient final: public Agent
+    class AgentGrpcClient final: public AgentInterface
     {
     public:
         AgentGrpcClient() = default;
