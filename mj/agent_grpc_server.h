@@ -8,7 +8,7 @@
 #include <boost/uuid/uuid_io.hpp>
 #include <boost/functional/hash.hpp>
 #include "mj.grpc.pb.h"
-#include "strategy_rule_based.h"
+#include "agent_rule_based.h"
 #include "observation.h"
 
 namespace mj
@@ -16,14 +16,14 @@ namespace mj
     class AgentGrpcServer
     {
     public:
-        static void RunServer(std::unique_ptr<Strategy> strategy, const std::string &socket_address,
+        static void RunServer(std::unique_ptr<Agent> strategy, const std::string &socket_address,
                               int batch_size = 8, int wait_ms = 0);
     };
 
     class AgentGrpcServerImpl final : public mjproto::Agent::Service
     {
     public:
-        explicit AgentGrpcServerImpl(std::unique_ptr<Strategy> strategy, int batch_size = 8, int wait_ms = 0);
+        explicit AgentGrpcServerImpl(std::unique_ptr<Agent> strategy, int batch_size = 8, int wait_ms = 0);
         ~AgentGrpcServerImpl() final;
         grpc::Status TakeAction(grpc::ServerContext* context, const mjproto::Observation* request, mjproto::Action* reply) final ;
     private:
@@ -35,7 +35,7 @@ namespace mj
         void InferAction();
 
         // Agent logic
-        std::unique_ptr<Strategy> strategy_;
+        std::unique_ptr<Agent> strategy_;
 
         // 推論を始めるデータ数の閾値
         int batch_size_;

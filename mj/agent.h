@@ -1,15 +1,15 @@
-#ifndef MAHJONG_STRATEGY_H
-#define MAHJONG_STRATEGY_H
+#ifndef MAHJONG_AGENT_H
+#define MAHJONG_AGENT_H
 
 #include "observation.h"
 
 namespace mj {
-    class Strategy
+    class Agent
     {
     public:
-        virtual ~Strategy() = default;
+        virtual ~Agent() = default;
         [[nodiscard]] virtual std::vector<mjproto::Action> TakeActions(std::vector<Observation> &&observations) = 0;
     };
 }
 
-#endif //MAHJONG_STRATEGY_H
+#endif //MAHJONG_AGENT_H

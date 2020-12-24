@@ -8,7 +8,7 @@
 
 namespace mj
 {
-    AgentGrpcServerImpl::AgentGrpcServerImpl(std::unique_ptr<Strategy> strategy, int batch_size, int wait_ms) :
+    AgentGrpcServerImpl::AgentGrpcServerImpl(std::unique_ptr<Agent> strategy, int batch_size, int wait_ms) :
             strategy_(std::move(strategy)), batch_size_(batch_size), wait_ms_(wait_ms)
     {
         thread_inference_ = std::thread([this](){
@@ -84,7 +84,7 @@ namespace mj
     }
 
     void
-    AgentGrpcServer::RunServer(std::unique_ptr<Strategy> strategy, const std::string &socket_address, int batch_size,
+    AgentGrpcServer::RunServer(std::unique_ptr<Agent> strategy, const std::string &socket_address, int batch_size,
                                int wait_ms) {
         std::unique_ptr<grpc::Service> agent_impl = std::make_unique<AgentGrpcServerImpl>(std::move(strategy), batch_size, wait_ms);
         std::cout << socket_address << std::endl;

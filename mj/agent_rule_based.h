@@ -1,15 +1,15 @@
-#ifndef MAHJONG_STRATEGY_RULE_BASED_H
-#define MAHJONG_STRATEGY_RULE_BASED_H
+#ifndef MAHJONG_AGENT_RULE_BASED_H
+#define MAHJONG_AGENT_RULE_BASED_H
 
-#include "strategy.h"
+#include "agent.h"
 #include "observation.h"
 
 namespace mj
 {
-    class StrategyRuleBased final : public Strategy
+    class AgentRuleBased final : public Agent
     {
     public:
-        ~StrategyRuleBased() final = default;
+        ~AgentRuleBased() final = default;
         [[nodiscard]] std::vector<mjproto::Action> TakeActions(std::vector<Observation> &&observations) final;
         [[nodiscard]] static mjproto::Action TakeAction(Observation &&observation);
     private:
@@ -18,4 +18,4 @@ namespace mj
     };
 }
 
-#endif //MAHJONG_STRATEGY_RULE_BASED_H
+#endif //MAHJONG_AGENT_RULE_BASED_H

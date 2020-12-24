@@ -1,8 +1,8 @@
 #include "utils.h"
-#include "strategy_rule_based.h"
+#include "agent_rule_based.h"
 
 namespace mj{
-    std::vector<mjproto::Action> StrategyRuleBased::TakeActions(std::vector<Observation> &&observations) {
+    std::vector<mjproto::Action> AgentRuleBased::TakeActions(std::vector<Observation> &&observations) {
         int N = observations.size();
         std::vector<mjproto::Action> actions(N);
         for (int i = 0; i < N; ++i) {
@@ -11,7 +11,7 @@ namespace mj{
         return actions;
     }
 
-    mjproto::Action StrategyRuleBased::TakeAction(Observation &&observation) {
+    mjproto::Action AgentRuleBased::TakeAction(Observation &&observation) {
         // Prepare some seed and MT engine for reproducibility
         const std::uint64_t seed = 12345
                                    + 4096 * observation.proto().event_history().events_size()
@@ -83,7 +83,7 @@ namespace mj{
     }
 
     template<typename RandomGenerator>
-    Tile StrategyRuleBased::SelectDiscard(std::vector<Tile> &discard_candidates, const Hand &curr_hand, RandomGenerator& g) {
+    Tile AgentRuleBased::SelectDiscard(std::vector<Tile> &discard_candidates, const Hand &curr_hand, RandomGenerator& g) {
         std::sort(discard_candidates.begin(), discard_candidates.end());
         const TileTypeCount closed_tile_type_cnt = curr_hand.ClosedTileTypes();
         // 聴牌が取れるなら取れるように切る
