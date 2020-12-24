@@ -17,10 +17,10 @@ int main(int argc, char* argv[]) {
     else{
         auto channel = grpc::CreateChannel("localhost:50051",grpc::InsecureChannelCredentials());
         const std::vector<std::shared_ptr<AgentInterface>> agents = {
-                std::make_shared<AgentGrpcClient>("agent01", channel),
-                std::make_shared<AgentGrpcClient>("agent02", channel),
-                std::make_shared<AgentGrpcClient>("agent03", channel),
-                std::make_shared<AgentGrpcClient>("agent04", channel),
+                std::make_shared<AgentInterfaceGrpc>("agent01", channel),
+                std::make_shared<AgentInterfaceGrpc>("agent02", channel),
+                std::make_shared<AgentInterfaceGrpc>("agent03", channel),
+                std::make_shared<AgentInterfaceGrpc>("agent04", channel),
         };
         auto start = std::chrono::system_clock::now();
         Environment::ParallelRunGame(std::atoi(argv[1]), std::atoi(argv[2]), agents);

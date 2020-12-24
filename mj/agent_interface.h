@@ -1,21 +1,30 @@
 #ifndef MAHJONG_AGENT_INTERFACE_H
 #define MAHJONG_AGENT_INTERFACE_H
 
+#include <grpcpp/channel.h>
 #include "action.h"
 #include "observation.h"
+#include "mj.grpc.pb.h"
 
 namespace mj
 {
     class AgentInterface
     {
     public:
-        AgentInterface() = default;  // generate invalid object
-        explicit AgentInterface(PlayerId player_id);
+        AgentInterface() = default;
         virtual ~AgentInterface() = default;
         [[nodiscard]] virtual mjproto::Action TakeAction(Observation &&observation) const = 0;
-        [[nodiscard]] PlayerId player_id() const;
+    };
+
+    class AgentInterfaceGrpc final: public AgentInterface
+    {
+    public:
+        AgentInterfaceGrpc() = default;  // will make invalid object
+        explicit AgentInterfaceGrpc(const std::shared_ptr<grpc::Channel>& channel);
+        ~AgentInterfaceGrpc() final = default;
+        [[nodiscard]] mjproto::Action TakeAction(Observation &&observation) const final ;
     private:
-        PlayerId player_id_;
+        std::unique_ptr<mjproto::Agent::Stub> stub_;
     };
 }  // namespace mj
 
