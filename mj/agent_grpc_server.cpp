@@ -9,7 +9,7 @@
 namespace mj
 {
     AgentGrpcServerImpl::AgentGrpcServerImpl(std::unique_ptr<Agent> strategy, int batch_size, int wait_ms) :
-            strategy_(std::move(strategy)), batch_size_(batch_size), wait_ms_(wait_ms)
+            agent_(std::move(strategy)), batch_size_(batch_size), wait_ms_(wait_ms)
     {
         thread_inference_ = std::thread([this](){
             while(!stop_flag_){
@@ -70,7 +70,7 @@ namespace mj
         }
 
         // 推論する
-        std::vector<mjproto::Action> actions = strategy_->TakeActions(std::move(observations));
+        std::vector<mjproto::Action> actions = agent_->TakeActions(std::move(observations));
         Assert(ids.size() == actions.size(), "Number of ids and actison should be same.\n  # ids = "
             + std::to_string(ids.size()) + "\n  # actions = " + std::to_string(actions.size()));
 
@@ -84,9 +84,9 @@ namespace mj
     }
 
     void
-    AgentGrpcServer::RunServer(std::unique_ptr<Agent> strategy, const std::string &socket_address, int batch_size,
+    AgentGrpcServer::RunServer(std::unique_ptr<Agent> agent, const std::string &socket_address, int batch_size,
                                int wait_ms) {
-        std::unique_ptr<grpc::Service> agent_impl = std::make_unique<AgentGrpcServerImpl>(std::move(strategy), batch_size, wait_ms);
+        std::unique_ptr<grpc::Service> agent_impl = std::make_unique<AgentGrpcServerImpl>(std::move(agent), batch_size, wait_ms);
         std::cout << socket_address << std::endl;
         grpc::EnableDefaultHealthCheckService(true);
         grpc::reflection::InitProtoReflectionServerBuilderPlugin();

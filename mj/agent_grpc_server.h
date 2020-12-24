@@ -16,7 +16,7 @@ namespace mj
     class AgentGrpcServer
     {
     public:
-        static void RunServer(std::unique_ptr<Agent> strategy, const std::string &socket_address,
+        static void RunServer(std::unique_ptr<Agent> agent, const std::string &socket_address,
                               int batch_size = 8, int wait_ms = 0);
     };
 
@@ -35,7 +35,7 @@ namespace mj
         void InferAction();
 
         // Agent logic
-        std::unique_ptr<Agent> strategy_;
+        std::unique_ptr<Agent> agent_;
 
         // 推論を始めるデータ数の閾値
         int batch_size_;
