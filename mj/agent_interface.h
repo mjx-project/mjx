@@ -5,6 +5,7 @@
 #include "action.h"
 #include "observation.h"
 #include "mj.grpc.pb.h"
+#include "agent.h"
 
 namespace mj
 {
@@ -25,6 +26,16 @@ namespace mj
         [[nodiscard]] mjproto::Action TakeAction(Observation &&observation) const final ;
     private:
         std::unique_ptr<mjproto::Agent::Stub> stub_;
+    };
+
+    class AgentInterfaceLocal final: public AgentInterface
+    {
+        AgentInterfaceLocal() = default;  // will make invalid object
+        explicit AgentInterfaceLocal(std::unique_ptr<Agent> agent);
+        ~AgentInterfaceLocal() final = default;
+        [[nodiscard]] mjproto::Action TakeAction(Observation &&observation) const final = 0;
+    private:
+        std::unique_ptr<Agent> agent_;
     };
 }  // namespace mj
 

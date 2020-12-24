@@ -23,5 +23,11 @@ namespace mj
         // TODO: actionがvalidか確認する（特にすべて空でないか）
         return response;
     }
+
+    AgentInterfaceLocal::AgentInterfaceLocal(std::unique_ptr<Agent> agent): agent_(std::move(agent)) {}
+
+    mjproto::Action AgentInterfaceLocal::TakeAction(Observation &&observation) const {
+        return agent_->TakeActions({std::move(observation)}).front();
+    }
 }  // namespace mj
 
