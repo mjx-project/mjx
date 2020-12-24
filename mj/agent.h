@@ -9,6 +9,7 @@ namespace mj {
     public:
         virtual ~Agent() = default;
         [[nodiscard]] virtual std::vector<mjproto::Action> TakeActions(std::vector<Observation> &&observations) = 0;
+        [[nodiscard]] virtual PlayerId player_id() const = 0;
     };
 }
 

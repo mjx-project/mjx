@@ -1,6 +1,8 @@
 #include "utils.h"
 #include "agent_rule_based.h"
 
+#include <utility>
+
 namespace mj{
     std::vector<mjproto::Action> AgentRuleBased::TakeActions(std::vector<Observation> &&observations) {
         int N = observations.size();
@@ -174,5 +176,11 @@ namespace mj{
         }
         // 上記以外のときは、ランダムに切る
         return *SelectRandomly(discard_candidates.begin(), discard_candidates.end(), g);
+    }
+
+    AgentRuleBased::AgentRuleBased(PlayerId player_id): player_id_(std::move(player_id)) {}
+
+    PlayerId AgentRuleBased::player_id() const {
+        return player_id_;
     }
 }
