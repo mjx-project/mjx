@@ -1,14 +1,14 @@
 #include "gtest/gtest.h"
 #include <mj/environment.h>
-#include <mj/agent_example_rule_based.h>
+#include <mj/agent_rule_based.h>
 using namespace mj;
 
 TEST(environment, RunOneGame) {
     const std::vector<std::shared_ptr<AgentInterface>> agents = {
-            std::make_shared<AgentExampleRuleBased>("agent01"),
-            std::make_shared<AgentExampleRuleBased>("agent02"),
-            std::make_shared<AgentExampleRuleBased>("agent03"),
-            std::make_shared<AgentExampleRuleBased>("agent04")
+            std::make_shared<AgentInterfaceLocal>(AgentRuleBased("agent01")),
+            std::make_shared<AgentInterfaceLocal>(AgentRuleBased("agent02")),
+            std::make_shared<AgentInterfaceLocal>(AgentRuleBased("agent03")),
+            std::make_shared<AgentInterfaceLocal>(AgentRuleBased("agent04")),
     };
     Environment env(agents);
     auto result = env.RunOneGame(1234);

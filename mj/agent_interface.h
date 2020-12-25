@@ -32,10 +32,11 @@ namespace mj
 
     class AgentInterfaceLocal final: public AgentInterface
     {
+    public:
         AgentInterfaceLocal() = default;  // will make invalid object
         explicit AgentInterfaceLocal(std::unique_ptr<Agent> agent);
         ~AgentInterfaceLocal() final = default;
-        [[nodiscard]] mjproto::Action TakeAction(Observation &&observation) const final = 0;
+        [[nodiscard]] mjproto::Action TakeAction(Observation &&observation) const final;
         [[nodiscard]] PlayerId player_id() const final;
     private:
         std::unique_ptr<Agent> agent_;

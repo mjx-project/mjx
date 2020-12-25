@@ -1,6 +1,5 @@
 #include "gtest/gtest.h"
 #include <mj/state.h>
-#include <mj/agent_example_rule_based.h>
 #include <fstream>
 
 using namespace mj;
