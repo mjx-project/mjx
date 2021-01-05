@@ -2,7 +2,16 @@
 #include "strategy_rule_based.h"
 
 namespace mj{
-    mjproto::Action StrategyRuleBased::SelectAction(Observation &&observation) {
+    std::vector<mjproto::Action> StrategyRuleBased::TakeActions(std::vector<Observation> &&observations) {
+        int N = observations.size();
+        std::vector<mjproto::Action> actions(N);
+        for (int i = 0; i < N; ++i) {
+            actions[i] = TakeAction(std::move(observations[i]));
+        }
+        return actions;
+    }
+
+    mjproto::Action StrategyRuleBased::TakeAction(Observation &&observation) {
         // Prepare some seed and MT engine for reproducibility
         const std::uint64_t seed = 12345
                                    + 4096 * observation.proto().event_history().events_size()

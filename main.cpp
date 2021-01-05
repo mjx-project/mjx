@@ -1,8 +1,8 @@
 #include <iostream>
 #include <mj/mj.h>
-#include "mj/agent_grpc_server.h"
 #include "mj/agent_grpc_client.h"
-#include "mj/agent_grpc_server_impl_rule_based.h"
+#include "mj/agent_grpc_server.h"
+#include "mj/strategy_rule_based.h"
 
 using namespace mj;
 
@@ -10,8 +10,9 @@ int main(int argc, char* argv[]) {
     std::cout << "cnt_args: " <<  argc << std::endl;
     assert(argc == 1 || argc == 3);
     if(argc == 1){
-        AgentGrpcServer server(std::make_unique<AgentGrpcServerImplRuleBased>());
-        server.RunServer("0.0.0.0:50051");
+        AgentGrpcServer::RunServer(
+                std::make_unique<StrategyRuleBased>(), "0.0.0.0:50051"
+        );
     }
     else{
         auto channel = grpc::CreateChannel("localhost:50051",grpc::InsecureChannelCredentials());

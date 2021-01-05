@@ -8,26 +8,34 @@ jobs:
     container: sotetsuk/ubuntu-gcc-grpc:v0.0.6
     steps:
     - uses: actions/checkout@v2
+
+    - name: Create LFS file list
+      run: git lfs ls-files -l | cut -d' ' -f1 | sort > .lfs-assets-id
+
+    - name: Restore LFS cache
+      uses: actions/cache@v2
+      id: lfs-cache
       with:
-        lfs: true
+        path: .git/lfs
+        key: ${{ runner.os }}-lfs-${{ hashFiles('.lfs-assets-id') }}-v1
+
     - name: Pull Git LFS
-      run: |
-        git lfs pull
+      run: git lfs pull
+
     - name: Build mj
-      run: |
-        make build
+      run: make build
+
     - name: Test mj
-      run: |
-        make test
+      run: make test
+
     - name: Install mjconvert CLI
-      run: |
-        cd mjconvert && make install
+      run: cd mjconvert && make install
+
     - name: Run mjconvert pytest
-      run: |
-        cd mjconvert && make pytest
+      run: cd mjconvert && make pytest
+
     - name: Run mjconvert checks
-      run: |
-        cd mjconvert && make checks
+      run: cd mjconvert && make checks
+
     - name: Test mjconvert CLI (mjlog => mjproto, mjproto => mjlog)
-      run: |
-        cd mjconvert && make test-cli
+      run: cd mjconvert && make test-cli
