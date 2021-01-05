@@ -91,7 +91,6 @@ def parse_discards(events, abs_pos: int):
             # riichiの次のeventに宣言牌が記録されているのでそのtileを取得して後にindexを取得変更
         elif event.type == mjproto.EVENT_TYPE_KAN_CLOSED and event.who == abs_pos:
             discards.append(_change_action_format(event.open))
-
         elif event.type == mjproto.EVENT_TYPE_KAN_ADDED and event.who == abs_pos:
             discards.append(_change_action_format(event.open))
     if is_reach:
