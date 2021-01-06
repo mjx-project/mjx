@@ -31,26 +31,31 @@ def _change_action_format(bits: int) -> str:  # TODO カン
     stolen_tile = open_converter.change_open_tile_fmt(open_converter.open_stolen_tile_type(bits))
     open_tiles = open_converter.change_open_tiles_fmt(open_converter.open_tile_types(bits))
     open_tiles.remove(stolen_tile)
-    if event_type == mjproto.EVENT_TYPE_CHI:  # 現状書き方があまりにも冗長。なんとかしたい。
+    if event_type == mjproto.EVENT_TYPE_CHI:  # チー
         return "c" + str(stolen_tile) + str(open_tiles[0]) + str(open_tiles[1])
-    elif event_type == mjproto.EVENT_TYPE_PON:
+    elif event_type == mjproto.EVENT_TYPE_PON:  # ポン
         if open_from == mjproto.RELATIVE_POS_LEFT:
             return "p" + str(stolen_tile) + str(open_tiles[0]) + str(open_tiles[1])
         elif open_from == mjproto.RELATIVE_POS_MID:
             return str(stolen_tile) + "p" + str(open_tiles[0]) + str(open_tiles[1])
         else:
             return str(stolen_tile) + str(open_tiles[0]) + "p" + str(open_tiles[1])
-    elif event_type == mjproto.EVENT_TYPE_KAN_ADDED:
+    elif event_type == mjproto.EVENT_TYPE_KAN_ADDED:  # 加槓
         if open_from == mjproto.RELATIVE_POS_LEFT:
             return "k" + str(stolen_tile) + str(open_tiles[0]) + str(open_tiles[1]) + str(open_tiles[2])
         elif open_from == mjproto.RELATIVE_POS_MID:
-            return str(stolen_tile) + "k" + str(open_tiles[0]) + str(open_tiles[1]) + str(open_tiles[2])
+            return str(open_tiles[0]) + "k" + str(stolen_tile) + str(open_tiles[1]) + str(open_tiles[2])
         else:
-            return str(stolen_tile) + str(open_tiles[0]) + "k" + str(open_tiles[1]) + str(open_tiles[2])
-    elif event_type == mjproto.EVENT_TYPE_KAN_CLOSED:
+            return str(open_tiles[0]) + str(open_tiles[1]) + "k" + str(stolen_tile) + str(open_tiles[2])
+    elif event_type == mjproto.EVENT_TYPE_KAN_CLOSED:  # 暗槓
         return str(stolen_tile) + str(stolen_tile) + str(stolen_tile) + "a" + str(stolen_tile)
-    else:
-        return ""
+    else:  # 明槓
+        if open_from == mjproto.RELATIVE_POS_LEFT:
+            return "m" + str(stolen_tile) + str(open_tiles[0]) + str(open_tiles[1]) + str(open_tiles[2])
+        elif open_from == mjproto.RELATIVE_POS_MID:
+            return str(stolen_tile) + "m" + str(open_tiles[0]) + str(open_tiles[1]) + str(open_tiles[2])
+        else:
+            return str(stolen_tile) + str(open_tiles[0]) + "m" + str(open_tiles[1]) + str(open_tiles[2])
 
 
 # mjscore形式の配牌をソートする関数。
@@ -115,6 +120,9 @@ def parse_draws(draws, events, abs_pos):
             discards.append(event.open)
             actions.append(event.open)
         elif event.type == mjproto.EVENT_TYPE_PON and event.who == abs_pos:  # ポン
+            discards.append(event.open)
+            actions.append(event.open)
+        elif event.type == mjproto.EVENT_TYPE_KAN_OPENED and event.who == abs_pos:  # 明槓
             discards.append(event.open)
             actions.append(event.open)
     for i, action in enumerate(actions):
