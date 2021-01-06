@@ -41,9 +41,12 @@ def _change_action_format(bits: int) -> str:  # TODO カン
         else:
             return str(stolen_tile) + str(open_tiles[0]) + "p" + str(open_tiles[1])
     elif event_type == mjproto.EVENT_TYPE_KAN_ADDED:
-        return (
-            "k" + str(stolen_tile) + str(open_tiles[0]) + str(open_tiles[1]) + str(open_tiles[2])
-        )
+        if open_from == mjproto.RELATIVE_POS_LEFT:
+            return "k" + str(stolen_tile) + str(open_tiles[0]) + str(open_tiles[1]) + str(open_tiles[2])
+        elif open_from == mjproto.RELATIVE_POS_MID:
+            return str(stolen_tile) + "k" + str(open_tiles[0]) + str(open_tiles[1]) + str(open_tiles[2])
+        else:
+            return str(stolen_tile) + str(open_tiles[0]) + "k" + str(open_tiles[1]) + str(open_tiles[2])
     elif event_type == mjproto.EVENT_TYPE_KAN_CLOSED:
         return str(stolen_tile) + str(stolen_tile) + str(stolen_tile) + "a" + str(stolen_tile)
     else:
