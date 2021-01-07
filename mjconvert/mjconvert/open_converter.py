@@ -22,7 +22,6 @@ def open_event_type(bits: int) -> mjproto.EventTypeValue:
         return mjproto.EVENT_TYPE_KAN_ADDED
     else:
         if mjproto.RELATIVE_POS_SELF == bits & 3:
-
             return mjproto.EVENT_TYPE_KAN_CLOSED
         else:
             return mjproto.EVENT_TYPE_KAN_OPENED
