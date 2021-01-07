@@ -42,20 +42,56 @@ def _change_action_format(bits: int) -> str:  # TODO カン
             return str(stolen_tile) + str(open_tiles[0]) + "p" + str(open_tiles[1])
     elif event_type == mjproto.EVENT_TYPE_KAN_ADDED:  # 加槓
         if open_from == mjproto.RELATIVE_POS_LEFT:
-            return "k" + str(stolen_tile) + str(open_tiles[0]) + str(open_tiles[1]) + str(open_tiles[2])
+            return (
+                "k"
+                + str(stolen_tile)
+                + str(open_tiles[0])
+                + str(open_tiles[1])
+                + str(open_tiles[2])
+            )
         elif open_from == mjproto.RELATIVE_POS_MID:
-            return str(open_tiles[0]) + "k" + str(stolen_tile) + str(open_tiles[1]) + str(open_tiles[2])
+            return (
+                str(open_tiles[0])
+                + "k"
+                + str(stolen_tile)
+                + str(open_tiles[1])
+                + str(open_tiles[2])
+            )
         else:
-            return str(open_tiles[0]) + str(open_tiles[1]) + "k" + str(stolen_tile) + str(open_tiles[2])
+            return (
+                str(open_tiles[0])
+                + str(open_tiles[1])
+                + "k"
+                + str(stolen_tile)
+                + str(open_tiles[2])
+            )
     elif event_type == mjproto.EVENT_TYPE_KAN_CLOSED:  # 暗槓
         return str(stolen_tile) + str(stolen_tile) + str(stolen_tile) + "a" + str(stolen_tile)
     else:  # 明槓
         if open_from == mjproto.RELATIVE_POS_LEFT:
-            return "m" + str(stolen_tile) + str(open_tiles[0]) + str(open_tiles[1]) + str(open_tiles[2])
+            return (
+                "m"
+                + str(stolen_tile)
+                + str(open_tiles[0])
+                + str(open_tiles[1])
+                + str(open_tiles[2])
+            )
         elif open_from == mjproto.RELATIVE_POS_MID:
-            return str(stolen_tile) + "m" + str(open_tiles[0]) + str(open_tiles[1]) + str(open_tiles[2])
+            return (
+                str(open_tiles[0])
+                + "m"
+                + str(stolen_tile)
+                + str(open_tiles[1])
+                + str(open_tiles[2])
+            )
         else:
-            return str(stolen_tile) + str(open_tiles[0]) + "m" + str(open_tiles[1]) + str(open_tiles[2])
+            return (
+                str(open_tiles[0])
+                + str(open_tiles[1])
+                + "m"
+                + str(stolen_tile)
+                + str(open_tiles[2])
+            )
 
 
 # mjscore形式の配牌をソートする関数。
@@ -95,6 +131,10 @@ def parse_discards(events, abs_pos: int):
             discards.append(_change_action_format(event.open))
         elif event.type == mjproto.EVENT_TYPE_KAN_ADDED and event.who == abs_pos:
             discards.append(_change_action_format(event.open))
+        elif (
+            events[i - 1].type == mjproto.EVENT_TYPE_KAN_OPENED and event.who == abs_pos
+        ):  # 明槓のあと捨て牌の情報に情報のない0が追加される。
+            discards.append(0)
     return discards
 
 
