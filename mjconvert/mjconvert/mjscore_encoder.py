@@ -37,9 +37,9 @@ def _change_action_format(bits: int) -> str:  # TODO カン
         if open_from == mjproto.RELATIVE_POS_LEFT:
             return "p" + str(stolen_tile) + str(open_tiles[0]) + str(open_tiles[1])
         elif open_from == mjproto.RELATIVE_POS_MID:
-            return str(stolen_tile) + "p" + str(open_tiles[0]) + str(open_tiles[1])
+            return str(open_tiles[0]) + "p" + str(stolen_tile) + str(open_tiles[1])
         else:
-            return str(stolen_tile) + str(open_tiles[0]) + "p" + str(open_tiles[1])
+            return str(open_tiles[0]) + str(open_tiles[1]) + "p" + str(stolen_tile)
     elif event_type == mjproto.EVENT_TYPE_KAN_ADDED:  # 加槓
         if open_from == mjproto.RELATIVE_POS_LEFT:
             return (
@@ -392,7 +392,7 @@ def _correspond_yakus(yaku_dict, yakus: List[int], fans: List[int]):
     >>> _correspond_yakus(yaku_dict_tumo, [0, 52], [1, 2])
     ['門前清自摸和(1飜)', 'ドラ(2飜)']
     """
-    doras = [52, 53, 54]
+    doras = [52, 54, 53]
     yakus_in_japanese = []
     for i in yakus:
         if i not in doras:

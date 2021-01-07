@@ -109,7 +109,7 @@ def has_red_pon_kan_added(bits: int) -> bool:  # TODO テスト ポンとカカ�
     fives = [4, 13, 22]
     stolen_tile_kind = open_stolen_tile_type(bits)
     if stolen_tile_kind in fives:
-        unused_id_mod3 = (bits >> 5) & 3
+        unused_id_mod3 = (bits >> 5) % 4
         if unused_id_mod3 == 0:
             return False
         else:
