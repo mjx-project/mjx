@@ -313,7 +313,7 @@ non_dealer_tsumo_dict = {
     24000: "6000-12000",
     32000: "8000-16000",
 }
-
+no_winner_dict = {0: "流局", 1: "九種九牌", 2: "四家立直", 3: "三家和了", 4: "四槓散了", 5: "四風連打", 6: "流し満貫"}
 dealer_point_dict = {12000: "満貫", 18000: "跳満", 24000: "倍満", 36000: "三倍満", 48000: "役満"}
 no_dealer_point_dict = {8000: "満貫", 12000: "跳満", 16000: "倍満", 24000: "三倍満", 32000: "役満"}
 
@@ -422,7 +422,10 @@ def _winner_yakus(yakus: List[int], fans: List[int]) -> List[str]:
 def parse_terminal(state: mjproto.State):
     if len(state.terminal.wins) == 0:  # あがった人がいない場合,# state.terminal.winsの長さは0
         ten_changes = [i for i in state.terminal.no_winner.ten_changes]
-        return ["流局", ten_changes]
+        if state.terminal.no_winner.type == 0:
+            return ["流局", ten_changes]
+        else:
+            return [no_winner_dict[state.terminal.no_winner.type]]
     else:
         round = state.init_score.round
         who = state.terminal.wins[0].who
