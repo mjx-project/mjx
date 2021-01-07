@@ -13,6 +13,7 @@ def mjscore_log_equal(mjscore_original_dict, mjscore_converted_dict) -> bool:
     is_equal = True
     for i in range(len(original_log)):
         if original_log[i] != converted_log[i]:
+            print(original_log[i], converted_log[i])
             is_equal = False
     return is_equal
 
@@ -37,3 +38,5 @@ def test_mjproto_to_mjscore():
                 score_converted_dict = json.loads(score_converted)
                 score_original_dict = json.loads(score_original)
                 assert mjscore_log_equal(score_original_dict, score_converted_dict)
+
+test_mjproto_to_mjscore()
