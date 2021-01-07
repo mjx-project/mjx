@@ -37,9 +37,9 @@ def _change_action_format(bits: int) -> str:  # TODO カン
         if open_from == mjproto.RELATIVE_POS_LEFT:
             return "p" + str(stolen_tile) + str(open_tiles[0]) + str(open_tiles[1])
         elif open_from == mjproto.RELATIVE_POS_MID:
-            return str(stolen_tile) + "p" + str(open_tiles[0]) + str(open_tiles[1])
+            return str(open_tiles[0]) + "p" + str(stolen_tile) + str(open_tiles[1])
         else:
-            return str(stolen_tile) + str(open_tiles[0]) + "p" + str(open_tiles[1])
+            return str(open_tiles[0]) + str(open_tiles[1]) + "p" + str(stolen_tile)
     elif event_type == mjproto.EVENT_TYPE_KAN_ADDED:  # 加槓
         if open_from == mjproto.RELATIVE_POS_LEFT:
             return (
@@ -313,7 +313,7 @@ non_dealer_tsumo_dict = {
     24000: "6000-12000",
     32000: "8000-16000",
 }
-
+no_winner_dict = {0: "流局", 1: "九種九牌", 2: "四家立直", 3: "三家和了", 4: "四槓散了", 5: "四風連打", 6: "流し満貫"}
 dealer_point_dict = {12000: "満貫", 18000: "跳満", 24000: "倍満", 36000: "三倍満", 48000: "役満"}
 no_dealer_point_dict = {8000: "満貫", 12000: "跳満", 16000: "倍満", 24000: "三倍満", 32000: "役満"}
 
@@ -392,7 +392,7 @@ def _correspond_yakus(yaku_dict, yakus: List[int], fans: List[int]):
     >>> _correspond_yakus(yaku_dict_tumo, [0, 52], [1, 2])
     ['門前清自摸和(1飜)', 'ドラ(2飜)']
     """
-    doras = [52, 53, 54]
+    doras = [52, 54, 53]
     yakus_in_japanese = []
     for i in yakus:
         if i not in doras:
@@ -422,7 +422,10 @@ def _winner_yakus(yakus: List[int], fans: List[int]) -> List[str]:
 def parse_terminal(state: mjproto.State):
     if len(state.terminal.wins) == 0:  # あがった人がいない場合,# state.terminal.winsの長さは0
         ten_changes = [i for i in state.terminal.no_winner.ten_changes]
-        return ["流局", ten_changes]
+        if state.terminal.no_winner.type == 0:
+            return ["流局", ten_changes]
+        else:
+            return [no_winner_dict[state.terminal.no_winner.type]]
     else:
         round = state.init_score.round
         who = state.terminal.wins[0].who
