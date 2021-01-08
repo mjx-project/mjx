@@ -318,7 +318,9 @@ def _winner_point(who: int, from_who: int, fans: List[int], fu: int, ten: int, r
             return _fan_fu(who, fans, fu, ten, round) + str(ten) + "点"
 
 
-def _ditermin_yaku_list(fans: List[int], yakus: List[int], yakumans: List[int]) -> List[int]:  # リーチがかかるとprotoではyakus
+def _ditermin_yaku_list(
+    fans: List[int], yakus: List[int], yakumans: List[int]
+) -> List[int]:  # リーチがかかるとprotoではyakus
     # に強制的にウラドラの情報が入るが、乗っているかどうかを確認する必要がある
     """
     >>> _check_uradoras([1, 1, 1, 0], [1, 0, 7, 53])
@@ -361,7 +363,6 @@ def _winner_yakus(yakus: List[int], fans: List[int], yakumans: List[int]) -> Lis
     return _correspond_yakus(yaku_dict, yakus, fans)
 
 
-
 def parse_terminal(state: mjproto.State):
     if len(state.terminal.wins) == 0:  # あがった人がいない場合,# state.terminal.winsの長さは0
         ten_changes = [i for i in state.terminal.no_winner.ten_changes]
@@ -375,7 +376,7 @@ def parse_terminal(state: mjproto.State):
         from_who = state.terminal.wins[0].from_who
         ten_changes = [i for i in state.terminal.wins[0].ten_changes]
         fans = [i for i in state.terminal.wins[0].fans]  # [役での飜数, ドラの数]
-        yakumans = state.terminal.wins[0].yakumans
+        yakumans = [i for i in state.terminal.wins[0].yakumans]
         yakus = _ditermin_yaku_list(fans, [i for i in state.terminal.wins[0].yakus], yakumans)
         fu = state.terminal.wins[0].fu
         ten = state.terminal.wins[0].ten
@@ -397,7 +398,9 @@ def parse_terminal(state: mjproto.State):
 def determine_ura_doras_list(state: mjproto.State) -> List:
     if len(state.terminal.wins) == 0:  # あがり者の有無でウラどらが表示されるかどうかが決まる
         return []
-    elif 1 not in state.terminal.wins[0].yakus and 21 not in state.terminal.wins[0].yakus:  # リーチまたはダブリーがかかっていないと、上がって裏ドラが表示されない.
+    elif (
+        1 not in state.terminal.wins[0].yakus and 21 not in state.terminal.wins[0].yakus
+    ):  # リーチまたはダブリーがかかっていないと、上がって裏ドラが表示されない.
         return []
     else:
         return [_change_tile_fmt(i) for i in state.ura_doras]
