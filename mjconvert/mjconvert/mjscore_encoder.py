@@ -397,7 +397,7 @@ def parse_terminal(state: mjproto.State):
 def determine_ura_doras_list(state: mjproto.State) -> List:
     if len(state.terminal.wins) == 0:  # あがり者の有無でウラどらが表示されるかどうかが決まる
         return []
-    elif 1 not in state.terminal.wins[0].yakus:  # リーチがかかっていないと、上がって裏ドラが表示されない.
+    elif 1 not in state.terminal.wins[0].yakus and 21 not in state.terminal.wins[0].yakus:  # リーチまたはダブリーがかかっていないと、上がって裏ドラが表示されない.
         return []
     else:
         return [_change_tile_fmt(i) for i in state.ura_doras]
