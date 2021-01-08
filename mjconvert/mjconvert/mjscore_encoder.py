@@ -165,7 +165,9 @@ def parse_draws(draws, events, abs_pos):
         elif event.type == mjproto.EVENT_TYPE_KAN_OPENED and event.who == abs_pos:  # 明槓
             discards.append(event.open)
             actions.append(event.open)
-        elif event.type == mjproto.EVENT_TYPE_KAN_CLOSED and event.who == abs_pos:  # 捨て牌の情報には暗槓も含まれているので、追加しないとずれる。
+        elif (
+            event.type == mjproto.EVENT_TYPE_KAN_CLOSED and event.who == abs_pos
+        ):  # 捨て牌の情報には暗槓も含まれているので、追加しないとずれる。
             discards.append(_change_action_format(event.open))
     for i, action in enumerate(actions):
         action_index = discards.index(action) - i  # 捨て牌でのactionのindex同じ順にdrawにアクションを挿入すれば良い
