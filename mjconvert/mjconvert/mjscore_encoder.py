@@ -318,7 +318,7 @@ def _winner_point(who: int, from_who: int, fans: List[int], fu: int, ten: int, r
             return _fan_fu(who, fans, fu, ten, round) + str(ten) + "点"
 
 
-def _check_uradoras(fans: List[int], yakus: List[int]) -> List[int]:  # リーチがかかるとprotoではyakus
+def _ditermin_yaku_list(fans: List[int], yakus: List[int], yakumans: List[int]) -> List[int]:  # リーチがかかるとprotoではyakus
     # に強制的にウラドラの情報が入るが、乗っているかどうかを確認する必要がある
     """
     >>> _check_uradoras([1, 1, 1, 0], [1, 0, 7, 53])
@@ -326,6 +326,8 @@ def _check_uradoras(fans: List[int], yakus: List[int]) -> List[int]:  # リー�
     >>> _check_uradoras([1, 1, 2, 1, 2, 0], [1, 0, 29, 8, 54, 53])
     [1, 0, 29, 8, 54]
     """
+    if len(yakumans) != 0:
+        return yakumans
     if sum(fans) < len(yakus):
         return [i for i in yakus if i != 53]
     elif fans[-1] == 0:  # 裏ドラは必ずfansの末尾に表示されるので0かどうかで判定がつく。
@@ -347,17 +349,17 @@ def _correspond_yakus(yaku_dict, yakus: List[int], fans: List[int]):
     return yakus_in_japanese
 
 
-def _winner_yakus(yakus: List[int], fans: List[int]) -> List[str]:
+def _winner_yakus(yakus: List[int], fans: List[int], yakumans: List[int]) -> List[str]:
     """
     >>> _winner_yakus([0, 1, 23], [1, 1, 2])
     ['門前清自摸和(1飜)', '立直(1飜)', '混全帯幺九(2飜)']
     >>> _winner_yakus([23], [1])
     ['混全帯幺九(1飜)']
     """
-    if 0 in yakus:  # ツモの有無によって役の飜数がかわる。
-        return _correspond_yakus(yaku_dict, yakus, fans)
-    else:
-        return _correspond_yakus(yaku_dict, yakus, fans)
+    if len(yakumans) != 0:
+        return [yaku_dict[i] for i in yakumans]
+    return _correspond_yakus(yaku_dict, yakus, fans)
+
 
 
 def parse_terminal(state: mjproto.State):
@@ -373,7 +375,8 @@ def parse_terminal(state: mjproto.State):
         from_who = state.terminal.wins[0].from_who
         ten_changes = [i for i in state.terminal.wins[0].ten_changes]
         fans = [i for i in state.terminal.wins[0].fans]  # [役での飜数, ドラの数]
-        yakus = _check_uradoras(fans, [i for i in state.terminal.wins[0].yakus])
+        yakumans = state.terminal.wins[0].yakumans
+        yakus = _ditermin_yaku_list(fans, [i for i in state.terminal.wins[0].yakus], yakumans)
         fu = state.terminal.wins[0].fu
         ten = state.terminal.wins[0].ten
         """
@@ -383,7 +386,7 @@ def parse_terminal(state: mjproto.State):
         ten: 純粋に上がり点が表示される。ツモ上がりの際の対応が必要
         """
         yaku_point_infos = [who, from_who, who, _winner_point(who, from_who, fans, fu, ten, round)]
-        yaku_point_infos.extend(_winner_yakus(yakus, fans))
+        yaku_point_infos.extend(_winner_yakus(yakus, fans, yakumans))
         return [
             "和了",
             ten_changes,
