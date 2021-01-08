@@ -388,14 +388,14 @@ def parse_terminal(state: mjproto.State):
         ten_changes = [i for i in state.terminal.no_winner.ten_changes]
         if state.terminal.no_winner.type == 0:
             if len(state.terminal.no_winner.tenpais) == 0:
-                return ['全員不聴']
+                return ["全員不聴"]
             else:
                 return ["流局", ten_changes]
         if state.terminal.no_winner.type == 6:  # 流し満貫はten_changes も表示される。
             return ["流し満貫", ten_changes]
         return [no_winner_dict[state.terminal.no_winner.type]]
     else:
-        terminal_info = ["和了"]
+        terminal_info: List = ["和了"]
         for i in range(len(state.terminal.wins)):  # ダブロンに対応するために上がり者の数に応じてfor文を回すようにする。
             ten_changes = [i for i in state.terminal.wins[i].ten_changes]
             yaku_point_info = _yaku_point_info(state, i)
