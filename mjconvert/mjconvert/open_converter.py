@@ -118,10 +118,7 @@ def has_red_pon_kan_added(bits: int) -> bool:  # TODO テスト ポンとカカ�
 def has_red_kan_closed_kan_opend(bits: int) -> bool:
     fives = [4, 13, 22, 51, 52, 53]
     stolen_tile_kind = open_stolen_tile_type(bits)
-    if stolen_tile_kind in fives:
-        return True
-    else:
-        return False
+    return stolen_tile_kind in fives
 
 
 def has_red(bits: int) -> bool:
