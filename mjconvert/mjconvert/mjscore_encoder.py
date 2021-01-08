@@ -323,9 +323,9 @@ def _ditermin_yaku_list(
 ) -> List[int]:  # リーチがかかるとprotoではyakus
     # に強制的にウラドラの情報が入るが、乗っているかどうかを確認する必要がある
     """
-    >>> _check_uradoras([1, 1, 1, 0], [1, 0, 7, 53])
+    >>> _ditermin_yaku_list([1, 1, 1, 0], [1, 0, 7, 53], [])
     [1, 0, 7]
-    >>> _check_uradoras([1, 1, 2, 1, 2, 0], [1, 0, 29, 8, 54, 53])
+    >>> _ditermin_yaku_list([1, 1, 2, 1, 2, 0], [1, 0, 29, 8, 54, 53], [])
     [1, 0, 29, 8, 54]
     """
     if len(yakumans) != 0:
@@ -353,9 +353,9 @@ def _correspond_yakus(yaku_dict, yakus: List[int], fans: List[int]):
 
 def _winner_yakus(yakus: List[int], fans: List[int], yakumans: List[int]) -> List[str]:
     """
-    >>> _winner_yakus([0, 1, 23], [1, 1, 2])
+    >>> _winner_yakus([0, 1, 23], [1, 1, 2], [])
     ['門前清自摸和(1飜)', '立直(1飜)', '混全帯幺九(2飜)']
-    >>> _winner_yakus([23], [1])
+    >>> _winner_yakus([23], [1], [])
     ['混全帯幺九(1飜)']
     """
     if len(yakumans) != 0:
