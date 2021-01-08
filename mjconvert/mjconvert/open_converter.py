@@ -106,7 +106,7 @@ def has_red_chi(bits: int) -> bool:  # TODO テストgit
 
 
 def has_red_pon_kan_added(bits: int) -> bool:  # TODO テスト ポンとカカンは未使用牌が赤かどうかで鳴牌に赤があるか判断
-    fives = [4, 13, 22]
+    fives = [4, 13, 22, 51, 52, 53]
     stolen_tile_kind = open_stolen_tile_type(bits)
     if stolen_tile_kind in fives:
         unused_id_mod3 = (bits >> 5) % 4
@@ -119,7 +119,7 @@ def has_red_pon_kan_added(bits: int) -> bool:  # TODO テスト ポンとカカ�
 
 
 def has_red_kan_closed_kan_opend(bits: int) -> bool:
-    fives = [4, 13, 22]
+    fives = [4, 13, 22, 51, 52, 53]
     stolen_tile_kind = open_stolen_tile_type(bits)
     if stolen_tile_kind in fives:
         return True
