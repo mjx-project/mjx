@@ -340,7 +340,7 @@ def _ditermin_yaku_list(
 
 def _correspond_yakus(yaku_dict, yakus: List[int], fans: List[int]):
     """
-    >>> _correspond_yakus(yaku_dict_tumo, [0, 52], [1, 2])
+    >>> _correspond_yakus(yaku_dict, [0, 52], [1, 2])
     ['門前清自摸和(1飜)', 'ドラ(2飜)']
     """
     yakus_in_japanese = []
