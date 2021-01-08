@@ -175,43 +175,43 @@ def parse_draws(draws, events, abs_pos):
     return draws
 
 
-yaku_list_tumo = [
-    "門前清自摸和(1飜)",
-    "立直(1飜)",
-    "一発(1飜)",
-    "槍槓(1飜)",
-    "嶺上開花(1飜)",
-    "海底摸月(1飜)",
-    "河底撈魚(1飜)",
-    "平和(1飜)",
-    "断幺九(1飜)",
-    "一盃口(1飜)",
-    "自風 東(1飜)",
-    "自風 南(1飜)",
-    "自風 西(1飜)",
-    "自風 北(1飜)",
-    "場風 東(1飜)",
-    "場風 南(1飜)",
-    "場風 西(1飜)",
-    "場風 北(1飜)",
-    "役牌 白(1飜)",
-    "役牌 發(1飜)",
-    "役牌 中(1飜)",
-    "両立直(2飜)",
-    "七対子(2飜)",
-    "混全帯幺九(2飜)",
-    "一気通貫(2飜)",
-    "三色同順(2飜)",
-    "三色同刻(2飜)",
-    "三槓子(2飜)",
-    "対々和(2飜)",
-    "三暗刻(2飜)",
-    "小三元(2飜)",
-    "混老頭(2飜)",
-    "二盃口(3飜)",
-    "純全帯幺九(3飜)",
-    "混一色(3飜)",
-    "清一色(6飜)",
+yaku_list = [
+    "門前清自摸和",
+    "立直",
+    "一発",
+    "槍槓",
+    "嶺上開花",
+    "海底摸月",
+    "河底撈魚",
+    "平和",
+    "断幺九",
+    "一盃口",
+    "自風 東",
+    "自風 南",
+    "自風 西",
+    "自風 北",
+    "場風 東",
+    "場風 南",
+    "場風 西",
+    "場風 北",
+    "役牌 白",
+    "役牌 發",
+    "役牌 中",
+    "両立直",
+    "七対子",
+    "混全帯幺九",
+    "一気通貫",
+    "三色同順",
+    "三色同刻",
+    "三槓子",
+    "対々和",
+    "三暗刻",
+    "小三元",
+    "混老頭",
+    "二盃口",
+    "純全帯幺九",
+    "混一色",
+    "清一色",
     "人和",  # 天鳳は人和なし
     "天和(役満)",
     "地和(役満)",
@@ -233,66 +233,9 @@ yaku_list_tumo = [
     "赤ドラ",
 ]
 
-yaku_list_ron = [
-    "門前清自摸和(1飜)",
-    "立直(1飜)",
-    "一発(1飜)",
-    "槍槓(1飜)",
-    "嶺上開花(1飜)",
-    "海底摸月(1飜)",
-    "河底撈魚(1飜)",
-    "平和(1飜)",
-    "断幺九(1飜)",
-    "一盃口(1飜)",
-    "自風 東(1飜)",
-    "自風 南(1飜)",
-    "自風 西(1飜)",
-    "自風 北(1飜)",
-    "場風 東(1飜)",
-    "場風 南(1飜)",
-    "場風 西(1飜)",
-    "場風 北(1飜)",
-    "役牌 白(1飜)",
-    "役牌 發(1飜)",
-    "役牌 中(1飜)",
-    "両立直(2飜)",
-    "七対子(2飜)",
-    "混全帯幺九(1飜)",
-    "一気通貫(1飜)",
-    "三色同順(1飜)",
-    "三色同刻(2飜)",
-    "三槓子(2飜)",
-    "対々和(2飜)",
-    "三暗刻(2飜)",
-    "小三元(2飜)",
-    "混老頭(2飜)",
-    "二盃口(3飜)",
-    "純全帯幺九(2飜)",
-    "混一色(2飜)",
-    "清一色(5飜)",
-    "人和",  # 天鳳は人和なし
-    "天和(役満)",
-    "地和(役満)",
-    "大三元(役満)",
-    "四暗刻(役満)",
-    "四暗刻単騎(役満)",
-    "字一色(役満)",
-    "緑一色(役満)",
-    "清老頭(役満)",
-    "九蓮宝燈(役満)",
-    "純正九蓮宝燈(役満)",
-    "国士無双(役満)",
-    "国士無双１３面(役満)",
-    "大四喜(役満)",
-    "小四喜(役満)",
-    "四槓子(役満)",
-    "ドラ",
-    "裏ドラ",
-    "赤ドラ",
-]
+
 yaku_list_keys = [i for i in range(55)]
-yaku_dict_tumo = {k: v for k, v in zip(yaku_list_keys, yaku_list_tumo)}
-yaku_dict_ron = {k: v for k, v in zip(yaku_list_keys, yaku_list_ron)}
+yaku_dict = {k: v for k, v in zip(yaku_list_keys, yaku_list)}
 
 non_dealer_tsumo_dict = {
     1100: "300-500",
@@ -396,17 +339,11 @@ def _correspond_yakus(yaku_dict, yakus: List[int], fans: List[int]):
     >>> _correspond_yakus(yaku_dict_tumo, [0, 52], [1, 2])
     ['門前清自摸和(1飜)', 'ドラ(2飜)']
     """
-    doras = [52, 54, 53]
     yakus_in_japanese = []
-    for i in yakus:
-        if i not in doras:
-            yakus_in_japanese.append(yaku_dict[i])
-    for i in doras:  # ドラの枚数はfansの対応するインデックスの情報からわかる。
-        if i in yakus:
-            d_idx = yakus.index(i)
-            yakus_in_japanese.append(
-                yaku_dict[i] + "({}飜)".format(str(fans[d_idx]))
-            )  # ドラは複数ある場合はまとめてドラ(3飜)の様に表記
+    for idx, yaku in enumerate(yakus):
+        yakus_in_japanese.append(
+            yaku_dict[yaku] + "({}飜)".format(str(fans[idx]))
+        )  # ドラは複数ある場合はまとめてドラ(3飜)の様に表記
     return yakus_in_japanese
 
 
@@ -418,9 +355,9 @@ def _winner_yakus(yakus: List[int], fans: List[int]) -> List[str]:
     ['混全帯幺九(1飜)']
     """
     if 0 in yakus:  # ツモの有無によって役の飜数がかわる。
-        return _correspond_yakus(yaku_dict_tumo, yakus, fans)
+        return _correspond_yakus(yaku_dict, yakus, fans)
     else:
-        return _correspond_yakus(yaku_dict_ron, yakus, fans)
+        return _correspond_yakus(yaku_dict, yakus, fans)
 
 
 def parse_terminal(state: mjproto.State):
