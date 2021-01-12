@@ -260,7 +260,7 @@ non_dealer_tsumo_dict = {
     24000: "6000-12000",
     32000: "8000-16000",
 }
-no_winner_dict = {0: "流局", 1: "九種九牌", 2: "四家立直", 3: "三家和了", 4: "四槓散了", 5: "四風連打", 6: "流し満貫"}
+no_winner_dict = {0: "流局", 1: "九種九牌", 2: "四家立直", 3: "三家和了", 4: "四槓散了", 5: "四風連打"}
 dealer_point_dict = {12000: "満貫", 18000: "跳満", 24000: "倍満", 36000: "三倍満", 48000: "役満"}
 no_dealer_point_dict = {8000: "満貫", 12000: "跳満", 16000: "倍満", 24000: "三倍満", 32000: "役満"}
 
@@ -363,36 +363,42 @@ def _winner_yakus(yakus: List[int], fans: List[int], yakumans: List[int]) -> Lis
     return _correspond_yakus(yaku_dict, yakus, fans)
 
 
+def _yaku_point_info(state: mjproto.State, winner_num: int):
+    round = state.init_score.round
+    who = state.terminal.wins[winner_num].who
+    from_who = state.terminal.wins[winner_num].from_who
+    fans = [i for i in state.terminal.wins[winner_num].fans]  # [役での飜数, ドラの数]
+    yakumans = [i for i in state.terminal.wins[winner_num].yakumans]
+    yakus = _ditermin_yaku_list(fans, [i for i in state.terminal.wins[winner_num].yakus], yakumans)
+    fu = state.terminal.wins[winner_num].fu
+    ten = state.terminal.wins[winner_num].ten
+    # fnas:[役での飜数, ドラでの飜数]
+    # yakus: [役とドラの種類]
+    # ten: 純粋に上がり点が表示される。ツモ上がりの際の対応が必要
+    yaku_point_infos = [who, from_who, who, _winner_point(who, from_who, fans, fu, ten, round)]
+    yaku_point_infos.extend(_winner_yakus(yakus, fans, yakumans))
+    return yaku_point_infos
+
+
 def parse_terminal(state: mjproto.State):
     if len(state.terminal.wins) == 0:  # あがった人がいない場合,# state.terminal.winsの長さは0
         ten_changes = [i for i in state.terminal.no_winner.ten_changes]
         if state.terminal.no_winner.type == 0:
-            return ["流局", ten_changes]
-        else:
-            return [no_winner_dict[state.terminal.no_winner.type]]
+            if len(state.terminal.no_winner.tenpais) == 0:
+                return ["全員不聴"]
+            else:
+                return ["流局", ten_changes]
+        if state.terminal.no_winner.type == 6:  # 流し満貫はten_changes も表示される。
+            return ["流し満貫", ten_changes]
+        return [no_winner_dict[state.terminal.no_winner.type]]
     else:
-        round = state.init_score.round
-        who = state.terminal.wins[0].who
-        from_who = state.terminal.wins[0].from_who
-        ten_changes = [i for i in state.terminal.wins[0].ten_changes]
-        fans = [i for i in state.terminal.wins[0].fans]  # [役での飜数, ドラの数]
-        yakumans = [i for i in state.terminal.wins[0].yakumans]
-        yakus = _ditermin_yaku_list(fans, [i for i in state.terminal.wins[0].yakus], yakumans)
-        fu = state.terminal.wins[0].fu
-        ten = state.terminal.wins[0].ten
-        """
-        情報
-        fnas:[役での飜数, ドラでの飜数]
-        yakus: [役とドラの種類]
-        ten: 純粋に上がり点が表示される。ツモ上がりの際の対応が必要
-        """
-        yaku_point_infos = [who, from_who, who, _winner_point(who, from_who, fans, fu, ten, round)]
-        yaku_point_infos.extend(_winner_yakus(yakus, fans, yakumans))
-        return [
-            "和了",
-            ten_changes,
-            yaku_point_infos,
-        ]
+        terminal_info: List = ["和了"]
+        for i in range(len(state.terminal.wins)):  # ダブロンに対応するために上がり者の数に応じてfor文を回すようにする。
+            ten_changes = [i for i in state.terminal.wins[i].ten_changes]
+            yaku_point_info = _yaku_point_info(state, i)
+            terminal_info.append(ten_changes)
+            terminal_info.append(yaku_point_info)
+        return terminal_info
 
 
 def determine_ura_doras_list(state: mjproto.State) -> List:
