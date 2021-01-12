@@ -372,12 +372,9 @@ def _yaku_point_info(state: mjproto.State, winner_num: int):
     yakus = _ditermin_yaku_list(fans, [i for i in state.terminal.wins[winner_num].yakus], yakumans)
     fu = state.terminal.wins[winner_num].fu
     ten = state.terminal.wins[winner_num].ten
-    """
-    情報
-    fnas:[役での飜数, ドラでの飜数]
-    yakus: [役とドラの種類]
-    ten: 純粋に上がり点が表示される。ツモ上がりの際の対応が必要
-    """
+    # fnas:[役での飜数, ドラでの飜数]
+    # yakus: [役とドラの種類]
+    # ten: 純粋に上がり点が表示される。ツモ上がりの際の対応が必要
     yaku_point_infos = [who, from_who, who, _winner_point(who, from_who, fans, fu, ten, round)]
     yaku_point_infos.extend(_winner_yakus(yakus, fans, yakumans))
     return yaku_point_infos
