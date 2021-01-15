@@ -7,12 +7,13 @@ from mjconvert.mjlog_decoder import MjlogDecoder
 from mjconvert.mjscore_encoder import mjproto_to_mjscore
 
 
-def mjscore_log_equal(mjscore_original_dict, mjscore_converted_dict) -> bool:
+def mjscore_log_equal(mjscore_original_dict, mjscore_converted_dict, proto) -> bool:
     original_log = mjscore_original_dict["log"][0]  # logのみを比べる
     converted_log = mjscore_converted_dict["log"][0]
     is_equal = True
     for i in range(len(original_log)):
         if original_log[i] != converted_log[i]:
+            print(original_log[i], converted_log[i], proto.terminal.wins[0].ten_changes)
             is_equal = False
     return is_equal
 
@@ -36,4 +37,4 @@ def test_mjproto_to_mjscore():
                 score_converted = mjproto_to_mjscore(proto)
                 score_converted_dict = json.loads(score_converted)
                 score_original_dict = json.loads(score_original)
-                assert mjscore_log_equal(score_original_dict, score_converted_dict)
+                assert mjscore_log_equal(score_original_dict, score_converted_dict, proto)
