@@ -18,16 +18,17 @@ namespace mj
         std::vector<std::thread> threads;
         auto &summarizer = GameResultSummarizer::instance();
         summarizer.Initialize();
+        auto gen = mj::GameSeed::CreateRandomGameSeedGenerator();
         // スレッド生成
         for(int i = 0; i < num_thread; i++){
-            // TODO: シード値の設定（現在: i+1）
-            threads.emplace_back(std::thread([&](std::uint64_t seed){
+            // TODO: シード生成を外部で行う（現在: 内部でGameSeed::CreateRandomGameSeedGeneratorにより生成）
+            threads.emplace_back(std::thread([&]{
                 Environment env(agents);
                 for(int j = 0; j < num_game/num_thread; j++){
-                    auto result = env.RunOneGame(seed);
+                    auto result = env.RunOneGame(gen());
                     summarizer.Add(std::move(result));
                 }
-            }, i + 1));
+            }));
         }
         // スレッド終了待機
         for(auto &thread: threads){
