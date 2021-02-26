@@ -4,6 +4,7 @@
 #include "algorithm"
 #include "utils.h"
 #include "spdlog/spdlog.h"
+#include "game_result_summarizer.h"
 
 namespace mj
 {
@@ -15,13 +16,16 @@ namespace mj
 
     void Environment::ParallelRunGame(int num_game, int num_thread, std::vector<std::shared_ptr<Agent>> agents) {
         std::vector<std::thread> threads;
+        auto &summarizer = GameResultSummarizer::instance();
+        summarizer.Initialize();
         // スレッド生成
         for(int i = 0; i < num_thread; i++){
             // TODO: シード値の設定（現在: i+1）
             threads.emplace_back(std::thread([&](std::uint64_t seed){
                 Environment env(agents);
                 for(int j = 0; j < num_game/num_thread; j++){
-                    env.RunOneGame(seed);
+                    auto result = env.RunOneGame(seed);
+                    summarizer.Add(std::move(result));
                 }
             }, i + 1));
         }
@@ -29,6 +33,7 @@ namespace mj
         for(auto &thread: threads){
             thread.join();
         }
+        std::cout << summarizer.string() << std::endl;
     }
 
     GameResult Environment::RunOneGame(std::uint64_t game_seed) {
