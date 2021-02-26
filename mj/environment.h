@@ -3,6 +3,7 @@
 
 #include "agent.h"
 #include "state.h"
+#include "game_result_summarizer.h"
 
 namespace mj
 {
@@ -12,7 +13,7 @@ namespace mj
         Environment(std::vector<std::shared_ptr<Agent>> agents);
         GameResult RunOneGame(std::uint64_t game_seed);
         // マルチスレッドで試合進行
-        static void ParallelRunGame(int num_game, int num_thread, std::vector<std::shared_ptr<Agent>> agents);
+        static std::vector<GameResult> ParallelRunGame(int num_game, int num_thread, std::vector<std::shared_ptr<Agent>> agents);
     private:
         void RunOneRound();
         const std::vector<std::shared_ptr<Agent>> agents_;
