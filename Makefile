@@ -2,6 +2,8 @@ clean:
 	cd mjconvert && make clean
 	rm -rf build
 	rm -rf docker-build
+	rm -rf mjx/*pb*
+	rm -rf mjx/external_libs/*
 
 build:
 	mkdir -p build && cd build && cmake .. && make -j
