@@ -18,7 +18,7 @@ namespace mj
         auto gen = mj::GameSeed::CreateRandomGameSeedGenerator();
         // スレッド生成
         for(int i = 0; i < num_thread; i++){
-            // TODO: シード値の設定（現在: i+1）
+            // TODO: シード生成を外部で行う（現在: 内部でGameSeed::CreateRandomGameSeedGeneratorにより生成）
             threads.emplace_back(std::thread([&]{
                 Environment env(agents);
                 for(int j = 0; j < num_game/num_thread; j++){
