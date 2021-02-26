@@ -1,9 +1,9 @@
 #include "gtest/gtest.h"
 #include <fstream>
-#include <mj/observation.h>
-#include <mj/state.h>
+#include <mjx/observation.h>
+#include <mjx/state.h>
 
-using namespace mj;
+using namespace mjx;
 
 TEST(observation, hand) {
     auto GetLastJsonLine = [](const std::string &filename) {

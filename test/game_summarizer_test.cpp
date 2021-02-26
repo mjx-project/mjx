@@ -1,6 +1,6 @@
 #include "gtest/gtest.h"
-#include <mj/game_result_summarizer.h>
-using namespace mj;
+#include <mjx/game_result_summarizer.h>
+using namespace mjx;
 
 TEST(GameResultSummarizer, Add)
 {

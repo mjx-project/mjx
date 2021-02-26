@@ -1,7 +1,7 @@
 #include "gtest/gtest.h"
-#include <mj/game_seed.h>
+#include <mjx/game_seed.h>
 
-using namespace mj;
+using namespace mjx;
 
 TEST(WallSeedTest, constructor) {
     auto seeds = GameSeed(9999);

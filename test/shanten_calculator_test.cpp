@@ -1,10 +1,10 @@
 #include "gtest/gtest.h"
 #include <fstream>
 #include <sstream>
-#include <mj/shanten_calculator.h>
-#include <mj/hand.h>
+#include <mjx/shanten_calculator.h>
+#include <mjx/hand.h>
 
-using namespace mj;
+using namespace mjx;
 
 TEST(shanten, normal)
 {

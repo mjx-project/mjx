@@ -41,10 +41,10 @@ Clion側の設定は [clion/README.md](./clion/README.md) を参照。
 `mj/mj.h` をincludeすることで使用できる。
 
 ```cpp
-#include <mj/mj.h>
+#include <mjx/mjx.h>
 
 int main() {
-    auto t = mj::Tile("m1");
+    auto t = mjx::Tile("m1");
     return 0;
 }
 ```
