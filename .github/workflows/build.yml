@@ -22,10 +22,10 @@ jobs:
     - name: Pull Git LFS
       run: git lfs pull
 
-    - name: Build mj
+    - name: Build mjx
       run: make build
 
-    - name: Test mj
+    - name: Test mjx
       run: make test
 
     - name: Install mjconvert CLI

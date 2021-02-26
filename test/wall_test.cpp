@@ -1,7 +1,7 @@
 #include "gtest/gtest.h"
-#include <mj/wall.h>
+#include <mjx/wall.h>
 
-using namespace mj;
+using namespace mjx;
 
 TEST(wall, initial_hand) {
     // From https://tenhou.net/0/?log=2011020417gm-00a9-0000-b67fcaa3&tw=1

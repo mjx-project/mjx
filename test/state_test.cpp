@@ -2,12 +2,12 @@
 #include <fstream>
 #include <filesystem>
 #include <queue>
-#include <mj/state.h>
-#include <mj/utils.h>
+#include <mjx/state.h>
+#include <mjx/utils.h>
 #include <thread>
 #include <google/protobuf/util/message_differencer.h>
 
-using namespace mj;
+using namespace mjx;
 
 // Test utilities
 std::vector<std::string> LoadJson(const std::string &filename) {

@@ -1,10 +1,10 @@
 #include <iostream>
-#include <mj/mj.h>
-#include "mj/agent_grpc_client.h"
-#include "mj/agent_grpc_server.h"
-#include "mj/strategy_rule_based.h"
+#include <mjx/mjx.h>
+#include "mjx/agent_grpc_client.h"
+#include "mjx/agent_grpc_server.h"
+#include "mjx/strategy_rule_based.h"
 
-using namespace mj;
+using namespace mjx;
 
 int main(int argc, char* argv[]) {
     std::cout << "cnt_args: " <<  argc << std::endl;
