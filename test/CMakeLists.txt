@@ -1,4 +1,4 @@
-project(mj_test)
+project(mjx_test)
 
 # Clone Google Test
 set(GOOGLETEST_DIR ${CMAKE_CURRENT_SOURCE_DIR}/lib/googletest)
