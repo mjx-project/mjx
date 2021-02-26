@@ -14,5 +14,5 @@ include_directories(.)
 add_subdirectory(src)
 add_subdirectory(test)
 
-target_link_libraries(${PROJECT_NAME}.out mjx)
+target_link_libraries(${PROJECT_NAME}.out src)
 
