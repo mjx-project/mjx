@@ -5,6 +5,7 @@
 #include "utils.h"
 #include "spdlog/spdlog.h"
 
+
 namespace mj
 {
     Environment::Environment(std::vector<std::shared_ptr<Agent>> agents) : agents_(std::move(agents)) {
@@ -13,16 +14,21 @@ namespace mj
         state_ = State();
     }
 
-    void Environment::ParallelRunGame(int num_game, int num_thread, std::vector<std::shared_ptr<Agent>> agents) {
+    std::vector<GameResult> Environment::ParallelRunGame(int num_game, int num_thread, std::vector<std::shared_ptr<Agent>> agents) {
         std::vector<std::thread> threads;
         auto gen = mj::GameSeed::CreateRandomGameSeedGenerator();
+        auto results = std::vector<GameResult>();
+        std::mutex results_mtx;
         // スレッド生成
         for(int i = 0; i < num_thread; i++){
             // TODO: シード生成を外部で行う（現在: 内部でGameSeed::CreateRandomGameSeedGeneratorにより生成）
             threads.emplace_back(std::thread([&]{
                 Environment env(agents);
                 for(int j = 0; j < num_game/num_thread; j++){
-                    env.RunOneGame(gen());
+                    auto result = env.RunOneGame(gen());
+                    std::lock_guard<std::mutex> lock(results_mtx);
+                    results.emplace_back(result);
+
                 }
             }));
         }
@@ -30,6 +36,7 @@ namespace mj
         for(auto &thread: threads){
             thread.join();
         }
+        return results;
     }
 
     GameResult Environment::RunOneGame(std::uint64_t game_seed) {
