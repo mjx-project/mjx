@@ -1,4 +1,4 @@
-project(mj)
+project(mjx)
 set(LIB_DIR ${CMAKE_CURRENT_SOURCE_DIR}/external_libs)
 
 ####################################################################################
