@@ -11,8 +11,8 @@ add_executable(${PROJECT_NAME}.out ${SOURCE_FILES})
 
 include_directories(.)
 
-add_subdirectory(mjx)
+add_subdirectory(src)
 add_subdirectory(test)
 
-target_link_libraries(${PROJECT_NAME}.out mjx)
+target_link_libraries(${PROJECT_NAME}.out src)
 

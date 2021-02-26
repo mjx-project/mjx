@@ -1,8 +1,8 @@
 .idea/*
-mjx/cmake-build-debug/*
+src/cmake-build-debug/*
 cmake-build-*/*
 build/*
-mjx/external_libs/*
+src/external_libs/*
 docker-build/*
 test/lib/*
 mjconvert/mjproto/*pb2*
