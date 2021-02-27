@@ -13,7 +13,7 @@
 #include "event.h"
 #include "wall.h"
 #include "hand.h"
-#include "mj.grpc.pb.h"
+#include "mjx.grpc.pb.h"
 #include "utils.h"
 #include "yaku_evaluator.h"
 

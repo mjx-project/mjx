@@ -2,7 +2,7 @@
 #define MAHJONG_AGENT_GRPC_CLIENT_H
 
 #include <grpcpp/grpcpp.h>
-#include "mj.grpc.pb.h"
+#include "mjx.grpc.pb.h"
 #include "agent.h"
 #include "action.h"
 #include "observation.h"

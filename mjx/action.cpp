@@ -1,6 +1,6 @@
 #include "action.h"
 #include "utils.h"
-#include "mj.grpc.pb.h"
+#include "mjx.grpc.pb.h"
 
 namespace mjx
 {
