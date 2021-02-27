@@ -3,7 +3,7 @@
 
 #include <memory>
 #include <utility>
-#include "mj.pb.h"
+#include "mjx.pb.h"
 #include "types.h"
 #include "tile.h"
 #include "open.h"

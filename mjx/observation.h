@@ -4,7 +4,7 @@
 #include <utility>
 #include <array>
 
-#include "mj.pb.h"
+#include "mjx.pb.h"
 #include "hand.h"
 #include "action.h"
 

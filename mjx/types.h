@@ -7,7 +7,7 @@
 #include <map>
 #include <unordered_map>
 
-#include "mj.pb.h"
+#include "mjx.pb.h"
 
 namespace mjx {
     using TileId = std::uint8_t;  // {0, ..., 135} corresponds to mjlog format of Tenhou
