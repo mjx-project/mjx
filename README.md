@@ -10,10 +10,10 @@ It supports [Japanese (Riichi) Mahjong](https://en.wikipedia.org/wiki/Japanese_M
 ## Features
 
 - **Blazingly fast.** 
-  - 100x faster than existing OSS simulators. See [benchmark]().
+  - Mjx is 100x faster than existing OSS simulators. See [benchmark]().
 - **Tenhou compatible.** 
-  - Implemented rule is compatible with that of [Tenhou](https://tenhou.net/).
-- **Gym-like API supported.** 
+  - The implemented rule is compatible with that of [Tenhou](https://tenhou.net/).
+- **Gym-like API compatible.** 
   - Mjx supports [PettingZoo](https://github.com/PettingZoo-Team/PettingZoo) API, which provides [gym](https://github.com/openai/gym)-like API for multi-agent games.
 
 ## Quick start
@@ -65,8 +65,10 @@ void main() {
 
 ## Install
 
-### Docker
+We highly recommend to use docker to use mjx without environment dependencies.
 
+
+### Docker
 
 ```sh
 $ docker pull mjx-project/mjx:latest
@@ -79,6 +81,7 @@ $ pip install mjx
 ```
 
 ### For C++
+
 
 ```$
 $ make build
