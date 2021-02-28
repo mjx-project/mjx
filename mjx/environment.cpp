@@ -60,7 +60,7 @@ namespace mjx
         while (!state_.IsRoundOver()) {
             auto observations = state_.CreateObservations();
             Assert(!observations.empty());
-            std::vector<mjproto::Action> actions; actions.reserve(observations.size());
+            std::vector<mjxproto::Action> actions; actions.reserve(observations.size());
             for (auto& [player_id, obs]: observations) {
                 actions.emplace_back(agent(player_id)->TakeAction(std::move(obs)));
             }

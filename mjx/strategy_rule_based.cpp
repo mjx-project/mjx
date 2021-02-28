@@ -2,16 +2,16 @@
 #include "strategy_rule_based.h"
 
 namespace mjx {
-    std::vector<mjproto::Action> StrategyRuleBased::TakeActions(std::vector<Observation> &&observations) {
+    std::vector<mjxproto::Action> StrategyRuleBased::TakeActions(std::vector<Observation> &&observations) {
         int N = observations.size();
-        std::vector<mjproto::Action> actions(N);
+        std::vector<mjxproto::Action> actions(N);
         for (int i = 0; i < N; ++i) {
             actions[i] = TakeAction(std::move(observations[i]));
         }
         return actions;
     }
 
-    mjproto::Action StrategyRuleBased::TakeAction(Observation &&observation) {
+    mjxproto::Action StrategyRuleBased::TakeAction(Observation &&observation) {
         // Prepare some seed and MT engine for reproducibility
         const std::uint64_t seed = 12345
                                    + 4096 * observation.proto().event_history().events_size()
@@ -21,21 +21,21 @@ namespace mjx {
 
         auto possible_actions = observation.possible_actions();
         // この順番でソート
-        std::unordered_map<mjproto::ActionType, int> action_priority = {
-                {mjproto::ACTION_TYPE_TSUMO, 0},
-                {mjproto::ACTION_TYPE_RIICHI, 1},
-                {mjproto::ACTION_TYPE_KYUSYU, 2},
-                {mjproto::ACTION_TYPE_KAN_CLOSED, 3},
-                {mjproto::ACTION_TYPE_KAN_ADDED, 4},
-                {mjproto::ACTION_TYPE_DISCARD, 5},
-                {mjproto::ACTION_TYPE_RON, 6},
-                {mjproto::ACTION_TYPE_PON, 7},
-                {mjproto::ACTION_TYPE_KAN_OPENED, 8},
-                {mjproto::ACTION_TYPE_CHI, 9},
-                {mjproto::ACTION_TYPE_NO, 10},
+        std::unordered_map<mjxproto::ActionType, int> action_priority = {
+                {mjxproto::ACTION_TYPE_TSUMO, 0},
+                {mjxproto::ACTION_TYPE_RIICHI, 1},
+                {mjxproto::ACTION_TYPE_KYUSYU, 2},
+                {mjxproto::ACTION_TYPE_KAN_CLOSED, 3},
+                {mjxproto::ACTION_TYPE_KAN_ADDED, 4},
+                {mjxproto::ACTION_TYPE_DISCARD, 5},
+                {mjxproto::ACTION_TYPE_RON, 6},
+                {mjxproto::ACTION_TYPE_PON, 7},
+                {mjxproto::ACTION_TYPE_KAN_OPENED, 8},
+                {mjxproto::ACTION_TYPE_CHI, 9},
+                {mjxproto::ACTION_TYPE_NO, 10},
         };
         std::sort(possible_actions.begin(), possible_actions.end(),
-                  [&action_priority](const mjproto::Action &x, const mjproto::Action &y){
+                  [&action_priority](const mjxproto::Action &x, const mjxproto::Action &y){
                       if (x.type() != y.type()) return action_priority.at(x.type()) < action_priority.at(y.type());
                       else return x.open() < y.open();
                   });
@@ -45,32 +45,32 @@ namespace mjx {
         auto& selected = possible_actions.front();
 
         // 和了れるときは全て和了る。リーチできるときは全てリーチする。九種九牌も全て流す。
-        if (Any(selected.type(), {mjproto::ACTION_TYPE_TSUMO, mjproto::ACTION_TYPE_RIICHI,
-                                  mjproto::ACTION_TYPE_RON, mjproto::ACTION_TYPE_KYUSYU})) {
+        if (Any(selected.type(), {mjxproto::ACTION_TYPE_TSUMO, mjxproto::ACTION_TYPE_RIICHI,
+                                  mjxproto::ACTION_TYPE_RON, mjxproto::ACTION_TYPE_KYUSYU})) {
             return selected;
         }
 
         // テンパっているときには他家から鳴かない
-        if (Any(selected.type(), {mjproto::ACTION_TYPE_KAN_OPENED, mjproto::ACTION_TYPE_PON,
-                                  mjproto::ACTION_TYPE_CHI})) {
+        if (Any(selected.type(), {mjxproto::ACTION_TYPE_KAN_OPENED, mjxproto::ACTION_TYPE_PON,
+                                  mjxproto::ACTION_TYPE_CHI})) {
             if (curr_hand.IsTenpai()) {
                 selected = *possible_actions.rbegin();
-                Assert(selected.type() == mjproto::ActionType::ACTION_TYPE_NO);
+                Assert(selected.type() == mjxproto::ActionType::ACTION_TYPE_NO);
                 return selected;
             }
         }
 
         // 鳴ける場合にはランダムに行動選択
-        if (Any(selected.type(), {mjproto::ACTION_TYPE_KAN_OPENED, mjproto::ACTION_TYPE_PON, mjproto::ACTION_TYPE_CHI})) {
+        if (Any(selected.type(), {mjxproto::ACTION_TYPE_KAN_OPENED, mjxproto::ACTION_TYPE_PON, mjxproto::ACTION_TYPE_CHI})) {
             selected = *SelectRandomly(possible_actions.begin(), possible_actions.end(), mt);
             Assert(Any(selected.type(), {
-                    mjproto::ACTION_TYPE_KAN_OPENED, mjproto::ACTION_TYPE_PON,
-                    mjproto::ACTION_TYPE_CHI, mjproto::ACTION_TYPE_NO}));
+                    mjxproto::ACTION_TYPE_KAN_OPENED, mjxproto::ACTION_TYPE_PON,
+                    mjxproto::ACTION_TYPE_CHI, mjxproto::ACTION_TYPE_NO}));
             return selected;
         }
 
         // 暗槓、加槓ができるときはランダムに実行
-        if (Any(selected.type(), {mjproto::ACTION_TYPE_KAN_CLOSED, mjproto::ACTION_TYPE_KAN_ADDED})) {
+        if (Any(selected.type(), {mjxproto::ACTION_TYPE_KAN_CLOSED, mjxproto::ACTION_TYPE_KAN_ADDED})) {
             auto prob = RandomProb(mt);
             if (prob > 0.5) return selected;
         }
@@ -79,7 +79,7 @@ namespace mjx {
         std::vector<Tile> discard_candidates = observation.possible_discards();
         Tile selected_discard = SelectDiscard(discard_candidates, curr_hand, mt);
         return *std::find_if(possible_actions.begin(), possible_actions.end(),
-                             [&selected_discard](const mjproto::Action& x){ return x.discard() == selected_discard.Id(); });
+                             [&selected_discard](const mjxproto::Action& x){ return x.discard() == selected_discard.Id(); });
     }
 
     template<typename RandomGenerator>

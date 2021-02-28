@@ -20,12 +20,12 @@ namespace mjx
                               int batch_size = 8, int wait_ms = 0);
     };
 
-    class AgentGrpcServerImpl final : public mjproto::Agent::Service
+    class AgentGrpcServerImpl final : public mjxproto::Agent::Service
     {
     public:
         explicit AgentGrpcServerImpl(std::unique_ptr<Strategy> strategy, int batch_size = 8, int wait_ms = 0);
         ~AgentGrpcServerImpl() final;
-        grpc::Status TakeAction(grpc::ServerContext* context, const mjproto::Observation* request, mjproto::Action* reply) final ;
+        grpc::Status TakeAction(grpc::ServerContext* context, const mjxproto::Observation* request, mjxproto::Action* reply) final ;
     private:
         struct ObservationInfo{
             boost::uuids::uuid id;
@@ -44,7 +44,7 @@ namespace mjx
 
         std::mutex mtx_que_, mtx_map_;
         std::queue<ObservationInfo> obs_que_;
-        std::unordered_map<boost::uuids::uuid, mjproto::Action, boost::hash<boost::uuids::uuid>> act_map_;
+        std::unordered_map<boost::uuids::uuid, mjxproto::Action, boost::hash<boost::uuids::uuid>> act_map_;
         // 常駐する推論スレッド
         std::thread thread_inference_;
         bool stop_flag_ = false;

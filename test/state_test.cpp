@@ -36,16 +36,16 @@ std::string GetLastJsonLine(const std::string &filename) {
     return jsons.back();
 }
 
-bool ActionTypeCheck(const std::vector<mjproto::ActionType>& action_types, const Observation &observation) {
-    std::unordered_set<mjproto::ActionType> observation_action_types;
+bool ActionTypeCheck(const std::vector<mjxproto::ActionType>& action_types, const Observation &observation) {
+    std::unordered_set<mjxproto::ActionType> observation_action_types;
     for (const auto &possible_action: observation.possible_actions()) {
         observation_action_types.insert(possible_action.type());
     }
-    return observation_action_types == std::unordered_set<mjproto::ActionType>{action_types.begin(), action_types.end()};
+    return observation_action_types == std::unordered_set<mjxproto::ActionType>{action_types.begin(), action_types.end()};
 }
 
 bool YakuCheck(const State &state, AbsolutePos winner, std::vector<Yaku> &&yakus) {
-    mjproto::State state_proto = state.proto();
+    mjxproto::State state_proto = state.proto();
     Assert(std::any_of(state_proto.terminal().wins().begin(), state_proto.terminal().wins().end(),
                        [&](const auto &win){ return AbsolutePos(win.who()) == winner; }));
     for (const auto & win: state_proto.terminal().wins()) {
@@ -69,7 +69,7 @@ bool YakuCheck(const State &state, AbsolutePos winner, std::vector<Yaku> &&yakus
 
 // NOTE 鳴きの構成要素になっている牌とはスワップできない
 std::string SwapTiles(const std::string &json_str, Tile a, Tile b){
-    mjproto::State state = mjproto::State();
+    mjxproto::State state = mjxproto::State();
     auto status = google::protobuf::util::JsonStringToMessage(json_str, &state);
     Assert(status.ok());
     // wall
@@ -102,11 +102,11 @@ std::string SwapTiles(const std::string &json_str, Tile a, Tile b){
     // event history
     for (int i = 0; i < state.event_history().events_size(); ++i) {
         auto mevent = state.mutable_event_history()->mutable_events(i);
-        if (Any(mevent->type(), {mjproto::EVENT_TYPE_DISCARD_FROM_HAND,
-                                 mjproto::EVENT_TYPE_DISCARD_DRAWN_TILE,
-                                 mjproto::EVENT_TYPE_TSUMO,
-                                 mjproto::EVENT_TYPE_RON,
-                                 mjproto::EVENT_TYPE_NEW_DORA})) {
+        if (Any(mevent->type(), {mjxproto::EVENT_TYPE_DISCARD_FROM_HAND,
+                                 mjxproto::EVENT_TYPE_DISCARD_DRAWN_TILE,
+                                 mjxproto::EVENT_TYPE_TSUMO,
+                                 mjxproto::EVENT_TYPE_RON,
+                                 mjxproto::EVENT_TYPE_NEW_DORA})) {
             if (mevent->tile() == a.Id()) mevent->set_tile(b.Id());
             else if (mevent->tile() == b.Id()) mevent->set_tile(a.Id());
         }
@@ -118,7 +118,7 @@ std::string SwapTiles(const std::string &json_str, Tile a, Tile b){
     return serialized;
 }
 
-mjproto::Action FindPossibleAction(mjproto::ActionType action_type, const Observation &observation) {
+mjxproto::Action FindPossibleAction(mjxproto::ActionType action_type, const Observation &observation) {
     for (const auto& possible_action: observation.possible_actions())
         if (possible_action.type() == action_type) return possible_action;
     std::cerr << "Cannot find the specified action type" << std::endl;
@@ -244,7 +244,7 @@ TEST(state, CreateObservation) {
     EXPECT_EQ(observations.size(), 1);
     EXPECT_TRUE(observations.find("ASAPIN") != observations.end());
     observation = observations["ASAPIN"];
-    EXPECT_TRUE(ActionTypeCheck({mjproto::ACTION_TYPE_DISCARD, mjproto::ACTION_TYPE_TSUMO}, observation));
+    EXPECT_TRUE(ActionTypeCheck({mjxproto::ACTION_TYPE_DISCARD, mjxproto::ACTION_TYPE_TSUMO}, observation));
 
     // 2. Drawした後、KanAddedが可能なら、KanAddedがアクション候補に入る
     json = GetLastJsonLine("obs-draw-kanadded.json");
@@ -252,7 +252,7 @@ TEST(state, CreateObservation) {
     observations = state.CreateObservations();
     EXPECT_TRUE(observations.find("ROTTEN") != observations.end());
     observation = observations["ROTTEN"];
-    EXPECT_TRUE(ActionTypeCheck({mjproto::ACTION_TYPE_DISCARD, mjproto::ACTION_TYPE_KAN_ADDED}, observation));
+    EXPECT_TRUE(ActionTypeCheck({mjxproto::ACTION_TYPE_DISCARD, mjxproto::ACTION_TYPE_KAN_ADDED}, observation));
 
     // 3. Drawした後、Riichi可能なら、Riichiがアクション候補に入る
     json = GetLastJsonLine("obs-draw-riichi.json");
@@ -261,7 +261,7 @@ TEST(state, CreateObservation) {
     EXPECT_EQ(observations.size(), 1);
     observation = observations["ASAPIN"];
     EXPECT_TRUE(observations.find("ASAPIN") != observations.end());
-    EXPECT_TRUE(ActionTypeCheck({mjproto::ACTION_TYPE_DISCARD, mjproto::ACTION_TYPE_RIICHI}, observation));
+    EXPECT_TRUE(ActionTypeCheck({mjxproto::ACTION_TYPE_DISCARD, mjxproto::ACTION_TYPE_RIICHI}, observation));
 
     // 4. Drawした後、Discardがアクション候補にはいる
     json = GetLastJsonLine("obs-draw-discard.json");
@@ -270,7 +270,7 @@ TEST(state, CreateObservation) {
     EXPECT_EQ(observations.size(), 1);
     EXPECT_TRUE(observations.find("-ron-") != observations.end());
     observation = observations["-ron-"];
-    EXPECT_TRUE(ActionTypeCheck({mjproto::ACTION_TYPE_DISCARD}, observation));
+    EXPECT_TRUE(ActionTypeCheck({mjxproto::ACTION_TYPE_DISCARD}, observation));
     EXPECT_TRUE(Any(Tile(39), observation.possible_discards()));
 
     // 9. Riichiした後、可能なアクションはDiscardだけで、捨てられる牌も上がり系につながるものだけ
@@ -281,7 +281,7 @@ TEST(state, CreateObservation) {
     EXPECT_EQ(observations.size(), 1);
     EXPECT_TRUE(observations.find("ASAPIN") != observations.end());
     observation = observations["ASAPIN"];
-    EXPECT_TRUE(ActionTypeCheck({mjproto::ACTION_TYPE_DISCARD}, observation));
+    EXPECT_TRUE(ActionTypeCheck({mjxproto::ACTION_TYPE_DISCARD}, observation));
     EXPECT_EQ(observation.possible_discards().size(), 1);
     EXPECT_EQ(observation.possible_discards().front().Type(), TileType::kSW);
 
@@ -293,7 +293,7 @@ TEST(state, CreateObservation) {
     EXPECT_EQ(observations.size(), 1);
     EXPECT_TRUE(observations.find("ASAPIN") != observations.end());
     observation = observations["ASAPIN"];
-    EXPECT_TRUE(ActionTypeCheck({mjproto::ACTION_TYPE_DISCARD}, observation));
+    EXPECT_TRUE(ActionTypeCheck({mjxproto::ACTION_TYPE_DISCARD}, observation));
     for (auto tile : observation.possible_discards()) EXPECT_NE(tile.Type(), TileType::kM4);
 
     // 11. ポンした後、可能なアクションはDiscardだけ
@@ -303,7 +303,7 @@ TEST(state, CreateObservation) {
     EXPECT_EQ(observations.size(), 1);
     EXPECT_TRUE(observations.find("超ヒモリロ") != observations.end());
     observation = observations["超ヒモリロ"];
-    EXPECT_TRUE(ActionTypeCheck({mjproto::ACTION_TYPE_DISCARD}, observation));
+    EXPECT_TRUE(ActionTypeCheck({mjxproto::ACTION_TYPE_DISCARD}, observation));
 
     // 12. DiscardFromHand => (7) Ron
 
@@ -315,7 +315,7 @@ TEST(state, CreateObservation) {
     EXPECT_EQ(observations.size(), 1);
     EXPECT_TRUE(observations.find("超ヒモリロ") != observations.end());
     observation = observations["超ヒモリロ"];
-    EXPECT_TRUE(ActionTypeCheck({mjproto::ACTION_TYPE_CHI, mjproto::ACTION_TYPE_NO}, observation));
+    EXPECT_TRUE(ActionTypeCheck({mjxproto::ACTION_TYPE_CHI, mjxproto::ACTION_TYPE_NO}, observation));
     EXPECT_EQ(observation.possible_actions().front().open(), 42031);
 
     // 14. Discardした後、ロン可能なプレイヤーがいる場合にはロンが入る
@@ -325,7 +325,7 @@ TEST(state, CreateObservation) {
     EXPECT_EQ(observations.size(), 1);
     EXPECT_TRUE(observations.find("うきでん") != observations.end());
     observation = observations["うきでん"];
-    EXPECT_TRUE(ActionTypeCheck({mjproto::ACTION_TYPE_RON, mjproto::ACTION_TYPE_NO}, observation));
+    EXPECT_TRUE(ActionTypeCheck({mjxproto::ACTION_TYPE_RON, mjxproto::ACTION_TYPE_NO}, observation));
 
     // 15. DiscardDrawnTile => (8) Chi, Pon and KanOpened
 
@@ -338,13 +338,13 @@ TEST(state, CreateObservation) {
     EXPECT_EQ(observations.size(), 1);
     EXPECT_TRUE(observations.find("ちくき") != observations.end());
     observation = observations["ちくき"];
-    EXPECT_TRUE(ActionTypeCheck({mjproto::ACTION_TYPE_KYUSYU, mjproto::ACTION_TYPE_DISCARD}, observation));
+    EXPECT_TRUE(ActionTypeCheck({mjxproto::ACTION_TYPE_KYUSYU, mjxproto::ACTION_TYPE_DISCARD}, observation));
 }
 
 TEST(state, Update) {
     // 特に記述がないテストケースは下記から
     // https://tenhou.net/0/?log=2011020417gm-00a9-0000-b67fcaa3&tw=1
-    std::string json_before, json_after; State state_before, state_after; std::vector<mjproto::Action> actions; std::unordered_map<PlayerId, Observation> observations; Observation observation; mjproto::Action possible_action;
+    std::string json_before, json_after; State state_before, state_after; std::vector<mjxproto::Action> actions; std::unordered_map<PlayerId, Observation> observations; Observation observation; mjxproto::Action possible_action;
 
     // Draw後にDiscardでUpdate。これを誰も鳴けない場合は次のDrawまで進む
     json_before = GetLastJsonLine("upd-bef-draw-discard-draw.json");
@@ -396,14 +396,14 @@ TEST(state, Update) {
     state_before = State(json_before);
     observations = state_before.CreateObservations();
     observation = observations["うきでん"];
-    EXPECT_TRUE(ActionTypeCheck({mjproto::ACTION_TYPE_RON, mjproto::ACTION_TYPE_NO}, observation));
+    EXPECT_TRUE(ActionTypeCheck({mjxproto::ACTION_TYPE_RON, mjxproto::ACTION_TYPE_NO}, observation));
     actions = {Action::CreateNo(AbsolutePos::kInitWest)};
     state_before.Update(std::move(actions));
     // NoはEventとして追加はされないので、Jsonとしては状態は変わっていないが、CreateObservationの返り値が変わってくる
     EXPECT_EQ(state_before.ToJson(), state_before.ToJson());
     observations = state_before.CreateObservations();
     observation = observations["-ron-"];
-    EXPECT_TRUE(ActionTypeCheck({mjproto::ACTION_TYPE_DISCARD, mjproto::ACTION_TYPE_RIICHI}, observation));
+    EXPECT_TRUE(ActionTypeCheck({mjxproto::ACTION_TYPE_DISCARD, mjxproto::ACTION_TYPE_RIICHI}, observation));
 
     // Discard後にChiでUpdateした場合、Chiまで（Discard直前）まで更新
     // action: InitNorth Chi 42031
@@ -420,14 +420,14 @@ TEST(state, Update) {
     state_before = State(json_before);
     observations = state_before.CreateObservations();
     observation = observations["超ヒモリロ"];
-    EXPECT_TRUE(ActionTypeCheck({mjproto::ACTION_TYPE_CHI, mjproto::ACTION_TYPE_NO}, observation));
+    EXPECT_TRUE(ActionTypeCheck({mjxproto::ACTION_TYPE_CHI, mjxproto::ACTION_TYPE_NO}, observation));
     actions = { Action::CreateNo(AbsolutePos::kInitNorth) };
     state_before.Update(std::move(actions));
     // NoはEventとして追加はされないので、Jsonとしては状態は変わっていないが、CreateObservationの返り値が変わってくる
     EXPECT_EQ(state_before.ToJson(), state_before.ToJson());
     observations = state_before.CreateObservations();
     observation = observations["超ヒモリロ"];
-    EXPECT_TRUE(ActionTypeCheck({mjproto::ACTION_TYPE_DISCARD}, observation));
+    EXPECT_TRUE(ActionTypeCheck({mjxproto::ACTION_TYPE_DISCARD}, observation));
 
     // Riichi後にDiscardして、鳴き候補もロン候補もないのでRiichiScoreChange+DrawまでUpdateされる
     json_before = GetLastJsonLine("upd-bef-riichi-discard-riichisc+draw.json");
@@ -635,7 +635,7 @@ TEST(state, Update) {
     EXPECT_EQ(observations.size(), 1);
     EXPECT_TRUE(observations.find("ぺんぎんさん") != observations.end());
     observation = observations["ぺんぎんさん"];
-    EXPECT_TRUE(ActionTypeCheck({mjproto::ACTION_TYPE_NO, mjproto::ACTION_TYPE_RON}, observation));
+    EXPECT_TRUE(ActionTypeCheck({mjxproto::ACTION_TYPE_NO, mjxproto::ACTION_TYPE_RON}, observation));
 
     actions = { Action::CreateNo(AbsolutePos::kInitSouth) };
     state_before.Update(std::move(actions));
@@ -683,22 +683,22 @@ TEST(state, Update) {
     observations = state_before.CreateObservations();
     EXPECT_EQ(observations.size(), 1);
     observation = observations.begin()->second;
-    EXPECT_TRUE(ActionTypeCheck({mjproto::ACTION_TYPE_DISCARD, mjproto::ACTION_TYPE_KAN_ADDED}, observation));
-    possible_action = FindPossibleAction(mjproto::ACTION_TYPE_KAN_ADDED, observation);
+    EXPECT_TRUE(ActionTypeCheck({mjxproto::ACTION_TYPE_DISCARD, mjxproto::ACTION_TYPE_KAN_ADDED}, observation));
+    possible_action = FindPossibleAction(mjxproto::ACTION_TYPE_KAN_ADDED, observation);
     actions = { Action::CreateOpen(observation.who(), Open(possible_action.open())) };
     state_before.Update(std::move(actions));
     // No
     observations = state_before.CreateObservations();
     EXPECT_EQ(observations.size(), 1);
     observation = observations.begin()->second;
-    EXPECT_TRUE(ActionTypeCheck({mjproto::ACTION_TYPE_RON, mjproto::ACTION_TYPE_NO}, observation));
+    EXPECT_TRUE(ActionTypeCheck({mjxproto::ACTION_TYPE_RON, mjxproto::ACTION_TYPE_NO}, observation));
     actions = { Action::CreateNo(observation.who()) };
     state_before.Update(std::move(actions));
     // Discard 2m
     observations = state_before.CreateObservations();
     EXPECT_EQ(observations.size(), 1);
     observation = observations.begin()->second;
-    EXPECT_TRUE(ActionTypeCheck({mjproto::ACTION_TYPE_DISCARD}, observation));
+    EXPECT_TRUE(ActionTypeCheck({mjxproto::ACTION_TYPE_DISCARD}, observation));
     EXPECT_EQ(observation.who(), AbsolutePos::kInitNorth);
     actions = { Action::CreateDiscard(observation.who(), Tile(4)) };
     state_before.Update(std::move(actions));
@@ -706,7 +706,7 @@ TEST(state, Update) {
     observations = state_before.CreateObservations();
     EXPECT_EQ(observations.size(), 1);
     observation = observations.begin()->second;
-    EXPECT_TRUE(ActionTypeCheck({mjproto::ACTION_TYPE_DISCARD, mjproto::ACTION_TYPE_TSUMO}, observation));
+    EXPECT_TRUE(ActionTypeCheck({mjxproto::ACTION_TYPE_DISCARD, mjxproto::ACTION_TYPE_TSUMO}, observation));
     actions = { Action::CreateTsumo(observation.who()) };
     state_before.Update(std::move(actions));
     EXPECT_TRUE(YakuCheck(state_before, AbsolutePos::kInitEast,
@@ -723,16 +723,16 @@ TEST(state, Update) {
     observations = state_before.CreateObservations();
     EXPECT_EQ(observations.size(), 1);
     observation = observations.begin()->second;
-    EXPECT_TRUE(ActionTypeCheck({mjproto::ACTION_TYPE_DISCARD, mjproto::ACTION_TYPE_KAN_ADDED}, observation));
-    possible_action = FindPossibleAction(mjproto::ACTION_TYPE_KAN_ADDED, observation);
+    EXPECT_TRUE(ActionTypeCheck({mjxproto::ACTION_TYPE_DISCARD, mjxproto::ACTION_TYPE_KAN_ADDED}, observation));
+    possible_action = FindPossibleAction(mjxproto::ACTION_TYPE_KAN_ADDED, observation);
     actions = { Action::CreateOpen(observation.who(), Open(possible_action.open())) };
     state_before.Update(std::move(actions));
     // KanAdded p8
     observations = state_before.CreateObservations();
     EXPECT_EQ(observations.size(), 1);
     observation = observations.begin()->second;
-    EXPECT_TRUE(ActionTypeCheck({mjproto::ACTION_TYPE_DISCARD, mjproto::ACTION_TYPE_KAN_ADDED}, observation));
-    possible_action = FindPossibleAction(mjproto::ACTION_TYPE_KAN_ADDED, observation);
+    EXPECT_TRUE(ActionTypeCheck({mjxproto::ACTION_TYPE_DISCARD, mjxproto::ACTION_TYPE_KAN_ADDED}, observation));
+    possible_action = FindPossibleAction(mjxproto::ACTION_TYPE_KAN_ADDED, observation);
     actions = { Action::CreateOpen(observation.who(), Open(possible_action.open())) };
     state_before.Update(std::move(actions));
     // 槍槓（一発なし）
@@ -747,7 +747,7 @@ TEST(state, Update) {
 
 TEST(state, EncodeDecode) {
     const bool all_ok = ParallelTest([](const std::string& json){
-        mjproto::State original_state;
+        mjxproto::State original_state;
         auto status = google::protobuf::util::JsonStringToMessage(json, &original_state);
         Assert(status.ok());
         const auto restored_state = State(json).proto();
@@ -762,7 +762,7 @@ TEST(state, EncodeDecode) {
 }
 
 TEST(state, Equals) {
-    std::string json_before, json_after; State state_before, state_after; std::vector<mjproto::Action> actions;
+    std::string json_before, json_after; State state_before, state_after; std::vector<mjxproto::Action> actions;
     json_before = GetLastJsonLine("upd-bef-draw-discard-draw.json");
     json_after = GetLastJsonLine("upd-aft-draw-discard-draw.json");
     state_before = State(json_before);
@@ -788,36 +788,36 @@ TEST(state, CanReach) {
     EXPECT_TRUE(state_after.CanReach(state_after));
 }
 
-std::vector<std::vector<mjproto::Action>> ListUpAllActionCombinations(std::unordered_map<PlayerId, Observation> &&observations) {
-    std::vector<std::vector<mjproto::Action>> actions{{}};
+std::vector<std::vector<mjxproto::Action>> ListUpAllActionCombinations(std::unordered_map<PlayerId, Observation> &&observations) {
+    std::vector<std::vector<mjxproto::Action>> actions{{}};
     for (const auto &[player_id, observation]: observations) {
         auto who = observation.who();
-        std::vector<mjproto::Action> actions_per_player;
+        std::vector<mjxproto::Action> actions_per_player;
         for (const auto &possible_action: observation.possible_actions()) {
             switch (possible_action.type()) {
-                case mjproto::ACTION_TYPE_DISCARD:
+                case mjxproto::ACTION_TYPE_DISCARD:
                     actions_per_player.push_back(Action::CreateDiscard(who, Tile(possible_action.discard())));
                     break;
-                case mjproto::ACTION_TYPE_TSUMO:
+                case mjxproto::ACTION_TYPE_TSUMO:
                     actions_per_player.push_back(Action::CreateTsumo(who));
                     break;
-                case mjproto::ACTION_TYPE_RON:
+                case mjxproto::ACTION_TYPE_RON:
                     actions_per_player.push_back(Action::CreateRon(who));
                     break;
-                case mjproto::ACTION_TYPE_RIICHI:
+                case mjxproto::ACTION_TYPE_RIICHI:
                     actions_per_player.push_back(Action::CreateRiichi(who));
                     break;
-                case mjproto::ACTION_TYPE_NO:
+                case mjxproto::ACTION_TYPE_NO:
                     actions_per_player.push_back(Action::CreateNo(who));
                     break;
-                case mjproto::ACTION_TYPE_KYUSYU:
+                case mjxproto::ACTION_TYPE_KYUSYU:
                     actions_per_player.push_back(Action::CreateNineTiles(who));
                     break;
-                case mjproto::ACTION_TYPE_CHI:
-                case mjproto::ACTION_TYPE_PON:
-                case mjproto::ACTION_TYPE_KAN_OPENED:
-                case mjproto::ACTION_TYPE_KAN_CLOSED:
-                case mjproto::ACTION_TYPE_KAN_ADDED:
+                case mjxproto::ACTION_TYPE_CHI:
+                case mjxproto::ACTION_TYPE_PON:
+                case mjxproto::ACTION_TYPE_KAN_OPENED:
+                case mjxproto::ACTION_TYPE_KAN_CLOSED:
+                case mjxproto::ACTION_TYPE_KAN_ADDED:
                     actions_per_player.push_back(Action::CreateOpen(who, Open(possible_action.open())));
                     break;
                 default:
@@ -826,11 +826,11 @@ std::vector<std::vector<mjproto::Action>> ListUpAllActionCombinations(std::unord
         }
 
         // 直積を取る
-        std::vector<std::vector<mjproto::Action>> next_actions;
+        std::vector<std::vector<mjxproto::Action>> next_actions;
         next_actions.reserve(actions.size());
         for (int i = 0; i < actions.size(); ++i) {
             for (int j = 0; j < actions_per_player.size(); ++j) {
-                std::vector<mjproto::Action> as = actions[i];
+                std::vector<mjxproto::Action> as = actions[i];
                 as.push_back(actions_per_player[j]);
                 next_actions.push_back(std::move(as));
             }
@@ -842,7 +842,7 @@ std::vector<std::vector<mjproto::Action>> ListUpAllActionCombinations(std::unord
 
 // 任意のjsonを、初期状態のStateを生成できるjsonに変換する（親がツモった直後）
 std::string TruncateAfterFirstDraw(const std::string& json) {
-    mjproto::State state = mjproto::State();
+    mjxproto::State state = mjxproto::State();
     auto status = google::protobuf::util::JsonStringToMessage(json, &state);
     Assert(status.ok());
     auto events = state.mutable_event_history()->mutable_events();
@@ -917,7 +917,7 @@ TEST(state, game_seed){
     auto wall_origin = Wall(0, 0, game_seed).tiles();
     auto score_info = State::ScoreInfo{{"A","B","C","D"}, game_seed};
     auto state_origin = State(score_info);
-    // mjprotoからの復元
+    // mjxprotoからの復元
     auto game_seed_restored = State(state_origin.ToJson()).game_seed();
     auto wall_restored = Wall(0, 0, game_seed_restored).tiles();
     EXPECT_EQ(wall_origin.size(),wall_restored.size());

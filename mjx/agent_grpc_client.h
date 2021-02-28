@@ -15,9 +15,9 @@ namespace mjx
         AgentGrpcClient() = default;
         AgentGrpcClient(PlayerId player_id, const std::shared_ptr<grpc::Channel>& channel);
         ~AgentGrpcClient() final = default;
-        [[nodiscard]] mjproto::Action TakeAction(Observation &&observation) const final ;
+        [[nodiscard]] mjxproto::Action TakeAction(Observation &&observation) const final ;
     private:
-        std::unique_ptr<mjproto::Agent::Stub> stub_;
+        std::unique_ptr<mjxproto::Agent::Stub> stub_;
     };
 }
 

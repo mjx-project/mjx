@@ -14,16 +14,16 @@ namespace mjx
     {
     public:
         Action() = delete;
-        static bool IsValid(const mjproto::Action &action);
-        static mjproto::Action CreateDiscard(AbsolutePos who, Tile discard);
-        static std::vector<mjproto::Action> CreateDiscards(AbsolutePos who, const std::vector<Tile>& discards);
-        static mjproto::Action CreateRiichi(AbsolutePos who);
-        static mjproto::Action CreateTsumo(AbsolutePos who);
-        static mjproto::Action CreateRon(AbsolutePos who);
-        static mjproto::Action CreateOpen(AbsolutePos who, Open open);
-        static mjproto::Action CreateNo(AbsolutePos who);
-        static mjproto::Action CreateNineTiles(AbsolutePos who);
-        static bool Equal(const mjproto::Action& lhs, const mjproto::Action& rhs);
+        static bool IsValid(const mjxproto::Action &action);
+        static mjxproto::Action CreateDiscard(AbsolutePos who, Tile discard);
+        static std::vector<mjxproto::Action> CreateDiscards(AbsolutePos who, const std::vector<Tile>& discards);
+        static mjxproto::Action CreateRiichi(AbsolutePos who);
+        static mjxproto::Action CreateTsumo(AbsolutePos who);
+        static mjxproto::Action CreateRon(AbsolutePos who);
+        static mjxproto::Action CreateOpen(AbsolutePos who, Open open);
+        static mjxproto::Action CreateNo(AbsolutePos who);
+        static mjxproto::Action CreateNineTiles(AbsolutePos who);
+        static bool Equal(const mjxproto::Action& lhs, const mjxproto::Action& rhs);
     };
 }  // namespace mjx
 

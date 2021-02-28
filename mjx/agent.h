@@ -12,7 +12,7 @@ namespace mjx
         Agent() = default;  // generate invalid object
         explicit Agent(PlayerId player_id);
         virtual ~Agent() = default;
-        [[nodiscard]] virtual mjproto::Action TakeAction(Observation &&observation) const = 0;
+        [[nodiscard]] virtual mjxproto::Action TakeAction(Observation &&observation) const = 0;
         [[nodiscard]] PlayerId player_id() const;
     private:
         PlayerId player_id_;
