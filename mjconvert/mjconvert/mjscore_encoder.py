@@ -3,24 +3,24 @@ from __future__ import annotations  # postpone type hint evaluation or doctest f
 import json
 from typing import Dict, List
 
-import mjproto
+import mjxproto
 from mjconvert import open_converter
 
 
 def _change_tile_fmt(tile_id: int) -> int:
-    reds_in_mjproto = [16, 52, 88]
+    reds_in_mjxproto = [16, 52, 88]
     reds_in_mjscore = [51, 52, 53]
-    reds_dict = dict(zip(reds_in_mjproto, reds_in_mjscore))
-    if tile_id in reds_in_mjproto:
+    reds_dict = dict(zip(reds_in_mjxproto, reds_in_mjscore))
+    if tile_id in reds_in_mjxproto:
         tile_in_mjscore = reds_dict[tile_id]
     else:
         tile_in_mjscore = ((tile_id // 36) + 1) * 10 + ((tile_id % 36) // 4) + 1
     return tile_in_mjscore
 
 
-# mjproto形式の牌のリストを引数にとり、表現をmjscore形式の表現に変える関数
+# mjxproto形式の牌のリストを引数にとり、表現をmjscore形式の表現に変える関数
 def _change_tiles_fmt(tile_ids):
-    scores = list(map(_change_tile_fmt, tile_ids))  # mjproto形式の表現ををmjscore形式に変換
+    scores = list(map(_change_tile_fmt, tile_ids))  # mjxproto形式の表現ををmjscore形式に変換
     return scores
 
 
@@ -31,17 +31,17 @@ def _change_action_format(bits: int) -> str:  # TODO カン
     stolen_tile = open_converter.change_open_tile_fmt(open_converter.open_stolen_tile_type(bits))
     open_tiles = open_converter.change_open_tiles_fmt(open_converter.open_tile_types(bits))
     open_tiles.remove(stolen_tile)
-    if event_type == mjproto.EVENT_TYPE_CHI:  # チー
+    if event_type == mjxproto.EVENT_TYPE_CHI:  # チー
         return "c" + str(stolen_tile) + str(open_tiles[0]) + str(open_tiles[1])
-    elif event_type == mjproto.EVENT_TYPE_PON:  # ポン
-        if open_from == mjproto.RELATIVE_POS_LEFT:
+    elif event_type == mjxproto.EVENT_TYPE_PON:  # ポン
+        if open_from == mjxproto.RELATIVE_POS_LEFT:
             return "p" + str(stolen_tile) + str(open_tiles[0]) + str(open_tiles[1])
-        elif open_from == mjproto.RELATIVE_POS_MID:
+        elif open_from == mjxproto.RELATIVE_POS_MID:
             return str(open_tiles[0]) + "p" + str(stolen_tile) + str(open_tiles[1])
         else:
             return str(open_tiles[0]) + str(open_tiles[1]) + "p" + str(stolen_tile)
-    elif event_type == mjproto.EVENT_TYPE_KAN_ADDED:  # 加槓
-        if open_from == mjproto.RELATIVE_POS_LEFT:
+    elif event_type == mjxproto.EVENT_TYPE_KAN_ADDED:  # 加槓
+        if open_from == mjxproto.RELATIVE_POS_LEFT:
             return (
                 "k"
                 + str(stolen_tile)
@@ -49,7 +49,7 @@ def _change_action_format(bits: int) -> str:  # TODO カン
                 + str(open_tiles[1])
                 + str(open_tiles[2])
             )
-        elif open_from == mjproto.RELATIVE_POS_MID:
+        elif open_from == mjxproto.RELATIVE_POS_MID:
             return (
                 str(open_tiles[0])
                 + "k"
@@ -65,10 +65,10 @@ def _change_action_format(bits: int) -> str:  # TODO カン
                 + str(stolen_tile)
                 + str(open_tiles[2])
             )
-    elif event_type == mjproto.EVENT_TYPE_KAN_CLOSED:  # 暗槓
+    elif event_type == mjxproto.EVENT_TYPE_KAN_CLOSED:  # 暗槓
         return str(stolen_tile) + str(stolen_tile) + str(stolen_tile) + "a" + str(open_tiles[-1])
     else:  # 明槓
-        if open_from == mjproto.RELATIVE_POS_LEFT:
+        if open_from == mjxproto.RELATIVE_POS_LEFT:
             return (
                 "m"
                 + str(stolen_tile)
@@ -76,7 +76,7 @@ def _change_action_format(bits: int) -> str:  # TODO カン
                 + str(open_tiles[1])
                 + str(open_tiles[2])
             )
-        elif open_from == mjproto.RELATIVE_POS_MID:
+        elif open_from == mjxproto.RELATIVE_POS_MID:
             return (
                 str(open_tiles[0])
                 + "m"
@@ -113,26 +113,26 @@ def _change_tumogiri_riich_fmt(tile):  # ツモギリリーチ専用の番号90�
     return tile
 
 
-# mjproto形式のeventを受け取り、あるプレイヤーの捨て牌をmjscore形式で出力する関数。
+# mjxproto形式のeventを受け取り、あるプレイヤーの捨て牌をmjscore形式で出力する関数。
 def parse_discards(events, abs_pos: int):
     discards: List[object] = []
     for i, event in enumerate(events):
-        if event.type == mjproto.EVENT_TYPE_DISCARD_FROM_HAND and event.who == abs_pos:  # 手出し
-            if events[i - 1].type == mjproto.EVENT_TYPE_RIICHI:  # 一つ前のeventがriichiかどうか
+        if event.type == mjxproto.EVENT_TYPE_DISCARD_FROM_HAND and event.who == abs_pos:  # 手出し
+            if events[i - 1].type == mjxproto.EVENT_TYPE_RIICHI:  # 一つ前のeventがriichiかどうか
                 discards.append("r" + str(_change_tile_fmt(event.tile)))
             else:
                 discards.append(_change_tile_fmt(event.tile))
-        elif event.type == mjproto.EVENT_TYPE_DISCARD_DRAWN_TILE and event.who == abs_pos:  # ツモギリ
-            if events[i - 1].type == mjproto.EVENT_TYPE_RIICHI:  # 一つ前のeventがriichiかどうか
+        elif event.type == mjxproto.EVENT_TYPE_DISCARD_DRAWN_TILE and event.who == abs_pos:  # ツモギリ
+            if events[i - 1].type == mjxproto.EVENT_TYPE_RIICHI:  # 一つ前のeventがriichiかどうか
                 discards.append("r60")
             else:
                 discards.append(60)
-        elif event.type == mjproto.EVENT_TYPE_KAN_CLOSED and event.who == abs_pos:
+        elif event.type == mjxproto.EVENT_TYPE_KAN_CLOSED and event.who == abs_pos:
             discards.append(_change_action_format(event.open))
-        elif event.type == mjproto.EVENT_TYPE_KAN_ADDED and event.who == abs_pos:
+        elif event.type == mjxproto.EVENT_TYPE_KAN_ADDED and event.who == abs_pos:
             discards.append(_change_action_format(event.open))
         elif (
-            events[i - 1].type == mjproto.EVENT_TYPE_KAN_OPENED and event.who == abs_pos
+            events[i - 1].type == mjxproto.EVENT_TYPE_KAN_OPENED and event.who == abs_pos
         ):  # 明槓のあと捨て牌の情報に情報のない0が追加される。
             discards.append(0)
     return discards
@@ -142,7 +142,7 @@ def parse_discards(events, abs_pos: int):
 def parse_draws(draws, events, abs_pos):
     """
     - mjscoreでは引いた牌のリストにチーやポンなどのアクションが含まれている
-    - mjprotoの　drawsでは単に飛ばされていて、eventの方に情報がある
+    - mjxprotoの　drawsでは単に飛ばされていて、eventの方に情報がある
 
     方針
     1. チーポンも含めたdiscardsを作成
@@ -152,21 +152,21 @@ def parse_draws(draws, events, abs_pos):
     discards = []
     actions = []  #
     for i, event in enumerate(events):
-        if event.type == mjproto.EVENT_TYPE_DISCARD_FROM_HAND and event.who == abs_pos:  # 手出し
+        if event.type == mjxproto.EVENT_TYPE_DISCARD_FROM_HAND and event.who == abs_pos:  # 手出し
             discards.append(event.tile)
-        elif event.type == mjproto.EVENT_TYPE_DISCARD_DRAWN_TILE and event.who == abs_pos:  # ツモギリ
+        elif event.type == mjxproto.EVENT_TYPE_DISCARD_DRAWN_TILE and event.who == abs_pos:  # ツモギリ
             discards.append(60)
-        elif event.type == mjproto.EVENT_TYPE_CHI and event.who == abs_pos:  # チー
+        elif event.type == mjxproto.EVENT_TYPE_CHI and event.who == abs_pos:  # チー
             discards.append(event.open)
             actions.append(event.open)
-        elif event.type == mjproto.EVENT_TYPE_PON and event.who == abs_pos:  # ポン
+        elif event.type == mjxproto.EVENT_TYPE_PON and event.who == abs_pos:  # ポン
             discards.append(event.open)
             actions.append(event.open)
-        elif event.type == mjproto.EVENT_TYPE_KAN_OPENED and event.who == abs_pos:  # 明槓
+        elif event.type == mjxproto.EVENT_TYPE_KAN_OPENED and event.who == abs_pos:  # 明槓
             discards.append(event.open)
             actions.append(event.open)
         elif (
-            event.type == mjproto.EVENT_TYPE_KAN_CLOSED and event.who == abs_pos
+            event.type == mjxproto.EVENT_TYPE_KAN_CLOSED and event.who == abs_pos
         ):  # 捨て牌の情報には暗槓も含まれているので、追加しないとずれる。
             discards.append(_change_action_format(event.open))
     for i, action in enumerate(actions):
@@ -312,7 +312,7 @@ def _winner_point(who: int, from_who: int, fans: List[int], fu: int, ten: int, r
         else:
             return _fan_fu(who, fans, fu, ten, round) + non_dealer_tsumo_dict[ten] + "点"
     else:
-        if who == mjproto.ABSOLUTE_POS_INIT_EAST:
+        if who == mjxproto.ABSOLUTE_POS_INIT_EAST:
             return _fan_fu(who, fans, fu, ten, round) + str(ten) + "点"
         else:
             return _fan_fu(who, fans, fu, ten, round) + str(ten) + "点"
@@ -363,7 +363,7 @@ def _winner_yakus(yakus: List[int], fans: List[int], yakumans: List[int]) -> Lis
     return _correspond_yakus(yaku_dict, yakus, fans)
 
 
-def _yaku_point_info(state: mjproto.State, winner_num: int):
+def _yaku_point_info(state: mjxproto.State, winner_num: int):
     round = state.init_score.round
     who = state.terminal.wins[winner_num].who
     from_who = state.terminal.wins[winner_num].from_who
@@ -380,7 +380,7 @@ def _yaku_point_info(state: mjproto.State, winner_num: int):
     return yaku_point_infos
 
 
-def parse_terminal(state: mjproto.State):
+def parse_terminal(state: mjxproto.State):
     if len(state.terminal.wins) == 0:  # あがった人がいない場合,# state.terminal.winsの長さは0
         ten_changes = [i for i in state.terminal.no_winner.ten_changes]
         if state.terminal.no_winner.type == 0:
@@ -401,7 +401,7 @@ def parse_terminal(state: mjproto.State):
         return terminal_info
 
 
-def determine_ura_doras_list(state: mjproto.State) -> List:
+def determine_ura_doras_list(state: mjxproto.State) -> List:
     if len(state.terminal.wins) == 0:  # あがり者の有無でウラどらが表示されるかどうかが決まる
         return []
     has_riichi = 1 not in state.terminal.wins[0].yakus and 21 not in state.terminal.wins[0].yakus
@@ -411,7 +411,7 @@ def determine_ura_doras_list(state: mjproto.State) -> List:
 
 
 # ここを実装
-def mjproto_to_mjscore(state: mjproto.State) -> str:
+def mjxproto_to_mjscore(state: mjxproto.State) -> str:
     round: int = state.init_score.round
     honba: int = state.init_score.honba
     riichi: int = state.init_score.riichi
@@ -420,10 +420,10 @@ def mjproto_to_mjscore(state: mjproto.State) -> str:
     init_score: List[int] = [i for i in state.init_score.ten]
     log = [[round, honba, riichi], init_score, doras, ura_doras]
     absolute_pos = [
-        mjproto.ABSOLUTE_POS_INIT_EAST,
-        mjproto.ABSOLUTE_POS_INIT_SOUTH,
-        mjproto.ABSOLUTE_POS_INIT_WEST,
-        mjproto.ABSOLUTE_POS_INIT_NORTH,
+        mjxproto.ABSOLUTE_POS_INIT_EAST,
+        mjxproto.ABSOLUTE_POS_INIT_SOUTH,
+        mjxproto.ABSOLUTE_POS_INIT_WEST,
+        mjxproto.ABSOLUTE_POS_INIT_NORTH,
     ]
     for abs_pos in absolute_pos:
         log.append(sort_init_hand(_change_tiles_fmt(state.private_infos[abs_pos].init_hand)))

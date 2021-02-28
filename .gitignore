@@ -5,8 +5,8 @@ build/*
 mjx/external_libs/*
 docker-build/*
 test/lib/*
-mjconvert/mjproto/*pb2*
-mjconvert/mjproto/__pycache__/*
+mjconvert/mjxproto/*pb2*
+mjconvert/mjxproto/__pycache__/*
 mjconvert/.idea
 mjconvert/venv
 mjconvert/__pycache__
