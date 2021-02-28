@@ -36,17 +36,17 @@ pytest: proto
 
 test-cli: uninstall clean install
 	echo "From mjlog => mjxproto"
-	cat mjconvert/tests/resources/mjlog/*.mjlog | mjconvert --to-mjxproto --verbose | wc -l
-	cat mjconvert/tests/resources/mjlog/*.mjlog | mjconvert --to-mjxproto --compress --verbose | wc -l
-	cat mjconvert/tests/resources/mjlog/*.mjlog | mjconvert --to-mjxproto-raw --verbose | wc -l
-	mjconvert mjconvert/tests/resources/mjlog mjconvert/tests/resources/mjxproto --to-mjxproto --verbose && cat mjconvert/tests/resources/mjxproto/* | wc -l
+	cat mjconvert/tests/resources/mjlog/*.mjlog | mjconvert --to-mjxproto --verbose && wc -l
+	cat mjconvert/tests/resources/mjlog/*.mjlog | mjconvert --to-mjxproto --compress --verbose && wc -l
+	cat mjconvert/tests/resources/mjlog/*.mjlog | mjconvert --to-mjxproto-raw --verbose && wc -l
+	mjconvert mjconvert/tests/resources/mjlog mjconvert/tests/resources/mjxproto --to-mjxproto --verbose && cat mjconvert/tests/resources/mjxproto/* && wc -l
 	rm mjconvert/tests/resources/mjxproto/*.json
-	mjconvert mjconvert/tests/resources/mjlog mjconvert/tests/resources/mjxproto --to-mjxproto --compress --verbose && cat mjconvert/tests/resources/mjxproto/* | wc -l
+	mjconvert mjconvert/tests/resources/mjlog mjconvert/tests/resources/mjxproto --to-mjxproto --compress --verbose && cat mjconvert/tests/resources/mjxproto/* && wc -l
 	rm mjconvert/tests/resources/mjxproto/*.json
-	mjconvert mjconvert/tests/resources/mjlog mjconvert/tests/resources/mjxproto --to-mjxproto-raw --verbose && cat mjconvert/tests/resources/mjxproto/* | wc -l
+	mjconvert mjconvert/tests/resources/mjlog mjconvert/tests/resources/mjxproto --to-mjxproto-raw --verbose && cat mjconvert/tests/resources/mjxproto/* && wc -l
 	echo "From mjxproto => mjlog_recovered"
 	cat mjconvert/tests/resources/mjxproto/*.json | mjconvert --to-mjlog --verbose | wc -l
-	mjconvert mjconvert/tests/resources/mjxproto mjconvert/tests/resources/mjlog_recovered --to-mjlog --verbose && cat mjconvert/tests/resources/mjlog_recovered/* | wc -l
+	mjconvert mjconvert/tests/resources/mjxproto mjconvert/tests/resources/mjlog_recovered --to-mjlog --verbose && cat mjconvert/tests/resources/mjlog_recovered/* && wc -l
 	echo "Check diff"
 	python3 mjconvert/diff.py mjconvert/tests/resources/mjlog mjconvert/tests/resources/mjlog_recovered
 	echo "Clean up"
