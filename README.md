@@ -2,7 +2,7 @@
 
 # Mjx
 
-**注: このREADMEで書いてある内容はあくまで最終目標で、まだ未実装**
+**注: このREADMEで書いてある内容はあくまで最終目標で、まだ未実装。前のREADMEはdocsへ移動**
 
 Mjx is a Mahjong environment for AI research and development.
 It implements [Japanese (Riichi) Mahjong](https://en.wikipedia.org/wiki/Japanese_Mahjong), one of the most popular variants of Mahjong in the world.
