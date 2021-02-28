@@ -71,14 +71,18 @@ class LineBuffer:
             return
         if self.fmt_.startswith("mjxproto"):
             cnt = line.count("initScore")
-            assert cnt == 1, f"Each line should only has one round but has {cnt}"
+            assert (
+                cnt == 1
+            ), f"Each line should only has one round but has {cnt}\nInput file may miss the last newline character."
             if LineBuffer.is_new_round_(line) and len(self.curr_) != 0:
                 self.buffer_.append(self.curr_)
                 self.curr_ = []
             self.curr_.append(line)
         elif self.fmt_ == "mjlog":
             cnt = line.count("</mjloggm>")
-            assert cnt == 1, f"Each line should only has one game but has {cnt}"
+            assert (
+                cnt == 1
+            ), f"Each line should only has one game but has {cnt}\nInput file may miss the last newline character."
             self.buffer_.append([line])  # each line corresponds to each game
 
     def get(
