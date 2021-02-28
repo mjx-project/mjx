@@ -45,7 +45,7 @@ test-cli: uninstall clean install
 	rm mjconvert/tests/resources/mjxproto/*.json
 	mjconvert mjconvert/tests/resources/mjlog mjconvert/tests/resources/mjxproto --to-mjxproto-raw --verbose && cat mjconvert/tests/resources/mjxproto/* && wc -l
 	echo "From mjxproto => mjlog_recovered"
-	cat mjconvert/tests/resources/mjxproto/*.json | mjconvert --to-mjlog --verbose | wc -l
+	cat mjconvert/tests/resources/mjxproto/*.json | mjconvert --to-mjlog --verbose && wc -l
 	mjconvert mjconvert/tests/resources/mjxproto mjconvert/tests/resources/mjlog_recovered --to-mjlog --verbose && cat mjconvert/tests/resources/mjlog_recovered/* && wc -l
 	echo "Check diff"
 	python3 mjconvert/diff.py mjconvert/tests/resources/mjlog mjconvert/tests/resources/mjlog_recovered
