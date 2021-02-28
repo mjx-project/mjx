@@ -10,7 +10,6 @@ mjconvert/mjxproto/__pycache__/*
 mjconvert/.idea
 mjconvert/venv
 mjconvert/__pycache__
-mjconvert/mjconvert/tests/resources/*
 mjconvert/build
 mjconvert/dist
 mjconvert/mjconvert.egg-info
