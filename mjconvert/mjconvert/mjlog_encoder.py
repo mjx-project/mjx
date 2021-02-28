@@ -199,7 +199,10 @@ class MjlogEncoder:
 
     @staticmethod
     def update_by_win(
-        win: mjxproto.Win, state: mjxproto.State, curr_score: mjxproto.Score, under_riichi: List[bool]
+        win: mjxproto.Win,
+        state: mjxproto.State,
+        curr_score: mjxproto.Score,
+        under_riichi: List[bool],
     ) -> str:
         ret = "<AGARI "
         ret += f'ba="{curr_score.honba},{curr_score.riichi}" '
