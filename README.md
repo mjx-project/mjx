@@ -2,10 +2,23 @@
 
 # Mjx
 
+**注: このREADMEで書いてある内容はあくまで最終目標で、まだ未実装**
+
 Mjx is a Mahjong environment for AI research and development.
 It supports [Japanese (Riichi) Mahjong](https://en.wikipedia.org/wiki/Japanese_Mahjong), one of the most popular variants of Mahjong in the world.
 
+## Features
+
+- **Blazingly fast.** 
+  - 100x faster than existing OSS simulators. See [benchmark]().
+- **Tenhou compatible.** 
+  - Implemented rule is compatible with that of [Tenhou](https://tenhou.net/).
+- **Gym-like API supported.** 
+  - Mjx supports [PettingZoo](https://github.com/PettingZoo-Team/PettingZoo) API, which provides [gym](https://github.com/openai/gym)-like API for multi-agent games.
+
 ## Quick start
+
+Mjx supports Python and C++17.
 
 
 <table>
@@ -50,8 +63,27 @@ void main() {
 </tr>
 </table>
 
-## Features
+## Install
 
-- **Blazingly fast.** 100x faster than existing OSS simulators.
-- **[Tenhou](https://tenhou.net/) (天鳳) compatible rule.** One of the most popular variant in the world.
-- **Gym-like API supported.** Mjx supports [PettingZoo](https://github.com/PettingZoo-Team/PettingZoo) API, which provides [gym](https://github.com/openai/gym)-like API for multi-agent games.
+### Docker
+
+
+```sh
+$ docker pull mjx-project/mjx:latest
+```
+
+### For Python
+
+```sh
+$ pip install mjx
+```
+
+### For C++
+
+```$
+$ make build
+$ make test
+```
+
+## LICENSE
+TBA
