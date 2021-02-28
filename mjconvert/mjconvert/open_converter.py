@@ -2,52 +2,52 @@ from __future__ import annotations  # postpone type hint evaluation or doctest f
 
 from typing import List
 
-import mjproto
+import mjxproto
 
 
-def open_event_type(bits: int) -> mjproto.EventTypeValue:
+def open_event_type(bits: int) -> mjxproto.EventTypeValue:
     """
-    >>> open_event_type(47723) == mjproto.EVENT_TYPE_PON
+    >>> open_event_type(47723) == mjxproto.EVENT_TYPE_PON
     True
-    >>> open_event_type(49495) == mjproto.EVENT_TYPE_CHI
+    >>> open_event_type(49495) == mjxproto.EVENT_TYPE_CHI
     True
-    >>> open_event_type(28722) == mjproto.EVENT_TYPE_KAN_ADDED
+    >>> open_event_type(28722) == mjxproto.EVENT_TYPE_KAN_ADDED
     True
     """
     if 1 << 2 & bits:
-        return mjproto.EVENT_TYPE_CHI
+        return mjxproto.EVENT_TYPE_CHI
     elif 1 << 3 & bits:
-        return mjproto.EVENT_TYPE_PON
+        return mjxproto.EVENT_TYPE_PON
     elif 1 << 4 & bits:
-        return mjproto.EVENT_TYPE_KAN_ADDED
+        return mjxproto.EVENT_TYPE_KAN_ADDED
     else:
-        if mjproto.RELATIVE_POS_SELF == bits & 3:
-            return mjproto.EVENT_TYPE_KAN_CLOSED
+        if mjxproto.RELATIVE_POS_SELF == bits & 3:
+            return mjxproto.EVENT_TYPE_KAN_CLOSED
         else:
-            return mjproto.EVENT_TYPE_KAN_OPENED
+            return mjxproto.EVENT_TYPE_KAN_OPENED
 
 
-def open_from(bits: int) -> mjproto.RelativePosValue:
+def open_from(bits: int) -> mjxproto.RelativePosValue:
     """
-    >>> open_from(51306) == mjproto.RELATIVE_POS_MID  # 対面
+    >>> open_from(51306) == mjxproto.RELATIVE_POS_MID  # 対面
     True
-    >>> open_from(49495) == mjproto.RELATIVE_POS_LEFT  # 上家
+    >>> open_from(49495) == mjxproto.RELATIVE_POS_LEFT  # 上家
     True
-    >>> open_from(28722) == mjproto.RELATIVE_POS_MID  # 加槓
+    >>> open_from(28722) == mjxproto.RELATIVE_POS_MID  # 加槓
     True
     """
 
     event_type = open_event_type(bits)
-    if event_type == mjproto.EVENT_TYPE_CHI:
-        return mjproto.RELATIVE_POS_LEFT
+    if event_type == mjxproto.EVENT_TYPE_CHI:
+        return mjxproto.RELATIVE_POS_LEFT
     elif (
-        event_type == mjproto.EVENT_TYPE_PON
-        or event_type == mjproto.EVENT_TYPE_KAN_OPENED
-        or event_type == mjproto.EVENT_TYPE_KAN_ADDED
+        event_type == mjxproto.EVENT_TYPE_PON
+        or event_type == mjxproto.EVENT_TYPE_KAN_OPENED
+        or event_type == mjxproto.EVENT_TYPE_KAN_ADDED
     ):
-        return mjproto.RelativePos.values()[bits & 3]
+        return mjxproto.RelativePos.values()[bits & 3]
     else:
-        return mjproto.RELATIVE_POS_SELF
+        return mjxproto.RELATIVE_POS_SELF
 
 
 def _min_tile_chi(bits: int) -> int:
@@ -69,11 +69,11 @@ def is_stolen_red(bits: int, stolen_tile_kind) -> bool:  # TODO: test  さらに
     if stolen_tile_kind not in fives:
         return False
 
-    if event_type == mjproto.EVENT_TYPE_CHI:
+    if event_type == mjxproto.EVENT_TYPE_CHI:
         stolen_tile_mod3 = (bits >> 10) % 3  # 鳴いた牌のindex
         stolen_tile_id_mod4 = (bits >> (3 + 2 * stolen_tile_mod3)) % 4  # 鳴いた牌のi
         return stolen_tile_id_mod4 == 0  # 鳴いた牌のid mod 4=0→赤
-    elif event_type == mjproto.EVENT_TYPE_PON or event_type == mjproto.EVENT_TYPE_KAN_ADDED:
+    elif event_type == mjxproto.EVENT_TYPE_PON or event_type == mjxproto.EVENT_TYPE_KAN_ADDED:
         unused_id_mod4 = (bits >> 5) % 4  # 未使用牌のid mod 4
         stolen_tile_mod3 = (bits >> 9) % 3  # 鳴いた牌のindex
         return unused_id_mod4 != 0 and stolen_tile_mod3 == 0  # 未使用牌が赤でなく、鳴いた牌のインデックスが0の時→赤
@@ -127,9 +127,9 @@ def has_red(bits: int) -> bool:
     True
     """
     event_type = open_event_type(bits)
-    if event_type == mjproto.EVENT_TYPE_CHI:
+    if event_type == mjxproto.EVENT_TYPE_CHI:
         return has_red_chi(bits)
-    elif event_type == mjproto.EVENT_TYPE_PON or event_type == mjproto.EVENT_TYPE_KAN_ADDED:
+    elif event_type == mjxproto.EVENT_TYPE_PON or event_type == mjxproto.EVENT_TYPE_KAN_ADDED:
         return has_red_pon_kan_added(bits)
     else:
         return has_red_kan_closed_kan_opend(bits)  # ダイミンカンとアンカンは必ず赤を含む
@@ -145,14 +145,14 @@ def transform_red_stolen(bits: int, stolen_tile: int) -> int:
 
 def transform_red_open(bits: int, open: List[int], event_type) -> List[int]:
     """
-    >>> transform_red_open(52503, [21, 22, 23], mjproto.EVENT_TYPE_CHI)
+    >>> transform_red_open(52503, [21, 22, 23], mjxproto.EVENT_TYPE_CHI)
     [21, 53, 23]
     """
     red_dict = {4: 51, 13: 52, 22: 53}
     fives = [4, 13, 22]
     if not has_red(bits):
         return open
-    if event_type == mjproto.EVENT_TYPE_CHI:
+    if event_type == mjxproto.EVENT_TYPE_CHI:
         return [red_dict[i] if i in fives else i for i in open]
     else:
         open[-1] = red_dict[open[-1]]
@@ -171,11 +171,11 @@ def open_stolen_tile_type(bits: int) -> int:
     31
     """
     event_type = open_event_type(bits)
-    if event_type == mjproto.EVENT_TYPE_CHI:
+    if event_type == mjxproto.EVENT_TYPE_CHI:
         min_tile = _min_tile_chi(bits)
         stolen_tile_kind = min_tile + (bits >> 10) % 3
         return transform_red_stolen(bits, stolen_tile_kind)
-    elif event_type == mjproto.EVENT_TYPE_PON or event_type == mjproto.EVENT_TYPE_KAN_ADDED:
+    elif event_type == mjxproto.EVENT_TYPE_PON or event_type == mjxproto.EVENT_TYPE_KAN_ADDED:
         stolen_tile_kind = (bits >> 9) // 3
         return transform_red_stolen(bits, stolen_tile_kind)
     else:
@@ -197,7 +197,7 @@ def open_tile_types(bits: int) -> List[int]:
     reds = [51, 52, 53]
     red_five_dict = {51: 4, 52: 13, 53: 22}
     event_type = open_event_type(bits)
-    if event_type == mjproto.EVENT_TYPE_CHI:
+    if event_type == mjxproto.EVENT_TYPE_CHI:
         min_tile = _min_tile_chi(bits)
         open = [min_tile, min_tile + 1, min_tile + 2]
         return transform_red_open(bits, open, event_type)
@@ -206,7 +206,7 @@ def open_tile_types(bits: int) -> List[int]:
         stolen_tile_kind = red_five_dict[stolen_tile_kind]
     else:
         None
-    if event_type == mjproto.EVENT_TYPE_PON:
+    if event_type == mjxproto.EVENT_TYPE_PON:
         open = [stolen_tile_kind] * 3
         return transform_red_open(bits, open, event_type)
     else:

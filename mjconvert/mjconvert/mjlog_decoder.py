@@ -14,19 +14,19 @@ from xml.etree.ElementTree import Element
 import pkg_resources
 from google.protobuf import json_format
 
-import mjproto
+import mjxproto
 
 SEED_CACHE_DIR = os.path.join(os.environ["HOME"], ".mjconvert/seed_cache")
 
 
 class MjlogDecoder:
     def __init__(self, modify: bool):
-        self.state: mjproto.State = mjproto.State()
+        self.state: mjxproto.State = mjxproto.State()
         self.modify = modify
-        self.last_drawer: Optional[mjproto.AbsolutePosValue] = None
+        self.last_drawer: Optional[mjxproto.AbsolutePosValue] = None
         self.last_draw: Optional[int] = None
 
-    def to_states(self, mjlog_str: str, store_cache=False) -> List[mjproto.State]:
+    def to_states(self, mjlog_str: str, store_cache=False) -> List[mjxproto.State]:
         wall_dices = reproduce_wall_from_mjlog(mjlog_str, store_cache=store_cache)
         root = ET.fromstring(mjlog_str)
         ret = []
@@ -56,8 +56,8 @@ class MjlogDecoder:
 
     def _parse_each_game(
         self, root: Element, wall_dices: List[Tuple[List[int], List[int]]], modify: bool
-    ) -> Iterator[mjproto.State]:
-        state_ = mjproto.State()
+    ) -> Iterator[mjxproto.State]:
+        state_ = mjxproto.State()
 
         # set seed
         state_.game_seed = 0
@@ -102,7 +102,7 @@ class MjlogDecoder:
         wall: List[int],
         dices: List[int],
         modify: bool,
-    ) -> Iterator[mjproto.State]:
+    ) -> Iterator[mjxproto.State]:
         """Input examples
 
         - <INIT seed="0,0,0,2,2,112" ten="250,250,250,250" oya="0" hai0="48,16,19,34,2,76,13,7,128,1,39,121,87" hai1="17,62,79,52,56,57,82,98,32,103,24,70,54" hai2="55,30,12,26,31,90,3,4,80,125,66,102,78" hai3="120,130,42,67,114,93,5,61,20,108,41,100,84"/>
@@ -139,8 +139,8 @@ class MjlogDecoder:
         assert dora == wall[130]
         for i in range(4):
             self.state.private_infos.append(
-                mjproto.PrivateInfo(
-                    who=mjproto.AbsolutePos.values()[i],
+                mjxproto.PrivateInfo(
+                    who=mjxproto.AbsolutePos.values()[i],
                     init_hand=[int(x) for x in val["hai" + str(i)].split(",")],
                 )
             )
@@ -167,24 +167,24 @@ class MjlogDecoder:
                 )
                 self.last_drawer, self.last_draw = None, None
             elif key == "N":  # open
-                who = mjproto.AbsolutePos.values()[int(val["who"])]
+                who = mjxproto.AbsolutePos.values()[int(val["who"])]
                 open = int(val["m"])
-                event = mjproto.Event(
-                    who=mjproto.AbsolutePos.values()[who],
+                event = mjxproto.Event(
+                    who=mjxproto.AbsolutePos.values()[who],
                     type=MjlogDecoder._open_type(open),
                     open=open,
                 )
             elif key == "REACH":
-                who = mjproto.AbsolutePos.values()[int(val["who"])]
+                who = mjxproto.AbsolutePos.values()[int(val["who"])]
                 if int(val["step"]) == 1:
-                    event = mjproto.Event(
-                        who=mjproto.AbsolutePos.values()[who],
-                        type=mjproto.EVENT_TYPE_RIICHI,
+                    event = mjxproto.Event(
+                        who=mjxproto.AbsolutePos.values()[who],
+                        type=mjxproto.EVENT_TYPE_RIICHI,
                     )
                 else:
-                    event = mjproto.Event(
-                        who=mjproto.AbsolutePos.values()[who],
-                        type=mjproto.EVENT_TYPE_RIICHI_SCORE_CHANGE,
+                    event = mjxproto.Event(
+                        who=mjxproto.AbsolutePos.values()[who],
+                        type=mjxproto.EVENT_TYPE_RIICHI_SCORE_CHANGE,
                     )
                     self.state.terminal.final_score.riichi += 1
                     self.state.terminal.final_score.ten[who] -= 1000
@@ -195,22 +195,22 @@ class MjlogDecoder:
                 num_kan_dora += 1
                 self.state.doras.append(dora)
                 self.state.ura_doras.append(ura_dora)
-                event = mjproto.Event(type=mjproto.EVENT_TYPE_NEW_DORA, tile=dora)
+                event = mjxproto.Event(type=mjxproto.EVENT_TYPE_NEW_DORA, tile=dora)
             elif key == "RYUUKYOKU":
                 reach_terminal = True
                 self.state.terminal.CopyFrom(
                     MjlogDecoder.update_terminal_by_no_winner(self.state.terminal, val)
                 )
-                event = mjproto.Event(type=mjproto.EVENT_TYPE_NO_WINNER)
+                event = mjxproto.Event(type=mjxproto.EVENT_TYPE_NO_WINNER)
             elif key == "AGARI":
                 reach_terminal = True
                 ba, riichi = [int(x) for x in val["ba"].split(",")]
-                who = mjproto.AbsolutePos.values()[int(val["who"])]
-                from_who = mjproto.AbsolutePos.values()[int(val["fromWho"])]
+                who = mjxproto.AbsolutePos.values()[int(val["who"])]
+                from_who = mjxproto.AbsolutePos.values()[int(val["fromWho"])]
                 # set event
-                event = mjproto.Event(
-                    who=mjproto.AbsolutePos.values()[who],
-                    type=mjproto.EVENT_TYPE_TSUMO if who == from_who else mjproto.EVENT_TYPE_RON,
+                event = mjxproto.Event(
+                    who=mjxproto.AbsolutePos.values()[who],
+                    type=mjxproto.EVENT_TYPE_TSUMO if who == from_who else mjxproto.EVENT_TYPE_RON,
                     tile=int(val["machi"]),
                 )
                 win = MjlogDecoder.make_win(val, who, from_who, modify)
@@ -246,8 +246,8 @@ class MjlogDecoder:
 
     @staticmethod
     def update_terminal_by_win(
-        terminal: mjproto.Terminal, win: mjproto.Win, val: Dict[str, str]
-    ) -> mjproto.Terminal:
+        terminal: mjxproto.Terminal, win: mjxproto.Win, val: Dict[str, str]
+    ) -> mjxproto.Terminal:
         for i in range(4):
             terminal.final_score.ten[i] += win.ten_changes[i]
         terminal.final_score.riichi = 0
@@ -258,8 +258,8 @@ class MjlogDecoder:
 
     @staticmethod
     def update_terminal_by_no_winner(
-        terminal: mjproto.Terminal, val: Dict[str, str]
-    ) -> mjproto.Terminal:
+        terminal: mjxproto.Terminal, val: Dict[str, str]
+    ) -> mjxproto.Terminal:
         ba, riichi = [int(x) for x in val["ba"].split(",")]
         terminal.no_winner.ten_changes[:] = [
             int(x) * 100 for i, x in enumerate(val["sc"].split(",")) if i % 2 == 1
@@ -271,8 +271,8 @@ class MjlogDecoder:
             if hai_key not in val:
                 continue
             terminal.no_winner.tenpais.append(
-                mjproto.TenpaiHand(
-                    who=mjproto.AbsolutePos.values()[i],
+                mjxproto.TenpaiHand(
+                    who=mjxproto.AbsolutePos.values()[i],
                     closed_tiles=[int(x) for x in val[hai_key].split(",")],
                 )
             )
@@ -294,20 +294,20 @@ class MjlogDecoder:
 
     @staticmethod
     def make_discard_event(
-        who: mjproto.AbsolutePosValue,
+        who: mjxproto.AbsolutePosValue,
         discard: int,
-        last_drawer: Optional[mjproto.AbsolutePosValue],
+        last_drawer: Optional[mjxproto.AbsolutePosValue],
         last_draw: Optional[int],
-    ) -> mjproto.Event:
-        type_ = mjproto.EVENT_TYPE_DISCARD_FROM_HAND
+    ) -> mjxproto.Event:
+        type_ = mjxproto.EVENT_TYPE_DISCARD_FROM_HAND
         if (
             last_drawer is not None
             and last_draw is not None
             and last_drawer == who
             and last_draw == discard
         ):
-            type_ = mjproto.EVENT_TYPE_DISCARD_DRAWN_TILE
-        event = mjproto.Event(
+            type_ = mjxproto.EVENT_TYPE_DISCARD_DRAWN_TILE
+        event = mjxproto.Event(
             who=who,
             type=type_,
             tile=discard,
@@ -315,28 +315,28 @@ class MjlogDecoder:
         return event
 
     @staticmethod
-    def parse_discard(key: str) -> Tuple[mjproto.AbsolutePosValue, int]:
+    def parse_discard(key: str) -> Tuple[mjxproto.AbsolutePosValue, int]:
         who = MjlogDecoder._to_absolute_pos(key[0])
         discard = int(key[1:])
         return who, discard
 
     @staticmethod
-    def parse_no_winner_type(val: Dict[str, str]) -> mjproto.NoWinnerTypeValue:
-        no_winner_type: mjproto.NoWinnerTypeValue
+    def parse_no_winner_type(val: Dict[str, str]) -> mjxproto.NoWinnerTypeValue:
+        no_winner_type: mjxproto.NoWinnerTypeValue
         if val["type"] == "yao9":
-            no_winner_type = mjproto.NO_WINNER_TYPE_KYUUSYU
+            no_winner_type = mjxproto.NO_WINNER_TYPE_KYUUSYU
         elif val["type"] == "reach4":
-            no_winner_type = mjproto.NO_WINNER_TYPE_FOUR_RIICHI
+            no_winner_type = mjxproto.NO_WINNER_TYPE_FOUR_RIICHI
         elif val["type"] == "ron3":
-            no_winner_type = mjproto.NO_WINNER_TYPE_THREE_RONS
+            no_winner_type = mjxproto.NO_WINNER_TYPE_THREE_RONS
         elif val["type"] == "kan4":
-            no_winner_type = mjproto.NO_WINNER_TYPE_FOUR_KANS
+            no_winner_type = mjxproto.NO_WINNER_TYPE_FOUR_KANS
         elif val["type"] == "kan4":
-            no_winner_type = mjproto.NO_WINNER_TYPE_FOUR_KANS
+            no_winner_type = mjxproto.NO_WINNER_TYPE_FOUR_KANS
         elif val["type"] == "kaze4":
-            no_winner_type = mjproto.NO_WINNER_TYPE_FOUR_WINDS
+            no_winner_type = mjxproto.NO_WINNER_TYPE_FOUR_WINDS
         elif val["type"] == "nm":
-            no_winner_type = mjproto.NO_WINNER_TYPE_NM
+            no_winner_type = mjxproto.NO_WINNER_TYPE_NM
         else:
             assert False
         return no_winner_type
@@ -344,16 +344,16 @@ class MjlogDecoder:
     @staticmethod
     def make_win(
         val: Dict[str, str],
-        who: mjproto.AbsolutePosValue,
-        from_who: mjproto.AbsolutePosValue,
+        who: mjxproto.AbsolutePosValue,
+        from_who: mjxproto.AbsolutePosValue,
         modify: bool,
-    ) -> mjproto.Win:
+    ) -> mjxproto.Win:
         # set win info
         # TODO(sotetsuk): yakuman
         # TODO(sotetsuk): check double ron behavior
-        win = mjproto.Win(
-            who=mjproto.AbsolutePos.values()[who],
-            from_who=mjproto.AbsolutePos.values()[from_who],
+        win = mjxproto.Win(
+            who=mjxproto.AbsolutePos.values()[who],
+            from_who=mjxproto.AbsolutePos.values()[from_who],
             closed_tiles=[int(x) for x in val["hai"].split(",")],
             win_tile=int(val["machi"]),
         )
@@ -383,46 +383,46 @@ class MjlogDecoder:
         return win
 
     @staticmethod
-    def parse_draw(key: str) -> Tuple[mjproto.AbsolutePosValue, int]:
+    def parse_draw(key: str) -> Tuple[mjxproto.AbsolutePosValue, int]:
         who = MjlogDecoder._to_absolute_pos(key[0])
         draw = int(key[1:])
         return who, draw
 
     @staticmethod
-    def make_draw_event(who: mjproto.AbsolutePosValue) -> mjproto.Event:
-        event = mjproto.Event(
+    def make_draw_event(who: mjxproto.AbsolutePosValue) -> mjxproto.Event:
+        event = mjxproto.Event(
             who=who,
-            type=mjproto.EVENT_TYPE_DRAW,
+            type=mjxproto.EVENT_TYPE_DRAW,
             # tile is set empty because this is private information
         )
         return event
 
     @staticmethod
-    def _to_absolute_pos(pos_str: str) -> mjproto.AbsolutePosValue:
+    def _to_absolute_pos(pos_str: str) -> mjxproto.AbsolutePosValue:
         assert pos_str in ["T", "U", "V", "W", "D", "E", "F", "G"]
         if pos_str in ["T", "D"]:
-            return mjproto.ABSOLUTE_POS_INIT_EAST
+            return mjxproto.ABSOLUTE_POS_INIT_EAST
         elif pos_str in ["U", "E"]:
-            return mjproto.ABSOLUTE_POS_INIT_SOUTH
+            return mjxproto.ABSOLUTE_POS_INIT_SOUTH
         elif pos_str in ["V", "F"]:
-            return mjproto.ABSOLUTE_POS_INIT_WEST
+            return mjxproto.ABSOLUTE_POS_INIT_WEST
         elif pos_str in ["W", "G"]:
-            return mjproto.ABSOLUTE_POS_INIT_NORTH
+            return mjxproto.ABSOLUTE_POS_INIT_NORTH
         assert False
 
     @staticmethod
-    def _open_type(bits: int) -> mjproto.EventTypeValue:
+    def _open_type(bits: int) -> mjxproto.EventTypeValue:
         if 1 << 2 & bits:
-            return mjproto.EVENT_TYPE_CHI
+            return mjxproto.EVENT_TYPE_CHI
         elif 1 << 3 & bits:
-            return mjproto.EVENT_TYPE_PON
+            return mjxproto.EVENT_TYPE_PON
         elif 1 << 4 & bits:
-            return mjproto.EVENT_TYPE_KAN_ADDED
+            return mjxproto.EVENT_TYPE_KAN_ADDED
         else:
-            if mjproto.RELATIVE_POS_SELF == bits & 3:
-                return mjproto.EVENT_TYPE_KAN_CLOSED
+            if mjxproto.RELATIVE_POS_SELF == bits & 3:
+                return mjxproto.EVENT_TYPE_KAN_CLOSED
             else:
-                return mjproto.EVENT_TYPE_KAN_OPENED
+                return mjxproto.EVENT_TYPE_KAN_OPENED
 
 
 def reproduce_wall_from_mjlog(

@@ -4,7 +4,7 @@
 #include <utility>
 #include <array>
 
-#include "mj.pb.h"
+#include "mjx.pb.h"
 #include "hand.h"
 #include "action.h"
 
@@ -14,25 +14,25 @@ namespace mjx
     {
     public:
         Observation() = default;
-        Observation(const mjproto::Observation& proto);
+        Observation(const mjxproto::Observation& proto);
 
         AbsolutePos who() const;
         [[nodiscard]] bool has_possible_action() const;
-        [[nodiscard]] std::vector<mjproto::Action> possible_actions() const;
+        [[nodiscard]] std::vector<mjxproto::Action> possible_actions() const;
         [[nodiscard]] std::vector<Tile> possible_discards() const;
         Hand initial_hand() const;
         Hand current_hand() const;
         std::string ToJson() const;
-        const mjproto::Observation& proto() const;
+        const mjxproto::Observation& proto() const;
 
-        void add_possible_action(mjproto::Action &&possible_action);
-        void add_possible_actions(const std::vector<mjproto::Action> &possible_actions);
+        void add_possible_action(mjxproto::Action &&possible_action);
+        void add_possible_actions(const std::vector<mjxproto::Action> &possible_actions);
     private:
         // TODO: remove friends and use proto()
         friend class State;
         friend class TrainDataGenerator;
-        Observation(AbsolutePos who, const mjproto::State& state);
-        mjproto::Observation proto_ = mjproto::Observation{};
+        Observation(AbsolutePos who, const mjxproto::State& state);
+        mjxproto::Observation proto_ = mjxproto::Observation{};
     };
 }
 

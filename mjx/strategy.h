@@ -8,7 +8,7 @@ namespace mjx {
     {
     public:
         virtual ~Strategy() = default;
-        [[nodiscard]] virtual std::vector<mjproto::Action> TakeActions(std::vector<Observation> &&observations) = 0;
+        [[nodiscard]] virtual std::vector<mjxproto::Action> TakeActions(std::vector<Observation> &&observations) = 0;
     };
 }
 

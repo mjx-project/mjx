@@ -4,14 +4,14 @@
 namespace mjx
 {
     AgentGrpcClient::AgentGrpcClient(PlayerId player_id, const std::shared_ptr<grpc::Channel> &channel):
-            Agent(std::move(player_id)), stub_(mjproto::Agent::NewStub(channel)) { }
+            Agent(std::move(player_id)), stub_(mjxproto::Agent::NewStub(channel)) { }
 
-    mjproto::Action AgentGrpcClient::TakeAction(Observation &&observation) const {
+    mjxproto::Action AgentGrpcClient::TakeAction(Observation &&observation) const {
         // TODO: verify that player_id is consistent (player_id_ == observation.player_id)
         Assert(stub_);
-        const mjproto::Observation request = observation.proto();
+        const mjxproto::Observation request = observation.proto();
         const auto request_who = request.who();
-        mjproto::Action response;
+        mjxproto::Action response;
         grpc::ClientContext context;
         grpc::Status status = stub_->TakeAction(&context, request, &response);
         Assert(status.ok(), "Error code = " + std::to_string(status.error_code()) + "\nError message = " + status.error_message() + "\n");
@@ -29,23 +29,23 @@ namespace mjx
 //     );
 //
 //     // Common observation over 4 players
-//     auto common_observation = std::make_unique<mjproto::Observation_CommonObservation>();
-//     auto request1 = mjproto::Observation();
+//     auto common_observation = std::make_unique<mjxproto::Observation_CommonObservation>();
+//     auto request1 = mjxproto::Observation();
 //     request1.set_who(1);
 //     auto obs1 = std::make_unique<mjx::Observation>(request1, common_observation.get());
-//     auto request2 = mjproto::Observation();
+//     auto request2 = mjxproto::Observation();
 //     request2.set_who(2);
 //     auto obs2 = std::make_unique<mjx::Observation>(request2, common_observation.get());
 //
 //     // action1 happens
-//     auto taken_action1 = mjproto::Observation_CommonObservation_TakenAction();
+//     auto taken_action1 = mjxproto::Observation_CommonObservation_TakenAction();
 //     common_observation->mutable_taken_actions()->Add(std::move(taken_action1));
 //
 //     // take first action
 //     auto action = agent.TakeAction(std::move(obs1));
 //
 //     // action2 happens
-//     auto taken_action2 = mjproto::Observation_CommonObservation_TakenAction();
+//     auto taken_action2 = mjxproto::Observation_CommonObservation_TakenAction();
 //     common_observation->mutable_taken_actions()->Add(std::move(taken_action2));
 //
 //     // take second action

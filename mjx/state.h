@@ -13,7 +13,7 @@
 #include "event.h"
 #include "wall.h"
 #include "hand.h"
-#include "mj.grpc.pb.h"
+#include "mjx.grpc.pb.h"
 #include "utils.h"
 #include "yaku_evaluator.h"
 
@@ -41,13 +41,13 @@ namespace mjx
         State() = default;
         explicit State(ScoreInfo score_info);
         explicit State(const std::string &json_str);
-        explicit State(const mjproto::State& state);
+        explicit State(const mjxproto::State& state);
         bool IsRoundOver() const;
         bool IsGameOver() const;
-        void Update(std::vector<mjproto::Action> &&action_candidates);
+        void Update(std::vector<mjxproto::Action> &&action_candidates);
         std::unordered_map<PlayerId, Observation> CreateObservations() const;
         std::string ToJson() const;
-        mjproto::State proto() const;
+        mjxproto::State proto() const;
         GameResult result() const;
         State::ScoreInfo Next() const;
 
@@ -65,7 +65,7 @@ namespace mjx
         [[nodiscard]] std::uint8_t init_riichi() const;
         [[nodiscard]] std::array<std::int32_t, 4> init_tens() const;
         [[nodiscard]] bool HasLastEvent() const;
-        [[nodiscard]] const mjproto::Event & LastEvent() const;
+        [[nodiscard]] const mjxproto::Event & LastEvent() const;
         [[nodiscard]] std::optional<Tile> TargetTile() const;   // ロンされうる牌. 直前の捨牌or加槓した牌
         [[nodiscard]] bool IsFirstTurnWithoutOpen() const;
         [[nodiscard]] bool IsFourWinds() const;
@@ -105,8 +105,8 @@ namespace mjx
         };
 
         // protos
-        mjproto::State state_;
-        mjproto::Score curr_score_;  // Using state_.terminal.final_score gives wrong serialization when round is not finished.
+        mjxproto::State state_;
+        mjxproto::Score curr_score_;  // Using state_.terminal.final_score gives wrong serialization when round is not finished.
         // containers
         Wall wall_;
         std::array<Player, 4> players_;
@@ -122,7 +122,7 @@ namespace mjx
         [[nodiscard]] AbsolutePos top_player() const;
 
         // update
-        void Update(mjproto::Action &&action);
+        void Update(mjxproto::Action &&action);
 
         // event operations
         Tile Draw(AbsolutePos who);
@@ -148,10 +148,10 @@ namespace mjx
 
         [[nodiscard]] std::optional<HandInfo> EvalTenpai(AbsolutePos who) const noexcept ;
 
-        static mjproto::State LoadJson(const std::string &json_str) ;
+        static mjxproto::State LoadJson(const std::string &json_str) ;
 
         friend class TrainDataGenerator;
-        void UpdateByEvent(const mjproto::Event& event);
+        void UpdateByEvent(const mjxproto::Event& event);
     };
 }  // namespace mjx
 

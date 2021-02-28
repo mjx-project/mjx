@@ -7,7 +7,7 @@
 #include <map>
 #include <unordered_map>
 
-#include "mj.pb.h"
+#include "mjx.pb.h"
 
 namespace mjx {
     using TileId = std::uint8_t;  // {0, ..., 135} corresponds to mjlog format of Tenhou
@@ -106,20 +106,20 @@ namespace mjx {
     };
 
     enum class AbsolutePos : std::uint8_t {
-        kInitEast = mjproto::ABSOLUTE_POS_INIT_EAST,  // 起家
-        kInitSouth = mjproto::ABSOLUTE_POS_INIT_SOUTH,
-        kInitWest = mjproto::ABSOLUTE_POS_INIT_WEST,
-        kInitNorth = mjproto::ABSOLUTE_POS_INIT_NORTH,  // ラス親
+        kInitEast = mjxproto::ABSOLUTE_POS_INIT_EAST,  // 起家
+        kInitSouth = mjxproto::ABSOLUTE_POS_INIT_SOUTH,
+        kInitWest = mjxproto::ABSOLUTE_POS_INIT_WEST,
+        kInitNorth = mjxproto::ABSOLUTE_POS_INIT_NORTH,  // ラス親
         kEnd,  // Dummy
         kBegin = 0
     };
 
     enum class RelativePos : std::uint8_t  // Order follows mjlog
     {
-        kSelf = mjproto::RELATIVE_POS_SELF,
-        kRight = mjproto::RELATIVE_POS_RIGHT,  // 下家
-        kMid = mjproto::RELATIVE_POS_MID,      // 対面
-        kLeft = mjproto::RELATIVE_POS_LEFT     // 上家
+        kSelf = mjxproto::RELATIVE_POS_SELF,
+        kRight = mjxproto::RELATIVE_POS_RIGHT,  // 下家
+        kMid = mjxproto::RELATIVE_POS_MID,      // 対面
+        kLeft = mjxproto::RELATIVE_POS_LEFT     // 上家
     };
 
     enum class OpenType : std::uint8_t {
@@ -145,10 +145,10 @@ namespace mjx {
     using Minipoint = std::uint8_t;
 
     enum class Wind : std::uint8_t {
-        kEast = mjproto::WIND_EAST,
-        kSouth = mjproto::WIND_SOUTH,
-        kWest = mjproto::WIND_WEST,
-        kNorth = mjproto::WIND_NORTH,
+        kEast = mjxproto::WIND_EAST,
+        kSouth = mjxproto::WIND_SOUTH,
+        kWest = mjxproto::WIND_WEST,
+        kNorth = mjxproto::WIND_NORTH,
     };
 
     // The yaku No. follows: http://tenhou.net/1/script/tenhou.js
@@ -228,8 +228,8 @@ namespace mjx {
 
     RelativePos ToRelativePos(AbsolutePos origin, AbsolutePos target);
     Wind ToSeatWind(AbsolutePos who, AbsolutePos dealer);
-    mjproto::EventType OpenTypeToEventType(OpenType open_type);
-    mjproto::ActionType OpenTypeToActionType(OpenType open_type);
+    mjxproto::EventType OpenTypeToEventType(OpenType open_type);
+    mjxproto::ActionType OpenTypeToActionType(OpenType open_type);
     bool IsSameWind(TileType tile_type, Wind wind);
 }  // namespace mjx
 

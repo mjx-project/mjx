@@ -24,7 +24,7 @@ namespace mjx
     }
 
     grpc::Status
-    AgentGrpcServerImpl::TakeAction(grpc::ServerContext *context, const mjproto::Observation *request, mjproto::Action *reply) {
+    AgentGrpcServerImpl::TakeAction(grpc::ServerContext *context, const mjxproto::Observation *request, mjxproto::Action *reply) {
         // Observationデータ追加
         auto id = boost::uuids::random_generator()();
         {
@@ -70,7 +70,7 @@ namespace mjx
         }
 
         // 推論する
-        std::vector<mjproto::Action> actions = strategy_->TakeActions(std::move(observations));
+        std::vector<mjxproto::Action> actions = strategy_->TakeActions(std::move(observations));
         Assert(ids.size() == actions.size(), "Number of ids and actison should be same.\n  # ids = "
             + std::to_string(ids.size()) + "\n  # actions = " + std::to_string(actions.size()));
 

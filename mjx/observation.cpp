@@ -1,13 +1,13 @@
 #include "observation.h"
 #include "utils.h"
-#include "mj.grpc.pb.h"
+#include "mjx.grpc.pb.h"
 
 namespace mjx
 {
-    Observation::Observation(const mjproto::Observation& proto) : proto_(proto) {}
+    Observation::Observation(const mjxproto::Observation& proto) : proto_(proto) {}
 
-    std::vector<mjproto::Action> Observation::possible_actions() const {
-        std::vector<mjproto::Action> ret;
+    std::vector<mjxproto::Action> Observation::possible_actions() const {
+        std::vector<mjxproto::Action> ret;
         for (auto possible_action: proto_.possible_actions()) {
             ret.emplace_back(std::move(possible_action));
         }
@@ -17,7 +17,7 @@ namespace mjx
     std::vector<Tile> Observation::possible_discards() const {
         std::vector<Tile> ret;
         for (const auto& possible_action: proto_.possible_actions()) {
-            if (possible_action.type() == mjproto::ActionType::ACTION_TYPE_DISCARD) {
+            if (possible_action.type() == mjxproto::ActionType::ACTION_TYPE_DISCARD) {
                 ret.emplace_back(possible_action.discard());
             }
         }
@@ -28,17 +28,17 @@ namespace mjx
         return AbsolutePos(proto_.who());
     }
 
-    void Observation::add_possible_action(mjproto::Action &&possible_action) {
+    void Observation::add_possible_action(mjxproto::Action &&possible_action) {
         proto_.mutable_possible_actions()->Add(std::move(possible_action));
     }
 
-    void Observation::add_possible_actions(const std::vector<mjproto::Action> &possible_actions) {
+    void Observation::add_possible_actions(const std::vector<mjxproto::Action> &possible_actions) {
         for (auto possible_action : possible_actions) {
             add_possible_action(std::move(possible_action));
         }
     }
 
-    Observation::Observation(AbsolutePos who, const mjproto::State &state) {
+    Observation::Observation(AbsolutePos who, const mjxproto::State &state) {
         proto_.mutable_player_ids()->CopyFrom(state.player_ids());
         proto_.mutable_init_score()->CopyFrom(state.init_score());
         proto_.mutable_doras()->CopyFrom(state.doras());
@@ -46,7 +46,7 @@ namespace mjx
         // proto_.set_allocated_event_history(&state.mutable_event_history());
         // proto_.release_event_history(); // in deconstructor
         proto_.mutable_event_history()->CopyFrom(state.event_history());
-        proto_.set_who(mjproto::AbsolutePos(who));
+        proto_.set_who(mjxproto::AbsolutePos(who));
         proto_.mutable_private_info()->CopyFrom(state.private_infos(ToUType(who)));
     }
 
@@ -61,7 +61,7 @@ namespace mjx
         return serialized;
     }
 
-    const mjproto::Observation& Observation::proto() const {
+    const mjxproto::Observation& Observation::proto() const {
         return proto_;
     }
 
@@ -79,18 +79,18 @@ namespace mjx
         int draw_ix = 0;
         for (const auto& event: proto_.event_history().events()) {
             if (event.who() != proto_.who()) continue;
-            if (event.type() == mjproto::EVENT_TYPE_DRAW) {
+            if (event.type() == mjxproto::EVENT_TYPE_DRAW) {
                 hand.Draw(Tile(proto_.private_info().draws(draw_ix)));
                 draw_ix++;
-            } else if (event.type() == mjproto::EVENT_TYPE_RIICHI) {
+            } else if (event.type() == mjxproto::EVENT_TYPE_RIICHI) {
                 hand.Riichi();  // TODO: double riichi
-            } else if (Any(event.type(), {mjproto::EVENT_TYPE_DISCARD_DRAWN_TILE, mjproto::EVENT_TYPE_DISCARD_FROM_HAND})) {
+            } else if (Any(event.type(), {mjxproto::EVENT_TYPE_DISCARD_DRAWN_TILE, mjxproto::EVENT_TYPE_DISCARD_FROM_HAND})) {
                 hand.Discard(Tile(event.tile()));
-            } else if (Any(event.type(), {mjproto::EVENT_TYPE_CHI, mjproto::EVENT_TYPE_PON, mjproto::EVENT_TYPE_KAN_ADDED, mjproto::EVENT_TYPE_KAN_OPENED, mjproto::EVENT_TYPE_KAN_CLOSED})) {
+            } else if (Any(event.type(), {mjxproto::EVENT_TYPE_CHI, mjxproto::EVENT_TYPE_PON, mjxproto::EVENT_TYPE_KAN_ADDED, mjxproto::EVENT_TYPE_KAN_OPENED, mjxproto::EVENT_TYPE_KAN_CLOSED})) {
                 hand.ApplyOpen(Open(event.open()));
-            } else if (event.type() == mjproto::EVENT_TYPE_RON) {
+            } else if (event.type() == mjxproto::EVENT_TYPE_RON) {
                 hand.Ron(Tile(event.tile()));
-            } else if (event.type() == mjproto::EVENT_TYPE_TSUMO) {
+            } else if (event.type() == mjxproto::EVENT_TYPE_TSUMO) {
                 hand.Tsumo();
             }
         }
