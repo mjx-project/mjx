@@ -15,10 +15,10 @@ It supports [Japanese (Riichi) Mahjong](https://en.wikipedia.org/wiki/Japanese_M
   - The implemented rule is compatible with that of [Tenhou](https://tenhou.net/). See [compatibility tests]().
 - **Gym-like API compatible.** 
   - Mjx supports [PettingZoo](https://github.com/PettingZoo-Team/PettingZoo) API, which provides [gym](https://github.com/openai/gym)-like API for multi-agent games.
-- **Beautiful visualization thanks to Tenhou.**
-  - Mjx supports 
 - **Easy distributed computing.**
-  - a
+  - For large-scale reinforcement leraning training and evaluation, Mjx supports distributed computing with gRPC.
+- **Beautiful visualization.**
+  - Mjx supports game log visualization thanks to Tenhou platform.
 
 ## Quick start
 
@@ -72,15 +72,14 @@ Mjx can translate the protocol between mjx and [mjai](https://github.com/gimite/
 Thus, any AI available with mjai also work with mjx.
 Available AIs include:
 
-- MjxBase: A baseline model from Mjx project.
+- MjxBase (A baseline model from Mjx project)
 - Bakuuchi
 - [gimite/mjai-manue](https://github.com/gimite/mjai-manue) 
 - [critter-mj/ankochan](https://github.com/critter-mj/akochan)
 
 ## Install
 
-We highly recommend to use docker to use mjx without environment dependencies.
-
+We highly recommend to use docker to use Mjx without environment dependencies.
 
 ### Docker
 
