@@ -16,7 +16,7 @@ It supports [Japanese (Riichi) Mahjong](https://en.wikipedia.org/wiki/Japanese_M
 - **Gym-like API compatible.** 
   - Mjx supports [PettingZoo](https://github.com/PettingZoo-Team/PettingZoo) API, which provides [gym](https://github.com/openai/gym)-like API for multi-agent games.
 - **Easy distributed computing.**
-  - For large-scale reinforcement leraning training and evaluation, Mjx supports distributed computing with gRPC.
+  - For large-scale reinforcement leraning and evaluation, Mjx supports distributed computing with gRPC.
 - **Beautiful visualization.**
   - Mjx supports game log visualization thanks to Tenhou platform.
 
