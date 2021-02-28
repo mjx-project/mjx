@@ -13,10 +13,10 @@ It implements [Japanese (Riichi) Mahjong](https://en.wikipedia.org/wiki/Japanese
   - Mjx is 100x faster than existing OSS simulators. See [benchmark test]().
 - **Tenhou compatible.** 
   - The implemented rule is compatible with that of [Tenhou](https://tenhou.net/). See [compatibility tests]().
-- **Gym-like API compatible.** 
+- **Gym-like API.** 
   - Mjx supports [PettingZoo](https://github.com/PettingZoo-Team/PettingZoo) API, which provides [gym](https://github.com/openai/gym)-like API for multi-agent games.
 - **Easy distributed computing.**
-  - For large-scale reinforcement leraning and evaluation, Mjx supports distributed computing with gRPC.
+  - For large-scale reinforcement leraning and evaluation, Mjx supports distributed computing with [gRPC](https://github.com/grpc/grpc).
 - **Beautiful visualization.**
   - Mjx supports game log visualization thanks to Tenhou platform.
 
