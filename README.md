@@ -10,11 +10,15 @@ It supports [Japanese (Riichi) Mahjong](https://en.wikipedia.org/wiki/Japanese_M
 ## Features
 
 - **Blazingly fast.** 
-  - Mjx is 100x faster than existing OSS simulators. See [benchmark]().
+  - Mjx is 100x faster than existing OSS simulators. See [benchmark test]().
 - **Tenhou compatible.** 
-  - The implemented rule is compatible with that of [Tenhou](https://tenhou.net/).
+  - The implemented rule is compatible with that of [Tenhou](https://tenhou.net/). See [compatibility tests]().
 - **Gym-like API compatible.** 
   - Mjx supports [PettingZoo](https://github.com/PettingZoo-Team/PettingZoo) API, which provides [gym](https://github.com/openai/gym)-like API for multi-agent games.
+- **Beautiful visualization thanks to Tenhou.**
+  - Mjx supports 
+- **Easy distributed computing.**
+  - a
 
 ## Quick start
 
@@ -62,6 +66,16 @@ void main() {
 </td>
 </tr>
 </table>
+
+## Available AIs on Mjx
+Mjx can translate the protocol between mjx and [mjai](https://github.com/gimite/mjai) using [mjx-mjai-translater](https://github.com/mjx-project/mjx-mjai-translater).
+Thus, any AI available with mjai also work with mjx.
+Available AIs include:
+
+- MjxBase: A baseline model from Mjx project.
+- Bakuuchi
+- [gimite/mjai-manue](https://github.com/gimite/mjai-manue) 
+- [critter-mj/ankochan](https://github.com/critter-mj/akochan)
 
 ## Install
 
