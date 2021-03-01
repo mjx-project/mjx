@@ -2,9 +2,9 @@ import json
 import os
 from typing import List
 
-import mjproto
+import mjxproto
 from mjconvert.mjlog_decoder import MjlogDecoder
-from mjconvert.mjscore_encoder import mjproto_to_mjscore
+from mjconvert.mjscore_encoder import mjxproto_to_mjscore
 
 
 def mjscore_log_equal(mjscore_original_dict, mjscore_converted_dict, proto) -> bool:
@@ -18,7 +18,7 @@ def mjscore_log_equal(mjscore_original_dict, mjscore_converted_dict, proto) -> b
     return is_equal
 
 
-def test_mjproto_to_mjscore():
+def test_mjxproto_to_mjscore():
     mjlog_decoder = MjlogDecoder(modify=False)
     mjscore_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "resources/mjscore")
     mjlog_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "resources/mjlog")
@@ -30,11 +30,11 @@ def test_mjproto_to_mjscore():
             lines = fl.readlines()
             assert len(lines) == 1
             mjlog = lines[0]
-            mjprotos: List[mjproto.State] = mjlog_decoder.to_states(mjlog, store_cache=False)
+            mjxprotos: List[mjxproto.State] = mjlog_decoder.to_states(mjlog, store_cache=False)
             mjscores = fs.readlines()
-            assert len(mjprotos) == len(mjscores)
-            for proto, score_original in zip(mjprotos, mjscores):
-                score_converted = mjproto_to_mjscore(proto)
+            assert len(mjxprotos) == len(mjscores)
+            for proto, score_original in zip(mjxprotos, mjscores):
+                score_converted = mjxproto_to_mjscore(proto)
                 score_converted_dict = json.loads(score_converted)
                 score_original_dict = json.loads(score_original)
                 assert mjscore_log_equal(score_original_dict, score_converted_dict, proto)

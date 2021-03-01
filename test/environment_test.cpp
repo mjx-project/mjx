@@ -1,7 +1,7 @@
 #include "gtest/gtest.h"
-#include <mj/environment.h>
-#include <mj/agent_example_rule_based.h>
-using namespace mj;
+#include <mjx/environment.h>
+#include <mjx/agent_example_rule_based.h>
+using namespace mjx;
 
 TEST(environment, RunOneGame) {
     const std::vector<std::shared_ptr<Agent>> agents = {

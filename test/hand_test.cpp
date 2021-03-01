@@ -1,9 +1,9 @@
 #include <array>
 #include "gtest/gtest.h"
-#include <mj/tile.h>
-#include <mj/hand.h>
+#include <mjx/tile.h>
+#include <mjx/hand.h>
 
-using namespace mj;
+using namespace mjx;
 
 TEST(hand, Hand)
 {

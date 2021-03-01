@@ -9,7 +9,7 @@ from typing import List, Optional
 
 from google.protobuf import json_format
 
-import mjproto
+import mjxproto
 from mjconvert.mjlog_decoder import MjlogDecoder
 from mjconvert.mjlog_encoder import MjlogEncoder
 
@@ -18,19 +18,19 @@ parser = argparse.ArgumentParser(
 
 Example (using stdin)
 
-  $ cat test.mjlog | mjconvert --to-mjproto
-  $ cat test.mjlog | mjconvert --to-mjproto-raw
+  $ cat test.mjlog | mjconvert --to-mjxproto
+  $ cat test.mjlog | mjconvert --to-mjxproto-raw
   $ cat test.json  | mjconvert --to-mjlog
 
 Example (using file inputs)
 
 [NOTE] File inputs assume that each file corresponds to each game in any format.
 
-  $ mjconvert ./mjlog_dir ./mjproto_dir --to-mjproto
-  $ mjconvert ./mjlog_dir ./mjproto_dir --to-mjproto-raw
-  $ mjconvert ./mjproto_dir ./mjlog_dir --to-mjlog
+  $ mjconvert ./mjlog_dir ./mjxproto_dir --to-mjxproto
+  $ mjconvert ./mjlog_dir ./mjxproto_dir --to-mjxproto-raw
+  $ mjconvert ./mjxproto_dir ./mjlog_dir --to-mjlog
 
-Difference between mjproto and mjproto-raw:
+Difference between mjxproto and mjxproto-raw:
 
   1. Yaku is sorted in yaku number
   2. Yakuman's fu is set to 0
@@ -39,8 +39,8 @@ Difference between mjproto and mjproto-raw:
 )
 parser.add_argument("dir_from", nargs="?", default="", help="")
 parser.add_argument("dir_to", nargs="?", default="", help="")
-parser.add_argument("--to-mjproto", action="store_true", help="")
-parser.add_argument("--to-mjproto-raw", action="store_true", help="")
+parser.add_argument("--to-mjxproto", action="store_true", help="")
+parser.add_argument("--to-mjxproto-raw", action="store_true", help="")
 parser.add_argument("--to-mjlog", action="store_true", help="")
 parser.add_argument("--store-cache", action="store_true", help="")
 parser.add_argument("--compress", action="store_true", help="")
@@ -48,7 +48,7 @@ parser.add_argument("--verbose", action="store_true", help="")
 
 args = parser.parse_args()
 assert (args.dir_from and args.dir_to) or (not args.dir_from and not args.dir_to)
-assert args.to_mjproto or args.to_mjproto_raw or args.to_mjlog
+assert args.to_mjxproto or args.to_mjxproto_raw or args.to_mjlog
 
 
 class LineBuffer:
@@ -62,23 +62,27 @@ class LineBuffer:
     @staticmethod
     def is_new_round_(line):
         d = json.loads(line)
-        state = json_format.ParseDict(d, mjproto.State())
+        state = json_format.ParseDict(d, mjxproto.State())
         return state.init_score.round == 0 and state.init_score.honba == 0
 
     def put(self, line: str) -> None:
         line = line.strip().strip("\n")
         if len(line) == 0:
             return
-        if self.fmt_.startswith("mjproto"):
+        if self.fmt_.startswith("mjxproto"):
             cnt = line.count("initScore")
-            assert cnt == 1, f"Each line should only has one round but has {cnt}"
+            assert (
+                cnt == 1
+            ), f"Each line should only has one round but has {cnt}\nInput file may miss the last newline character."
             if LineBuffer.is_new_round_(line) and len(self.curr_) != 0:
                 self.buffer_.append(self.curr_)
                 self.curr_ = []
             self.curr_.append(line)
         elif self.fmt_ == "mjlog":
             cnt = line.count("</mjloggm>")
-            assert cnt == 1, f"Each line should only has one game but has {cnt}"
+            assert (
+                cnt == 1
+            ), f"Each line should only has one game but has {cnt}\nInput file may miss the last newline character."
             self.buffer_.append([line])  # each line corresponds to each game
 
     def get(
@@ -99,7 +103,7 @@ class LineBuffer:
 def detect_format(line: str) -> str:
     try:
         json.loads(line)
-        return "mjproto"
+        return "mjxproto"
     except ValueError:
         return "mjlog"
 
@@ -108,15 +112,15 @@ class Converter:
     def __init__(self, fmt_from: str, fmt_to: str):
         self.fmt_from: str = fmt_from
         self.fmt_to: str = fmt_to
-        self.mjlog2mjproto = None
-        self.mjproto2mjlog = None
+        self.mjlog2mjxproto = None
+        self.mjxproto2mjlog = None
 
-        if self.fmt_from == "mjproto" and self.fmt_to == "mjlog":
-            self.mjproto2mjlog = MjlogEncoder()
-        elif self.fmt_from == "mjlog" and self.fmt_to == "mjproto":
-            self.mjlog2mjproto = MjlogDecoder(modify=True)
-        elif self.fmt_from == "mjlog" and self.fmt_to == "mjproto_raw":
-            self.mjlog2mjproto = MjlogDecoder(modify=False)
+        if self.fmt_from == "mjxproto" and self.fmt_to == "mjlog":
+            self.mjxproto2mjlog = MjlogEncoder()
+        elif self.fmt_from == "mjlog" and self.fmt_to == "mjxproto":
+            self.mjlog2mjxproto = MjlogDecoder(modify=True)
+        elif self.fmt_from == "mjlog" and self.fmt_to == "mjxproto_raw":
+            self.mjlog2mjxproto = MjlogDecoder(modify=False)
         else:
             sys.stderr.write(f"Input format = {self.fmt_from}\n")
             sys.stderr.write(f"Output format = {self.fmt_to}\n")
@@ -128,21 +132,21 @@ class Converter:
         :param lines: must correspond to completed (or non-completed) one game
         :return: also correspond to completed (or non-completed) one game
         """
-        if self.fmt_from == "mjproto" and self.fmt_to == "mjlog":
-            assert self.mjproto2mjlog is not None
+        if self.fmt_from == "mjxproto" and self.fmt_to == "mjlog":
+            assert self.mjxproto2mjlog is not None
             for line in lines:
-                self.mjproto2mjlog.put(line)
-            return [self.mjproto2mjlog.get()]  # a mjlog line corresponds to one game
-        if self.fmt_from == "mjlog" and self.fmt_to == "mjproto":
-            assert self.mjlog2mjproto is not None
+                self.mjxproto2mjlog.put(line)
+            return [self.mjxproto2mjlog.get()]  # a mjlog line corresponds to one game
+        if self.fmt_from == "mjlog" and self.fmt_to == "mjxproto":
+            assert self.mjlog2mjxproto is not None
             assert len(lines) == 1  # each line has each game
-            return self.mjlog2mjproto.decode(
+            return self.mjlog2mjxproto.decode(
                 lines[0], store_cache=args.store_cache, compress=args.compress
             )
-        if self.fmt_from == "mjlog" and self.fmt_to == "mjproto_raw":
-            assert self.mjlog2mjproto is not None
+        if self.fmt_from == "mjlog" and self.fmt_to == "mjxproto_raw":
+            assert self.mjlog2mjxproto is not None
             assert len(lines) == 1  # each line has each game
-            return self.mjlog2mjproto.decode(
+            return self.mjlog2mjxproto.decode(
                 lines[0], store_cache=args.store_cache, compress=args.compress
             )
         else:
@@ -150,14 +154,14 @@ class Converter:
 
 
 def to(args) -> str:
-    if args.to_mjproto:
-        assert not (args.to_mjproto_raw or args.to_mjlog)
-        return "mjproto"
-    elif args.to_mjproto_raw:
-        assert not (args.to_mjproto or args.to_mjlog)
-        return "mjproto_raw"
+    if args.to_mjxproto:
+        assert not (args.to_mjxproto_raw or args.to_mjlog)
+        return "mjxproto"
+    elif args.to_mjxproto_raw:
+        assert not (args.to_mjxproto or args.to_mjlog)
+        return "mjxproto_raw"
     elif args.to_mjlog:
-        assert not (args.to_mjproto or args.to_mjproto_raw)
+        assert not (args.to_mjxproto or args.to_mjxproto_raw)
         return "mjlog"
     else:
         raise ValueError()
@@ -212,12 +216,12 @@ def main():
         to_type = to(args)
         to_ext = "mjlog" if to_type == "mjlog" else "json"
         num_mjlog = sum([1 for x in os.listdir(args.dir_from) if x.endswith("mjlog")])
-        num_mjproto = sum([1 for x in os.listdir(args.dir_from) if x.endswith("json")])
+        num_mjxproto = sum([1 for x in os.listdir(args.dir_from) if x.endswith("json")])
         assert not (
-            num_mjlog > 0 and num_mjproto > 0
+            num_mjlog > 0 and num_mjxproto > 0
         ), "There are two different formats in source directory."
         assert (
-            num_mjlog > 0 or num_mjproto > 0
+            num_mjlog > 0 or num_mjxproto > 0
         ), "There are no valid file formats in the source directory."
         for file_from in os.listdir(args.dir_from):
             if not file_from.endswith("json") and not file_from.endswith("mjlog"):

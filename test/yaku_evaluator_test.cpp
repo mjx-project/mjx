@@ -1,9 +1,9 @@
 #include "gtest/gtest.h"
-#include <mj/yaku_evaluator.h>
-#include <mj/types.h>
-#include <mj/hand.h>
+#include <mjx/yaku_evaluator.h>
+#include <mjx/types.h>
+#include <mjx/hand.h>
 
-using namespace mj;
+using namespace mjx;
 
 class YakuTest : public ::testing::Test {
 protected:

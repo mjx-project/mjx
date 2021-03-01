@@ -1,7 +1,7 @@
 #include "gtest/gtest.h"
-#include <mj/tile.h>
+#include <mjx/tile.h>
 
-using namespace mj;
+using namespace mjx;
 
 
 TEST(tile, Tile)

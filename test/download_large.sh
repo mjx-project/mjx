@@ -45,5 +45,5 @@ echo "* Filtering ..."
 python3 ${MJCONVERT_DIR}/mjconvert/filter.py ${TMP_DIR} --hounan --ng-chars "><"
   
 echo "* Converting ..."
-mjconvert ${TMP_DIR} ${TEST_DIR}/resources/json --to-mjproto --verbose --store-cache
+mjconvert ${TMP_DIR} ${TEST_DIR}/resources/json --to-mjxproto --verbose --store-cache
  

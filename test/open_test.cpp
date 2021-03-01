@@ -1,7 +1,7 @@
 #include "gtest/gtest.h"
-#include <mj/open.h>
+#include <mjx/open.h>
 
-using namespace mj;
+using namespace mjx;
 
 
 using tt = TileType;
