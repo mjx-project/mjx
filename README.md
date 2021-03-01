@@ -38,11 +38,12 @@ Mjx supports Python and C++17.
 import mjx 
 
 
-env = make_env(reward="TenhouPhoenixRoom")
+env = mjx.make_env()
+env = mjx.TenhouPhonenixRoomReward(env)
 env.reset()
 for agent in env.agent_iter():
     observation, reward, done, info = env.last()
-    action = random_select(observation.possible_actions)
+    action = random_select(info.available_actions)
     env.step(action)
 ```
 
@@ -53,11 +54,12 @@ for agent in env.agent_iter():
 #include <mjx/mjx.h>
 
 void main() {
-  auto env = mjx::MakeEnv(reward="TenhouPhoenixRoom");
+  auto env = mjx::MakeEnv();
+  auto env = mjx::TenhouPhoenixRoomReward(env);
   env.Reset();
   for (auto agent: env.AgentIter()) {
     auto [observation, reward, done, info] = env.Last();
-    auto action = RandomSelect(observation.possible_actions);
+    auto action = RandomSelect(info.available_actions);
     env.Step(action);
   }
 }
