@@ -12,6 +12,7 @@ add_executable(main.out ${SOURCE_FILES})
 include_directories(.)
 
 add_subdirectory(mjx)
+add_subdirectory(scripts)
 add_subdirectory(test)
 
 target_link_libraries(main.out mjx)

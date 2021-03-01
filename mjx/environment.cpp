@@ -18,12 +18,22 @@ namespace mjx
         auto gen = mjx::GameSeed::CreateRandomGameSeedGenerator();
         auto results = std::vector<GameResult>();
         std::mutex results_mtx;
-        // スレッド生成
-        for(int i = 0; i < num_thread; i++){
+        // スレッド生成 (thread-safe)
+        for(int i = 0; i < num_game%num_thread; i++){
             // TODO: シード生成を外部で行う（現在: 内部でGameSeed::CreateRandomGameSeedGeneratorにより生成）
             threads.emplace_back(std::thread([&]{
                 Environment env(agents);
-                for(int j = 0; j < num_game/num_thread + (i < num_game%num_thread) ; j++){
+                for(int j = 0; j < num_game/num_thread + 1 ; j++){
+                    auto result = env.RunOneGame(gen());
+                    std::lock_guard<std::mutex> lock(results_mtx);
+                    results.emplace_back(result);
+                }
+            }));
+        }
+        for(int i = 0; i < num_thread-num_game%num_thread; i++){
+            threads.emplace_back(std::thread([&]{
+                Environment env(agents);
+                for(int j = 0; j < num_game/num_thread ; j++){
                     auto result = env.RunOneGame(gen());
                     std::lock_guard<std::mutex> lock(results_mtx);
                     results.emplace_back(result);
