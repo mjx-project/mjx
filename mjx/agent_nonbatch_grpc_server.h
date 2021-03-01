@@ -1,7 +1,6 @@
 #ifndef MAHJONG_AGENT_NONBATCH_GRPC_SERVER_H
 #define MAHJONG_AGENT_NONBATCH_GRPC_SERVER_H
 
-#include <queue>
 #include "mjx.grpc.pb.h"
 #include "strategy_rule_based.h"
 #include "observation.h"
