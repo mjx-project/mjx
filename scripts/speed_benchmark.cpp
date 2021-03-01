@@ -10,7 +10,7 @@ using namespace mjx;
 // grpc無:
 // ./mahjong.out #game #thread
 // grpc有:
-// ./mahjong.out {host | #game #thread client}
+// ./mahjong.out {#batch_size #wait_ms host | #game #thread client}
 
 bool cmdOptionExists(char** begin, char** end, const std::string& option)
 {
@@ -21,7 +21,7 @@ int main(int argc, char* argv[]) {
     std::cout << "cnt_args: " <<  argc << std::endl;
     if(cmdOptionExists(argv, argv+argc, "host")){
         AgentGrpcServer::RunServer(
-                std::make_unique<StrategyRuleBased>(), "0.0.0.0:50051"
+                std::make_unique<StrategyRuleBased>(),"0.0.0.0:50051", std::atoi(argv[1]), std::atoi(argv[2])
         );
     }
     else{
