@@ -1,9 +1,11 @@
 #include <iostream>
 #include <algorithm>
-#include <mj/mj.h>
-#include "mj/agent_grpc_client.h"
-#include "mj/agent_grpc_server.h"
-#include "mj/strategy_rule_based.h"
+#include <mjx/mjx.h>
+#include "mjx/agent_grpc_client.h"
+#include "mjx/agent_grpc_server.h"
+#include "mjx/strategy_rule_based.h"
+
+using namespace mjx;
 
 // grpc無:
 // ./mahjong.out #game #thread
@@ -18,22 +20,23 @@ bool cmdOptionExists(char** begin, char** end, const std::string& option)
 int main(int argc, char* argv[]) {
     std::cout << "cnt_args: " <<  argc << std::endl;
     if(cmdOptionExists(argv, argv+argc, "host")){
-        mj::AgentGrpcServer::RunServer(
-                std::make_unique<mj::StrategyRuleBased>(), "0.0.0.0:50051"
+        AgentGrpcServer::RunServer(
+                std::make_unique<StrategyRuleBased>(), "0.0.0.0:50051"
         );
     }
     else{
+        std::vector<std::shared_ptr<Agent>> agents;
         if(cmdOptionExists(argv, argv+argc, "client")){
             auto channel_rulebased = grpc::CreateChannel("localhost:50051",grpc::InsecureChannelCredentials());
-            const std::vector<std::shared_ptr<mj::Agent>> agents = {
-                    std::make_shared<mj::AgentGrpcClient>("rule-based-0", channel_rulebased),
-                    std::make_shared<mj::AgentGrpcClient>("rule-based-1", channel_rulebased),
-                    std::make_shared<mj::AgentGrpcClient>("rule-based-2", channel_rulebased),
-                    std::make_shared<mj::AgentGrpcClient>("rule-based-3", channel_rulebased),
+            agents = {
+                    std::make_shared<AgentGrpcClient>("rule-based-0", channel_rulebased),
+                    std::make_shared<AgentGrpcClient>("rule-based-1", channel_rulebased),
+                    std::make_shared<AgentGrpcClient>("rule-based-2", channel_rulebased),
+                    std::make_shared<AgentGrpcClient>("rule-based-3", channel_rulebased),
                     };
         }
         else {
-            const std::vector<std::shared_ptr<Agent>> agents = {
+            agents = {
                     std::make_shared<AgentExampleRuleBased>("rule-based-0"),
                     std::make_shared<AgentExampleRuleBased>("rule-based-1"),
                     std::make_shared<AgentExampleRuleBased>("rule-based-2"),
@@ -41,9 +44,9 @@ int main(int argc, char* argv[]) {
             };
         }
         auto start = std::chrono::system_clock::now();
-        auto results = mj::Environment::ParallelRunGame(std::atoi(argv[1]), std::atoi(argv[2]), agents);
+        auto results = Environment::ParallelRunGame(std::atoi(argv[1]), std::atoi(argv[2]), agents);
         auto end = std::chrono::system_clock::now();
-        auto &summarizer = mj::GameResultSummarizer::instance();
+        auto &summarizer = GameResultSummarizer::instance();
         summarizer.Initialize();
         for(auto result: results){
             summarizer.Add(std::move(result));
