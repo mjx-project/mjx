@@ -8,9 +8,9 @@
 using namespace mjx;
 
 // grpc無:
-// ./mahjong.out #game #thread
+// ./speed_benchmark.out #game #thread
 // grpc有:
-// ./mahjong.out {#batch_size #wait_ms host | #game #thread client}
+// ./speed_benchmark.out {#batch_size #wait_ms host | #game #thread client}
 
 bool cmdOptionExists(char** begin, char** end, const std::string& option)
 {

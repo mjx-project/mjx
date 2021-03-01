@@ -1,6 +1,5 @@
 project(mjx_scripts)
 
-file(GLOB SCRIPTS_FILES *.cpp)
-add_executable(${PROJECT_NAME} ${SCRIPTS_FILES})
+add_executable(speed_benchmark speed_benchmark.cpp)
 
-target_link_libraries(${PROJECT_NAME} mjx)
+target_link_libraries(speed_benchmark mjx)
