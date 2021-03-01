@@ -23,11 +23,10 @@ namespace mjx
             // TODO: シード生成を外部で行う（現在: 内部でGameSeed::CreateRandomGameSeedGeneratorにより生成）
             threads.emplace_back(std::thread([&]{
                 Environment env(agents);
-                for(int j = 0; j < num_game/num_thread; j++){
+                for(int j = 0; j < num_game/num_thread + (i < num_game%num_thread) ; j++){
                     auto result = env.RunOneGame(gen());
                     std::lock_guard<std::mutex> lock(results_mtx);
                     results.emplace_back(result);
-
                 }
             }));
         }
