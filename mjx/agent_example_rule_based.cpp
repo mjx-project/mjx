@@ -7,6 +7,6 @@ namespace mjx
     AgentExampleRuleBased::AgentExampleRuleBased(PlayerId player_id) : Agent(std::move(player_id)) {}
 
     mjxproto::Action AgentExampleRuleBased::TakeAction(Observation &&observation) const {
-        return StrategyRuleBased::TakeAction(std::forward<Observation>(observation));
+        return strategy_.TakeAction(std::forward<Observation>(observation));
     }
 }

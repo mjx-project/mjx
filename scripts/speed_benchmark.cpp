@@ -2,7 +2,7 @@
 #include <algorithm>
 #include <mjx/mjx.h>
 #include "mjx/agent_grpc_client.h"
-#include "mjx/agent_grpc_server.h"
+#include "mjx/agent_batch_grpc_server.h"
 #include "mjx/strategy_rule_based.h"
 
 using namespace mjx;
@@ -20,7 +20,7 @@ bool cmdOptionExists(char** begin, char** end, const std::string& option)
 int main(int argc, char* argv[]) {
     std::cout << "cnt_args: " <<  argc << std::endl;
     if(cmdOptionExists(argv, argv+argc, "host")){
-        AgentGrpcServer::RunServer(
+        AgentBatchGrpcServer::RunServer(
                 std::make_unique<StrategyRuleBased>(),"0.0.0.0:50051", std::atoi(argv[1]), std::atoi(argv[2])
         );
     }
