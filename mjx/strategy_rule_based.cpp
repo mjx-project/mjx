@@ -11,7 +11,7 @@ namespace mjx {
         return actions;
     }
 
-    mjxproto::Action StrategyRuleBased::TakeAction(Observation &&observation) {
+    mjxproto::Action StrategyRuleBased::TakeAction(Observation &&observation) const{
         // Prepare some seed and MT engine for reproducibility
         const std::uint64_t seed = 12345
                                    + 4096 * observation.proto().event_history().events_size()

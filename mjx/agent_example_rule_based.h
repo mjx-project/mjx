@@ -2,6 +2,7 @@
 #define MAHJONG_AGENT_EXAMPLE_RULE_BASED_H
 
 #include "agent.h"
+#include "strategy_rule_based.h"
 
 namespace mjx
 {
@@ -13,6 +14,8 @@ namespace mjx
         explicit AgentExampleRuleBased(PlayerId player_id);
         ~AgentExampleRuleBased() final = default;
         [[nodiscard]] mjxproto::Action TakeAction(Observation &&observation) const final ;
+    private:
+        StrategyRuleBased strategy_;
     };
 }
 

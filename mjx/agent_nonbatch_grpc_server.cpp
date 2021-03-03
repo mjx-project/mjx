@@ -13,7 +13,7 @@ namespace mjx
 
     grpc::Status
     AgentNonBatchGrpcServerImpl::TakeAction(grpc::ServerContext *context, const mjxproto::Observation *request, mjxproto::Action *reply) {
-        reply->CopyFrom(strategy_->TakeActions(std::vector<Observation>{Observation(*request)}).front());
+        reply->CopyFrom(strategy_->TakeAction(Observation(*request)));
         return grpc::Status::OK;
     }
 

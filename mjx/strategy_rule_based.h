@@ -11,7 +11,7 @@ namespace mjx
     public:
         ~StrategyRuleBased() final = default;
         [[nodiscard]] std::vector<mjxproto::Action> TakeActions(std::vector<Observation> &&observations) final;
-        [[nodiscard]] static mjxproto::Action TakeAction(Observation &&observation);
+        [[nodiscard]] mjxproto::Action TakeAction(Observation &&observation) const;
     private:
         template<typename RandomGenerator>
         static Tile SelectDiscard(std::vector<Tile> &discard_candidates, const Hand &curr_hand, RandomGenerator& g);

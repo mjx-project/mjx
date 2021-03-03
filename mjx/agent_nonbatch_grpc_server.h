@@ -17,6 +17,7 @@ namespace mjx
     {
     public:
         explicit AgentNonBatchGrpcServerImpl(std::unique_ptr<Strategy> strategy);
+        ~AgentNonBatchGrpcServerImpl() final = default;
         grpc::Status TakeAction(grpc::ServerContext* context, const mjxproto::Observation* request, mjxproto::Action* reply) final ;
     private:
         // Agent logic
