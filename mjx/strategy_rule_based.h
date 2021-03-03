@@ -10,7 +10,7 @@ namespace mjx
     {
     public:
         ~StrategyRuleBased() final = default;
-        [[nodiscard]] std::vector<mjxproto::Action> TakeActions(std::vector<Observation> &&observations) final;
+        [[nodiscard]] std::vector<mjxproto::Action> TakeActions(std::vector<Observation> &&observations) const final;
         [[nodiscard]] mjxproto::Action TakeAction(Observation &&observation) const;
     private:
         template<typename RandomGenerator>
