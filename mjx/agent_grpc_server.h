@@ -1,5 +1,5 @@
-#ifndef MAHJONG_AGENT_NONBATCH_GRPC_SERVER_H
-#define MAHJONG_AGENT_NONBATCH_GRPC_SERVER_H
+#ifndef MAHJONG_AGENT_GRPC_SERVER_H
+#define MAHJONG_AGENT_GRPC_SERVER_H
 
 #include "mjx.grpc.pb.h"
 #include "strategy_rule_based.h"
@@ -25,4 +25,4 @@ namespace mjx
     };
 }  // namespace mjx
 
-#endif //MAHJONG_AGENT_NONBATCH_GRPC_SERVER_H
+#endif //MAHJONG_AGENT_GRPC_SERVER_H

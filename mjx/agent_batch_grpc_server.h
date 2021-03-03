@@ -1,5 +1,5 @@
-#ifndef MAHJONG_AGENT_GRPC_SERVER_H
-#define MAHJONG_AGENT_GRPC_SERVER_H
+#ifndef MAHJONG_AGENT_BATCH_GRPC_SERVER_H
+#define MAHJONG_AGENT_BATCH_GRPC_SERVER_H
 
 #include <queue>
 #include <thread>
@@ -52,4 +52,4 @@ namespace mjx
     };
 }  // namespace mjx
 
-#endif //MAHJONG_AGENT_GRPC_SERVER_H
+#endif //MAHJONG_AGENT_BATCH_GRPC_SERVER_H
