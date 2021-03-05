@@ -5,20 +5,24 @@
 #include "mjx/agent_batch_grpc_server.h"
 #include "mjx/agent_grpc_server.h"
 #include "mjx/agent_local.h"
+#include "mjx/agent_batch_local.h"
 #include "mjx/strategy_rule_based.h"
 
 using namespace mjx;
 
 // command help
-// ./speed_benchmark  {-server [-B #batch_size #wait_ms] |-client #game #thread| #game #thread}
+// ./speed_benchmark  {-server [-B #batch_size #wait_ms] | -client #game #thread | [-B #batch_size #wait_ms] #game #thread}
 
 // example)
 // grpc無,　バッチ無, 128ゲーム, 16スレッド:
 // ./speed_benchmark  128 16
+// grpc無,　バッチ有,  バッチサイズ8, 推論待機時間0ms, 512ゲーム, 16スレッド:
+// ./speed_benchmark  -B 8 0 512 16
 // grpc有, クライアント側, 256ゲーム, 32スレッド:
 // ./speed_benchmark -client 256 32
-// grpc有, バッチ有,　サーバー側, バッチサイズ16, 待機時間10ms:
+// grpc有, バッチ有,　サーバー側, バッチサイズ16, 推論待機時間10ms:
 // ./speed_benchmark -server -B 16 10
+// *スレッド数>=バッチサイズ
 
 bool cmdOptionExists(char** begin, char** end, const std::string& option)
 {
@@ -52,7 +56,16 @@ int main(int argc, char* argv[]) {
             };
             num_game = std::atoi(argv[2]), num_thread = std::atoi(argv[3]);
         }
-        else {
+        else if(cmdOptionExists(argv, argv+argc, "-B")){
+            agents = {
+                    std::make_shared<AgentBatchLocal>("rule-based-0", std::make_unique<StrategyRuleBased>(), std::atoi(argv[2]), std::atoi(argv[3])),
+                    std::make_shared<AgentBatchLocal>("rule-based-1", std::make_unique<StrategyRuleBased>(), std::atoi(argv[2]), std::atoi(argv[3])),
+                    std::make_shared<AgentBatchLocal>("rule-based-2", std::make_unique<StrategyRuleBased>(), std::atoi(argv[2]), std::atoi(argv[3])),
+                    std::make_shared<AgentBatchLocal>("rule-based-3", std::make_unique<StrategyRuleBased>(), std::atoi(argv[2]), std::atoi(argv[3]))
+            };
+            num_game = std::atoi(argv[4]), num_thread = std::atoi(argv[5]);
+        }
+        else{
             agents = {
                     std::make_shared<AgentLocal>("rule-based-0", std::make_unique<StrategyRuleBased>()),
                     std::make_shared<AgentLocal>("rule-based-1", std::make_unique<StrategyRuleBased>()),
