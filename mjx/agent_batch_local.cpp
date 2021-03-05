@@ -3,8 +3,8 @@
 
 namespace mjx
 {
-    AgentBatchLocal::AgentBatchLocal(std::unique_ptr<Strategy> strategy, int batch_size, int wait_ms) :
-            strategy_(std::move(strategy)), batch_size_(batch_size), wait_ms_(wait_ms)
+    AgentBatchLocal::AgentBatchLocal(PlayerId player_id, std::unique_ptr<Strategy> strategy, int batch_size, int wait_ms) :
+            Agent(player_id), strategy_(std::move(strategy)), batch_size_(batch_size), wait_ms_(wait_ms)
     {
         thread_inference_ = std::thread([this](){
             while(!stop_flag_){
