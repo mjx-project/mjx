@@ -4,6 +4,7 @@
 #include "mjx/agent_grpc_client.h"
 #include "mjx/agent_batch_grpc_server.h"
 #include "mjx/agent_grpc_server.h"
+#include "mjx/agent_local.h"
 #include "mjx/strategy_rule_based.h"
 
 using namespace mjx;
@@ -53,10 +54,10 @@ int main(int argc, char* argv[]) {
         }
         else {
             agents = {
-                    std::make_shared<AgentExampleRuleBased>("rule-based-0"),
-                    std::make_shared<AgentExampleRuleBased>("rule-based-1"),
-                    std::make_shared<AgentExampleRuleBased>("rule-based-2"),
-                    std::make_shared<AgentExampleRuleBased>("rule-based-3")
+                    std::make_shared<AgentLocal>("rule-based-0", std::make_unique<StrategyRuleBased>()),
+                    std::make_shared<AgentLocal>("rule-based-1", std::make_unique<StrategyRuleBased>()),
+                    std::make_shared<AgentLocal>("rule-based-2", std::make_unique<StrategyRuleBased>()),
+                    std::make_shared<AgentLocal>("rule-based-3", std::make_unique<StrategyRuleBased>())
             };
             num_game = std::atoi(argv[1]), num_thread = std::atoi(argv[2]);
         }
