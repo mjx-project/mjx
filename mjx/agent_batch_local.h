@@ -14,7 +14,7 @@
 
 namespace mjx
 {
-    class AgentBatchLocal : public Agent
+    class AgentBatchLocal final : public Agent
     {
     public:
         explicit AgentBatchLocal(PlayerId player_id, std::unique_ptr<Strategy> strategy, int batch_size = 8, int wait_ms = 0);
