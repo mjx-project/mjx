@@ -20,7 +20,6 @@ namespace mjx
         explicit AgentBatchLocal(PlayerId player_id, std::unique_ptr<Strategy> strategy, int batch_size = 8, int wait_ms = 0);
         ~AgentBatchLocal() final;
         [[nodiscard]] mjxproto::Action TakeAction(Observation &&observation) const final ;
-        [[nodiscard]] mjxproto::Action TakeAction2(Observation &&observation);
     private:
         struct ObservationInfo{
             boost::uuids::uuid id;
