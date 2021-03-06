@@ -1,6 +1,7 @@
 #include "gtest/gtest.h"
 #include <mjx/state.h>
-#include <mjx/agent_example_rule_based.h>
+#include <mjx/strategy_rule_based.h>
+#include <mjx/agent_local.h>
 #include <fstream>
 
 using namespace mjx;
@@ -20,7 +21,7 @@ TEST(agent_client_mock, TakeAction) {
     };
 
     State state; Observation observation; mjxproto::Action action;
-    std::unique_ptr<Agent> agent = std::make_unique<AgentExampleRuleBased>();
+    std::unique_ptr<Agent> agent = std::make_unique<AgentLocal>("agent-rule-based", std::make_unique<StrategyRuleBased>());
 
     // ツモれるときはツモ
     state = State(GetLastJsonLine("obs-draw-tsumo.json"));
