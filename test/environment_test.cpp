@@ -1,14 +1,15 @@
 #include "gtest/gtest.h"
 #include <mjx/environment.h>
-#include <mjx/agent_example_rule_based.h>
+#include <mjx/agent_local.h>
+#include <mjx/strategy_rule_based.h>
 using namespace mjx;
 
 TEST(environment, RunOneGame) {
     const std::vector<std::shared_ptr<Agent>> agents = {
-            std::make_shared<AgentExampleRuleBased>("agent01"),
-            std::make_shared<AgentExampleRuleBased>("agent02"),
-            std::make_shared<AgentExampleRuleBased>("agent03"),
-            std::make_shared<AgentExampleRuleBased>("agent04")
+            std::make_shared<AgentLocal>("agent01", std::make_unique<StrategyRuleBased>()),
+            std::make_shared<AgentLocal>("agent02", std::make_unique<StrategyRuleBased>()),
+            std::make_shared<AgentLocal>("agent03", std::make_unique<StrategyRuleBased>()),
+            std::make_shared<AgentLocal>("agent04", std::make_unique<StrategyRuleBased>())
     };
     Environment env(agents);
     auto result = env.RunOneGame(1234);
