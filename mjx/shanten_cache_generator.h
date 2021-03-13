@@ -4,10 +4,10 @@
 #include <vector>
 
 namespace mjx {
-    class ShantenCacheGenerator {
-    public:
-        static void GenerateCache();
-    };
-} // namespace mjx
+class ShantenCacheGenerator {
+ public:
+  static void GenerateCache();
+};
+}  // namespace mjx
 
-#endif //MAHJONG_SHANTEN_CACHE_GENERATOR_H
+#endif  // MAHJONG_SHANTEN_CACHE_GENERATOR_H
