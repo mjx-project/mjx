@@ -9,8 +9,8 @@
 using namespace mjx;
 
 int main(int argc, char* argv[]) {
-  std::cout << "cnt_args: " << argc << std::endl;
-  assert(argc == 1 || argc == 3);
+    std::cout << "cnt_args: " << argc << std::endl;
+  assert(argc==1 || argc == 3);
   if (argc == 1) {
     AgentBatchGrpcServer::RunServer(std::make_unique<StrategyRuleBased>(),
                                     "0.0.0.0:50051");
