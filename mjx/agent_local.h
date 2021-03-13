@@ -10,14 +10,14 @@ namespace mjx {
 class AgentLocal final : public Agent {
  public:
   AgentLocal() = default;
-  AgentLocal(PlayerId player_id, std::unique_ptr<Strategy> strategy);
+  AgentLocal(PlayerId player_id, std::shared_ptr<Strategy> strategy);
   ~AgentLocal() final = default;
   [[nodiscard]] mjxproto::Action TakeAction(
       Observation &&observation) const final;
 
  private:
   // Agent logic
-  std::unique_ptr<Strategy> strategy_;
+   std::shared_ptr<Strategy> strategy_;
 };
 }  // namespace mjx
 
