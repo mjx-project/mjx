@@ -1,4 +1,4 @@
-name: test-clang-format
+name: clang-format
 
 on: [push]
 
@@ -14,3 +14,11 @@ jobs:
         extensions: 'h,cpp'
         clangFormatVersion: 11
         style: google 
+        inplace: True
+    - uses: EndBug/add-and-commit@v4
+      with:
+        author_name: GitHub Actions
+        author_email: 41898282+github-actions[bot]@users.noreply.github.com
+        message: 'Apply clang-format changes'
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
