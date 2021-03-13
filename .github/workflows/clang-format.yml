@@ -19,6 +19,6 @@ jobs:
       with:
         author_name: GitHub Actions
         author_email: 41898282+github-actions[bot]@users.noreply.github.com
-        message: 'Apply clang-format changes'
+        message: 'apply clang-format'
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
