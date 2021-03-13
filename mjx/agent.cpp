@@ -1,15 +1,14 @@
 #include "agent.h"
-#include "utils.h"
 
 #include <utility>
 
-namespace mjx
-{
-    Agent::Agent(PlayerId player_id): player_id_(std::move(player_id)) {}
+#include "utils.h"
 
-    PlayerId Agent::player_id() const {
-        Assert(!player_id_.empty());
-        return player_id_;
-    }
+namespace mjx {
+Agent::Agent(PlayerId player_id) : player_id_(std::move(player_id)) {}
+
+PlayerId Agent::player_id() const {
+  Assert(!player_id_.empty());
+  return player_id_;
+}
 }  // namespace mjx
-
