@@ -13,7 +13,7 @@
 namespace mjx {
 class YakuEvaluator {
  public:
-    YakuEvaluator() = delete;
+  YakuEvaluator() = delete;
   [[nodiscard]] static WinScore Eval(const WinInfo& win_info) noexcept;
   [[nodiscard]] static bool CanWin(
       const WinInfo& win_info) noexcept;  // 役がないとダメ.
