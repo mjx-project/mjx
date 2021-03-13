@@ -17,7 +17,7 @@ class AgentLocal final : public Agent {
 
  private:
   // Agent logic
-  std::shared_ptr<Strategy> strategy_;
+   std::shared_ptr<Strategy> strategy_;
 };
 }  // namespace mjx
 
