@@ -17,7 +17,7 @@ namespace mjx {
 class AgentBatchLocal final : public Agent {
  public:
   explicit AgentBatchLocal(PlayerId player_id,
-                           std::unique_ptr<Strategy> strategy,
+                           std::shared_ptr<Strategy> strategy,
                            int batch_size = 8, int wait_ms = 0);
   ~AgentBatchLocal() final;
   [[nodiscard]] mjxproto::Action TakeAction(
@@ -32,7 +32,7 @@ class AgentBatchLocal final : public Agent {
   void InferAction();
 
   // Agent logic
-  std::unique_ptr<Strategy> strategy_;
+  std::shared_ptr<Strategy> strategy_;
 
   // 推論を始めるデータ数の閾値
   int batch_size_;

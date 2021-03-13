@@ -1,7 +1,9 @@
 #include "agent_local.h"
 
+#include <utility>
+
 namespace mjx {
-AgentLocal::AgentLocal(PlayerId player_id, std::unique_ptr<Strategy> strategy)
+AgentLocal::AgentLocal(PlayerId player_id, std::shared_ptr<Strategy> strategy)
     : Agent(std::move(player_id)), strategy_(std::move(strategy)) {}
 
 mjxproto::Action AgentLocal::TakeAction(Observation &&observation) const {

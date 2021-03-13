@@ -55,28 +55,30 @@ int main(int argc, char* argv[]) {
           std::make_shared<AgentGrpcClient>("rule-based-3", channel_rulebased)};
       num_game = std::atoi(argv[2]), num_thread = std::atoi(argv[3]);
     } else if (cmdOptionExists(argv, argv + argc, "-B")) {
+      auto strategy = std::make_shared<StrategyRuleBased>();
       agents = {std::make_shared<AgentBatchLocal>(
-                    "rule-based-0", std::make_unique<StrategyRuleBased>(),
+                    "rule-based-0", strategy,
                     std::atoi(argv[2]), std::atoi(argv[3])),
                 std::make_shared<AgentBatchLocal>(
-                    "rule-based-1", std::make_unique<StrategyRuleBased>(),
+                    "rule-based-1", strategy,
                     std::atoi(argv[2]), std::atoi(argv[3])),
                 std::make_shared<AgentBatchLocal>(
-                    "rule-based-2", std::make_unique<StrategyRuleBased>(),
+                    "rule-based-2", strategy,
                     std::atoi(argv[2]), std::atoi(argv[3])),
                 std::make_shared<AgentBatchLocal>(
-                    "rule-based-3", std::make_unique<StrategyRuleBased>(),
+                    "rule-based-3", strategy,
                     std::atoi(argv[2]), std::atoi(argv[3]))};
       num_game = std::atoi(argv[4]), num_thread = std::atoi(argv[5]);
     } else {
+      auto strategy = std::make_shared<StrategyRuleBased>();
       agents = {std::make_shared<AgentLocal>(
-                    "rule-based-0", std::make_unique<StrategyRuleBased>()),
+                    "rule-based-0", strategy),
                 std::make_shared<AgentLocal>(
-                    "rule-based-1", std::make_unique<StrategyRuleBased>()),
+                    "rule-based-1", strategy),
                 std::make_shared<AgentLocal>(
-                    "rule-based-2", std::make_unique<StrategyRuleBased>()),
+                    "rule-based-2", strategy),
                 std::make_shared<AgentLocal>(
-                    "rule-based-3", std::make_unique<StrategyRuleBased>())};
+                    "rule-based-3", strategy)};
       num_game = std::atoi(argv[1]), num_thread = std::atoi(argv[2]);
     }
     auto start = std::chrono::system_clock::now();

@@ -4,7 +4,7 @@
 
 namespace mjx {
 AgentBatchLocal::AgentBatchLocal(PlayerId player_id,
-                                 std::unique_ptr<Strategy> strategy,
+                                 std::shared_ptr<Strategy> strategy,
                                  int batch_size, int wait_ms)
     : Agent(player_id),
       strategy_(std::move(strategy)),
