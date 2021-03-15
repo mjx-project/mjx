@@ -130,6 +130,16 @@ std::uint8_t Action::Encode(const mjxproto::Action &action) {
       // 64,65,66: Chi s3s4s5(red), s4s5(red)s6, s5(red)s6s7
       auto tiles = Open(action.open()).Tiles();
       if (!Any(tiles, [](auto tile){ return tile.IsRedFive(); })) {
+        switch (tiles[0].Color()) {
+          case TileSetType::kManzu:
+            return tiles[0].Num()-1 + 37;
+          case TileSetType::kPinzu:
+            return tiles[0].Num()-1 + 44;
+          case TileSetType::kSouzu:
+            return tiles[0].Num()-1 + 51;
+          default:
+            assert(false);
+        }
         return ToUType(tiles[0].Type()) + 37;
       }
       switch (tiles[0].Type()) {
