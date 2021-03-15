@@ -4,7 +4,7 @@ cmake-build-*/*
 build/*
 mjx/external_libs/*
 docker-build/*
-test/lib/*
+tests/lib/*
 mjconvert/mjxproto/*pb2*
 mjconvert/mjxproto/__pycache__/*
 mjconvert/.idea
