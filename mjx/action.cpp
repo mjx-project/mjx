@@ -199,4 +199,12 @@ std::uint8_t Action::Encode(const mjxproto::Action &action) {
       assert(false);
   }
 }
+mjxproto::Action Action::Decode(std::uint8_t code, const std::vector<mjxproto::Action>& possible_action) {
+  for (auto action : possible_action) {
+    if (Action::Encode(action) == code) {
+      return action;
+    }
+  }
+  assert(false);  // selected action is not found in possible action
+}
 }  // namespace mjx
