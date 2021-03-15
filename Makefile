@@ -6,7 +6,7 @@ clean:
 	rm -rf mjx/*pb* || "mjx/*pb* is already deleted"
 	rm -rf mjx/external_libs/* || "mjx/external_libs/** is already deleted"
 
-build: mjx
+build: mjx tests
 	mkdir -p build && cd build && cmake .. && make -j
 
 test: build
