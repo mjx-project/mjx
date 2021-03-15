@@ -24,8 +24,9 @@ class Action {
   static mjxproto::Action CreateNo(AbsolutePos who);
   static mjxproto::Action CreateNineTiles(AbsolutePos who);
   static bool Equal(const mjxproto::Action& lhs, const mjxproto::Action& rhs);
-  static std::uint8_t Encode(const mjxproto::Action &action);
-  static mjxproto::Action Decode(std::uint8_t code, const std::vector<mjxproto::Action>& possible_action);
+  static std::uint8_t Encode(const mjxproto::Action& action);
+  static mjxproto::Action Decode(
+      std::uint8_t code, const std::vector<mjxproto::Action>& possible_action);
   // 0~33: Discard m1~rd
   // 34,35,36: Discard m5(red), p5(red), s5(red)
   // 37~57: Chi m1m2m3 ~ s7s8s9

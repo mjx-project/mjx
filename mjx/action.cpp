@@ -103,7 +103,7 @@ bool Action::Equal(const mjxproto::Action& lhs, const mjxproto::Action& rhs) {
          lhs.type() == rhs.type() and lhs.discard() == rhs.discard() and
          lhs.open() == rhs.open();
 }
-std::uint8_t Action::Encode(const mjxproto::Action &action) {
+std::uint8_t Action::Encode(const mjxproto::Action& action) {
   switch (action.type()) {
     case mjxproto::ACTION_TYPE_DISCARD: {
       // 0~33: Discard m1~rd
@@ -129,14 +129,14 @@ std::uint8_t Action::Encode(const mjxproto::Action &action) {
       // 61,62,63: Chi p3p4p5(red), p4p5(red)p6, p5(red)p6p7
       // 64,65,66: Chi s3s4s5(red), s4s5(red)s6, s5(red)s6s7
       auto tiles = Open(action.open()).Tiles();
-      if (!Any(tiles, [](auto tile){ return tile.IsRedFive(); })) {
+      if (!Any(tiles, [](auto tile) { return tile.IsRedFive(); })) {
         switch (tiles[0].Color()) {
           case TileSetType::kManzu:
-            return tiles[0].Num()-1 + 37;
+            return tiles[0].Num() - 1 + 37;
           case TileSetType::kPinzu:
-            return tiles[0].Num()-1 + 44;
+            return tiles[0].Num() - 1 + 44;
           case TileSetType::kSouzu:
-            return tiles[0].Num()-1 + 51;
+            return tiles[0].Num() - 1 + 51;
           default:
             assert(false);
         }
@@ -169,7 +169,7 @@ std::uint8_t Action::Encode(const mjxproto::Action &action) {
       // 67~100: Pon m1~rd
       // 101,102,103: Pon m5(w/ red), s5(w/ red), p5(w/ red)
       auto tiles = Open(action.open()).Tiles();
-      if (!Any(tiles, [](auto tile){ return tile.IsRedFive(); })) {
+      if (!Any(tiles, [](auto tile) { return tile.IsRedFive(); })) {
         return ToUType(tiles[0].Type()) + 67;
       }
       switch (tiles[0].Type()) {
@@ -209,7 +209,8 @@ std::uint8_t Action::Encode(const mjxproto::Action &action) {
       assert(false);
   }
 }
-mjxproto::Action Action::Decode(std::uint8_t code, const std::vector<mjxproto::Action>& possible_action) {
+mjxproto::Action Action::Decode(
+    std::uint8_t code, const std::vector<mjxproto::Action>& possible_action) {
   for (auto action : possible_action) {
     if (Action::Encode(action) == code) {
       return action;
