@@ -14,6 +14,12 @@ test: build
 
 all: clean test
 
+fmt:
+	clang-format -i *.cpp
+	clang-format -i mjx/*.h mjx/*.cpp
+	clang-format -i tests/*.cpp
+	clang-format -i scripts/*.cpp
+
 docker-build:
 	docker run -it -v ${CURDIR}:/mahjong sotetsuk/ubuntu-gcc-grpc:latest  /bin/bash -c "cd /mahjong && mkdir -p docker-build && cd docker-build && cmake .. && make -j"
 
@@ -36,4 +42,4 @@ docker-plantuml-stop:
 	docker rm -f mahjong-plantuml || true
 
 
-.PHONY: clean test all docker-test docker-all docker-clion-stop docker-clion-start docker-plantuml-start docker-plantuml-stop
+.PHONY: clean test all fmt docker-test docker-all docker-clion-stop docker-clion-start docker-plantuml-start docker-plantuml-stop
