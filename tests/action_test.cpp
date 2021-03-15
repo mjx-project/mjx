@@ -13,6 +13,9 @@ TEST(action, Encode) {
   auto tiles = std::vector<Tile>{Tile(12), Tile(17), Tile(20)};
   EXPECT_EQ(Action::Encode(Action::CreateOpen(AbsolutePos::kInitEast,
     Chi::Create(tiles, Tile(12)))), 40);
+  tiles = std::vector<Tile>{Tile(48), Tile(53), Tile(56)};
+  EXPECT_EQ(Action::Encode(Action::CreateOpen(AbsolutePos::kInitEast,
+                                              Chi::Create(tiles, Tile(48)))), 47);
   // Chi w/ red
   tiles = std::vector<Tile>{Tile(12), Tile(16), Tile(20)};
   EXPECT_EQ(Action::Encode(Action::CreateOpen(AbsolutePos::kInitEast,
