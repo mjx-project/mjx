@@ -26,6 +26,10 @@ TEST(action, Encode) {
   // Kan
   EXPECT_EQ(Action::Encode(Action::CreateOpen(AbsolutePos::kInitEast,
                                               KanClosed::Create(Tile(16)))), 108);
+  EXPECT_EQ(Action::Encode(Action::CreateOpen(AbsolutePos::kInitEast,
+                                              KanOpened::Create(Tile(16), RelativePos::kLeft))), 108);
+  EXPECT_EQ(Action::Encode(Action::CreateOpen(AbsolutePos::kInitEast,
+                                              KanAdded::Create(Pon::Create(Tile(17), Tile(16), RelativePos::kLeft)))), 108);
   // Tsumo
   EXPECT_EQ(Action::Encode(Action::CreateTsumo(AbsolutePos::kInitEast)), 138);
   // Ron
