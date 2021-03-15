@@ -103,4 +103,100 @@ bool Action::Equal(const mjxproto::Action& lhs, const mjxproto::Action& rhs) {
          lhs.type() == rhs.type() and lhs.discard() == rhs.discard() and
          lhs.open() == rhs.open();
 }
+std::uint8_t Action::Encode(const mjxproto::Action &action) {
+  switch (action.type()) {
+    case mjxproto::ACTION_TYPE_DISCARD: {
+      // 0~33: Discard m1~rd
+      // 34,35,36: Discard m5(red), p5(red), s5(red)
+      auto discard = Tile(action.discard());
+      if (!discard.IsRedFive()) {
+        return ToUType(discard.Type());
+      }
+      switch (discard.Type()) {
+        case TileType::kM5:
+          return 34;
+        case TileType::kP5:
+          return 35;
+        case TileType::kS5:
+          return 36;
+        default:
+          assert(false);
+      }
+    }
+    case mjxproto::ACTION_TYPE_CHI: {
+      // 37~57: Chi m1m2m3 ~ s7s8s9
+      // 58,59,60: Chi m3m4m5(red), m4m5(red)m6, m5(red)m6m7
+      // 61,62,63: Chi p3p4p5(red), p4p5(red)p6, p5(red)p6p7
+      // 64,65,66: Chi s3s4s5(red), s4s5(red)s6, s5(red)s6s7
+      auto tiles = Open(action.open()).Tiles();
+      if (!Any(tiles, [](auto tile){ return tile.IsFiveRed(); })) {
+        return ToUType(tiles[0].Type()) + 37;
+      }
+      switch (tiles[0].Type()) {
+        case TileType::kM3:
+          return 58;
+        case TileType::kM4:
+          return 59;
+        case TileType::kM5:
+          return 60;
+        case TileType::kP3:
+          return 61;
+        case TileType::kP4:
+          return 62;
+        case TileType::kP5:
+          return 63;
+        case TileType::kS3:
+          return 64;
+        case TileType::kS4:
+          return 65;
+        case TileType::kS5:
+          return 66;
+        default:
+          assert(false);
+      }
+    }
+    case mjxproto::ACTION_TYPE_PON: {
+      // 67~100: Pon m1~rd
+      // 101,102,103: Pon m5(w/ red), s5(w/ red), p5(w/ red)
+      auto tiles = Open(action.open()).Tiles();
+      if (!Any(tiles, [](auto tile){ return tile.IsFiveRed(); })) {
+        return ToUType(tiles[0].Type()) + 67;
+      }
+      switch (tiles[0].Type()) {
+        case TileType::kM5:
+          return 101;
+        case TileType::kP5:
+          return 102;
+        case TileType::kS5:
+          return 103;
+        default:
+          assert(false);
+      }
+    }
+    case mjxproto::ACTION_TYPE_KAN_CLOSED:
+    case mjxproto::ACTION_TYPE_KAN_OPENED:
+    case mjxproto::ACTION_TYPE_KAN_ADDED: {
+      // 104~137: Kan m1~rd
+      auto tiles = Open(action.open()).Tiles();
+      return ToUType(tiles[0].Type()) + 104;
+    }
+    case mjxproto::ACTION_TYPE_TSUMO:
+      // 138: Tsumo
+      return 138;
+    case mjxproto::ACTION_TYPE_RON:
+      // 139: Ron
+      return 139;
+    case mjxproto::ACTION_TYPE_RIICHI:
+      // 140: Riichi
+      return 140;
+    case mjxproto::ACTION_TYPE_KYUSYU:
+      // 141: Kyusyu
+      return 141;
+    case mjxproto::ACTION_TYPE_NO:
+      // 142: No
+      return 142;
+    default:
+      assert(false);
+  }
+}
 }  // namespace mjx
