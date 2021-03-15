@@ -13,7 +13,7 @@ include_directories(.)
 
 add_subdirectory(mjx)
 add_subdirectory(scripts)
-add_subdirectory(test)
+add_subdirectory(tests)
 
 target_link_libraries(main.out mjx)
 

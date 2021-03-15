@@ -1,15 +1,16 @@
 clean:
 	cd mjconvert && make clean
-	rm -rf build
-	rm -rf docker-build
-	rm -rf mjx/*pb*
-	rm -rf mjx/external_libs/*
+	rm -rf cmake-build-debug || "cmake-build-debug is already deleted"
+	rm -rf build || "debug is already deleted"
+	rm -rf docker-build || "docker-debug is already deleted"
+	rm -rf mjx/*pb* || "mjx/*pb* is already deleted"
+	rm -rf mjx/external_libs/* || "mjx/external_libs/** is already deleted"
 
-build:
+build: mjx tests mjx.proto
 	mkdir -p build && cd build && cmake .. && make -j
 
 test: build
-	./build/test/mjx_test
+	./build/tests/mjx_test
 
 all: clean test
 
@@ -17,7 +18,7 @@ docker-build:
 	docker run -it -v ${CURDIR}:/mahjong sotetsuk/ubuntu-gcc-grpc:latest  /bin/bash -c "cd /mahjong && mkdir -p docker-build && cd docker-build && cmake .. && make -j"
 
 docker-test: docker-build
-	docker run -it -v ${CURDIR}:/mahjong sotetsuk/ubuntu-gcc-grpc:latest  /bin/bash -c "/mahjong/docker-build/test/mjx_test"
+	docker run -it -v ${CURDIR}:/mahjong sotetsuk/ubuntu-gcc-grpc:latest  /bin/bash -c "/mahjong/docker-build/tests/mjx_test"
 
 docker-all: clean docker-test
 
