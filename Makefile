@@ -10,7 +10,7 @@ build: mjx tests
 	mkdir -p build && cd build && cmake .. && make -j
 
 test: build
-	./build/test/mjx_test
+	./build/tests/mjx_test
 
 all: clean test
 
@@ -18,7 +18,7 @@ docker-build:
 	docker run -it -v ${CURDIR}:/mahjong sotetsuk/ubuntu-gcc-grpc:latest  /bin/bash -c "cd /mahjong && mkdir -p docker-build && cd docker-build && cmake .. && make -j"
 
 docker-test: docker-build
-	docker run -it -v ${CURDIR}:/mahjong sotetsuk/ubuntu-gcc-grpc:latest  /bin/bash -c "/mahjong/docker-build/test/mjx_test"
+	docker run -it -v ${CURDIR}:/mahjong sotetsuk/ubuntu-gcc-grpc:latest  /bin/bash -c "/mahjong/docker-build/tests/mjx_test"
 
 docker-all: clean docker-test
 
