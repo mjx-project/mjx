@@ -101,4 +101,19 @@ Hand Observation::current_hand() const {
   }
   return hand;
 }
+
+std::optional<Tile> Observation::TargetTile() const {
+  if (proto_.event_history().events().empty()) return std::nullopt;
+  auto event = *proto_.event_history().events().rbegin();
+
+  if (event.type() == mjxproto::EventType::EVENT_TYPE_DISCARD_FROM_HAND or
+      event.type() == mjxproto::EventType::EVENT_TYPE_DISCARD_DRAWN_TILE) {
+    return Tile(event.tile());
+  }
+  if (event.type() == mjxproto::EventType::EVENT_TYPE_KAN_ADDED) {
+    return Open(event.open()).LastTile();
+  }
+
+  return std::nullopt;
+}
 }  // namespace mjx
