@@ -8,8 +8,8 @@ tests/lib/*
 mjconvert/mjxproto/*pb2*
 mjconvert/mjxproto/__pycache__/*
 mjconvert/.idea
-mjconvert/venv
-mjconvert/__pycache__
+**/venv
+**/__pycache__
 mjconvert/build
 mjconvert/dist
 mjconvert/mjconvert.egg-info
