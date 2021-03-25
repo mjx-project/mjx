@@ -52,28 +52,28 @@ include_directories("${CMAKE_CURRENT_SOURCE_DIR}")
 # For spdlog
 ####################################################################################
 
-if(NOT EXISTS ${LIB_DIR}/spdlog)
-    find_package(Git REQUIRED)
-    execute_process(
-            COMMAND ${GIT_EXECUTABLE} clone https://github.com/gabime/spdlog.git ${LIB_DIR}/spdlog
-    )
-    execute_process(
-            COMMAND mkdir -p ${LIB_DIR}/spdlog/build
-    )
-    execute_process(
-            COMMAND cmake .. WORKING_DIRECTORY ${LIB_DIR}/spdlog/build
-    )
-    execute_process(
-            COMMAND make -j WORKING_DIRECTORY ${LIB_DIR}/spdlog/build
-    )
-endif()
-
-add_subdirectory(${LIB_DIR}/spdlog)
-
-if(NOT TARGET spdlog)
-    # Stand-alone build
-    find_package(spdlog REQUIRED)
-endif()
+# if(NOT EXISTS ${LIB_DIR}/spdlog)
+#     find_package(Git REQUIRED)
+#     execute_process(
+#             COMMAND ${GIT_EXECUTABLE} clone https://github.com/gabime/spdlog.git ${LIB_DIR}/spdlog
+#     )
+#     execute_process(
+#             COMMAND mkdir -p ${LIB_DIR}/spdlog/build
+#     )
+#     execute_process(
+#             COMMAND cmake .. WORKING_DIRECTORY ${LIB_DIR}/spdlog/build
+#     )
+#     execute_process(
+#             COMMAND make -j WORKING_DIRECTORY ${LIB_DIR}/spdlog/build
+#     )
+# endif()
+#
+# add_subdirectory(${LIB_DIR}/spdlog)
+#
+# if(NOT TARGET spdlog)
+#     # Stand-alone build
+#     find_package(spdlog REQUIRED)
+# endif()
 
 ####################################################################################
 # For mjx library
