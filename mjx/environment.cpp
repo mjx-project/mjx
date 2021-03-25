@@ -3,7 +3,7 @@
 #include <utility>
 
 #include "algorithm"
-#include "spdlog/spdlog.h"
+// #include "spdlog/spdlog.h"
 #include "utils.h"
 
 namespace mjx {
@@ -56,8 +56,8 @@ std::vector<GameResult> Environment::ParallelRunGame(
 }
 
 GameResult Environment::RunOneGame(std::uint64_t game_seed) {
-  spdlog::info("Game Start!");
-  spdlog::info("Game Seed: {}", game_seed);
+  // spdlog::info("Game Start!");
+  // spdlog::info("Game Seed: {}", game_seed);
   std::vector<PlayerId> player_ids(4);
   for (int i = 0; i < 4; ++i) player_ids[i] = agents_.at(i)->player_id();
   state_ = State(State::ScoreInfo{player_ids, game_seed});
@@ -69,7 +69,7 @@ GameResult Environment::RunOneGame(std::uint64_t game_seed) {
   }
   // ゲーム終了時のStateにはisGameOverが含まれるはず #428
   Assert(state_.ToJson().find("isGameOver") != std::string::npos);
-  spdlog::info("Game End!");
+  // spdlog::info("Game End!");
   return state_.result();
 }
 
