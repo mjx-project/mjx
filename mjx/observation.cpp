@@ -126,4 +126,14 @@ bool Observation::UnderRiichi() const {
   }
   return false;
 }
+std::map<AbsolutePos, std::map<TileType, int>> Observation::DiscardedTileTypes() const {
+    std::map<AbsolutePos, std::map<TileType, int>> river;
+    for (const auto& event : proto_.event_history().events()) {
+        if (event.type() == mjxproto::EVENT_TYPE_DISCARD_FROM_HAND or
+            event.type() == mjxproto::EVENT_TYPE_DISCARD_DRAWN_TILE) {
+            ++river[static_cast<AbsolutePos>(event.who())][Tile(event.tile()).Type()];
+        }
+    }
+    return river;
+}
 }  // namespace mjx
