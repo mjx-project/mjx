@@ -118,13 +118,12 @@ std::optional<Tile> Observation::TargetTile() const {
 }
 
 bool Observation::UnderRiichi() const {
-    const auto player = proto_.who();
-    for (const auto& event : proto_.event_history().events()) {
-        if (event.type() == mjxproto::EVENT_TYPE_RIICHI and
-            event.who() == player) {
-            return true;
-        }
+  const auto player = proto_.who();
+  for (const auto& event : proto_.event_history().events()) {
+    if (event.type() == mjxproto::EVENT_TYPE_RIICHI and event.who() == player) {
+      return true;
     }
-    return false;
+  }
+  return false;
 }
 }  // namespace mjx
