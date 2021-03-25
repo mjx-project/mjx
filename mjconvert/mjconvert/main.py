@@ -139,15 +139,11 @@ class Converter:
         if self.fmt_from == "mjlog" and self.fmt_to == "mjxproto":
             assert self.mjlog2mjxproto is not None
             assert len(lines) == 1  # each line has each game
-            return self.mjlog2mjxproto.decode(
-                lines[0], compress=args.compress
-            )
+            return self.mjlog2mjxproto.decode(lines[0], compress=args.compress)
         if self.fmt_from == "mjlog" and self.fmt_to == "mjxproto_raw":
             assert self.mjlog2mjxproto is not None
             assert len(lines) == 1  # each line has each game
-            return self.mjlog2mjxproto.decode(
-                lines[0], compress=args.compress
-            )
+            return self.mjlog2mjxproto.decode(lines[0], compress=args.compress)
         else:
             raise NotImplementedError
 
