@@ -1,23 +1,16 @@
 from __future__ import annotations  # postpone type hint evaluation or doctest fails
 
 import copy
-import hashlib
 import json
-import os
-import subprocess
-import sys
 import urllib.parse
 import xml.etree.ElementTree as ET
 from typing import Dict, Iterator, List, Optional, Tuple
 from xml.etree.ElementTree import Element
 
-import pkg_resources
 from google.protobuf import json_format
 
 import tenhou_wall_reproducer
 import mjxproto
-
-SEED_CACHE_DIR = os.path.join(os.environ["HOME"], ".mjconvert/seed_cache")
 
 
 class MjlogDecoder:
