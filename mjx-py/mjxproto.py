@@ -212,8 +212,5 @@ class AgentStub(betterproto.ServiceStub):
         if possible_actions is not None:
             request.possible_actions = possible_actions
 
-        return await self._unary_unary(
-            "/mjxproto.Agent/TakeAction",
-            request,
-            Action,
-        )
+        return await self._unary_unary("/mjxproto.Agent/TakeAction", request, Action,)
+
