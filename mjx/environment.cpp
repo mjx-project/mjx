@@ -69,7 +69,7 @@ GameResult Environment::RunOneGame(std::uint64_t game_seed) {
   }
   // ゲーム終了時のStateにはisGameOverが含まれるはず #428
   Assert(state_.ToJson().find("isGameOver") != std::string::npos);
-  spdlog::info("Game End!");
+  // spdlog::info("Game End!");
   return state_.result();
 }
 
