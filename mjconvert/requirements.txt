@@ -9,3 +9,4 @@ isort
 flake8
 mypy
 mypy-protobuf
+tenhou_wall_reproducer

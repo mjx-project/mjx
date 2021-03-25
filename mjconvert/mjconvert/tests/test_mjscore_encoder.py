@@ -30,7 +30,7 @@ def test_mjxproto_to_mjscore():
             lines = fl.readlines()
             assert len(lines) == 1
             mjlog = lines[0]
-            mjxprotos: List[mjxproto.State] = mjlog_decoder.to_states(mjlog, store_cache=False)
+            mjxprotos: List[mjxproto.State] = mjlog_decoder.to_states(mjlog)
             mjscores = fs.readlines()
             assert len(mjxprotos) == len(mjscores)
             for proto, score_original in zip(mjxprotos, mjscores):
