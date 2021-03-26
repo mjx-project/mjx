@@ -25,6 +25,8 @@ class Observation {
   [[nodiscard]] std::optional<Tile> TargetTile()
       const;  // State::TargetTileとは挙動が異なるので注意.
   [[nodiscard]] bool UnderRiichi() const;
+  [[nodiscard]] std::map<AbsolutePos, std::map<TileType, int>> DiscardedTileTypes() const;
+  [[nodiscard]] std::vector<mjxproto::Event> EventHistory() const;
 
   void add_possible_action(mjxproto::Action&& possible_action);
   void add_possible_actions(
