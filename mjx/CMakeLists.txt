@@ -13,16 +13,19 @@ include(${CMAKEDIR}/BuildBoostUuid.cmake)
 ####################################################################################
 # For gRPc
 ####################################################################################
-# Assumes that gRPC dependencies are previously installed (and thus following codes can find them)
 find_package(Threads REQUIRED)
+include(${CMAKEDIR}/BuildGrpc.cmake)
+find_package(gRPC REQUIRED)
+
+# Assumes that gRPC dependencies are previously installed (and thus following codes can find them)
 set(protobuf_MODULE_COMPATIBLE TRUE)
 find_package(Protobuf CONFIG REQUIRED)
-message(STATUS "Using protobuf ${Protobuf_VERSION}")
+# message(STATUS "Using protobuf ${Protobuf_VERSION}")
 set(_PROTOBUF_LIBPROTOBUF protobuf::libprotobuf)
 set(_REFLECTION gRPC::grpc++_reflection)
 find_program(_PROTOBUF_PROTOC protoc)
 find_package(gRPC CONFIG REQUIRED)
-message(STATUS "Using gRPC ${gRPC_VERSION}")
+# message(STATUS "Using gRPC ${gRPC_VERSION}")
 set(_GRPC_GRPCPP gRPC::grpc++)
 find_program(_GRPC_CPP_PLUGIN_EXECUTABLE grpc_cpp_plugin)
 
