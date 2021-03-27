@@ -1,0 +1,3 @@
+[submodule "cmake/DownloadProject"]
+	path = cmake/DownloadProject
+	url = https://github.com/Crascit/DownloadProject.git
