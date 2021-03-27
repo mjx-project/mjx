@@ -14,6 +14,7 @@ FetchContent_Declare(
 )
 
 FetchContent_MakeAvailable(protobuf)
+add_subdirectory(${protobuf_SOURCE_DIR} ${protobuf_BINARY_DIR})
 
 find_package(Protobuf REQUIRED)
 
