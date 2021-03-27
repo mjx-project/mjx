@@ -1,4 +1,6 @@
 include(FetchContent)
+
+add_subdirectory(openssl-cmake)
 FetchContent_Declare(
   grpc
   GIT_REPOSITORY https://github.com/grpc/grpc.git
