@@ -8,7 +8,7 @@ clean:
 
 build: mjx tests mjx.proto
 	git submodule update --init
-	mkdir -p build && cd build && cmake .. && make -j
+	mkdir -p build && cd build && cmake -DCMAKE_BUILD_TYPE=Release -DgRPC_BUILD_TESTS=OFF -DgRPC_SSL_PROVIDER=package -DGRPC_FETCHCONTENT=ON -DFETCHCONTENT_SOURCE_DIR_GRPC="$(pwd)" .. && make -j
 
 test: build
 	./build/tests/mjx_test

@@ -1,29 +1,14 @@
 include(FetchContent)
-
-set(CMAKE_BUILD_TYPE Release)
-set(gRPC_BUILD_TESTS OFF)
-# set(gRPC_SSL_PROVIDER package)
-# set(GRPC_FETCHCONTENT ON)
-
-set(FETCHCONTENT_BASE_DIR ${EXTERNALDIR}/_deps)
-
 FetchContent_Declare(
-        protobuf
-        GIT_REPOSITORY https://github.com/protocolbuffers/protobuf.git
-        GIT_TAG        v3.13.0
+  grpc
+  GIT_REPOSITORY https://github.com/grpc/grpc.git
+  GIT_TAG        v1.28.0
 )
 
-FetchContent_MakeAvailable(protobuf)
-add_subdirectory(${protobuf_SOURCE_DIR} ${protobuf_BINARY_DIR})
+FetchContent_MakeAvailable(grpc)
 
-find_package(Protobuf REQUIRED)
-
-FetchContent_Declare(
-        gRPC
-        GIT_REPOSITORY https://github.com/grpc/grpc
-        GIT_TAG        v1.28.0
-)
-
-set(FETCHCONTENT_QUIET OFF)
-
-FetchContent_MakeAvailable(gRPC)
+set(_PROTOBUF_LIBPROTOBUF libprotobuf)
+set(_REFLECTION grpc++_reflection)
+set(_PROTOBUF_PROTOC $<TARGET_FILE:protoc>)
+set(_GRPC_GRPCPP grpc++)
+set(_GRPC_CPP_PLUGIN_EXECUTABLE $<TARGET_FILE:grpc_cpp_plugin>)
