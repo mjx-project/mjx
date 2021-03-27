@@ -5,6 +5,8 @@ set(gRPC_BUILD_TESTS OFF)
 # set(gRPC_SSL_PROVIDER package)
 # set(GRPC_FETCHCONTENT ON)
 
+set(FETCHCONTENT_BASE_DIR ${EXTERNALDIR}/_deps)
+
 FetchContent_Declare(
         protobuf
         GIT_REPOSITORY https://github.com/protocolbuffers/protobuf.git
@@ -13,7 +15,7 @@ FetchContent_Declare(
 
 FetchContent_MakeAvailable(protobuf)
 
-find_package(Protobuf CONFIG REQUIRED)
+find_package(Protobuf REQUIRED)
 
 FetchContent_Declare(
         gRPC
