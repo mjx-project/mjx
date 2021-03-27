@@ -7,6 +7,7 @@ clean:
 	rm -rf mjx/external_libs/* || "mjx/external_libs/** is already deleted"
 
 build: mjx tests mjx.proto
+	git submodule update --init
 	mkdir -p build && cd build && cmake .. && make -j
 
 test: build
