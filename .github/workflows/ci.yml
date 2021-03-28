@@ -8,6 +8,13 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
+    - name: Cache external
+      uses: actions/cache@v2
+      with:
+        path: |
+          external
+        key: external-${{ hashFiles('cmake/*') }}
+
     - name: Build mjx
       run: make build -j 4
 
