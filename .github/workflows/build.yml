@@ -9,7 +9,7 @@ jobs:
     - uses: actions/checkout@v2
 
     - name: Build mjx
-      run: make build
+      run: make build -j 4
 
     - name: Test mjx
       run: make test
