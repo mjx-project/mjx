@@ -1,5 +1,5 @@
 project(mjx_test)
-include(${CMAKEDIR}/BuildGoogleTest.cmake)
+include(${CMAKEDIR}/googletest.cmake)
 
 file(GLOB TEST_FILES *.cpp)
 add_executable(${PROJECT_NAME} ${TEST_FILES})

@@ -5,10 +5,7 @@ set(LIB_DIR ${CMAKE_CURRENT_SOURCE_DIR}/external_libs)
 # For Boost
 ####################################################################################
 
-include(${CMAKEDIR}/BuildBoostFunctional.cmake)
-include(${CMAKEDIR}/BuildBoostPropertyTree.cmake)
-include(${CMAKEDIR}/BuildBoostRandom.cmake)
-include(${CMAKEDIR}/BuildBoostUuid.cmake)
+include(${CMAKEDIR}/boost.cmake)
 
 ####################################################################################
 # For gRPc
