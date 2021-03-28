@@ -20,7 +20,6 @@
 # that automatically builds all the dependencies before building route_guide.
 
 include(FetchContent)
-
 set(FETCHCONTENT_BASE_DIR ${EXTERNALDIR})
 set(FETCHCONTENT_UPDATES_DISCONNECTED ON)
 
@@ -29,7 +28,6 @@ FetchContent_Declare(
   GIT_REPOSITORY https://github.com/grpc/grpc.git
   GIT_TAG        v1.36.4
 )
-
 FetchContent_MakeAvailable(grpc)
 
 set(_PROTOBUF_LIBPROTOBUF libprotobuf)
