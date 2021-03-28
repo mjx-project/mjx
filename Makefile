@@ -1,14 +1,14 @@
 clean:
 	cd mjconvert && make clean
-	rm -rf cmake-build-debug || "cmake-build-debug is already deleted"
-	rm -rf build || "debug is already deleted"
-	rm -rf docker-build || "docker-debug is already deleted"
-	rm -rf mjx/*pb* || "mjx/*pb* is already deleted"
-	rm -rf mjx/external_libs/* || "mjx/external_libs/** is already deleted"
+	rm -rf cmake-build-debug
+	rm -rf build
+	rm -rf docker-build
+	rm -rf mjx/*pb*
+	rm -rf mjx/external_libs/*
 
 build: mjx tests mjx.proto
 	git submodule update --init
-	mkdir -p build && cd build && cmake -DCMAKE_BUILD_TYPE=Release -DgRPC_BUILD_TESTS=OFF -DGRPC_FETCHCONTENT=ON -DFETCHCONTENT_SOURCE_DIR_GRPC="$(pwd)" .. && make -j
+	mkdir -p build && cd build && cmake .. && $(MAKE)
 
 test: build
 	./build/tests/mjx_test
