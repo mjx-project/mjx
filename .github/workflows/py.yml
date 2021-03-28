@@ -1,0 +1,26 @@
+name: build
+
+on: [push]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container: sotetsuk/ubuntu-gcc-grpc:v0.0.7
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Python 3.9
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.9
+
+    - name: Install mjconvert CLI
+      run: cd mjconvert && make install
+
+    - name: Run mjconvert pytest
+      run: cd mjconvert && make pytest
+
+    - name: Run mjconvert checks
+      run: cd mjconvert && make checks
+
+    - name: Test mjconvert CLI (mjlog => mjproto, mjproto => mjlog)
+      run: cd mjconvert && make test-cli
