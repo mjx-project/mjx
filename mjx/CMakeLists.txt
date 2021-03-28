@@ -13,7 +13,7 @@ include(${CMAKEDIR}/BuildBoostUuid.cmake)
 ####################################################################################
 # For gRPc
 ####################################################################################
-include(${CMAKEDIR}/BuildGrpc.cmake)
+include(${CMAKEDIR}/grpc.cmake)
 
 # Proto file
 get_filename_component(mjx_proto "../mjx.proto" ABSOLUTE)
