@@ -37,4 +37,5 @@ to_char = {
 
 
 def get_char(num):
+    assert (num // 4) in to_char
     return to_char[num // 4]

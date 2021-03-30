@@ -37,4 +37,5 @@ to_unicode = {
 
 
 def get_unicode(num):
+    assert (num // 4) in to_unicode
     return to_unicode[num // 4]

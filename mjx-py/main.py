@@ -1,69 +1,94 @@
-from rich.console import Console
-from rich.table import Table
+from terminaltables import AsciiTable, SingleTable
 
 import mjxproto
 from GetChar import get_char
-from GetPos import get_pos
-from GetUnicode import get_unicode
 
-console = Console()
-table = Table(show_header=True, header_style="bold magenta")
+# from GetPos import get_pos
+from GetUnicode import get_unicode
 
 
 class Players:
     def __init__(self, id):
         self.id = id
+        self.hands = []
         self.discards = []
 
-    def discard(self, tile):
+    def init_hand(self, init_hand) -> None:
+        self.hands = init_hand
+
+    def draw(self, tile) -> None:
+        self.hands.append(tile)
+
+    def discard(self, tile) -> None:
         self.discards.append(tile)
 
-    def show_discard(self):
+    def show_discard(self) -> None:
         print(self.discards)
 
 
 class GameBoard:
-    def __init__(self, path):
+    def __init__(self, path, is_uni):
         self.path = path
+        self.is_unicode = is_uni
         self.east = Players(0)
         self.south = Players(1)
         self.west = Players(2)
         self.north = Players(3)
         self.players = [self.east, self.south, self.west, self.north]
 
-        self.console = Console()
-        self.table = Table(show_header=True, header_style="bold magenta")
+    def discard(self, id: int, tile: int) -> None:
+        if self.is_unicode:
+            self.players[id].discard(get_unicode(tile))
+        else:
+            self.players[id].discard(get_char(tile))
 
-    def discard(self, id: int, tile: int):
-        self.players[id].discard(tile)
+    def show_all(self) -> None:
+        table_data = [
+            ["      東      ", "      南      ", "      西      ", "      北      "],
+            [
+                " ".join(self.east.hands),
+                " ".join(self.south.hands),
+                " ".join(self.west.hands),
+                " ".join(self.north.hands),
+            ],
+            [
+                " ".join(self.east.discards),
+                " ".join(self.south.discards),
+                " ".join(self.west.discards),
+                " ".join(self.north.discards),
+            ],
+        ]
+        table_instance = SingleTable(table_data, "board")
+        table_instance.inner_heading_row_border = False
+        table_instance.inner_row_border = True
+        table_instance.justify_columns = {
+            0: "center",
+            1: "center",
+            2: "center",
+            3: "center",
+        }
+        print(table_instance.table)
 
-    def show_discard(self):
-        self.table.add_column("東", width=24, justify="center")
-        self.table.add_column("南", width=24, justify="center")
-        self.table.add_column("西", width=24, justify="center")
-        self.table.add_column("北", width=24, justify="center")
-        self.table.add_row(
-            str(self.east.discards),
-            str(self.south.discards),
-            str(self.west.discards),
-            str(self.north.discards),
-        )
-        self.console.print(self.table)
-
-    def run(self):
+    def run(self) -> None:
         with open(self.path, "r", errors="ignore") as f:
             for line in f:
-                test = mjxproto.State()
-                test.from_json(line)
+                gamedata = mjxproto.State()
+                gamedata.from_json(line)
 
-                for event in test.event_history.events:
-                    self.table = Table(show_header=True, header_style="bold magenta")
-                    if event.type == 1:
-                        self.discard(event.who, get_char(event.tile))
-                        self.show_discard()
+                for i, p in enumerate(self.players):
+                    tmp = gamedata.private_infos[i].init_hand
+                    if self.is_unicode:
+                        p.init_hand([get_unicode(i) for i in tmp])
+                    else:
+                        p.init_hand([get_char(i) for i in tmp])
 
-                break
+                for event in gamedata.event_history.events:
+                    if event.type == 1 or event.type == 2:
+                        self.discard(event.who, event.tile)
+                        self.show_all()
+
+                break  # 一局だけ
 
 
-game_board = GameBoard("2010091009gm-00a9-0000-83af2648&tw=2.json")
+game_board = GameBoard("2010091009gm-00a9-0000-83af2648&tw=2.json", False)
 game_board.run()
