@@ -20,6 +20,8 @@ class Players:
         self.hands.append(tile)
 
     def discard(self, tile) -> None:
+        if tile in self.hands:
+            self.hands.remove(tile)
         self.discards.append(tile)
 
     def show_discard(self) -> None:
@@ -36,9 +38,15 @@ class GameBoard:
         self.north = Players(3)
         self.players = [self.east, self.south, self.west, self.north]
 
+    def draw(self, id: int, tile: int) -> None:
+        if self.is_unicode:
+            self.players[id].draw(get_unicode(tile).decode("unicode-escape"))
+        else:
+            self.players[id].draw(get_char(tile))
+
     def discard(self, id: int, tile: int) -> None:
         if self.is_unicode:
-            self.players[id].discard(get_unicode(tile))
+            self.players[id].discard(get_unicode(tile).decode("unicode-escape"))
         else:
             self.players[id].discard(get_char(tile))
 
@@ -46,10 +54,10 @@ class GameBoard:
         table_data = [
             ["      東      ", "      南      ", "      西      ", "      北      "],
             [
-                " ".join(self.east.hands),
-                " ".join(self.south.hands),
-                " ".join(self.west.hands),
-                " ".join(self.north.hands),
+                "".join(self.east.hands),
+                "".join(self.south.hands),
+                "".join(self.west.hands),
+                "".join(self.north.hands),
             ],
             [
                 " ".join(self.east.discards),
@@ -78,14 +86,25 @@ class GameBoard:
                 for i, p in enumerate(self.players):
                     tmp = gamedata.private_infos[i].init_hand
                     if self.is_unicode:
-                        p.init_hand([get_unicode(i) for i in tmp])
+                        p.init_hand(
+                            [get_unicode(i).decode("unicode-escape") for i in tmp]
+                        )
                     else:
                         p.init_hand([get_char(i) for i in tmp])
 
                 for event in gamedata.event_history.events:
-                    if event.type == 1 or event.type == 2:
+                    if event.type == 0:
+                        self.draw(
+                            event.who, gamedata.private_infos[i // 4].draws[i // 4]
+                        )
+                    if event.type == 1:
                         self.discard(event.who, event.tile)
                         self.show_all()
+                    """
+                    if event.type == 2:
+                        self.draw(event.who, event.tile)
+                        self.discard(event.who, event.tile)
+                    """
 
                 break  # 一局だけ
 
