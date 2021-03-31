@@ -5,7 +5,7 @@ set(FETCHCONTENT_UPDATES_DISCONNECTED ON)
 FetchContent_Declare(
     boost
     GIT_REPOSITORY https://github.com/boostorg/boost.git
-    GIT_TAG        boost-1.75.0
+    GIT_TAG        boost-1.66.0
 )
 
 FetchContent_GetProperties(boost)
