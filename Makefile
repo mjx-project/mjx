@@ -8,6 +8,9 @@ clean:
 
 build: mjx tests mjx.proto
 	git submodule update --init --recursive
+	ls mjx/boost/container_hash/hash.hpp
+	cat mjx/boost/container_hash/hash.hpp
+	exit 1
 	mkdir -p build && cd build && cmake .. && $(MAKE)
 
 test: build
