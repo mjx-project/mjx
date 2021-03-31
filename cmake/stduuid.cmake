@@ -8,4 +8,4 @@ FetchContent_Declare(
     GIT_TAG        v1.0
 )
 
-FetchContent_MakeAvailable(stduud)
+FetchContent_MakeAvailable(stduuid)
