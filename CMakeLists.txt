@@ -10,6 +10,7 @@ set(CMAKEDIR ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 set(EXTERNALDIR ${CMAKE_CURRENT_SOURCE_DIR}/external)
 
 include(${CMAKEDIR}/distributions.cmake)
+include(${CMAKEDIR}/stduuid.cmake)
 
 set(SOURCE_FILES main.cpp)
 add_executable(main.out ${SOURCE_FILES})
