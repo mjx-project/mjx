@@ -4,11 +4,10 @@ set(LIB_DIR ${CMAKE_CURRENT_SOURCE_DIR}/external_libs)
 ####################################################################################
 # For Boost
 ####################################################################################
-find_package(Boost)
-IF (Boost_FOUND)
-    INCLUDE_DIRECTORIES(${Boost_INCLUDE_DIR})
-    ADD_DEFINITIONS( "-DHAS_BOOST" )
-ENDIF()
+
+include(${CMAKEDIR}/boost_uuid.cmake)
+include(${CMAKEDIR}/boost_random.cmake)
+include(${CMAKEDIR}/boost_property_tree.cmake)
 
 ####################################################################################
 # For gRPc
