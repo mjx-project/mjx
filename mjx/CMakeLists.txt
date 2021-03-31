@@ -7,14 +7,7 @@ set(LIB_DIR ${CMAKE_CURRENT_SOURCE_DIR}/external_libs)
 
 include(${CMAKEDIR}/boost.cmake)
 
-FetchContent_GetProperties(boost)
-include_directories(${boost_SOURCE_DIR}/libs/random/include)
-include_directories(${boost_SOURCE_DIR}/libs/uuid/include)
-include_directories(${boost_SOURCE_DIR}/libs/property_tree/include)
-include_directories(${boost_SOURCE_DIR}/libs/config/include)
-include_directories(${boost_SOURCE_DIR}/libs/type_traits/include)
-
-####################################################################################
+###################################################################################
 # For gRPc
 ####################################################################################
 include(${CMAKEDIR}/grpc.cmake)
