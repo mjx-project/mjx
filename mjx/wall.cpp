@@ -1,8 +1,8 @@
 #include "wall.h"
 
 #include <array>
-#include <distributions//uniform_int_distribution.hpp>
 #include <cassert>
+#include <distributions  //uniform_int_distribution.hpp>
 
 #include "utils.h"
 
