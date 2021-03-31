@@ -206,7 +206,7 @@ add_library(${PROJECT_NAME} STATIC
 # target_link_libraries(${PROJECT_NAME} ${_REFLECTION} ${_GRPC_GRPCPP} ${_PROTOBUF_LIBPROTOBUF} spdlog::spdlog)
 target_link_libraries(${PROJECT_NAME} ${_REFLECTION} ${_GRPC_GRPCPP} ${_PROTOBUF_LIBPROTOBUF})
 target_include_directories(
-    ${PROJECT_NAME}
+    ${PROJECT_NAME} PUBLIC
     ${PROJECT_SOURCE_DIR}/boost/libs/accumulators/include
     ${PROJECT_SOURCE_DIR}/boost/libs/algorithm/include
     ${PROJECT_SOURCE_DIR}/boost/libs/align/include
