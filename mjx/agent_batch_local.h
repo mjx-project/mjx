@@ -1,12 +1,10 @@
 #ifndef MJX_REPO_AGENT_BATCH_LOCAL_H
 #define MJX_REPO_AGENT_BATCH_LOCAL_H
 
-#include <boost/functional/hash.hpp>
-#include <boost/uuid/uuid.hpp>
-#include <boost/uuid/uuid_generators.hpp>
-#include <boost/uuid/uuid_io.hpp>
 #include <queue>
 #include <thread>
+
+#include <uuid.h>
 
 #include "agent.h"
 #include "mjx.grpc.pb.h"
@@ -25,7 +23,7 @@ class AgentBatchLocal final : public Agent {
 
  private:
   struct ObservationInfo {
-    boost::uuids::uuid id;
+    uuids::uuid id;
     Observation obs;
   };
 
@@ -42,8 +40,7 @@ class AgentBatchLocal final : public Agent {
   // 推論結果記録用のキューとマップ
   mutable std::mutex mtx_que_, mtx_map_;
   mutable std::queue<ObservationInfo> obs_que_;
-  mutable std::unordered_map<boost::uuids::uuid, mjxproto::Action,
-                             boost::hash<boost::uuids::uuid>>
+  mutable std::unordered_map<uuids::uuid, mjxproto::Action>
       act_map_;
 
   // 常駐する推論スレッド

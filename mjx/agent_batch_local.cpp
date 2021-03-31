@@ -25,7 +25,7 @@ AgentBatchLocal::~AgentBatchLocal() {
 mjxproto::Action AgentBatchLocal::TakeAction(Observation &&observation) const {
   mjxproto::Action reply_action;
   // Observationデータ追加
-  auto id = boost::uuids::random_generator()();
+  auto id = uuids::uuid_system_generator{}();
   {
     std::lock_guard<std::mutex> lock_que(mtx_que_);
     obs_que_.push({id, Observation(observation)});
@@ -59,7 +59,7 @@ void AgentBatchLocal::InferAction() {
   }
 
   // Queueからデータを取り出す
-  std::vector<boost::uuids::uuid> ids;
+  std::vector<uuids::uuid> ids;
   std::vector<Observation> observations;
   {
     std::lock_guard<std::mutex> lock_que(mtx_que_);

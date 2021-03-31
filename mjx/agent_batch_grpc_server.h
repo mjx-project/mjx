@@ -1,12 +1,10 @@
 #ifndef MAHJONG_AGENT_BATCH_GRPC_SERVER_H
 #define MAHJONG_AGENT_BATCH_GRPC_SERVER_H
 
-#include <boost/functional/hash.hpp>
-#include <boost/uuid/uuid.hpp>
-#include <boost/uuid/uuid_generators.hpp>
-#include <boost/uuid/uuid_io.hpp>
 #include <queue>
 #include <thread>
+
+#include <uuid.h>
 
 #include "mjx.grpc.pb.h"
 #include "observation.h"
@@ -31,7 +29,7 @@ class AgentBatchGrpcServerImpl final : public mjxproto::Agent::Service {
 
  private:
   struct ObservationInfo {
-    boost::uuids::uuid id;
+    uuids::uuid id;
     Observation obs;
   };
 
@@ -47,8 +45,7 @@ class AgentBatchGrpcServerImpl final : public mjxproto::Agent::Service {
 
   std::mutex mtx_que_, mtx_map_;
   std::queue<ObservationInfo> obs_que_;
-  std::unordered_map<boost::uuids::uuid, mjxproto::Action,
-                     boost::hash<boost::uuids::uuid>>
+  std::unordered_map<uuids::uuid, mjxproto::Action>
       act_map_;
   // 常駐する推論スレッド
   std::thread thread_inference_;
