@@ -103,10 +103,10 @@ Hand Observation::current_hand() const {
 }
 
 std::vector<mjxproto::Event> Observation::EventHistory() const {
-    std::vector<mjxproto::Event> events;
-    for (const auto &event : proto_.event_history().events()) {
-        events.emplace_back(event);
-    }
-    return events;
+  std::vector<mjxproto::Event> events;
+  for (const auto& event : proto_.event_history().events()) {
+    events.emplace_back(event);
+  }
+  return events;
 }
 }  // namespace mjx
