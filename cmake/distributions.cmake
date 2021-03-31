@@ -5,7 +5,7 @@ set(FETCHCONTENT_UPDATES_DISCONNECTED ON)
 FetchContent_Declare(
     distributions
     GIT_REPOSITORY https://github.com/sotetsuk/distributions.git
-    GIT_TAG        v0.1.0
+    GIT_TAG        v0.1.1
 )
 
 FetchContent_GetProperties(distributions)
