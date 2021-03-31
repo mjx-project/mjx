@@ -7,6 +7,7 @@ clean:
 	rm -rf mjx/external_libs/*
 
 build: mjx tests mjx.proto
+	git submodule update --init --recursive
 	mkdir -p build && cd build && cmake .. && $(MAKE)
 
 test: build
