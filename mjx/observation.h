@@ -22,10 +22,6 @@ class Observation {
   Hand current_hand() const;
   std::string ToJson() const;
   const mjxproto::Observation& proto() const;
-  [[nodiscard]] std::optional<Tile> TargetTile()
-      const;  // State::TargetTileとは挙動が異なるので注意.
-  [[nodiscard]] bool UnderRiichi() const;
-  [[nodiscard]] std::map<AbsolutePos, std::map<TileType, int>> DiscardedTileTypes() const;
   [[nodiscard]] std::vector<mjxproto::Event> EventHistory() const;
 
   void add_possible_action(mjxproto::Action&& possible_action);

@@ -102,40 +102,6 @@ Hand Observation::current_hand() const {
   return hand;
 }
 
-std::optional<Tile> Observation::TargetTile() const {
-  if (proto_.event_history().events().empty()) return std::nullopt;
-  auto event = *proto_.event_history().events().rbegin();
-
-  if (event.type() == mjxproto::EventType::EVENT_TYPE_DISCARD_FROM_HAND or
-      event.type() == mjxproto::EventType::EVENT_TYPE_DISCARD_DRAWN_TILE) {
-    return Tile(event.tile());
-  }
-  if (event.type() == mjxproto::EventType::EVENT_TYPE_KAN_ADDED) {
-    return Open(event.open()).LastTile();
-  }
-
-  return std::nullopt;
-}
-
-bool Observation::UnderRiichi() const {
-  const auto player = proto_.who();
-  for (const auto& event : proto_.event_history().events()) {
-    if (event.type() == mjxproto::EVENT_TYPE_RIICHI and event.who() == player) {
-      return true;
-    }
-  }
-  return false;
-}
-std::map<AbsolutePos, std::map<TileType, int>> Observation::DiscardedTileTypes() const {
-    std::map<AbsolutePos, std::map<TileType, int>> river;
-    for (const auto& event : proto_.event_history().events()) {
-        if (event.type() == mjxproto::EVENT_TYPE_DISCARD_FROM_HAND or
-            event.type() == mjxproto::EVENT_TYPE_DISCARD_DRAWN_TILE) {
-            ++river[static_cast<AbsolutePos>(event.who())][Tile(event.tile()).Type()];
-        }
-    }
-    return river;
-}
 std::vector<mjxproto::Event> Observation::EventHistory() const {
     std::vector<mjxproto::Event> events;
     for (const auto &event : proto_.event_history().events()) {
