@@ -4,8 +4,8 @@ set(FETCHCONTENT_UPDATES_DISCONNECTED ON)
 
 FetchContent_Declare(
     distributions
-    GIT_REPOSITORY https://github.com/sotetsuk/distributions.git
-    GIT_TAG        v0.1.1
+    GIT_REPOSITORY https://github.com/boostorg/random.git
+    GIT_TAG        boost-1.75.0
 )
 
 FetchContent_GetProperties(distributions)

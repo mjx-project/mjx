@@ -3,8 +3,8 @@
 
 #include <algorithm>
 #include <cassert>
-#include <distributions/uniform_int_distribution.hpp>
-#include <distributions/uniform_real_distribution.hpp>
+#include <boost/random/uniform_int_distribution.hpp>
+#include <boost/random/uniform_real_distribution.hpp>
 #include <initializer_list>
 #include <iostream>
 #include <iterator>
@@ -44,7 +44,7 @@ bool Any(const std::vector<T>& v, F&& f) {
 // https://stackoverflow.com/questions/6942273/how-to-get-a-random-element-from-a-c-container
 template <typename Iter, typename RandomGenerator>
 Iter SelectRandomly(Iter start, Iter end, RandomGenerator& g) {
-  distributions::uniform_int_distribution<> dis(
+  boost::random::uniform_int_distribution<> dis(
       0, std::distance(start, end) - 1);  // use boost ver instead of std to
                                           // avoid implementation dependency
   std::advance(start, dis(g));
@@ -53,7 +53,7 @@ Iter SelectRandomly(Iter start, Iter end, RandomGenerator& g) {
 
 template <typename RandomGenerator>
 double RandomProb(RandomGenerator& g) {
-  distributions::uniform_real_distribution<double> uniform(
+  boost::random::uniform_real_distribution<double> uniform(
       0.0,
       1.0);  // use boost ver instead of std to avoid implementation dependency
   return uniform(g);
