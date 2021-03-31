@@ -2,9 +2,9 @@
 #define MAHJONG_UTILS_H
 
 #include <algorithm>
+#include <cassert>
 #include <boost/random/uniform_int_distribution.hpp>
 #include <boost/random/uniform_real_distribution.hpp>
-#include <cassert>
 #include <initializer_list>
 #include <iostream>
 #include <iterator>

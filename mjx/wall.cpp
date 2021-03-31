@@ -1,8 +1,8 @@
 #include "wall.h"
 
 #include <array>
-#include <boost/random/uniform_int_distribution.hpp>
 #include <cassert>
+#include <boost/random/uniform_int_distribution.hpp>
 
 #include "utils.h"
 

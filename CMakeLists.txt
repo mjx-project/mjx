@@ -8,6 +8,9 @@ set(CMAKE_CXX_FLAGS "-Wall")
 set(CMAKEDIR ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 set(EXTERNALDIR ${CMAKE_CURRENT_SOURCE_DIR}/external)
 
+set(CMAKEDIR ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
+set(EXTERNALDIR ${CMAKE_CURRENT_SOURCE_DIR}/external)
+
 set(SOURCE_FILES main.cpp)
 add_executable(main.out ${SOURCE_FILES})
 
