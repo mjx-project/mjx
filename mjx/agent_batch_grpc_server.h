@@ -1,7 +1,7 @@
 #ifndef MAHJONG_AGENT_BATCH_GRPC_SERVER_H
 #define MAHJONG_AGENT_BATCH_GRPC_SERVER_H
 
-#include <boost/functional/hash.hpp>
+#include <boost/container_hash/hash.hpp>
 #include <boost/uuid/uuid.hpp>
 #include <boost/uuid/uuid_generators.hpp>
 #include <boost/uuid/uuid_io.hpp>
