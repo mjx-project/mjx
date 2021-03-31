@@ -1,0 +1,3 @@
+[submodule "mjx/boost"]
+	path = mjx/boost
+	url = https://github.com/boostorg/boost
