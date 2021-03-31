@@ -7,12 +7,6 @@ set(LIB_DIR ${CMAKE_CURRENT_SOURCE_DIR}/external_libs)
 
 include(${CMAKEDIR}/boost.cmake)
 
-find_package(Boost)
-IF (Boost_FOUND)
-    INCLUDE_DIRECTORIES(${Boost_INCLUDE_DIR})
-    ADD_DEFINITIONS( "-DHAS_BOOST" )
-ENDIF()
-
 ###################################################################################
 # For gRPc
 ####################################################################################
