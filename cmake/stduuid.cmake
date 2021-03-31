@@ -8,8 +8,4 @@ FetchContent_Declare(
     GIT_TAG        v1.0
 )
 
-FetchContent_GetProperties(stduuid)
-if(NOT stduuid_POPULATED)
-    FetchContent_Populate(stduuid)
-    include_directories(${stduuid_SOURCE_DIR}/include)
-endif()
+FetchContent_MakeAvailable(stduud)
