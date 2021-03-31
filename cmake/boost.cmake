@@ -11,5 +11,5 @@ FetchContent_Declare(
 FetchContent_GetProperties(boost)
 if(NOT boost_POPULATED)
     FetchContent_Populate(boost)
-    include_directories(${boost_SOURCE_DIR}/include)
+    include_directories(${boost_SOURCE_DIR}/libs/*/include)
 endif()
