@@ -5,7 +5,7 @@ set(FETCHCONTENT_UPDATES_DISCONNECTED ON)
 FetchContent_Declare(
     boost
     GIT_REPOSITORY https://github.com/boostorg/boost.git
-    GIT_TAG        boost-1.66.0
+    GIT_TAG        boost-1.71.0
 )
 
 FetchContent_GetProperties(boost)
@@ -29,6 +29,7 @@ if(NOT boost_POPULATED)
     include_directories(${boost_SOURCE_DIR}/libs/foreach/include)
     include_directories(${boost_SOURCE_DIR}/libs/spirit/include)
     include_directories(${boost_SOURCE_DIR}/libs/io/include)
+    include_directories(${boost_SOURCE_DIR}/libs/disjoint_sets/include)
     include_directories(${boost_SOURCE_DIR}/libs/units/include)
     include_directories(${boost_SOURCE_DIR}/libs/preprocessor/include)
     include_directories(${boost_SOURCE_DIR}/libs/format/include)
@@ -148,10 +149,4 @@ if(NOT boost_POPULATED)
     include_directories(${boost_SOURCE_DIR}/libs/outcome/include)
     include_directories(${boost_SOURCE_DIR}/libs/histogram/include)
     include_directories(${boost_SOURCE_DIR}/libs/variant2/include)
-    include_directories(${boost_SOURCE_DIR}/libs/nowide/include)
-    include_directories(${boost_SOURCE_DIR}/libs/static_string/include)
-    include_directories(${boost_SOURCE_DIR}/libs/stl_interfaces/include)
-    include_directories(${boost_SOURCE_DIR}/libs/leaf/include)
-    include_directories(${boost_SOURCE_DIR}/libs/json/include)
-    include_directories(${boost_SOURCE_DIR}/libs/pfr/include)
 endif()
