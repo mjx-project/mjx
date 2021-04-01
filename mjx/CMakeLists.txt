@@ -97,8 +97,8 @@ file(GLOB SOURCE_FILES *.cpp)
 file(GLOB HEADER_FILES *.h)
 add_library(mjx STATIC
         ${SOURCE_FILES} ${HEADER_FILES} ${mjx_proto_srcs} ${mjx_grpc_srcs} ${mjx_proto_hdrs} ${mjx_grpc_hdrs})
-target_include_directories(mjx PRIVATE ${Boost_INCLUDE_DIRS})
-target_link_libraries(mjx ${_REFLECTION} ${_GRPC_GRPCPP} ${_PROTOBUF_LIBPROTOBUF})
+target_include_directories(mjx PUBLIC ${Boost_INCLUDE_DIRS})
+target_link_libraries(mjx PUBLIC ${_REFLECTION} ${_GRPC_GRPCPP} ${_PROTOBUF_LIBPROTOBUF})
 
 ####################################################################################
 # Build cache generators
@@ -107,9 +107,7 @@ add_definitions(-DWIN_CACHE_DIR="${CMAKE_CURRENT_SOURCE_DIR}/cache")
 
 # Generate cache file
 add_executable(win_cache_generator win_cache_generator.cpp)
-target_include_directories(win_cache_generator PRIVATE ${Boost_INCLUDE_DIRS})
 target_link_libraries(win_cache_generator ${PROJECT_NAME})
 
 add_executable(shanten_cache_generator shanten_cache_generator.cpp)
-target_include_directories(shanten_cache_generator PRIVATE ${Boost_INCLUDE_DIRS})
 target_link_libraries(shanten_cache_generator ${PROJECT_NAME})
