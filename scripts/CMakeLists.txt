@@ -1,5 +1,8 @@
 project(mjx_scripts)
 
-    add_executable(speed_benchmark speed_benchmark.cpp)
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-        target_link_libraries(speed_benchmark mjx)
+add_executable(speed_benchmark speed_benchmark.cpp)
+target_include_directories(speed_benchmark PRIVATE ..)
+target_link_libraries(speed_benchmark PRIVATE mjx)
