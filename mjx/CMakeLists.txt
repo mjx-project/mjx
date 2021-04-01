@@ -18,7 +18,7 @@ if (USE_SYSTEM_BOOST)
     find_package(Boost REQUIRED)
 else()
     message(STATUS "USE_SYSTEM_BOOST=OFF")
-    include(${CMAKEDIR}/download_boost.cmake)
+    include(${CMAKEDIR}/downloaded_boost.cmake)
 endif()
 message(STATUS "Include Boost_INCLUDE_DIRS=${Boost_INCLUDE_DIRS}")
 
