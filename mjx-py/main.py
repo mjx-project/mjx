@@ -1,3 +1,5 @@
+import os
+
 from terminaltables import AsciiTable, SingleTable
 
 import mjxproto
@@ -7,11 +9,19 @@ from GetChar import get_char
 from GetUnicode import get_unicode
 
 
+def clear_screen() -> None:
+    if os.name == "nt":
+        os.system("cls")
+    else:
+        os.system("clear")
+
+
 class Players:
     def __init__(self, id):
         self.id = id
         self.hands = []
         self.discards = []
+        self.drawcount = 0
 
     def init_hand(self, init_hand) -> None:
         self.hands = init_hand
@@ -43,12 +53,20 @@ class GameBoard:
             self.players[id].draw(get_unicode(tile).decode("unicode-escape"))
         else:
             self.players[id].draw(get_char(tile))
+        self.players[id].drawcount += 1
 
     def discard(self, id: int, tile: int) -> None:
         if self.is_unicode:
             self.players[id].discard(get_unicode(tile).decode("unicode-escape"))
         else:
             self.players[id].discard(get_char(tile))
+
+    def arrange(self) -> None:
+        for p in self.players:
+            p.hands.sort()
+
+    def get_dwawcount(self, id: int) -> int:
+        return self.players[id].drawcount
 
     def show_all(self) -> None:
         table_data = [
@@ -83,6 +101,7 @@ class GameBoard:
                 gamedata = mjxproto.State()
                 gamedata.from_json(line)
 
+                # 手元を初期化
                 for i, p in enumerate(self.players):
                     tmp = gamedata.private_infos[i].init_hand
                     if self.is_unicode:
@@ -92,19 +111,37 @@ class GameBoard:
                     else:
                         p.init_hand([get_char(i) for i in tmp])
 
-                for event in gamedata.event_history.events:
+                clear_screen()
+
+                for i, event in enumerate(gamedata.event_history.events):
+
                     if event.type == 0:
-                        self.draw(
-                            event.who, gamedata.private_infos[i // 4].draws[i // 4]
+                        print(
+                            f"player {event.who} draw tile {gamedata.private_infos[event.who].draws[self.get_dwawcount(event.who)]}"
                         )
-                    if event.type == 1:
+                        print(
+                            f"this tile is {get_char(gamedata.private_infos[event.who].draws[self.get_dwawcount(event.who)])}"
+                        )
+                        self.draw(
+                            event.who,
+                            gamedata.private_infos[event.who].draws[
+                                self.get_dwawcount(event.who)
+                            ],
+                        )
+                    elif event.type == 1:
+                        print(f"player {event.who} discard tile {event.tile} from hand")
+                        print(f"this tile is {get_char(event.tile)}")
                         self.discard(event.who, event.tile)
-                        self.show_all()
-                    """
-                    if event.type == 2:
+                    elif event.type == 2:
+                        print(f"player {event.who} discard tile {event.tile} from draw")
+                        print(f"this tile is {get_char(event.tile)}")
                         self.draw(event.who, event.tile)
                         self.discard(event.who, event.tile)
-                    """
+
+                    self.arrange()
+                    self.show_all()
+                    input()
+                    clear_screen()
 
                 break  # 一局だけ
 
