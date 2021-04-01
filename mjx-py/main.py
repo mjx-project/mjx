@@ -49,17 +49,11 @@ class GameBoard:
         self.players = [self.east, self.south, self.west, self.north]
 
     def draw(self, id: int, tile: int) -> None:
-        if self.is_unicode:
-            self.players[id].draw(get_unicode(tile).decode("unicode-escape"))
-        else:
-            self.players[id].draw(get_char(tile))
+        self.players[id].draw(tile)
         self.players[id].drawcount += 1
 
     def discard(self, id: int, tile: int) -> None:
-        if self.is_unicode:
-            self.players[id].discard(get_unicode(tile).decode("unicode-escape"))
-        else:
-            self.players[id].discard(get_char(tile))
+        self.players[id].discard(tile)
 
     def arrange(self) -> None:
         for p in self.players:
@@ -69,20 +63,37 @@ class GameBoard:
         return self.players[id].drawcount
 
     def show_all(self) -> None:
+        if self.is_unicode:
+            e_hand = [get_unicode(i).decode("unicode-escape") for i in self.east.hands]
+            s_hand = [get_unicode(i).decode("unicode-escape") for i in self.south.hands]
+            w_hand = [get_unicode(i).decode("unicode-escape") for i in self.west.hands]
+            n_hand = [get_unicode(i).decode("unicode-escape") for i in self.north.hands]
+            e_dis = [
+                get_unicode(i).decode("unicode-escape") for i in self.east.discards
+            ]
+            s_dis = [
+                get_unicode(i).decode("unicode-escape") for i in self.south.discards
+            ]
+            w_dis = [
+                get_unicode(i).decode("unicode-escape") for i in self.west.discards
+            ]
+            n_dis = [
+                get_unicode(i).decode("unicode-escape") for i in self.north.discards
+            ]
+        else:
+            e_hand = [get_char(i) for i in self.east.hands]
+            s_hand = [get_char(i) for i in self.south.hands]
+            w_hand = [get_char(i) for i in self.west.hands]
+            n_hand = [get_char(i) for i in self.north.hands]
+            e_dis = [get_char(i) for i in self.east.discards]
+            s_dis = [get_char(i) for i in self.south.discards]
+            w_dis = [get_char(i) for i in self.west.discards]
+            n_dis = [get_char(i) for i in self.north.discards]
+
         table_data = [
             ["      東      ", "      南      ", "      西      ", "      北      "],
-            [
-                "".join(self.east.hands),
-                "".join(self.south.hands),
-                "".join(self.west.hands),
-                "".join(self.north.hands),
-            ],
-            [
-                " ".join(self.east.discards),
-                " ".join(self.south.discards),
-                " ".join(self.west.discards),
-                " ".join(self.north.discards),
-            ],
+            ["".join(e_hand), "".join(s_hand), "".join(w_hand), "".join(n_hand)],
+            [" ".join(e_dis), " ".join(s_dis), " ".join(w_dis), " ".join(n_dis)],
         ]
         table_instance = SingleTable(table_data, "board")
         table_instance.inner_heading_row_border = False
@@ -103,13 +114,7 @@ class GameBoard:
 
                 # 手元を初期化
                 for i, p in enumerate(self.players):
-                    tmp = gamedata.private_infos[i].init_hand
-                    if self.is_unicode:
-                        p.init_hand(
-                            [get_unicode(i).decode("unicode-escape") for i in tmp]
-                        )
-                    else:
-                        p.init_hand([get_char(i) for i in tmp])
+                    p.init_hand(gamedata.private_infos[i].init_hand)
 
                 clear_screen()
 
