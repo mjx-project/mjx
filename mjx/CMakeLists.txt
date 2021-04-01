@@ -71,7 +71,6 @@ add_library(${PROJECT_NAME} STATIC
         ${SOURCE_FILES} ${HEADER_FILES} ${mjx_proto_srcs} ${mjx_grpc_srcs} ${mjx_proto_hdrs} ${mjx_grpc_hdrs})
 # target_link_libraries(${PROJECT_NAME} ${_REFLECTION} ${_GRPC_GRPCPP} ${_PROTOBUF_LIBPROTOBUF} spdlog::spdlog)
 target_link_libraries(${PROJECT_NAME} ${_REFLECTION} ${_GRPC_GRPCPP} ${_PROTOBUF_LIBPROTOBUF})
-FetchContent_GetProperties(boost)
 target_include_directories(
     ${PROJECT_NAME} PUBLIC
     ${boost_SOURCE_DIR}/libs/accumulators/include
@@ -222,5 +221,3 @@ target_link_libraries(win_cache_generator ${PROJECT_NAME})
 
 add_executable(shanten_cache_generator shanten_cache_generator.cpp)
 target_link_libraries(shanten_cache_generator ${PROJECT_NAME})
-
-
