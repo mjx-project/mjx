@@ -1,11 +1,11 @@
+import argparse
 import os
 
 from terminaltables import AsciiTable, SingleTable
 
 import mjxproto
 from GetChar import get_char
-
-# from GetPos import get_pos
+from GetPos import get_pos
 from GetUnicode import get_unicode
 
 
@@ -151,5 +151,15 @@ class GameBoard:
                 break  # 一局だけ
 
 
-game_board = GameBoard("2010091009gm-00a9-0000-83af2648&tw=2.json", False)
-game_board.run()
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--path", default="2010091009gm-00a9-0000-83af2648&tw=2.json")
+    parser.add_argument("--uni", default=False)
+    args = parser.parse_args()
+
+    game_board = GameBoard(args.path, args.uni)
+    game_board.run()
+
+
+if __name__ == "__main__":
+    main()
