@@ -9,21 +9,21 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 ####################################################################################
 
 # set(LIB_DIR ${CMAKE_CURRENT_SOURCE_DIR}/external_libs)
-option(USE_SYSTEM_BOOST "Use Boost previously installed." ON)
-option(USE_SYSTEM_GRPC "Use gRPC previously installed." ON)
+option(MJX_USE_SYSTEM_BOOST "Use Boost previously installed." ON)
+option(MJX_USE_SYSTEM_GRPC "Use gRPC previously installed." ON)
 
-set(EXTERNALDIR ${CMAKE_CURRENT_SOURCE_DIR}/external)
+set(MJX_EXTERNALDIR ${CMAKE_CURRENT_SOURCE_DIR}/external)
 
 ####################################################################################
 # For Boost
 ####################################################################################
 
 # We use boost as header-only
-if (USE_SYSTEM_BOOST)
-    message(STATUS "USE_SYSTEM_BOOST=ON")
+if (MJX_USE_SYSTEM_BOOST)
+    message(STATUS "MJX_USE_SYSTEM_BOOST=ON")
     find_package(Boost REQUIRED)
 else()
-    message(STATUS "USE_SYSTEM_BOOST=OFF")
+    message(STATUS "MJX_USE_SYSTEM_BOOST=OFF")
     include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/downloaded_boost.cmake)
 endif()
 message(STATUS "Include Boost_INCLUDE_DIRS=${Boost_INCLUDE_DIRS}")
@@ -32,11 +32,11 @@ message(STATUS "Include Boost_INCLUDE_DIRS=${Boost_INCLUDE_DIRS}")
 # For gRPc
 ####################################################################################
 
-if (USE_SYSTEM_GRPC)
-    message(STATUS "USE_SYSTEM_GRPC=ON")
+if (MJX_USE_SYSTEM_GRPC)
+    message(STATUS "MJX_USE_SYSTEM_GRPC=ON")
     include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/preinstalled_grpc.cmake)
 else()
-    message(STATUS "USE_SYSTEM_GRPC=OFF")
+    message(STATUS "MJX_USE_SYSTEM_GRPC=OFF")
     include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/downloaded_grpc.cmake)
 endif()
 
