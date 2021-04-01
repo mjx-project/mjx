@@ -16,7 +16,7 @@ jobs:
         key: mjx-external-${{ hashFiles('mjx/cmake/*') }}
 
     - name: Build mjx
-      run: make build -j 4 USE_SYSTEM_BOOST=OFF USE_SYSTEM_GRPC=OFF
+      run: make build -j 4 MJX_USE_SYSTEM_BOOST=OFF MJX_USE_SYSTEM_GRPC=OFF
 
     - name: Test mjx
       run: make test
