@@ -1,7 +1,7 @@
 #ifndef MJX_REPO_AGENT_BATCH_LOCAL_H
 #define MJX_REPO_AGENT_BATCH_LOCAL_H
 
-#include <boost/functional/hash.hpp>
+#include <boost/container_hash/hash.hpp>
 #include <boost/uuid/uuid.hpp>
 #include <boost/uuid/uuid_generators.hpp>
 #include <boost/uuid/uuid_io.hpp>

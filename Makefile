@@ -1,10 +1,9 @@
 clean:
 	cd mjconvert && make clean
-	rm -rf cmake-build-debug || "cmake-build-debug is already deleted"
-	rm -rf build || "debug is already deleted"
-	rm -rf docker-build || "docker-debug is already deleted"
-	rm -rf mjx/*pb* || "mjx/*pb* is already deleted"
-	rm -rf mjx/external_libs/* || "mjx/external_libs/** is already deleted"
+	rm -rf cmake-build-debug
+	rm -rf build
+	rm -rf docker-build
+	rm -rf mjx/*pb*
 
 build: mjx tests mjx.proto
 	mkdir -p build && cd build && cmake .. && make -j

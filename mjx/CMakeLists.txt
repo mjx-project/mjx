@@ -1,30 +1,44 @@
+cmake_minimum_required(VERSION 3.11)
 project(mjx)
-set(LIB_DIR ${CMAKE_CURRENT_SOURCE_DIR}/external_libs)
+
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+####################################################################################
+# Options
+####################################################################################
+
+# set(LIB_DIR ${CMAKE_CURRENT_SOURCE_DIR}/external_libs)
+option(MJX_USE_SYSTEM_BOOST "Use Boost previously installed." ON)
+option(MJX_USE_SYSTEM_GRPC "Use gRPC previously installed." ON)
+
+set(MJX_EXTERNALDIR ${CMAKE_CURRENT_SOURCE_DIR}/external)
 
 ####################################################################################
 # For Boost
 ####################################################################################
-find_package(Boost)
-IF (Boost_FOUND)
-    INCLUDE_DIRECTORIES(${Boost_INCLUDE_DIR})
-    ADD_DEFINITIONS( "-DHAS_BOOST" )
-ENDIF()
 
-####################################################################################
+# We use boost as header-only
+if (MJX_USE_SYSTEM_BOOST)
+    message(STATUS "MJX_USE_SYSTEM_BOOST=ON")
+    find_package(Boost REQUIRED)
+else()
+    message(STATUS "MJX_USE_SYSTEM_BOOST=OFF")
+    include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/downloaded_boost.cmake)
+endif()
+message(STATUS "Include Boost_INCLUDE_DIRS=${Boost_INCLUDE_DIRS}")
+
+###################################################################################
 # For gRPc
 ####################################################################################
-# Assumes that gRPC dependencies are previously installed (and thus following codes can find them)
-find_package(Threads REQUIRED)
-set(protobuf_MODULE_COMPATIBLE TRUE)
-find_package(Protobuf CONFIG REQUIRED)
-message(STATUS "Using protobuf ${Protobuf_VERSION}")
-set(_PROTOBUF_LIBPROTOBUF protobuf::libprotobuf)
-set(_REFLECTION gRPC::grpc++_reflection)
-find_program(_PROTOBUF_PROTOC protoc)
-find_package(gRPC CONFIG REQUIRED)
-message(STATUS "Using gRPC ${gRPC_VERSION}")
-set(_GRPC_GRPCPP gRPC::grpc++)
-find_program(_GRPC_CPP_PLUGIN_EXECUTABLE grpc_cpp_plugin)
+
+if (MJX_USE_SYSTEM_GRPC)
+    message(STATUS "MJX_USE_SYSTEM_GRPC=ON")
+    include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/preinstalled_grpc.cmake)
+else()
+    message(STATUS "MJX_USE_SYSTEM_GRPC=OFF")
+    include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/downloaded_grpc.cmake)
+endif()
 
 # Proto file
 get_filename_component(mjx_proto "../mjx.proto" ABSOLUTE)
@@ -76,20 +90,20 @@ include_directories("${CMAKE_CURRENT_SOURCE_DIR}")
 # endif()
 
 ####################################################################################
-# For mjx library
+# Build static mjx library
 ####################################################################################
 
 file(GLOB SOURCE_FILES *.cpp)
 file(GLOB HEADER_FILES *.h)
-add_library(${PROJECT_NAME} STATIC
-        ${SOURCE_FILES} ${HEADER_FILES} ${mjx_proto_srcs} ${mjx_grpc_srcs})
-# target_link_libraries(${PROJECT_NAME} ${_REFLECTION} ${_GRPC_GRPCPP} ${_PROTOBUF_LIBPROTOBUF} spdlog::spdlog)
-target_link_libraries(${PROJECT_NAME} ${_REFLECTION} ${_GRPC_GRPCPP} ${_PROTOBUF_LIBPROTOBUF})
+add_library(mjx STATIC
+        ${SOURCE_FILES} ${HEADER_FILES} ${mjx_proto_srcs} ${mjx_grpc_srcs} ${mjx_proto_hdrs} ${mjx_grpc_hdrs})
+target_include_directories(mjx PUBLIC ${Boost_INCLUDE_DIRS})
+target_link_libraries(mjx PUBLIC ${_REFLECTION} ${_GRPC_GRPCPP} ${_PROTOBUF_LIBPROTOBUF})
+target_compile_definitions(mjx PUBLIC WIN_CACHE_DIR="${CMAKE_CURRENT_SOURCE_DIR}/cache")
 
 ####################################################################################
-# For winning hand cache
+# Build cache generators
 ####################################################################################
-add_definitions(-DWIN_CACHE_DIR="${CMAKE_CURRENT_SOURCE_DIR}/cache")
 
 # Generate cache file
 add_executable(win_cache_generator win_cache_generator.cpp)
