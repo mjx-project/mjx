@@ -19,8 +19,13 @@ def clear_screen() -> None:
 class Players:
     def __init__(self, id):
         self.id = id
-        self.hands = []
-        self.discards = []
+        self.hands = []  # 手牌
+        self.discards = []  # 河
+        self.chi = []
+        self.pon = []
+        self.kan_closed = []
+        self.kan_opened = []
+        self.kan_added = []
         self.drawcount = 0
 
     def init_hand(self, init_hand) -> None:
@@ -48,52 +53,53 @@ class GameBoard:
         self.north = Players(3)
         self.players = [self.east, self.south, self.west, self.north]
 
+    # idのプレイヤーがtileを取る
     def draw(self, id: int, tile: int) -> None:
         self.players[id].draw(tile)
         self.players[id].drawcount += 1
 
+    # idのプレイヤーがtileを捨てる
     def discard(self, id: int, tile: int) -> None:
         self.players[id].discard(tile)
 
+    # 理牌
     def arrange(self) -> None:
         for p in self.players:
             p.hands.sort()
 
+    # drawcountは何回ツモしたかのカウンタ
+    # idのプレイヤーのdwawcountを返す
     def get_dwawcount(self, id: int) -> int:
         return self.players[id].drawcount
 
+    # 全プレイヤーの手牌、河を表示
     def show_all(self) -> None:
-        if self.is_unicode:
-            e_hand = [get_unicode(i).decode("unicode-escape") for i in self.east.hands]
-            s_hand = [get_unicode(i).decode("unicode-escape") for i in self.south.hands]
-            w_hand = [get_unicode(i).decode("unicode-escape") for i in self.west.hands]
-            n_hand = [get_unicode(i).decode("unicode-escape") for i in self.north.hands]
-            e_dis = [
-                get_unicode(i).decode("unicode-escape") for i in self.east.discards
-            ]
-            s_dis = [
-                get_unicode(i).decode("unicode-escape") for i in self.south.discards
-            ]
-            w_dis = [
-                get_unicode(i).decode("unicode-escape") for i in self.west.discards
-            ]
-            n_dis = [
-                get_unicode(i).decode("unicode-escape") for i in self.north.discards
-            ]
-        else:
-            e_hand = [get_char(i) for i in self.east.hands]
-            s_hand = [get_char(i) for i in self.south.hands]
-            w_hand = [get_char(i) for i in self.west.hands]
-            n_hand = [get_char(i) for i in self.north.hands]
-            e_dis = [get_char(i) for i in self.east.discards]
-            s_dis = [get_char(i) for i in self.south.discards]
-            w_dis = [get_char(i) for i in self.west.discards]
-            n_dis = [get_char(i) for i in self.north.discards]
+        hands = []
+        discs = []
+        for p in self.players:
+            if self.is_unicode:
+                hands.append([get_unicode(i).decode("unicode-escape") for i in p.hands])
+                discs.append(
+                    [get_unicode(i).decode("unicode-escape") for i in p.discards]
+                )
+            else:
+                hands.append([get_char(i) for i in p.hands])
+                discs.append([get_char(i) for i in p.discards])
 
         table_data = [
             ["      東      ", "      南      ", "      西      ", "      北      "],
-            ["".join(e_hand), "".join(s_hand), "".join(w_hand), "".join(n_hand)],
-            [" ".join(e_dis), " ".join(s_dis), " ".join(w_dis), " ".join(n_dis)],
+            [
+                "".join(hands[0]),
+                "".join(hands[1]),
+                "".join(hands[2]),
+                "".join(hands[3]),
+            ],
+            [
+                " ".join(discs[0]),
+                " ".join(discs[1]),
+                " ".join(discs[2]),
+                " ".join(discs[3]),
+            ],
         ]
         table_instance = SingleTable(table_data, "board")
         table_instance.inner_heading_row_border = False
@@ -106,6 +112,7 @@ class GameBoard:
         }
         print(table_instance.table)
 
+    # 実行
     def run(self) -> None:
         with open(self.path, "r", errors="ignore") as f:
             for line in f:
@@ -120,12 +127,12 @@ class GameBoard:
 
                 for i, event in enumerate(gamedata.event_history.events):
 
-                    if event.type == 0:
+                    if event.type == 0:  # ツモ
                         print(
-                            f"player {event.who} draw tile {gamedata.private_infos[event.who].draws[self.get_dwawcount(event.who)]}"
+                            f"player {get_pos(event.who)} draw tile {gamedata.private_infos[event.who].draws[self.get_dwawcount(event.who)]}"
                         )
                         print(
-                            f"this tile is {get_char(gamedata.private_infos[event.who].draws[self.get_dwawcount(event.who)])}"
+                            f"{gamedata.private_infos[event.who].draws[self.get_dwawcount(event.who)]}: this tile is {get_char(gamedata.private_infos[event.who].draws[self.get_dwawcount(event.who)])}"
                         )
                         self.draw(
                             event.who,
@@ -133,13 +140,17 @@ class GameBoard:
                                 self.get_dwawcount(event.who)
                             ],
                         )
-                    elif event.type == 1:
-                        print(f"player {event.who} discard tile {event.tile} from hand")
-                        print(f"this tile is {get_char(event.tile)}")
+                    elif event.type == 1:  # 手牌から切り
+                        print(
+                            f"player {get_pos(event.who)} discard tile {event.tile} from hand"
+                        )
+                        print(f"{event.tile}: this tile is {get_char(event.tile)}")
                         self.discard(event.who, event.tile)
-                    elif event.type == 2:
-                        print(f"player {event.who} discard tile {event.tile} from draw")
-                        print(f"this tile is {get_char(event.tile)}")
+                    elif event.type == 2:  # ツモから切り
+                        print(
+                            f"player {get_pos(event.who)} discard tile {event.tile} from draw"
+                        )
+                        print(f"{event.tile}: this tile is {get_char(event.tile)}")
                         self.draw(event.who, event.tile)
                         self.discard(event.who, event.tile)
 
