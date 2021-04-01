@@ -1,4 +1,8 @@
+cmake_minimum_required(VERSION 3.11)
 project(mjx)
+
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 ####################################################################################
 # Options
@@ -84,25 +88,26 @@ include_directories("${CMAKE_CURRENT_SOURCE_DIR}")
 # endif()
 
 ####################################################################################
-# For mjx library
+# Build static mjx library
 ####################################################################################
 
 file(GLOB SOURCE_FILES *.cpp)
 file(GLOB HEADER_FILES *.h)
-add_library(${PROJECT_NAME} STATIC
+add_library(mjx STATIC
         ${SOURCE_FILES} ${HEADER_FILES} ${mjx_proto_srcs} ${mjx_grpc_srcs} ${mjx_proto_hdrs} ${mjx_grpc_hdrs})
-# target_link_libraries(${PROJECT_NAME} ${_REFLECTION} ${_GRPC_GRPCPP} ${_PROTOBUF_LIBPROTOBUF} spdlog::spdlog)
-target_include_directories(${PROJECT_NAME} PRIVATE ${Boost_INCLUDE_DIRS})
-target_link_libraries(${PROJECT_NAME} ${_REFLECTION} ${_GRPC_GRPCPP} ${_PROTOBUF_LIBPROTOBUF})
+target_include_directories(mjx PRIVATE ${Boost_INCLUDE_DIRS})
+target_link_libraries(mjx ${_REFLECTION} ${_GRPC_GRPCPP} ${_PROTOBUF_LIBPROTOBUF})
 
 ####################################################################################
-# For winning hand cache
+# Build cache generators
 ####################################################################################
 add_definitions(-DWIN_CACHE_DIR="${CMAKE_CURRENT_SOURCE_DIR}/cache")
 
 # Generate cache file
 add_executable(win_cache_generator win_cache_generator.cpp)
+target_include_directories(win_cache_generator PRIVATE ${Boost_INCLUDE_DIRS})
 target_link_libraries(win_cache_generator ${PROJECT_NAME})
 
 add_executable(shanten_cache_generator shanten_cache_generator.cpp)
+target_include_directories(shanten_cache_generator PRIVATE ${Boost_INCLUDE_DIRS})
 target_link_libraries(shanten_cache_generator ${PROJECT_NAME})
