@@ -19,5 +19,5 @@ jobs:
       run: make build -j 4 MJX_USE_SYSTEM_BOOST=OFF MJX_USE_SYSTEM_GRPC=OFF
 
     - name: Test mjx
-      run: make test
+      run: make test -j 4 MJX_USE_SYSTEM_BOOST=OFF MJX_USE_SYSTEM_GRPC=OFF
 
