@@ -19,6 +19,8 @@
 # See cmake_externalproject/CMakeLists.txt for all-in-one cmake build
 # that automatically builds all the dependencies before building route_guide.
 
+set(protobuf_MODULE_COMPATIBLE TRUE)
+
 include(FetchContent)
 set(FETCHCONTENT_BASE_DIR ${EXTERNALDIR})
 set(FETCHCONTENT_QUIET OFF)
@@ -31,6 +33,7 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(grpc)
 
+# TODO: if there is preinstalled protoc, preinstalled one may be used.
 set(_PROTOBUF_LIBPROTOBUF libprotobuf)
 set(_REFLECTION grpc++_reflection)
 set(_PROTOBUF_PROTOC $<TARGET_FILE:protoc>)
