@@ -12,6 +12,8 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 option(USE_SYSTEM_BOOST "Use Boost previously installed." ON)
 option(USE_SYSTEM_GRPC "Use gRPC previously installed." ON)
 
+set(EXTERNALDIR ${CMAKE_CURRENT_SOURCE_DIR}/external)
+
 ####################################################################################
 # For Boost
 ####################################################################################
@@ -22,7 +24,7 @@ if (USE_SYSTEM_BOOST)
     find_package(Boost REQUIRED)
 else()
     message(STATUS "USE_SYSTEM_BOOST=OFF")
-    include(${CMAKEDIR}/downloaded_boost.cmake)
+    include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/downloaded_boost.cmake)
 endif()
 message(STATUS "Include Boost_INCLUDE_DIRS=${Boost_INCLUDE_DIRS}")
 
@@ -32,10 +34,10 @@ message(STATUS "Include Boost_INCLUDE_DIRS=${Boost_INCLUDE_DIRS}")
 
 if (USE_SYSTEM_GRPC)
     message(STATUS "USE_SYSTEM_GRPC=ON")
-    include(${CMAKEDIR}/preinstalled_grpc.cmake)
+    include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/preinstalled_grpc.cmake)
 else()
     message(STATUS "USE_SYSTEM_GRPC=OFF")
-    include(${CMAKEDIR}/downloaded_grpc.cmake)
+    include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/downloaded_grpc.cmake)
 endif()
 
 # Proto file
