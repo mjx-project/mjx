@@ -6,10 +6,10 @@ clean:
 	rm -rf mjx/*pb*
 	rm -rf mjx/external_libs/*
 
-USE_SYSTEM_BOOST = "ON"
-USE_SYSTEM_GRPC = "ON"
+MJX_USE_SYSTEM_BOOST = "ON"
+MJX_USE_SYSTEM_GRPC = "ON"
 build: mjx tests mjx.proto
-	mkdir -p build && cd build && cmake .. -DUSE_SYSTEM_BOOST=${USE_SYSTEM_BOOST} -DUSE_SYSTEM_GRPC=${USE_SYSTEM_GRPC} && $(MAKE)
+	mkdir -p build && cd build && cmake .. -DMJX_USE_SYSTEM_BOOST=${MJX_USE_SYSTEM_BOOST} -DMJX_USE_SYSTEM_GRPC=${MJX_USE_SYSTEM_GRPC} && $(MAKE)
 
 test: build
 	./build/tests/mjx_test
