@@ -3,11 +3,11 @@
 
 #include <vector>
 
-namespace mjx {
+namespace mjx::internal {
 class ShantenCacheGenerator {
  public:
   static void GenerateCache();
 };
-}  // namespace mjx
+}  // namespace mjx::internal
 
 #endif  // MAHJONG_SHANTEN_CACHE_GENERATOR_H

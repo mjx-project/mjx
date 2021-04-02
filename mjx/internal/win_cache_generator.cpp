@@ -8,7 +8,7 @@
 #include "types.h"
 #include "win_cache.h"
 
-namespace mjx {
+namespace mjx::internal {
 
 std::vector<TileTypeCount> WinHandCacheGenerator::CreateSets() noexcept {
   std::vector<TileTypeCount> sets;
@@ -272,10 +272,10 @@ void WinHandCacheGenerator::ShowStatus(
             << static_cast<double>(size_total) / cache.size() << std::endl;
   std::cerr << "================" << std::endl;
 }
-}  // namespace mjx
+}  // namespace mjx::internal
 
 int main(int argc, char** argv) {
-  mjx::WinHandCacheGenerator::GenerateCache();
-  mjx::WinHandCacheGenerator::GenerateTenpaiCache();
+  mjx::internal::WinHandCacheGenerator::GenerateCache();
+  mjx::internal::WinHandCacheGenerator::GenerateTenpaiCache();
   return 0;
 }

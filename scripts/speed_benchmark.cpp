@@ -10,7 +10,7 @@
 #include "mjx/internal/agent_local.h"
 #include "mjx/internal/strategy_rule_based.h"
 
-using namespace mjx;
+using namespace mjx::internal;
 
 // command help
 // ./speed_benchmark  {-server [-B #batch_size #wait_ms] | -client #game #thread

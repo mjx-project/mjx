@@ -6,7 +6,7 @@
 
 #include "types.h"
 
-namespace mjx {
+namespace mjx::internal {
 
 using AbstructHand = std::string;
 
@@ -18,6 +18,6 @@ using AbstructHand = std::string;
                         std::vector<TileType>>  // E.g. "2222" {14, 15, 16, 17}
 CreateAbstructHandWithTileTypes(const TileTypeCount& count) noexcept;
 
-}  // namespace mjx
+}  // namespace mjx::internal
 
 #endif  // MAHJONG_ABSTRUCT_HAND_H

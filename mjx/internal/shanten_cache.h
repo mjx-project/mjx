@@ -5,7 +5,7 @@
 #include <unordered_map>
 #include <vector>
 
-namespace mjx {
+namespace mjx::internal {
 class ShantenCache {
  public:
   ShantenCache(const ShantenCache&) = delete;
@@ -23,6 +23,6 @@ class ShantenCache {
   void LoadCache();
   std::unordered_map<std::string, int> cache_;
 };
-}  // namespace mjx
+}  // namespace mjx::internal
 
 #endif  // MAHJONG_SHANTEN_CACHE_H

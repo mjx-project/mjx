@@ -8,7 +8,7 @@
 
 #include "utils.h"
 
-namespace mjx {
+namespace mjx::internal {
 AgentBatchGrpcServerImpl::AgentBatchGrpcServerImpl(
     std::unique_ptr<Strategy> strategy, int batch_size, int wait_ms)
     : strategy_(std::move(strategy)),
@@ -108,7 +108,7 @@ void AgentBatchGrpcServer::RunServer(std::unique_ptr<Strategy> strategy,
   std::unique_ptr<grpc::Server> server(builder.BuildAndStart());
   server->Wait();
 }
-}  // namespace mjx
+}  // namespace mjx::internal
 
 // int main(int argc, char** argv) {
 //     std::unique_ptr<mjx::AgentServer> mock_agent =

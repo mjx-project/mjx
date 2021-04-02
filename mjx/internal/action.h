@@ -9,7 +9,7 @@
 #include "tile.h"
 #include "types.h"
 
-namespace mjx {
+namespace mjx::internal {
 class Action {
  public:
   Action() = delete;
@@ -42,6 +42,6 @@ class Action {
   // 141: Kyuushu
   // 142: No
 };
-}  // namespace mjx
+}  // namespace mjx::internal
 
 #endif  // MAHJONG_ACTION_H

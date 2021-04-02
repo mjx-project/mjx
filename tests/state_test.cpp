@@ -9,7 +9,7 @@
 
 #include "gtest/gtest.h"
 
-using namespace mjx;
+using namespace mjx::internal;
 
 // Test utilities
 std::vector<std::string> LoadJson(const std::string &filename) {

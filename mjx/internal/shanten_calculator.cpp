@@ -1,6 +1,6 @@
 #include "shanten_calculator.h"
 
-namespace mjx {
+namespace mjx::internal {
 int ShantenCalculator::ShantenNumber(const std::array<uint8_t, 34>& count) {
   return std::min({ShantenNormal(count), ShantenThirteenOrphans(count),
                    ShantenSevenPairs(count)});
@@ -72,4 +72,4 @@ int ShantenCalculator::ShantenSevenPairs(const std::array<uint8_t, 34>& count) {
   }
   return 14 - std::min(n, 7) - m - 1;
 }
-}  // namespace mjx
+}  // namespace mjx::internal

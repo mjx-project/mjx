@@ -2,7 +2,7 @@
 
 #include "gtest/gtest.h"
 
-using namespace mjx;
+using namespace mjx::internal;
 
 TEST(action, Encode) {
   // Discard

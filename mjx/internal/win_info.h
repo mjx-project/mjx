@@ -8,7 +8,7 @@
 #include "unordered_set"
 #include "vector"
 
-namespace mjx {
+namespace mjx::internal {
 
 struct WinStateInfo {
   WinStateInfo(Wind seat_wind, Wind prevalent_wind, bool is_bottom,
@@ -95,6 +95,6 @@ struct WinInfo {
   WinInfo& ReversedDora(std::map<TileType, int> reversed_dora) noexcept;
 };
 
-}  // namespace mjx
+}  // namespace mjx::internal
 
 #endif  // MAHJONG_WIN_INFO_H

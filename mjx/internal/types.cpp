@@ -4,7 +4,7 @@
 
 #include "utils.h"
 
-namespace mjx {
+namespace mjx::internal {
 std::uint8_t Num(TileType type) noexcept {
   Assert(type < TileType::kEW);
   return static_cast<uint8_t>(type) % 9 + 1;
@@ -113,4 +113,4 @@ bool IsSameWind(TileType tile_type, Wind wind) {
   if (tile_type == TileType::kNW && wind == Wind::kNorth) return true;
   return false;
 }
-}  // namespace mjx
+}  // namespace mjx::internal

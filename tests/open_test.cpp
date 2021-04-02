@@ -2,7 +2,7 @@
 
 #include "gtest/gtest.h"
 
-using namespace mjx;
+using namespace mjx::internal;
 
 using tt = TileType;
 auto vec_type_eq = [](std::vector<Tile> v1, std::vector<tt> v2) {

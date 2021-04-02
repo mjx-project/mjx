@@ -10,7 +10,7 @@
 #include "abstruct_hand.h"
 #include "types.h"
 
-namespace mjx {
+namespace mjx::internal {
 class WinHandCache {
  public:
   WinHandCache(const WinHandCache&) = delete;
@@ -41,6 +41,6 @@ class WinHandCache {
   void LoadWinCache();
   void LoadTenpaiCache();
 };
-}  // namespace mjx
+}  // namespace mjx::internal
 
 #endif  // MAHJONG_WIN_CACHE_H

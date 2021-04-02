@@ -2,7 +2,7 @@
 
 #include "utils.h"
 
-namespace mjx {
+namespace mjx::internal {
 AgentGrpcClient::AgentGrpcClient(PlayerId player_id,
                                  const std::shared_ptr<grpc::Channel> &channel)
     : Agent(std::move(player_id)), stub_(mjxproto::Agent::NewStub(channel)) {}
@@ -26,7 +26,7 @@ mjxproto::Action AgentGrpcClient::TakeAction(Observation &&observation) const {
   // TODO: actionがvalidか確認する（特にすべて空でないか）
   return response;
 }
-}  // namespace mjx
+}  // namespace mjx::internal
 
 // int main(int argc, char** argv) {
 //     mjx::Agent agent(

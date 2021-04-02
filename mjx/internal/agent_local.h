@@ -6,7 +6,7 @@
 #include "observation.h"
 #include "strategy.h"
 
-namespace mjx {
+namespace mjx::internal {
 class AgentLocal final : public Agent {
  public:
   AgentLocal() = default;
@@ -19,6 +19,6 @@ class AgentLocal final : public Agent {
   // Agent logic
   std::shared_ptr<Strategy> strategy_;
 };
-}  // namespace mjx
+}  // namespace mjx::internal
 
 #endif  // MJX_REPO_AGENT_LOCAL_H

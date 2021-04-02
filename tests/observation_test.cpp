@@ -5,7 +5,7 @@
 
 #include "gtest/gtest.h"
 
-using namespace mjx;
+using namespace mjx::internal;
 
 TEST(observation, hand) {
   auto GetLastJsonLine = [](const std::string &filename) {

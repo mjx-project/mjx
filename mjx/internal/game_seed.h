@@ -4,7 +4,7 @@
 #include <random>
 #include <vector>
 
-namespace mjx {
+namespace mjx::internal {
 class GameSeed {
  public:
   GameSeed() = default;
@@ -22,6 +22,6 @@ class GameSeed {
   static constexpr std::uint64_t kRoundBase = 32;  // assumes that honba < 32
   static constexpr std::uint64_t kHonbaBase = 1;
 };
-}  // namespace mjx
+}  // namespace mjx::internal
 
 #endif  // MAHJONG_GAME_SEED_H

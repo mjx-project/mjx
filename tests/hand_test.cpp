@@ -5,7 +5,7 @@
 
 #include "gtest/gtest.h"
 
-using namespace mjx;
+using namespace mjx::internal;
 
 TEST(hand, Hand) {
   EXPECT_NO_FATAL_FAILURE(

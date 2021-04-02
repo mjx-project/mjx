@@ -13,7 +13,7 @@
 #include "utils.h"
 #include "win_cache.h"
 
-namespace mjx {
+namespace mjx::internal {
 Hand::Hand(std::vector<Tile> tiles) : Hand(tiles.begin(), tiles.end()) {}
 
 Hand::Hand(std::vector<Tile>::iterator begin, std::vector<Tile>::iterator end)
@@ -904,4 +904,4 @@ void HandParams::Push(const std::string &input,
   vec.emplace_back(tmp);
 }
 
-}  // namespace mjx
+}  // namespace mjx::internal

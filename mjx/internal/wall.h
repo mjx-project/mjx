@@ -5,7 +5,7 @@
 #include "tile.h"
 #include "vector"
 
-namespace mjx {
+namespace mjx::internal {
 class Wall {
   /*
    * This wall class implementation follows Tenhou's wall implementation:
@@ -58,6 +58,6 @@ class Wall {
   template <class RandomIt, class URBG>
   static void shuffle(RandomIt first, RandomIt last, URBG&& g);
 };
-}  // namespace mjx
+}  // namespace mjx::internal
 
 #endif  // MAHJONG_WALL_H

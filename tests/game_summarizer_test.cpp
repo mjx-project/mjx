@@ -1,7 +1,7 @@
 #include <mjx/internal/game_result_summarizer.h>
 
 #include "gtest/gtest.h"
-using namespace mjx;
+using namespace mjx::internal;
 
 TEST(GameResultSummarizer, Add) {
   GameResultSummarizer& summarizer = GameResultSummarizer::instance();

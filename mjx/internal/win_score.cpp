@@ -4,7 +4,7 @@
 
 #include "types.h"
 
-namespace mjx {
+namespace mjx::internal {
 
 ScoreTable::ScoreTable() {
   dealer_tsumo = {
@@ -208,4 +208,4 @@ int WinScore::total_fan() const noexcept {
   }
   return total_fan;
 }
-}  // namespace mjx
+}  // namespace mjx::internal

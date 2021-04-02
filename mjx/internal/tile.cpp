@@ -10,7 +10,7 @@
 
 #include "utils.h"
 
-namespace mjx {
+namespace mjx::internal {
 Tile::Tile(TileId tile_id) : tile_id_(tile_id) { Assert(IsValid()); }
 
 Tile::Tile(TileType tile_type, std::uint8_t offset)
@@ -465,4 +465,4 @@ std::uint8_t Tile::Offset() const noexcept {
 bool Tile::Equals(Tile other) const noexcept {
   return Type() == other.Type() && IsRedFive() == other.IsRedFive();
 }
-}  // namespace mjx
+}  // namespace mjx::internal

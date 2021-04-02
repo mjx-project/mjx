@@ -6,7 +6,7 @@
 
 #include "utils.h"
 
-namespace mjx {
+namespace mjx::internal {
 Wall::Wall(std::uint64_t round, std::uint64_t honba, std::uint64_t game_seed)
     : round_(round), game_seed_(game_seed), tiles_(Tile::CreateAll()) {
   auto wall_seed = game_seed_.GetWallSeed(round, honba);
@@ -133,4 +133,4 @@ void Wall::shuffle(RandomIt first, RandomIt last, URBG &&g) {
     swap(first[i], first[D(g, param_t(0, i))]);
   }
 }
-}  // namespace mjx
+}  // namespace mjx::internal

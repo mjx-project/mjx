@@ -3,7 +3,7 @@
 #include <mjx/internal/strategy_rule_based.h>
 
 #include "gtest/gtest.h"
-using namespace mjx;
+using namespace mjx::internal;
 
 TEST(environment, RunOneGame) {
   const std::vector<std::shared_ptr<Agent>> agents = {

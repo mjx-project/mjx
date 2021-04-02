@@ -2,7 +2,7 @@
 
 #include "utils.h"
 
-namespace mjx {
+namespace mjx::internal {
 std::vector<mjxproto::Action> StrategyRuleBased::TakeActions(
     std::vector<Observation> &&observations) const {
   int N = observations.size();
@@ -212,4 +212,4 @@ Tile StrategyRuleBased::SelectDiscard(std::vector<Tile> &discard_candidates,
   return *SelectRandomly(discard_candidates.begin(), discard_candidates.end(),
                          g);
 }
-}  // namespace mjx
+}  // namespace mjx::internal

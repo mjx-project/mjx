@@ -6,7 +6,7 @@
 
 #include "utils.h"
 
-namespace mjx {
+namespace mjx::internal {
 // References
 //   - https://github.com/NegativeMjark/tenhou-log
 //   - http://m77.hatenablog.com/entry/2017/05/21/214529
@@ -455,4 +455,4 @@ std::vector<TileType> KanAdded::UndiscardableTileTypes(std::uint16_t bits) {
 }
 
 // end KanAdded
-}  // namespace mjx
+}  // namespace mjx::internal

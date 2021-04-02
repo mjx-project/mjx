@@ -4,7 +4,7 @@
 
 #include "utils.h"
 
-namespace mjx {
+namespace mjx::internal {
 
 GameSeed::GameSeed(std::uint64_t game_seed) : game_seed_(game_seed) {
   auto mt = std::mt19937_64(game_seed);
@@ -27,4 +27,4 @@ std::uint64_t GameSeed::GetWallSeed(int round, int honba) const {
 std::mt19937_64 GameSeed::CreateRandomGameSeedGenerator() {
   return std::mt19937_64(std::random_device{}());
 }
-}  // namespace mjx
+}  // namespace mjx::internal

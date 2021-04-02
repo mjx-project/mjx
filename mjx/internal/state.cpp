@@ -5,7 +5,7 @@
 
 #include "utils.h"
 
-namespace mjx {
+namespace mjx::internal {
 State::State(State::ScoreInfo score_info)
     : State(score_info.player_ids, score_info.game_seed, score_info.round,
             score_info.honba, score_info.riichi, score_info.tens) {}
@@ -1454,4 +1454,4 @@ std::optional<State::HandInfo> State::EvalTenpai(
   return HandInfo{hand(who).ToVectorClosed(true), hand(who).Opens(),
                   hand(who).LastTileAdded()};
 }
-}  // namespace mjx
+}  // namespace mjx::internal

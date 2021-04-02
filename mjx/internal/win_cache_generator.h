@@ -10,7 +10,7 @@
 #include "types.h"
 #include "win_cache.h"
 
-namespace mjx {
+namespace mjx::internal {
 class WinHandCacheGenerator {
  public:
   static void GenerateCache() noexcept;
@@ -28,6 +28,6 @@ class WinHandCacheGenerator {
       const AbstructHand& hand) noexcept;
   static void ShowStatus(const WinHandCache::CacheType& cache) noexcept;
 };
-}  // namespace mjx
+}  // namespace mjx::internal
 
 #endif  // MAHJONG_WIN_CACHE_GENERATOR_H

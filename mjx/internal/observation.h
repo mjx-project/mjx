@@ -8,7 +8,7 @@
 #include "hand.h"
 #include "mjx.pb.h"
 
-namespace mjx {
+namespace mjx::internal {
 class Observation {
  public:
   Observation() = default;
@@ -35,6 +35,6 @@ class Observation {
   Observation(AbsolutePos who, const mjxproto::State& state);
   mjxproto::Observation proto_ = mjxproto::Observation{};
 };
-}  // namespace mjx
+}  // namespace mjx::internal
 
 #endif  // MAHJONG_OBSERVATION_H

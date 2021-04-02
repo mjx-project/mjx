@@ -9,7 +9,7 @@
 
 #include "mjx.pb.h"
 
-namespace mjx {
+namespace mjx::internal {
 using TileId =
     std::uint8_t;  // {0, ..., 135} corresponds to mjlog format of Tenhou
 // m1   0,   1,   2,   3
@@ -264,6 +264,6 @@ Wind ToSeatWind(AbsolutePos who, AbsolutePos dealer);
 mjxproto::EventType OpenTypeToEventType(OpenType open_type);
 mjxproto::ActionType OpenTypeToActionType(OpenType open_type);
 bool IsSameWind(TileType tile_type, Wind wind);
-}  // namespace mjx
+}  // namespace mjx::internal
 
 #endif  // MAHJONG_TYPES_H

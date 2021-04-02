@@ -2,7 +2,7 @@
 
 #include "utils.h"
 
-namespace mjx {
+namespace mjx::internal {
 AgentBatchLocal::AgentBatchLocal(PlayerId player_id,
                                  std::shared_ptr<Strategy> strategy,
                                  int batch_size, int wait_ms)
@@ -87,4 +87,4 @@ void AgentBatchLocal::InferAction() {
     }
   }
 }
-}  // namespace mjx
+}  // namespace mjx::internal

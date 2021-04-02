@@ -5,7 +5,7 @@
 #include "observation.h"
 #include "strategy_rule_based.h"
 
-namespace mjx {
+namespace mjx::internal {
 class AgentGrpcServer {
  public:
   static void RunServer(std::unique_ptr<Strategy> strategy,
@@ -24,6 +24,6 @@ class AgentGrpcServerImpl final : public mjxproto::Agent::Service {
   // Agent logic
   std::unique_ptr<Strategy> strategy_;
 };
-}  // namespace mjx
+}  // namespace mjx::internal
 
 #endif  // MAHJONG_AGENT_GRPC_SERVER_H

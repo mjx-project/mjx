@@ -3,7 +3,7 @@
 
 #include "observation.h"
 
-namespace mjx {
+namespace mjx::internal {
 class Strategy {
  public:
   virtual ~Strategy() = default;
@@ -12,6 +12,6 @@ class Strategy {
   [[nodiscard]] virtual mjxproto::Action TakeAction(
       Observation &&observation) const = 0;
 };
-}  // namespace mjx
+}  // namespace mjx::internal
 
 #endif  // MAHJONG_STRATEGY_H

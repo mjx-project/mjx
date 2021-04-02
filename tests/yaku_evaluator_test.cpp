@@ -4,7 +4,7 @@
 
 #include "gtest/gtest.h"
 
-using namespace mjx;
+using namespace mjx::internal;
 
 class YakuTest : public ::testing::Test {
  protected:

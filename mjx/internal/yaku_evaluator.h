@@ -10,7 +10,7 @@
 #include "win_info.h"
 #include "win_score.h"
 
-namespace mjx {
+namespace mjx::internal {
 class YakuEvaluator {
  public:
   YakuEvaluator() = delete;
@@ -166,6 +166,6 @@ class YakuEvaluator {
       const std::vector<TileTypeCount>& opened_sets,
       const std::vector<TileTypeCount>& heads) noexcept;
 };
-}  // namespace mjx
+}  // namespace mjx::internal
 
 #endif  // MAHJONG_YAKU_EVALUATOR_H

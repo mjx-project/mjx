@@ -10,7 +10,7 @@
 #include <unordered_map>
 #include <vector>
 
-namespace mjx {
+namespace mjx::internal {
 void ShantenCacheGenerator::GenerateCache() {
   std::vector<std::vector<int>> sets{
       {1, 1, 1, 0, 0, 0, 0, 0, 0}, {0, 1, 1, 1, 0, 0, 0, 0, 0},
@@ -183,9 +183,9 @@ void ShantenCacheGenerator::GenerateCache() {
   }
   std::cerr << "convert to json: end" << std::endl;
 }
-}  // namespace mjx
+}  // namespace mjx::internal
 
 int main() {
-  mjx::ShantenCacheGenerator::GenerateCache();
+  mjx::internal::ShantenCacheGenerator::GenerateCache();
   return 0;
 }

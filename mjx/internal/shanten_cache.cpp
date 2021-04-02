@@ -5,7 +5,7 @@
 #include <iostream>
 #include <numeric>
 
-namespace mjx {
+namespace mjx::internal {
 ShantenCache::ShantenCache() { LoadCache(); }
 
 const ShantenCache& ShantenCache::instance() {
@@ -47,4 +47,4 @@ void ShantenCache::LoadCache() {
   std::cerr << "Max:" << mx << std::endl;
   std::cerr << "ShantenCache::LoadCache: end" << std::endl;
 }
-}  // namespace mjx
+}  // namespace mjx::internal

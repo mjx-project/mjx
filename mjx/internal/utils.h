@@ -11,10 +11,11 @@
 #include <random>
 #include <thread>
 
-// original assertion
-#define Assert(fmt, ...) assert(fmt || mjx::Msg(__VA_ARGS__))
+namespace mjx::internal {
 
-namespace mjx {
+// original assertion
+#define Assert(fmt, ...) assert(fmt || Msg(__VA_ARGS__))
+
 template <typename... Args>
 bool Msg(const Args&... args) {
   std::cout << "Assertion failed: " << std::endl;
@@ -83,6 +84,6 @@ void ptransform(RandomAccessIterator begin, RandomAccessIterator end, F&& f) {
   }
   for (auto& t : threads) t.join();
 }
-}  // namespace mjx
+}  // namespace mjx::internal
 
 #endif  // MAHJONG_UTILS_H

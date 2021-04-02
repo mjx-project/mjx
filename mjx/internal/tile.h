@@ -3,7 +3,7 @@
 
 #include "types.h"
 
-namespace mjx {
+namespace mjx::internal {
 class Tile {
  public:
   Tile() = delete;
@@ -58,6 +58,6 @@ struct HashTile {
     return std::hash<int>{}(t.Id());
   }
 };
-}  // namespace mjx
+}  // namespace mjx::internal
 
 #endif  // MAHJONG_TILE_H

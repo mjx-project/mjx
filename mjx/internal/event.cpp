@@ -2,7 +2,7 @@
 
 #include "utils.h"
 
-namespace mjx {
+namespace mjx::internal {
 mjxproto::Event Event::CreateDraw(AbsolutePos who) {
   mjxproto::Event proto;
   proto.set_who(mjxproto::AbsolutePos(who));
@@ -127,4 +127,4 @@ bool Event::IsValid(const mjxproto::Event &event) {
   }
   return true;
 }
-}  // namespace mjx
+}  // namespace mjx::internal

@@ -4,7 +4,7 @@
 #include "observation.h"
 #include "strategy.h"
 
-namespace mjx {
+namespace mjx::internal {
 class StrategyRuleBased final : public Strategy {
  public:
   ~StrategyRuleBased() final = default;
@@ -18,6 +18,6 @@ class StrategyRuleBased final : public Strategy {
   static Tile SelectDiscard(std::vector<Tile> &discard_candidates,
                             const Hand &curr_hand, RandomGenerator &g);
 };
-}  // namespace mjx
+}  // namespace mjx::internal
 
 #endif  // MAHJONG_STRATEGY_RULE_BASED_H

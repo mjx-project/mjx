@@ -6,7 +6,7 @@
 #include "types.h"
 #include "utils.h"
 
-namespace mjx {
+namespace mjx::internal {
 WinInfo& WinInfo::Ron(Tile tile) noexcept {
   Assert(!hand.win_tile);
   Assert(hand.closed_tiles.find(tile) == hand.closed_tiles.end());
@@ -69,4 +69,4 @@ WinInfo& WinInfo::IsRobbingKan(bool is_robbing_kan) noexcept {
   state.is_robbing_kan = is_robbing_kan;
   return *this;
 }
-}  // namespace mjx
+}  // namespace mjx::internal

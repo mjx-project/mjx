@@ -12,7 +12,7 @@
 #include "observation.h"
 #include "strategy_rule_based.h"
 
-namespace mjx {
+namespace mjx::internal {
 class AgentBatchGrpcServer {
  public:
   static void RunServer(std::unique_ptr<Strategy> strategy,
@@ -54,6 +54,6 @@ class AgentBatchGrpcServerImpl final : public mjxproto::Agent::Service {
   std::thread thread_inference_;
   bool stop_flag_ = false;
 };
-}  // namespace mjx
+}  // namespace mjx::internal
 
 #endif  // MAHJONG_AGENT_BATCH_GRPC_SERVER_H

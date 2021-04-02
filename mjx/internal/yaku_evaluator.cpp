@@ -8,7 +8,7 @@
 #include "utils.h"
 #include "win_score.h"
 
-namespace mjx {
+namespace mjx::internal {
 const WinHandCache& YakuEvaluator::win_cache() {
   return WinHandCache::instance();
 }
@@ -1273,4 +1273,4 @@ std::optional<int> YakuEvaluator::HasThreeConcealdPons(
   }
   return cnt_triplets >= 3 ? std::make_optional(2) : std::nullopt;
 }
-}  // namespace mjx
+}  // namespace mjx::internal

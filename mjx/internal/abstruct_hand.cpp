@@ -5,7 +5,7 @@
 
 #include "types.h"
 
-namespace mjx {
+namespace mjx::internal {
 
 AbstructHand CreateAbstructHand(const std::vector<int>& tile_counts) noexcept {
   std::string hand;
@@ -58,4 +58,4 @@ std::pair<AbstructHand, std::vector<TileType>> CreateAbstructHandWithTileTypes(
   AbstructHand hand = CreateAbstructHand(tile_counts);
   return {hand, tile_types};
 }
-}  // namespace mjx
+}  // namespace mjx::internal

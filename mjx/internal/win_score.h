@@ -7,7 +7,7 @@
 
 #include "types.h"
 
-namespace mjx {
+namespace mjx::internal {
 
 class ScoreTable {
   using Fan = int;
@@ -42,6 +42,6 @@ class WinScore {
       std::optional<AbsolutePos> loser = std::nullopt) const noexcept;
 };
 
-}  // namespace mjx
+}  // namespace mjx::internal
 
 #endif  // MAHJONG_WIN_SCORE_H

@@ -6,7 +6,7 @@
 // #include "spdlog/spdlog.h"
 #include "utils.h"
 
-namespace mjx {
+namespace mjx::internal {
 Environment::Environment(std::vector<std::shared_ptr<Agent>> agents)
     : agents_(std::move(agents)) {
   for (const auto &agent : agents_) map_agents_[agent->player_id()] = agent;
@@ -18,7 +18,7 @@ Environment::Environment(std::vector<std::shared_ptr<Agent>> agents)
 std::vector<GameResult> Environment::ParallelRunGame(
     int num_game, int num_thread, std::vector<std::shared_ptr<Agent>> agents) {
   std::vector<std::thread> threads;
-  auto gen = mjx::GameSeed::CreateRandomGameSeedGenerator();
+  auto gen = GameSeed::CreateRandomGameSeedGenerator();
   auto results = std::vector<GameResult>();
   std::mutex results_mtx;
   // スレッド生成 (thread-safe)
@@ -96,4 +96,4 @@ std::shared_ptr<Agent> Environment::agent(AbsolutePos pos) const {
 std::shared_ptr<Agent> Environment::agent(PlayerId player_id) const {
   return map_agents_.at(player_id);
 }
-}  // namespace mjx
+}  // namespace mjx::internal

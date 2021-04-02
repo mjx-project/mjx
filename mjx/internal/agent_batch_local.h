@@ -13,7 +13,7 @@
 #include "observation.h"
 #include "strategy_rule_based.h"
 
-namespace mjx {
+namespace mjx::internal {
 class AgentBatchLocal final : public Agent {
  public:
   explicit AgentBatchLocal(PlayerId player_id,
@@ -50,6 +50,6 @@ class AgentBatchLocal final : public Agent {
   std::thread thread_inference_;
   bool stop_flag_ = false;
 };
-}  // namespace mjx
+}  // namespace mjx::internal
 
 #endif  // MJX_REPO_AGENT_BATCH_LOCAL_H

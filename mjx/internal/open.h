@@ -7,7 +7,7 @@
 
 #include "tile.h"
 
-namespace mjx {
+namespace mjx::internal {
 
 class Open {
   std::uint16_t bits_;  // follows tenhou format (see
@@ -119,6 +119,6 @@ class KanAdded {
   static std::vector<TileType> UndiscardableTileTypes(std::uint16_t bits);
 };
 
-}  // namespace mjx
+}  // namespace mjx::internal
 
 #endif  // MAHJONG_OPEN_H

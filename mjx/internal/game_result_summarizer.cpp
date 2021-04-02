@@ -1,6 +1,6 @@
 #include "game_result_summarizer.h"
 
-namespace mjx {
+namespace mjx::internal {
 std::recursive_mutex GameResultSummarizer::mtx_;
 
 int GameResultSummarizer::num_games() const { return num_games_; }
@@ -83,4 +83,4 @@ GameResultSummarizer& GameResultSummarizer::instance() {
                  // https://cpprefjp.github.io/lang/cpp11/static_initialization_thread_safely.html
   return instance;
 };
-}  // namespace mjx
+}  // namespace mjx::internal

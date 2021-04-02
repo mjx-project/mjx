@@ -6,7 +6,7 @@
 
 #include "gtest/gtest.h"
 
-using namespace mjx;
+using namespace mjx::internal;
 
 TEST(agent_client_mock, TakeAction) {
   // Test utilities

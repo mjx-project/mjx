@@ -18,7 +18,7 @@
 #include "wall.h"
 #include "yaku_evaluator.h"
 
-namespace mjx {
+namespace mjx::internal {
 // 試合結果（半荘）
 struct GameResult {
   std::uint64_t game_seed;
@@ -160,6 +160,6 @@ class State {
   friend class TrainDataGenerator;
   void UpdateByEvent(const mjxproto::Event& event);
 };
-}  // namespace mjx
+}  // namespace mjx::internal
 
 #endif  // MAHJONG_STATE_H

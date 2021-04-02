@@ -3,7 +3,7 @@
 #include "mjx.grpc.pb.h"
 #include "utils.h"
 
-namespace mjx {
+namespace mjx::internal {
 Observation::Observation(const mjxproto::Observation& proto) : proto_(proto) {}
 
 std::vector<mjxproto::Action> Observation::possible_actions() const {
@@ -109,4 +109,4 @@ std::vector<mjxproto::Event> Observation::EventHistory() const {
   }
   return events;
 }
-}  // namespace mjx
+}  // namespace mjx::internal

@@ -3,7 +3,7 @@
 
 #include "state.h"
 
-namespace mjx {
+namespace mjx::internal {
 class GameResultSummarizer {
  public:
   GameResultSummarizer(const GameResultSummarizer&) = delete;
@@ -40,5 +40,5 @@ class GameResultSummarizer {
   static std::optional<double> stable_dan(
       const std::map<int, int>& num_ranking);
 };
-}  // namespace mjx
+}  // namespace mjx::internal
 #endif  // MAHJONG_GAME_RESULT_SUMMARIZER_H

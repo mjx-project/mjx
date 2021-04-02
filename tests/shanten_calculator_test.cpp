@@ -6,7 +6,7 @@
 
 #include "gtest/gtest.h"
 
-using namespace mjx;
+using namespace mjx::internal;
 
 TEST(shanten, normal) {
   std::array<uint8_t, 34> tiles =

@@ -2,7 +2,7 @@
 
 #include "gtest/gtest.h"
 
-using namespace mjx;
+using namespace mjx::internal;
 
 TEST(wall, initial_hand) {
   // From https://tenhou.net/0/?log=2011020417gm-00a9-0000-b67fcaa3&tw=1

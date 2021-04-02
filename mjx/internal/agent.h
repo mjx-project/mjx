@@ -4,7 +4,7 @@
 #include "action.h"
 #include "observation.h"
 
-namespace mjx {
+namespace mjx::internal {
 class Agent {
  public:
   Agent() = default;  // generate invalid object
@@ -17,6 +17,6 @@ class Agent {
  private:
   PlayerId player_id_;
 };
-}  // namespace mjx
+}  // namespace mjx::internal
 
 #endif  // MAHJONG_AGENT_H

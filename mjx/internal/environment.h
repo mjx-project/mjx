@@ -5,7 +5,7 @@
 #include "game_result_summarizer.h"
 #include "state.h"
 
-namespace mjx {
+namespace mjx::internal {
 class Environment {
  public:
   Environment(std::vector<std::shared_ptr<Agent>> agents);
@@ -23,6 +23,6 @@ class Environment {
   std::shared_ptr<Agent> agent(AbsolutePos pos) const;
   std::shared_ptr<Agent> agent(PlayerId player_id) const;
 };
-}  // namespace mjx
+}  // namespace mjx::internal
 
 #endif  // MAHJONG_ENVIRONMENT_H

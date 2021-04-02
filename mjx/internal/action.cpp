@@ -3,7 +3,7 @@
 #include "mjx.grpc.pb.h"
 #include "utils.h"
 
-namespace mjx {
+namespace mjx::internal {
 mjxproto::Action Action::CreateDiscard(AbsolutePos who, Tile discard) {
   mjxproto::Action proto;
   proto.set_type(mjxproto::ACTION_TYPE_DISCARD);
@@ -218,4 +218,4 @@ mjxproto::Action Action::Decode(
   }
   assert(false);  // selected action is not found in possible action
 }
-}  // namespace mjx
+}  // namespace mjx::internal

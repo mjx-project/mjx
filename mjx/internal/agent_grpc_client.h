@@ -8,7 +8,7 @@
 #include "mjx.grpc.pb.h"
 #include "observation.h"
 
-namespace mjx {
+namespace mjx::internal {
 class AgentGrpcClient final : public Agent {
  public:
   AgentGrpcClient() = default;
@@ -21,6 +21,6 @@ class AgentGrpcClient final : public Agent {
  private:
   std::unique_ptr<mjxproto::Agent::Stub> stub_;
 };
-}  // namespace mjx
+}  // namespace mjx::internal
 
 #endif  // MAHJONG_AGENT_GRPC_CLIENT_H

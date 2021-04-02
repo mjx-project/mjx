@@ -13,7 +13,7 @@
 #include "win_info.h"
 #include "win_score.h"
 
-namespace mjx {
+namespace mjx::internal {
 class HandParams;
 class Hand {
  public:
@@ -170,6 +170,6 @@ class HandParams {
   void Push(const std::string &input,
             std::vector<std::vector<std::string>> &vec);
 };
-}  // namespace mjx
+}  // namespace mjx::internal
 
 #endif  // MAHJONG_HAND_H

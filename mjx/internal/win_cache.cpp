@@ -7,7 +7,7 @@
 #include "abstruct_hand.h"
 #include "utils.h"
 
-namespace mjx {
+namespace mjx::internal {
 
 WinHandCache::WinHandCache() {
   LoadWinCache();
@@ -145,4 +145,4 @@ const WinHandCache& WinHandCache::instance() {
   return instance;
 };
 
-}  // namespace mjx
+}  // namespace mjx::internal

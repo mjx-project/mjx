@@ -7,7 +7,7 @@
 #include "shanten_cache.h"
 #include "types.h"
 
-namespace mjx {
+namespace mjx::internal {
 class ShantenCalculator {
  public:
   [[nodiscard]] static int ShantenNumber(const std::array<uint8_t, 34>& count);
@@ -18,6 +18,6 @@ class ShantenCalculator {
   [[nodiscard]] static int ShantenSevenPairs(
       const std::array<uint8_t, 34>& count);
 };
-}  // namespace mjx
+}  // namespace mjx::internal
 
 #endif  // MAHJONG_SHANTEN_CALCULATOR_H

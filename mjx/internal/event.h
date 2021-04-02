@@ -6,7 +6,7 @@
 #include "tile.h"
 #include "types.h"
 
-namespace mjx {
+namespace mjx::internal {
 class Event {
  public:
   Event() = delete;
@@ -22,6 +22,6 @@ class Event {
   static mjxproto::Event CreateRon(AbsolutePos who, Tile tile);
   static mjxproto::Event CreateNoWinner();
 };
-}  // namespace mjx
+}  // namespace mjx::internal
 
 #endif  // MAHJONG_EVENT_H
