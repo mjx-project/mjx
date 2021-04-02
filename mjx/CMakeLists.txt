@@ -93,10 +93,68 @@ include_directories("${CMAKE_CURRENT_SOURCE_DIR}")
 # Build static mjx library
 ####################################################################################
 
-file(GLOB SOURCE_FILES *.cpp)
-file(GLOB HEADER_FILES *.h)
 add_library(mjx STATIC
-        ${SOURCE_FILES} ${HEADER_FILES} ${mjx_proto_srcs} ${mjx_grpc_srcs} ${mjx_proto_hdrs} ${mjx_grpc_hdrs})
+        abstruct_hand.h
+        action.h
+        agent.h
+        agent_batch_grpc_server.h
+        agent_batch_local.h
+        agent_grpc_client.h
+        agent_grpc_server.h
+        agent_local.h
+        consts.h
+        environment.h
+        event.h
+        game_result_summarizer.h
+        game_seed.h
+        hand.h
+        mjx.h
+        observation.h
+        open.h
+        shanten_cache.h
+        shanten_cache_generator.h
+        shanten_calculator.h
+        state.h
+        strategy.h
+        strategy_rule_based.h
+        tile.h
+        types.h
+        utils.h
+        wall.h
+        win_cache.h
+        win_cache_generator.h
+        win_info.h
+        win_score.h
+        yaku_evaluator.h
+        abstruct_hand.cpp
+        action.cpp
+        agent.cpp
+        agent_batch_grpc_server.cpp
+        agent_batch_local.cpp
+        agent_grpc_client.cpp
+        agent_grpc_server.cpp
+        agent_local.cpp
+        environment.cpp
+        event.cpp
+        game_result_summarizer.cpp
+        game_seed.cpp
+        hand.cpp
+        observation.cpp
+        open.cpp
+        shanten_cache.cpp
+        shanten_cache_generator.cpp
+        shanten_calculator.cpp
+        state.cpp
+        strategy_rule_based.cpp
+        tile.cpp
+        types.cpp
+        wall.cpp
+        win_cache.cpp
+        win_cache_generator.cpp
+        win_info.cpp
+        win_score.cpp
+        yaku_evaluator.cpp
+        ${mjx_proto_srcs} ${mjx_grpc_srcs} ${mjx_proto_hdrs} ${mjx_grpc_hdrs})
 target_include_directories(mjx PUBLIC ${Boost_INCLUDE_DIRS})
 target_link_libraries(mjx PUBLIC ${_REFLECTION} ${_GRPC_GRPCPP} ${_PROTOBUF_LIBPROTOBUF})
 target_compile_definitions(mjx PUBLIC WIN_CACHE_DIR="${CMAKE_CURRENT_SOURCE_DIR}/cache")
