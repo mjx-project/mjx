@@ -21,8 +21,24 @@ FetchContent_MakeAvailable(googletest)
 ###################################################################################
 # Define target
 ###################################################################################
-file(GLOB TEST_FILES *.cpp)
-add_executable(mjx_test ${TEST_FILES})
+add_executable(mjx_test
+        action_test.cpp
+        environment_test.cpp
+        game_seed_test.cpp
+        game_summarizer_test.cpp
+        hand_test.cpp
+        observatoin_test.cpp
+        open_test.cpp
+        shanten_calculator_test.cpp
+        state_test.cpp
+        strategy_rule_based_test.cpp
+        tile_test.cpp
+        type_test.cpp
+        utils_test.cpp
+        wall_test.cpp
+        win_score_test.cpp
+        yaku_evaluator_test.cpp
+)
 target_include_directories(mjx_test PRIVATE ..)
 target_link_libraries(mjx_test PRIVATE mjx)
 target_link_libraries(mjx_test PRIVATE gtest gtest_main)
