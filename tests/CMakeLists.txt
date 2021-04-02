@@ -27,7 +27,7 @@ add_executable(mjx_test
         game_seed_test.cpp
         game_summarizer_test.cpp
         hand_test.cpp
-        observatoin_test.cpp
+        observation_test.cpp
         open_test.cpp
         shanten_calculator_test.cpp
         state_test.cpp
