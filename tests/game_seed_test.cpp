@@ -1,4 +1,4 @@
-#include <mjx/game_seed.h>
+#include <mjx/internal/game_seed.h>
 
 #include "gtest/gtest.h"
 

@@ -1,4 +1,4 @@
-#include <mjx/wall.h>
+#include <mjx/internal/wall.h>
 
 #include "gtest/gtest.h"
 

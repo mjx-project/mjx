@@ -1,5 +1,5 @@
-#include <mjx/hand.h>
-#include <mjx/tile.h>
+#include <mjx/internal/hand.h>
+#include <mjx/internal/tile.h>
 
 #include <array>
 

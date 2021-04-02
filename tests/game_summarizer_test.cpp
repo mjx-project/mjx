@@ -1,4 +1,4 @@
-#include <mjx/game_result_summarizer.h>
+#include <mjx/internal/game_result_summarizer.h>
 
 #include "gtest/gtest.h"
 using namespace mjx;

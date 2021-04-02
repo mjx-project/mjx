@@ -1,4 +1,4 @@
-#include <mjx/tile.h>
+#include <mjx/internal/tile.h>
 
 #include "gtest/gtest.h"
 

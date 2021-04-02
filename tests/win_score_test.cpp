@@ -1,4 +1,4 @@
-#include <mjx/win_score.h>
+#include <mjx/internal/win_score.h>
 
 #include "gtest/gtest.h"
 

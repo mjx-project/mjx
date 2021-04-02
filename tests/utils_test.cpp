@@ -1,5 +1,5 @@
-#include <mjx/types.h>
-#include <mjx/utils.h>
+#include <mjx/internal/types.h>
+#include <mjx/internal/utils.h>
 
 #include "gtest/gtest.h"
 

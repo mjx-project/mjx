@@ -1,5 +1,5 @@
-#include <mjx/observation.h>
-#include <mjx/state.h>
+#include <mjx/internal/observation.h>
+#include <mjx/internal/state.h>
 
 #include <fstream>
 

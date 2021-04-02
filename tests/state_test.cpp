@@ -1,6 +1,6 @@
 #include <google/protobuf/util/message_differencer.h>
-#include <mjx/state.h>
-#include <mjx/utils.h>
+#include <mjx/internal/state.h>
+#include <mjx/internal/utils.h>
 
 #include <filesystem>
 #include <fstream>

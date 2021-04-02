@@ -1,5 +1,5 @@
-#include <mjx/hand.h>
-#include <mjx/shanten_calculator.h>
+#include <mjx/internal/hand.h>
+#include <mjx/internal/shanten_calculator.h>
 
 #include <fstream>
 #include <sstream>

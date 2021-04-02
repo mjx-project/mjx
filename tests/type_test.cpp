@@ -1,4 +1,4 @@
-#include <mjx/types.h>
+#include <mjx/internal/types.h>
 
 #include "gtest/gtest.h"
 

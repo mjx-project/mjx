@@ -1,4 +1,4 @@
-#include <mjx/open.h>
+#include <mjx/internal/open.h>
 
 #include "gtest/gtest.h"
 

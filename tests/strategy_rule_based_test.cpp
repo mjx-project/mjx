@@ -1,6 +1,6 @@
-#include <mjx/agent_local.h>
-#include <mjx/state.h>
-#include <mjx/strategy_rule_based.h>
+#include <mjx/internal/agent_local.h>
+#include <mjx/internal/state.h>
+#include <mjx/internal/strategy_rule_based.h>
 
 #include <fstream>
 
