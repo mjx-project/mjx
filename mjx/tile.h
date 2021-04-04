@@ -1,7 +1,10 @@
 #ifndef MAHJONG_TILE_H
 #define MAHJONG_TILE_H
 
+#include <string>
+
 #include "types.h"
+#include "utils.h"
 
 namespace mjx {
 class Tile {
@@ -18,6 +21,7 @@ class Tile {
   static std::vector<Tile> Create(const std::vector<std::string> &vector,
                                   bool sorted = false) noexcept;
   static std::vector<Tile> CreateAll() noexcept;  // tiles are sorted
+  static std::string ToString(const std::vector<Tile> &tiles) noexcept;
 
   [[nodiscard]] TileId Id() const noexcept;              // 0 ~ 135
   [[nodiscard]] TileType Type() const noexcept;          // 0 ~ 33
