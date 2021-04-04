@@ -13,6 +13,7 @@ class Observation {
  public:
   Observation() = default;
   Observation(const mjxproto::Observation& proto);
+  Observation(AbsolutePos who, const mjxproto::State& state);
 
   AbsolutePos who() const;
   [[nodiscard]] bool has_possible_action() const;
@@ -31,8 +32,6 @@ class Observation {
  private:
   // TODO: remove friends and use proto()
   friend class State;
-  friend class TrainDataGenerator;
-  Observation(AbsolutePos who, const mjxproto::State& state);
   mjxproto::Observation proto_ = mjxproto::Observation{};
 };
 }  // namespace mjx::internal

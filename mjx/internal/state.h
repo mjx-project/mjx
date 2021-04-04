@@ -80,6 +80,9 @@ class State {
   bool Equals(const State& other) const noexcept;
   bool CanReach(const State& other) const noexcept;
 
+  // TODO: make private
+  void UpdateByEvent(const mjxproto::Event& event);
+
  private:
   explicit State(std::vector<PlayerId> player_ids,  // 起家, ..., ラス親
                  std::uint64_t game_seed = 0, int round = 0, int honba = 0,
@@ -157,8 +160,6 @@ class State {
 
   static mjxproto::State LoadJson(const std::string& json_str);
 
-  friend class TrainDataGenerator;
-  void UpdateByEvent(const mjxproto::Event& event);
 };
 }  // namespace mjx::internal
 
