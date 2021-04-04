@@ -795,11 +795,36 @@ std::vector<Tile> Hand::AllPossibleDiscards() const {
                        HandStage::kAfterTsumoAfterKan, HandStage::kAfterRon}));
   Assert(last_tile_added_);
   Assert(Any(SizeClosed(), {2, 5, 8, 11, 14}));
+  std::vector<Tile> candidates = ToVectorClosed(true);
   auto possible_discards = std::vector<Tile>();
-  auto candidates = UniqueClosedTiles();
+  std::unordered_set<TileType> added;
   for (auto t : candidates) {
     if (undiscardable_tiles_.count(t)) continue;
-    possible_discards.push_back(t);
+    bool is_exception = t.IsRedFive() || t == last_tile_added_.value();
+    if (!added.count(t.Type()) || is_exception) {
+      possible_discards.push_back(t);
+      Assert(last_tile_added_.has_value());
+      Assert(
+          std::count_if(
+              closed_tiles_.begin(), closed_tiles_.end(),
+              [&](const auto &x) {
+                return x.Type() == t.Type() && x.Id() < t.Id() &&
+                       !((t.IsRedFive() ||
+                          t.Id() == last_tile_added_.value()
+                                        .Id()) ||  // t is an exception
+                         (x.IsRedFive() ||
+                          x.Id() == last_tile_added_.value()
+                                        .Id())  // x is an exception
+                       );
+              }) == 0,
+          "Possible discard should have min id. \nInvalid possible discard: " +
+              t.ToString(true) + "\nToVectorClosed() " +
+              Tile::ToString(ToVectorClosed(true)) + "\nlast_tile_added_: " +
+              ((last_tile_added_.has_value())
+                   ? last_tile_added_.value().ToString(true)
+                   : "last_tile_added_ has no value."));
+      added.insert(t.Type());
+    }
   }
   Assert(!Any(stage_, {HandStage::kAfterDraw, HandStage::kAfterDrawAfterKan}) ||
          Any(last_tile_added_.value(), possible_discards));
@@ -830,40 +855,6 @@ std::vector<Open> Hand::SelectDiscardableOpens(
     }
   }
   return filtered;
-}
-
-std::vector<Tile> Hand::UniqueClosedTiles() const noexcept {
-  std::vector<Tile> tiles = ToVectorClosed(true);
-  std::vector<Tile> ret;
-  std::unordered_set<TileType> added;
-  for (const auto &t : tiles) {
-    bool is_exception = t.IsRedFive() || t == last_tile_added_.value();
-    if (!added.count(t.Type()) || is_exception) {
-      ret.push_back(t);
-      Assert(last_tile_added_.has_value());
-      Assert(
-          std::count_if(
-              closed_tiles_.begin(), closed_tiles_.end(),
-              [&](const auto &x) {
-                return x.Type() == t.Type() && x.Id() < t.Id() &&
-                       !((t.IsRedFive() ||
-                          t.Id() == last_tile_added_.value()
-                                        .Id()) ||  // t is an exception
-                         (x.IsRedFive() ||
-                          x.Id() == last_tile_added_.value()
-                                        .Id())  // x is an exception
-                       );
-              }) == 0,
-          "Possible discard should have min id. \nInvalid possible discard: " +
-              t.ToString(true) + "\nToVectorClosed() " +
-              Tile::ToString(ToVectorClosed(true)) + "\nlast_tile_added_: " +
-              ((last_tile_added_.has_value())
-                   ? last_tile_added_.value().ToString(true)
-                   : "last_tile_added_ has no value."));
-    }
-    if (!is_exception) added.insert(t.Type());
-  }
-  return ret;
 }
 
 HandParams::HandParams(const std::string &closed) {
