@@ -268,7 +268,7 @@ std::pair<Tile, bool> Hand::Discard(Tile tile) {
                  }),
          "Discard tile: " + tile.ToString(true) +
              "\nPossibleDiscards(): " + Tile::ToString(PossibleDiscards()) +
-         "\nToVectorClosed(): " + Tile::ToString(ToVectorClosed(true)));
+             "\nToVectorClosed(): " + Tile::ToString(ToVectorClosed(true)));
   Assert(stage_ != HandStage::kAfterRiichi ||
              Any(PossibleDiscardsJustAfterRiichi(),
                  [&tile](Tile possible_discard) {
@@ -277,8 +277,7 @@ std::pair<Tile, bool> Hand::Discard(Tile tile) {
          "Discard tile: " + tile.ToString(true) +
              "\nPossibleDiscardsJustAfterRiichi(): " +
              Tile::ToString(PossibleDiscardsJustAfterRiichi()) +
-         "\nToVectorClosed(): " + Tile::ToString(ToVectorClosed(true))
-         );
+             "\nToVectorClosed(): " + Tile::ToString(ToVectorClosed(true)));
   bool tsumogiri =
       Any(stage_, {HandStage::kAfterDraw, HandStage::kAfterDrawAfterKan,
                    HandStage::kAfterRiichi}) &&
@@ -316,7 +315,8 @@ std::vector<Tile> Hand::PossibleDiscards() const {
 
 std::vector<Tile> Hand::PossibleDiscardsJustAfterRiichi() const {
   Assert(IsMenzen());
-  Assert(IsUnderRiichi(), "stage_: " + std::to_string(static_cast<int>(stage_)));
+  Assert(IsUnderRiichi(),
+         "stage_: " + std::to_string(static_cast<int>(stage_)));
   Assert(stage_ == HandStage::kAfterRiichi);
   Assert(Any(SizeClosed(), {2, 5, 8, 11, 14}));
   return PossibleDiscardsToTakeTenpai();
