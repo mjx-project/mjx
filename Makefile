@@ -14,7 +14,6 @@ test: build
 all: clean test
 
 fmt:
-	clang-format -i *.cpp
 	clang-format -i mjx/*.h mjx/*.cpp
 	clang-format -i tests/*.cpp
 	clang-format -i scripts/*.cpp

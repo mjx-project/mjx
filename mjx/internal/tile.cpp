@@ -465,4 +465,14 @@ std::uint8_t Tile::Offset() const noexcept {
 bool Tile::Equals(Tile other) const noexcept {
   return Type() == other.Type() && IsRedFive() == other.IsRedFive();
 }
+
+std::string Tile::ToString(const std::vector<Tile> &tiles) noexcept {
+  Assert(!tiles.empty(), "tiles should not be empty.");
+  std::string s;
+  for (const auto &t : tiles) {
+    s += t.ToString(true) + ",";
+  }
+  s.pop_back();
+  return s;
+}
 }  // namespace mjx::internal
