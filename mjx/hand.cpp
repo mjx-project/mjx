@@ -809,7 +809,6 @@ std::vector<Tile> Hand::AllPossibleDiscards() const {
     bool is_exception = t.IsRedFive() || t == last_tile_added_.value();
     if (!added.count(t.Type()) || is_exception) {
       possible_discards.push_back(t);
-      Assert(last_tile_added_.has_value());
       Assert(
           std::count_if(
               closed_tiles_.begin(), closed_tiles_.end(),
