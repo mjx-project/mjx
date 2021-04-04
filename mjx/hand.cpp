@@ -839,10 +839,9 @@ std::vector<Open> Hand::SelectDiscardableOpens(
 }
 
 std::vector<Tile> Hand::UniqueClosedTiles() const noexcept {
-  std::vector<Tile> tiles = ToVectorClosed(true);
   std::vector<Tile> ret;
   std::unordered_set<TileType> added;
-  for (const auto &t : tiles) {
+  for (const auto &t : closed_tiles_) {
     bool is_exception = t.IsRedFive() || t == last_tile_added_.value();
     if (!added.count(t.Type()) || is_exception) {
       ret.push_back(t);
