@@ -112,7 +112,8 @@ Tile StrategyRuleBased::SelectDiscard(std::vector<Tile> &discard_candidates,
     }
     Assert(false, "discard_candidates: " + Tile::ToString(discard_candidates) +
                       "\ntenpai_discards: " + Tile::ToString(tenpai_discards) +
-                      "\ncurr_hand.ToVectorClosed(): " + Tile::ToString(curr_hand.ToVectorClosed(true)));
+                      "\ncurr_hand.ToVectorClosed(): " +
+                      Tile::ToString(curr_hand.ToVectorClosed(true)));
   }
   // 判定ロジック
   auto is_head = [&closed_tile_type_cnt](Tile tile) {
