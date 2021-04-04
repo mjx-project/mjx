@@ -261,16 +261,23 @@ std::pair<Tile, bool> Hand::Discard(Tile tile) {
   Assert(last_tile_added_);
   Assert(!(IsUnderRiichi() && stage_ != HandStage::kAfterRiichi) ||
          tile == last_tile_added_.value());
-  assert(
-      (stage_ != HandStage::kAfterRiichi && Any(PossibleDiscards(),
-                                                [&tile](Tile possible_discard) {
-                                                  return tile.Equals(
-                                                      possible_discard);
-                                                })) ||
-      (stage_ == HandStage::kAfterRiichi &&
-       Any(PossibleDiscardsJustAfterRiichi(), [&tile](Tile possible_discard) {
-         return tile.Equals(possible_discard);
-       })));
+  Assert(stage_ == HandStage::kAfterRiichi ||
+             Any(PossibleDiscards(),
+                 [&tile](Tile possible_discard) {
+                   return tile.Equals(possible_discard);
+                 }),
+         "Discard tile: " + tile.ToString(true) +
+             "\nPossibleDiscards(): " + Tile::ToString(PossibleDiscards()) +
+             "\nToVectorClosed(): " + Tile::ToString(ToVectorClosed(true)));
+  Assert(stage_ != HandStage::kAfterRiichi ||
+             Any(PossibleDiscardsJustAfterRiichi(),
+                 [&tile](Tile possible_discard) {
+                   return tile.Equals(possible_discard);
+                 }),
+         "Discard tile: " + tile.ToString(true) +
+             "\nPossibleDiscardsJustAfterRiichi(): " +
+             Tile::ToString(PossibleDiscardsJustAfterRiichi()) +
+             "\nToVectorClosed(): " + Tile::ToString(ToVectorClosed(true)));
   bool tsumogiri =
       Any(stage_, {HandStage::kAfterDraw, HandStage::kAfterDrawAfterKan,
                    HandStage::kAfterRiichi}) &&
@@ -308,7 +315,8 @@ std::vector<Tile> Hand::PossibleDiscards() const {
 
 std::vector<Tile> Hand::PossibleDiscardsJustAfterRiichi() const {
   Assert(IsMenzen());
-  Assert(IsUnderRiichi());
+  Assert(IsUnderRiichi(),
+         "stage_: " + std::to_string(static_cast<int>(stage_)));
   Assert(stage_ == HandStage::kAfterRiichi);
   Assert(Any(SizeClosed(), {2, 5, 8, 11, 14}));
   return PossibleDiscardsToTakeTenpai();
@@ -793,12 +801,34 @@ std::vector<Tile> Hand::AllPossibleDiscards() const {
                        HandStage::kAfterTsumoAfterKan, HandStage::kAfterRon}));
   Assert(last_tile_added_);
   Assert(Any(SizeClosed(), {2, 5, 8, 11, 14}));
+  std::vector<Tile> tiles = ToVectorClosed(true);
   auto possible_discards = std::vector<Tile>();
   std::unordered_set<TileType> added;
-  for (auto t : closed_tiles_) {
+  for (auto t : tiles) {
     if (undiscardable_tiles_.count(t)) continue;
     bool is_exception = t.IsRedFive() || t == last_tile_added_.value();
-    if (!added.count(t.Type()) || is_exception) possible_discards.push_back(t);
+    if (!added.count(t.Type()) || is_exception) {
+      possible_discards.push_back(t);
+      Assert(
+          std::count_if(
+              closed_tiles_.begin(), closed_tiles_.end(),
+              [&](const auto &x) {
+                return x.Type() == t.Type() && x.Id() < t.Id() &&
+                       !((t.IsRedFive() ||
+                          t.Id() == last_tile_added_.value()
+                                        .Id()) ||  // t is an exception
+                         (x.IsRedFive() ||
+                          x.Id() == last_tile_added_.value()
+                                        .Id())  // x is an exception
+                       );
+              }) == 0,
+          "Possible discard should have min id. \nInvalid possible discard: " +
+              t.ToString(true) + "\nToVectorClosed() " +
+              Tile::ToString(ToVectorClosed(true)) + "\nlast_tile_added_: " +
+              ((last_tile_added_.has_value())
+                   ? last_tile_added_.value().ToString(true)
+                   : "last_tile_added_ has no value."));
+    }
     if (!is_exception) added.insert(t.Type());
   }
   Assert(!Any(stage_, {HandStage::kAfterDraw, HandStage::kAfterDrawAfterKan}) ||

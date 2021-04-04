@@ -301,6 +301,16 @@ TEST(hand, PossibleDiscardsToTakeTenpai) {
   auto possible_discards = h.PossibleDiscardsToTakeTenpai();
   EXPECT_EQ(possible_discards.size(), 1);
   EXPECT_EQ(possible_discards.front().Type(), TileType::kNW);
+
+  // From actual failure
+  h = Hand({Tile("m2", 2), Tile("m3", 1), Tile("m3", 3), Tile("m4", 2),
+            Tile("m7", 2), Tile("m7", 3), Tile("s3", 3), Tile("s4", 2),
+            Tile("rd", 0), Tile("rd", 1), Tile("rd", 2), Tile("wd", 0),
+            Tile("wd", 1)});
+  h.Draw(Tile("wd", 2));
+  possible_discards = h.PossibleDiscardsToTakeTenpai();
+  EXPECT_EQ(possible_discards.size(), 1);
+  EXPECT_EQ(possible_discards.front().Id(), Tile("m3", 1).Id());
 }
 
 TEST(hand, PossibleOpensAfterOthersDiscard) {  // TODO: add more detailed test
