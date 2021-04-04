@@ -62,6 +62,7 @@ class Hand {
   [[nodiscard]] TileTypeCount AllTileTypes() const noexcept;
   int TotalKans() const noexcept;  // 四槓散了の判定に使用する.
   std::optional<RelativePos> HasPao() const noexcept;
+  [[nodiscard]] std::vector<Tile> UniqueClosedTiles() const noexcept;
 
   // action validators
   std::vector<Tile> PossibleDiscards()
