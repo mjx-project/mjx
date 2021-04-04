@@ -784,7 +784,7 @@ std::vector<Tile> Hand::PossibleDiscardsToTakeTenpai() const {
       possible_discards.emplace_back(tile);
       Assert(std::count_if(closed_tiles_.begin(), closed_tiles_.end(),
                            [&tile](const auto &x) { return x.Type() == tile.Type() && x.Id() < tile.Id(); }
-                           ),
+                           ) == 0,
              "Possible discard should have min id. \nInvalid possible discard: " + tile.ToString(true) + "\nToVectorClosed() " +
                  Tile::ToString(ToVectorClosed(true)));
     }
