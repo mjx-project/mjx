@@ -782,11 +782,14 @@ std::vector<Tile> Hand::PossibleDiscardsToTakeTenpai() const {
       closed_tile_types.erase(tile.Type());
     if (Hand::IsTenpai(closed_tile_types)) {
       possible_discards.emplace_back(tile);
-      Assert(std::count_if(closed_tiles_.begin(), closed_tiles_.end(),
-                           [&tile](const auto &x) { return x.Type() == tile.Type() && x.Id() < tile.Id(); }
-                           ) == 0,
-             "Possible discard should have min id. \nInvalid possible discard: " + tile.ToString(true) + "\nToVectorClosed() " +
-                 Tile::ToString(ToVectorClosed(true)));
+      Assert(
+          std::count_if(closed_tiles_.begin(), closed_tiles_.end(),
+                        [&tile](const auto &x) {
+                          return x.Type() == tile.Type() && x.Id() < tile.Id();
+                        }) == 0,
+          "Possible discard should have min id. \nInvalid possible discard: " +
+              tile.ToString(true) + "\nToVectorClosed() " +
+              Tile::ToString(ToVectorClosed(true)));
     }
     ++closed_tile_types[tile.Type()];
   }
