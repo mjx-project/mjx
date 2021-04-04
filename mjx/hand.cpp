@@ -261,16 +261,24 @@ std::pair<Tile, bool> Hand::Discard(Tile tile) {
   Assert(last_tile_added_);
   Assert(!(IsUnderRiichi() && stage_ != HandStage::kAfterRiichi) ||
          tile == last_tile_added_.value());
-  assert(
-      (stage_ != HandStage::kAfterRiichi && Any(PossibleDiscards(),
-                                                [&tile](Tile possible_discard) {
-                                                  return tile.Equals(
-                                                      possible_discard);
-                                                })) ||
-      (stage_ == HandStage::kAfterRiichi &&
-       Any(PossibleDiscardsJustAfterRiichi(), [&tile](Tile possible_discard) {
-         return tile.Equals(possible_discard);
-       })));
+  Assert(stage_ == HandStage::kAfterRiichi ||
+             Any(PossibleDiscards(),
+                 [&tile](Tile possible_discard) {
+                   return tile.Equals(possible_discard);
+                 }),
+         "Discard tile: " + tile.ToString(true) +
+             "\nPossibleDiscards(): " + Tile::ToString(PossibleDiscards()) +
+         "\nToVectorClosed(): " + Tile::ToString(ToVectorClosed(true)));
+  Assert(stage_ != HandStage::kAfterRiichi ||
+             Any(PossibleDiscardsJustAfterRiichi(),
+                 [&tile](Tile possible_discard) {
+                   return tile.Equals(possible_discard);
+                 }),
+         "Discard tile: " + tile.ToString(true) +
+             "\nPossibleDiscardsJustAfterRiichi(): " +
+             Tile::ToString(PossibleDiscardsJustAfterRiichi()) +
+         "\nToVectorClosed(): " + Tile::ToString(ToVectorClosed(true))
+         );
   bool tsumogiri =
       Any(stage_, {HandStage::kAfterDraw, HandStage::kAfterDrawAfterKan,
                    HandStage::kAfterRiichi}) &&
@@ -308,7 +316,7 @@ std::vector<Tile> Hand::PossibleDiscards() const {
 
 std::vector<Tile> Hand::PossibleDiscardsJustAfterRiichi() const {
   Assert(IsMenzen());
-  Assert(IsUnderRiichi());
+  Assert(IsUnderRiichi(), "stage_: " + std::to_string(static_cast<int>(stage_)));
   Assert(stage_ == HandStage::kAfterRiichi);
   Assert(Any(SizeClosed(), {2, 5, 8, 11, 14}));
   return PossibleDiscardsToTakeTenpai();
