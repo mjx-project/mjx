@@ -808,7 +808,17 @@ std::vector<Tile> Hand::AllPossibleDiscards() const {
   for (auto t : closed_tiles_) {
     if (undiscardable_tiles_.count(t)) continue;
     bool is_exception = t.IsRedFive() || t == last_tile_added_.value();
-    if (!added.count(t.Type()) || is_exception) possible_discards.push_back(t);
+    if (!added.count(t.Type()) || is_exception) {
+      possible_discards.push_back(t);
+      Assert(
+          std::count_if(closed_tiles_.begin(), closed_tiles_.end(),
+                        [&t](const auto &x) {
+                          return x.Type() == t.Type() && x.Id() < t.Id();
+                        }) == 0,
+          "Possible discard should have min id. \nInvalid possible discard: " +
+          t.ToString(true) + "\nToVectorClosed() " +
+          Tile::ToString(ToVectorClosed(true)));
+    }
     if (!is_exception) added.insert(t.Type());
   }
   Assert(!Any(stage_, {HandStage::kAfterDraw, HandStage::kAfterDrawAfterKan}) ||
