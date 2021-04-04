@@ -801,10 +801,9 @@ std::vector<Tile> Hand::AllPossibleDiscards() const {
                        HandStage::kAfterTsumoAfterKan, HandStage::kAfterRon}));
   Assert(last_tile_added_);
   Assert(Any(SizeClosed(), {2, 5, 8, 11, 14}));
-  std::vector<Tile> tiles = ToVectorClosed(true);
   auto possible_discards = std::vector<Tile>();
   std::unordered_set<TileType> added;
-  for (auto t : tiles) {
+  for (auto t : closed_tiles_) {
     if (undiscardable_tiles_.count(t)) continue;
     bool is_exception = t.IsRedFive() || t == last_tile_added_.value();
     if (!added.count(t.Type()) || is_exception) {
