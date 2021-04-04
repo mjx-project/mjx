@@ -788,9 +788,7 @@ std::vector<Tile> Hand::PossibleDiscardsToTakeTenpai() const {
     Assert(closed_tile_types.count(tile.Type()));
     if (--closed_tile_types[tile.Type()] == 0)
       closed_tile_types.erase(tile.Type());
-    if (Hand::IsTenpai(closed_tile_types)) {
-      possible_discards.emplace_back(tile);
-    }
+    if (Hand::IsTenpai(closed_tile_types)) possible_discards.emplace_back(tile);
     ++closed_tile_types[tile.Type()];
   }
   Assert(!possible_discards.empty());
