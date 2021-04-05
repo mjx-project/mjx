@@ -79,7 +79,7 @@ message Score {
 
 message Event {
   //                       who    tile    open
-  // DRAW                  Yes    No      No      Tile is No since it's private info. EventHistory will be passed to Observation as public info.
+  // DRAW                  Yes    No      No      Tile is No since it's private info. PublicObservation will be passed to Observation as public info.
   // DISCARD_FROM_HAND     Yes    Yes     No
   // DISCARD_DRAWN_TILE    Yes    Yes     No
   // RIICHI                Yes    No      No
@@ -97,26 +97,6 @@ message Event {
   AbsolutePos who = 2;
   uint32 tile = 3;
   uint32 open = 4;
-}
-
-message EventHistory {
-  repeated Event events = 2;
-}
-
-message PrivateInfo {
-  AbsolutePos who = 1;
-  repeated uint32 init_hand = 2;
-  repeated uint32 draws = 3;
-}
-
-message Observation {
-  repeated string player_ids = 1;
-  Score init_score = 2;  // public info
-  repeated uint32 doras = 3;
-  EventHistory event_history = 4;  // public info
-  AbsolutePos who = 5;
-  PrivateInfo private_info = 6;
-  repeated Action possible_actions = 7;
 }
 
 message Win {
@@ -151,19 +131,44 @@ message Terminal {
   bool is_game_over = 4;
 }
 
-message State {
-  // public info
-  repeated string player_ids = 1;
-  Score init_score = 2;  // Required for Tenhou mjlog.
+message PublicObservation {
+  Score init_score = 2;  // public info
   repeated uint32 doras = 3;
-  EventHistory event_history = 4;
-  // private info
-  repeated uint32 wall = 5;
-  repeated uint32 ura_doras = 6;
-  repeated PrivateInfo private_infos = 7;
-  uint64 game_seed = 8;
+  repeated Event events = 2;
   // win/ryuukyoku information
   Terminal terminal = 9;
+}
+
+message PrivateObservation {
+  AbsolutePos who = 1;
+  repeated uint32 init_hand = 2;
+  repeated uint32 draws = 3;
+}
+
+message Observation {
+  repeated string player_ids = 1;
+  AbsolutePos who = 5;
+  PublicObservation public_observation = 4;  // public info
+  PrivateObservation private_observation = 6;
+  repeated Action possible_actions = 7;
+}
+
+message HiddenState {
+  repeated uint32 wall = 5;
+  repeated uint32 ura_doras = 6;
+}
+
+message Info {
+  uint64 game_id = 1;
+  uint64 game_seed = 8;
+  repeated string player_ids = 1;
+}
+
+message State {
+  Info info = 1;
+  HiddenState hidden_state = 2;
+  PublicObservation public_observation = 4;
+  repeated PrivateObservation public_observation = 7;
 }
 
 message Action {
