@@ -145,30 +145,35 @@ message PrivateObservation {
   repeated uint32 draws = 3;
 }
 
-message Observation {
-  repeated string player_ids = 1;
-  AbsolutePos who = 5;
-  PublicObservation public_observation = 4;  // public info
-  PrivateObservation private_observation = 6;
-  repeated Action possible_actions = 7;
-}
-
 message HiddenState {
   repeated uint32 wall = 5;
   repeated uint32 ura_doras = 6;
 }
 
-message Info {
+message StateInfo {
   uint64 game_id = 1;
   uint64 game_seed = 8;
   repeated string player_ids = 1;
 }
 
 message State {
-  Info info = 1;
+  StateInfo state_info = 1;
   HiddenState hidden_state = 2;
   PublicObservation public_observation = 4;
   repeated PrivateObservation public_observation = 7;
+}
+
+message ObservationInfo {
+  uint64 game_id = 1;
+  repeated string player_ids = 1;
+  repeated Action possible_actions = 7;
+}
+
+message Observation {
+  ObservationInfo observation_info = 1;
+  AbsolutePos who = 5;
+  PublicObservation public_observation = 4;  // public info
+  PrivateObservation private_observation = 6;
 }
 
 message Action {
