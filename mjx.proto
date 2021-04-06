@@ -133,7 +133,7 @@ message Hand {
 
 message PublicObservation {
   Score init_score = 1;
-  int32 init_dora = 2;
+  int32 init_dora_indicator = 2;
   repeated Event event_history = 3;
   PublicObservationUtils utils = 10;
 }
@@ -168,7 +168,7 @@ message State {
 
 message PublicObservationUtil {
   Score curr_score = 1;
-  repeated int32 curr_doras = 2;
+  repeated int32 curr_dora_indicators = 2;
   repeated int32 river = 3;
   RoundTerminal round_terminal = 9;
 }
@@ -178,7 +178,7 @@ message PrivateObaservationUtils {
 }
 
 message HiddenStateUtils {
-  repeated int32 curr_ura_doras = 6;  // TODO: 本当になくても再現できるか？wallの順番は自明ではないが...
+  repeated int32 curr_ura_dora_indicators = 6;  // TODO: 本当になくても再現できるか？wallの順番は自明ではないが...
 }
 
 message Win {
