@@ -13,22 +13,8 @@ enum PlayerIdx {
   PLAYER_IDX_3 = 3;  // ラス親
 }
 
-enum Wind {
-  WIND_EAST = 0;
-  WIND_SOUTH = 1;
-  WIND_WEST = 2;
-  WIND_NORTH = 3;
-}
-
-enum RelativePlayerPos {
-  RELATIVE_PLAYER_POS_SELF = 0;
-  RELATIVE_PLAYER_POS_RIGHT = 1;  // 下家
-  RELATIVE_PLAYER_POS_MID = 2;    // 対面
-  RELATIVE_PLAYER_POS_LEFT = 3;   // 上家
-}
-
 enum ActionType {
-  // After draw
+  // After someone's draw
   ACTION_TYPE_DISCARD_FROM_HAND = 0;
   ACTION_TYPE_DISCARD_DRAWN_TILE = 1;
   ACTION_TYPE_RIICHI = 2;
@@ -36,7 +22,7 @@ enum ActionType {
   ACTION_TYPE_ADDED_KAN = 4;
   ACTION_TYPE_TSUMO = 5;
   ACTION_TYPE_ABORTIVE_DRAW_NINE_TERMINAL = 6;
-  // After other's discard
+  // After someone's discard
   ACTION_TYPE_CHI = 7;
   ACTION_TYPE_PON = 8;
   ACTION_TYPE_OPEN_KAN = 9;
@@ -45,7 +31,7 @@ enum ActionType {
 }
 
 enum EventType {
-  // Publicly observable action after someone's draw
+  // Publicly observable actions
   EVENT_TYPE_DISCARD_FROM_HAND = 0;
   EVENT_TYPE_DISCARD_DRAWN_TILE = 1;  // ツモ切り, Tsumogiri
   EVENT_TYPE_RIICHI = 2;
@@ -53,12 +39,11 @@ enum EventType {
   EVENT_TYPE_ADDED_KAN = 4;
   EVENT_TYPE_TSUMO = 5;
   EVENT_TYPE_ABORTIVE_DRAW_NINE_TERMINAL = 6;
-  // Publicly observable Action after someone's discard
   EVENT_TYPE_CHI = 7;
   EVENT_TYPE_PON = 8;
   EVENT_TYPE_OPEN_KAN = 9;
   EVENT_TYPE_RON = 10;
-  // State change made by environment. There is no decision making by players.  
+  // State transitions made by environment. There is no decision making by players.  
   // 11 is skipped for the consistency to ActionType 
   EVENT_TYPE_DRAW = 12; 
   EVENT_TYPE_NEW_DORA = 13; 
@@ -74,26 +59,27 @@ enum EventType {
 }
 
 message Score {
-  // Following rule holds for any timesteps: sum(score.ten) + score.riichi * 1000 == 100000
   int32 round = 1;
   int32 honba = 2;
   int32 riichi = 3;
-  repeated int32 ten = 4;  
+  repeated int32 tens = 4;  
+  // At every timestep, sum(score.tens) + score.riichi * 1000 == 100000 holds.
 }
 
 message Action {
-  //                discard   open
-  //  DISCARD           Yes     No
-  //  RIICHI             No     No
-  //  TSUMO              No     No
-  //  CLOSED_KAN         No    Yes
-  //  ADDED_KAN          No    Yes
-  //  KYUSYU             No     No
-  //  NO                 No     No
-  //  CHI                No    Yes
-  //  PON                No    Yes
-  //  OPEN_KAN           No    Yes
-  //  RON                No     No
+  //                          discard   open
+  //  DISCARD_FROM_HAND           Yes     No
+  //  DISCARD_DRAWN_TILE          Yes     No
+  //  RIICHI                       No     No
+  //  TSUMO                        No     No
+  //  CLOSED_KAN                   No    Yes
+  //  ADDED_KAN                    No    Yes
+  //  ABORTIVE_DRAW_NINE_TERMINAL  No     No
+  //  NO                           No     No
+  //  CHI                          No    Yes
+  //  PON                          No    Yes
+  //  OPEN_KAN                     No    Yes
+  //  RON                          No     No
   int32 game_id = 1;
   PlayerIdx who = 2;
   ActionType type = 3;
@@ -105,7 +91,7 @@ message Event {
   // History of publicly observable events, which include 
   // 
   //   1. publicly observable actions taken by all layers 
-  //   2. publicly observable state changes made by envionment
+  //   2. publicly observable state transitions made by envionment
   // 
   // Note that "NO" action is **NOT** collected as event since it's not publicly observable.
   // Also, drawn tile is not observable. Only the fact that the player drew something is collected.
@@ -141,21 +127,11 @@ message Hand {
   repeated int32 opens = 4;
 }
 
-message PublicObservationUtil {
-  Score curr_score = 1;
-  repeated int32 curr_doras = 2;
-  repeated int32 river = 3;
-}
-
 message PublicObservation {
   Score init_score = 1;
   int32 init_dora = 2;
   repeated Event event_history = 3;
   PublicObservationUtils utils = 10;
-}
-
-message PrivateObaservationUtils {
-  Hand curr_hand = 1;
 }
 
 message PrivateObservation {
@@ -165,58 +141,16 @@ message PrivateObservation {
   PrivateObseravtionUtils utils = 4;
 }
 
-message HiddenStateUtils {
-  repeated int32 curr_ura_doras = 6;
-}
-
 message HiddenState {
   repeated int32 wall = 1;
   HiddenStateUtils utils = 2;
 }
 
-message WinUtils {
-  int32 fu = 6;
-  repeated int32 fans = 10;  // TODO: check definitions
-  repeated int32 yakus = 9;  // TODO: check definitions
-  repeated int32 yakumans = 11;
-  int32 ten = 7;  // TODO: check definitions
-  repeated int32 ten_changes = 8;  // Required only for Tenhou mjlog.  TODO: check definition. remove
-}
-
-message Win {
+message Observation {
   PlayerIdx who = 1;
-  PlayerIdx from_who = 2;
-  Hand hand = 3;
-  int32 win_tile = 5;
-  WinUtils utils = 12;
-}
-
-message AbortiveDrawUtils {
-  EventType type = 1;
-  repeated int32 ten_changes = 8;  // Required only for Tenhou mjlog.  TODO: check definition. remove
-}
-
-message AbortiveDraw {
-  repeated Hand tenpai_hands = 1;
-  repeated AbortiveDrawUtils = 2;
-}
-
-message RoundTerminalUtils {
-  Score final_score = 1;
-  bool is_game_over = 4;
-}
-
-message RoundTerminal {
-  repeated Win wins = 1;   // Empty if no one wins
-  AbortiveDraw abortive_draw = 2;  // Empty if a winner exists
-  RoundTerminalUtils utils = 3;
-}
-
-message StateUtils {
-  uint64 game_id = 1;
-  uint64 game_seed = 2;
-  repeated string player_ids = 3;
-  RoundTerminal round_terminal = 9;
+  PublicObservation public_observation = 2;
+  PrivateObservation private_observation = 3;
+  ObservationUtils utils = 4;
 }
 
 message State {
@@ -226,15 +160,60 @@ message State {
   StateUtils utils = 4;
 }
 
+// Utilities
+
+message PublicObservationUtil {
+  Score curr_score = 1;
+  repeated int32 curr_doras = 2;
+  repeated int32 river = 3;
+  RoundTerminal round_terminal = 9;
+}
+
+message PrivateObaservationUtils {
+  Hand curr_hand = 1;
+}
+
+message HiddenStateUtils {
+  repeated int32 curr_ura_doras = 6;
+}
+
+message Win {
+  PlayerIdx who = 1;
+  PlayerIdx from_who = 2;
+  Hand hand = 3;
+  int32 win_tile = 5;
+  int32 fu = 6;
+  repeated int32 fans = 10;  // TODO: check definitions
+  repeated int32 yakus = 9;  // TODO: check definitions
+  repeated int32 yakumans = 11;
+  int32 ten = 7;  // TODO: check definitions
+  repeated int32 ten_changes = 8;  // Required only for Tenhou mjlog.  TODO: check definition. remove
+}
+
+message AbortiveDraw {
+  EventType type = 1;
+  repeated Hand tenpai_hands = 1;
+  repeated AbortiveDrawUtils = 2;
+  repeated int32 ten_changes = 8;  // Required only for Tenhou mjlog.  TODO: check definition. remove
+}
+
+message RoundTerminal {
+  Score final_score = 1;
+  repeated Win wins = 1;   // Empty if no one wins
+  AbortiveDraw abortive_draw = 2;  // Empty if a winner exists
+  bool is_game_over = 4;
+}
+
+message StateUtils {
+  uint64 game_id = 1;
+  uint64 game_seed = 2;
+  repeated string player_ids = 3;
+}
+
 message ObservationUtils {
   uint64 game_id = 1;
   repeated string player_ids = 2;
   repeated Action legal_actions = 3;
 }
 
-message Observation {
-  PlayerIdx who = 1;
-  PublicObservation public_observation = 2;
-  PrivateObservation private_observation = 3;
-  ObservationUtils utils = 4;
-}
+
