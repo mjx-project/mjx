@@ -35,6 +35,7 @@ class Player:
         self.kan_opened_area = []
         self.kan_added_area = []
         self.drawcount = 0
+        self.is_riichi = False
 
 
 class MahjongTable:
@@ -46,6 +47,9 @@ class MahjongTable:
         self, player1: Player, player2: Player, player3: Player, player4: Player,
     ):
         self.players = [player1, player2, player3, player4]
+        self.bakaze = 0
+        self.kyoku = 0
+        self.honba = 1
         self.last_action = 0  # 0-10
         self.last_player = 0  # 0-3
 
@@ -77,6 +81,8 @@ class GameBoard:
         player2 = Player(1, 1, 25000, [Tile(i * 4, False) for i in range(14)])
         player3 = Player(2, 2, 25000, [Tile(i * 4, False) for i in range(14)])
         player4 = Player(3, 3, 25000, [Tile(i * 4, False) for i in range(14)])
+
+        player3.is_riichi = True
 
         for p in [player1, player2, player3, player4]:
 
@@ -111,17 +117,26 @@ class GameBoard:
             p.discard_area = [Tile(4 * i, True) for i in range(20)]
 
         table = MahjongTable(player1, player2, player3, player4)
+        table.bakaze = 0
+        table.kyoku = 1
         table.last_player = 3
         table.last_action = 1
 
         self.table = table
 
     def show_all(self) -> None:
+        print(get_wind_char(self.table.bakaze) + str(self.table.kyoku) + "局")
+        if self.table.honba > 0:
+            print(str(self.table.honba) + "本場")
+        print()
+
         for p in self.table.players:
             print(get_wind_char(p.wind))
             if p.player_idx == 0:
                 print("起家")
             print("SCORE:", p.score)
+            if p.is_riichi:
+                print("リーチ")
             print("手牌: ", [tile.char for tile in p.hands_area])
             print(
                 "チー: ",
