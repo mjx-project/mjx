@@ -79,15 +79,21 @@ to_wind_char = {
 
 
 def get_tile_char(tile_id: int) -> str:
-    assert (tile_id // 4) in to_char
-    return to_char[tile_id // 4]
+    if 0 <= tile_id < 136:
+        return to_char[tile_id // 4]
+    else:
+        return " "
 
 
 def get_tile_unicode(tile_id: int) -> str:
-    assert (tile_id // 4) in to_unicode
-    return to_unicode[tile_id // 4]
+    if 0 <= tile_id < 136:
+        return to_unicode[tile_id // 4]
+    else:
+        return " "
 
 
 def get_wind_char(wind: int) -> str:
-    assert wind in to_wind_char
-    return to_wind_char[wind]
+    if 0 <= wind < 4:
+        return to_wind_char[wind]
+    else:
+        return " "

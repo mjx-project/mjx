@@ -1,175 +1,244 @@
 import argparse
-import os
+from typing import List
 
-from terminaltables import AsciiTable, SingleTable
+from rich.console import Console
+from rich.table import Table
 
-import mjxproto
-from GetChar import get_char
-from GetPos import get_pos
-from GetUnicode import get_unicode
+from converter import get_tile_char, get_tile_unicode, get_wind_char
 
 
-def clear_screen() -> None:
-    if os.name == "nt":
-        os.system("cls")
-    else:
-        os.system("clear")
+class TileClass:
+    def __init__(self, tile_id: int, is_open: bool = False, is_vertical: bool = False):
+        self.id = tile_id
+        self.is_open = is_open
+        self.is_vertical = is_vertical
+        if not is_open:
+            self.char = "#"
+            self.unicode = "#"
+        elif is_vertical:
+            self.char = "|" + get_tile_char(tile_id) + "|"
+            self.unicode = "|" + get_tile_unicode(tile_id) + "|"
+        else:
+            self.char = get_tile_char(tile_id)
+            self.unicode = get_tile_unicode(tile_id)
 
 
-class Players:
-    def __init__(self, id):
+PlayArea = List[TileClass]
+
+
+class PlayerClass:
+    def __init__(self, id: int, init_hand: PlayArea):
         self.id = id
-        self.hands = []  # 手牌
-        self.discards = []  # 河
-        self.chi = []
-        self.pon = []
-        self.kan_closed = []
-        self.kan_opened = []
-        self.kan_added = []
+        self.wind = get_wind_char(id)
+        self.hands_area = init_hand
+        self.discard_area = []
+        self.chi_area = []
+        self.pon_area = []
+        self.kan_closed_area = []
+        self.kan_opened_area = []
+        self.kan_added_area = []
         self.drawcount = 0
 
-    def init_hand(self, init_hand) -> None:
-        self.hands = init_hand
 
-    def draw(self, tile) -> None:
-        self.hands.append(tile)
-
-    def discard(self, tile) -> None:
-        if tile in self.hands:
-            self.hands.remove(tile)
-        self.discards.append(tile)
-
-    def show_discard(self) -> None:
-        print(self.discards)
+"""
+MahjongTableClassには、各プレイヤーの手牌や河の情報が格納されています。
+GameBoardClassは内部にMahjongTableClass型のオブジェクトを持ち、
+状態の代入や画面への表示を行います。
+"""
 
 
-class GameBoard:
-    def __init__(self, path, is_uni):
+class MahjongTableClass:
+    def __init__(
+        self,
+        player1: PlayerClass,
+        player2: PlayerClass,
+        player3: PlayerClass,
+        player4: PlayerClass,
+    ):
+        self.players = [player1, player2, player3, player4]
+        self.hands = []
+        self.discs = []
+        self.chis = []
+        self.pons = []
+        self.c_kans = []
+        self.o_kans = []
+        self.a_kans = []
+
+
+class GameBoardClass:
+    def __init__(self, path: str, name: str):
         self.path = path
-        self.is_unicode = is_uni
-        self.east = Players(0)
-        self.south = Players(1)
-        self.west = Players(2)
-        self.north = Players(3)
-        self.players = [self.east, self.south, self.west, self.north]
+        self.name = name
 
-    # idのプレイヤーがtileを取る
-    def draw(self, id: int, tile: int) -> None:
-        self.players[id].draw(tile)
-        self.players[id].drawcount += 1
+    def rollout(self) -> None:
+        """
+        ここでEventHistoryから現在の状態を読み取る予定です。
 
-    # idのプレイヤーがtileを捨てる
-    def discard(self, id: int, tile: int) -> None:
-        self.players[id].discard(tile)
-
-    # 理牌
-    def arrange(self) -> None:
-        for p in self.players:
-            p.hands.sort()
-
-    # drawcountは何回ツモしたかのカウンタ
-    # idのプレイヤーのdwawcountを返す
-    def get_dwawcount(self, id: int) -> int:
-        return self.players[id].drawcount
-
-    # 全プレイヤーの手牌、河を表示
-    def show_all(self) -> None:
-        hands = []
-        discs = []
-        for p in self.players:
-            if self.is_unicode:
-                hands.append([get_unicode(i).decode("unicode-escape") for i in p.hands])
-                discs.append(
-                    [get_unicode(i).decode("unicode-escape") for i in p.discards]
-                )
-            else:
-                hands.append([get_char(i) for i in p.hands])
-                discs.append([get_char(i) for i in p.discards])
-
-        table_data = [
-            ["      東      ", "      南      ", "      西      ", "      北      "],
-            [
-                "".join(hands[0]),
-                "".join(hands[1]),
-                "".join(hands[2]),
-                "".join(hands[3]),
-            ],
-            [
-                " ".join(discs[0]),
-                " ".join(discs[1]),
-                " ".join(discs[2]),
-                " ".join(discs[3]),
-            ],
-        ]
-        table_instance = SingleTable(table_data, "board")
-        table_instance.inner_heading_row_border = False
-        table_instance.inner_row_border = True
-        table_instance.justify_columns = {
-            0: "center",
-            1: "center",
-            2: "center",
-            3: "center",
-        }
-        print(table_instance.table)
-
-    # 実行
-    def run(self) -> None:
         with open(self.path, "r", errors="ignore") as f:
             for line in f:
-                gamedata = mjxproto.State()
+                gamedata = mjxproto.Observation()
                 gamedata.from_json(line)
 
-                # 手元を初期化
-                for i, p in enumerate(self.players):
-                    p.init_hand(gamedata.private_infos[i].init_hand)
+                # 入力作業
+        
+        # 今はテスト用に、直に打ち込んでいます。
+        """
+        player1 = PlayerClass(0, [TileClass(i * 4, True) for i in range(12)])
+        player2 = PlayerClass(1, [TileClass(i * 4, False) for i in range(12)])
+        player3 = PlayerClass(2, [TileClass(i * 4, False) for i in range(12)])
+        player4 = PlayerClass(3, [TileClass(i * 4, False) for i in range(12)])
 
-                clear_screen()
+        for p in [player1, player2, player3, player4]:
 
-                for i, event in enumerate(gamedata.event_history.events):
+            p.chi_area = [
+                [TileClass(48, True, True), TileClass(52, True), TileClass(56, True)],
+                [TileClass(60, True), TileClass(64, True, True), TileClass(68, True)],
+            ]
+            p.pon_area = [
+                [TileClass(72, True), TileClass(73, True), TileClass(74, True, True)],
+                [TileClass(76, True, True), TileClass(77, True), TileClass(78, True)],
+            ]
+            p.kan_closed_area = [
+                [
+                    TileClass(80, False),
+                    TileClass(81, True),
+                    TileClass(82, True),
+                    TileClass(83, False),
+                ],
+                [
+                    TileClass(84, False),
+                    TileClass(85, True),
+                    TileClass(86, True),
+                    TileClass(87, False),
+                ],
+            ]
+            p.kan_opened_area = [
+                [
+                    TileClass(88, True, True),
+                    TileClass(89, True),
+                    TileClass(90, True),
+                    TileClass(91, True),
+                ],
+                [
+                    TileClass(92, True),
+                    TileClass(93, True, True),
+                    TileClass(94, True),
+                    TileClass(95, True),
+                ],
+            ]
+            p.kan_added_area = [
+                [
+                    TileClass(96, True, True),
+                    TileClass(97, True, True),
+                    TileClass(98, True),
+                    TileClass(99, True),
+                ],
+                [
+                    TileClass(100, True),
+                    TileClass(101, True, True),
+                    TileClass(102, True, True),
+                    TileClass(103, True),
+                ],
+            ]
+            p.discard_area = [
+                TileClass(104, True),
+                TileClass(108, True),
+                TileClass(112, True),
+                TileClass(116, True),
+            ]
 
-                    if event.type == 0:  # ツモ
-                        print(
-                            f"player {get_pos(event.who)} draw tile {gamedata.private_infos[event.who].draws[self.get_dwawcount(event.who)]}"
-                        )
-                        print(
-                            f"{gamedata.private_infos[event.who].draws[self.get_dwawcount(event.who)]}: this tile is {get_char(gamedata.private_infos[event.who].draws[self.get_dwawcount(event.who)])}"
-                        )
-                        self.draw(
-                            event.who,
-                            gamedata.private_infos[event.who].draws[
-                                self.get_dwawcount(event.who)
-                            ],
-                        )
-                    elif event.type == 1:  # 手牌から切り
-                        print(
-                            f"player {get_pos(event.who)} discard tile {event.tile} from hand"
-                        )
-                        print(f"{event.tile}: this tile is {get_char(event.tile)}")
-                        self.discard(event.who, event.tile)
-                    elif event.type == 2:  # ツモから切り
-                        print(
-                            f"player {get_pos(event.who)} discard tile {event.tile} from draw"
-                        )
-                        print(f"{event.tile}: this tile is {get_char(event.tile)}")
-                        self.draw(event.who, event.tile)
-                        self.discard(event.who, event.tile)
+        table = MahjongTableClass(player1, player2, player3, player4)
+        self.table = table
 
-                    self.arrange()
-                    self.show_all()
-                    input()
-                    clear_screen()
+    def show_all(self) -> None:
+        console = Console()
 
-                break  # 一局だけ
+        table = Table(show_header=True, header_style="bold magenta")
+
+        for p in self.table.players:
+            self.table.hands.append([i.char for i in p.hands_area])
+            self.table.discs.append([i.char for i in p.discard_area])
+
+            # [[0,4,8],[12,16,20]] -> [[一二三],[四五六]]
+            self.table.chis.append(["".join([j.char for j in i]) for i in p.chi_area])
+            self.table.pons.append(["".join([j.char for j in i]) for i in p.pon_area])
+            self.table.c_kans.append(
+                ["".join([j.char for j in i]) for i in p.kan_closed_area]
+            )
+            self.table.o_kans.append(
+                ["".join([j.char for j in i]) for i in p.kan_opened_area]
+            )
+            self.table.a_kans.append(
+                ["".join([j.char for j in i]) for i in p.kan_added_area]
+            )
+
+        table.add_column("")
+        table.add_column(self.table.players[0].wind)
+        table.add_column(self.table.players[1].wind)
+        table.add_column(self.table.players[2].wind)
+        table.add_column(self.table.players[3].wind)
+
+        table.add_row(
+            "手牌",
+            " ".join(self.table.hands[0]),
+            " ".join(self.table.hands[1]),
+            " ".join(self.table.hands[2]),
+            " ".join(self.table.hands[3]),
+        )
+        table.add_row(
+            "チー",
+            " ".join(self.table.chis[0]),
+            " ".join(self.table.chis[1]),
+            " ".join(self.table.chis[2]),
+            " ".join(self.table.chis[3]),
+        )
+        table.add_row(
+            "ポン",
+            " ".join(self.table.pons[0]),
+            " ".join(self.table.pons[1]),
+            " ".join(self.table.pons[2]),
+            " ".join(self.table.pons[3]),
+        )
+        table.add_row(
+            "暗槓",
+            " ".join(self.table.c_kans[0]),
+            " ".join(self.table.c_kans[1]),
+            " ".join(self.table.c_kans[2]),
+            " ".join(self.table.c_kans[3]),
+        )
+        table.add_row(
+            "明槓",
+            " ".join(self.table.o_kans[0]),
+            " ".join(self.table.o_kans[1]),
+            " ".join(self.table.o_kans[2]),
+            " ".join(self.table.o_kans[3]),
+        )
+        table.add_row(
+            "加槓",
+            " ".join(self.table.a_kans[0]),
+            " ".join(self.table.a_kans[1]),
+            " ".join(self.table.a_kans[2]),
+            " ".join(self.table.a_kans[3]),
+        )
+        table.add_row(
+            "河",
+            " ".join(self.table.discs[0]),
+            " ".join(self.table.discs[1]),
+            " ".join(self.table.discs[2]),
+            " ".join(self.table.discs[3]),
+        )
+
+        console.print(table)
 
 
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--path", default="2010091009gm-00a9-0000-83af2648&tw=2.json")
-    parser.add_argument("--uni", default=False)
     args = parser.parse_args()
 
-    game_board = GameBoard(args.path, args.uni)
-    game_board.run()
+    game_board = GameBoardClass(args.path, "Observation")
+    game_board.rollout()
+    game_board.show_all()
 
 
 if __name__ == "__main__":
