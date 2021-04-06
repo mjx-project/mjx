@@ -95,8 +95,8 @@ class GameBoard:
                 [1, [Tile(76, True), Tile(77, True), Tile(78, True)]],
             ]
             p.kan_closed_area = [
-                [Tile(80, False), Tile(81, True), Tile(82, True), Tile(83, False)],
-                [Tile(84, False), Tile(85, True), Tile(86, True), Tile(87, False)],
+                [Tile(80, True), Tile(81, True), Tile(82, True), Tile(83, True)],
+                [Tile(84, True), Tile(85, True), Tile(86, True), Tile(87, True)],
             ]
             p.kan_opened_area = [
                 [2, [Tile(88, True), Tile(89, True), Tile(90, True), Tile(91, True)]],
@@ -141,6 +141,7 @@ class GameBoard:
             print(
                 "チー: ",
                 ["".join([tile.char for tile in tiles]) for tiles in p.chi_area],
+                end="  ",
             )
             print(
                 "ポン: ",
@@ -148,10 +149,12 @@ class GameBoard:
                     "".join([tile.char for tile in tiles[1]]) + get_fromwho(tiles[0])
                     for tiles in p.pon_area
                 ],
+                end="  ",
             )
             print(
                 "暗槓: ",
                 ["".join([tile.char for tile in tiles]) for tiles in p.kan_closed_area],
+                end="  ",
             )
             print(
                 "明槓: ",
@@ -159,6 +162,7 @@ class GameBoard:
                     "".join([tile.char for tile in tiles[1]]) + get_fromwho(tiles[0])
                     for tiles in p.kan_opened_area
                 ],
+                end="  ",
             )
             print(
                 "加槓: ",
