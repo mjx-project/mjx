@@ -32,14 +32,14 @@ enum ActionType {
   ACTION_TYPE_DISCARD = 0;
   ACTION_TYPE_RIICHI = 1;
   ACTION_TYPE_TSUMO = 2;
-  ACTION_TYPE_KAN_CLOSED = 3;
-  ACTION_TYPE_KAN_ADDED = 4;
+  ACTION_TYPE_CLOSED_KAN = 3;
+  ACTION_TYPE_ADDED_KAN = 4;
   ACTION_TYPE_KYUSYU = 5;
   // After other's discard
   ACTION_TYPE_NO = 6;
   ACTION_TYPE_CHI = 7;
   ACTION_TYPE_PON = 8;
-  ACTION_TYPE_KAN_OPENED = 9;
+  ACTION_TYPE_OPEN_KAN = 9;
   ACTION_TYPE_RON = 10;
 }
 
@@ -52,9 +52,9 @@ enum EventType {
   EVENT_TYPE_RON = 5;
   EVENT_TYPE_CHI = 6;
   EVENT_TYPE_PON = 7;
-  EVENT_TYPE_KAN_CLOSED = 8;
-  EVENT_TYPE_KAN_OPENED = 9;
-  EVENT_TYPE_KAN_ADDED = 10;
+  EVENT_TYPE_CLOSED_KAN = 8;
+  EVENT_TYPE_OPEN_KAN = 9;
+  EVENT_TYPE_ADDED_KAN = 10;
   EVENT_TYPE_NEW_DORA = 11;
   EVENT_TYPE_RIICHI_SCORE_CHANGE = 12;
   EVENT_TYPE_ABORTIVE_DRAW = 13;  // 流局
@@ -71,15 +71,26 @@ enum AbortiveDrawType {  // 流局
 }
 
 message Score {
+  // Following rule holds for any timesteps: sum(score.ten) + score.riichi * 1000 == 100000
   uint32 round = 1;
   uint32 honba = 2;
-  uint32 riichi = 3;  // For final score, riichi = 0 if someone wins (or at the end of game)
-  repeated int32 ten = 4;  // Following rule holds for all rounds: sum(score.ten) + score.riichi * 1000 == 100000
+  uint32 riichi = 3;
+  repeated int32 ten = 4;  
 }
 
 message Event {
+  // History of publicly observable events, which include 
+  // 
+  //   1. publicly observable actions taken by all layers 
+  //   2. publicly observable state changes made by envionment
+  // 
+  // Note that "NO" action is **NOT** collected as event since it's not publicly observable.
+  // Also, drawn tile is not observable. Only the fact that the player drew something is collected.
+  //
+  // [Table] Is who/tile/open entry set?
+  //
   //                       who    tile    open
-  // DRAW                  Yes    No      No      Tile is No since it's private info. PublicObservation will be passed to Observation as public info.
+  // DRAW                  Yes    No*     No      
   // DISCARD_FROM_HAND     Yes    Yes     No
   // DISCARD_DRAWN_TILE    Yes    Yes     No
   // RIICHI                Yes    No      No
@@ -87,12 +98,14 @@ message Event {
   // RON                   Yes    Yes     No
   // CHI                   Yes    No      Yes
   // PON                   Yes    No      Yes
-  // KAN_CLOSED            Yes    No      Yes
-  // KAN_OPENED            Yes    No      Yes
-  // KAN_ADDED             Yes    No      Yes
+  // CLOSED_KAN            Yes    No      Yes
+  // OPEN_KAN              Yes    No      Yes
+  // ADDED_KAN             Yes    No      Yes
   // NEW_DORA              No     Yes     No
   // RIICHI_SCORE_CHANGE   Yes    No      No
-  // ABORTIVE_DRAW             No     No      No
+  // ABORTIVE_DRAW         No     No      No
+  //
+  // *Drawn tile is not set since it's private info. 
   EventType type = 1;
   PlayerIdx who = 2;
   uint32 tile = 3;
@@ -191,13 +204,13 @@ message Action {
   //  DISCARD           Yes     No
   //  RIICHI             No     No
   //  TSUMO              No     No
-  //  KAN_CLOSED         No    Yes
-  //  KAN_ADDED          No    Yes
+  //  CLOSED_KAN         No    Yes
+  //  ADDED_KAN          No    Yes
   //  KYUSYU             No     No
   //  NO                 No     No
   //  CHI                No    Yes
   //  PON                No    Yes
-  //  KAN_OPENED         No    Yes
+  //  OPEN_KAN         No    Yes
   //  RON                No     No
   uint32 game_id = 1;
   PlayerIdx who = 2;
