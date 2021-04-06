@@ -73,9 +73,9 @@ enum EventType {
 
 message Score {
   // Following rule holds for any timesteps: sum(score.ten) + score.riichi * 1000 == 100000
-  uint32 round = 1;
-  uint32 honba = 2;
-  uint32 riichi = 3;
+  int32 round = 1;
+  int32 honba = 2;
+  int32 riichi = 3;
   repeated int32 ten = 4;  
 }
 
@@ -92,11 +92,11 @@ message Action {
   //  PON                No    Yes
   //  OPEN_KAN           No    Yes
   //  RON                No     No
-  uint32 game_id = 1;
+  int32 game_id = 1;
   PlayerIdx who = 2;
   ActionType type = 3;
-  uint32 discard = 4;
-  uint32 open = 5;
+  int32 discard = 4;
+  int32 open = 5;
 }
 
 message Event {
@@ -129,22 +129,22 @@ message Event {
   // *Drawn tile is not set since it's private info. 
   EventType type = 1;
   PlayerIdx who = 2;
-  uint32 tile = 3;
-  uint32 open = 4;
+  int32 tile = 3;
+  int32 open = 4;
 }
 
 message Win {
   PlayerIdx who = 1;
   PlayerIdx from_who = 2;
-  repeated uint32 closed_tiles = 3;
-  repeated uint32 opens = 4;
-  uint32 win_tile = 5;
-  uint32 fu = 6;
-  uint32 ten = 7;
+  repeated int32 closed_tiles = 3;
+  repeated int32 opens = 4;
+  int32 win_tile = 5;
+  int32 fu = 6;
+  int32 ten = 7;
   repeated int32 ten_changes = 8;  // Required for Tenhou mjlog.
-  repeated uint32 yakus = 9;
-  repeated uint32 fans = 10;
-  repeated uint32 yakumans = 11;
+  repeated int32 yakus = 9;
+  repeated int32 fans = 10;
+  repeated int32 yakumans = 11;
 }
 
 message AbortiveDraw {
@@ -154,7 +154,7 @@ message AbortiveDraw {
 
 message TenpaiHand {
   PlayerIdx who = 1;
-  repeated uint32 closed_tiles = 2;
+  repeated int32 closed_tiles = 2;
 }
 
 message Terminal {
@@ -165,12 +165,12 @@ message Terminal {
 }
 
 message PublicObservationUtil {
-  uint32 river;
+  int32 river;
 }
 
 message PublicObservation {
   Score init_score = 1;  // public info
-  uint32 init_dora = 2;
+  int32 init_dora = 2;
   repeated Event event_history = 3;
   // win/ryuukyoku information
   Terminal terminal = 9;
@@ -183,14 +183,14 @@ message PrivateObaservationUtil {
 
 message PrivateObservation {
   PlayerIdx who = 1;
-  repeated uint32 init_hand = 2;
-  repeated uint32 draw_history = 3;
+  repeated int32 init_hand = 2;
+  repeated int32 draw_history = 3;
   PrivateObseravtionUtil util_info = 4;
 }
 
 message HiddenState {
-  repeated uint32 wall = 5;
-  // repeated uint32 ura_doras = 6;
+  repeated int32 wall = 5;
+  // repeated int32 ura_doras = 6;
 }
 
 message StateInfo {
