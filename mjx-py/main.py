@@ -114,12 +114,7 @@ class GameBoard:
                     ],
                 ],
             ]
-            p.discard_area = [
-                Tile(104, True),
-                Tile(108, True),
-                Tile(112, True),
-                Tile(116, True),
-            ]
+            p.discard_area = [Tile(4 * i, True) for i in range(20)]
 
         table = MahjongTable(player1, player2, player3, player4)
         table.last_player = 3
@@ -130,6 +125,8 @@ class GameBoard:
     def show_all(self) -> None:
         for p in self.table.players:
             print(get_wind_char(p.wind))
+            if p.player_idx == 0:
+                print("起家")
             print("SCORE:", p.score)
             print("手牌: ", [tile.char for tile in p.hands_area])
             print(
@@ -161,8 +158,13 @@ class GameBoard:
                     for tiles in p.kan_added_area
                 ],
             )
+            discard_splited = [
+                p.discard_area[idx : idx + 6]
+                for idx in range(0, len(p.discard_area), 6)
+            ]  # 6は河で一行に表示する牌の数
             print(
-                "河  : ", [tile.char for tile in p.discard_area],
+                "河  : ",
+                [" ".join([tile.char for tile in tiles]) for tiles in discard_splited],
             )
             print()
         print(get_wind_char(self.table.last_player), "の番です")
