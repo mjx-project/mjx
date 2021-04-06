@@ -57,17 +57,17 @@ enum EventType {
   EVENT_TYPE_KAN_ADDED = 10;
   EVENT_TYPE_NEW_DORA = 11;
   EVENT_TYPE_RIICHI_SCORE_CHANGE = 12;
-  EVENT_TYPE_NO_WINNER = 13;  // 流局
+  EVENT_TYPE_ABORTIVE_DRAW = 13;  // 流局
 }
 
-enum NoWinnerType {  // 流局
-  NO_WINNER_TYPE_NORMAL = 0;
-  NO_WINNER_TYPE_KYUUSYU = 1; // 九種九牌  // TODO(sotetsuk): rename
-  NO_WINNER_TYPE_FOUR_RIICHI = 2;  // 四家立直
-  NO_WINNER_TYPE_THREE_RONS = 3;  // 三家和了
-  NO_WINNER_TYPE_FOUR_KANS = 4;  // 四槓散了
-  NO_WINNER_TYPE_FOUR_WINDS = 5;  // 四風連打
-  NO_WINNER_TYPE_NM = 6;  // 流し満貫  # TODO(sotetsuk): rename
+enum AbortiveDrawType {  // 流局
+  ABORTIVE_DRAW_TYPE_NORMAL = 0;
+  ABORTIVE_DRAW_TYPE_KYUUSYU = 1; // 九種九牌  // TODO(sotetsuk): rename
+  ABORTIVE_DRAW_TYPE_FOUR_RIICHI = 2;  // 四家立直
+  ABORTIVE_DRAW_TYPE_THREE_RONS = 3;  // 三家和了
+  ABORTIVE_DRAW_TYPE_FOUR_KANS = 4;  // 四槓散了
+  ABORTIVE_DRAW_TYPE_FOUR_WINDS = 5;  // 四風連打
+  ABORTIVE_DRAW_TYPE_NM = 6;  // 流し満貫  # TODO(sotetsuk): rename
 }
 
 message Score {
@@ -92,7 +92,7 @@ message Event {
   // KAN_ADDED             Yes    No      Yes
   // NEW_DORA              No     Yes     No
   // RIICHI_SCORE_CHANGE   Yes    No      No
-  // NO_WINNER             No     No      No
+  // ABORTIVE_DRAW             No     No      No
   EventType type = 1;
   PlayerIdx who = 2;
   uint32 tile = 3;
@@ -113,10 +113,10 @@ message Win {
   repeated uint32 yakumans = 11;
 }
 
-message NoWinner {
+message AbortiveDraw {
   repeated TenpaiHand tenpais = 1;
   repeated int32 ten_changes = 2;  // Required for Tenhou mjlog.
-  NoWinnerType type = 3;  // Following Tenhou mjlog format. 0, normal. 九種九牌, 四家立直, 三家和了, 四槓散了, 四風連打, 流し満貫
+  AbortiveDrawType type = 3;  // Following Tenhou mjlog format. 0, normal. 九種九牌, 四家立直, 三家和了, 四槓散了, 四風連打, 流し満貫
 }
 
 message TenpaiHand {
@@ -127,7 +127,7 @@ message TenpaiHand {
 message Terminal {
   Score final_score = 1;
   repeated Win wins = 2;   // Empty if no one wins
-  NoWinner no_winner = 3;  // Empty if a winner exists
+  AbortiveDraw no_winner = 3;  // Empty if a winner exists
   bool is_game_over = 4;
 }
 
