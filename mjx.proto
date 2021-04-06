@@ -160,7 +160,7 @@ message Observation {
 message State {
   HiddenState hidden_state = 1;  // Information no one can access
   PublicObservation public_observation = 2;  // Information any plaer can observe
-  repeated PrivateObservation private_observation = 3;  // Information only the corresponding player can access
+  repeated PrivateObservation private_observations = 3;  // Information only the corresponding player can access
   StateUtils utils = 4;
 }
 
@@ -196,9 +196,8 @@ message Win {
 
 message AbortiveDraw {
   EventType type = 1;
-  repeated Hand tenpai_hands = 1;
-  repeated AbortiveDrawUtils = 2;
-  repeated int32 ten_changes = 8;  // Required only for Tenhou mjlog.  TODO: check definition. remove
+  repeated Hand tenpai_hands = 2;
+  repeated int32 ten_changes = 3;  // Required only for Tenhou mjlog.  TODO: check definition. remove
 }
 
 message RoundTerminal {
