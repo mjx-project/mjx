@@ -13,18 +13,18 @@ enum Wind {
   WIND_NORTH = 3;
 }
 
-enum AbsolutePos {
-  ABSOLUTE_POS_INIT_EAST = 0;  // 起家
-  ABSOLUTE_POS_INIT_SOUTH = 1;
-  ABSOLUTE_POS_INIT_WEST = 2;
-  ABSOLUTE_POS_INIT_NORTH = 3;  // ラス親
+enum PlayerIdx {
+  PLAYER_IDX_0 = 0;  // 起家
+  PLAYER_IDX_1 = 1;
+  PLAYER_IDX_2 = 2;
+  PLAYER_IDX_3 = 3;  // ラス親
 }
 
-enum RelativePos {
-  RELATIVE_POS_SELF = 0;
-  RELATIVE_POS_RIGHT = 1;  // 下家
-  RELATIVE_POS_MID = 2;    // 対面
-  RELATIVE_POS_LEFT = 3;   // 上家
+enum RelativePlayerPos {
+  RELATIVE_PLAYER_POS_SELF = 0;
+  RELATIVE_PLAYER_POS_RIGHT = 1;  // 下家
+  RELATIVE_PLAYER_POS_MID = 2;    // 対面
+  RELATIVE_PLAYER_POS_LEFT = 3;   // 上家
 }
 
 enum ActionType {
@@ -94,14 +94,14 @@ message Event {
   // RIICHI_SCORE_CHANGE   Yes    No      No
   // NO_WINNER             No     No      No
   EventType type = 1;
-  AbsolutePos who = 2;
+  PlayerIdx who = 2;
   uint32 tile = 3;
   uint32 open = 4;
 }
 
 message Win {
-  AbsolutePos who = 1;
-  AbsolutePos from_who = 2;
+  PlayerIdx who = 1;
+  PlayerIdx from_who = 2;
   repeated uint32 closed_tiles = 3;
   repeated uint32 opens = 4;
   uint32 win_tile = 5;
@@ -120,7 +120,7 @@ message NoWinner {
 }
 
 message TenpaiHand {
-  AbsolutePos who = 1;
+  PlayerIdx who = 1;
   repeated uint32 closed_tiles = 2;
 }
 
@@ -131,23 +131,33 @@ message Terminal {
   bool is_game_over = 4;
 }
 
+message PublicObservationUtil {
+  uint32 river;
+}
+
 message PublicObservation {
-  Score init_score = 2;  // public info
-  repeated uint32 doras = 3;
-  repeated Event events = 2;
+  Score init_score = 1;  // public info
+  uint32 init_dora = 2;
+  repeated Event event_history = 3;
   // win/ryuukyoku information
   Terminal terminal = 9;
+  PublicObservationUtil util_info = 10;
+}
+
+message PrivateObaservationUtil {
+  Hand curr_hand = 1;
 }
 
 message PrivateObservation {
-  AbsolutePos who = 1;
+  PlayerIdx who = 1;
   repeated uint32 init_hand = 2;
-  repeated uint32 draws = 3;
+  repeated uint32 draw_history = 3;
+  PrivateObseravtionUtil util_info = 4;
 }
 
 message HiddenState {
   repeated uint32 wall = 5;
-  repeated uint32 ura_doras = 6;
+  // repeated uint32 ura_doras = 6;
 }
 
 message StateInfo {
@@ -160,18 +170,18 @@ message State {
   StateInfo state_info = 1;
   HiddenState hidden_state = 2;
   PublicObservation public_observation = 4;
-  repeated PrivateObservation public_observation = 7;
+  repeated PrivateObservation private_observation = 7;
 }
 
 message ObservationInfo {
   uint64 game_id = 1;
   repeated string player_ids = 1;
-  repeated Action possible_actions = 7;
+  repeated Action legal_actions = 7;
 }
 
 message Observation {
   ObservationInfo observation_info = 1;
-  AbsolutePos who = 5;
+  PlayerIdx who = 5;
   PublicObservation public_observation = 4;  // public info
   PrivateObservation private_observation = 6;
 }
@@ -190,7 +200,7 @@ message Action {
   //  KAN_OPENED         No    Yes
   //  RON                No     No
   uint32 game_id = 1;
-  AbsolutePos who = 2;
+  PlayerIdx who = 2;
   ActionType type = 3;
   uint32 discard = 4;
   uint32 open = 5;
