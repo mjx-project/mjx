@@ -1,38 +1,38 @@
 to_char = {
-    0: "一",
-    1: "二",
-    2: "三",
-    3: "四",
-    4: "五",
-    5: "六",
-    6: "七",
-    7: "八",
-    8: "九",
-    9: "①",
-    10: "②",
-    11: "③",
-    12: "④",
-    13: "⑤",
-    14: "⑥",
-    15: "⑦",
-    16: "⑧",
-    17: "⑨",
-    18: "１",
-    19: "２",
-    20: "３",
-    21: "４",
-    22: "５",
-    23: "６",
-    24: "７",
-    25: "８",
-    26: "９",
-    27: "東",
-    28: "南",
-    29: "西",
-    30: "北",
-    31: "白",
-    32: "發",
-    33: "中",
+    0: "m1",
+    1: "m2",
+    2: "m3",
+    3: "m4",
+    4: "m5",
+    5: "m6",
+    6: "m7",
+    7: "m8",
+    8: "m9",
+    9: "p1",
+    10: "p2",
+    11: "p3",
+    12: "p4",
+    13: "p5",
+    14: "p6",
+    15: "p7",
+    16: "p8",
+    17: "p9",
+    18: "s1",
+    19: "s2",
+    20: "s3",
+    21: "s4",
+    22: "s5",
+    23: "s6",
+    24: "s7",
+    25: "s8",
+    26: "s9",
+    27: "ew",
+    28: "sw",
+    29: "ww",
+    30: "nw",
+    31: "wd",
+    32: "gd",
+    33: "rd",
 }
 to_unicode = {
     0: "\U0001F007",
@@ -76,6 +76,24 @@ to_wind_char = {
     2: "西",
     3: "北",
 }
+to_actiontype = {
+    0: "ACTION_TYPE_DISCARD",
+    1: "ACTION_TYPE_RIICHI",
+    2: "ACTION_TYPE_TSUMO",
+    3: "ACTION_TYPE_KAN_CLOSED",
+    4: "ACTION_TYPE_KAN_ADDED",
+    5: "ACTION_TYPE_KYUSYU",
+    6: "ACTION_TYPE_NO",
+    7: "ACTION_TYPE_CHI",
+    8: "ACTION_TYPE_PON",
+    9: "ACTION_TYPE_KAN_OPENED",
+    10: "ACTION_TYPE_RON",
+}
+to_opponent = {
+    0: "l",  # left
+    1: "c",  # center
+    2: "r",  # right
+}
 
 
 def get_tile_char(tile_id: int) -> str:
@@ -95,5 +113,19 @@ def get_tile_unicode(tile_id: int) -> str:
 def get_wind_char(wind: int) -> str:
     if 0 <= wind < 4:
         return to_wind_char[wind]
+    else:
+        return " "
+
+
+def get_actiontype(action: int) -> str:
+    if 0 <= action < 11:
+        return to_actiontype[action]
+    else:
+        return " "
+
+
+def get_fromwho(who: int) -> str:
+    if 0 <= who < 3:
+        return to_opponent[who]
     else:
         return " "
