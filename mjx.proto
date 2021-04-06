@@ -69,6 +69,8 @@ enum EventType {
   EVENT_TYPE_ABORTIVE_DRAW_FOUR_KANS = 18;  // 四槓散了 
   EVENT_TYPE_ABORTIVE_DRAW_FOUR_WINDS = 19;  // 四風連打 
   EVENT_TYPE_ABORTIVE_DRAW_NAGASHI_MANGAN = 20;  // 流し満貫 
+  // Round end indicator
+  EVENT_TYPE_ROUND_END = 21; // Necessary to handle double ron
 }
 
 message Score {
@@ -139,6 +141,39 @@ message Hand {
   repeated int32 opens = 4;
 }
 
+message PublicObservationUtil {
+  Score curr_score = 1;
+  repeated int32 curr_doras = 2;
+  repeated int32 river = 3;
+}
+
+message PublicObservation {
+  Score init_score = 1;
+  int32 init_dora = 2;
+  repeated Event event_history = 3;
+  PublicObservationUtils utils = 10;
+}
+
+message PrivateObaservationUtils {
+  Hand curr_hand = 1;
+}
+
+message PrivateObservation {
+  PlayerIdx who = 1;
+  repeated int32 init_hand = 2;
+  repeated int32 draw_history = 3;
+  PrivateObseravtionUtils utils = 4;
+}
+
+message HiddenStateUtils {
+  repeated int32 curr_ura_doras = 6;
+}
+
+message HiddenState {
+  repeated int32 wall = 1;
+  HiddenStateUtils utils = 2;
+}
+
 message WinUtils {
   int32 fu = 6;
   repeated int32 fans = 10;  // TODO: check definitions
@@ -177,45 +212,11 @@ message RoundTerminal {
   RoundTerminalUtils utils = 3;
 }
 
-message PublicObservationUtil {
-  Score curr_score = 1;
-  repeated int32 curr_doras = 2;
-  repeated int32 river = 3;
-}
-
-message PublicObservation {
-  Score init_score = 1;
-  int32 init_dora = 2;
-  repeated Event event_history = 3;
-  // win/ryuukyoku information
-  RoundTerminal round_terminal = 9;
-  PublicObservationUtils utils = 10;
-}
-
-message PrivateObaservationUtils {
-  Hand curr_hand = 1;
-}
-
-message PrivateObservation {
-  PlayerIdx who = 1;
-  repeated int32 init_hand = 2;
-  repeated int32 draw_history = 3;
-  PrivateObseravtionUtils utils = 4;
-}
-
-message HiddenStateUtils {
-  repeated int32 curr_ura_doras = 6;
-}
-
-message HiddenState {
-  repeated int32 wall = 1;
-  HiddenStateUtils utils = 2;
-}
-
 message StateUtils {
   uint64 game_id = 1;
   uint64 game_seed = 2;
   repeated string player_ids = 3;
+  RoundTerminal round_terminal = 9;
 }
 
 message State {
