@@ -146,7 +146,7 @@ message PrivateObservation {
 }
 
 message HiddenState {
-  repeated int32 wall = 1;
+  repeated int32 wall = 1;  // TODO: 並び順を書く。特にドラと裏ドラのめくられ方が示されれば、curr_dorasもcurr_ura_doraもutilsへ移せる
   HiddenStateUtils utils = 2;
 }
 
@@ -178,7 +178,7 @@ message PrivateObaservationUtils {
 }
 
 message HiddenStateUtils {
-  repeated int32 curr_ura_doras = 6;
+  repeated int32 curr_ura_doras = 6;  // TODO: 本当になくても再現できるか？wallの順番は自明ではないが...
 }
 
 message Win {
