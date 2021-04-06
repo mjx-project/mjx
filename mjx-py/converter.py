@@ -96,11 +96,13 @@ to_opponent = {
 }
 
 
-def get_tile_char(tile_id: int) -> str:
-    if 0 <= tile_id < 136:
-        return to_char[tile_id // 4]
-    else:
+def get_tile_char(tile_id: int, is_using_unicode: bool) -> str:
+    if tile_id <= 0 or 133 <= tile_id:
         return " "
+    if is_using_unicode:
+        return to_unicode[tile_id // 4]
+    else:
+        return to_char[tile_id // 4]
 
 
 def get_tile_unicode(tile_id: int) -> str:

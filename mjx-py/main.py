@@ -1,25 +1,19 @@
 import argparse
 from typing import List
 
-from converter import (
-    get_actiontype,
-    get_fromwho,
-    get_tile_char,
-    get_tile_unicode,
-    get_wind_char,
-)
+from converter import get_actiontype, get_fromwho, get_tile_char, get_wind_char
 
 
 class Tile:
-    def __init__(self, tile_id: int, is_open: bool = False):
+    def __init__(
+        self, tile_id: int, is_open: bool = False, is_using_unicode: bool = False
+    ):
         self.id = tile_id
         self.is_open = is_open
         if not is_open:
-            self.char = "#"
-            self.unicode = "\U0001F02B"
+            self.char = "\U0001F02B" if is_using_unicode else "#"
         else:
-            self.char = get_tile_char(tile_id)
-            self.unicode = get_tile_unicode(tile_id)
+            self.char = get_tile_char(tile_id, is_using_unicode)
 
 
 PlayArea = List[Tile]
