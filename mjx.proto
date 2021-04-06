@@ -139,37 +139,52 @@ message Hand {
   repeated int32 opens = 4;
 }
 
+message WinUtils {
+  int32 fu = 6;
+  repeated int32 fans = 10;  // TODO: check definitions
+  repeated int32 yakus = 9;  // TODO: check definitions
+  repeated int32 yakumans = 11;
+  int32 ten = 7;  // TODO: check definitions
+  repeated int32 ten_changes = 8;  // Required only for Tenhou mjlog.  TODO: check definition. remove
+}
+
 message Win {
   PlayerIdx who = 1;
   PlayerIdx from_who = 2;
   Hand hand = 3;
   int32 win_tile = 5;
-  int32 fu = 6;
-  int32 ten = 7;
-  repeated int32 yakus = 9;
-  repeated int32 fans = 10;
-  repeated int32 yakumans = 11;
+  WinUtils utils = 12;
+}
+
+message AbortiveDrawUtils {
+  EventType type = 1;
+  repeated int32 ten_changes = 8;  // Required only for Tenhou mjlog.  TODO: check definition. remove
 }
 
 message AbortiveDraw {
   repeated Hand tenpai_hands = 1;
+  repeated AbortiveDrawUtils = 2;
+}
+
+message RoundTerminalUtils {
+  Score final_score = 1;
+  bool is_game_over = 4;
 }
 
 message RoundTerminal {
-  Score final_score = 1;
-  repeated Win wins = 2;   // Empty if no one wins
-  AbortiveDraw no_winner = 3;  // Empty if a winner exists
-  bool is_game_over = 4;
-  repeated int32 tenhou_ten_changes = 8;  // Required only for Tenhou mjlog.  TODO: check definition. remove
+  repeated Win wins = 1;   // Empty if no one wins
+  AbortiveDraw abortive_draw = 2;  // Empty if a winner exists
+  RoundTerminalUtils utils = 3;
 }
 
 message PublicObservationUtil {
-  Score curr_score;
-  repeated int32 river;
+  Score curr_score = 1;
+  repeated int32 curr_doras = 2;
+  repeated int32 river = 3;
 }
 
 message PublicObservation {
-  Score init_score = 1;  // public info
+  Score init_score = 1;
   int32 init_dora = 2;
   repeated Event event_history = 3;
   // win/ryuukyoku information
@@ -188,33 +203,37 @@ message PrivateObservation {
   PrivateObseravtionUtils utils = 4;
 }
 
-message HiddenState {
-  repeated int32 wall = 5;
-  // repeated int32 ura_doras = 6;
+message HiddenStateUtils {
+  repeated int32 curr_ura_doras = 6;
 }
 
-message StateInfo {
+message HiddenState {
+  repeated int32 wall = 1;
+  HiddenStateUtils utils = 2;
+}
+
+message StateUtils {
   uint64 game_id = 1;
-  uint64 game_seed = 8;
-  repeated string player_ids = 1;
+  uint64 game_seed = 2;
+  repeated string player_ids = 3;
 }
 
 message State {
-  StateInfo state_info = 1;
-  HiddenState hidden_state = 2;
-  PublicObservation public_observation = 4;
-  repeated PrivateObservation private_observation = 7;
+  HiddenState hidden_state = 1;  // Information no one can access
+  PublicObservation public_observation = 2;  // Information any plaer can observe
+  repeated PrivateObservation private_observation = 3;  // Information only the corresponding player can access
+  StateUtils utils = 4;
 }
 
-message ObservationInfo {
+message ObservationUtils {
   uint64 game_id = 1;
-  repeated string player_ids = 1;
-  repeated Action legal_actions = 7;
+  repeated string player_ids = 2;
+  repeated Action legal_actions = 3;
 }
 
 message Observation {
-  ObservationInfo observation_info = 1;
-  PlayerIdx who = 5;
-  PublicObservation public_observation = 4;  // public info
-  PrivateObservation private_observation = 6;
+  PlayerIdx who = 1;
+  PublicObservation public_observation = 2;
+  PrivateObservation private_observation = 3;
+  ObservationUtils utils = 4;
 }
