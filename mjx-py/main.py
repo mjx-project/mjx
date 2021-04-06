@@ -48,7 +48,7 @@ class MahjongTable:
     ):
         self.players = [player1, player2, player3, player4]
         self.bakaze = 0
-        self.kyoku = 0
+        self.round = 0
         self.honba = 1
         self.last_action = 0  # 0-10
         self.last_player = 0  # 0-3
@@ -77,55 +77,47 @@ class GameBoard:
         
         # 今はテスト用に、直に打ち込んでいます。
         """
-        player1 = Player(0, 0, 25000, [Tile(i * 4, True) for i in range(14)])
-        player2 = Player(1, 1, 25000, [Tile(i * 4, False) for i in range(14)])
-        player3 = Player(2, 2, 25000, [Tile(i * 4, False) for i in range(14)])
-        player4 = Player(3, 3, 25000, [Tile(i * 4, False) for i in range(14)])
+        player1 = Player(0, 0, 25000, [Tile(i * 4, True) for i in range(8)])
+        player2 = Player(1, 1, 25000, [Tile(i * 4, False) for i in range(8)])
+        player3 = Player(2, 2, 25000, [Tile(i * 4, False) for i in range(2)])
+        player4 = Player(3, 3, 25000, [Tile(i * 4, False) for i in range(8)])
 
         player3.is_riichi = True
 
-        for p in [player1, player2, player3, player4]:
+        player1.chi_area = [
+            [Tile(48, True), Tile(52, True), Tile(56, True)],
+            [Tile(60, True), Tile(64, True), Tile(68, True)],
+        ]
+        player2.pon_area = [
+            [0, [Tile(72, True), Tile(73, True), Tile(74, True)]],
+            [1, [Tile(76, True), Tile(77, True), Tile(78, True)]],
+        ]
+        player3.kan_closed_area = [
+            [Tile(80, True), Tile(81, True), Tile(82, True), Tile(83, True)],
+            [Tile(84, True), Tile(85, True), Tile(86, True), Tile(87, True)],
+        ]
+        player3.kan_opened_area = [
+            [2, [Tile(88, True), Tile(89, True), Tile(90, True), Tile(91, True)]],
+            [0, [Tile(92, True), Tile(93, True), Tile(94, True), Tile(95, True)]],
+        ]
+        player4.kan_added_area = [
+            [1, [Tile(96, True), Tile(97, True), Tile(98, True), Tile(99, True)]],
+            [2, [Tile(100, True), Tile(101, True), Tile(102, True), Tile(103, True),],],
+        ]
 
-            p.chi_area = [
-                [Tile(48, True), Tile(52, True), Tile(56, True)],
-                [Tile(60, True), Tile(64, True), Tile(68, True)],
-            ]
-            p.pon_area = [
-                [0, [Tile(72, True), Tile(73, True), Tile(74, True)]],
-                [1, [Tile(76, True), Tile(77, True), Tile(78, True)]],
-            ]
-            p.kan_closed_area = [
-                [Tile(80, True), Tile(81, True), Tile(82, True), Tile(83, True)],
-                [Tile(84, True), Tile(85, True), Tile(86, True), Tile(87, True)],
-            ]
-            p.kan_opened_area = [
-                [2, [Tile(88, True), Tile(89, True), Tile(90, True), Tile(91, True)]],
-                [0, [Tile(92, True), Tile(93, True), Tile(94, True), Tile(95, True)]],
-            ]
-            p.kan_added_area = [
-                [1, [Tile(96, True), Tile(97, True), Tile(98, True), Tile(99, True)]],
-                [
-                    2,
-                    [
-                        Tile(100, True),
-                        Tile(101, True),
-                        Tile(102, True),
-                        Tile(103, True),
-                    ],
-                ],
-            ]
+        for p in [player1, player2, player3, player4]:
             p.discard_area = [Tile(4 * i, True) for i in range(20)]
 
         table = MahjongTable(player1, player2, player3, player4)
         table.bakaze = 0
-        table.kyoku = 1
+        table.round = 1
         table.last_player = 3
         table.last_action = 1
 
         self.table = table
 
     def show_all(self) -> None:
-        print(get_wind_char(self.table.bakaze) + str(self.table.kyoku) + "局")
+        print(get_wind_char(self.table.bakaze) + str(self.table.round) + "局")
         if self.table.honba > 0:
             print(str(self.table.honba) + "本場")
         print()
@@ -137,39 +129,39 @@ class GameBoard:
             print("SCORE:", p.score)
             if p.is_riichi:
                 print("リーチ")
-            print("手牌: ", [tile.char for tile in p.hands_area])
+            print("手牌: ", " ".join([tile.char for tile in p.hands_area]))
             print(
-                "チー: ",
-                ["".join([tile.char for tile in tiles]) for tiles in p.chi_area],
-                end="  ",
-            )
-            print(
-                "ポン: ",
-                [
-                    "".join([tile.char for tile in tiles[1]]) + get_fromwho(tiles[0])
-                    for tiles in p.pon_area
-                ],
-                end="  ",
-            )
-            print(
-                "暗槓: ",
-                ["".join([tile.char for tile in tiles]) for tiles in p.kan_closed_area],
-                end="  ",
-            )
-            print(
-                "明槓: ",
-                [
-                    "".join([tile.char for tile in tiles[1]]) + get_fromwho(tiles[0])
-                    for tiles in p.kan_opened_area
-                ],
-                end="  ",
-            )
-            print(
-                "加槓: ",
-                [
-                    "".join([tile.char for tile in tiles[1]]) + get_fromwho(tiles[0])
-                    for tiles in p.kan_added_area
-                ],
+                "鳴き: ",
+                " ".join(
+                    ["".join([tile.char for tile in tiles]) for tiles in p.chi_area]
+                ),
+                " ".join(
+                    [
+                        "".join([tile.char for tile in tiles[1]])
+                        + get_fromwho(tiles[0])
+                        for tiles in p.pon_area
+                    ]
+                ),
+                " ".join(
+                    [
+                        "".join([tile.char for tile in tiles])
+                        for tiles in p.kan_closed_area
+                    ]
+                ),
+                " ".join(
+                    [
+                        "".join([tile.char for tile in tiles[1]])
+                        + get_fromwho(tiles[0])
+                        for tiles in p.kan_opened_area
+                    ]
+                ),
+                " ".join(
+                    [
+                        "".join([tile.char for tile in tiles[1]])
+                        + get_fromwho(tiles[0])
+                        for tiles in p.kan_added_area
+                    ]
+                ),
             )
             discard_splited = [
                 p.discard_area[idx : idx + 6]
