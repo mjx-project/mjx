@@ -6,18 +6,18 @@ service Agent {
   rpc TakeAction (Observation) returns (Action) {}
 }
 
-enum Wind {
-  WIND_EAST = 0;
-  WIND_SOUTH = 1;
-  WIND_WEST = 2;
-  WIND_NORTH = 3;
-}
-
 enum PlayerIdx {
   PLAYER_IDX_0 = 0;  // 起家
   PLAYER_IDX_1 = 1;
   PLAYER_IDX_2 = 2;
   PLAYER_IDX_3 = 3;  // ラス親
+}
+
+enum Wind {
+  WIND_EAST = 0;
+  WIND_SOUTH = 1;
+  WIND_WEST = 2;
+  WIND_NORTH = 3;
 }
 
 enum RelativePlayerPos {
@@ -58,17 +58,17 @@ enum EventType {
   EVENT_TYPE_PON = 8;
   EVENT_TYPE_OPEN_KAN = 9;
   EVENT_TYPE_RON = 10;
-  // State change made by environment. There is no decision making by players.
-  // 11 is skipped for the consistency to ActionType
-  EVENT_TYPE_DRAW = 12;
-  EVENT_TYPE_NEW_DORA = 13;
-  EVENT_TYPE_RIICHI_SCORE_CHANGE = 14;
-  EVENT_TYPE_ABORTIVE_DRAW_NORMAL = 15;  // 通常流局
-  EVENT_TYPE_ABORTIVE_DRAW_FOUR_RIICHIS = 16;  // 四家立直
-  EVENT_TYPE_ABORTIVE_DRAW_THREE_RONS = 17;  // 三家和了
-  EVENT_TYPE_ABORTIVE_DRAW_FOUR_KANS = 18;  // 四槓散了
-  EVENT_TYPE_ABORTIVE_DRAW_FOUR_WINDS = 19;  // 四風連打
-  EVENT_TYPE_ABORTIVE_DRAW_NAGASHI_MANGAN = 20;  // 流し満貫
+  // State change made by environment. There is no decision making by players.  
+  // 11 is skipped for the consistency to ActionType 
+  EVENT_TYPE_DRAW = 12; 
+  EVENT_TYPE_NEW_DORA = 13; 
+  EVENT_TYPE_RIICHI_SCORE_CHANGE = 14; 
+  EVENT_TYPE_ABORTIVE_DRAW_NORMAL = 15;  // 通常流局 
+  EVENT_TYPE_ABORTIVE_DRAW_FOUR_RIICHIS = 16;  // 四家立直 
+  EVENT_TYPE_ABORTIVE_DRAW_THREE_RONS = 17;  // 三家和了 
+  EVENT_TYPE_ABORTIVE_DRAW_FOUR_KANS = 18;  // 四槓散了 
+  EVENT_TYPE_ABORTIVE_DRAW_FOUR_WINDS = 19;  // 四風連打 
+  EVENT_TYPE_ABORTIVE_DRAW_NAGASHI_MANGAN = 20;  // 流し満貫 
 }
 
 message Score {
@@ -133,39 +133,39 @@ message Event {
   int32 open = 4;
 }
 
+message Hand {
+  PlayerIdx who = 1;
+  repeated int32 closed_tiles = 2;
+  repeated int32 opens = 4;
+}
+
 message Win {
   PlayerIdx who = 1;
   PlayerIdx from_who = 2;
-  repeated int32 closed_tiles = 3;
-  repeated int32 opens = 4;
+  Hand hand = 3;
   int32 win_tile = 5;
   int32 fu = 6;
   int32 ten = 7;
-  repeated int32 ten_changes = 8;  // Required for Tenhou mjlog.
   repeated int32 yakus = 9;
   repeated int32 fans = 10;
   repeated int32 yakumans = 11;
 }
 
 message AbortiveDraw {
-  repeated TenpaiHand tenpais = 1;
-  repeated int32 ten_changes = 2;  // Required for Tenhou mjlog.
+  repeated Hand tenpai_hands = 1;
 }
 
-message TenpaiHand {
-  PlayerIdx who = 1;
-  repeated int32 closed_tiles = 2;
-}
-
-message Terminal {
+message RoundTerminal {
   Score final_score = 1;
   repeated Win wins = 2;   // Empty if no one wins
   AbortiveDraw no_winner = 3;  // Empty if a winner exists
   bool is_game_over = 4;
+  repeated int32 tenhou_ten_changes = 8;  // Required only for Tenhou mjlog.  TODO: check definition. remove
 }
 
 message PublicObservationUtil {
-  int32 river;
+  Score curr_score;
+  repeated int32 river;
 }
 
 message PublicObservation {
@@ -173,11 +173,11 @@ message PublicObservation {
   int32 init_dora = 2;
   repeated Event event_history = 3;
   // win/ryuukyoku information
-  Terminal terminal = 9;
-  PublicObservationUtil util_info = 10;
+  RoundTerminal round_terminal = 9;
+  PublicObservationUtils utils = 10;
 }
 
-message PrivateObaservationUtil {
+message PrivateObaservationUtils {
   Hand curr_hand = 1;
 }
 
@@ -185,7 +185,7 @@ message PrivateObservation {
   PlayerIdx who = 1;
   repeated int32 init_hand = 2;
   repeated int32 draw_history = 3;
-  PrivateObseravtionUtil util_info = 4;
+  PrivateObseravtionUtils utils = 4;
 }
 
 message HiddenState {
