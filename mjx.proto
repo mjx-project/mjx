@@ -227,3 +227,48 @@ message ObservationUtils {
 }
 
 
+/*
+ *  State
+ *  |- HiddenState
+ *  |   |- [int]: wall
+ *  |   |- HiddenStateUtils
+ *  |       |- [int]: curr_ura_dora_indicators
+ *  |
+ *  |- PublicObservation
+ *  |   |- Score: init_score
+ *  |   |- int: init_dora_indicator
+ *  |   |- [Event]
+ *  |   |- PublicObservationUtils
+ *  |       |- Score: curr_score
+ *  |       |- [int]: curr_dora_indicators
+ *  |       |- [int]: river
+ *  |       |- RoundTerminal
+ *  |           |- Score: final_score
+ *  |           |- [Win]
+ *  |           |- AbortiveDraw
+ *  |           |   |- EventType
+ *  |           |   |- [Hand]: tenpai_hands
+ *  |           |   |- [int]: ten_changes
+ *  |           |- bool: is_game_over
+ *  |
+ *  |- [PrivateObservation]
+ *  |   |- PlayerIdx: who
+ *  |   |- Hand: init_hand
+ *  |   |- [int]: draw_history
+ *  |   |- PrivateObservationUtils
+ *  |       |- Hand: curr_hand
+ *  |       |- legal_actions ?
+ *  |
+ *  |- StateUtils
+ *      |- uint: game_id
+ *      |- uint: game_seed
+ *      |- [string]: player_ids
+ *  
+ *  Observation
+ *  |- PlayerIdx: who
+ *  |- PublicObservation
+ *  |- PrivateObservation
+ *  |- ObservationUtils
+ *      |- uint: game_id
+ *      |- [string]: player_ids
+ */
