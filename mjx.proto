@@ -169,7 +169,11 @@ message Hand {
 
 // Utilities: information which is not necessary (but may be useful) to represent situations
 
-message PublicObservationUtil {
+message ObservationUtils {}
+
+message StateUtils {}
+
+message PublicObservationUtils {
   uint64 game_id = 1;
   repeated string player_ids = 2;  // size is 4. player_ids[0] is the player id (or readable name) of player with PLAYER_IDX_0
   Score curr_score = 3;
@@ -177,10 +181,6 @@ message PublicObservationUtil {
   repeated River rivers = 5;  // rivers[0] is the river of player with PLAYER_IDX_0
   repeated bool is_declared_riichis = 6;  // is_declared_riichs[0] is whether the player with PLAYER_IDX_0 has declared riichi or not
   RoundTerminal round_terminal = 7;
-}
-
-message River {
-  repeated int32 tiles = 1;
 }
 
 message PrivateObaservationUtils {
@@ -191,6 +191,10 @@ message PrivateObaservationUtils {
 message HiddenStateUtils {
   uint64 game_seed = 1;
   repeated int32 curr_ura_dora_indicators = 2;
+}
+
+message River {
+  repeated int32 tiles = 1;
 }
 
 message Win {
@@ -217,11 +221,6 @@ message RoundTerminal {
   Draw draw = 3;  // draw.tenpai_hands is empty if any winner exists
   bool is_game_over = 4;
 }
-
-message ObservationUtils {}
-
-message StateUtils {}
-
 /*
  *  State: state
  *  |- HiddenState: hidden_state
@@ -263,5 +262,5 @@ message StateUtils {}
  *  |- int32: who
  *  |- PublicObservation: public_observation
  *  |- PrivateObservation: private_observations
- *   |- ObservationUtils: utils
+ *  |- ObservationUtils: utils
  */
