@@ -1,7 +1,41 @@
 syntax = "proto3";
 package mjxproto;
 
-/*
+/* Overview
+ *
+ *  State
+ *  |- HiddenState: hidden_state
+ *  |   |- [int32]: wall
+ *  |
+ *  |- PublicObservation: public_observation
+ *  |   |- Score: init_score
+ *  |   |- int32: init_dora_indicator
+ *  |   |- [Event]: event_history
+ *  |   |   |- EventType type
+ *  |   |   |- int32 who
+ *  |   |   |- int32 tile
+ *  |   |   |- int32 open
+ *  |
+ *  |- [PrivateObservation] private_observations
+ *  |   |- int32: who
+ *  |   |- Hand: init_hand
+ *  |   |- [int32]: draw_history
+ *
+ *  Observation
+ *  |- int32: who
+ *  |- PublicObservation: public_observation
+ *  |- PrivateObservation: private_observations
+ *
+ *  Action  
+ *  |- int32 who
+ *  |- ActionType type
+ *  |- int32 discard
+ *  |- int32 open
+ *
+ */
+
+/* Details with utils
+ *
  *  State
  *  |- HiddenState: hidden_state
  *  |   |- [int32]: wall
@@ -13,13 +47,17 @@ package mjxproto;
  *  |   |- Score: init_score
  *  |   |- int32: init_dora_indicator
  *  |   |- [Event]: event_history
+ *  |   |   |- EventType type
+ *  |   |   |- int32 who
+ *  |   |   |- int32 tile
+ *  |   |   |- int32 open
  *  |   |- PublicObservationUtils: utils
  *  |       |- uint64: game_id
  *  |       |- [string]: player_ids
  *  |       |- Score: curr_score
  *  |       |- [int32]: curr_dora_indicators
  *  |       |- [River]: rivers
- *  |           |- [int32] tiles
+ *  |       |   |- [int32] tiles
  *  |       |- RoundTerminal: round_terminal
  *  |           |- Score: final_score
  *  |           |- [Win] wins
@@ -53,6 +91,15 @@ package mjxproto;
  *  |- PublicObservation: public_observation
  *  |- PrivateObservation: private_observations
  *  |- ObservationUtils: utils
+ *
+ *
+ *  Action  
+ *  |- int32 who
+ *  |- ActionType type
+ *  |- int32 discard
+ *  |- int32 open
+ *  |- ActionUtils uitls
+ *      |- uint64 game_id
  */
 
 service Agent {
@@ -118,11 +165,11 @@ message Action {
   //  OPEN_KAN                     No    Yes
   //  RON                          No     No
   //  NO                           No     No
-  int32 game_id = 1;
-  int32 who = 2;  // 0: the first dealer in a game  (0: 起家, ..., 3: ラス親)
-  ActionType type = 3;
-  int32 discard = 4;
-  int32 open = 5;
+  int32 who = 1;  // 0: the first dealer in a game  (0: 起家, ..., 3: ラス親)
+  ActionType type = 2;
+  int32 discard = 3;
+  int32 open = 4;
+  ActionUtils utils = 5;
 }
 
 message Event {
@@ -131,7 +178,7 @@ message Event {
   //   1. publicly observable and actually realized actions taken by all layers 
   //   2. publicly observable state transitions made by envionment
   // 
-  // Note that "NO" action is **NOT** collected as event since it's not publicly observable.
+  // Note that "No" action is **NOT** collected as event since it's not publicly observable.
   // Also, "Chi" prevented by other player's "Pon/Ron" is also **NOT** collected in event_history.
   // Drawn tile does not use tile entry because it's not publicly observable. 
   // Only the fact that the player drew something is collected.
@@ -221,6 +268,10 @@ message Hand {
 }
 
 // Utilities: information which is not necessary (but may be useful)
+
+message ActionUtils {
+  uint64 game_id = 1;
+}
 
 message ObservationUtils {}
 
