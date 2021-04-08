@@ -1,6 +1,59 @@
 syntax = "proto3";
-
 package mjxproto;
+
+/*
+ *  State
+ *  |- HiddenState: hidden_state
+ *  |   |- [int32]: wall
+ *  |   |- HiddenStateUtils: utils
+ *  |       |- uint64: game_seed
+ *  |       |- [int32]: curr_ura_dora_indicators
+ *  |
+ *  |- PublicObservation: public_observation
+ *  |   |- Score: init_score
+ *  |   |- int32: init_dora_indicator
+ *  |   |- [Event]: event_history
+ *  |   |- PublicObservationUtils: utils
+ *  |       |- uint64: game_id
+ *  |       |- [string]: player_ids
+ *  |       |- Score: curr_score
+ *  |       |- [int32]: curr_dora_indicators
+ *  |       |- [River]: rivers
+ *  |           |- [int32] tiles
+ *  |       |- RoundTerminal: round_terminal
+ *  |           |- Score: final_score
+ *  |           |- [Win] wins
+ *  |           |   |- int32 who
+ *  |           |   |- int32 from_who
+ *  |           |   |- Hand hand 
+ *  |           |   |- int32 win_tile
+ *  |           |   |- int32 fu
+ *  |           |   |- [int32] fans
+ *  |           |   |- [int32] yakus
+ *  |           |   |- [int32] yakumans
+ *  |           |   |- int32 ten
+ *  |           |   |- [int32] ten_changes
+ *  |           |- Draw draw
+ *  |           |   |- [Hand]: tenpai_hands
+ *  |           |   |- [int32]: ten_changes
+ *  |           |- bool: is_game_over
+ *  |
+ *  |- [PrivateObservation] private_observations
+ *  |   |- int32: who
+ *  |   |- Hand: init_hand
+ *  |   |- [int32]: draw_history
+ *  |   |- PrivateObservationUtils: utils
+ *  |       |- Hand: curr_hand
+ *  |       |- [Action]: legal_actions
+ *  |- [StateUtils] utils
+ *  
+ *  
+ *  Observation
+ *  |- int32: who
+ *  |- PublicObservation: public_observation
+ *  |- PrivateObservation: private_observations
+ *  |- ObservationUtils: utils
+ */
 
 service Agent {
   rpc TakeAction (Observation) returns (Action) {}
@@ -20,7 +73,7 @@ enum ActionType {
   ACTION_TYPE_PON = 8;
   ACTION_TYPE_OPEN_KAN = 9;  // 明槓
   ACTION_TYPE_RON = 10;
-  ACTION_TYPE_NO = 11;  // Ignore chi, pon, open kan, and ron options
+  ACTION_TYPE_NO = 11;  // Action to ignore chi, pon, open kan, or ron options
 }
 
 enum EventType {
@@ -167,7 +220,7 @@ message Hand {
   repeated int32 opens = 3;
 }
 
-// Utilities: information which is not necessary (but may be useful) to represent situations
+// Utilities: information which is not necessary (but may be useful)
 
 message ObservationUtils {}
 
@@ -221,47 +274,3 @@ message Draw {
   repeated Hand tenpai_hands = 1;
   repeated int32 ten_changes = 2;  // Required only for Tenhou mjlog.  TODO: check definition. remove
 }
-
-/*
- *  State: state
- *  |- HiddenState: hidden_state
- *  |   |- [int32]: wall
- *  |   |- HiddenStateUtils: utils
- *  |       |- uint64: game_seed
- *  |       |- [int32]: curr_ura_dora_indicators
- *  |
- *  |- PublicObservation: public_observation
- *  |   |- Score: init_score
- *  |   |- int32: init_dora_indicator
- *  |   |- [Event]: event_history
- *  |   |- PublicObservationUtils: utils
- *  |       |- uint64: game_id
- *  |       |- [string]: player_ids
- *  |       |- Score: curr_score
- *  |       |- [int32]: curr_dora_indicators
- *  |       |- [River]: rivers
- *  |           |- [int32] tiles
- *  |       |- RoundTerminal: round_terminal
- *  |           |- Score: final_score
- *  |           |- [Win] wins
- *  |           |- Draw draw
- *  |           |   |- [Hand]: tenpai_hands
- *  |           |   |- [int32]: ten_changes
- *  |           |- bool: is_game_over
- *  |
- *  |- [PrivateObservation] private_observations
- *  |   |- int32: who
- *  |   |- Hand: init_hand
- *  |   |- [int32]: draw_history
- *  |   |- PrivateObservationUtils: utils
- *  |       |- Hand: curr_hand
- *  |       |- [Action]: legal_actions
- *  |- [StateUtils] utils
- *  
- *  
- *  Observation: observation
- *  |- int32: who
- *  |- PublicObservation: public_observation
- *  |- PrivateObservation: private_observations
- *  |- ObservationUtils: utils
- */
