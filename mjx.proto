@@ -90,11 +90,13 @@ message Action {
 message Event {
   // Publicly observable event, which include 
   // 
-  //   1. publicly observable actions taken by all layers 
+  //   1. publicly observable and actually realized actions taken by all layers 
   //   2. publicly observable state transitions made by envionment
   // 
   // Note that "NO" action is **NOT** collected as event since it's not publicly observable.
-  // Also, drawn tile is not observable. Only the fact that the player drew something is collected.
+  // Also, "Chi" prevented by other player's "Pon/Ron" is also **NOT** collected in event_history.
+  // Drawn tile does not use tile entry because it's not publicly observable. 
+  // Only the fact that the player drew something is collected.
   //
   // Table. Is who/tile/open entry set?
   //                                    who    tile    open
@@ -194,7 +196,8 @@ message PrivateObaservationUtils {
 }
 
 message HiddenStateUtils {
-  repeated int32 curr_ura_dora_indicators = 6;
+  uint64 game_seed = 1;
+  repeated int32 curr_ura_dora_indicators = 2;
 }
 
 message Win {
@@ -222,12 +225,16 @@ message RoundTerminal {
   bool is_game_over = 4;
 }
 
+message ObservationUtils {}
+
+message StateUtils {}
+
 /*
  *  State: state
  *  |- HiddenState: hidden_state
- *      |- uint64: game_seed
  *  |   |- [int32]: wall
  *  |   |- HiddenStateUtils: utils
+ *  |       |- uint64: game_seed
  *  |       |- [int32]: curr_ura_dora_indicators
  *  |
  *  |- PublicObservation
@@ -236,11 +243,11 @@ message RoundTerminal {
  *  |   |- [Event]: event_history
  *  |   |- PublicObservationUtils: utils
  *  |       |- uint64: game_id
- *          |- [string]: player_ids
+ *  |       |- [string]: player_ids
  *  |       |- Score: curr_score
  *  |       |- [int32]: curr_dora_indicators
  *  |       |- [River]: rivers
- *              |- [int32] tiles
+ *  |           |- [int32] tiles
  *  |       |- RoundTerminal: round_terminal
  *  |           |- Score: final_score
  *  |           |- [Win] win
@@ -249,16 +256,19 @@ message RoundTerminal {
  *  |           |   |- [int32]: ten_changes
  *  |           |- bool: is_game_over
  *  |
- *  |- [PrivateObservation]
+ *  |- [PrivateObservation] private_observations
  *  |   |- PlayerIdx: who
  *  |   |- Hand: init_hand
  *  |   |- [int32]: draw_history
  *  |   |- PrivateObservationUtils: utils
  *  |       |- Hand: curr_hand
  *  |       |- [Action]: legal_actions
+ *  |- [StateUtils] utils
+ *  
  *  
  *  Observation: observation
  *  |- PlayerIdx: who
  *  |- PublicObservation: public_observation
  *  |- PrivateObservation: private_observations
+*   |- ObservationUtils: utils
  */
