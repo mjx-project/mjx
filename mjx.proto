@@ -21,7 +21,7 @@ enum ActionType {
   ACTION_TYPE_CLOSED_KAN = 3;
   ACTION_TYPE_ADDED_KAN = 4;
   ACTION_TYPE_TSUMO = 5;
-  ACTION_TYPE_ABORTIVE_DRAW_NINE_TERMINAL = 6;
+  ACTION_TYPE_ABORTIVE_DRAW_NINE_TERMINALS = 6;
   // After someone's discard
   ACTION_TYPE_CHI = 7;
   ACTION_TYPE_PON = 8;
@@ -38,7 +38,7 @@ enum EventType {
   EVENT_TYPE_CLOSED_KAN = 3;
   EVENT_TYPE_ADDED_KAN = 4;
   EVENT_TYPE_TSUMO = 5;
-  EVENT_TYPE_ABORTIVE_DRAW_NINE_TERMINAL = 6;
+  EVENT_TYPE_ABORTIVE_DRAW_NINE_TERMINALS = 6;
   EVENT_TYPE_CHI = 7;
   EVENT_TYPE_PON = 8;
   EVENT_TYPE_OPEN_KAN = 9;
@@ -48,12 +48,12 @@ enum EventType {
   EVENT_TYPE_DRAW = 12; 
   EVENT_TYPE_RIICHI_SCORE_CHANGE = 13; 
   EVENT_TYPE_NEW_DORA = 14; 
-  EVENT_TYPE_ABORTIVE_DRAW_NORMAL = 15;  // 通常流局 
-  EVENT_TYPE_ABORTIVE_DRAW_FOUR_RIICHIS = 16;  // 四家立直 
-  EVENT_TYPE_ABORTIVE_DRAW_THREE_RONS = 17;  // 三家和了 
-  EVENT_TYPE_ABORTIVE_DRAW_FOUR_KANS = 18;  // 四槓散了 
-  EVENT_TYPE_ABORTIVE_DRAW_FOUR_WINDS = 19;  // 四風連打 
-  EVENT_TYPE_ABORTIVE_DRAW_NAGASHI_MANGAN = 20;  // 流し満貫 
+  EVENT_TYPE_ABORTIVE_DRAW_FOUR_RIICHIS = 15;  // 四家立直 
+  EVENT_TYPE_ABORTIVE_DRAW_THREE_RONS = 16;  // 三家和了 
+  EVENT_TYPE_ABORTIVE_DRAW_FOUR_KANS = 17;  // 四槓散了 
+  EVENT_TYPE_ABORTIVE_DRAW_FOUR_WINDS = 18;  // 四風連打 
+  EVENT_TYPE_EXHAUSTIVE_DRAW_NORMAL = 19;  // 通常流局 
+  EVENT_TYPE_EXHAUSTIVE_DRAW_NAGASHI_MANGAN = 20;  // 流し満貫 
   // Round end indicator
   EVENT_TYPE_ROUND_END = 21; // Necessary to handle double ron
 }
@@ -74,7 +74,7 @@ message Action {
   //  CLOSED_KAN                   No    Yes
   //  ADDED_KAN                    No    Yes
   //  TSUMO                        No     No
-  //  ABORTIVE_DRAW_NINE_TERMINAL  No     No
+  //  ABORTIVE_DRAW_NINE_TERMINALS No     No
   //  CHI                          No    Yes
   //  PON                          No    Yes
   //  OPEN_KAN                     No    Yes
@@ -97,28 +97,28 @@ message Event {
   // Also, drawn tile is not observable. Only the fact that the player drew something is collected.
   //
   // Table. Is who/tile/open entry set?
-  //                                  who    tile    open
-  //  0. DISCARD_FROM_HAND            Yes     Yes      No
-  //  1. DISCARD_DRAWN_TILE           Yes     Yes      No
-  //  2. RIICHI                       Yes      No      No
-  //  3. CLOSED_KAN                   Yes      No     Yes
-  //  4. ADDED_KAN                    Yes      No     Yes
-  //  5. TSUMO                        Yes     Yes      No
-  //  6. ABORTIVE_DRAW_NINE_TERMINAL  Yes      No      No
-  //  7. CHI                          Yes      No     Yes
-  //  8. PON                          Yes      No     Yes
-  //  9. OPEN_KAN                     Yes      No     Yes
-  // 10. RON                          Yes     Yes      No
-  // 12. DRAW                         Yes      No      No
-  // 13. RIICHI_SCORE_CHANGE          Yes      No      No
-  // 14. NEW_DORA                      No     Yes      No
-  // 15. ABORTIVE_DRAW_NORMAL          No      No      No
-  // 16. ABORTIVE_DRAW_FOUR_RIICHIS    No      No      No
-  // 17. ABORTIVE_DRAW_THREE_RONS      NO      NO      NO
-  // 18. ABORTIVE_DRAW_FOUR_KANS       No      No      No
-  // 19. ABORTIVE_DRAW_FOUR_WINDS      No      No      No
-  // 20. ABORTIVE_DRAW_NAGASHI_MANGAN  No      No      No
-  // 21. ROUND_END                     No      No      No
+  //                                    who    tile    open
+  //  0. DISCARD_FROM_HAND              Yes     Yes      No
+  //  1. DISCARD_DRAWN_TILE             Yes     Yes      No
+  //  2. RIICHI                         Yes      No      No
+  //  3. CLOSED_KAN                     Yes      No     Yes
+  //  4. ADDED_KAN                      Yes      No     Yes
+  //  5. TSUMO                          Yes     Yes      No
+  //  6. ABORTIVE_DRAW_NINE_TERMINALS   Yes      No      No
+  //  7. CHI                            Yes      No     Yes
+  //  8. PON                            Yes      No     Yes
+  //  9. OPEN_KAN                       Yes      No     Yes
+  // 10. RON                            Yes     Yes      No
+  // 12. DRAW                           Yes      No      No
+  // 13. RIICHI_SCORE_CHANGE            Yes      No      No
+  // 14. NEW_DORA                        No     Yes      No
+  // 16. ABORTIVE_DRAW_FOUR_RIICHIS      No      No      No
+  // 17. ABORTIVE_DRAW_THREE_RONS        NO      NO      NO
+  // 18. ABORTIVE_DRAW_FOUR_KANS         No      No      No
+  // 19. ABORTIVE_DRAW_FOUR_WINDS        No      No      No
+  // 15. EXHAUSTIVE_DRAW_NORMAL          No      No      No
+  // 20. EXHAUSTIVE_DRAW_NAGASHI_MANGAN  No      No      No
+  // 21. ROUND_END                       No      No      No
   EventType type = 1;
   PlayerIdx who = 2;
   int32 tile = 3;
