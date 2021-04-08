@@ -9,24 +9,24 @@ service Agent {
 enum ActionType {
   // After someone's draw
   ACTION_TYPE_DISCARD_FROM_HAND = 0;
-  ACTION_TYPE_DISCARD_DRAWN_TILE = 1;
+  ACTION_TYPE_DISCARD_DRAWN_TILE = 1;  // ツモ切り, Tsumogiri
   ACTION_TYPE_RIICHI = 2;
-  ACTION_TYPE_CLOSED_KAN = 3;
-  ACTION_TYPE_ADDED_KAN = 4;
+  ACTION_TYPE_CLOSED_KAN = 3;  // 暗槓
+  ACTION_TYPE_ADDED_KAN = 4;  // 加槓
   ACTION_TYPE_TSUMO = 5;
-  ACTION_TYPE_ABORTIVE_DRAW_NINE_TERMINALS = 6;
+  ACTION_TYPE_ABORTIVE_DRAW_NINE_TERMINALS = 6;  // 九種九牌
   // After someone's discard
   ACTION_TYPE_CHI = 7;
   ACTION_TYPE_PON = 8;
-  ACTION_TYPE_OPEN_KAN = 9;
+  ACTION_TYPE_OPEN_KAN = 9;  // 明槓
   ACTION_TYPE_RON = 10;
-  ACTION_TYPE_NO = 11;
+  ACTION_TYPE_NO = 11;  // Ignore chi, pon, open kan, and ron options
 }
 
 enum EventType {
   // Publicly observable actions
   EVENT_TYPE_DISCARD_FROM_HAND = 0;
-  EVENT_TYPE_DISCARD_DRAWN_TILE = 1;  // ツモ切り, Tsumogiri
+  EVENT_TYPE_DISCARD_DRAWN_TILE = 1;
   EVENT_TYPE_RIICHI = 2;
   EVENT_TYPE_CLOSED_KAN = 3;
   EVENT_TYPE_ADDED_KAN = 4;
@@ -197,6 +197,13 @@ message River {
   repeated int32 tiles = 1;
 }
 
+message RoundTerminal {
+  Score final_score = 1;
+  repeated Win wins = 2;   // Empty if no one wins
+  Draw draw = 3;  // draw.tenpai_hands is empty if any winner exists
+  bool is_game_over = 4;
+}
+
 message Win {
   int32 who = 1;  // 0: the first dealer in a game  (0: 起家, ..., 3: ラス親)
   int32 from_who = 2;
@@ -211,16 +218,10 @@ message Win {
 }
 
 message Draw {
-  repeated Hand tenpai_hands = 1;  // size is 4
+  repeated Hand tenpai_hands = 1;
   repeated int32 ten_changes = 2;  // Required only for Tenhou mjlog.  TODO: check definition. remove
 }
 
-message RoundTerminal {
-  Score final_score = 1;
-  repeated Win wins = 2;   // Empty if no one wins
-  Draw draw = 3;  // draw.tenpai_hands is empty if any winner exists
-  bool is_game_over = 4;
-}
 /*
  *  State: state
  *  |- HiddenState: hidden_state
@@ -242,8 +243,8 @@ message RoundTerminal {
  *  |           |- [int32] tiles
  *  |       |- RoundTerminal: round_terminal
  *  |           |- Score: final_score
- *  |           |- [Win] win
- *  |           |- [Draw] draw
+ *  |           |- [Win] wins
+ *  |           |- Draw draw
  *  |           |   |- [Hand]: tenpai_hands
  *  |           |   |- [int32]: ten_changes
  *  |           |- bool: is_game_over
