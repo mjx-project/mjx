@@ -137,7 +137,7 @@ message PrivateObservation {
   int32 who = 1;  // 0: the first dealer in a game  (0: 起家, ..., 3: ラス親)
   Hand init_hand = 2;
   repeated int32 draw_history = 3;
-  PrivateObseravtionUtils utils = 4;
+  PrivateObservationUtils utils = 4;
 }
 
 message HiddenState {
@@ -183,7 +183,7 @@ message PublicObservationUtils {
   RoundTerminal round_terminal = 7;
 }
 
-message PrivateObaservationUtils {
+message PrivateObservationUtils {
   Hand curr_hand = 1;
   repeated Action legal_actions = 2;
 }
