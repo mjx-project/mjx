@@ -232,48 +232,47 @@ message ObservationUtils {
 
 
 /*
- *  State
- *  |- HiddenState
- *  |   |- [int]: wall
- *  |   |- HiddenStateUtils
- *  |       |- [int]: curr_ura_dora_indicators
+ *  State: state
+ *  |- HiddenState: hidden_state
+ *  |   |- [int32]: wall
+ *  |   |- HiddenStateUtils: utils
+ *  |       |- [int32]: curr_ura_dora_indicators
  *  |
  *  |- PublicObservation
  *  |   |- Score: init_score
- *  |   |- int: init_dora_indicator
- *  |   |- [Event]
- *  |   |- PublicObservationUtils
+ *  |   |- int32: init_dora_indicator
+ *  |   |- [Event]: event_history
+ *  |   |- PublicObservationUtils: utils
  *  |       |- Score: curr_score
- *  |       |- [int]: curr_dora_indicators
+ *  |       |- [int32]: curr_dora_indicators
  *  |       |- [River]: rivers
- *              |- [int] tiles
- *  |       |- RoundTerminal
+ *              |- [int32] tiles
+ *  |       |- RoundTerminal: round_terminal
  *  |           |- Score: final_score
- *  |           |- [Win]
- *  |           |- AbortiveDraw
- *  |           |   |- EventType
+ *  |           |- [Win] win
+ *  |           |- [Draw] draw
  *  |           |   |- [Hand]: tenpai_hands
- *  |           |   |- [int]: ten_changes
+ *  |           |   |- [int32]: ten_changes
  *  |           |- bool: is_game_over
  *  |
  *  |- [PrivateObservation]
  *  |   |- PlayerIdx: who
  *  |   |- Hand: init_hand
- *  |   |- [int]: draw_history
- *  |   |- PrivateObservationUtils
+ *  |   |- [int32]: draw_history
+ *  |   |- PrivateObservationUtils: utils
  *  |       |- Hand: curr_hand
  *  |       |- legal_actions ?
  *  |
- *  |- StateUtils
- *      |- uint: game_id
- *      |- uint: game_seed
+ *  |- StateUtils: utils
+ *      |- uint64: game_id
+ *      |- uint64: game_seed
  *      |- [string]: player_ids
  *  
- *  Observation
+ *  Observation: observation
  *  |- PlayerIdx: who
- *  |- PublicObservation
- *  |- PrivateObservation
- *  |- ObservationUtils
- *      |- uint: game_id
+ *  |- PublicObservation: public_observation
+ *  |- PrivateObservation: private_observation
+ *  |- ObservationUtils: utils
+ *      |- uint64: game_id
  *      |- [string]: player_ids
  */
