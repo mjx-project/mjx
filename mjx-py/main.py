@@ -21,7 +21,12 @@ HandArea = List[Tile]
 
 class Player:
     def __init__(
-        self, player_idx: int, wind: int, init_score: int, init_hand: HandArea
+        self,
+        player_idx: int,
+        wind: int,
+        init_score: int,
+        init_hand: HandArea,
+        name: str,
     ):
         self.player_idx = player_idx
         self.wind = wind
@@ -32,6 +37,7 @@ class Player:
         self.opens_area = []
         self.drawcount = 0
         self.is_riichi = False
+        self.name = name
 
 
 class MahjongTable:
@@ -56,9 +62,17 @@ class GameBoard:
     EventHistoryからの現在の状態の読み取りや、その表示などを行います。
     """
 
-    def __init__(self, path: str, name: str):
+    def __init__(
+        self,
+        path: str,
+        mode: str,
+        is_using_unicode: bool = False,
+        show_players_name: bool = True,
+    ):
         self.path = path
-        self.name = name
+        self.name = mode
+        self.is_using_unicode = is_using_unicode
+        self.show_players_name = show_players_name
 
     def rollout(self) -> None:
         """
@@ -73,10 +87,18 @@ class GameBoard:
 
         # 今はテスト用に、直に打ち込んでいます。
         """
-        player1 = Player(1, 0, 25000, [[0, [Tile(i * 4, True) for i in range(8)]]])
-        player2 = Player(2, 1, 25000, [[0, [Tile(i * 4, False) for i in range(8)]]])
-        player3 = Player(3, 2, 25000, [[0, [Tile(i * 4, False) for i in range(8)]]])
-        player4 = Player(0, 3, 25000, [[0, [Tile(i * 4, False) for i in range(8)]]])
+        player1 = Player(
+            1, 0, 25000, [[0, [Tile(i * 4, True) for i in range(8)]]], "太郎"
+        )
+        player2 = Player(
+            2, 1, 25000, [[0, [Tile(i * 4, False) for i in range(8)]]], "次郎"
+        )
+        player3 = Player(
+            3, 2, 25000, [[0, [Tile(i * 4, False) for i in range(8)]]], "三郎"
+        )
+        player4 = Player(
+            0, 3, 25000, [[0, [Tile(i * 4, False) for i in range(8)]]], "四郎"
+        )
 
         player3.is_riichi = True
 
@@ -110,7 +132,7 @@ class GameBoard:
             ]
 
         table = MahjongTable(player1, player2, player3, player4)
-        table.round = 1
+        table.round = 6  # 南2局
         table.honba = 1
         table.riichi = 1
         table.last_player = 3
@@ -152,36 +174,44 @@ class GameBoard:
         if not self.is_num_of_tiles_ok():
             exit(1)
 
-        print()
         print(
-            get_wind_char(self.table.round // 4) + str(self.table.round % 4 + 1) + "局",
+            get_wind_char((self.table.round - 1) // 4)
+            + str((self.table.round - 1) % 4 + 1)
+            + "局",
             end="",
         )
         if self.table.honba > 0:
             print(" " + str(self.table.honba) + "本場", end="")
         if self.table.riichi > 0:
-            print(" " + "供託" + str(self.table.riichi))
-        print()
+            print(" " + "供託" + str(self.table.riichi), end="")
+        print("\n")
 
         self.table.players.sort(key=lambda x: x.player_idx)
 
         for p in self.table.players:
             if p.player_idx == 0:
-                print("起家")
+                print("起家")  # 確認用
+
             print(
                 get_wind_char(p.wind),
                 "[",
                 "".join([str(p.score) + (", リーチ" if p.is_riichi else "")]),
                 "]",
+                end="",
             )
+            if self.show_players_name:
+                print(" PLAYER_NAME_" + p.name, end="")
+            print("\n")
+
             print(
                 self.add_status(p.hands_area)
                 + ", "
                 + self.add_status(p.opens_area, True)
             )
+            print()
             discards = self.split_discards(p.discard_area)
             print("\n".join([self.add_status(tiles) for tiles in discards]),)
-            print()
+            print("\n")
         print(get_wind_char(self.table.last_player), "の番です")
         print("ActionType:", get_actiontype(self.table.last_action))
 
@@ -190,9 +220,13 @@ def main():
 
     parser = argparse.ArgumentParser()
     parser.add_argument("--path", default="2010091009gm-00a9-0000-83af2648&tw=2.json")
+    parser.add_argument("--mode", default="Obs")
+    parser.add_argument("--uni", default=False)
+    parser.add_argument("--show_name", default=False)
+    parser.add_argument("--lang", default="E")
     args = parser.parse_args()
 
-    game_board = GameBoard(args.path, "Observation")
+    game_board = GameBoard(args.path, args.mode, args.uni, args.show_name)
     game_board.rollout()
     game_board.show_all()
 
