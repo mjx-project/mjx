@@ -177,8 +177,12 @@ message State {
 message PublicObservationUtil {
   Score curr_score = 1;
   repeated int32 curr_dora_indicators = 2;
-  repeated int32 river = 3;
+  repeated River rivers = 3;
   RoundTerminal round_terminal = 4;
+}
+
+message River {
+  repeated int32 tiles = 1;
 }
 
 message PrivateObaservationUtils {
@@ -241,7 +245,8 @@ message ObservationUtils {
  *  |   |- PublicObservationUtils
  *  |       |- Score: curr_score
  *  |       |- [int]: curr_dora_indicators
- *  |       |- [int]: river
+ *  |       |- [River]: rivers
+ *              |- [int] tiles
  *  |       |- RoundTerminal
  *  |           |- Score: final_score
  *  |           |- [Win]
