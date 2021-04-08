@@ -237,7 +237,7 @@ message StateUtils {}
  *  |       |- uint64: game_seed
  *  |       |- [int32]: curr_ura_dora_indicators
  *  |
- *  |- PublicObservation
+ *  |- PublicObservation: public_observation
  *  |   |- Score: init_score
  *  |   |- int32: init_dora_indicator
  *  |   |- [Event]: event_history
