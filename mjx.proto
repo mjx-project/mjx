@@ -6,13 +6,6 @@ service Agent {
   rpc TakeAction (Observation) returns (Action) {}
 }
 
-enum PlayerIdx {
-  PLAYER_IDX_0 = 0;  // 起家
-  PLAYER_IDX_1 = 1;
-  PLAYER_IDX_2 = 2;
-  PLAYER_IDX_3 = 3;  // ラス親
-}
-
 enum ActionType {
   // After someone's draw
   ACTION_TYPE_DISCARD_FROM_HAND = 0;
@@ -73,7 +66,7 @@ message Action {
   //  RON                          No     No
   //  NO                           No     No
   int32 game_id = 1;
-  PlayerIdx who = 2;
+  int32 who = 2;  // 0: the first dealer in a game  (0: 起家, ..., 3: ラス親)
   ActionType type = 3;
   int32 discard = 4;
   int32 open = 5;
@@ -114,13 +107,13 @@ message Event {
   // 20. EXHAUSTIVE_DRAW_NAGASHI_MANGAN  No      No      No
   // 21. ROUND_END                       No      No      No
   EventType type = 1;
-  PlayerIdx who = 2;
+  int32 who = 2;  // 0: the first dealer in a game  (0: 起家, ..., 3: ラス親)
   int32 tile = 3;
   int32 open = 4;
 }
 
 message Observation {
-  PlayerIdx who = 1;
+  int32 who = 1;  // 0: the first dealer in a game  (0: 起家, ..., 3: ラス親)
   PublicObservation public_observation = 2;
   PrivateObservation private_observation = 3;
   ObservationUtils utils = 4;
@@ -141,7 +134,7 @@ message PublicObservation {
 }
 
 message PrivateObservation {
-  PlayerIdx who = 1;
+  int32 who = 1;  // 0: the first dealer in a game  (0: 起家, ..., 3: ラス親)
   Hand init_hand = 2;
   repeated int32 draw_history = 3;
   PrivateObseravtionUtils utils = 4;
@@ -169,7 +162,7 @@ message Score {
 }
 
 message Hand {
-  PlayerIdx who = 1;
+  int32 who = 1;  // 0: the first dealer in a game  (0: 起家, ..., 3: ラス親)
   repeated int32 closed_tiles = 2;
   repeated int32 opens = 3;
 }
@@ -201,8 +194,8 @@ message HiddenStateUtils {
 }
 
 message Win {
-  PlayerIdx who = 1;
-  PlayerIdx from_who = 2;
+  int32 who = 1;  // 0: the first dealer in a game  (0: 起家, ..., 3: ラス親)
+  int32 from_who = 2;
   Hand hand = 3;
   int32 win_tile = 4;
   int32 fu = 5;
@@ -257,7 +250,7 @@ message StateUtils {}
  *  |           |- bool: is_game_over
  *  |
  *  |- [PrivateObservation] private_observations
- *  |   |- PlayerIdx: who
+ *  |   |- int32: who
  *  |   |- Hand: init_hand
  *  |   |- [int32]: draw_history
  *  |   |- PrivateObservationUtils: utils
@@ -267,8 +260,8 @@ message StateUtils {}
  *  
  *  
  *  Observation: observation
- *  |- PlayerIdx: who
+ *  |- int32: who
  *  |- PublicObservation: public_observation
  *  |- PrivateObservation: private_observations
-*   |- ObservationUtils: utils
+ *   |- ObservationUtils: utils
  */
