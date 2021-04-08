@@ -202,16 +202,15 @@ message Win {
   repeated int32 ten_changes = 10;  // Required only for Tenhou mjlog.  TODO: check definition. remove
 }
 
-message AbortiveDraw {
-  EventType type = 1;
-  repeated Hand tenpai_hands = 2;
-  repeated int32 ten_changes = 3;  // Required only for Tenhou mjlog.  TODO: check definition. remove
+message Draw {
+  repeated Hand tenpai_hands = 1;
+  repeated int32 ten_changes = 2;  // Required only for Tenhou mjlog.  TODO: check definition. remove
 }
 
 message RoundTerminal {
   Score final_score = 1;
   repeated Win wins = 2;   // Empty if no one wins
-  AbortiveDraw abortive_draw = 3;  // Empty if a winner exists
+  Draw draw = 3;  // Empty if a winner exists
   bool is_game_over = 4;
 }
 
