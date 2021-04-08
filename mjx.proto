@@ -62,7 +62,7 @@ message Score {
   int32 round = 1;
   int32 honba = 2;
   int32 riichi = 3;
-  repeated int32 tens = 4;  
+  repeated int32 tens = 4;
   // At every timestep, sum(score.tens) + score.riichi * 1000 == 100000 holds.
 }
 
@@ -128,14 +128,14 @@ message Event {
 message Hand {
   PlayerIdx who = 1;
   repeated int32 closed_tiles = 2;
-  repeated int32 opens = 4;
+  repeated int32 opens = 3;
 }
 
 message PublicObservation {
   Score init_score = 1;
   int32 init_dora_indicator = 2;
   repeated Event event_history = 3;
-  PublicObservationUtils utils = 10;
+  PublicObservationUtils utils = 4;
 }
 
 message PrivateObservation {
@@ -178,7 +178,7 @@ message PublicObservationUtil {
   Score curr_score = 1;
   repeated int32 curr_dora_indicators = 2;
   repeated int32 river = 3;
-  RoundTerminal round_terminal = 9;
+  RoundTerminal round_terminal = 4;
 }
 
 message PrivateObaservationUtils {
@@ -193,13 +193,13 @@ message Win {
   PlayerIdx who = 1;
   PlayerIdx from_who = 2;
   Hand hand = 3;
-  int32 win_tile = 5;
-  int32 fu = 6;
-  repeated int32 fans = 10;  // TODO: check definitions
-  repeated int32 yakus = 9;  // TODO: check definitions
-  repeated int32 yakumans = 11;
-  int32 ten = 7;  // TODO: check definitions
-  repeated int32 ten_changes = 8;  // Required only for Tenhou mjlog.  TODO: check definition. remove
+  int32 win_tile = 4;
+  int32 fu = 5;
+  repeated int32 fans = 6;  // TODO: check definitions
+  repeated int32 yakus = 7;  // TODO: check definitions
+  repeated int32 yakumans = 8;
+  int32 ten = 9;  // TODO: check definitions
+  repeated int32 ten_changes = 10;  // Required only for Tenhou mjlog.  TODO: check definition. remove
 }
 
 message AbortiveDraw {
@@ -210,8 +210,8 @@ message AbortiveDraw {
 
 message RoundTerminal {
   Score final_score = 1;
-  repeated Win wins = 1;   // Empty if no one wins
-  AbortiveDraw abortive_draw = 2;  // Empty if a winner exists
+  repeated Win wins = 2;   // Empty if no one wins
+  AbortiveDraw abortive_draw = 3;  // Empty if a winner exists
   bool is_game_over = 4;
 }
 
