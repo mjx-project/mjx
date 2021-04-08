@@ -89,10 +89,11 @@ to_actiontype = {
     9: "ACTION_TYPE_KAN_OPENED",
     10: "ACTION_TYPE_RON",
 }
-to_opponent = {
-    0: "l",  # left
-    1: "c",  # center
-    2: "r",  # right
+from_who = {
+    0: "S",  # Self
+    1: "R",  # Right
+    2: "M",  # Mid
+    3: "L",  # Left
 }
 
 
@@ -120,7 +121,7 @@ def get_actiontype(action: int) -> str:
 
 
 def get_fromwho(who: int) -> str:
-    if 0 <= who < 3:
-        return to_opponent[who]
+    if 0 <= who < 4:
+        return from_who[who]
     else:
         return " "
