@@ -89,11 +89,16 @@ to_actiontype = {
     9: "ACTION_TYPE_KAN_OPENED",
     10: "ACTION_TYPE_RON",
 }
-from_who = {
-    0: "S",  # Self
-    1: "R",  # Right
-    2: "M",  # Mid
-    3: "L",  # Left
+to_modifier = {
+    0: "",
+    1: "_R",  # Right
+    2: "_M",  # Mid
+    3: "_L",  # Left
+    4: "_S",  # Self(kan closed)
+    5: "_R(Add)",  # Right(kan added)
+    6: "_M(Add)",  # Mid(kan added)
+    7: "_L(Add)",  # Left(kan added)
+    8: "*",  # TSUMOGIRI
 }
 
 
@@ -120,8 +125,8 @@ def get_actiontype(action: int) -> str:
         return " "
 
 
-def get_fromwho(who: int) -> str:
-    if 0 <= who < 4:
-        return from_who[who]
+def get_modifier(modifier_id: int) -> str:
+    if 0 <= modifier_id < 9:
+        return to_modifier[modifier_id]
     else:
         return " "
