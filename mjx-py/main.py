@@ -194,12 +194,12 @@ class GameBoard:
             player_info = []
             player_info.append(
                 get_wind_char(p.wind)
-                + "["
+                + " [ "
                 + "".join([str(p.score) + (", リーチ" if p.is_riichi else "")])
-                + "]",
+                + " ]",
             )
             if self.show_players_name:
-                player_info.append(" PLAYER_NAME_" + p.name, end="")
+                player_info.append(" PLAYER_NAME_" + p.name)
             player_info.append("\n")
 
             player_info.append(
@@ -231,7 +231,7 @@ def main():
     parser.add_argument("--path", default="2010091009gm-00a9-0000-83af2648&tw=2.json")
     parser.add_argument("--mode", default="Obs")
     parser.add_argument("--uni", default=False)
-    parser.add_argument("--show_name", default=False)
+    parser.add_argument("--show_name", default=True)
     parser.add_argument("--lang", default="E")
     args = parser.parse_args()
 
