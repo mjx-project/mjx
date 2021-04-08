@@ -58,14 +58,6 @@ enum EventType {
   EVENT_TYPE_ROUND_END = 21; // Necessary to handle double ron
 }
 
-message Score {
-  // At every timestep, sum(score.tens) + score.riichi * 1000 == 100000 holds.
-  int32 round = 1;
-  int32 honba = 2;
-  int32 riichi = 3;
-  repeated int32 tens = 4;  // tens[0] is the ten of palyer with PLAYER_IDX_0
-}
-
 message Action {
   //                          discard   open
   //  DISCARD_FROM_HAND           Yes     No
@@ -127,10 +119,18 @@ message Event {
   int32 open = 4;
 }
 
-message Hand {
+message Observation {
   PlayerIdx who = 1;
-  repeated int32 closed_tiles = 2;
-  repeated int32 opens = 3;
+  PublicObservation public_observation = 2;
+  PrivateObservation private_observation = 3;
+  ObservationUtils utils = 4;
+}
+
+message State {
+  HiddenState hidden_state = 1;  // Information no one can access
+  PublicObservation public_observation = 2;  // Information any player can observe
+  repeated PrivateObservation private_observations = 3;  // Information only the corresponding player can access. private_observations[0] is the private observation of player with PLAYER_IDX_0
+  StateUtils utils = 4;
 }
 
 message PublicObservation {
@@ -160,18 +160,18 @@ message HiddenState {
   HiddenStateUtils utils = 2;
 }
 
-message Observation {
-  PlayerIdx who = 1;
-  PublicObservation public_observation = 2;
-  PrivateObservation private_observation = 3;
-  ObservationUtils utils = 4;
+message Score {
+  // At every timestep, sum(score.tens) + score.riichi * 1000 == 100000 holds.
+  int32 round = 1;
+  int32 honba = 2;
+  int32 riichi = 3;
+  repeated int32 tens = 4;  // tens[0] is the ten of palyer with PLAYER_IDX_0
 }
 
-message State {
-  HiddenState hidden_state = 1;  // Information no one can access
-  PublicObservation public_observation = 2;  // Information any player can observe
-  repeated PrivateObservation private_observations = 3;  // Information only the corresponding player can access. private_observations[0] is the private observation of player with PLAYER_IDX_0
-  StateUtils utils = 4;
+message Hand {
+  PlayerIdx who = 1;
+  repeated int32 closed_tiles = 2;
+  repeated int32 opens = 3;
 }
 
 // Utilities: information which is not necessary (but may be useful) to represent situations
