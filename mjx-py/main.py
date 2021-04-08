@@ -174,46 +174,55 @@ class GameBoard:
         if not self.is_num_of_tiles_ok():
             exit(1)
 
-        print(
+        board_info = []
+        board_info.append(
             get_wind_char((self.table.round - 1) // 4)
             + str((self.table.round - 1) % 4 + 1)
-            + "局",
-            end="",
+            + "局"
         )
         if self.table.honba > 0:
-            print(" " + str(self.table.honba) + "本場", end="")
+            board_info.append(" " + str(self.table.honba) + "本場")
         if self.table.riichi > 0:
-            print(" " + "供託" + str(self.table.riichi), end="")
-        print("\n")
+            board_info.append(" " + "供託" + str(self.table.riichi))
+        board_info.append("\n\n")
+        board_info = "".join(board_info)
 
         self.table.players.sort(key=lambda x: x.player_idx)
 
+        players_info = []
         for p in self.table.players:
-            if p.player_idx == 0:
-                print("起家")  # 確認用
-
-            print(
-                get_wind_char(p.wind),
-                "[",
-                "".join([str(p.score) + (", リーチ" if p.is_riichi else "")]),
-                "]",
-                end="",
+            player_info = []
+            player_info.append(
+                get_wind_char(p.wind)
+                + "["
+                + "".join([str(p.score) + (", リーチ" if p.is_riichi else "")])
+                + "]",
             )
             if self.show_players_name:
-                print(" PLAYER_NAME_" + p.name, end="")
-            print("\n")
+                player_info.append(" PLAYER_NAME_" + p.name, end="")
+            player_info.append("\n")
 
-            print(
+            player_info.append(
                 self.add_status(p.hands_area)
                 + ", "
                 + self.add_status(p.opens_area, True)
             )
-            print()
+            player_info.append("\n\n")
+
             discards = self.split_discards(p.discard_area)
-            print("\n".join([self.add_status(tiles) for tiles in discards]),)
-            print("\n")
-        print(get_wind_char(self.table.last_player), "の番です")
-        print("ActionType:", get_actiontype(self.table.last_action))
+            player_info.append(
+                "\n".join([self.add_status(tiles) for tiles in discards])
+            )
+            player_info.append("\n\n\n")
+            players_info.append("".join(player_info))
+        players_info = "".join(players_info)
+
+        system_info = []
+        system_info.append(get_wind_char(self.table.last_player) + "の番です\n")
+        system_info.append("ActionType:" + get_actiontype(self.table.last_action))
+        system_info = "".join(system_info)
+
+        return "".join([board_info, players_info, system_info])
 
 
 def main():
@@ -228,7 +237,7 @@ def main():
 
     game_board = GameBoard(args.path, args.mode, args.uni, args.show_name)
     game_board.rollout()
-    game_board.show_all()
+    print(game_board.show_all())
 
 
 if __name__ == "__main__":
