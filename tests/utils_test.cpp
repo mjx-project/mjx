@@ -1,9 +1,9 @@
-#include <mjx/types.h>
-#include <mjx/utils.h>
+#include <mjx/internal/types.h>
+#include <mjx/internal/utils.h>
 
 #include "gtest/gtest.h"
 
-using namespace mjx;
+using namespace mjx::internal;
 
 TEST(utils, Any) {
   auto target = TileType::kRD;

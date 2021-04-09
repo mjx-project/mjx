@@ -1,8 +1,8 @@
-#include <mjx/win_score.h>
+#include <mjx/internal/win_score.h>
 
 #include "gtest/gtest.h"
 
-using namespace mjx;
+using namespace mjx::internal;
 
 TEST(win_score, dealer_tsumo) {
   WinScore score;

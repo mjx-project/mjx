@@ -3,7 +3,7 @@ clean:
 	rm -rf cmake-build-debug
 	rm -rf build
 	rm -rf docker-build
-	rm -rf mjx/*pb*
+	rm -rf mjx/internal/*pb*
 
 build: mjx tests mjx.proto
 	mkdir -p build && cd build && cmake .. && make -j

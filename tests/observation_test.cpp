@@ -1,11 +1,11 @@
-#include <mjx/observation.h>
-#include <mjx/state.h>
+#include <mjx/internal/observation.h>
+#include <mjx/internal/state.h>
 
 #include <fstream>
 
 #include "gtest/gtest.h"
 
-using namespace mjx;
+using namespace mjx::internal;
 
 TEST(observation, hand) {
   auto GetLastJsonLine = [](const std::string &filename) {

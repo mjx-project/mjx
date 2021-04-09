@@ -41,19 +41,19 @@ else()
 endif()
 
 # Proto file
-get_filename_component(mjx_proto "../mjx.proto" ABSOLUTE)
+get_filename_component(mjx_proto "internal/mjx.proto" ABSOLUTE)
 get_filename_component(mjx_proto_path "${mjx_proto}" PATH)
 
 # Generated sources
-set(mjx_proto_srcs "${CMAKE_CURRENT_SOURCE_DIR}/mjx.pb.cc")
-set(mjx_proto_hdrs "${CMAKE_CURRENT_SOURCE_DIR}/mjx.pb.h")
-set(mjx_grpc_srcs "${CMAKE_CURRENT_SOURCE_DIR}/mjx.grpc.pb.cc")
-set(mjx_grpc_hdrs "${CMAKE_CURRENT_SOURCE_DIR}/mjx.grpc.pb.h")
+set(mjx_proto_srcs "${CMAKE_CURRENT_SOURCE_DIR}/internal/mjx.pb.cc")
+set(mjx_proto_hdrs "${CMAKE_CURRENT_SOURCE_DIR}/internal/mjx.pb.h")
+set(mjx_grpc_srcs "${CMAKE_CURRENT_SOURCE_DIR}/internal/mjx.grpc.pb.cc")
+set(mjx_grpc_hdrs "${CMAKE_CURRENT_SOURCE_DIR}/internal/mjx.grpc.pb.h")
 add_custom_command(
         OUTPUT "${mjx_proto_srcs}" "${mjx_proto_hdrs}" "${mjx_grpc_srcs}" "${mjx_grpc_hdrs}"
         COMMAND ${_PROTOBUF_PROTOC}
-        ARGS --grpc_out "${CMAKE_CURRENT_SOURCE_DIR}"
-        --cpp_out "${CMAKE_CURRENT_SOURCE_DIR}"
+        ARGS --grpc_out "${CMAKE_CURRENT_SOURCE_DIR}/internal"
+        --cpp_out "${CMAKE_CURRENT_SOURCE_DIR}/internal"
         -I "${mjx_proto_path}"
         --plugin=protoc-gen-grpc="${_GRPC_CPP_PLUGIN_EXECUTABLE}"
         "${mjx_proto}"
@@ -94,66 +94,66 @@ include_directories("${CMAKE_CURRENT_SOURCE_DIR}")
 ####################################################################################
 
 add_library(mjx STATIC
-        abstruct_hand.h
-        action.h
-        agent.h
-        agent_batch_grpc_server.h
-        agent_batch_local.h
-        agent_grpc_client.h
-        agent_grpc_server.h
-        agent_local.h
-        consts.h
-        environment.h
-        event.h
-        game_result_summarizer.h
-        game_seed.h
-        hand.h
-        mjx.h
-        observation.h
-        open.h
-        shanten_cache.h
-        shanten_cache_generator.h
-        shanten_calculator.h
-        state.h
-        strategy.h
-        strategy_rule_based.h
-        tile.h
-        types.h
-        utils.h
-        wall.h
-        win_cache.h
-        win_cache_generator.h
-        win_info.h
-        win_score.h
-        yaku_evaluator.h
-        abstruct_hand.cpp
-        action.cpp
-        agent.cpp
-        agent_batch_grpc_server.cpp
-        agent_batch_local.cpp
-        agent_grpc_client.cpp
-        agent_grpc_server.cpp
-        agent_local.cpp
-        environment.cpp
-        event.cpp
-        game_result_summarizer.cpp
-        game_seed.cpp
-        hand.cpp
-        observation.cpp
-        open.cpp
-        shanten_cache.cpp
-        shanten_cache_generator.cpp
-        shanten_calculator.cpp
-        state.cpp
-        strategy_rule_based.cpp
-        tile.cpp
-        types.cpp
-        wall.cpp
-        win_cache.cpp
-        win_cache_generator.cpp
-        win_info.cpp
-        win_score.cpp
-        yaku_evaluator.cpp
+        internal/abstruct_hand.h
+        internal/action.h
+        internal/agent.h
+        internal/agent_batch_grpc_server.h
+        internal/agent_batch_local.h
+        internal/agent_grpc_client.h
+        internal/agent_grpc_server.h
+        internal/agent_local.h
+        internal/consts.h
+        internal/environment.h
+        internal/event.h
+        internal/game_result_summarizer.h
+        internal/game_seed.h
+        internal/hand.h
+        internal/mjx.h
+        internal/observation.h
+        internal/open.h
+        internal/shanten_cache.h
+        internal/shanten_cache_generator.h
+        internal/shanten_calculator.h
+        internal/state.h
+        internal/strategy.h
+        internal/strategy_rule_based.h
+        internal/tile.h
+        internal/types.h
+        internal/utils.h
+        internal/wall.h
+        internal/win_cache.h
+        internal/win_cache_generator.h
+        internal/win_info.h
+        internal/win_score.h
+        internal/yaku_evaluator.h
+        internal/abstruct_hand.cpp
+        internal/action.cpp
+        internal/agent.cpp
+        internal/agent_batch_grpc_server.cpp
+        internal/agent_batch_local.cpp
+        internal/agent_grpc_client.cpp
+        internal/agent_grpc_server.cpp
+        internal/agent_local.cpp
+        internal/environment.cpp
+        internal/event.cpp
+        internal/game_result_summarizer.cpp
+        internal/game_seed.cpp
+        internal/hand.cpp
+        internal/observation.cpp
+        internal/open.cpp
+        internal/shanten_cache.cpp
+        internal/shanten_cache_generator.cpp
+        internal/shanten_calculator.cpp
+        internal/state.cpp
+        internal/strategy_rule_based.cpp
+        internal/tile.cpp
+        internal/types.cpp
+        internal/wall.cpp
+        internal/win_cache.cpp
+        internal/win_cache_generator.cpp
+        internal/win_info.cpp
+        internal/win_score.cpp
+        internal/yaku_evaluator.cpp
         ${mjx_proto_srcs} ${mjx_grpc_srcs} ${mjx_proto_hdrs} ${mjx_grpc_hdrs})
 target_include_directories(mjx PUBLIC ${Boost_INCLUDE_DIRS})
 target_link_libraries(mjx PUBLIC ${_REFLECTION} ${_GRPC_GRPCPP} ${_PROTOBUF_LIBPROTOBUF})
@@ -164,8 +164,8 @@ target_compile_definitions(mjx PUBLIC WIN_CACHE_DIR="${CMAKE_CURRENT_SOURCE_DIR}
 ####################################################################################
 
 # Generate cache file
-add_executable(win_cache_generator win_cache_generator.cpp)
+add_executable(win_cache_generator internal/win_cache_generator.cpp)
 target_link_libraries(win_cache_generator ${PROJECT_NAME})
 
-add_executable(shanten_cache_generator shanten_cache_generator.cpp)
+add_executable(shanten_cache_generator internal/shanten_cache_generator.cpp)
 target_link_libraries(shanten_cache_generator ${PROJECT_NAME})

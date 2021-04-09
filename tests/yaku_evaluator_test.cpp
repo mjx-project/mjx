@@ -1,10 +1,10 @@
-#include <mjx/hand.h>
-#include <mjx/types.h>
-#include <mjx/yaku_evaluator.h>
+#include <mjx/internal/hand.h>
+#include <mjx/internal/types.h>
+#include <mjx/internal/yaku_evaluator.h>
 
 #include "gtest/gtest.h"
 
-using namespace mjx;
+using namespace mjx::internal;
 
 class YakuTest : public ::testing::Test {
  protected:

@@ -1,9 +1,9 @@
-#include <mjx/agent_local.h>
-#include <mjx/environment.h>
-#include <mjx/strategy_rule_based.h>
+#include <mjx/internal/agent_local.h>
+#include <mjx/internal/environment.h>
+#include <mjx/internal/strategy_rule_based.h>
 
 #include "gtest/gtest.h"
-using namespace mjx;
+using namespace mjx::internal;
 
 TEST(environment, RunOneGame) {
   const std::vector<std::shared_ptr<Agent>> agents = {
