@@ -15,14 +15,12 @@ TEST(types, ToRelativePos) {
             RelativePos::kLeft);
   EXPECT_EQ(ToRelativePos(AbsolutePos::kInitSouth, AbsolutePos::kInitEast),
             RelativePos::kLeft);
-  EXPECT_EQ(
-      ToRelativePos(AbsolutePos::kInitSouth, AbsolutePos::kInitSouth),
-      RelativePos::kSelf);
+  EXPECT_EQ(ToRelativePos(AbsolutePos::kInitSouth, AbsolutePos::kInitSouth),
+            RelativePos::kSelf);
   EXPECT_EQ(ToRelativePos(AbsolutePos::kInitSouth, AbsolutePos::kInitWest),
             RelativePos::kRight);
-  EXPECT_EQ(
-      ToRelativePos(AbsolutePos::kInitSouth, AbsolutePos::kInitNorth),
-      RelativePos::kMid);
+  EXPECT_EQ(ToRelativePos(AbsolutePos::kInitSouth, AbsolutePos::kInitNorth),
+            RelativePos::kMid);
   EXPECT_EQ(ToRelativePos(AbsolutePos::kInitWest, AbsolutePos::kInitEast),
             RelativePos::kMid);
   EXPECT_EQ(ToRelativePos(AbsolutePos::kInitWest, AbsolutePos::kInitSouth),
@@ -33,14 +31,12 @@ TEST(types, ToRelativePos) {
             RelativePos::kRight);
   EXPECT_EQ(ToRelativePos(AbsolutePos::kInitNorth, AbsolutePos::kInitEast),
             RelativePos::kRight);
-  EXPECT_EQ(
-      ToRelativePos(AbsolutePos::kInitNorth, AbsolutePos::kInitSouth),
-      RelativePos::kMid);
+  EXPECT_EQ(ToRelativePos(AbsolutePos::kInitNorth, AbsolutePos::kInitSouth),
+            RelativePos::kMid);
   EXPECT_EQ(ToRelativePos(AbsolutePos::kInitNorth, AbsolutePos::kInitWest),
             RelativePos::kLeft);
-  EXPECT_EQ(
-      ToRelativePos(AbsolutePos::kInitNorth, AbsolutePos::kInitNorth),
-      RelativePos::kSelf);
+  EXPECT_EQ(ToRelativePos(AbsolutePos::kInitNorth, AbsolutePos::kInitNorth),
+            RelativePos::kSelf);
 }
 
 TEST(types, ToSeatWind) {
