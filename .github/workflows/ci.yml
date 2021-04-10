@@ -23,4 +23,4 @@ jobs:
 
     - name: Scripts mjx
       run: ./build/scripts/speed_benchmark 16 8 &&
-           ./build/speed_benchmark -B 8 0 16 8 &&
+           ./build/speed_benchmark -B 8 0 16 8
