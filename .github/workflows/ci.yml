@@ -21,3 +21,5 @@ jobs:
     - name: Test mjx
       run: ./build/tests/mjx_test
 
+    - name: Scripts mjx
+      run: ./build/scripts/speed_benchmark 128 16
