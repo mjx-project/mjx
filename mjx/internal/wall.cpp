@@ -46,7 +46,7 @@ std::vector<Tile> Wall::initial_hand_tiles(AbsolutePos pos) const {
 
 Tile Wall::KanDraw() {
   Assert(abs(num_kan_draw_ - num_kan_dora_) <= 1);
-  Assert(num_kan_draw_ <= 3);
+  Assert(num_kan_draw_ <= 3, "game_seed: " + std::to_string(game_seed()));
   auto kan_ixs = std::vector<int>{134, 135, 132, 133};
   auto drawn_tile = tiles_[kan_ixs[num_kan_draw_++]];
   return drawn_tile;
