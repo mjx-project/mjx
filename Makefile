@@ -1,12 +1,11 @@
 clean:
 	cd mjconvert && make clean
-	rm -rf cmake-build-debug || "cmake-build-debug is already deleted"
-	rm -rf build || "debug is already deleted"
-	rm -rf docker-build || "docker-debug is already deleted"
-	rm -rf mjx/*pb* || "mjx/*pb* is already deleted"
-	rm -rf mjx/external_libs/* || "mjx/external_libs/** is already deleted"
+	rm -rf cmake-build-debug
+	rm -rf build
+	rm -rf docker-build
+	rm -rf mjx/internal/*pb*
 
-build: mjx tests mjx.proto
+build: mjx tests
 	mkdir -p build && cd build && cmake .. && make -j
 
 test: build
@@ -15,7 +14,6 @@ test: build
 all: clean test
 
 fmt:
-	clang-format -i *.cpp
 	clang-format -i mjx/*.h mjx/*.cpp
 	clang-format -i tests/*.cpp
 	clang-format -i scripts/*.cpp

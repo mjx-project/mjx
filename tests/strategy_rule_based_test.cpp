@@ -1,12 +1,12 @@
-#include <mjx/agent_local.h>
-#include <mjx/state.h>
-#include <mjx/strategy_rule_based.h>
+#include <mjx/internal/agent_local.h>
+#include <mjx/internal/state.h>
+#include <mjx/internal/strategy_rule_based.h>
 
 #include <fstream>
 
 #include "gtest/gtest.h"
 
-using namespace mjx;
+using namespace mjx::internal;
 
 TEST(agent_client_mock, TakeAction) {
   // Test utilities

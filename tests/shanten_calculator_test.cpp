@@ -1,12 +1,12 @@
-#include <mjx/hand.h>
-#include <mjx/shanten_calculator.h>
+#include <mjx/internal/hand.h>
+#include <mjx/internal/shanten_calculator.h>
 
 #include <fstream>
 #include <sstream>
 
 #include "gtest/gtest.h"
 
-using namespace mjx;
+using namespace mjx::internal;
 
 TEST(shanten, normal) {
   std::array<uint8_t, 34> tiles =

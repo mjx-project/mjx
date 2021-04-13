@@ -1,8 +1,8 @@
-#include <mjx/action.h>
+#include <mjx/internal/action.h>
 
 #include "gtest/gtest.h"
 
-using namespace mjx;
+using namespace mjx::internal;
 
 TEST(action, Encode) {
   // Discard

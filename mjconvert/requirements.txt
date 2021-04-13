@@ -8,5 +8,5 @@ blackdoc
 isort
 flake8
 mypy
-mypy-protobuf
+mypy-protobuf==1.24  # TODO: update version
 tenhou_wall_reproducer

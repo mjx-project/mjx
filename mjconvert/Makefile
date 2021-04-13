@@ -20,7 +20,7 @@ checks:
 	mypy --config pyproject.toml mjconvert
 
 proto:
-	python3 -m grpc_tools.protoc -I ../ --python_out=./mjxproto/ --grpc_python_out=./mjxproto/ --mypy_out=./mjxproto/ ../mjx.proto
+	python3 -m grpc_tools.protoc -I ../mjx/internal --python_out=./mjxproto/ --grpc_python_out=./mjxproto/ --mypy_out=./mjxproto/ mjx.proto
 
 requirements:
 	python3 -m pip install -r requirements.txt

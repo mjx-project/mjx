@@ -1,22 +1,44 @@
+cmake_minimum_required(VERSION 3.11)
 project(mjx_test)
 
-# Clone Google Test
-set(GOOGLETEST_DIR ${CMAKE_CURRENT_SOURCE_DIR}/lib/googletest)
-if(NOT EXISTS ${GOOGLETEST_DIR})
-    find_package(Git REQUIRED)
-    execute_process(
-        COMMAND ${GIT_EXECUTABLE} clone https://github.com/google/googletest ${GOOGLETEST_DIR}
-    )
-endif()
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-include_directories(${gtest_SOURCE_DIR}/include ${gtest_SOURCE_DIR})
-add_subdirectory(${GOOGLETEST_DIR})
+###################################################################################
+# GoogleTest
+###################################################################################
+include(FetchContent)
+set(FETCHCONTENT_BASE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/external)
+set(FETCHCONTENT_QUIET OFF)
+set(FETCHCONTENT_UPDATES_DISCONNECTED ON)
+FetchContent_Declare(
+        googletest
+        GIT_REPOSITORY https://github.com/google/googletest.git
+        GIT_TAG        release-1.10.0
+)
+FetchContent_MakeAvailable(googletest)
 
-file(GLOB TEST_FILES *.cpp)
-add_executable(${PROJECT_NAME} ${TEST_FILES})
-
-target_link_libraries(${PROJECT_NAME} gtest gtest_main)
-target_link_libraries(${PROJECT_NAME} mjx)
-
-# Path to test resources
-add_definitions(-DTEST_RESOURCES_DIR="${CMAKE_CURRENT_SOURCE_DIR}/resources")
+###################################################################################
+# Define target
+###################################################################################
+add_executable(mjx_test
+        action_test.cpp
+        environment_test.cpp
+        game_seed_test.cpp
+        game_summarizer_test.cpp
+        hand_test.cpp
+        observation_test.cpp
+        open_test.cpp
+        shanten_calculator_test.cpp
+        state_test.cpp
+        strategy_rule_based_test.cpp
+        tile_test.cpp
+        type_test.cpp
+        utils_test.cpp
+        wall_test.cpp
+        win_score_test.cpp
+        yaku_evaluator_test.cpp
+)
+target_include_directories(mjx_test PRIVATE ..)
+target_link_libraries(mjx_test PRIVATE gtest gtest_main mjx)
+target_compile_definitions(mjx_test PRIVATE TEST_RESOURCES_DIR="${CMAKE_CURRENT_SOURCE_DIR}/resources")

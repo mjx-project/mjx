@@ -1,4 +1,4 @@
-[![](https://github.com/sotetsuk/mahjong/workflows/build/badge.svg)](https://github.com/sotetsuk/mahjong/actions)
+[![ci](https://github.com/mjx-project/mjx/actions/workflows/ci.yml/badge.svg)](https://github.com/mjx-project/mjx/actions/workflows/ci.yml)
 
 # Mjx
 
