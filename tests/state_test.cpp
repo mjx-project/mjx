@@ -543,15 +543,14 @@ TEST(state, Update) {
   EXPECT_EQ(state_before.ToJson(), state_after.ToJson());
 
   // Riichi後にDiscardして、ロンを拒否したあとにRiichiScoreChange+Drawされる
-  // json_before =
-  //     GetLastJsonLine("upd-bef-riichi+discard-no-riichisc+draw2.json");
-  // json_after =
-  // GetLastJsonLine("upd-aft-riichi+discard-no-riichisc+draw2.json");
-  // state_before = State(json_before);
-  // state_after = State(json_after);
-  // actions = {Action::CreateNo(AbsolutePos::kInitEast)};
-  // state_before.Update(std::move(actions));
-  // EXPECT_EQ(state_before.ToJson(), state_after.ToJson());
+  json_before =
+      GetLastJsonLine("upd-bef-riichi+discard-no-riichisc+draw2.json");
+  json_after = GetLastJsonLine("upd-aft-riichi+discard-no-riichisc+draw2.json");
+  state_before = State(json_before);
+  state_after = State(json_after);
+  actions = {Action::CreateNo(AbsolutePos::kInitEast)};
+  state_before.Update(std::move(actions));
+  EXPECT_EQ(state_before.ToJson(), state_after.ToJson());
 
   // Draw後にDiscardして、通常の流局
   json_before = GetLastJsonLine("upd-bef-draw-discard-nowinner.json");
