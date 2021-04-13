@@ -12,7 +12,7 @@ from google.protobuf import json_format
 
 import mjxproto
 
-from .const import AbsolutePos
+from .const import AbsolutePos, RelativePos
 
 
 class MjlogDecoder:
@@ -415,7 +415,7 @@ class MjlogDecoder:
         elif 1 << 4 & bits:
             return mjxproto.EVENT_TYPE_KAN_ADDED
         else:
-            if bits & 3 == 0:
+            if RelativePos.SELF == bits & 3:
                 return mjxproto.EVENT_TYPE_KAN_CLOSED
             else:
                 return mjxproto.EVENT_TYPE_KAN_OPENED
