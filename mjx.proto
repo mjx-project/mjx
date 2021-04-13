@@ -98,8 +98,6 @@ package mjxproto;
  *  |- ActionType type
  *  |- int32 discard
  *  |- int32 open
- *  |- ActionUtils uitls
- *      |- uint64 game_id
  */
 
 service Agent {
@@ -169,7 +167,6 @@ message Action {
   ActionType type = 2;
   int32 discard = 3;
   int32 open = 4;
-  ActionUtils utils = 5;
 }
 
 message Event {
@@ -268,10 +265,6 @@ message Hand {
 }
 
 // Utilities: information which is not necessary (but may be useful)
-
-message ActionUtils {
-  uint64 game_id = 1;
-}
 
 message ObservationUtils {}
 
