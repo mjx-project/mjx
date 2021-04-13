@@ -465,7 +465,7 @@ void State::Tsumo(AbsolutePos winner) {
   if (IsGameOver()) {
     AbsolutePos top = top_player();
     curr_score_.set_tens(ToUType(top),
-                        curr_score_.tens(ToUType(top)) + 1000 * riichi());
+                         curr_score_.tens(ToUType(top)) + 1000 * riichi());
     curr_score_.set_riichi(0);
   }
   state_.mutable_terminal()->mutable_wins()->Add(std::move(win));
@@ -569,7 +569,7 @@ void State::Ron(AbsolutePos winner) {
   if (IsGameOver()) {
     AbsolutePos top = top_player();
     curr_score_.set_tens(ToUType(top),
-                        curr_score_.tens(ToUType(top)) + 1000 * riichi());
+                         curr_score_.tens(ToUType(top)) + 1000 * riichi());
     curr_score_.set_riichi(0);
   }
   state_.mutable_terminal()->mutable_wins()->Add(std::move(win));
@@ -706,7 +706,7 @@ void State::NoWinner() {
   if (IsGameOver()) {
     AbsolutePos top = top_player();
     curr_score_.set_tens(ToUType(top),
-                        curr_score_.tens(ToUType(top)) + 1000 * riichi());
+                         curr_score_.tens(ToUType(top)) + 1000 * riichi());
     curr_score_.set_riichi(0);
   }
   state_.mutable_terminal()->set_is_game_over(IsGameOver());
