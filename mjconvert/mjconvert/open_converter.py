@@ -4,7 +4,6 @@ from __future__ import annotations
 from typing import List
 
 import mjxproto
-
 from mjconvert.const import RelativePos
 
 
@@ -74,8 +73,7 @@ def is_stolen_red(bits: int, stolen_tile_kind) -> bool:  # TODO: test  さらに
 
     if event_type == mjxproto.EVENT_TYPE_CHI:
         stolen_tile_mod3 = (bits >> 10) % 3  # 鳴いた牌のindex
-        stolen_tile_id_mod4 = (
-            bits >> (3 + 2 * stolen_tile_mod3)) % 4  # 鳴いた牌のi
+        stolen_tile_id_mod4 = (bits >> (3 + 2 * stolen_tile_mod3)) % 4  # 鳴いた牌のi
         return stolen_tile_id_mod4 == 0  # 鳴いた牌のid mod 4=0→赤
     elif event_type == mjxproto.EVENT_TYPE_PON or event_type == mjxproto.EVENT_TYPE_KAN_ADDED:
         unused_id_mod4 = (bits >> 5) % 4  # 未使用牌のid mod 4
@@ -226,8 +224,7 @@ def change_open_tile_fmt(
     if tile_in_open_fmt in reds_in_score:
         return tile_in_open_fmt
     else:
-        tile_in_score = 10 + 10 * \
-            (tile_in_open_fmt // 9) + (tile_in_open_fmt % 9 + 1)
+        tile_in_score = 10 + 10 * (tile_in_open_fmt // 9) + (tile_in_open_fmt % 9 + 1)
         return tile_in_score
 
 

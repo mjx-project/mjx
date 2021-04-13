@@ -12,7 +12,6 @@ import tenhou_wall_reproducer
 from google.protobuf import json_format
 
 import mjxproto
-
 from mjconvert.const import AbsolutePos, RelativePos
 
 
@@ -122,18 +121,15 @@ class MjlogDecoder:
         """
         key, val = kv[0]
         assert key == "INIT"
-        round_, honba, riichi, dice1, dice2, dora = [
-            int(x) for x in val["seed"].split(",")]
+        round_, honba, riichi, dice1, dice2, dora = [int(x) for x in val["seed"].split(",")]
         self.state.init_score.round = round_
         self.state.init_score.honba = honba
         self.state.init_score.riichi = riichi
-        self.state.init_score.tens[:] = [
-            int(x) * 100 for x in val["ten"].split(",")]
+        self.state.init_score.tens[:] = [int(x) * 100 for x in val["ten"].split(",")]
         self.state.terminal.final_score.round = round_
         self.state.terminal.final_score.honba = honba
         self.state.terminal.final_score.riichi = riichi
-        self.state.terminal.final_score.tens[:] = [
-            int(x) * 100 for x in val["ten"].split(",")]
+        self.state.terminal.final_score.tens[:] = [int(x) * 100 for x in val["ten"].split(",")]
         self.state.wall[:] = wall
         self.state.doras.append(dora)
         self.state.ura_doras.append(wall[131])
@@ -146,11 +142,9 @@ class MjlogDecoder:
                 )
             )
         for i in range(4 * 12):
-            assert wall[i] in self.state.private_infos[(
-                (i // 4) + round_) % 4].init_hand
+            assert wall[i] in self.state.private_infos[((i // 4) + round_) % 4].init_hand
         for i in range(4 * 12, 4 * 13):
-            assert wall[i] in self.state.private_infos[(
-                i + round_) % 4].init_hand
+            assert wall[i] in self.state.private_infos[(i + round_) % 4].init_hand
 
         event = None
         num_kan_dora = 0
@@ -198,13 +192,11 @@ class MjlogDecoder:
                 num_kan_dora += 1
                 self.state.doras.append(dora)
                 self.state.ura_doras.append(ura_dora)
-                event = mjxproto.Event(
-                    type=mjxproto.EVENT_TYPE_NEW_DORA, tile=dora)
+                event = mjxproto.Event(type=mjxproto.EVENT_TYPE_NEW_DORA, tile=dora)
             elif key == "RYUUKYOKU":
                 reach_terminal = True
                 self.state.terminal.CopyFrom(
-                    MjlogDecoder.update_terminal_by_no_winner(
-                        self.state.terminal, val)
+                    MjlogDecoder.update_terminal_by_no_winner(self.state.terminal, val)
                 )
                 event = mjxproto.Event(type=mjxproto.EVENT_TYPE_NO_WINNER)
             elif key == "AGARI":
@@ -219,14 +211,11 @@ class MjlogDecoder:
                     tile=int(val["machi"]),
                 )
                 win = MjlogDecoder.make_win(val, who, from_who, modify)
-                assert self.state.doras == [
-                    int(x) for x in val["doraHai"].split(",")]
+                assert self.state.doras == [int(x) for x in val["doraHai"].split(",")]
                 if "doraHaiUra" in val:
-                    assert self.state.ura_doras == [
-                        int(x) for x in val["doraHaiUra"].split(",")]
+                    assert self.state.ura_doras == [int(x) for x in val["doraHaiUra"].split(",")]
                 self.state.terminal.CopyFrom(
-                    MjlogDecoder.update_terminal_by_win(
-                        self.state.terminal, win, val)
+                    MjlogDecoder.update_terminal_by_win(self.state.terminal, win, val)
                 )
 
             elif key == "BYE":  # 接続切れ
@@ -294,8 +283,7 @@ class MjlogDecoder:
                 max_ten = max(terminal.final_score.tens)
                 for i in range(4):
                     if terminal.final_score.tens[i] == max_ten:
-                        terminal.final_score.tens[i] += 1000 * \
-                            terminal.final_score.riichi
+                        terminal.final_score.tens[i] += 1000 * terminal.final_score.riichi
                         break
             terminal.final_score.riichi = 0
             terminal.is_game_over = True
@@ -376,10 +364,8 @@ class MjlogDecoder:
             win.fu = 0
         if "yaku" in val:
             assert "yakuman" not in val
-            yakus = [int(x) for i, x in enumerate(
-                val["yaku"].split(",")) if i % 2 == 0]
-            fans = [int(x) for i, x in enumerate(
-                val["yaku"].split(",")) if i % 2 == 1]
+            yakus = [int(x) for i, x in enumerate(val["yaku"].split(",")) if i % 2 == 0]
+            fans = [int(x) for i, x in enumerate(val["yaku"].split(",")) if i % 2 == 1]
             yaku_fan = [(yaku, fan) for yaku, fan in zip(yakus, fans)]
             if modify:
                 yaku_fan.sort(key=lambda x: x[0])
@@ -387,8 +373,7 @@ class MjlogDecoder:
             win.fans[:] = [x[1] for x in yaku_fan]
         if "yakuman" in val:
             assert "yaku" not in val
-            yakumans = [int(x)
-                        for i, x in enumerate(val["yakuman"].split(","))]
+            yakumans = [int(x) for i, x in enumerate(val["yakuman"].split(","))]
             if modify:
                 yakumans.sort()
             win.yakumans[:] = yakumans
