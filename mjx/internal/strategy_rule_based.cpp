@@ -106,12 +106,12 @@ Tile StrategyRuleBased::SelectDiscard(std::vector<Tile> &discard_candidates,
   if (curr_hand.CanTakeTenpai()) {
     auto tenpai_discards = curr_hand.PossibleDiscardsToTakeTenpai();
     for (const auto tile : discard_candidates) {
-      if (Any(tile, tenpai_discards)) {
+      if (std::any_of(tenpai_discards.begin(), tenpai_discards.end(),
+                      [&tile](const auto& x){ return x.first == tile; })) {
         return tile;
       }
     }
     Assert(false, "discard_candidates: " + Tile::ToString(discard_candidates) +
-                      "\ntenpai_discards: " + Tile::ToString(tenpai_discards) +
                       "\ncurr_hand.ToVectorClosed(): " +
                       Tile::ToString(curr_hand.ToVectorClosed(true)));
   }

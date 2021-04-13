@@ -13,11 +13,21 @@ mjxproto::Action Action::CreateDiscard(AbsolutePos who, Tile discard) {
   return proto;
 }
 
-std::vector<mjxproto::Action> Action::CreateDiscards(
-    AbsolutePos who, const std::vector<Tile>& discards) {
+mjxproto::Action Action::CreateTsumogiri(AbsolutePos who, Tile discard) {
+  mjxproto::Action proto;
+  proto.set_type(mjxproto::ACTION_TYPE_TSUMOGIRI);
+  proto.set_who(mjxproto::AbsolutePos(who));
+  proto.set_discard(discard.Id());
+  Assert(IsValid(proto));
+  return proto;
+}
+
+std::vector<mjxproto::Action> Action::CreateDiscardsAndTsumogiri(
+    AbsolutePos who, const std::vector<std::pair<Tile, bool>>& discards) {
   std::vector<mjxproto::Action> ret;
-  for (auto tile : discards) {
-    ret.push_back(CreateDiscard(who, tile));
+  for (const auto& [tile, tsumogiri] : discards) {
+    if (tsumogiri) ret.push_back(CreateTsumogiri(who, tile));
+    else ret.push_back(CreateDiscard(who, tile));
   }
   return ret;
 }

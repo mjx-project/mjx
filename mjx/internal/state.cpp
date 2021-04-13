@@ -135,8 +135,8 @@ std::unordered_map<PlayerId, Observation> State::CreateObservations() const {
         observation.add_possible_action(Action::CreateRiichi(who));
 
       // => Discard (4)
-      observation.add_possible_actions(
-          Action::CreateDiscards(who, hand(who).PossibleDiscards()));
+      observation.add_possible_actions(Action::CreateDiscardsAndTsumogiri(
+          who, hand(who).PossibleDiscards()));
 
       return {{player_id, std::move(observation)}};
     }
@@ -144,7 +144,7 @@ std::unordered_map<PlayerId, Observation> State::CreateObservations() const {
       // => Discard (5)
       auto who = AbsolutePos(LastEvent().who());
       auto observation = Observation(who, state_);
-      observation.add_possible_actions(Action::CreateDiscards(
+      observation.add_possible_actions(Action::CreateDiscardsAndTsumogiri(
           who, hand(who).PossibleDiscardsJustAfterRiichi()));
       return {{player(who).player_id, std::move(observation)}};
     }
@@ -153,8 +153,8 @@ std::unordered_map<PlayerId, Observation> State::CreateObservations() const {
       // => Discard (6)
       auto who = AbsolutePos(LastEvent().who());
       auto observation = Observation(who, state_);
-      observation.add_possible_actions(
-          Action::CreateDiscards(who, hand(who).PossibleDiscards()));
+      observation.add_possible_actions(Action::CreateDiscardsAndTsumogiri(
+          who, hand(who).PossibleDiscards()));
       return {{player(who).player_id, std::move(observation)}};
     }
     case mjxproto::EVENT_TYPE_DISCARD_FROM_HAND:
@@ -1092,15 +1092,15 @@ void State::Update(mjxproto::Action &&action) {
       Assert(
           LastEvent().type() == mjxproto::EVENT_TYPE_RIICHI ||
               Any(hand(who).PossibleDiscards(),
-                  [&action](Tile possible_discard) {
-                    return possible_discard.Equals(Tile(action.discard()));
+                  [&action](const auto& possible_discard) {
+                    return possible_discard.first.Equals(Tile(action.discard()));
                   }),
           "State = " + ToJson() + "\n" + "Hand = " + hand(who).ToString(true));
       Assert(
           LastEvent().type() != mjxproto::EVENT_TYPE_RIICHI ||
               Any(hand(who).PossibleDiscardsJustAfterRiichi(),
-                  [&action](Tile possible_discard) {
-                    return possible_discard.Equals(Tile(action.discard()));
+                  [&action](const auto& possible_discard) {
+                    return possible_discard.first.Equals(Tile(action.discard()));
                   }),
           "State = " + ToJson() + "\n" + "Hand = " + hand(who).ToString(true));
       {
