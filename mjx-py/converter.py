@@ -71,10 +71,14 @@ to_unicode = {
     33: "\U0001F004\uFE0E",
 }
 to_wind_char = {
-    0: "東",
-    1: "南",
-    2: "西",
-    3: "北",
+    0: "EAST",
+    1: "SOUTH",
+    2: "WEST",
+    3: "NORTH",
+    4: "東",
+    5: "南",
+    6: "西",
+    7: "北",
 }
 to_actiontype = {
     0: "ACTION_TYPE_DISCARD",
@@ -112,7 +116,7 @@ def get_tile_char(tile_id: int, is_using_unicode: bool) -> str:
 
 
 def get_wind_char(wind: int) -> str:
-    if 0 <= wind < 4:
+    if 0 <= wind < 8:
         return to_wind_char[wind]
     else:
         return " "
