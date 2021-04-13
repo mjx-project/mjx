@@ -1,10 +1,11 @@
-from __future__ import annotations  # postpone type hint evaluation or doctest fails
+# postpone type hint evaluation or doctest fails
+from __future__ import annotations
 
 from typing import List
 
 import mjxproto
 
-from .const import RelativePos
+from mjconvert.const import RelativePos
 
 
 def open_event_type(bits: int) -> mjxproto.EventTypeValue:
@@ -73,7 +74,8 @@ def is_stolen_red(bits: int, stolen_tile_kind) -> bool:  # TODO: test  さらに
 
     if event_type == mjxproto.EVENT_TYPE_CHI:
         stolen_tile_mod3 = (bits >> 10) % 3  # 鳴いた牌のindex
-        stolen_tile_id_mod4 = (bits >> (3 + 2 * stolen_tile_mod3)) % 4  # 鳴いた牌のi
+        stolen_tile_id_mod4 = (
+            bits >> (3 + 2 * stolen_tile_mod3)) % 4  # 鳴いた牌のi
         return stolen_tile_id_mod4 == 0  # 鳴いた牌のid mod 4=0→赤
     elif event_type == mjxproto.EVENT_TYPE_PON or event_type == mjxproto.EVENT_TYPE_KAN_ADDED:
         unused_id_mod4 = (bits >> 5) % 4  # 未使用牌のid mod 4
@@ -107,7 +109,8 @@ def has_red_chi(bits: int) -> bool:  # TODO テストgit
             assert False
 
 
-def has_red_pon_kan_added(bits: int) -> bool:  # TODO テスト ポンとカカンは未使用牌が赤かどうかで鳴牌に赤があるか判断
+# TODO テスト ポンとカカンは未使用牌が赤かどうかで鳴牌に赤があるか判断
+def has_red_pon_kan_added(bits: int) -> bool:
     fives = [4, 13, 22, 51, 52, 53]
     stolen_tile_kind = open_stolen_tile_type(bits)
     if stolen_tile_kind in fives:
@@ -223,7 +226,8 @@ def change_open_tile_fmt(
     if tile_in_open_fmt in reds_in_score:
         return tile_in_open_fmt
     else:
-        tile_in_score = 10 + 10 * (tile_in_open_fmt // 9) + (tile_in_open_fmt % 9 + 1)
+        tile_in_score = 10 + 10 * \
+            (tile_in_open_fmt // 9) + (tile_in_open_fmt % 9 + 1)
         return tile_in_score
 
 

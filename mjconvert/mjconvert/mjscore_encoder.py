@@ -1,4 +1,5 @@
-from __future__ import annotations  # postpone type hint evaluation or doctest fails
+# postpone type hint evaluation or doctest fails
+from __future__ import annotations
 
 import json
 from typing import Dict, List
@@ -6,7 +7,7 @@ from typing import Dict, List
 import mjxproto
 from mjconvert import open_converter
 
-from .const import AbsolutePos, RelativePos
+from mjconvert.const import AbsolutePos, RelativePos
 
 
 def _change_tile_fmt(tile_id: int) -> int:
@@ -16,13 +17,15 @@ def _change_tile_fmt(tile_id: int) -> int:
     if tile_id in reds_in_mjxproto:
         tile_in_mjscore = reds_dict[tile_id]
     else:
-        tile_in_mjscore = ((tile_id // 36) + 1) * 10 + ((tile_id % 36) // 4) + 1
+        tile_in_mjscore = ((tile_id // 36) + 1) * 10 + \
+            ((tile_id % 36) // 4) + 1
     return tile_in_mjscore
 
 
 # mjxproto形式の牌のリストを引数にとり、表現をmjscore形式の表現に変える関数
 def _change_tiles_fmt(tile_ids):
-    scores = list(map(_change_tile_fmt, tile_ids))  # mjxproto形式の表現ををmjscore形式に変換
+    # mjxproto形式の表現ををmjscore形式に変換
+    scores = list(map(_change_tile_fmt, tile_ids))
     return scores
 
 
@@ -30,8 +33,10 @@ def _change_tiles_fmt(tile_ids):
 def _change_action_format(bits: int) -> str:  # TODO カン
     event_type = open_converter.open_event_type(bits)
     open_from = open_converter.open_from(bits)
-    stolen_tile = open_converter.change_open_tile_fmt(open_converter.open_stolen_tile_type(bits))
-    open_tiles = open_converter.change_open_tiles_fmt(open_converter.open_tile_types(bits))
+    stolen_tile = open_converter.change_open_tile_fmt(
+        open_converter.open_stolen_tile_type(bits))
+    open_tiles = open_converter.change_open_tiles_fmt(
+        open_converter.open_tile_types(bits))
     open_tiles.remove(stolen_tile)
     if event_type == mjxproto.EVENT_TYPE_CHI:  # チー
         return "c" + str(stolen_tile) + str(open_tiles[0]) + str(open_tiles[1])
@@ -172,7 +177,8 @@ def parse_draws(draws, events, abs_pos):
         ):  # 捨て牌の情報には暗槓も含まれているので、追加しないとずれる。
             discards.append(_change_action_format(event.open))
     for i, action in enumerate(actions):
-        action_index = discards.index(action) - i  # 捨て牌でのactionのindex同じ順にdrawにアクションを挿入すれば良い
+        # 捨て牌でのactionのindex同じ順にdrawにアクションを挿入すれば良い
+        action_index = discards.index(action) - i
         draws.insert(action_index, _change_action_format(action))
     return draws
 
@@ -262,9 +268,12 @@ non_dealer_tsumo_dict = {
     24000: "6000-12000",
     32000: "8000-16000",
 }
-no_winner_dict = {0: "流局", 1: "九種九牌", 2: "四家立直", 3: "三家和了", 4: "四槓散了", 5: "四風連打"}
-dealer_point_dict = {12000: "満貫", 18000: "跳満", 24000: "倍満", 36000: "三倍満", 48000: "役満"}
-no_dealer_point_dict = {8000: "満貫", 12000: "跳満", 16000: "倍満", 24000: "三倍満", 32000: "役満"}
+no_winner_dict = {0: "流局", 1: "九種九牌",
+                  2: "四家立直", 3: "三家和了", 4: "四槓散了", 5: "四風連打"}
+dealer_point_dict = {12000: "満貫", 18000: "跳満",
+                     24000: "倍満", 36000: "三倍満", 48000: "役満"}
+no_dealer_point_dict = {8000: "満貫", 12000: "跳満",
+                        16000: "倍満", 24000: "三倍満", 32000: "役満"}
 
 
 def _fan_fu(who, fans: List[int], fu: int, ten, round: int) -> str:
@@ -371,13 +380,15 @@ def _yaku_point_info(state: mjxproto.State, winner_num: int):
     from_who = state.terminal.wins[winner_num].from_who
     fans = [i for i in state.terminal.wins[winner_num].fans]  # [役での飜数, ドラの数]
     yakumans = [i for i in state.terminal.wins[winner_num].yakumans]
-    yakus = _ditermin_yaku_list(fans, [i for i in state.terminal.wins[winner_num].yakus], yakumans)
+    yakus = _ditermin_yaku_list(
+        fans, [i for i in state.terminal.wins[winner_num].yakus], yakumans)
     fu = state.terminal.wins[winner_num].fu
     ten = state.terminal.wins[winner_num].ten
     # fnas:[役での飜数, ドラでの飜数]
     # yakus: [役とドラの種類]
     # ten: 純粋に上がり点が表示される。ツモ上がりの際の対応が必要
-    yaku_point_infos = [who, from_who, who, _winner_point(who, from_who, fans, fu, ten, round)]
+    yaku_point_infos = [who, from_who, who, _winner_point(
+        who, from_who, fans, fu, ten, round)]
     yaku_point_infos.extend(_winner_yakus(yakus, fans, yakumans))
     return yaku_point_infos
 
@@ -428,9 +439,11 @@ def mjxproto_to_mjscore(state: mjxproto.State) -> str:
         AbsolutePos.INIT_NORTH,
     ]
     for abs_pos in absolute_pos:
-        log.append(sort_init_hand(_change_tiles_fmt(state.private_infos[abs_pos].init_hand)))
+        log.append(sort_init_hand(_change_tiles_fmt(
+            state.private_infos[abs_pos].init_hand)))
         log.append(
-            parse_draws(state.private_infos[abs_pos].draws, state.event_history.events, abs_pos)
+            parse_draws(
+                state.private_infos[abs_pos].draws, state.event_history.events, abs_pos)
         )
         log.append(parse_discards(state.event_history.events, abs_pos))
 
