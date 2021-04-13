@@ -185,7 +185,7 @@ std::unordered_map<PlayerId, Observation> State::CreateObservations() const {
 mjxproto::State State::LoadJson(const std::string &json_str) {
   mjxproto::State state = mjxproto::State();
   auto status = google::protobuf::util::JsonStringToMessage(json_str, &state);
-  Assert(status.ok());
+  Assert(status.ok(), "json_str: \n" + json_str);
   return state;
 }
 
