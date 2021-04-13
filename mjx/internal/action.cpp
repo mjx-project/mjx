@@ -74,7 +74,7 @@ mjxproto::Action Action::CreateNineTiles(AbsolutePos who) {
 bool Action::IsValid(const mjxproto::Action& action) {
   auto type = action.type();
   auto who = action.who();
-  if (who < 0 or who > 3) return false;
+  if (who < 0 or 3 < who) return false;
   switch (type) {
     case mjxproto::ACTION_TYPE_DISCARD:
       if (!(0 <= action.discard() && action.discard() < 136)) return false;
