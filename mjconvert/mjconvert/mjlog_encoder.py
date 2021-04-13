@@ -249,10 +249,10 @@ class MjlogEncoder:
         pao_from = None
         if is_pao:
             for i, x in enumerate(win.ten_changes):
-                if mjxproto.AbsolutePos.values()[i] == win.from_who:
+                if i == win.from_who:
                     continue
                 if x <= -8000:
-                    pao_from = mjxproto.AbsolutePos.values()[i]
+                    pao_from = i
         if pao_from is not None:
             ret += f'paoWho="{pao_from}" '
         ret += f'sc="{",".join([str(x) for x in sc])}" '
@@ -265,11 +265,11 @@ class MjlogEncoder:
         return f'<UN n0="{players[0]}" n1="{players[1]}" n2="{players[2]}" n3="{players[3]}"/>'
 
     @staticmethod
-    def _encode_absolute_pos_for_draw(who: mjxproto.AbsolutePosValue) -> str:
+    def _encode_absolute_pos_for_draw(who: int) -> str:
         return ["T", "U", "V", "W"][int(who)]
 
     @staticmethod
-    def _encode_absolute_pos_for_discard(who: mjxproto.AbsolutePosValue) -> str:
+    def _encode_absolute_pos_for_discard(who: int) -> str:
         return ["D", "E", "F", "G"][int(who)]
 
     @staticmethod

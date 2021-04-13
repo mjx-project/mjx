@@ -1,8 +1,10 @@
-from __future__ import annotations  # postpone type hint evaluation or doctest fails
+# postpone type hint evaluation or doctest fails
+from __future__ import annotations
 
 from typing import List
 
 import mjxproto
+from mjconvert.const import RelativePos
 
 
 def open_event_type(bits: int) -> mjxproto.EventTypeValue:
@@ -21,33 +23,33 @@ def open_event_type(bits: int) -> mjxproto.EventTypeValue:
     elif 1 << 4 & bits:
         return mjxproto.EVENT_TYPE_KAN_ADDED
     else:
-        if mjxproto.RELATIVE_POS_SELF == bits & 3:
+        if RelativePos.SELF == bits & 3:
             return mjxproto.EVENT_TYPE_KAN_CLOSED
         else:
             return mjxproto.EVENT_TYPE_KAN_OPENED
 
 
-def open_from(bits: int) -> mjxproto.RelativePosValue:
+def open_from(bits: int) -> RelativePos:
     """
-    >>> open_from(51306) == mjxproto.RELATIVE_POS_MID  # 対面
+    >>> open_from(51306) == RelativePos.MID  # 対面
     True
-    >>> open_from(49495) == mjxproto.RELATIVE_POS_LEFT  # 上家
+    >>> open_from(49495) == RelativePos.LEFT  # 上家
     True
-    >>> open_from(28722) == mjxproto.RELATIVE_POS_MID  # 加槓
+    >>> open_from(28722) == RelativePos.MID  # 加槓
     True
     """
 
     event_type = open_event_type(bits)
     if event_type == mjxproto.EVENT_TYPE_CHI:
-        return mjxproto.RELATIVE_POS_LEFT
+        return RelativePos.LEFT
     elif (
         event_type == mjxproto.EVENT_TYPE_PON
         or event_type == mjxproto.EVENT_TYPE_KAN_OPENED
         or event_type == mjxproto.EVENT_TYPE_KAN_ADDED
     ):
-        return mjxproto.RelativePos.values()[bits & 3]
+        return RelativePos(bits & 3)
     else:
-        return mjxproto.RELATIVE_POS_SELF
+        return RelativePos.SELF
 
 
 def _min_tile_chi(bits: int) -> int:
@@ -105,7 +107,8 @@ def has_red_chi(bits: int) -> bool:  # TODO テストgit
             assert False
 
 
-def has_red_pon_kan_added(bits: int) -> bool:  # TODO テスト ポンとカカンは未使用牌が赤かどうかで鳴牌に赤があるか判断
+# TODO テスト ポンとカカンは未使用牌が赤かどうかで鳴牌に赤があるか判断
+def has_red_pon_kan_added(bits: int) -> bool:
     fives = [4, 13, 22, 51, 52, 53]
     stolen_tile_kind = open_stolen_tile_type(bits)
     if stolen_tile_kind in fives:
