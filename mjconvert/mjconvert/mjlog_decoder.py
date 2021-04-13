@@ -12,6 +12,8 @@ from google.protobuf import json_format
 
 import mjxproto
 
+from .const import AbsolutePos
+
 
 class MjlogDecoder:
     def __init__(self, modify: bool):
@@ -395,13 +397,13 @@ class MjlogDecoder:
     def _to_absolute_pos(pos_str: str) -> int:
         assert pos_str in ["T", "U", "V", "W", "D", "E", "F", "G"]
         if pos_str in ["T", "D"]:
-            return 0
+            return AbsolutePos.INIT_EAST
         elif pos_str in ["U", "E"]:
-            return 1
+            return AbsolutePos.INIT_SOUTH
         elif pos_str in ["V", "F"]:
-            return 2
+            return AbsolutePos.INIT_WEST
         elif pos_str in ["W", "G"]:
-            return 3
+            return AbsolutePos.INIT_NORTH
         assert False
 
     @staticmethod
