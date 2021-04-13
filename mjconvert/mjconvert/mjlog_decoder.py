@@ -122,11 +122,11 @@ class MjlogDecoder:
         self.state.init_score.round = round_
         self.state.init_score.honba = honba
         self.state.init_score.riichi = riichi
-        self.state.init_score.ten[:] = [int(x) * 100 for x in val["ten"].split(",")]
+        self.state.init_score.tens[:] = [int(x) * 100 for x in val["ten"].split(",")]
         self.state.terminal.final_score.round = round_
         self.state.terminal.final_score.honba = honba
         self.state.terminal.final_score.riichi = riichi
-        self.state.terminal.final_score.ten[:] = [int(x) * 100 for x in val["ten"].split(",")]
+        self.state.terminal.final_score.tens[:] = [int(x) * 100 for x in val["ten"].split(",")]
         self.state.wall[:] = wall
         self.state.doras.append(dora)
         self.state.ura_doras.append(wall[131])
@@ -181,7 +181,7 @@ class MjlogDecoder:
                         type=mjxproto.EVENT_TYPE_RIICHI_SCORE_CHANGE,
                     )
                     self.state.terminal.final_score.riichi += 1
-                    self.state.terminal.final_score.ten[who] -= 1000
+                    self.state.terminal.final_score.tens[who] -= 1000
             elif key == "DORA":
                 dora = wall[128 - 2 * num_kan_dora]
                 assert dora == int(val["hai"])
@@ -231,7 +231,7 @@ class MjlogDecoder:
             self.state.ClearField("terminal")
         else:
             assert (
-                sum(self.state.terminal.final_score.ten)
+                sum(self.state.terminal.final_score.tens)
                 + self.state.terminal.final_score.riichi * 1000
                 == 100000
             )
@@ -243,7 +243,7 @@ class MjlogDecoder:
         terminal: mjxproto.Terminal, win: mjxproto.Win, val: Dict[str, str]
     ) -> mjxproto.Terminal:
         for i in range(4):
-            terminal.final_score.ten[i] += win.ten_changes[i]
+            terminal.final_score.tens[i] += win.ten_changes[i]
         terminal.final_score.riichi = 0
         terminal.wins.append(win)
         if "owari" in val:
@@ -259,7 +259,7 @@ class MjlogDecoder:
             int(x) * 100 for i, x in enumerate(val["sc"].split(",")) if i % 2 == 1
         ]
         for i in range(4):
-            terminal.final_score.ten[i] += terminal.no_winner.ten_changes[i]
+            terminal.final_score.tens[i] += terminal.no_winner.ten_changes[i]
         for i in range(4):
             hai_key = "hai" + str(i)
             if hai_key not in val:
@@ -277,10 +277,10 @@ class MjlogDecoder:
             # TODO: 同着トップ時には上家が総取りしてるが正しい？
             # TODO: 上家総取りになってない。。。
             if terminal.final_score.riichi != 0:
-                max_ten = max(terminal.final_score.ten)
+                max_ten = max(terminal.final_score.tens)
                 for i in range(4):
-                    if terminal.final_score.ten[i] == max_ten:
-                        terminal.final_score.ten[i] += 1000 * terminal.final_score.riichi
+                    if terminal.final_score.tens[i] == max_ten:
+                        terminal.final_score.tens[i] += 1000 * terminal.final_score.riichi
                         break
             terminal.final_score.riichi = 0
             terminal.is_game_over = True

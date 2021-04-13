@@ -417,7 +417,7 @@ def mjxproto_to_mjscore(state: mjxproto.State) -> str:
     riichi: int = state.init_score.riichi
     doras: List[int] = [_change_tile_fmt(i) for i in state.doras]
     ura_doras = determine_ura_doras_list(state)
-    init_score: List[int] = [i for i in state.init_score.ten]
+    init_score: List[int] = [i for i in state.init_score.tens]
     log = [[round, honba, riichi], init_score, doras, ura_doras]
     absolute_pos = [
         mjxproto.ABSOLUTE_POS_INIT_EAST,
