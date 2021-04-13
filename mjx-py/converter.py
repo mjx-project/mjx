@@ -115,8 +115,10 @@ def get_tile_char(tile_id: int, is_using_unicode: bool) -> str:
         return to_char[tile_id // 4]
 
 
-def get_wind_char(wind: int) -> str:
-    if 0 <= wind < 8:
+def get_wind_char(wind: int, lang: int = 0) -> str:
+    if 0 <= wind < 4:
+        if lang == 1:
+            return to_wind_char[wind + 4]
         return to_wind_char[wind]
     else:
         return " "
