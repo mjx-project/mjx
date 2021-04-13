@@ -545,7 +545,8 @@ TEST(state, Update) {
   // Riichi後にDiscardして、ロンを拒否したあとにRiichiScoreChange+Drawされる
   // json_before =
   //     GetLastJsonLine("upd-bef-riichi+discard-no-riichisc+draw2.json");
-  // json_after = GetLastJsonLine("upd-aft-riichi+discard-no-riichisc+draw2.json");
+  // json_after =
+  // GetLastJsonLine("upd-aft-riichi+discard-no-riichisc+draw2.json");
   // state_before = State(json_before);
   // state_after = State(json_after);
   // actions = {Action::CreateNo(AbsolutePos::kInitEast)};
