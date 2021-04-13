@@ -32,7 +32,7 @@ State::State(std::vector<PlayerId> player_ids, std::uint64_t game_seed,
   state_.mutable_init_score()->set_round(round);
   state_.mutable_init_score()->set_honba(honba);
   state_.mutable_init_score()->set_riichi(riichi);
-  for (int i = 0; i < 4; ++i) state_.mutable_init_score()->add_ten(tens[i]);
+  for (int i = 0; i < 4; ++i) state_.mutable_init_score()->add_tens(tens[i]);
   curr_score_.CopyFrom(state_.init_score());
   // wall
   for (auto t : wall_.tiles()) state_.mutable_wall()->Add(t.Id());
@@ -380,7 +380,7 @@ void State::AddNewDora() {
 void State::RiichiScoreChange() {
   auto who = AbsolutePos(LastEvent().who());
   curr_score_.set_riichi(riichi() + 1);
-  curr_score_.set_ten(ToUType(who), ten(who) - 1000);
+  curr_score_.set_tens(ToUType(who), ten(who) - 1000);
 
   state_.mutable_event_history()->mutable_events()->Add(
       Event::CreateRiichiScoreChange(who));
@@ -458,14 +458,14 @@ void State::Tsumo(AbsolutePos winner) {
   for (int i = 0; i < 4; ++i) win.add_ten_changes(0);
   for (const auto &[who, ten_move] : ten_moves) {
     win.set_ten_changes(ToUType(who), ten_move);
-    curr_score_.set_ten(ToUType(who), ten(who) + ten_move);
+    curr_score_.set_tens(ToUType(who), ten(who) + ten_move);
   }
 
   // set terminal
   if (IsGameOver()) {
     AbsolutePos top = top_player();
-    curr_score_.set_ten(ToUType(top),
-                        curr_score_.ten(ToUType(top)) + 1000 * riichi());
+    curr_score_.set_tens(ToUType(top),
+                        curr_score_.tens(ToUType(top)) + 1000 * riichi());
     curr_score_.set_riichi(0);
   }
   state_.mutable_terminal()->mutable_wins()->Add(std::move(win));
@@ -562,14 +562,14 @@ void State::Ron(AbsolutePos winner) {
   for (int i = 0; i < 4; ++i) win.add_ten_changes(0);
   for (const auto &[who, ten_move] : ten_moves) {
     win.set_ten_changes(ToUType(who), ten_move);
-    curr_score_.set_ten(ToUType(who), ten(who) + ten_move);
+    curr_score_.set_tens(ToUType(who), ten(who) + ten_move);
   }
 
   // set win to terminal
   if (IsGameOver()) {
     AbsolutePos top = top_player();
-    curr_score_.set_ten(ToUType(top),
-                        curr_score_.ten(ToUType(top)) + 1000 * riichi());
+    curr_score_.set_tens(ToUType(top),
+                        curr_score_.tens(ToUType(top)) + 1000 * riichi());
     curr_score_.set_riichi(0);
   }
   state_.mutable_terminal()->mutable_wins()->Add(std::move(win));
@@ -699,14 +699,14 @@ void State::NoWinner() {
   for (int i = 0; i < 4; ++i) {
     state_.mutable_terminal()->mutable_no_winner()->add_ten_changes(
         ten_move[i]);
-    curr_score_.set_ten(i, ten(AbsolutePos(i)) + ten_move[i]);
+    curr_score_.set_tens(i, ten(AbsolutePos(i)) + ten_move[i]);
   }
 
   // set terminal
   if (IsGameOver()) {
     AbsolutePos top = top_player();
-    curr_score_.set_ten(ToUType(top),
-                        curr_score_.ten(ToUType(top)) + 1000 * riichi());
+    curr_score_.set_tens(ToUType(top),
+                        curr_score_.tens(ToUType(top)) + 1000 * riichi());
     curr_score_.set_riichi(0);
   }
   state_.mutable_terminal()->set_is_game_over(IsGameOver());
@@ -781,14 +781,14 @@ std::uint64_t State::game_seed() const { return state_.game_seed(); }
 
 std::array<std::int32_t, 4> State::tens() const {
   std::array<std::int32_t, 4> tens_{};
-  for (int i = 0; i < 4; ++i) tens_[i] = curr_score_.ten(i);
+  for (int i = 0; i < 4; ++i) tens_[i] = curr_score_.tens(i);
   return tens_;
 }
 
 Wind State::prevalent_wind() const { return Wind(round() / 4); }
 
 std::int32_t State::ten(AbsolutePos who) const {
-  return curr_score_.ten(ToUType(who));
+  return curr_score_.tens(ToUType(who));
 }
 
 State::ScoreInfo State::Next() const {
@@ -826,7 +826,7 @@ std::uint8_t State::init_riichi() const { return state_.init_score().riichi(); }
 
 std::array<std::int32_t, 4> State::init_tens() const {
   std::array<std::int32_t, 4> tens_{};
-  for (int i = 0; i < 4; ++i) tens_[i] = state_.init_score().ten(i);
+  for (int i = 0; i < 4; ++i) tens_[i] = state_.init_score().tens(i);
   return tens_;
 }
 
@@ -1258,7 +1258,7 @@ AbsolutePos State::top_player() const {
   int top_ix = 0;
   int top_ten = INT_MIN;
   for (int i = 0; i < 4; ++i) {
-    int ten = curr_score_.ten(i) +
+    int ten = curr_score_.tens(i) +
               (4 - i);  // 同着なら起家から順に優先のため +4, +3, +2, +1
     if (top_ten < ten) {
       top_ix = i;
