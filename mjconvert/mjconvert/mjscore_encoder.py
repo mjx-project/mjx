@@ -6,6 +6,8 @@ from typing import Dict, List
 import mjxproto
 from mjconvert import open_converter
 
+from .const import AbsolutePos, RelativePos
+
 
 def _change_tile_fmt(tile_id: int) -> int:
     reds_in_mjxproto = [16, 52, 88]
@@ -34,14 +36,14 @@ def _change_action_format(bits: int) -> str:  # TODO カン
     if event_type == mjxproto.EVENT_TYPE_CHI:  # チー
         return "c" + str(stolen_tile) + str(open_tiles[0]) + str(open_tiles[1])
     elif event_type == mjxproto.EVENT_TYPE_PON:  # ポン
-        if open_from == mjxproto.RELATIVE_POS_LEFT:
+        if open_from == RelativePos.LEFT:
             return "p" + str(stolen_tile) + str(open_tiles[0]) + str(open_tiles[1])
-        elif open_from == mjxproto.RELATIVE_POS_MID:
+        elif open_from == RelativePos.MID:
             return str(open_tiles[0]) + "p" + str(stolen_tile) + str(open_tiles[1])
         else:
             return str(open_tiles[0]) + str(open_tiles[1]) + "p" + str(stolen_tile)
     elif event_type == mjxproto.EVENT_TYPE_KAN_ADDED:  # 加槓
-        if open_from == mjxproto.RELATIVE_POS_LEFT:
+        if open_from == RelativePos.LEFT:
             return (
                 "k"
                 + str(stolen_tile)
@@ -49,7 +51,7 @@ def _change_action_format(bits: int) -> str:  # TODO カン
                 + str(open_tiles[1])
                 + str(open_tiles[2])
             )
-        elif open_from == mjxproto.RELATIVE_POS_MID:
+        elif open_from == RelativePos.MID:
             return (
                 str(open_tiles[0])
                 + "k"
@@ -68,7 +70,7 @@ def _change_action_format(bits: int) -> str:  # TODO カン
     elif event_type == mjxproto.EVENT_TYPE_KAN_CLOSED:  # 暗槓
         return str(stolen_tile) + str(stolen_tile) + str(stolen_tile) + "a" + str(open_tiles[-1])
     else:  # 明槓
-        if open_from == mjxproto.RELATIVE_POS_LEFT:
+        if open_from == RelativePos.LEFT:
             return (
                 "m"
                 + str(stolen_tile)
@@ -76,7 +78,7 @@ def _change_action_format(bits: int) -> str:  # TODO カン
                 + str(open_tiles[1])
                 + str(open_tiles[2])
             )
-        elif open_from == mjxproto.RELATIVE_POS_MID:
+        elif open_from == RelativePos.MID:
             return (
                 str(open_tiles[0])
                 + "m"
@@ -312,7 +314,7 @@ def _winner_point(who: int, from_who: int, fans: List[int], fu: int, ten: int, r
         else:
             return _fan_fu(who, fans, fu, ten, round) + non_dealer_tsumo_dict[ten] + "点"
     else:
-        if who == mjxproto.ABSOLUTE_POS_INIT_EAST:
+        if who == AbsolutePos.INIT_EAST:
             return _fan_fu(who, fans, fu, ten, round) + str(ten) + "点"
         else:
             return _fan_fu(who, fans, fu, ten, round) + str(ten) + "点"
@@ -420,10 +422,10 @@ def mjxproto_to_mjscore(state: mjxproto.State) -> str:
     init_score: List[int] = [i for i in state.init_score.tens]
     log = [[round, honba, riichi], init_score, doras, ura_doras]
     absolute_pos = [
-        mjxproto.ABSOLUTE_POS_INIT_EAST,
-        mjxproto.ABSOLUTE_POS_INIT_SOUTH,
-        mjxproto.ABSOLUTE_POS_INIT_WEST,
-        mjxproto.ABSOLUTE_POS_INIT_NORTH,
+        AbsolutePos.INIT_EAST,
+        AbsolutePos.INIT_SOUTH,
+        AbsolutePos.INIT_WEST,
+        AbsolutePos.INIT_NORTH,
     ]
     for abs_pos in absolute_pos:
         log.append(sort_init_hand(_change_tiles_fmt(state.private_infos[abs_pos].init_hand)))
