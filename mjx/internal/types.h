@@ -142,7 +142,7 @@ enum class AbsolutePos : std::uint8_t {
   kInitSouth = 1,
   kInitWest = 2,
   kInitNorth = 3,  // ラス親
-  kEnd,                                            // Dummy
+  kEnd,            // Dummy
   kBegin = 0
 };
 
@@ -150,8 +150,8 @@ enum class RelativePos : std::uint8_t  // Order follows mjlog
 {
   kSelf = 0,
   kRight = 1,  // 下家
-  kMid = 2,      // 対面
-  kLeft = 3     // 上家
+  kMid = 2,    // 対面
+  kLeft = 3    // 上家
 };
 
 enum class OpenType : std::uint8_t {

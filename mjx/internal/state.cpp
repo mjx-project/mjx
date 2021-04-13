@@ -1047,8 +1047,7 @@ void State::Update(std::vector<mjxproto::Action> &&action_candidates) {
         // 三家和了
         std::vector<int> ron = {0, 0, 0, 0};
         for (const auto &action : action_candidates) {
-          if (action.type() == mjxproto::ACTION_TYPE_RON)
-            ron[action.who()] = 1;
+          if (action.type() == mjxproto::ACTION_TYPE_RON) ron[action.who()] = 1;
         }
         Assert(std::accumulate(ron.begin(), ron.end(), 0) == 3);
         for (int i = 0; i < 4; ++i) {
