@@ -108,8 +108,8 @@ service Agent {
 
 enum ActionType {
   // After someone's draw
-  ACTION_TYPE_DISCARD_FROM_HAND = 0;
-  ACTION_TYPE_DISCARD_DRAWN_TILE = 1;  // ツモ切り, Tsumogiri
+  ACTION_TYPE_DISCARD = 0;
+  ACTION_TYPE_TSUMOGIRI = 1;  // ツモ切り, Tsumogiri
   ACTION_TYPE_RIICHI = 2;
   ACTION_TYPE_CLOSED_KAN = 3;  // 暗槓
   ACTION_TYPE_ADDED_KAN = 4;  // 加槓
@@ -125,8 +125,8 @@ enum ActionType {
 
 enum EventType {
   // Publicly observable actions
-  EVENT_TYPE_DISCARD_FROM_HAND = 0;
-  EVENT_TYPE_DISCARD_DRAWN_TILE = 1;
+  EVENT_TYPE_DISCARD = 0;
+  EVENT_TYPE_TSUMOGIRI = 1;
   EVENT_TYPE_RIICHI = 2;
   EVENT_TYPE_CLOSED_KAN = 3;
   EVENT_TYPE_ADDED_KAN = 4;
@@ -153,8 +153,8 @@ enum EventType {
 
 message Action {
   //                          discard   open
-  //  DISCARD_FROM_HAND           Yes     No
-  //  DISCARD_DRAWN_TILE          Yes     No
+  //  DISCARD                     Yes     No
+  //  TSUMOGIRI                   Yes     No
   //  RIICHI                       No     No
   //  CLOSED_KAN                   No    Yes
   //  ADDED_KAN                    No    Yes
@@ -185,8 +185,8 @@ message Event {
   //
   // Table. Is who/tile/open entry set?
   //                                    who    tile    open
-  //  0. DISCARD_FROM_HAND              Yes     Yes      No
-  //  1. DISCARD_DRAWN_TILE             Yes     Yes      No
+  //  0. DISCARD                        Yes     Yes      No
+  //  1. TSUMOGIRI                      Yes     Yes      No
   //  2. RIICHI                         Yes      No      No
   //  3. CLOSED_KAN                     Yes      No     Yes
   //  4. ADDED_KAN                      Yes      No     Yes
