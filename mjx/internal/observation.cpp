@@ -20,6 +20,8 @@ std::vector<std::pair<Tile, bool>> Observation::possible_discards() const {
     if (!Any(possible_action.type(), {mjxproto::ActionType::ACTION_TYPE_DISCARD, mjxproto::ActionType::ACTION_TYPE_TSUMOGIRI})) continue;
     ret.emplace_back(possible_action.discard(), possible_action.type() == mjxproto::ACTION_TYPE_TSUMOGIRI);
   }
+  Assert(std::count_if(ret.begin(), ret.end(), [](const auto&x){ return x.second; }) <= 1,
+         "# of tsumogiri should be <= 1");
   return ret;
 }
 
