@@ -135,16 +135,16 @@ class MjlogDecoder:
         self.state.ura_doras.append(wall[131])
         assert dora == wall[130]
         for i in range(4):
-            self.state.private_infos.append(
-                mjxproto.PrivateInfo(
+            self.state.private_observations.append(
+                mjxproto.PrivateObservation(
                     who=i,
                     init_hand=[int(x) for x in val["hai" + str(i)].split(",")],
                 )
             )
         for i in range(4 * 12):
-            assert wall[i] in self.state.private_infos[((i // 4) + round_) % 4].init_hand
+            assert wall[i] in self.state.private_observations[((i // 4) + round_) % 4].init_hand
         for i in range(4 * 12, 4 * 13):
-            assert wall[i] in self.state.private_infos[(i + round_) % 4].init_hand
+            assert wall[i] in self.state.private_observations[(i + round_) % 4].init_hand
 
         event = None
         num_kan_dora = 0
@@ -154,7 +154,7 @@ class MjlogDecoder:
         for key, val in kv[1:]:
             if key != "UN" and key[0] in ["T", "U", "V", "W"]:  # draw
                 who, draw = MjlogDecoder.parse_draw(key)
-                self.state.private_infos[int(who)].draws.append(draw)
+                self.state.private_observations[int(who)].draws.append(draw)
                 event = MjlogDecoder.make_draw_event(who)
                 self.last_drawer, self.last_draw = who, draw
             elif key != "DORA" and key[0] in ["D", "E", "F", "G"]:  # discard
