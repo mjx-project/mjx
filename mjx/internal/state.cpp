@@ -1103,6 +1103,11 @@ void State::Update(mjxproto::Action &&action) {
                     return possible_discard.first.Equals(Tile(action.discard()));
                   }),
           "State = " + ToJson() + "\n" + "Hand = " + hand(who).ToString(true));
+      Assert(
+          action.type() != mjxproto::ACTION_TYPE_TSUMOGIRI ||
+          hand(AbsolutePos(action.who())).LastTileAdded().value().Id() == action.discard(),
+          "If action is tsumogiri, the discarded tile should be equal to the last drawn tile."
+          );
       {
         int require_kan_dora = RequireKanDora();
         Assert(require_kan_dora <= 1);
