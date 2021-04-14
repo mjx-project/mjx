@@ -173,13 +173,13 @@ TEST(hand, ApplyChi) {
   auto possible_discards = h.PossibleDiscards();
   EXPECT_EQ(possible_discards.size(), 5);  // m5, m6, m7, m8, m9
   EXPECT_EQ(std::find_if(possible_discards.begin(), possible_discards.end(),
-                         [](Tile x) { return x.Is(TileType::kM4); }),
+                         [](const auto& x) { return x.first.Is(TileType::kM4); }),
             possible_discards.end());
   EXPECT_EQ(std::find_if(possible_discards.begin(), possible_discards.end(),
-                         [](Tile x) { return x.Is(TileType::kM1); }),
+                         [](const auto& x) { return x.first.Is(TileType::kM1); }),
             possible_discards.end());
   EXPECT_NE(std::find_if(possible_discards.begin(), possible_discards.end(),
-                         [](Tile x) { return x.Is(TileType::kM5); }),
+                         [](const auto& x) { return x.first.Is(TileType::kM5); }),
             possible_discards.end());
 }
 
@@ -196,10 +196,10 @@ TEST(hand, ApplyPon) {
   auto possible_discards = h.PossibleDiscards();
   EXPECT_EQ(possible_discards.size(), 8);  // m1, m2, m3, m4, m5, m6, m7, m8
   EXPECT_EQ(std::find_if(possible_discards.begin(), possible_discards.end(),
-                         [](Tile x) { return x.Is(TileType::kM9); }),
+                         [](const auto& x) { return x.first.Is(TileType::kM9); }),
             possible_discards.end());
   EXPECT_NE(std::find_if(possible_discards.begin(), possible_discards.end(),
-                         [](Tile x) { return x.Is(TileType::kM5); }),
+                         [](const auto& x) { return x.first.Is(TileType::kM5); }),
             possible_discards.end());
 }
 
@@ -291,7 +291,7 @@ TEST(hand, PossibleDiscards) {
   auto possible_discards = h.PossibleDiscards();
   EXPECT_EQ(possible_discards.size(), 10);
   EXPECT_EQ(std::find_if(possible_discards.begin(), possible_discards.end(),
-                         [](Tile x) { return x.Is(TileType::kM3); }),
+                         [](const auto& x) { return x.first.Is(TileType::kM3); }),
             possible_discards.end());
 }
 
@@ -300,7 +300,7 @@ TEST(hand, PossibleDiscardsToTakeTenpai) {
   h.Draw(Tile("ew", 2));
   auto possible_discards = h.PossibleDiscardsToTakeTenpai();
   EXPECT_EQ(possible_discards.size(), 1);
-  EXPECT_EQ(possible_discards.front().Type(), TileType::kNW);
+  EXPECT_EQ(possible_discards.front().first.Type(), TileType::kNW);
 
   // From actual failure
   h = Hand({Tile("m2", 2), Tile("m3", 1), Tile("m3", 3), Tile("m4", 2),
@@ -310,7 +310,7 @@ TEST(hand, PossibleDiscardsToTakeTenpai) {
   h.Draw(Tile("wd", 2));
   possible_discards = h.PossibleDiscardsToTakeTenpai();
   EXPECT_EQ(possible_discards.size(), 1);
-  EXPECT_EQ(possible_discards.front().Id(), Tile("m3", 1).Id());
+  EXPECT_EQ(possible_discards.front().first.Id(), Tile("m3", 1).Id());
 }
 
 TEST(hand, PossibleOpensAfterOthersDiscard) {  // TODO: add more detailed test
@@ -668,7 +668,7 @@ TEST(hand, PossibleDiscardsAfterRiichi) {
   EXPECT_EQ(possible_discards.size(), 4);
   auto HasType = [&](TileType tt) {
     return std::find_if(possible_discards.begin(), possible_discards.end(),
-                        [&](auto x) { return x.Type() == tt; }) !=
+                        [&](const auto& x) { return x.first.Type() == tt; }) !=
            possible_discards.end();
   };
   EXPECT_TRUE(HasType(TileType::kRD));

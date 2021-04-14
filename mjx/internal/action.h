@@ -15,8 +15,9 @@ class Action {
   Action() = delete;
   static bool IsValid(const mjxproto::Action& action);
   static mjxproto::Action CreateDiscard(AbsolutePos who, Tile discard);
-  static std::vector<mjxproto::Action> CreateDiscards(
-      AbsolutePos who, const std::vector<Tile>& discards);
+  static mjxproto::Action CreateTsumogiri(AbsolutePos who, Tile discard);
+  static std::vector<mjxproto::Action> CreateDiscardsAndTsumogiri(
+      AbsolutePos who, const std::vector<std::pair<Tile, bool>>& discards);
   static mjxproto::Action CreateRiichi(AbsolutePos who);
   static mjxproto::Action CreateTsumo(AbsolutePos who);
   static mjxproto::Action CreateRon(AbsolutePos who);

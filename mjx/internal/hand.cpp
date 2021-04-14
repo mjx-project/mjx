@@ -263,20 +263,17 @@ std::pair<Tile, bool> Hand::Discard(Tile tile) {
          tile == last_tile_added_.value());
   Assert(stage_ == HandStage::kAfterRiichi ||
              Any(PossibleDiscards(),
-                 [&tile](Tile possible_discard) {
-                   return tile.Equals(possible_discard);
+                 [&tile](const auto& possible_discard) {
+                   return tile.Equals(possible_discard.first);
                  }),
          "Discard tile: " + tile.ToString(true) +
-             "\nPossibleDiscards(): " + Tile::ToString(PossibleDiscards()) +
              "\nToVectorClosed(): " + Tile::ToString(ToVectorClosed(true)));
   Assert(stage_ != HandStage::kAfterRiichi ||
              Any(PossibleDiscardsJustAfterRiichi(),
-                 [&tile](Tile possible_discard) {
-                   return tile.Equals(possible_discard);
+                 [&tile](const auto& possible_discard) {
+                   return tile.Equals(possible_discard.first);
                  }),
          "Discard tile: " + tile.ToString(true) +
-             "\nPossibleDiscardsJustAfterRiichi(): " +
-             Tile::ToString(PossibleDiscardsJustAfterRiichi()) +
              "\nToVectorClosed(): " + Tile::ToString(ToVectorClosed(true)));
   bool tsumogiri =
       Any(stage_, {HandStage::kAfterDraw, HandStage::kAfterDrawAfterKan,
@@ -301,19 +298,19 @@ std::size_t Hand::SizeClosed() const { return closed_tiles_.size(); }
 
 bool Hand::IsUnderRiichi() const { return under_riichi_; }
 
-std::vector<Tile> Hand::PossibleDiscards() const {
+std::vector<std::pair<Tile, bool>> Hand::PossibleDiscards() const {
   Assert(!Any(stage_, {HandStage::kAfterDiscards, HandStage::kAfterTsumo,
                        HandStage::kAfterTsumoAfterKan, HandStage::kAfterRon}));
   Assert(stage_ != HandStage::kAfterRiichi);  // PossibleDiscardsAfterRiichi
                                               // deal with this situation
   Assert(last_tile_added_);
   Assert(Any(SizeClosed(), {2, 5, 8, 11, 14}));
-  if (under_riichi_) return {last_tile_added_.value()};
+  if (under_riichi_) return {{last_tile_added_.value(), true}};
   Assert(!AllPossibleDiscards().empty());
   return AllPossibleDiscards();
 }
 
-std::vector<Tile> Hand::PossibleDiscardsJustAfterRiichi() const {
+std::vector<std::pair<Tile, bool>> Hand::PossibleDiscardsJustAfterRiichi() const {
   Assert(IsMenzen());
   Assert(IsUnderRiichi(),
          "stage_: " + std::to_string(static_cast<int>(stage_)));
@@ -763,7 +760,7 @@ bool Hand::CanTakeTenpai() const {
   Assert(Any(SizeClosed(), {2, 5, 8, 11, 14}));
   auto closed_tile_type_count = ClosedTileTypes();
   if (stage_ == HandStage::kAfterRiichi) return true;
-  for (const auto tile : PossibleDiscards()) {
+  for (const auto &[tile, tsumogiri] : PossibleDiscards()) {
     auto tt = tile.Type();
     if (--closed_tile_type_count[tt] == 0) closed_tile_type_count.erase(tt);
     if (Hand::IsTenpai(closed_tile_type_count)) return true;
@@ -776,39 +773,41 @@ bool Hand::IsTenpai(const TileTypeCount &closed_tile_types) {
   return !WinHandCache::instance().Machi(closed_tile_types).empty();
 }
 
-std::vector<Tile> Hand::PossibleDiscardsToTakeTenpai() const {
+std::vector<std::pair<Tile, bool>> Hand::PossibleDiscardsToTakeTenpai() const {
   Assert(!Any(stage_, {HandStage::kAfterDiscards, HandStage::kAfterTsumo,
                        HandStage::kAfterTsumoAfterKan, HandStage::kAfterRon}));
   Assert(last_tile_added_);
   Assert(Any(SizeClosed(), {2, 5, 8, 11, 14}));
   Assert(CanTakeTenpai());
-  std::vector<Tile> possible_discards;
+  std::vector<std::pair<Tile, bool>> possible_discards;
   auto closed_tile_types = ClosedTileTypes();
-  for (const auto tile : AllPossibleDiscards()) {
+  for (const auto &[tile, tsumogiri] : AllPossibleDiscards()) {
     Assert(closed_tile_types.count(tile.Type()));
     if (--closed_tile_types[tile.Type()] == 0)
       closed_tile_types.erase(tile.Type());
-    if (Hand::IsTenpai(closed_tile_types)) possible_discards.emplace_back(tile);
+    if (Hand::IsTenpai(closed_tile_types)) possible_discards.emplace_back(tile, tsumogiri);
     ++closed_tile_types[tile.Type()];
   }
   Assert(!possible_discards.empty());
   return possible_discards;
 }
 
-std::vector<Tile> Hand::AllPossibleDiscards() const {
+std::vector<std::pair<Tile, bool>> Hand::AllPossibleDiscards() const {
   // 同じ種類（タイプ）の牌については、idが一番小さいものだけを返す。赤とツモ切り牌だけ例外。
   Assert(!Any(stage_, {HandStage::kAfterDiscards, HandStage::kAfterTsumo,
                        HandStage::kAfterTsumoAfterKan, HandStage::kAfterRon}));
   Assert(last_tile_added_);
   Assert(Any(SizeClosed(), {2, 5, 8, 11, 14}));
   std::vector<Tile> tiles = ToVectorClosed(true);
-  auto possible_discards = std::vector<Tile>();
+  auto possible_discards = std::vector<std::pair<Tile, bool>>();
   std::unordered_set<TileType> added;
   for (auto t : tiles) {
     if (undiscardable_tiles_.count(t)) continue;
     bool is_exception = t.IsRedFive() || t == last_tile_added_.value();
     if (!added.count(t.Type()) || is_exception) {
-      possible_discards.push_back(t);
+      bool tsumogiri = false;
+      if (t == last_tile_added_.value()) tsumogiri = true;  // Chi, Pon, Kanの場合にはlast_tile_added_はそもそも切れない
+      possible_discards.emplace_back(t, tsumogiri);
       Assert(
           std::count_if(
               closed_tiles_.begin(), closed_tiles_.end(),
@@ -832,8 +831,12 @@ std::vector<Tile> Hand::AllPossibleDiscards() const {
     if (!is_exception) added.insert(t.Type());
   }
   Assert(!Any(stage_, {HandStage::kAfterDraw, HandStage::kAfterDrawAfterKan}) ||
-         Any(last_tile_added_.value(), possible_discards));
+         std::any_of(possible_discards.begin(), possible_discards.end(),
+                     [&](const auto& x){ return last_tile_added_.value() == x.first; }));
   Assert(!possible_discards.empty());
+  Assert(std::count_if(possible_discards.begin(), possible_discards.end(), [](const auto &x){ return x.second; }) <= 1,
+         "# of tsumogiri should be <= 1 but got " +
+             std::to_string(std::count_if(possible_discards.begin(), possible_discards.end(), [](const auto &x){ return x.second; })));
   return possible_discards;
 }
 

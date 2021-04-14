@@ -45,9 +45,18 @@ bool ActionTypeCheck(const std::vector<mjxproto::ActionType> &action_types,
   for (const auto &possible_action : observation.possible_actions()) {
     observation_action_types.insert(possible_action.type());
   }
-  return observation_action_types ==
+  bool ok = observation_action_types ==
          std::unordered_set<mjxproto::ActionType>{action_types.begin(),
                                                   action_types.end()};
+  if (!ok) {
+    if (observation_action_types.empty()) {
+      std::cerr << "observation_action_types is empty" << std::endl;
+    }
+    for (auto t: observation_action_types) {
+      std::cerr << t << std::endl;
+    }
+  }
+  return ok;
 }
 
 bool YakuCheck(const State &state, AbsolutePos winner,
@@ -283,7 +292,7 @@ TEST(state, CreateObservation) {
   EXPECT_TRUE(observations.find("ASAPIN") != observations.end());
   observation = observations["ASAPIN"];
   EXPECT_TRUE(ActionTypeCheck(
-      {mjxproto::ACTION_TYPE_DISCARD, mjxproto::ACTION_TYPE_TSUMO},
+      {mjxproto::ACTION_TYPE_DISCARD, mjxproto::ACTION_TYPE_TSUMOGIRI, mjxproto::ACTION_TYPE_TSUMO},
       observation));
 
   // 2. Drawした後、KanAddedが可能なら、KanAddedがアクション候補に入る
@@ -293,7 +302,7 @@ TEST(state, CreateObservation) {
   EXPECT_TRUE(observations.find("ROTTEN") != observations.end());
   observation = observations["ROTTEN"];
   EXPECT_TRUE(ActionTypeCheck(
-      {mjxproto::ACTION_TYPE_DISCARD, mjxproto::ACTION_TYPE_KAN_ADDED},
+      {mjxproto::ACTION_TYPE_DISCARD, mjxproto::ACTION_TYPE_TSUMOGIRI, mjxproto::ACTION_TYPE_KAN_ADDED},
       observation));
 
   // 3. Drawした後、Riichi可能なら、Riichiがアクション候補に入る
@@ -304,7 +313,7 @@ TEST(state, CreateObservation) {
   observation = observations["ASAPIN"];
   EXPECT_TRUE(observations.find("ASAPIN") != observations.end());
   EXPECT_TRUE(ActionTypeCheck(
-      {mjxproto::ACTION_TYPE_DISCARD, mjxproto::ACTION_TYPE_RIICHI},
+      {mjxproto::ACTION_TYPE_DISCARD, mjxproto::ACTION_TYPE_TSUMOGIRI, mjxproto::ACTION_TYPE_RIICHI},
       observation));
 
   // 4. Drawした後、Discardがアクション候補にはいる
@@ -314,8 +323,8 @@ TEST(state, CreateObservation) {
   EXPECT_EQ(observations.size(), 1);
   EXPECT_TRUE(observations.find("-ron-") != observations.end());
   observation = observations["-ron-"];
-  EXPECT_TRUE(ActionTypeCheck({mjxproto::ACTION_TYPE_DISCARD}, observation));
-  EXPECT_TRUE(Any(Tile(39), observation.possible_discards()));
+  EXPECT_TRUE(ActionTypeCheck({mjxproto::ACTION_TYPE_DISCARD, mjxproto::ACTION_TYPE_TSUMOGIRI}, observation));
+  EXPECT_TRUE(Any({Tile(39), false}, observation.possible_discards()));
 
   // 9.
   // Riichiした後、可能なアクションはDiscardだけで、捨てられる牌も上がり系につながるものだけ
@@ -328,7 +337,7 @@ TEST(state, CreateObservation) {
   observation = observations["ASAPIN"];
   EXPECT_TRUE(ActionTypeCheck({mjxproto::ACTION_TYPE_DISCARD}, observation));
   EXPECT_EQ(observation.possible_discards().size(), 1);
-  EXPECT_EQ(observation.possible_discards().front().Type(), TileType::kSW);
+  EXPECT_EQ(observation.possible_discards().front().first.Type(), TileType::kSW);
 
   // 10. チーした後、可能なアクションはDiscardだけで、喰い替えはできない
   // 34566mから567mのチーで4mは喰い替えになるので切れない
@@ -339,7 +348,7 @@ TEST(state, CreateObservation) {
   EXPECT_TRUE(observations.find("ASAPIN") != observations.end());
   observation = observations["ASAPIN"];
   EXPECT_TRUE(ActionTypeCheck({mjxproto::ACTION_TYPE_DISCARD}, observation));
-  for (auto tile : observation.possible_discards())
+  for (const auto &[tile, tsumogiri] : observation.possible_discards())
     EXPECT_NE(tile.Type(), TileType::kM4);
 
   // 11. ポンした後、可能なアクションはDiscardだけ
@@ -386,10 +395,9 @@ TEST(state, CreateObservation) {
   EXPECT_EQ(observations.size(), 1);
   EXPECT_TRUE(observations.find("ちくき") != observations.end());
   observation = observations["ちくき"];
-  EXPECT_TRUE(
-      ActionTypeCheck({mjxproto::ACTION_TYPE_ABORTIVE_DRAW_NINE_TERMINALS,
-                       mjxproto::ACTION_TYPE_DISCARD},
-                      observation));
+  EXPECT_TRUE(ActionTypeCheck(
+      {mjxproto::ACTION_TYPE_DISCARD, mjxproto::ACTION_TYPE_TSUMOGIRI, mjxproto::ACTION_TYPE_ABORTIVE_DRAW_NINE_TERMINALS},
+      observation));
 }
 
 TEST(state, Update) {
@@ -461,7 +469,7 @@ TEST(state, Update) {
   observations = state_before.CreateObservations();
   observation = observations["-ron-"];
   EXPECT_TRUE(ActionTypeCheck(
-      {mjxproto::ACTION_TYPE_DISCARD, mjxproto::ACTION_TYPE_RIICHI},
+      {mjxproto::ACTION_TYPE_DISCARD, mjxproto::ACTION_TYPE_TSUMOGIRI, mjxproto::ACTION_TYPE_RIICHI},
       observation));
 
   // Discard後にChiでUpdateした場合、Chiまで（Discard直前）まで更新
@@ -487,7 +495,7 @@ TEST(state, Update) {
   EXPECT_EQ(state_before.ToJson(), state_before.ToJson());
   observations = state_before.CreateObservations();
   observation = observations["超ヒモリロ"];
-  EXPECT_TRUE(ActionTypeCheck({mjxproto::ACTION_TYPE_DISCARD}, observation));
+  EXPECT_TRUE(ActionTypeCheck({mjxproto::ACTION_TYPE_DISCARD, mjxproto::ACTION_TYPE_TSUMOGIRI}, observation));
 
   // Riichi後にDiscardして、鳴き候補もロン候補もないのでRiichiScoreChange+DrawまでUpdateされる
   json_before = GetLastJsonLine("upd-bef-riichi-discard-riichisc+draw.json");
@@ -755,7 +763,7 @@ TEST(state, Update) {
   EXPECT_EQ(observations.size(), 1);
   observation = observations.begin()->second;
   EXPECT_TRUE(ActionTypeCheck(
-      {mjxproto::ACTION_TYPE_DISCARD, mjxproto::ACTION_TYPE_KAN_ADDED},
+      {mjxproto::ACTION_TYPE_DISCARD, mjxproto::ACTION_TYPE_TSUMOGIRI, mjxproto::ACTION_TYPE_KAN_ADDED},
       observation));
   possible_action =
       FindPossibleAction(mjxproto::ACTION_TYPE_KAN_ADDED, observation);
@@ -774,7 +782,7 @@ TEST(state, Update) {
   observations = state_before.CreateObservations();
   EXPECT_EQ(observations.size(), 1);
   observation = observations.begin()->second;
-  EXPECT_TRUE(ActionTypeCheck({mjxproto::ACTION_TYPE_DISCARD}, observation));
+  EXPECT_TRUE(ActionTypeCheck({mjxproto::ACTION_TYPE_DISCARD, mjxproto::ACTION_TYPE_TSUMOGIRI}, observation));
   EXPECT_EQ(observation.who(), AbsolutePos::kInitNorth);
   actions = {Action::CreateDiscard(observation.who(), Tile(4))};
   state_before.Update(std::move(actions));
@@ -783,7 +791,7 @@ TEST(state, Update) {
   EXPECT_EQ(observations.size(), 1);
   observation = observations.begin()->second;
   EXPECT_TRUE(ActionTypeCheck(
-      {mjxproto::ACTION_TYPE_DISCARD, mjxproto::ACTION_TYPE_TSUMO},
+      {mjxproto::ACTION_TYPE_TSUMOGIRI, mjxproto::ACTION_TYPE_TSUMO},
       observation));
   actions = {Action::CreateTsumo(observation.who())};
   state_before.Update(std::move(actions));
@@ -803,7 +811,7 @@ TEST(state, Update) {
   EXPECT_EQ(observations.size(), 1);
   observation = observations.begin()->second;
   EXPECT_TRUE(ActionTypeCheck(
-      {mjxproto::ACTION_TYPE_DISCARD, mjxproto::ACTION_TYPE_KAN_ADDED},
+      {mjxproto::ACTION_TYPE_DISCARD, mjxproto::ACTION_TYPE_TSUMOGIRI, mjxproto::ACTION_TYPE_KAN_ADDED},
       observation));
   possible_action =
       FindPossibleAction(mjxproto::ACTION_TYPE_KAN_ADDED, observation);
@@ -815,7 +823,7 @@ TEST(state, Update) {
   EXPECT_EQ(observations.size(), 1);
   observation = observations.begin()->second;
   EXPECT_TRUE(ActionTypeCheck(
-      {mjxproto::ACTION_TYPE_DISCARD, mjxproto::ACTION_TYPE_KAN_ADDED},
+      {mjxproto::ACTION_TYPE_DISCARD, mjxproto::ACTION_TYPE_TSUMOGIRI, mjxproto::ACTION_TYPE_KAN_ADDED},
       observation));
   possible_action =
       FindPossibleAction(mjxproto::ACTION_TYPE_KAN_ADDED, observation);
@@ -891,6 +899,10 @@ std::vector<std::vector<mjxproto::Action>> ListUpAllActionCombinations(
         case mjxproto::ACTION_TYPE_DISCARD:
           actions_per_player.push_back(
               Action::CreateDiscard(who, Tile(possible_action.discard())));
+          break;
+        case mjxproto::ACTION_TYPE_TSUMOGIRI:
+          actions_per_player.push_back(
+              Action::CreateTsumogiri(who, Tile(possible_action.discard())));
           break;
         case mjxproto::ACTION_TYPE_TSUMO:
           actions_per_player.push_back(Action::CreateTsumo(who));
