@@ -324,7 +324,7 @@ TEST(state, CreateObservation) {
   EXPECT_TRUE(observations.find("-ron-") != observations.end());
   observation = observations["-ron-"];
   EXPECT_TRUE(ActionTypeCheck({mjxproto::ACTION_TYPE_DISCARD, mjxproto::ACTION_TYPE_TSUMOGIRI}, observation));
-  EXPECT_TRUE(Any(Tile(39), observation.possible_discards()));
+  EXPECT_TRUE(Any({Tile(39), false}, observation.possible_discards()));
 
   // 9.
   // Riichiした後、可能なアクションはDiscardだけで、捨てられる牌も上がり系につながるものだけ
@@ -337,7 +337,7 @@ TEST(state, CreateObservation) {
   observation = observations["ASAPIN"];
   EXPECT_TRUE(ActionTypeCheck({mjxproto::ACTION_TYPE_DISCARD}, observation));
   EXPECT_EQ(observation.possible_discards().size(), 1);
-  EXPECT_EQ(observation.possible_discards().front().Type(), TileType::kSW);
+  EXPECT_EQ(observation.possible_discards().front().first.Type(), TileType::kSW);
 
   // 10. チーした後、可能なアクションはDiscardだけで、喰い替えはできない
   // 34566mから567mのチーで4mは喰い替えになるので切れない
@@ -348,7 +348,7 @@ TEST(state, CreateObservation) {
   EXPECT_TRUE(observations.find("ASAPIN") != observations.end());
   observation = observations["ASAPIN"];
   EXPECT_TRUE(ActionTypeCheck({mjxproto::ACTION_TYPE_DISCARD}, observation));
-  for (auto tile : observation.possible_discards())
+  for (const auto &[tile, tsumogiri] : observation.possible_discards())
     EXPECT_NE(tile.Type(), TileType::kM4);
 
   // 11. ポンした後、可能なアクションはDiscardだけ

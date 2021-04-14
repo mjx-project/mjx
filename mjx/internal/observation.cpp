@@ -14,12 +14,11 @@ std::vector<mjxproto::Action> Observation::possible_actions() const {
   return ret;
 }
 
-std::vector<Tile> Observation::possible_discards() const {
-  std::vector<Tile> ret;
+std::vector<std::pair<Tile, bool>> Observation::possible_discards() const {
+  std::vector<std::pair<Tile, bool>> ret;
   for (const auto& possible_action : proto_.possible_actions()) {
-    if (Any(possible_action.type(), {mjxproto::ActionType::ACTION_TYPE_DISCARD, mjxproto::ActionType::ACTION_TYPE_TSUMOGIRI})) {
-      ret.emplace_back(possible_action.discard());
-    }
+    if (!Any(possible_action.type(), {mjxproto::ActionType::ACTION_TYPE_DISCARD, mjxproto::ActionType::ACTION_TYPE_TSUMOGIRI})) continue;
+    ret.emplace_back(possible_action.discard(), possible_action.type() == mjxproto::ACTION_TYPE_TSUMOGIRI);
   }
   return ret;
 }
