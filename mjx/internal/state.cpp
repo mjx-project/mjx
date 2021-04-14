@@ -1416,10 +1416,12 @@ bool State::CanReach(const State &other) const noexcept {
   // Drawがすべて現時点までは同じである必要がある (配牌は山が同じ時点で同じ）
   for (int i = 0; i < 4; ++i) {
     const auto &draw_history = state_.private_infos(i).draw_history();
-    const auto &other_draw_history = other.state_.private_infos(i).draw_history();
+    const auto &other_draw_history =
+        other.state_.private_infos(i).draw_history();
     if (draw_history.size() > other_draw_history.size()) return false;
     for (int j = 0; j < draw_history.size(); ++j)
-      if (!Tile(draw_history[j]).Equals(Tile(other_draw_history[j]))) return false;
+      if (!Tile(draw_history[j]).Equals(Tile(other_draw_history[j])))
+        return false;
   }
 
   // もしゲーム終了しているなら、Equalでない時点でダメ
