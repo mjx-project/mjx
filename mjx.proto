@@ -259,9 +259,8 @@ message Score {
 }
 
 message Hand {
-  int32 who = 1;  // 0: the first dealer in a game  (0: 起家, ..., 3: ラス親)
-  repeated int32 closed_tiles = 2;
-  repeated int32 opens = 3;
+  repeated int32 closed_tiles = 1;
+  repeated int32 opens = 2;
 }
 
 // Utilities: information which is not necessary (but may be useful)
@@ -315,6 +314,6 @@ message Win {
 }
 
 message Draw {
-  repeated Hand tenpai_hands = 1;
+  repeated int32 tenpais = 1; // idx of tenpai players
   repeated int32 ten_changes = 2;  // Required only for Tenhou mjlog.  TODO: check definition. remove
 }
