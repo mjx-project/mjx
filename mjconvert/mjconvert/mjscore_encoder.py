@@ -141,17 +141,17 @@ def parse_discards(events, abs_pos: int):
     return discards
 
 
-# プレイヤーごとにmjscore形式のdrawsを返す。
-def parse_draws(draws, events, abs_pos):
+# プレイヤーごとにmjscore形式のdraw_historyを返す。
+def parse_draw_history(draw_history, events, abs_pos):
     """
     - mjscoreでは引いた牌のリストにチーやポンなどのアクションが含まれている
-    - mjxprotoの　drawsでは単に飛ばされていて、eventの方に情報がある
+    - mjxprotoの　draw_historyでは単に飛ばされていて、eventの方に情報がある
 
     方針
     1. チーポンも含めたdiscardsを作成
-    2. drawsの方で直前の捨て牌の直後にアクションを挿入
+    2. draw_historyの方で直前の捨て牌の直後にアクションを挿入
     """
-    draws = _change_tiles_fmt(draws)
+    draw_history = _change_tiles_fmt(draw_history)
     discards = []
     actions = []  #
     for i, event in enumerate(events):
@@ -175,8 +175,8 @@ def parse_draws(draws, events, abs_pos):
     for i, action in enumerate(actions):
         # 捨て牌でのactionのindex同じ順にdrawにアクションを挿入すれば良い
         action_index = discards.index(action) - i
-        draws.insert(action_index, _change_action_format(action))
-    return draws
+        draw_history.insert(action_index, _change_action_format(action))
+    return draw_history
 
 
 yaku_list = [
@@ -432,7 +432,7 @@ def mjxproto_to_mjscore(state: mjxproto.State) -> str:
     for abs_pos in absolute_pos:
         log.append(sort_init_hand(_change_tiles_fmt(state.private_infos[abs_pos].init_hand)))
         log.append(
-            parse_draws(state.private_infos[abs_pos].draws, state.event_history.events, abs_pos)
+            parse_draw_history(state.private_infos[abs_pos].draw_history, state.event_history.events, abs_pos)
         )
         log.append(parse_discards(state.event_history.events, abs_pos))
 
