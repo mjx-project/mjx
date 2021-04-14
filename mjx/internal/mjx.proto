@@ -82,7 +82,7 @@ message EventHistory {
   repeated Event events = 2;
 }
 
-message PrivateInfo {
+message PrivateObservation {
   int32 who = 1;
   repeated uint32 init_hand = 2;
   repeated uint32 draws = 3;
@@ -94,7 +94,7 @@ message Observation {
   repeated uint32 doras = 3;
   EventHistory event_history = 4;  // public info
   int32 who = 5;
-  PrivateInfo private_info = 6;
+  PrivateObservation private_obs = 6;
   repeated Action possible_actions = 7;
 }
 
@@ -139,7 +139,7 @@ message State {
   // private info
   repeated uint32 wall = 5;
   repeated uint32 ura_doras = 6;
-  repeated PrivateInfo private_infos = 7;
+  repeated PrivateObservation private_observations = 7;
   uint64 game_seed = 8;
   // win/ryuukyoku information
   Terminal terminal = 9;
