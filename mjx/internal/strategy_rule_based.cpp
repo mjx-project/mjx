@@ -53,7 +53,8 @@ mjxproto::Action StrategyRuleBased::TakeAction(
   // 和了れるときは全て和了る。リーチできるときは全てリーチする。九種九牌も全て流す。
   if (Any(selected.type(),
           {mjxproto::ACTION_TYPE_TSUMO, mjxproto::ACTION_TYPE_RIICHI,
-           mjxproto::ACTION_TYPE_RON, mjxproto::ACTION_TYPE_ABORTIVE_DRAW_NINE_TERMINALS})) {
+           mjxproto::ACTION_TYPE_RON,
+           mjxproto::ACTION_TYPE_ABORTIVE_DRAW_NINE_TERMINALS})) {
     return selected;
   }
 

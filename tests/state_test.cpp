@@ -386,9 +386,10 @@ TEST(state, CreateObservation) {
   EXPECT_EQ(observations.size(), 1);
   EXPECT_TRUE(observations.find("ちくき") != observations.end());
   observation = observations["ちくき"];
-  EXPECT_TRUE(ActionTypeCheck(
-      {mjxproto::ACTION_TYPE_ABORTIVE_DRAW_NINE_TERMINALS, mjxproto::ACTION_TYPE_DISCARD},
-      observation));
+  EXPECT_TRUE(
+      ActionTypeCheck({mjxproto::ACTION_TYPE_ABORTIVE_DRAW_NINE_TERMINALS,
+                       mjxproto::ACTION_TYPE_DISCARD},
+                      observation));
 }
 
 TEST(state, Update) {
