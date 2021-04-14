@@ -109,7 +109,7 @@ std::string SwapTiles(const std::string &json_str, Tile a, Tile b) {
   }
   // init hand, draws
   for (int j = 0; j < 4; ++j) {
-    auto mpinfo = state.mutable_private_infos(j);
+    auto mpinfo = state.mutable_private_observations(j);
     for (int i = 0; i < mpinfo->init_hand_size(); ++i) {
       if (mpinfo->init_hand(i) == a.Id())
         mpinfo->set_init_hand(i, b.Id());
