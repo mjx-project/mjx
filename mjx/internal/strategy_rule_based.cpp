@@ -90,13 +90,18 @@ mjxproto::Action StrategyRuleBased::TakeAction(
   }
 
   // Discardが選択されたとき（あるいはdiscardしかできないとき）、切る牌を選ぶ
-  std::vector<std::pair<Tile, bool>> possible_discards = observation.possible_discards();
+  std::vector<std::pair<Tile, bool>> possible_discards =
+      observation.possible_discards();
   std::vector<Tile> discard_candidates;
-  for (const auto &[tile, tsumogiri]: possible_discards) discard_candidates.emplace_back(tile);
+  for (const auto &[tile, tsumogiri] : possible_discards)
+    discard_candidates.emplace_back(tile);
   Tile selected_discard = SelectDiscard(discard_candidates, curr_hand, mt);
-  for (const auto& possible_action: possible_actions) {
-    if (!Any(possible_action.type(), {mjxproto::ACTION_TYPE_DISCARD, mjxproto::ACTION_TYPE_TSUMOGIRI})) continue;
-    if (possible_action.discard() == selected_discard.Id()) return possible_action;
+  for (const auto &possible_action : possible_actions) {
+    if (!Any(possible_action.type(),
+             {mjxproto::ACTION_TYPE_DISCARD, mjxproto::ACTION_TYPE_TSUMOGIRI}))
+      continue;
+    if (possible_action.discard() == selected_discard.Id())
+      return possible_action;
   }
   assert(false);
 }
@@ -112,7 +117,7 @@ Tile StrategyRuleBased::SelectDiscard(std::vector<Tile> &discard_candidates,
     auto tenpai_discards = curr_hand.PossibleDiscardsToTakeTenpai();
     for (const auto tile : discard_candidates) {
       if (std::any_of(tenpai_discards.begin(), tenpai_discards.end(),
-                      [&tile](const auto& x){ return x.first == tile; })) {
+                      [&tile](const auto &x) { return x.first == tile; })) {
         return tile;
       }
     }

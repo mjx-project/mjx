@@ -263,14 +263,14 @@ std::pair<Tile, bool> Hand::Discard(Tile tile) {
          tile == last_tile_added_.value());
   Assert(stage_ == HandStage::kAfterRiichi ||
              Any(PossibleDiscards(),
-                 [&tile](const auto& possible_discard) {
+                 [&tile](const auto &possible_discard) {
                    return tile.Equals(possible_discard.first);
                  }),
          "Discard tile: " + tile.ToString(true) +
              "\nToVectorClosed(): " + Tile::ToString(ToVectorClosed(true)));
   Assert(stage_ != HandStage::kAfterRiichi ||
              Any(PossibleDiscardsJustAfterRiichi(),
-                 [&tile](const auto& possible_discard) {
+                 [&tile](const auto &possible_discard) {
                    return tile.Equals(possible_discard.first);
                  }),
          "Discard tile: " + tile.ToString(true) +
@@ -310,7 +310,8 @@ std::vector<std::pair<Tile, bool>> Hand::PossibleDiscards() const {
   return AllPossibleDiscards();
 }
 
-std::vector<std::pair<Tile, bool>> Hand::PossibleDiscardsJustAfterRiichi() const {
+std::vector<std::pair<Tile, bool>> Hand::PossibleDiscardsJustAfterRiichi()
+    const {
   Assert(IsMenzen());
   Assert(IsUnderRiichi(),
          "stage_: " + std::to_string(static_cast<int>(stage_)));
@@ -785,7 +786,8 @@ std::vector<std::pair<Tile, bool>> Hand::PossibleDiscardsToTakeTenpai() const {
     Assert(closed_tile_types.count(tile.Type()));
     if (--closed_tile_types[tile.Type()] == 0)
       closed_tile_types.erase(tile.Type());
-    if (Hand::IsTenpai(closed_tile_types)) possible_discards.emplace_back(tile, tsumogiri);
+    if (Hand::IsTenpai(closed_tile_types))
+      possible_discards.emplace_back(tile, tsumogiri);
     ++closed_tile_types[tile.Type()];
   }
   Assert(!possible_discards.empty());
@@ -806,7 +808,9 @@ std::vector<std::pair<Tile, bool>> Hand::AllPossibleDiscards() const {
     bool is_exception = t.IsRedFive() || t == last_tile_added_.value();
     if (!added.count(t.Type()) || is_exception) {
       bool tsumogiri = false;
-      if (t == last_tile_added_.value()) tsumogiri = true;  // Chi, Pon, Kanの場合にはlast_tile_added_はそもそも切れない
+      if (t == last_tile_added_.value())
+        tsumogiri =
+            true;  // Chi, Pon, Kanの場合にはlast_tile_added_はそもそも切れない
       possible_discards.emplace_back(t, tsumogiri);
       Assert(
           std::count_if(
@@ -832,11 +836,16 @@ std::vector<std::pair<Tile, bool>> Hand::AllPossibleDiscards() const {
   }
   Assert(!Any(stage_, {HandStage::kAfterDraw, HandStage::kAfterDrawAfterKan}) ||
          std::any_of(possible_discards.begin(), possible_discards.end(),
-                     [&](const auto& x){ return last_tile_added_.value() == x.first; }));
+                     [&](const auto &x) {
+                       return last_tile_added_.value() == x.first;
+                     }));
   Assert(!possible_discards.empty());
-  Assert(std::count_if(possible_discards.begin(), possible_discards.end(), [](const auto &x){ return x.second; }) <= 1,
+  Assert(std::count_if(possible_discards.begin(), possible_discards.end(),
+                       [](const auto &x) { return x.second; }) <= 1,
          "# of tsumogiri should be <= 1 but got " +
-             std::to_string(std::count_if(possible_discards.begin(), possible_discards.end(), [](const auto &x){ return x.second; })));
+             std::to_string(std::count_if(
+                 possible_discards.begin(), possible_discards.end(),
+                 [](const auto &x) { return x.second; })));
   return possible_discards;
 }
 

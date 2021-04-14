@@ -66,8 +66,10 @@ class Hand {
   // action validators
   std::vector<std::pair<Tile, bool>> PossibleDiscards()
       const;  // 同じ種類（タイプ）の牌については、idが一番小さいものだけを返す。赤とツモ切り牌だけ例外。
-  std::vector<std::pair<Tile, bool>> PossibleDiscardsToTakeTenpai() const;     // 同上
-  std::vector<std::pair<Tile, bool>> PossibleDiscardsJustAfterRiichi() const;  // 同上
+  std::vector<std::pair<Tile, bool>> PossibleDiscardsToTakeTenpai()
+      const;  // 同上
+  std::vector<std::pair<Tile, bool>> PossibleDiscardsJustAfterRiichi()
+      const;  // 同上
   std::vector<Open> PossibleOpensAfterOthersDiscard(
       Tile tile, RelativePos from) const;  // includes Chi, Pon, and KanOpened
   std::vector<Open> PossibleOpensAfterDraw()
