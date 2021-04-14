@@ -1246,7 +1246,7 @@ void State::Update(mjxproto::Action &&action) {
         NoWinner();
       }
       return;
-    case mjxproto::ACTION_TYPE_KYUSYU:
+    case mjxproto::ACTION_TYPE_ABORTIVE_DRAW_NINE_TERMINALS:
       Assert(Any(LastEvent().type(), {mjxproto::EVENT_TYPE_DRAW}));
       NoWinner();
       return;
