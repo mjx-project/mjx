@@ -65,7 +65,7 @@ mjxproto::Action Action::CreateNo(AbsolutePos who) {
 
 mjxproto::Action Action::CreateNineTiles(AbsolutePos who) {
   mjxproto::Action proto;
-  proto.set_type(mjxproto::ACTION_TYPE_KYUSYU);
+  proto.set_type(mjxproto::ACTION_TYPE_ABORTIVE_DRAW_NINE_TERMINALS);
   proto.set_who(ToUType(who));
   Assert(IsValid(proto));
   return proto;
@@ -89,7 +89,7 @@ bool Action::IsValid(const mjxproto::Action& action) {
       break;
     case mjxproto::ACTION_TYPE_RIICHI:
     case mjxproto::ACTION_TYPE_TSUMO:
-    case mjxproto::ACTION_TYPE_KYUSYU:
+    case mjxproto::ACTION_TYPE_ABORTIVE_DRAW_NINE_TERMINALS:
     case mjxproto::ACTION_TYPE_NO:
     case mjxproto::ACTION_TYPE_RON:
       if (action.discard() != 0) return false;
@@ -199,7 +199,7 @@ std::uint8_t Action::Encode(const mjxproto::Action& action) {
     case mjxproto::ACTION_TYPE_RIICHI:
       // 140: Riichi
       return 140;
-    case mjxproto::ACTION_TYPE_KYUSYU:
+    case mjxproto::ACTION_TYPE_ABORTIVE_DRAW_NINE_TERMINALS:
       // 141: Kyusyu
       return 141;
     case mjxproto::ACTION_TYPE_NO:

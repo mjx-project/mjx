@@ -27,7 +27,7 @@ mjxproto::Action StrategyRuleBased::TakeAction(
   std::unordered_map<mjxproto::ActionType, int> action_priority = {
       {mjxproto::ACTION_TYPE_TSUMO, 0},
       {mjxproto::ACTION_TYPE_RIICHI, 1},
-      {mjxproto::ACTION_TYPE_KYUSYU, 2},
+      {mjxproto::ACTION_TYPE_ABORTIVE_DRAW_NINE_TERMINALS, 2},
       {mjxproto::ACTION_TYPE_KAN_CLOSED, 3},
       {mjxproto::ACTION_TYPE_KAN_ADDED, 4},
       {mjxproto::ACTION_TYPE_DISCARD, 5},
@@ -53,7 +53,7 @@ mjxproto::Action StrategyRuleBased::TakeAction(
   // 和了れるときは全て和了る。リーチできるときは全てリーチする。九種九牌も全て流す。
   if (Any(selected.type(),
           {mjxproto::ACTION_TYPE_TSUMO, mjxproto::ACTION_TYPE_RIICHI,
-           mjxproto::ACTION_TYPE_RON, mjxproto::ACTION_TYPE_KYUSYU})) {
+           mjxproto::ACTION_TYPE_RON, mjxproto::ACTION_TYPE_ABORTIVE_DRAW_NINE_TERMINALS})) {
     return selected;
   }
 

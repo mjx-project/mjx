@@ -387,7 +387,7 @@ TEST(state, CreateObservation) {
   EXPECT_TRUE(observations.find("ちくき") != observations.end());
   observation = observations["ちくき"];
   EXPECT_TRUE(ActionTypeCheck(
-      {mjxproto::ACTION_TYPE_KYUSYU, mjxproto::ACTION_TYPE_DISCARD},
+      {mjxproto::ACTION_TYPE_ABORTIVE_DRAW_NINE_TERMINALS, mjxproto::ACTION_TYPE_DISCARD},
       observation));
 }
 
@@ -903,7 +903,7 @@ std::vector<std::vector<mjxproto::Action>> ListUpAllActionCombinations(
         case mjxproto::ACTION_TYPE_NO:
           actions_per_player.push_back(Action::CreateNo(who));
           break;
-        case mjxproto::ACTION_TYPE_KYUSYU:
+        case mjxproto::ACTION_TYPE_ABORTIVE_DRAW_NINE_TERMINALS:
           actions_per_player.push_back(Action::CreateNineTiles(who));
           break;
         case mjxproto::ACTION_TYPE_CHI:
