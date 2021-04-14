@@ -107,7 +107,7 @@ std::string SwapTiles(const std::string &json_str, Tile a, Tile b) {
     else if (state.ura_doras(i) == b.Id())
       state.set_ura_doras(i, a.Id());
   }
-  // init hand, draws
+  // init hand, draw_history
   for (int j = 0; j < 4; ++j) {
     auto mpinfo = state.mutable_private_infos(j);
     for (int i = 0; i < mpinfo->init_hand_size(); ++i) {
@@ -116,11 +116,11 @@ std::string SwapTiles(const std::string &json_str, Tile a, Tile b) {
       else if (mpinfo->init_hand(i) == b.Id())
         mpinfo->set_init_hand(i, a.Id());
     }
-    for (int i = 0; i < mpinfo->draws_size(); ++i) {
-      if (mpinfo->draws(i) == a.Id())
-        mpinfo->set_draws(i, b.Id());
-      else if (mpinfo->draws(i) == b.Id())
-        mpinfo->set_draws(i, a.Id());
+    for (int i = 0; i < mpinfo->draw_history_size(); ++i) {
+      if (mpinfo->draw_history(i) == a.Id())
+        mpinfo->set_draw_history(i, b.Id());
+      else if (mpinfo->draw_history(i) == b.Id())
+        mpinfo->set_draw_history(i, a.Id());
     }
   }
   // event history

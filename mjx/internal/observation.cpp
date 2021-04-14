@@ -80,7 +80,7 @@ Hand Observation::current_hand() const {
   for (const auto& event : proto_.event_history().events()) {
     if (event.who() != proto_.who()) continue;
     if (event.type() == mjxproto::EVENT_TYPE_DRAW) {
-      hand.Draw(Tile(proto_.private_info().draws(draw_ix)));
+      hand.Draw(Tile(proto_.private_info().draw_history(draw_ix)));
       draw_ix++;
     } else if (event.type() == mjxproto::EVENT_TYPE_RIICHI) {
       hand.Riichi();  // TODO: double riichi

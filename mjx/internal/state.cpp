@@ -245,7 +245,7 @@ void State::UpdateByEvent(const mjxproto::Event &event) {
   switch (event.type()) {
     case mjxproto::EVENT_TYPE_DRAW:
       // TODO: wrap by func
-      // private_infos_[ToUType(who)].add_draws(state->private_infos(ToUType(who)).draws(draw_ixs[ToUType(who)]));
+      // private_infos_[ToUType(who)].add_draw_history(state->private_infos(ToUType(who)).draw_history(draw_ixs[ToUType(who)]));
       // draw_ixs[ToUType(who)]++;
       Draw(who);
       break;
@@ -311,7 +311,7 @@ Tile State::Draw(AbsolutePos who) {
       mutable_player(AbsolutePos(i)).is_ippatsu = false;
 
   state_.mutable_event_history()->mutable_events()->Add(Event::CreateDraw(who));
-  state_.mutable_private_infos(ToUType(who))->add_draws(draw.Id());
+  state_.mutable_private_infos(ToUType(who))->add_draw_history(draw.Id());
 
   return draw;
 }
@@ -1314,8 +1314,8 @@ bool State::Equals(const State &other) const noexcept {
                   other.state_.private_infos(i).init_hand()))
       return false;
   for (int i = 0; i < 4; ++i)
-    if (!tiles_eq(state_.private_infos(i).draws(),
-                  other.state_.private_infos(i).draws()))
+    if (!tiles_eq(state_.private_infos(i).draw_history(),
+                  other.state_.private_infos(i).draw_history()))
       return false;
   // EventHistory
   if (state_.event_history().events_size() !=
@@ -1415,11 +1415,11 @@ bool State::CanReach(const State &other) const noexcept {
 
   // Drawがすべて現時点までは同じである必要がある (配牌は山が同じ時点で同じ）
   for (int i = 0; i < 4; ++i) {
-    const auto &draws = state_.private_infos(i).draws();
-    const auto &other_draws = other.state_.private_infos(i).draws();
-    if (draws.size() > other_draws.size()) return false;
-    for (int j = 0; j < draws.size(); ++j)
-      if (!Tile(draws[j]).Equals(Tile(other_draws[j]))) return false;
+    const auto &draw_history = state_.private_infos(i).draw_history();
+    const auto &other_draw_history = other.state_.private_infos(i).draw_history();
+    if (draw_history.size() > other_draw_history.size()) return false;
+    for (int j = 0; j < draw_history.size(); ++j)
+      if (!Tile(draw_history[j]).Equals(Tile(other_draw_history[j]))) return false;
   }
 
   // もしゲーム終了しているなら、Equalでない時点でダメ
