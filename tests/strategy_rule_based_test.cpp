@@ -50,5 +50,5 @@ TEST(agent_client_mock, TakeAction) {
   state = State(GetLastJsonLine("obs-draw-kyuusyu.json"));
   observation = state.CreateObservations().begin()->second;
   action = agent->TakeAction(std::move(observation));
-  EXPECT_EQ(action.type(), mjxproto::ACTION_TYPE_KYUSYU);
+  EXPECT_EQ(action.type(), mjxproto::ACTION_TYPE_ABORTIVE_DRAW_NINE_TERMINALS);
 }

@@ -41,7 +41,7 @@ State::State(std::vector<PlayerId> player_ids, std::uint64_t game_seed,
   state_.add_ura_doras(wall_.ura_dora_indicators().front().Id());
   // private info
   for (int i = 0; i < 4; ++i) {
-    state_.add_private_infos()->set_who(mjxproto::AbsolutePos(i));
+    state_.add_private_infos()->set_who(i);
     for (const auto tile : wall_.initial_hand_tiles(AbsolutePos(i)))
       state_.mutable_private_infos(i)->mutable_init_hand()->Add(tile.Id());
   }
@@ -216,7 +216,7 @@ State::State(const mjxproto::State &state) {
     players_[i] = Player{state_.player_ids(i), AbsolutePos(i),
                          Hand(wall_.initial_hand_tiles(AbsolutePos(i)))};
     state_.mutable_private_infos()->Add();
-    state_.mutable_private_infos(i)->set_who(mjxproto::AbsolutePos(i));
+    state_.mutable_private_infos(i)->set_who(i);
     for (auto t : wall_.initial_hand_tiles(AbsolutePos(i))) {
       state_.mutable_private_infos(i)->add_init_hand(t.Id());
     }
@@ -227,7 +227,7 @@ State::State(const mjxproto::State &state) {
           mjxproto::NO_WINNER_TYPE_THREE_RONS) {
     std::vector<int> tenpai = {0, 0, 0, 0};
     for (auto t : state.terminal().no_winner().tenpais()) {
-      tenpai[ToUType(t.who())] = 1;
+      tenpai[t.who()] = 1;
     }
     Assert(std::accumulate(tenpai.begin(), tenpai.end(), 0) == 3);
     for (int i = 0; i < 4; ++i) {
@@ -425,8 +425,8 @@ void State::Tsumo(AbsolutePos winner) {
 
   // set terminal
   mjxproto::Win win;
-  win.set_who(mjxproto::AbsolutePos(winner));
-  win.set_from_who(mjxproto::AbsolutePos(winner));
+  win.set_who(ToUType(winner));
+  win.set_from_who(ToUType(winner));
   // winner closed tiles, opens and win tile
   for (auto t : hand_info.closed_tiles) {
     win.add_closed_tiles(t.Id());
@@ -530,8 +530,8 @@ void State::Ron(AbsolutePos winner) {
 
   // set terminal
   mjxproto::Win win;
-  win.set_who(mjxproto::AbsolutePos(winner));
-  win.set_from_who(mjxproto::AbsolutePos(loser));
+  win.set_who(ToUType(winner));
+  win.set_from_who(ToUType(loser));
   // winner closed tiles, opens and win tile
   for (auto t : hand_info.closed_tiles) {
     win.add_closed_tiles(t.Id());
@@ -592,7 +592,7 @@ void State::NoWinner() {
     state_.mutable_terminal()->mutable_no_winner()->set_type(
         mjxproto::NO_WINNER_TYPE_KYUUSYU);
     mjxproto::TenpaiHand tenpai;
-    tenpai.set_who(mjxproto::AbsolutePos(LastEvent().who()));
+    tenpai.set_who(LastEvent().who());
     for (auto tile : hand(AbsolutePos(LastEvent().who())).ToVectorClosed(true))
       tenpai.mutable_closed_tiles()->Add(tile.Id());
     state_.mutable_terminal()->mutable_no_winner()->mutable_tenpais()->Add(
@@ -649,7 +649,7 @@ void State::NoWinner() {
     if (auto tenpai_hand = EvalTenpai(who); tenpai_hand) {
       is_tenpai[i] = 1;
       mjxproto::TenpaiHand tenpai;
-      tenpai.set_who(mjxproto::AbsolutePos(who));
+      tenpai.set_who(ToUType(who));
       for (auto tile : tenpai_hand.value().closed_tiles) {
         tenpai.mutable_closed_tiles()->Add(tile.Id());
       }
@@ -1035,20 +1035,19 @@ void State::Update(std::vector<mjxproto::Action> &&action_candidates) {
       while (action_candidates.back().type() != mjxproto::ACTION_TYPE_RON)
         action_candidates.pop_back();
       // 上家から順にsortする（ダブロン時に供託が上家取り）
-      auto from_who = AbsolutePos(LastEvent().who());
+      auto from_who = LastEvent().who();
       std::sort(
           action_candidates.begin(), action_candidates.end(),
           [&from_who](const mjxproto::Action &x, const mjxproto::Action &y) {
-            return ((ToUType(x.who()) - ToUType(from_who) + 4) % 4) <
-                   ((ToUType(y.who()) - ToUType(from_who) + 4) % 4);
+            return ((x.who() - from_who + 4) % 4) <
+                   ((y.who() - from_who + 4) % 4);
           });
       int ron_count = action_candidates.size();
       if (ron_count == 3) {
         // 三家和了
         std::vector<int> ron = {0, 0, 0, 0};
         for (const auto &action : action_candidates) {
-          if (action.type() == mjxproto::ACTION_TYPE_RON)
-            ron[ToUType(action.who())] = 1;
+          if (action.type() == mjxproto::ACTION_TYPE_RON) ron[action.who()] = 1;
         }
         Assert(std::accumulate(ron.begin(), ron.end(), 0) == 3);
         for (int i = 0; i < 4; ++i) {
@@ -1216,7 +1215,7 @@ void State::Update(mjxproto::Action &&action) {
       // 加槓のあとに mjxproto::ActionType::kNo
       // が渡されるのは槍槓のロンを否定した場合のみ
       if (LastEvent().type() == mjxproto::EVENT_TYPE_KAN_ADDED) {
-        Draw(AbsolutePos((ToUType(LastEvent().who()))));  // 嶺上ツモ
+        Draw(AbsolutePos(LastEvent().who()));  // 嶺上ツモ
         return;
       }
 
@@ -1243,12 +1242,12 @@ void State::Update(mjxproto::Action &&action) {
 
       if (wall_.HasDrawLeft()) {
         if (RequireRiichiScoreChange()) RiichiScoreChange();
-        Draw(AbsolutePos((ToUType(LastEvent().who()) + 1) % 4));
+        Draw(AbsolutePos((LastEvent().who() + 1) % 4));
       } else {
         NoWinner();
       }
       return;
-    case mjxproto::ACTION_TYPE_KYUSYU:
+    case mjxproto::ACTION_TYPE_ABORTIVE_DRAW_NINE_TERMINALS:
       Assert(Any(LastEvent().type(), {mjxproto::EVENT_TYPE_DRAW}));
       NoWinner();
       return;

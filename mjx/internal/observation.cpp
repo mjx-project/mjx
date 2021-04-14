@@ -45,7 +45,7 @@ Observation::Observation(AbsolutePos who, const mjxproto::State& state) {
   // proto_.set_allocated_event_history(&state.mutable_event_history());
   // proto_.release_event_history(); // in deconstructor
   proto_.mutable_event_history()->CopyFrom(state.event_history());
-  proto_.set_who(mjxproto::AbsolutePos(who));
+  proto_.set_who(ToUType(who));
   proto_.mutable_private_info()->CopyFrom(state.private_infos(ToUType(who)));
 }
 

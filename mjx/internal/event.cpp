@@ -5,7 +5,7 @@
 namespace mjx::internal {
 mjxproto::Event Event::CreateDraw(AbsolutePos who) {
   mjxproto::Event proto;
-  proto.set_who(mjxproto::AbsolutePos(who));
+  proto.set_who(ToUType(who));
   proto.set_type(mjxproto::EVENT_TYPE_DRAW);
   Assert(IsValid(proto));
   return proto;
@@ -14,7 +14,7 @@ mjxproto::Event Event::CreateDraw(AbsolutePos who) {
 mjxproto::Event Event::CreateDiscard(AbsolutePos who, Tile discard,
                                      bool tsumogiri) {
   mjxproto::Event proto;
-  proto.set_who(mjxproto::AbsolutePos(who));
+  proto.set_who(ToUType(who));
   proto.set_type(tsumogiri ? mjxproto::EVENT_TYPE_DISCARD_DRAWN_TILE
                            : mjxproto::EVENT_TYPE_DISCARD_FROM_HAND);
   proto.set_tile(discard.Id());
@@ -24,7 +24,7 @@ mjxproto::Event Event::CreateDiscard(AbsolutePos who, Tile discard,
 
 mjxproto::Event Event::CreateRiichi(AbsolutePos who) {
   mjxproto::Event proto;
-  proto.set_who(mjxproto::AbsolutePos(who));
+  proto.set_who(ToUType(who));
   proto.set_type(mjxproto::EVENT_TYPE_RIICHI);
   Assert(IsValid(proto));
   return proto;
@@ -32,7 +32,7 @@ mjxproto::Event Event::CreateRiichi(AbsolutePos who) {
 
 mjxproto::Event Event::CreateOpen(AbsolutePos who, Open open) {
   mjxproto::Event proto;
-  proto.set_who(mjxproto::AbsolutePos(who));
+  proto.set_who(ToUType(who));
   proto.set_type(mjxproto::EventType(OpenTypeToEventType(open.Type())));
   proto.set_open(open.GetBits());
   Assert(IsValid(proto));
@@ -49,7 +49,7 @@ mjxproto::Event Event::CreateNewDora(Tile dora_indicator) {
 
 mjxproto::Event Event::CreateRiichiScoreChange(AbsolutePos who) {
   mjxproto::Event proto;
-  proto.set_who(mjxproto::AbsolutePos(who));
+  proto.set_who(ToUType(who));
   proto.set_type(mjxproto::EVENT_TYPE_RIICHI_SCORE_CHANGE);
   Assert(IsValid(proto));
   return proto;
@@ -57,7 +57,7 @@ mjxproto::Event Event::CreateRiichiScoreChange(AbsolutePos who) {
 
 mjxproto::Event Event::CreateTsumo(AbsolutePos who, Tile tile) {
   mjxproto::Event proto;
-  proto.set_who(mjxproto::AbsolutePos(who));
+  proto.set_who(ToUType(who));
   proto.set_type(mjxproto::EVENT_TYPE_TSUMO);
   proto.set_tile(tile.Id());
   Assert(IsValid(proto));
@@ -66,7 +66,7 @@ mjxproto::Event Event::CreateTsumo(AbsolutePos who, Tile tile) {
 
 mjxproto::Event Event::CreateRon(AbsolutePos who, Tile tile) {
   mjxproto::Event proto;
-  proto.set_who(mjxproto::AbsolutePos(who));
+  proto.set_who(ToUType(who));
   proto.set_type(mjxproto::EVENT_TYPE_RON);
   proto.set_tile(tile.Id());
   Assert(IsValid(proto));
@@ -113,13 +113,13 @@ bool Event::IsValid(const mjxproto::Event &event) {
       // open could be zero when it's kan closed
       break;
     case mjxproto::EVENT_TYPE_NEW_DORA:
-      if (event.who() != mjxproto::ABSOLUTE_POS_INIT_EAST)
+      if (event.who() != ToUType(AbsolutePos::kInitEast))
         return false;  // who is empty = default
       if (!(0 <= event.tile() && event.tile() < 136)) return false;
       if (event.open() != 0) return false;  // open is empty = 0
       break;
     case mjxproto::EVENT_TYPE_NO_WINNER:
-      if (event.who() != mjxproto::ABSOLUTE_POS_INIT_EAST)
+      if (event.who() != ToUType(AbsolutePos::kInitEast))
         return false;                       // who is empty = default
       if (event.tile() != 0) return false;  // tile is empty = 0
       if (event.open() != 0) return false;  // open is empty = 0

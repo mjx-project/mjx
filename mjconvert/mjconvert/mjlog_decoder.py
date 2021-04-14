@@ -1,4 +1,5 @@
-from __future__ import annotations  # postpone type hint evaluation or doctest fails
+# postpone type hint evaluation or doctest fails
+from __future__ import annotations
 
 import copy
 import json
@@ -11,13 +12,14 @@ import tenhou_wall_reproducer
 from google.protobuf import json_format
 
 import mjxproto
+from mjconvert.const import AbsolutePos, RelativePos
 
 
 class MjlogDecoder:
     def __init__(self, modify: bool):
         self.state: mjxproto.State = mjxproto.State()
         self.modify = modify
-        self.last_drawer: Optional[mjxproto.AbsolutePosValue] = None
+        self.last_drawer: Optional[int] = None
         self.last_draw: Optional[int] = None
 
     def to_states(self, mjlog_str: str) -> List[mjxproto.State]:
@@ -63,7 +65,8 @@ class MjlogDecoder:
         go = root.iter("GO")
         for child in go:
             assert int(child.attrib["type"]) == 169  # only use 鳳南赤
-        un = root.iter("UN")  # TODO(sotetsuk): if there are > 2 "UN", some user became offline
+        # TODO(sotetsuk): if there are > 2 "UN", some user became offline
+        un = root.iter("UN")
         for child in un:
             state_.player_ids.append(urllib.parse.unquote(child.attrib["n0"]))
             state_.player_ids.append(urllib.parse.unquote(child.attrib["n1"]))
@@ -134,7 +137,7 @@ class MjlogDecoder:
         for i in range(4):
             self.state.private_infos.append(
                 mjxproto.PrivateInfo(
-                    who=mjxproto.AbsolutePos.values()[i],
+                    who=i,
                     init_hand=[int(x) for x in val["hai" + str(i)].split(",")],
                 )
             )
@@ -161,23 +164,23 @@ class MjlogDecoder:
                 )
                 self.last_drawer, self.last_draw = None, None
             elif key == "N":  # open
-                who = mjxproto.AbsolutePos.values()[int(val["who"])]
+                who = int(val["who"])
                 open = int(val["m"])
                 event = mjxproto.Event(
-                    who=mjxproto.AbsolutePos.values()[who],
+                    who=who,
                     type=MjlogDecoder._open_type(open),
                     open=open,
                 )
             elif key == "REACH":
-                who = mjxproto.AbsolutePos.values()[int(val["who"])]
+                who = int(val["who"])
                 if int(val["step"]) == 1:
                     event = mjxproto.Event(
-                        who=mjxproto.AbsolutePos.values()[who],
+                        who=who,
                         type=mjxproto.EVENT_TYPE_RIICHI,
                     )
                 else:
                     event = mjxproto.Event(
-                        who=mjxproto.AbsolutePos.values()[who],
+                        who=who,
                         type=mjxproto.EVENT_TYPE_RIICHI_SCORE_CHANGE,
                     )
                     self.state.terminal.final_score.riichi += 1
@@ -199,11 +202,11 @@ class MjlogDecoder:
             elif key == "AGARI":
                 reach_terminal = True
                 ba, riichi = [int(x) for x in val["ba"].split(",")]
-                who = mjxproto.AbsolutePos.values()[int(val["who"])]
-                from_who = mjxproto.AbsolutePos.values()[int(val["fromWho"])]
+                who = int(val["who"])
+                from_who = int(val["fromWho"])
                 # set event
                 event = mjxproto.Event(
-                    who=mjxproto.AbsolutePos.values()[who],
+                    who=who,
                     type=mjxproto.EVENT_TYPE_TSUMO if who == from_who else mjxproto.EVENT_TYPE_RON,
                     tile=int(val["machi"]),
                 )
@@ -266,7 +269,7 @@ class MjlogDecoder:
                 continue
             terminal.no_winner.tenpais.append(
                 mjxproto.TenpaiHand(
-                    who=mjxproto.AbsolutePos.values()[i],
+                    who=i,
                     closed_tiles=[int(x) for x in val[hai_key].split(",")],
                 )
             )
@@ -288,9 +291,9 @@ class MjlogDecoder:
 
     @staticmethod
     def make_discard_event(
-        who: mjxproto.AbsolutePosValue,
+        who: int,
         discard: int,
-        last_drawer: Optional[mjxproto.AbsolutePosValue],
+        last_drawer: Optional[int],
         last_draw: Optional[int],
     ) -> mjxproto.Event:
         type_ = mjxproto.EVENT_TYPE_DISCARD_FROM_HAND
@@ -309,7 +312,7 @@ class MjlogDecoder:
         return event
 
     @staticmethod
-    def parse_discard(key: str) -> Tuple[mjxproto.AbsolutePosValue, int]:
+    def parse_discard(key: str) -> Tuple[int, int]:
         who = MjlogDecoder._to_absolute_pos(key[0])
         discard = int(key[1:])
         return who, discard
@@ -338,16 +341,16 @@ class MjlogDecoder:
     @staticmethod
     def make_win(
         val: Dict[str, str],
-        who: mjxproto.AbsolutePosValue,
-        from_who: mjxproto.AbsolutePosValue,
+        who: int,
+        from_who: int,
         modify: bool,
     ) -> mjxproto.Win:
         # set win info
         # TODO(sotetsuk): yakuman
         # TODO(sotetsuk): check double ron behavior
         win = mjxproto.Win(
-            who=mjxproto.AbsolutePos.values()[who],
-            from_who=mjxproto.AbsolutePos.values()[from_who],
+            who=who,
+            from_who=from_who,
             closed_tiles=[int(x) for x in val["hai"].split(",")],
             win_tile=int(val["machi"]),
         )
@@ -377,13 +380,13 @@ class MjlogDecoder:
         return win
 
     @staticmethod
-    def parse_draw(key: str) -> Tuple[mjxproto.AbsolutePosValue, int]:
+    def parse_draw(key: str) -> Tuple[int, int]:
         who = MjlogDecoder._to_absolute_pos(key[0])
         draw = int(key[1:])
         return who, draw
 
     @staticmethod
-    def make_draw_event(who: mjxproto.AbsolutePosValue) -> mjxproto.Event:
+    def make_draw_event(who: int) -> mjxproto.Event:
         event = mjxproto.Event(
             who=who,
             type=mjxproto.EVENT_TYPE_DRAW,
@@ -392,16 +395,16 @@ class MjlogDecoder:
         return event
 
     @staticmethod
-    def _to_absolute_pos(pos_str: str) -> mjxproto.AbsolutePosValue:
+    def _to_absolute_pos(pos_str: str) -> int:
         assert pos_str in ["T", "U", "V", "W", "D", "E", "F", "G"]
         if pos_str in ["T", "D"]:
-            return mjxproto.ABSOLUTE_POS_INIT_EAST
+            return AbsolutePos.INIT_EAST
         elif pos_str in ["U", "E"]:
-            return mjxproto.ABSOLUTE_POS_INIT_SOUTH
+            return AbsolutePos.INIT_SOUTH
         elif pos_str in ["V", "F"]:
-            return mjxproto.ABSOLUTE_POS_INIT_WEST
+            return AbsolutePos.INIT_WEST
         elif pos_str in ["W", "G"]:
-            return mjxproto.ABSOLUTE_POS_INIT_NORTH
+            return AbsolutePos.INIT_NORTH
         assert False
 
     @staticmethod
@@ -413,7 +416,7 @@ class MjlogDecoder:
         elif 1 << 4 & bits:
             return mjxproto.EVENT_TYPE_KAN_ADDED
         else:
-            if mjxproto.RELATIVE_POS_SELF == bits & 3:
+            if RelativePos.SELF == bits & 3:
                 return mjxproto.EVENT_TYPE_KAN_CLOSED
             else:
                 return mjxproto.EVENT_TYPE_KAN_OPENED

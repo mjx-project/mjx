@@ -6,27 +6,6 @@ service Agent {
   rpc TakeAction (Observation) returns (Action) {}
 }
 
-enum Wind {
-  WIND_EAST = 0;
-  WIND_SOUTH = 1;
-  WIND_WEST = 2;
-  WIND_NORTH = 3;
-}
-
-enum AbsolutePos {
-  ABSOLUTE_POS_INIT_EAST = 0;  // 起家
-  ABSOLUTE_POS_INIT_SOUTH = 1;
-  ABSOLUTE_POS_INIT_WEST = 2;
-  ABSOLUTE_POS_INIT_NORTH = 3;  // ラス親
-}
-
-enum RelativePos {
-  RELATIVE_POS_SELF = 0;
-  RELATIVE_POS_RIGHT = 1;  // 下家
-  RELATIVE_POS_MID = 2;    // 対面
-  RELATIVE_POS_LEFT = 3;   // 上家
-}
-
 enum ActionType {
   // After draw
   ACTION_TYPE_DISCARD = 0;
@@ -35,7 +14,7 @@ enum ActionType {
   ACTION_TYPE_TSUMO = 3;
   ACTION_TYPE_KAN_CLOSED = 4;
   ACTION_TYPE_KAN_ADDED = 5;
-  ACTION_TYPE_KYUSYU = 6;
+  ACTION_TYPE_ABORTIVE_DRAW_NINE_TERMINALS = 5;
   // After other's discard
   ACTION_TYPE_NO = 7;
   ACTION_TYPE_CHI = 8;
@@ -95,7 +74,7 @@ message Event {
   // RIICHI_SCORE_CHANGE   Yes    No      No
   // NO_WINNER             No     No      No
   EventType type = 1;
-  AbsolutePos who = 2;
+  int32 who = 2;
   uint32 tile = 3;
   uint32 open = 4;
 }
@@ -105,7 +84,7 @@ message EventHistory {
 }
 
 message PrivateInfo {
-  AbsolutePos who = 1;
+  int32 who = 1;
   repeated uint32 init_hand = 2;
   repeated uint32 draws = 3;
 }
@@ -115,14 +94,14 @@ message Observation {
   Score init_score = 2;  // public info
   repeated uint32 doras = 3;
   EventHistory event_history = 4;  // public info
-  AbsolutePos who = 5;
+  int32 who = 5;
   PrivateInfo private_info = 6;
   repeated Action possible_actions = 7;
 }
 
 message Win {
-  AbsolutePos who = 1;
-  AbsolutePos from_who = 2;
+  int32 who = 1;
+  int32 from_who = 2;
   repeated uint32 closed_tiles = 3;
   repeated uint32 opens = 4;
   uint32 win_tile = 5;
@@ -141,7 +120,7 @@ message NoWinner {
 }
 
 message TenpaiHand {
-  AbsolutePos who = 1;
+  int32 who = 1;
   repeated uint32 closed_tiles = 2;
 }
 
@@ -181,7 +160,7 @@ message Action {
   //  KAN_OPENED         No    Yes
   //  RON                No     No
   uint32 game_id = 1;
-  AbsolutePos who = 2;
+  int32 who = 2;
   ActionType type = 3;
   uint32 discard = 4;
   uint32 open = 5;
