@@ -274,7 +274,6 @@ std::pair<Tile, bool> Hand::Discard(Tile tile) {
                    return tile.Equals(possible_discard.first);
                  }),
          "Discard tile: " + tile.ToString(true) +
-             "\nPossibleDiscardsJustAfterRiichi(): " +
              "\nToVectorClosed(): " + Tile::ToString(ToVectorClosed(true)));
   bool tsumogiri =
       Any(stage_, {HandStage::kAfterDraw, HandStage::kAfterDrawAfterKan,

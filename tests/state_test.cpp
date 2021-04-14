@@ -45,18 +45,18 @@ bool ActionTypeCheck(const std::vector<mjxproto::ActionType> &action_types,
   for (const auto &possible_action : observation.possible_actions()) {
     observation_action_types.insert(possible_action.type());
   }
-  bool ret = observation_action_types ==
+  bool ok = observation_action_types ==
          std::unordered_set<mjxproto::ActionType>{action_types.begin(),
                                                   action_types.end()};
-  if (!ret) {
-    if (observation_action_types.size() == 0) {
+  if (!ok) {
+    if (observation_action_types.empty()) {
       std::cerr << "observation_action_types is empty" << std::endl;
     }
     for (auto t: observation_action_types) {
       std::cerr << t << std::endl;
     }
   }
-  return ret;
+  return ok;
 }
 
 bool YakuCheck(const State &state, AbsolutePos winner,
