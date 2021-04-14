@@ -430,10 +430,14 @@ def mjxproto_to_mjscore(state: mjxproto.State) -> str:
         AbsolutePos.INIT_NORTH,
     ]
     for abs_pos in absolute_pos:
-        log.append(sort_init_hand(_change_tiles_fmt(state.private_infos[abs_pos].init_hand)))
+        log.append(
+            sort_init_hand(_change_tiles_fmt(state.private_observations[abs_pos].init_hand))
+        )
         log.append(
             parse_draw_history(
-                state.private_infos[abs_pos].draw_history, state.event_history.events, abs_pos
+                state.private_observations[abs_pos].draw_history,
+                state.event_history.events,
+                abs_pos,
             )
         )
         log.append(parse_discards(state.event_history.events, abs_pos))

@@ -41,9 +41,9 @@ State::State(std::vector<PlayerId> player_ids, std::uint64_t game_seed,
   state_.add_ura_doras(wall_.ura_dora_indicators().front().Id());
   // private info
   for (int i = 0; i < 4; ++i) {
-    state_.add_private_infos()->set_who(i);
+    state_.add_private_observations()->set_who(i);
     for (const auto tile : wall_.initial_hand_tiles(AbsolutePos(i)))
-      state_.mutable_private_infos(i)->mutable_init_hand()->Add(tile.Id());
+      state_.mutable_private_observations(i)->mutable_init_hand()->Add(tile.Id());
   }
 
   // dealer draws the first tusmo
@@ -227,10 +227,10 @@ State::State(const mjxproto::State &state) {
   for (int i = 0; i < 4; ++i) {
     players_[i] = Player{state_.player_ids(i), AbsolutePos(i),
                          Hand(wall_.initial_hand_tiles(AbsolutePos(i)))};
-    state_.mutable_private_infos()->Add();
-    state_.mutable_private_infos(i)->set_who(i);
+    state_.mutable_private_observations()->Add();
+    state_.mutable_private_observations(i)->set_who(i);
     for (auto t : wall_.initial_hand_tiles(AbsolutePos(i))) {
-      state_.mutable_private_infos(i)->add_init_hand(t.Id());
+      state_.mutable_private_observations(i)->add_init_hand(t.Id());
     }
   }
   // 三家和了はEventからは復元できないので, ここでSetする
@@ -257,7 +257,7 @@ void State::UpdateByEvent(const mjxproto::Event &event) {
   switch (event.type()) {
     case mjxproto::EVENT_TYPE_DRAW:
       // TODO: wrap by func
-      // private_infos_[ToUType(who)].add_draw_history(state->private_infos(ToUType(who)).draw_history(draw_ixs[ToUType(who)]));
+      // private_observations_[ToUType(who)].add_draw_history(state->private_observations(ToUType(who)).draw_history(draw_ixs[ToUType(who)]));
       // draw_ixs[ToUType(who)]++;
       Draw(who);
       break;
@@ -323,7 +323,7 @@ Tile State::Draw(AbsolutePos who) {
       mutable_player(AbsolutePos(i)).is_ippatsu = false;
 
   state_.mutable_event_history()->mutable_events()->Add(Event::CreateDraw(who));
-  state_.mutable_private_infos(ToUType(who))->add_draw_history(draw.Id());
+  state_.mutable_private_observations(ToUType(who))->add_draw_history(draw.Id());
 
   return draw;
 }
@@ -1330,12 +1330,12 @@ bool State::Equals(const State &other) const noexcept {
   if (!tiles_eq(state_.doras(), other.state_.doras())) return false;
   if (!tiles_eq(state_.ura_doras(), other.state_.ura_doras())) return false;
   for (int i = 0; i < 4; ++i)
-    if (!tiles_eq(state_.private_infos(i).init_hand(),
-                  other.state_.private_infos(i).init_hand()))
+    if (!tiles_eq(state_.private_observations(i).init_hand(),
+                  other.state_.private_observations(i).init_hand()))
       return false;
   for (int i = 0; i < 4; ++i)
-    if (!tiles_eq(state_.private_infos(i).draw_history(),
-                  other.state_.private_infos(i).draw_history()))
+    if (!tiles_eq(state_.private_observations(i).draw_history(),
+                  other.state_.private_observations(i).draw_history()))
       return false;
   // EventHistory
   if (state_.event_history().events_size() !=
@@ -1435,9 +1435,9 @@ bool State::CanReach(const State &other) const noexcept {
 
   // Drawがすべて現時点までは同じである必要がある (配牌は山が同じ時点で同じ）
   for (int i = 0; i < 4; ++i) {
-    const auto &draw_history = state_.private_infos(i).draw_history();
+    const auto &draw_history = state_.private_observations(i).draw_history();
     const auto &other_draw_history =
-        other.state_.private_infos(i).draw_history();
+        other.state_.private_observations(i).draw_history();
     if (draw_history.size() > other_draw_history.size()) return false;
     for (int j = 0; j < draw_history.size(); ++j)
       if (!Tile(draw_history[j]).Equals(Tile(other_draw_history[j])))

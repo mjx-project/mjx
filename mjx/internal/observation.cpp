@@ -52,7 +52,7 @@ Observation::Observation(AbsolutePos who, const mjxproto::State& state) {
   // proto_.release_event_history(); // in deconstructor
   proto_.mutable_event_history()->CopyFrom(state.event_history());
   proto_.set_who(ToUType(who));
-  proto_.mutable_private_info()->CopyFrom(state.private_infos(ToUType(who)));
+  proto_.mutable_private_observation()->CopyFrom(state.private_observations(ToUType(who)));
 }
 
 bool Observation::has_possible_action() const {
@@ -71,7 +71,7 @@ const mjxproto::Observation& Observation::proto() const { return proto_; }
 
 Hand Observation::initial_hand() const {
   std::vector<Tile> tiles;
-  for (auto tile_id : proto_.private_info().init_hand())
+  for (auto tile_id : proto_.private_observation().init_hand())
     tiles.emplace_back(tile_id);
   return Hand(tiles);
 }
@@ -79,14 +79,14 @@ Hand Observation::initial_hand() const {
 Hand Observation::current_hand() const {
   // TODO: just use stored info in protocol buffer
   std::vector<Tile> tiles;
-  for (auto tile_id : proto_.private_info().init_hand())
+  for (auto tile_id : proto_.private_observation().init_hand())
     tiles.emplace_back(tile_id);
   Hand hand = Hand(tiles);
   int draw_ix = 0;
   for (const auto& event : proto_.event_history().events()) {
     if (event.who() != proto_.who()) continue;
     if (event.type() == mjxproto::EVENT_TYPE_DRAW) {
-      hand.Draw(Tile(proto_.private_info().draw_history(draw_ix)));
+      hand.Draw(Tile(proto_.private_observation().draw_history(draw_ix)));
       draw_ix++;
     } else if (event.type() == mjxproto::EVENT_TYPE_RIICHI) {
       hand.Riichi();  // TODO: double riichi
