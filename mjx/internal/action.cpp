@@ -16,7 +16,7 @@ mjxproto::Action Action::CreateDiscard(AbsolutePos who, Tile discard) {
 mjxproto::Action Action::CreateTsumogiri(AbsolutePos who, Tile discard) {
   mjxproto::Action proto;
   proto.set_type(mjxproto::ACTION_TYPE_TSUMOGIRI);
-  proto.set_who(mjxproto::AbsolutePos(who));
+  proto.set_who(ToUType(who));
   proto.set_discard(discard.Id());
   Assert(IsValid(proto));
   return proto;
