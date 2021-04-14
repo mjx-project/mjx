@@ -71,7 +71,11 @@ class MjlogEncoder:
                 who_ix = int(event.who)
                 who = MjlogEncoder._encode_absolute_pos_for_draw(event.who)
                 assert event.tile == 0  # default
+<<<<<<< HEAD
                 draw = state.private_observations[who_ix].draws[draw_ixs[who_ix]]
+=======
+                draw = state.private_infos[who_ix].draw_history[draw_ixs[who_ix]]
+>>>>>>> 68a2f3d483acb824802b992160fbfd72dd57ea58
                 draw_ixs[who_ix] += 1
                 ret += f"<{who}{draw}/>"
             elif event.type in [

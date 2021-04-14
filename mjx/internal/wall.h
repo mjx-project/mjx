@@ -13,7 +13,7 @@ class Wall {
    *  136 tiles, indexed [0, ..., 135]
    *  - [0, ..., 51] (13*4=52): initial hands of 4 players 配牌
    *    - **Initial hands depend on round info**
-   *  - [52, ..., 121] (70): draws ツモ
+   *  - [52, ..., 121] (70): draw_history ツモ
    *  - [122, 124, 126, 128] Kan dora 3, 2, 1, 0
    *  - [123, 125, 127, 129] Kan ura Dora 3, 2, 1, 0
    *  - [130] Dora

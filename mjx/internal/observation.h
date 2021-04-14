@@ -18,7 +18,7 @@ class Observation {
   AbsolutePos who() const;
   [[nodiscard]] bool has_possible_action() const;
   [[nodiscard]] std::vector<mjxproto::Action> possible_actions() const;
-  [[nodiscard]] std::vector<Tile> possible_discards() const;
+  [[nodiscard]] std::vector<std::pair<Tile, bool>> possible_discards() const;
   Hand initial_hand() const;
   Hand current_hand() const;
   std::string ToJson() const;

@@ -13,12 +13,37 @@ mjxproto::Action Action::CreateDiscard(AbsolutePos who, Tile discard) {
   return proto;
 }
 
-std::vector<mjxproto::Action> Action::CreateDiscards(
-    AbsolutePos who, const std::vector<Tile>& discards) {
+mjxproto::Action Action::CreateTsumogiri(AbsolutePos who, Tile discard) {
+  mjxproto::Action proto;
+  proto.set_type(mjxproto::ACTION_TYPE_TSUMOGIRI);
+  proto.set_who(ToUType(who));
+  proto.set_discard(discard.Id());
+  Assert(IsValid(proto));
+  return proto;
+}
+
+std::vector<mjxproto::Action> Action::CreateDiscardsAndTsumogiri(
+    AbsolutePos who, const std::vector<std::pair<Tile, bool>>& discards) {
+  Assert(std::count_if(discards.begin(), discards.end(),
+                       [](const auto& x) { return x.second; }) <= 1,
+         "# of Tsumogiri actions should be <= 1 but got " +
+             std::to_string(
+                 std::count_if(discards.begin(), discards.end(),
+                               [](const auto& x) { return x.second; })));
   std::vector<mjxproto::Action> ret;
-  for (auto tile : discards) {
-    ret.push_back(CreateDiscard(who, tile));
+  for (const auto& [tile, tsumogiri] : discards) {
+    ret.push_back(tsumogiri ? CreateTsumogiri(who, tile)
+                            : CreateDiscard(who, tile));
   }
+  Assert(std::count_if(ret.begin(), ret.end(),
+                       [](const auto& x) {
+                         return x.type() == mjxproto::ACTION_TYPE_TSUMOGIRI;
+                       }) <= 1,
+         "# of Tsumogiri actions should be <= 1 but got " +
+             std::to_string(
+                 std::count_if(ret.begin(), ret.end(), [](const auto& x) {
+                   return x.type() == mjxproto::ACTION_TYPE_TSUMOGIRI;
+                 })));
   return ret;
 }
 

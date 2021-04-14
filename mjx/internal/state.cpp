@@ -111,6 +111,8 @@ std::unordered_map<PlayerId, Observation> State::CreateObservations() const {
       auto who = AbsolutePos(LastEvent().who());
       auto player_id = player(who).player_id;
       auto observation = Observation(who, state_);
+      Assert(!observation.has_possible_action(),
+             "possible_actions should be empty.");
 
       // => NineTiles
       if (IsFirstTurnWithoutOpen() && hand(who).CanNineTiles()) {
@@ -135,16 +137,21 @@ std::unordered_map<PlayerId, Observation> State::CreateObservations() const {
         observation.add_possible_action(Action::CreateRiichi(who));
 
       // => Discard (4)
-      observation.add_possible_actions(
-          Action::CreateDiscards(who, hand(who).PossibleDiscards()));
-
+      observation.add_possible_actions(Action::CreateDiscardsAndTsumogiri(
+          who, hand(who).PossibleDiscards()));
+      const auto &possible_actions = observation.possible_actions();
+      Assert(std::count_if(possible_actions.begin(), possible_actions.end(),
+                           [](const auto &x) {
+                             return x.type() == mjxproto::ACTION_TYPE_TSUMOGIRI;
+                           }) == 1,
+             "There should be exactly one tsumogiri action");
       return {{player_id, std::move(observation)}};
     }
     case mjxproto::EVENT_TYPE_RIICHI: {
       // => Discard (5)
       auto who = AbsolutePos(LastEvent().who());
       auto observation = Observation(who, state_);
-      observation.add_possible_actions(Action::CreateDiscards(
+      observation.add_possible_actions(Action::CreateDiscardsAndTsumogiri(
           who, hand(who).PossibleDiscardsJustAfterRiichi()));
       return {{player(who).player_id, std::move(observation)}};
     }
@@ -153,8 +160,13 @@ std::unordered_map<PlayerId, Observation> State::CreateObservations() const {
       // => Discard (6)
       auto who = AbsolutePos(LastEvent().who());
       auto observation = Observation(who, state_);
-      observation.add_possible_actions(
-          Action::CreateDiscards(who, hand(who).PossibleDiscards()));
+      observation.add_possible_actions(Action::CreateDiscardsAndTsumogiri(
+          who, hand(who).PossibleDiscards()));
+      Assert(!Any(observation.possible_actions(),
+                  [](const auto &x) {
+                    return x.type() == mjxproto::ACTION_TYPE_TSUMOGIRI;
+                  }),
+             "After chi/pon, there should be no legal tsumogiri action");
       return {{player(who).player_id, std::move(observation)}};
     }
     case mjxproto::EVENT_TYPE_DISCARD_FROM_HAND:
@@ -245,7 +257,11 @@ void State::UpdateByEvent(const mjxproto::Event &event) {
   switch (event.type()) {
     case mjxproto::EVENT_TYPE_DRAW:
       // TODO: wrap by func
+<<<<<<< HEAD
       // private_observations_[ToUType(who)].add_draws(state->private_observations(ToUType(who)).draws(draw_ixs[ToUType(who)]));
+=======
+      // private_infos_[ToUType(who)].add_draw_history(state->private_infos(ToUType(who)).draw_history(draw_ixs[ToUType(who)]));
+>>>>>>> 68a2f3d483acb824802b992160fbfd72dd57ea58
       // draw_ixs[ToUType(who)]++;
       Draw(who);
       break;
@@ -311,7 +327,11 @@ Tile State::Draw(AbsolutePos who) {
       mutable_player(AbsolutePos(i)).is_ippatsu = false;
 
   state_.mutable_event_history()->mutable_events()->Add(Event::CreateDraw(who));
+<<<<<<< HEAD
   state_.mutable_private_observations(ToUType(who))->add_draws(draw.Id());
+=======
+  state_.mutable_private_infos(ToUType(who))->add_draw_history(draw.Id());
+>>>>>>> 68a2f3d483acb824802b992160fbfd72dd57ea58
 
   return draw;
 }
@@ -1079,7 +1099,8 @@ void State::Update(mjxproto::Action &&action) {
            mjxproto::EVENT_TYPE_KAN_ADDED, mjxproto::EVENT_TYPE_RON}));
   auto who = AbsolutePos(action.who());
   switch (action.type()) {
-    case mjxproto::ACTION_TYPE_DISCARD: {
+    case mjxproto::ACTION_TYPE_DISCARD:
+    case mjxproto::ACTION_TYPE_TSUMOGIRI: {
       Assert(Any(hand(who).SizeClosed(), {2, 5, 8, 11, 14}),
              std::to_string(hand(who).SizeClosed()));
       Assert(
@@ -1091,17 +1112,24 @@ void State::Update(mjxproto::Action &&action) {
       Assert(
           LastEvent().type() == mjxproto::EVENT_TYPE_RIICHI ||
               Any(hand(who).PossibleDiscards(),
-                  [&action](Tile possible_discard) {
-                    return possible_discard.Equals(Tile(action.discard()));
+                  [&action](const auto &possible_discard) {
+                    return possible_discard.first.Equals(
+                        Tile(action.discard()));
                   }),
           "State = " + ToJson() + "\n" + "Hand = " + hand(who).ToString(true));
       Assert(
           LastEvent().type() != mjxproto::EVENT_TYPE_RIICHI ||
               Any(hand(who).PossibleDiscardsJustAfterRiichi(),
-                  [&action](Tile possible_discard) {
-                    return possible_discard.Equals(Tile(action.discard()));
+                  [&action](const auto &possible_discard) {
+                    return possible_discard.first.Equals(
+                        Tile(action.discard()));
                   }),
           "State = " + ToJson() + "\n" + "Hand = " + hand(who).ToString(true));
+      Assert(action.type() != mjxproto::ACTION_TYPE_TSUMOGIRI ||
+                 hand(AbsolutePos(action.who())).LastTileAdded().value().Id() ==
+                     action.discard(),
+             "If action is tsumogiri, the discarded tile should be equal to "
+             "the last drawn tile.");
       {
         int require_kan_dora = RequireKanDora();
         Assert(require_kan_dora <= 1);
@@ -1314,8 +1342,13 @@ bool State::Equals(const State &other) const noexcept {
                   other.state_.private_observations(i).init_hand()))
       return false;
   for (int i = 0; i < 4; ++i)
+<<<<<<< HEAD
     if (!tiles_eq(state_.private_observations(i).draws(),
                   other.state_.private_observations(i).draws()))
+=======
+    if (!tiles_eq(state_.private_infos(i).draw_history(),
+                  other.state_.private_infos(i).draw_history()))
+>>>>>>> 68a2f3d483acb824802b992160fbfd72dd57ea58
       return false;
   // EventHistory
   if (state_.event_history().events_size() !=
@@ -1415,11 +1448,21 @@ bool State::CanReach(const State &other) const noexcept {
 
   // Drawがすべて現時点までは同じである必要がある (配牌は山が同じ時点で同じ）
   for (int i = 0; i < 4; ++i) {
+<<<<<<< HEAD
     const auto &draws = state_.private_observations(i).draws();
     const auto &other_draws = other.state_.private_observations(i).draws();
     if (draws.size() > other_draws.size()) return false;
     for (int j = 0; j < draws.size(); ++j)
       if (!Tile(draws[j]).Equals(Tile(other_draws[j]))) return false;
+=======
+    const auto &draw_history = state_.private_infos(i).draw_history();
+    const auto &other_draw_history =
+        other.state_.private_infos(i).draw_history();
+    if (draw_history.size() > other_draw_history.size()) return false;
+    for (int j = 0; j < draw_history.size(); ++j)
+      if (!Tile(draw_history[j]).Equals(Tile(other_draw_history[j])))
+        return false;
+>>>>>>> 68a2f3d483acb824802b992160fbfd72dd57ea58
   }
 
   // もしゲーム終了しているなら、Equalでない時点でダメ

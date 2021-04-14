@@ -14,13 +14,19 @@ std::vector<mjxproto::Action> Observation::possible_actions() const {
   return ret;
 }
 
-std::vector<Tile> Observation::possible_discards() const {
-  std::vector<Tile> ret;
+std::vector<std::pair<Tile, bool>> Observation::possible_discards() const {
+  std::vector<std::pair<Tile, bool>> ret;
   for (const auto& possible_action : proto_.possible_actions()) {
-    if (possible_action.type() == mjxproto::ActionType::ACTION_TYPE_DISCARD) {
-      ret.emplace_back(possible_action.discard());
-    }
+    if (!Any(possible_action.type(),
+             {mjxproto::ActionType::ACTION_TYPE_DISCARD,
+              mjxproto::ActionType::ACTION_TYPE_TSUMOGIRI}))
+      continue;
+    ret.emplace_back(possible_action.discard(),
+                     possible_action.type() == mjxproto::ACTION_TYPE_TSUMOGIRI);
   }
+  Assert(std::count_if(ret.begin(), ret.end(),
+                       [](const auto& x) { return x.second; }) <= 1,
+         "# of tsumogiri should be <= 1");
   return ret;
 }
 
@@ -80,7 +86,11 @@ Hand Observation::current_hand() const {
   for (const auto& event : proto_.event_history().events()) {
     if (event.who() != proto_.who()) continue;
     if (event.type() == mjxproto::EVENT_TYPE_DRAW) {
+<<<<<<< HEAD
       hand.Draw(Tile(proto_.private_obs().draws(draw_ix)));
+=======
+      hand.Draw(Tile(proto_.private_info().draw_history(draw_ix)));
+>>>>>>> 68a2f3d483acb824802b992160fbfd72dd57ea58
       draw_ix++;
     } else if (event.type() == mjxproto::EVENT_TYPE_RIICHI) {
       hand.Riichi();  // TODO: double riichi

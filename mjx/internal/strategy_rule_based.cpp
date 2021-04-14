@@ -30,12 +30,13 @@ mjxproto::Action StrategyRuleBased::TakeAction(
       {mjxproto::ACTION_TYPE_ABORTIVE_DRAW_NINE_TERMINALS, 2},
       {mjxproto::ACTION_TYPE_KAN_CLOSED, 3},
       {mjxproto::ACTION_TYPE_KAN_ADDED, 4},
-      {mjxproto::ACTION_TYPE_DISCARD, 5},
-      {mjxproto::ACTION_TYPE_RON, 6},
-      {mjxproto::ACTION_TYPE_PON, 7},
-      {mjxproto::ACTION_TYPE_KAN_OPENED, 8},
-      {mjxproto::ACTION_TYPE_CHI, 9},
-      {mjxproto::ACTION_TYPE_NO, 10},
+      {mjxproto::ACTION_TYPE_TSUMOGIRI, 5},
+      {mjxproto::ACTION_TYPE_DISCARD, 6},
+      {mjxproto::ACTION_TYPE_RON, 7},
+      {mjxproto::ACTION_TYPE_PON, 8},
+      {mjxproto::ACTION_TYPE_KAN_OPENED, 9},
+      {mjxproto::ACTION_TYPE_CHI, 10},
+      {mjxproto::ACTION_TYPE_NO, 11},
   };
   std::sort(
       possible_actions.begin(), possible_actions.end(),
@@ -89,12 +90,20 @@ mjxproto::Action StrategyRuleBased::TakeAction(
   }
 
   // Discardが選択されたとき（あるいはdiscardしかできないとき）、切る牌を選ぶ
-  std::vector<Tile> discard_candidates = observation.possible_discards();
+  std::vector<std::pair<Tile, bool>> possible_discards =
+      observation.possible_discards();
+  std::vector<Tile> discard_candidates;
+  for (const auto &[tile, tsumogiri] : possible_discards)
+    discard_candidates.emplace_back(tile);
   Tile selected_discard = SelectDiscard(discard_candidates, curr_hand, mt);
-  return *std::find_if(possible_actions.begin(), possible_actions.end(),
-                       [&selected_discard](const mjxproto::Action &x) {
-                         return x.discard() == selected_discard.Id();
-                       });
+  for (const auto &possible_action : possible_actions) {
+    if (!Any(possible_action.type(),
+             {mjxproto::ACTION_TYPE_DISCARD, mjxproto::ACTION_TYPE_TSUMOGIRI}))
+      continue;
+    if (possible_action.discard() == selected_discard.Id())
+      return possible_action;
+  }
+  assert(false);
 }
 
 template <typename RandomGenerator>
@@ -107,12 +116,12 @@ Tile StrategyRuleBased::SelectDiscard(std::vector<Tile> &discard_candidates,
   if (curr_hand.CanTakeTenpai()) {
     auto tenpai_discards = curr_hand.PossibleDiscardsToTakeTenpai();
     for (const auto tile : discard_candidates) {
-      if (Any(tile, tenpai_discards)) {
+      if (std::any_of(tenpai_discards.begin(), tenpai_discards.end(),
+                      [&tile](const auto &x) { return x.first == tile; })) {
         return tile;
       }
     }
     Assert(false, "discard_candidates: " + Tile::ToString(discard_candidates) +
-                      "\ntenpai_discards: " + Tile::ToString(tenpai_discards) +
                       "\ncurr_hand.ToVectorClosed(): " +
                       Tile::ToString(curr_hand.ToVectorClosed(true)));
   }

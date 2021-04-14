@@ -154,7 +154,11 @@ class MjlogDecoder:
         for key, val in kv[1:]:
             if key != "UN" and key[0] in ["T", "U", "V", "W"]:  # draw
                 who, draw = MjlogDecoder.parse_draw(key)
+<<<<<<< HEAD
                 self.state.private_observations[int(who)].draws.append(draw)
+=======
+                self.state.private_infos[int(who)].draw_history.append(draw)
+>>>>>>> 68a2f3d483acb824802b992160fbfd72dd57ea58
                 event = MjlogDecoder.make_draw_event(who)
                 self.last_drawer, self.last_draw = who, draw
             elif key != "DORA" and key[0] in ["D", "E", "F", "G"]:  # discard
