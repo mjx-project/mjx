@@ -43,7 +43,8 @@ State::State(std::vector<PlayerId> player_ids, std::uint64_t game_seed,
   for (int i = 0; i < 4; ++i) {
     state_.add_private_observations()->set_who(i);
     for (const auto tile : wall_.initial_hand_tiles(AbsolutePos(i)))
-      state_.mutable_private_observations(i)->mutable_init_hand()->Add(tile.Id());
+      state_.mutable_private_observations(i)->mutable_init_hand()->Add(
+          tile.Id());
   }
 
   // dealer draws the first tusmo
@@ -323,7 +324,8 @@ Tile State::Draw(AbsolutePos who) {
       mutable_player(AbsolutePos(i)).is_ippatsu = false;
 
   state_.mutable_event_history()->mutable_events()->Add(Event::CreateDraw(who));
-  state_.mutable_private_observations(ToUType(who))->add_draw_history(draw.Id());
+  state_.mutable_private_observations(ToUType(who))
+      ->add_draw_history(draw.Id());
 
   return draw;
 }
