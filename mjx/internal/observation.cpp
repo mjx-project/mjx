@@ -17,7 +17,7 @@ std::vector<mjxproto::Action> Observation::possible_actions() const {
 std::vector<Tile> Observation::possible_discards() const {
   std::vector<Tile> ret;
   for (const auto& possible_action : proto_.possible_actions()) {
-    if (possible_action.type() == mjxproto::ActionType::ACTION_TYPE_DISCARD) {
+    if (Any(possible_action.type(), {mjxproto::ActionType::ACTION_TYPE_DISCARD, mjxproto::ActionType::ACTION_TYPE_TSUMOGIRI})) {
       ret.emplace_back(possible_action.discard());
     }
   }

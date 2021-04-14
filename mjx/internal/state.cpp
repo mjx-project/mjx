@@ -1080,7 +1080,8 @@ void State::Update(mjxproto::Action &&action) {
            mjxproto::EVENT_TYPE_KAN_ADDED, mjxproto::EVENT_TYPE_RON}));
   auto who = AbsolutePos(action.who());
   switch (action.type()) {
-    case mjxproto::ACTION_TYPE_DISCARD: {
+    case mjxproto::ACTION_TYPE_DISCARD:
+    case mjxproto::ACTION_TYPE_TSUMOGIRI: {
       Assert(Any(hand(who).SizeClosed(), {2, 5, 8, 11, 14}),
              std::to_string(hand(who).SizeClosed()));
       Assert(
