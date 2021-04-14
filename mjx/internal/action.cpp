@@ -29,9 +29,11 @@ std::vector<mjxproto::Action> Action::CreateDiscardsAndTsumogiri(
              + std::to_string(std::count_if(discards.begin(), discards.end(), [](const auto& x){ return x.second; })));
   std::vector<mjxproto::Action> ret;
   for (const auto& [tile, tsumogiri] : discards) {
-    if (tsumogiri) ret.push_back(CreateTsumogiri(who, tile));
-    else ret.push_back(CreateDiscard(who, tile));
+    ret.push_back( tsumogiri ? CreateTsumogiri(who, tile) : CreateDiscard(who, tile));
   }
+  Assert(std::count_if(ret.begin(), ret.end(), [](const auto& x){ return x.type() == mjxproto::ACTION_TYPE_TSUMOGIRI ; }) <= 1,
+         "# of Tsumogiri actions should be <= 1 but got "
+         + std::to_string(std::count_if(ret.begin(), ret.end(), [](const auto& x){ return x.type() == mjxproto::ACTION_TYPE_TSUMOGIRI; })));
   return ret;
 }
 

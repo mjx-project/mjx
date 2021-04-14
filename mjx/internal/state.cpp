@@ -111,6 +111,7 @@ std::unordered_map<PlayerId, Observation> State::CreateObservations() const {
       auto who = AbsolutePos(LastEvent().who());
       auto player_id = player(who).player_id;
       auto observation = Observation(who, state_);
+      Assert(!observation.has_possible_action(), "possible_actions should be empty.");
 
       // => NineTiles
       if (IsFirstTurnWithoutOpen() && hand(who).CanNineTiles()) {
@@ -137,7 +138,10 @@ std::unordered_map<PlayerId, Observation> State::CreateObservations() const {
       // => Discard (4)
       observation.add_possible_actions(Action::CreateDiscardsAndTsumogiri(
           who, hand(who).PossibleDiscards()));
-
+      const auto &possible_actions = observation.possible_actions();
+      Assert(std::count_if(possible_actions.begin(), possible_actions.end(),
+                          [](const auto& x){ return x.type() == mjxproto::ACTION_TYPE_TSUMOGIRI; }) == 1,
+             "There should be exactly one tsumogiri action");
       return {{player_id, std::move(observation)}};
     }
     case mjxproto::EVENT_TYPE_RIICHI: {
@@ -155,6 +159,9 @@ std::unordered_map<PlayerId, Observation> State::CreateObservations() const {
       auto observation = Observation(who, state_);
       observation.add_possible_actions(Action::CreateDiscardsAndTsumogiri(
           who, hand(who).PossibleDiscards()));
+      Assert(!Any(observation.possible_actions(),
+                          [](const auto& x){ return x.type() == mjxproto::ACTION_TYPE_TSUMOGIRI; }),
+             "After chi/pon, there should be no legal tsumogiri action");
       return {{player(who).player_id, std::move(observation)}};
     }
     case mjxproto::EVENT_TYPE_DISCARD_FROM_HAND:

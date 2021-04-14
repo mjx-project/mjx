@@ -834,6 +834,9 @@ std::vector<std::pair<Tile, bool>> Hand::AllPossibleDiscards() const {
          std::any_of(possible_discards.begin(), possible_discards.end(),
                      [&](const auto& x){ return last_tile_added_.value() == x.first; }));
   Assert(!possible_discards.empty());
+  Assert(std::count_if(possible_discards.begin(), possible_discards.end(), [](const auto &x){ return x.second; }) <= 1,
+         "# of tsumogiri should be <= 1 but got " +
+             std::to_string(std::count_if(possible_discards.begin(), possible_discards.end(), [](const auto &x){ return x.second; })));
   return possible_discards;
 }
 
