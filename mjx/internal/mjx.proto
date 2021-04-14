@@ -85,7 +85,7 @@ message EventHistory {
 message PrivateInfo {
   int32 who = 1;
   repeated uint32 init_hand = 2;
-  repeated uint32 draws = 3;
+  repeated uint32 draw_history = 3;
 }
 
 message Observation {
