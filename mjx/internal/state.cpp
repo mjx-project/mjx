@@ -1204,11 +1204,12 @@ void State::Update(mjxproto::Action &&action) {
 
       // 天鳳のカンの仕様については
       // https://github.com/sotetsuk/mahjong/issues/199 で調べている
-      // 暗槓の分で一回だけ新ドラがめくられる
-      Assert(RequireKanDora() == 1,
+      // 暗槓の分で最低一回は新ドラがめくられる。加槓=>暗槓の時などに連続でドラがめくられることもある
+      int require_kan_dora = RequireKanDora();
+      Assert(require_kan_dora <= 2,
              "# of kan doras: " + std::to_string(RequireKanDora()) +
              "\nState:\n" + ToJson());
-      AddNewDora();
+      while (require_kan_dora--) AddNewDora();
 
       Draw(who);
       return;
