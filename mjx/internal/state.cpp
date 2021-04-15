@@ -126,7 +126,7 @@ std::unordered_map<PlayerId, Observation> State::CreateObservations() const {
 
       // => Kan (2)
       if (auto possible_kans = hand(who).PossibleOpensAfterDraw();
-          !possible_kans.empty() && !IsFourKanNoWinner()) { // 四槓散了かのチェックは5回目のカンをできないようにするため #701
+          !possible_kans.empty() && !IsFourKanNoWinner()) { // TODO: 四槓散了かのチェックは5回目のカンをできないようにするためだが、正しいのか確認 #701
         for (const auto possible_kan : possible_kans) {
           observation.add_possible_action(
               Action::CreateOpen(who, possible_kan));
