@@ -229,6 +229,20 @@ class GameBoard:
 
     def add_status(self, _tiles: list, is_opens=False) -> str:
         result = []
+        if self.is_using_unicode:
+            for x, tiles in _tiles:
+                if is_opens:
+                    result.append(
+                        " ".join([tile.char for tile in tiles]) + " " + get_modifier(x)
+                    )
+                else:
+                    result.append(
+                        " ".join([tile.char for tile in tiles]) + " " + get_modifier(x)
+                    )
+            if is_opens:
+                return ", ".join(result)
+            return " ".join(result)
+
         for x, tiles in _tiles:
             if is_opens:
                 result.append("".join([tile.char for tile in tiles]) + get_modifier(x))
@@ -377,4 +391,4 @@ if __name__ == "__main__":
 
     doctest.testmod()
 
-    main()
+    # main()
