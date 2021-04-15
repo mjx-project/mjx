@@ -302,6 +302,9 @@ Tile State::Draw(AbsolutePos who) {
   if (!hand(who).IsUnderRiichi())
     mutable_player(who).missed_tiles.reset();  // フリテン解除
 
+  Assert(!RequireKanDraw() || wall_.num_kan_draw() <= 3,
+         "Num kan draw should be <= 3 but got " + std::to_string(wall_.num_kan_draw()) +
+         "\nState: \n" + ToJson());
   auto draw = RequireKanDraw() ? wall_.KanDraw() : wall_.Draw();
   mutable_hand(who).Draw(draw);
 

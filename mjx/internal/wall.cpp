@@ -133,4 +133,7 @@ void Wall::shuffle(RandomIt first, RandomIt last, URBG &&g) {
     swap(first[i], first[D(g, param_t(0, i))]);
   }
 }
+
+int Wall::num_kan_draw() const { return num_kan_draw_; }
+int Wall::num_kan_dora() const { return num_kan_dora_; }
 }  // namespace mjx::internal
