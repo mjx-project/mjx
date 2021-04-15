@@ -111,13 +111,6 @@ def get_wind_char(wind: int, lang: int = 0) -> str:
         return " "
 
 
-def get_actiontype(action: int) -> str:
-    if 0 <= action < 11:
-        return to_actiontype[action]
-    else:
-        return " "
-
-
 def get_modifier(modifier_id: int) -> str:
     if 0 <= modifier_id < 9:
         return to_modifier[modifier_id]
