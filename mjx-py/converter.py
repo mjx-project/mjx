@@ -80,19 +80,6 @@ to_wind_char = {
     6: "西",
     7: "北",
 }
-to_actiontype = {
-    0: "ACTION_TYPE_DISCARD",
-    1: "ACTION_TYPE_RIICHI",
-    2: "ACTION_TYPE_TSUMO",
-    3: "ACTION_TYPE_KAN_CLOSED",
-    4: "ACTION_TYPE_KAN_ADDED",
-    5: "ACTION_TYPE_KYUSYU",
-    6: "ACTION_TYPE_NO",
-    7: "ACTION_TYPE_CHI",
-    8: "ACTION_TYPE_PON",
-    9: "ACTION_TYPE_KAN_OPENED",
-    10: "ACTION_TYPE_RON",
-}
 to_modifier = {
     0: "",
     1: "_R",  # Right
