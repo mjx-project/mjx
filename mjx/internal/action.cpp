@@ -7,25 +7,50 @@ namespace mjx::internal {
 mjxproto::Action Action::CreateDiscard(AbsolutePos who, Tile discard) {
   mjxproto::Action proto;
   proto.set_type(mjxproto::ACTION_TYPE_DISCARD);
-  proto.set_who(mjxproto::AbsolutePos(who));
+  proto.set_who(ToUType(who));
   proto.set_discard(discard.Id());
   Assert(IsValid(proto));
   return proto;
 }
 
-std::vector<mjxproto::Action> Action::CreateDiscards(
-    AbsolutePos who, const std::vector<Tile>& discards) {
+mjxproto::Action Action::CreateTsumogiri(AbsolutePos who, Tile discard) {
+  mjxproto::Action proto;
+  proto.set_type(mjxproto::ACTION_TYPE_TSUMOGIRI);
+  proto.set_who(ToUType(who));
+  proto.set_discard(discard.Id());
+  Assert(IsValid(proto));
+  return proto;
+}
+
+std::vector<mjxproto::Action> Action::CreateDiscardsAndTsumogiri(
+    AbsolutePos who, const std::vector<std::pair<Tile, bool>>& discards) {
+  Assert(std::count_if(discards.begin(), discards.end(),
+                       [](const auto& x) { return x.second; }) <= 1,
+         "# of Tsumogiri actions should be <= 1 but got " +
+             std::to_string(
+                 std::count_if(discards.begin(), discards.end(),
+                               [](const auto& x) { return x.second; })));
   std::vector<mjxproto::Action> ret;
-  for (auto tile : discards) {
-    ret.push_back(CreateDiscard(who, tile));
+  for (const auto& [tile, tsumogiri] : discards) {
+    ret.push_back(tsumogiri ? CreateTsumogiri(who, tile)
+                            : CreateDiscard(who, tile));
   }
+  Assert(std::count_if(ret.begin(), ret.end(),
+                       [](const auto& x) {
+                         return x.type() == mjxproto::ACTION_TYPE_TSUMOGIRI;
+                       }) <= 1,
+         "# of Tsumogiri actions should be <= 1 but got " +
+             std::to_string(
+                 std::count_if(ret.begin(), ret.end(), [](const auto& x) {
+                   return x.type() == mjxproto::ACTION_TYPE_TSUMOGIRI;
+                 })));
   return ret;
 }
 
 mjxproto::Action Action::CreateRiichi(AbsolutePos who) {
   mjxproto::Action proto;
   proto.set_type(mjxproto::ACTION_TYPE_RIICHI);
-  proto.set_who(mjxproto::AbsolutePos(who));
+  proto.set_who(ToUType(who));
   Assert(IsValid(proto));
   return proto;
 }
@@ -33,7 +58,7 @@ mjxproto::Action Action::CreateRiichi(AbsolutePos who) {
 mjxproto::Action Action::CreateTsumo(AbsolutePos who) {
   mjxproto::Action proto;
   proto.set_type(mjxproto::ACTION_TYPE_TSUMO);
-  proto.set_who(mjxproto::AbsolutePos(who));
+  proto.set_who(ToUType(who));
   Assert(IsValid(proto));
   return proto;
 }
@@ -41,14 +66,14 @@ mjxproto::Action Action::CreateTsumo(AbsolutePos who) {
 mjxproto::Action Action::CreateRon(AbsolutePos who) {
   mjxproto::Action proto;
   proto.set_type(mjxproto::ACTION_TYPE_RON);
-  proto.set_who(mjxproto::AbsolutePos(who));
+  proto.set_who(ToUType(who));
   Assert(IsValid(proto));
   return proto;
 }
 
 mjxproto::Action Action::CreateOpen(AbsolutePos who, Open open) {
   mjxproto::Action proto;
-  proto.set_who(mjxproto::AbsolutePos(who));
+  proto.set_who(ToUType(who));
   proto.set_type(OpenTypeToActionType(open.Type()));
   proto.set_open(open.GetBits());
   Assert(IsValid(proto));
@@ -58,15 +83,15 @@ mjxproto::Action Action::CreateOpen(AbsolutePos who, Open open) {
 mjxproto::Action Action::CreateNo(AbsolutePos who) {
   mjxproto::Action proto;
   proto.set_type(mjxproto::ACTION_TYPE_NO);
-  proto.set_who(mjxproto::AbsolutePos(who));
+  proto.set_who(ToUType(who));
   Assert(IsValid(proto));
   return proto;
 }
 
 mjxproto::Action Action::CreateNineTiles(AbsolutePos who) {
   mjxproto::Action proto;
-  proto.set_type(mjxproto::ACTION_TYPE_KYUSYU);
-  proto.set_who(mjxproto::AbsolutePos(who));
+  proto.set_type(mjxproto::ACTION_TYPE_ABORTIVE_DRAW_NINE_TERMINALS);
+  proto.set_who(ToUType(who));
   Assert(IsValid(proto));
   return proto;
 }
@@ -74,7 +99,7 @@ mjxproto::Action Action::CreateNineTiles(AbsolutePos who) {
 bool Action::IsValid(const mjxproto::Action& action) {
   auto type = action.type();
   auto who = action.who();
-  if (!mjxproto::AbsolutePos_IsValid(who)) return false;
+  if (who < 0 or 3 < who) return false;
   switch (type) {
     case mjxproto::ACTION_TYPE_DISCARD:
       if (!(0 <= action.discard() && action.discard() < 136)) return false;
@@ -89,7 +114,7 @@ bool Action::IsValid(const mjxproto::Action& action) {
       break;
     case mjxproto::ACTION_TYPE_RIICHI:
     case mjxproto::ACTION_TYPE_TSUMO:
-    case mjxproto::ACTION_TYPE_KYUSYU:
+    case mjxproto::ACTION_TYPE_ABORTIVE_DRAW_NINE_TERMINALS:
     case mjxproto::ACTION_TYPE_NO:
     case mjxproto::ACTION_TYPE_RON:
       if (action.discard() != 0) return false;
@@ -199,7 +224,7 @@ std::uint8_t Action::Encode(const mjxproto::Action& action) {
     case mjxproto::ACTION_TYPE_RIICHI:
       // 140: Riichi
       return 140;
-    case mjxproto::ACTION_TYPE_KYUSYU:
+    case mjxproto::ACTION_TYPE_ABORTIVE_DRAW_NINE_TERMINALS:
       // 141: Kyusyu
       return 141;
     case mjxproto::ACTION_TYPE_NO:

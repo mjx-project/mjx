@@ -1,10 +1,12 @@
-from __future__ import annotations  # postpone type hint evaluation or doctest fails
+# postpone type hint evaluation or doctest fails
+from __future__ import annotations
 
 import json
 from typing import Dict, List
 
 import mjxproto
 from mjconvert import open_converter
+from mjconvert.const import AbsolutePos, RelativePos
 
 
 def _change_tile_fmt(tile_id: int) -> int:
@@ -20,7 +22,8 @@ def _change_tile_fmt(tile_id: int) -> int:
 
 # mjxproto形式の牌のリストを引数にとり、表現をmjscore形式の表現に変える関数
 def _change_tiles_fmt(tile_ids):
-    scores = list(map(_change_tile_fmt, tile_ids))  # mjxproto形式の表現ををmjscore形式に変換
+    # mjxproto形式の表現ををmjscore形式に変換
+    scores = list(map(_change_tile_fmt, tile_ids))
     return scores
 
 
@@ -34,14 +37,14 @@ def _change_action_format(bits: int) -> str:  # TODO カン
     if event_type == mjxproto.EVENT_TYPE_CHI:  # チー
         return "c" + str(stolen_tile) + str(open_tiles[0]) + str(open_tiles[1])
     elif event_type == mjxproto.EVENT_TYPE_PON:  # ポン
-        if open_from == mjxproto.RELATIVE_POS_LEFT:
+        if open_from == RelativePos.LEFT:
             return "p" + str(stolen_tile) + str(open_tiles[0]) + str(open_tiles[1])
-        elif open_from == mjxproto.RELATIVE_POS_MID:
+        elif open_from == RelativePos.MID:
             return str(open_tiles[0]) + "p" + str(stolen_tile) + str(open_tiles[1])
         else:
             return str(open_tiles[0]) + str(open_tiles[1]) + "p" + str(stolen_tile)
     elif event_type == mjxproto.EVENT_TYPE_KAN_ADDED:  # 加槓
-        if open_from == mjxproto.RELATIVE_POS_LEFT:
+        if open_from == RelativePos.LEFT:
             return (
                 "k"
                 + str(stolen_tile)
@@ -49,7 +52,7 @@ def _change_action_format(bits: int) -> str:  # TODO カン
                 + str(open_tiles[1])
                 + str(open_tiles[2])
             )
-        elif open_from == mjxproto.RELATIVE_POS_MID:
+        elif open_from == RelativePos.MID:
             return (
                 str(open_tiles[0])
                 + "k"
@@ -68,7 +71,7 @@ def _change_action_format(bits: int) -> str:  # TODO カン
     elif event_type == mjxproto.EVENT_TYPE_KAN_CLOSED:  # 暗槓
         return str(stolen_tile) + str(stolen_tile) + str(stolen_tile) + "a" + str(open_tiles[-1])
     else:  # 明槓
-        if open_from == mjxproto.RELATIVE_POS_LEFT:
+        if open_from == RelativePos.LEFT:
             return (
                 "m"
                 + str(stolen_tile)
@@ -76,7 +79,7 @@ def _change_action_format(bits: int) -> str:  # TODO カン
                 + str(open_tiles[1])
                 + str(open_tiles[2])
             )
-        elif open_from == mjxproto.RELATIVE_POS_MID:
+        elif open_from == RelativePos.MID:
             return (
                 str(open_tiles[0])
                 + "m"
@@ -138,17 +141,17 @@ def parse_discards(events, abs_pos: int):
     return discards
 
 
-# プレイヤーごとにmjscore形式のdrawsを返す。
-def parse_draws(draws, events, abs_pos):
+# プレイヤーごとにmjscore形式のdraw_historyを返す。
+def parse_draw_history(draw_history, events, abs_pos):
     """
     - mjscoreでは引いた牌のリストにチーやポンなどのアクションが含まれている
-    - mjxprotoの　drawsでは単に飛ばされていて、eventの方に情報がある
+    - mjxprotoの　draw_historyでは単に飛ばされていて、eventの方に情報がある
 
     方針
     1. チーポンも含めたdiscardsを作成
-    2. drawsの方で直前の捨て牌の直後にアクションを挿入
+    2. draw_historyの方で直前の捨て牌の直後にアクションを挿入
     """
-    draws = _change_tiles_fmt(draws)
+    draw_history = _change_tiles_fmt(draw_history)
     discards = []
     actions = []  #
     for i, event in enumerate(events):
@@ -170,9 +173,10 @@ def parse_draws(draws, events, abs_pos):
         ):  # 捨て牌の情報には暗槓も含まれているので、追加しないとずれる。
             discards.append(_change_action_format(event.open))
     for i, action in enumerate(actions):
-        action_index = discards.index(action) - i  # 捨て牌でのactionのindex同じ順にdrawにアクションを挿入すれば良い
-        draws.insert(action_index, _change_action_format(action))
-    return draws
+        # 捨て牌でのactionのindex同じ順にdrawにアクションを挿入すれば良い
+        action_index = discards.index(action) - i
+        draw_history.insert(action_index, _change_action_format(action))
+    return draw_history
 
 
 yaku_list = [
@@ -312,7 +316,7 @@ def _winner_point(who: int, from_who: int, fans: List[int], fu: int, ten: int, r
         else:
             return _fan_fu(who, fans, fu, ten, round) + non_dealer_tsumo_dict[ten] + "点"
     else:
-        if who == mjxproto.ABSOLUTE_POS_INIT_EAST:
+        if who == AbsolutePos.INIT_EAST:
             return _fan_fu(who, fans, fu, ten, round) + str(ten) + "点"
         else:
             return _fan_fu(who, fans, fu, ten, round) + str(ten) + "点"
@@ -417,18 +421,24 @@ def mjxproto_to_mjscore(state: mjxproto.State) -> str:
     riichi: int = state.init_score.riichi
     doras: List[int] = [_change_tile_fmt(i) for i in state.doras]
     ura_doras = determine_ura_doras_list(state)
-    init_score: List[int] = [i for i in state.init_score.ten]
+    init_score: List[int] = [i for i in state.init_score.tens]
     log = [[round, honba, riichi], init_score, doras, ura_doras]
     absolute_pos = [
-        mjxproto.ABSOLUTE_POS_INIT_EAST,
-        mjxproto.ABSOLUTE_POS_INIT_SOUTH,
-        mjxproto.ABSOLUTE_POS_INIT_WEST,
-        mjxproto.ABSOLUTE_POS_INIT_NORTH,
+        AbsolutePos.INIT_EAST,
+        AbsolutePos.INIT_SOUTH,
+        AbsolutePos.INIT_WEST,
+        AbsolutePos.INIT_NORTH,
     ]
     for abs_pos in absolute_pos:
-        log.append(sort_init_hand(_change_tiles_fmt(state.private_infos[abs_pos].init_hand)))
         log.append(
-            parse_draws(state.private_infos[abs_pos].draws, state.event_history.events, abs_pos)
+            sort_init_hand(_change_tiles_fmt(state.private_observations[abs_pos].init_hand))
+        )
+        log.append(
+            parse_draw_history(
+                state.private_observations[abs_pos].draw_history,
+                state.event_history.events,
+                abs_pos,
+            )
         )
         log.append(parse_discards(state.event_history.events, abs_pos))
 

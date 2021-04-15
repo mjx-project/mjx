@@ -138,20 +138,20 @@ enum class RoundStage : std::uint8_t {
 };
 
 enum class AbsolutePos : std::uint8_t {
-  kInitEast = mjxproto::ABSOLUTE_POS_INIT_EAST,  // 起家
-  kInitSouth = mjxproto::ABSOLUTE_POS_INIT_SOUTH,
-  kInitWest = mjxproto::ABSOLUTE_POS_INIT_WEST,
-  kInitNorth = mjxproto::ABSOLUTE_POS_INIT_NORTH,  // ラス親
-  kEnd,                                            // Dummy
+  kInitEast = 0,  // 起家
+  kInitSouth = 1,
+  kInitWest = 2,
+  kInitNorth = 3,  // ラス親
+  kEnd,            // Dummy
   kBegin = 0
 };
 
 enum class RelativePos : std::uint8_t  // Order follows mjlog
 {
-  kSelf = mjxproto::RELATIVE_POS_SELF,
-  kRight = mjxproto::RELATIVE_POS_RIGHT,  // 下家
-  kMid = mjxproto::RELATIVE_POS_MID,      // 対面
-  kLeft = mjxproto::RELATIVE_POS_LEFT     // 上家
+  kSelf = 0,
+  kRight = 1,  // 下家
+  kMid = 2,    // 対面
+  kLeft = 3    // 上家
 };
 
 enum class OpenType : std::uint8_t {
@@ -177,10 +177,10 @@ enum class Fan : std::uint8_t {
 using Minipoint = std::uint8_t;
 
 enum class Wind : std::uint8_t {
-  kEast = mjxproto::WIND_EAST,
-  kSouth = mjxproto::WIND_SOUTH,
-  kWest = mjxproto::WIND_WEST,
-  kNorth = mjxproto::WIND_NORTH,
+  kEast = 0,
+  kSouth = 1,
+  kWest = 2,
+  kNorth = 3,
 };
 
 // The yaku No. follows: http://tenhou.net/1/script/tenhou.js

@@ -64,10 +64,12 @@ class Hand {
   std::optional<RelativePos> HasPao() const noexcept;
 
   // action validators
-  std::vector<Tile> PossibleDiscards()
+  std::vector<std::pair<Tile, bool>> PossibleDiscards()
       const;  // 同じ種類（タイプ）の牌については、idが一番小さいものだけを返す。赤とツモ切り牌だけ例外。
-  std::vector<Tile> PossibleDiscardsToTakeTenpai() const;     // 同上
-  std::vector<Tile> PossibleDiscardsJustAfterRiichi() const;  // 同上
+  std::vector<std::pair<Tile, bool>> PossibleDiscardsToTakeTenpai()
+      const;  // 同上
+  std::vector<std::pair<Tile, bool>> PossibleDiscardsJustAfterRiichi()
+      const;  // 同上
   std::vector<Open> PossibleOpensAfterOthersDiscard(
       Tile tile, RelativePos from) const;  // includes Chi, Pon, and KanOpened
   std::vector<Open> PossibleOpensAfterDraw()
@@ -125,7 +127,7 @@ class Hand {
 
   // utils
   static bool IsTenpai(const TileTypeCount &closed_tile_types);
-  std::vector<Tile> AllPossibleDiscards() const;
+  std::vector<std::pair<Tile, bool>> AllPossibleDiscards() const;
   // 鳴いた後に捨てる牌がある鳴きだけを選ぶ
   std::vector<Open> SelectDiscardableOpens(
       const std::vector<Open> &opens) const;

@@ -49,12 +49,13 @@ class MjlogEncoder:
 
     @staticmethod
     def _parse_each_round(state: mjxproto.State) -> str:
-        assert sum(state.init_score.ten) + state.init_score.riichi * 1000 == 100000
+        assert sum(state.init_score.tens) + state.init_score.riichi * 1000 == 100000
         ret = "<INIT "
         ret += f'seed="{state.init_score.round},{state.init_score.honba},{state.init_score.riichi},,,{state.doras[0]}" '
-        ret += f'ten="{state.init_score.ten[0] // 100},{state.init_score.ten[1] // 100},{state.init_score.ten[2] // 100},{state.init_score.ten[3] // 100}" oya="{state.init_score.round % 4}" '
+        ret += f'ten="{state.init_score.tens[0] // 100},{state.init_score.tens[1] // 100},{state.init_score.tens[2] // 100},{state.init_score.tens[3] // 100}" oya="{state.init_score.round % 4}" '
         hai = [
-            ",".join([str(t) for t in hand]) for hand in [y.init_hand for y in state.private_infos]
+            ",".join([str(t) for t in hand])
+            for hand in [y.init_hand for y in state.private_observations]
         ]
         ret += f'hai0="{hai[0]}" '
         ret += f'hai1="{hai[1]}" '
@@ -70,7 +71,7 @@ class MjlogEncoder:
                 who_ix = int(event.who)
                 who = MjlogEncoder._encode_absolute_pos_for_draw(event.who)
                 assert event.tile == 0  # default
-                draw = state.private_infos[who_ix].draws[draw_ixs[who_ix]]
+                draw = state.private_observations[who_ix].draw_history[draw_ixs[who_ix]]
                 draw_ixs[who_ix] += 1
                 ret += f"<{who}{draw}/>"
             elif event.type in [
@@ -93,9 +94,9 @@ class MjlogEncoder:
                 ret += f'<REACH who="{event.who}" step="1"/>'
             elif event.type == mjxproto.EVENT_TYPE_RIICHI_SCORE_CHANGE:
                 under_riichi[event.who] = True
-                curr_score.ten[event.who] -= 1000
+                curr_score.tens[event.who] -= 1000
                 curr_score.riichi += 1
-                ret += f'<REACH who="{event.who}" ten="{curr_score.ten[0] // 100},{curr_score.ten[1] // 100},{curr_score.ten[2] // 100},{curr_score.ten[3] // 100}" step="2"/>'
+                ret += f'<REACH who="{event.who}" ten="{curr_score.tens[0] // 100},{curr_score.tens[1] // 100},{curr_score.tens[2] // 100},{curr_score.tens[3] // 100}" step="2"/>'
             elif event.type == mjxproto.EVENT_TYPE_NEW_DORA:
                 ret += f'<DORA hai="{event.tile}" />'
             elif event.type in [mjxproto.EVENT_TYPE_TSUMO, mjxproto.EVENT_TYPE_RON]:
@@ -111,22 +112,22 @@ class MjlogEncoder:
                 for win in state.terminal.wins:
                     win_str = MjlogEncoder.update_by_win(win, state, curr_score, under_riichi)
                     for i in range(4):
-                        curr_score.ten[i] += win.ten_changes[i]
+                        curr_score.tens[i] += win.ten_changes[i]
                     curr_score.riichi = 0  # ダブロンのときは上家がリー棒を総取りしてその時点で riichi = 0 となる
                     ret += win_str
 
                 if state.terminal.is_game_over:
                     ret = ret[:-2]
                     final_scores = MjlogEncoder._calc_final_score(
-                        [int(x) for x in state.terminal.final_score.ten]
+                        [int(x) for x in state.terminal.final_score.tens]
                     )
-                    ret += f'owari="{state.terminal.final_score.ten[0] // 100},{final_scores[0]:.1f},{state.terminal.final_score.ten[1] // 100},{final_scores[1]:.1f},{state.terminal.final_score.ten[2] // 100},{final_scores[2]:.1f},{state.terminal.final_score.ten[3] // 100},{final_scores[3]:.1f}" '
+                    ret += f'owari="{state.terminal.final_score.tens[0] // 100},{final_scores[0]:.1f},{state.terminal.final_score.tens[1] // 100},{final_scores[1]:.1f},{state.terminal.final_score.tens[2] // 100},{final_scores[2]:.1f},{state.terminal.final_score.tens[3] // 100},{final_scores[3]:.1f}" '
                     ret += "/>"
 
             for i in range(4):
-                assert curr_score.ten[i] == state.terminal.final_score.ten[i]
+                assert curr_score.tens[i] == state.terminal.final_score.tens[i]
             assert (
-                sum(state.terminal.final_score.ten) + state.terminal.final_score.riichi * 1000
+                sum(state.terminal.final_score.tens) + state.terminal.final_score.riichi * 1000
                 == 100000
             )
 
@@ -154,10 +155,10 @@ class MjlogEncoder:
         ret += f'ba="{curr_score.honba},{curr_score.riichi}" '
         sc = []
         for i in range(4):
-            sc.append(curr_score.ten[i] // 100)
+            sc.append(curr_score.tens[i] // 100)
             change = state.terminal.no_winner.ten_changes[i]
             sc.append(change // 100)
-            curr_score.ten[i] += change
+            curr_score.tens[i] += change
         ret += f'sc="{",".join([str(x) for x in sc])}" '
         for tenpai in state.terminal.no_winner.tenpais:
             closed_tiles = ",".join([str(x) for x in tenpai.closed_tiles])
@@ -167,16 +168,16 @@ class MjlogEncoder:
             # TODO: 同着トップ時には上家が総取りしてるが正しい？
             # TODO: 上家総取りになってない。。。
             if curr_score.riichi != 0:
-                max_ten = max(curr_score.ten)
+                max_ten = max(curr_score.tens)
                 for i in range(4):
-                    if curr_score.ten[i] == max_ten:
-                        curr_score.ten[i] += 1000 * curr_score.riichi
+                    if curr_score.tens[i] == max_ten:
+                        curr_score.tens[i] += 1000 * curr_score.riichi
                         break
-            assert sum(curr_score.ten) == 100000
+            assert sum(curr_score.tens) == 100000
             final_scores = MjlogEncoder._calc_final_score(
-                [int(x) for x in state.terminal.final_score.ten]
+                [int(x) for x in state.terminal.final_score.tens]
             )
-            ret += f'owari="{state.terminal.final_score.ten[0] // 100},{final_scores[0]:.1f},{state.terminal.final_score.ten[1] // 100},{final_scores[1]:.1f},{state.terminal.final_score.ten[2] // 100},{final_scores[2]:.1f},{state.terminal.final_score.ten[3] // 100},{final_scores[3]:.1f}" '
+            ret += f'owari="{state.terminal.final_score.tens[0] // 100},{final_scores[0]:.1f},{state.terminal.final_score.tens[1] // 100},{final_scores[1]:.1f},{state.terminal.final_score.tens[2] // 100},{final_scores[2]:.1f},{state.terminal.final_score.tens[3] // 100},{final_scores[3]:.1f}" '
         ret += "/>"
         return ret
 
@@ -242,17 +243,17 @@ class MjlogEncoder:
         if num_under_8k >= 3:  # Tsumo (= not pao)
             is_pao = False
         for i in range(4):
-            prev = curr_score.ten[i]
+            prev = curr_score.tens[i]
             change = win.ten_changes[i]
             sc.append(prev // 100)
             sc.append(change // 100)
         pao_from = None
         if is_pao:
             for i, x in enumerate(win.ten_changes):
-                if mjxproto.AbsolutePos.values()[i] == win.from_who:
+                if i == win.from_who:
                     continue
                 if x <= -8000:
-                    pao_from = mjxproto.AbsolutePos.values()[i]
+                    pao_from = i
         if pao_from is not None:
             ret += f'paoWho="{pao_from}" '
         ret += f'sc="{",".join([str(x) for x in sc])}" '
@@ -265,11 +266,11 @@ class MjlogEncoder:
         return f'<UN n0="{players[0]}" n1="{players[1]}" n2="{players[2]}" n3="{players[3]}"/>'
 
     @staticmethod
-    def _encode_absolute_pos_for_draw(who: mjxproto.AbsolutePosValue) -> str:
+    def _encode_absolute_pos_for_draw(who: int) -> str:
         return ["T", "U", "V", "W"][int(who)]
 
     @staticmethod
-    def _encode_absolute_pos_for_discard(who: mjxproto.AbsolutePosValue) -> str:
+    def _encode_absolute_pos_for_discard(who: int) -> str:
         return ["D", "E", "F", "G"][int(who)]
 
     @staticmethod
