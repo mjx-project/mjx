@@ -1,6 +1,6 @@
 import argparse
 
-from converter import get_actiontype, get_modifier, get_tile_char, get_wind_char
+from converter import get_modifier, get_tile_char, get_wind_char
 
 
 class Tile:
@@ -229,6 +229,20 @@ class GameBoard:
 
     def add_status(self, _tiles: list, is_opens=False) -> str:
         result = []
+        if self.is_using_unicode:
+            for x, tiles in _tiles:
+                if is_opens:
+                    result.append(
+                        " ".join([tile.char for tile in tiles]) + " " + get_modifier(x)
+                    )
+                else:
+                    result.append(
+                        " ".join([tile.char for tile in tiles]) + " " + get_modifier(x)
+                    )
+            if is_opens:
+                return ", ".join(result)
+            return " ".join(result)
+
         for x, tiles in _tiles:
             if is_opens:
                 result.append("".join([tile.char for tile in tiles]) + get_modifier(x))
@@ -307,7 +321,7 @@ class GameBoard:
             get_wind_char(table.last_player, self.language)
             + ["'s turn now.\n", "の番です\n"][self.language]
         )
-        system_info.append("ActionType:" + get_actiontype(table.last_action))
+        system_info.append("ActionType:" + str(table.last_action))
         system_info = "".join(system_info)
 
         return "".join([board_info, players_info, system_info])
@@ -355,7 +369,7 @@ def main():
     <BLANKLINE>
     <BLANKLINE>
     NORTH's turn now.
-    ActionType:ACTION_TYPE_RIICHI
+    ActionType:1
     """
     parser = argparse.ArgumentParser()
     parser.add_argument("--path", default="2010091009gm-00a9-0000-83af2648&tw=2.json")
@@ -366,9 +380,8 @@ def main():
     parser.add_argument("--lang", type=int, choices=[0, 1], default=0)
     args = parser.parse_args()
 
-    # game_board = GameBoard(args.path, args.mode,args.uni,args.rich,args.lang,args.show_name)
     game_board = GameBoard(
-        "hogepath", "Observation", args.uni, args.rich, args.lang, args.show_name
+        args.path, args.mode, args.uni, args.rich, args.lang, args.show_name
     )
     print(game_board.show(game_board.load_data()))
 
