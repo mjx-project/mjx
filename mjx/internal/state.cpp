@@ -1201,14 +1201,13 @@ void State::Update(mjxproto::Action &&action) {
     case mjxproto::ACTION_TYPE_KAN_CLOSED:
       Assert(Any(LastEvent().type(), {mjxproto::EVENT_TYPE_DRAW}));
       ApplyOpen(who, Open(action.open()));
-      {
-        // 天鳳のカンの仕様については
-        // https://github.com/sotetsuk/mahjong/issues/199 で調べている
-        // 暗槓の分で一回だけ新ドラがめくられる
-        int require_kan_dora = RequireKanDora();
-        Assert(require_kan_dora == 1);
-        AddNewDora();
-      }
+
+      // 天鳳のカンの仕様については
+      // https://github.com/sotetsuk/mahjong/issues/199 で調べている
+      // 暗槓の分で一回だけ新ドラがめくられる
+      Assert(RequireKanDora() == 1);
+      AddNewDora();
+
       Draw(who);
       return;
     case mjxproto::ACTION_TYPE_KAN_ADDED:
