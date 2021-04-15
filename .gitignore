@@ -21,3 +21,4 @@ test/resources/*
 *.pb.h
 dataset/resources/*
 **/external/*
+mjx-py/.vscode/*
