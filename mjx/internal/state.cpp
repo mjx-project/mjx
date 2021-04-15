@@ -1217,6 +1217,11 @@ void State::Update(mjxproto::Action &&action) {
       // TODO: CreateStealAndRonObservationが状態変化がないのに2回計算されている
       if (auto has_no_ron = CreateStealAndRonObservation().empty();
           has_no_ron) {
+        // もし加槓が成立して誰からもロンされないなら、四槓散了で流局の可能性がある
+        if (IsFourKanNoWinner()) {
+          NoWinner();
+          return;
+        }
         int require_kan_dora = RequireKanDora();
         Assert(require_kan_dora <= 2);
         while (require_kan_dora-- > 1)
