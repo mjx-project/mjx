@@ -1201,16 +1201,16 @@ void State::Update(mjxproto::Action &&action) {
     case mjxproto::ACTION_TYPE_KAN_CLOSED:
       Assert(Any(LastEvent().type(), {mjxproto::EVENT_TYPE_DRAW}));
       ApplyOpen(who, Open(action.open()));
-
-      // 天鳳のカンの仕様については
-      // https://github.com/sotetsuk/mahjong/issues/199 で調べている
-      // 暗槓の分で最低一回は新ドラがめくられる。加槓=>暗槓の時などに連続でドラがめくられることもある
-      int require_kan_dora = RequireKanDora();
-      Assert(require_kan_dora <= 2,
-             "# of kan doras: " + std::to_string(RequireKanDora()) +
-             "\nState:\n" + ToJson());
-      while (require_kan_dora--) AddNewDora();
-
+      {
+        // 天鳳のカンの仕様については
+        // https://github.com/sotetsuk/mahjong/issues/199 で調べている
+        // 暗槓の分で最低一回は新ドラがめくられる。加槓=>暗槓の時などに連続でドラがめくられることもある
+        int require_kan_dora = RequireKanDora();
+        Assert(require_kan_dora <= 2,
+               "# of kan doras: " + std::to_string(RequireKanDora()) +
+                   "\nState:\n" + ToJson());
+        while (require_kan_dora--) AddNewDora();
+      }
       Draw(who);
       return;
     case mjxproto::ACTION_TYPE_KAN_ADDED:
