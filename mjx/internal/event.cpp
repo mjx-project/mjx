@@ -105,9 +105,9 @@ bool Event::IsValid(const mjxproto::Event &event) {
       break;
     case mjxproto::EVENT_TYPE_CHI:
     case mjxproto::EVENT_TYPE_PON:
-    case mjxproto::EVENT_TYPE_KAN_CLOSED:
-    case mjxproto::EVENT_TYPE_KAN_OPENED:
-    case mjxproto::EVENT_TYPE_KAN_ADDED:
+    case mjxproto::EVENT_TYPE_CLOSED_KAN:
+    case mjxproto::EVENT_TYPE_OPEN_KAN:
+    case mjxproto::EVENT_TYPE_ADDED_KAN:
       if (!mjxproto::EventType_IsValid(event.who())) return false;
       if (event.tile() != 0) return false;  // tile is empty = 0
       // open could be zero when it's kan closed

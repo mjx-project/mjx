@@ -414,12 +414,12 @@ class MjlogDecoder:
         elif 1 << 3 & bits:
             return mjxproto.EVENT_TYPE_PON
         elif 1 << 4 & bits:
-            return mjxproto.EVENT_TYPE_KAN_ADDED
+            return mjxproto.EVENT_TYPE_ADDED_KAN
         else:
             if RelativePos.SELF == bits & 3:
-                return mjxproto.EVENT_TYPE_KAN_CLOSED
+                return mjxproto.EVENT_TYPE_CLOSED_KAN
             else:
-                return mjxproto.EVENT_TYPE_KAN_OPENED
+                return mjxproto.EVENT_TYPE_OPEN_KAN
 
 
 def reproduce_wall_from_mjlog(mjlog_str: str) -> List[Tuple[List[int], List[int]]]:

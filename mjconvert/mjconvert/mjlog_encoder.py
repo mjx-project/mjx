@@ -84,9 +84,9 @@ class MjlogEncoder:
             elif event.type in [
                 mjxproto.EVENT_TYPE_CHI,
                 mjxproto.EVENT_TYPE_PON,
-                mjxproto.EVENT_TYPE_KAN_CLOSED,
-                mjxproto.EVENT_TYPE_KAN_OPENED,
-                mjxproto.EVENT_TYPE_KAN_ADDED,
+                mjxproto.EVENT_TYPE_CLOSED_KAN,
+                mjxproto.EVENT_TYPE_OPEN_KAN,
+                mjxproto.EVENT_TYPE_ADDED_KAN,
             ]:
                 ret += f'<N who="{event.who}" '
                 ret += f'm="{event.open}" />'

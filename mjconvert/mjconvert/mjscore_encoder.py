@@ -43,7 +43,7 @@ def _change_action_format(bits: int) -> str:  # TODO カン
             return str(open_tiles[0]) + "p" + str(stolen_tile) + str(open_tiles[1])
         else:
             return str(open_tiles[0]) + str(open_tiles[1]) + "p" + str(stolen_tile)
-    elif event_type == mjxproto.EVENT_TYPE_KAN_ADDED:  # 加槓
+    elif event_type == mjxproto.EVENT_TYPE_ADDED_KAN:  # 加槓
         if open_from == RelativePos.LEFT:
             return (
                 "k"
@@ -68,7 +68,7 @@ def _change_action_format(bits: int) -> str:  # TODO カン
                 + str(stolen_tile)
                 + str(open_tiles[2])
             )
-    elif event_type == mjxproto.EVENT_TYPE_KAN_CLOSED:  # 暗槓
+    elif event_type == mjxproto.EVENT_TYPE_CLOSED_KAN:  # 暗槓
         return str(stolen_tile) + str(stolen_tile) + str(stolen_tile) + "a" + str(open_tiles[-1])
     else:  # 明槓
         if open_from == RelativePos.LEFT:
@@ -130,12 +130,12 @@ def parse_discards(events, abs_pos: int):
                 discards.append("r60")
             else:
                 discards.append(60)
-        elif event.type == mjxproto.EVENT_TYPE_KAN_CLOSED and event.who == abs_pos:
+        elif event.type == mjxproto.EVENT_TYPE_CLOSED_KAN and event.who == abs_pos:
             discards.append(_change_action_format(event.open))
-        elif event.type == mjxproto.EVENT_TYPE_KAN_ADDED and event.who == abs_pos:
+        elif event.type == mjxproto.EVENT_TYPE_ADDED_KAN and event.who == abs_pos:
             discards.append(_change_action_format(event.open))
         elif (
-            events[i - 1].type == mjxproto.EVENT_TYPE_KAN_OPENED and event.who == abs_pos
+            events[i - 1].type == mjxproto.EVENT_TYPE_OPEN_KAN and event.who == abs_pos
         ):  # 明槓のあと捨て牌の情報に情報のない0が追加される。
             discards.append(0)
     return discards
@@ -165,11 +165,11 @@ def parse_draw_history(draw_history, events, abs_pos):
         elif event.type == mjxproto.EVENT_TYPE_PON and event.who == abs_pos:  # ポン
             discards.append(event.open)
             actions.append(event.open)
-        elif event.type == mjxproto.EVENT_TYPE_KAN_OPENED and event.who == abs_pos:  # 明槓
+        elif event.type == mjxproto.EVENT_TYPE_OPEN_KAN and event.who == abs_pos:  # 明槓
             discards.append(event.open)
             actions.append(event.open)
         elif (
-            event.type == mjxproto.EVENT_TYPE_KAN_CLOSED and event.who == abs_pos
+            event.type == mjxproto.EVENT_TYPE_CLOSED_KAN and event.who == abs_pos
         ):  # 捨て牌の情報には暗槓も含まれているので、追加しないとずれる。
             discards.append(_change_action_format(event.open))
     for i, action in enumerate(actions):
