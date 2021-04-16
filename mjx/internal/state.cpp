@@ -489,8 +489,7 @@ void State::Tsumo(AbsolutePos winner) {
 
 void State::Ron(AbsolutePos winner) {
   Assert(Any(LastEvent().type(),
-             {mjxproto::EVENT_TYPE_TSUMOGIRI,
-              mjxproto::EVENT_TYPE_DISCARD,
+             {mjxproto::EVENT_TYPE_TSUMOGIRI, mjxproto::EVENT_TYPE_DISCARD,
               mjxproto::EVENT_TYPE_ADDED_KAN, mjxproto::EVENT_TYPE_RON}));
   AbsolutePos loser = LastEvent().type() != mjxproto::EVENT_TYPE_RON
                           ? AbsolutePos(LastEvent().who())
@@ -1037,26 +1036,31 @@ void State::Update(std::vector<mjxproto::Action> &&action_candidates) {
   // sort in order Ron > KanOpened > Pon > Chi > No
   auto action_type_priority = [](mjxproto::ActionType t) {
     switch (t) {
-      case mjxproto::ACTION_TYPE_NO: return 0;
-      case mjxproto::ACTION_TYPE_CHI: return 1;
-      case mjxproto::ACTION_TYPE_PON: return 2;
-      case mjxproto::ACTION_TYPE_OPEN_KAN: return 3;
-      case mjxproto::ACTION_TYPE_RON: return 4;
-      default: Assert(false, "Invalid action type is passed to action_type_priority");
+      case mjxproto::ACTION_TYPE_NO:
+        return 0;
+      case mjxproto::ACTION_TYPE_CHI:
+        return 1;
+      case mjxproto::ACTION_TYPE_PON:
+        return 2;
+      case mjxproto::ACTION_TYPE_OPEN_KAN:
+        return 3;
+      case mjxproto::ACTION_TYPE_RON:
+        return 4;
+      default:
+        Assert(false, "Invalid action type is passed to action_type_priority");
     }
   };
   std::sort(action_candidates.begin(), action_candidates.end(),
             [&](const mjxproto::Action &x, const mjxproto::Action &y) {
-              return action_type_priority(x.type()) > action_type_priority(y.type());
+              return action_type_priority(x.type()) >
+                     action_type_priority(y.type());
             });
-  bool has_ron =
-      action_candidates.front().type() == mjxproto::ACTION_TYPE_RON;
+  bool has_ron = action_candidates.front().type() == mjxproto::ACTION_TYPE_RON;
 
   if (!has_ron) {
-    Assert(
-        Any(action_candidates.front().type(),
-            {mjxproto::ACTION_TYPE_NO, mjxproto::ACTION_TYPE_CHI,
-             mjxproto::ACTION_TYPE_PON, mjxproto::ACTION_TYPE_OPEN_KAN}));
+    Assert(Any(action_candidates.front().type(),
+               {mjxproto::ACTION_TYPE_NO, mjxproto::ACTION_TYPE_CHI,
+                mjxproto::ACTION_TYPE_PON, mjxproto::ACTION_TYPE_OPEN_KAN}));
     Update(std::move(action_candidates.front()));
     return;
   }
@@ -1066,12 +1070,11 @@ void State::Update(std::vector<mjxproto::Action> &&action_candidates) {
     action_candidates.pop_back();
   // 上家から順にsortする（ダブロン時に供託が上家取り）
   auto from_who = LastEvent().who();
-  std::sort(
-      action_candidates.begin(), action_candidates.end(),
-      [&from_who](const mjxproto::Action &x, const mjxproto::Action &y) {
-        return ((x.who() - from_who + 4) % 4) <
-               ((y.who() - from_who + 4) % 4);
-      });
+  std::sort(action_candidates.begin(), action_candidates.end(),
+            [&from_who](const mjxproto::Action &x, const mjxproto::Action &y) {
+              return ((x.who() - from_who + 4) % 4) <
+                     ((y.who() - from_who + 4) % 4);
+            });
   int ron_count = action_candidates.size();
   if (ron_count == 3) {
     // 三家和了
@@ -1093,12 +1096,11 @@ void State::Update(std::vector<mjxproto::Action> &&action_candidates) {
 }
 
 void State::Update(mjxproto::Action &&action) {
-  Assert(
-      Any(LastEvent().type(),
-          {mjxproto::EVENT_TYPE_DRAW, mjxproto::EVENT_TYPE_DISCARD,
-           mjxproto::EVENT_TYPE_TSUMOGIRI, mjxproto::EVENT_TYPE_RIICHI,
-           mjxproto::EVENT_TYPE_CHI, mjxproto::EVENT_TYPE_PON,
-           mjxproto::EVENT_TYPE_ADDED_KAN, mjxproto::EVENT_TYPE_RON}));
+  Assert(Any(LastEvent().type(),
+             {mjxproto::EVENT_TYPE_DRAW, mjxproto::EVENT_TYPE_DISCARD,
+              mjxproto::EVENT_TYPE_TSUMOGIRI, mjxproto::EVENT_TYPE_RIICHI,
+              mjxproto::EVENT_TYPE_CHI, mjxproto::EVENT_TYPE_PON,
+              mjxproto::EVENT_TYPE_ADDED_KAN, mjxproto::EVENT_TYPE_RON}));
   auto who = AbsolutePos(action.who());
   switch (action.type()) {
     case mjxproto::ACTION_TYPE_DISCARD:
@@ -1189,23 +1191,20 @@ void State::Update(mjxproto::Action &&action) {
       return;
     case mjxproto::ACTION_TYPE_RON:
       Assert(Any(LastEvent().type(),
-                 {mjxproto::EVENT_TYPE_DISCARD,
-                  mjxproto::EVENT_TYPE_TSUMOGIRI,
+                 {mjxproto::EVENT_TYPE_DISCARD, mjxproto::EVENT_TYPE_TSUMOGIRI,
                   mjxproto::EVENT_TYPE_ADDED_KAN, mjxproto::EVENT_TYPE_RON}));
       Ron(who);
       return;
     case mjxproto::ACTION_TYPE_CHI:
     case mjxproto::ACTION_TYPE_PON:
-      Assert(
-          Any(LastEvent().type(), {mjxproto::EVENT_TYPE_DISCARD,
-                                   mjxproto::EVENT_TYPE_TSUMOGIRI}));
+      Assert(Any(LastEvent().type(), {mjxproto::EVENT_TYPE_DISCARD,
+                                      mjxproto::EVENT_TYPE_TSUMOGIRI}));
       if (RequireRiichiScoreChange()) RiichiScoreChange();
       ApplyOpen(who, Open(action.open()));
       return;
     case mjxproto::ACTION_TYPE_OPEN_KAN:
-      Assert(
-          Any(LastEvent().type(), {mjxproto::EVENT_TYPE_DISCARD,
-                                   mjxproto::EVENT_TYPE_TSUMOGIRI}));
+      Assert(Any(LastEvent().type(), {mjxproto::EVENT_TYPE_DISCARD,
+                                      mjxproto::EVENT_TYPE_TSUMOGIRI}));
       if (RequireRiichiScoreChange()) RiichiScoreChange();
       ApplyOpen(who, Open(action.open()));
       Draw(who);
@@ -1237,9 +1236,9 @@ void State::Update(mjxproto::Action &&action) {
       }
       return;
     case mjxproto::ACTION_TYPE_NO:
-      Assert(Any(LastEvent().type(), {mjxproto::EVENT_TYPE_TSUMOGIRI,
-                                      mjxproto::EVENT_TYPE_DISCARD,
-                                      mjxproto::EVENT_TYPE_ADDED_KAN}));
+      Assert(Any(LastEvent().type(),
+                 {mjxproto::EVENT_TYPE_TSUMOGIRI, mjxproto::EVENT_TYPE_DISCARD,
+                  mjxproto::EVENT_TYPE_ADDED_KAN}));
 
       // 加槓のあとに mjxproto::ActionType::kNo
       // が渡されるのは槍槓のロンを否定した場合のみ
