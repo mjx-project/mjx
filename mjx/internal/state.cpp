@@ -170,8 +170,8 @@ std::unordered_map<PlayerId, Observation> State::CreateObservations() const {
              "After chi/pon, there should be no legal tsumogiri action");
       return {{player(who).player_id, std::move(observation)}};
     }
-    case mjxproto::EVENT_TYPE_DISCARD_FROM_HAND:
-    case mjxproto::EVENT_TYPE_DISCARD_DRAWN_TILE:
+    case mjxproto::EVENT_TYPE_DISCARD:
+    case mjxproto::EVENT_TYPE_TSUMOGIRI:
       // => Ron (7)
       // => Chi, Pon and KanOpened (8)
       { return CreateStealAndRonObservation(); }
@@ -262,8 +262,8 @@ void State::UpdateByEvent(const mjxproto::Event &event) {
       // draw_ixs[ToUType(who)]++;
       Draw(who);
       break;
-    case mjxproto::EVENT_TYPE_DISCARD_FROM_HAND:
-    case mjxproto::EVENT_TYPE_DISCARD_DRAWN_TILE:
+    case mjxproto::EVENT_TYPE_DISCARD:
+    case mjxproto::EVENT_TYPE_TSUMOGIRI:
       Discard(who, Tile(event.tile()));
       break;
     case mjxproto::EVENT_TYPE_RIICHI:
@@ -489,8 +489,8 @@ void State::Tsumo(AbsolutePos winner) {
 
 void State::Ron(AbsolutePos winner) {
   Assert(Any(LastEvent().type(),
-             {mjxproto::EVENT_TYPE_DISCARD_DRAWN_TILE,
-              mjxproto::EVENT_TYPE_DISCARD_FROM_HAND,
+             {mjxproto::EVENT_TYPE_TSUMOGIRI,
+              mjxproto::EVENT_TYPE_DISCARD,
               mjxproto::EVENT_TYPE_KAN_ADDED, mjxproto::EVENT_TYPE_RON}));
   AbsolutePos loser = LastEvent().type() != mjxproto::EVENT_TYPE_RON
                           ? AbsolutePos(LastEvent().who())
@@ -858,8 +858,8 @@ std::optional<Tile> State::TargetTile() const {
        it != state_.event_history().events().rend(); ++it) {
     const auto &event = *it;
 
-    if (event.type() == mjxproto::EventType::EVENT_TYPE_DISCARD_FROM_HAND or
-        event.type() == mjxproto::EventType::EVENT_TYPE_DISCARD_DRAWN_TILE) {
+    if (event.type() == mjxproto::EventType::EVENT_TYPE_DISCARD or
+        event.type() == mjxproto::EventType::EVENT_TYPE_TSUMOGIRI) {
       return Tile(event.tile());
     }
     if (event.type() == mjxproto::EventType::EVENT_TYPE_KAN_ADDED) {
@@ -878,8 +878,8 @@ bool State::IsFirstTurnWithoutOpen() const {
       case mjxproto::EVENT_TYPE_KAN_OPENED:
       case mjxproto::EVENT_TYPE_KAN_ADDED:
         return false;
-      case mjxproto::EVENT_TYPE_DISCARD_FROM_HAND:
-      case mjxproto::EVENT_TYPE_DISCARD_DRAWN_TILE:
+      case mjxproto::EVENT_TYPE_DISCARD:
+      case mjxproto::EVENT_TYPE_TSUMOGIRI:
         if (ToSeatWind(static_cast<AbsolutePos>(event.who()), dealer()) ==
             Wind::kNorth) {
           return false;
@@ -899,8 +899,8 @@ bool State::IsFourWinds() const {
       case mjxproto::EVENT_TYPE_KAN_OPENED:
       case mjxproto::EVENT_TYPE_KAN_ADDED:
         return false;
-      case mjxproto::EVENT_TYPE_DISCARD_FROM_HAND:
-      case mjxproto::EVENT_TYPE_DISCARD_DRAWN_TILE:
+      case mjxproto::EVENT_TYPE_DISCARD:
+      case mjxproto::EVENT_TYPE_TSUMOGIRI:
         if (!Is(Tile(event.tile()).Type(), TileSetType::kWinds)) {
           return false;
         }
@@ -1095,8 +1095,8 @@ void State::Update(std::vector<mjxproto::Action> &&action_candidates) {
 void State::Update(mjxproto::Action &&action) {
   Assert(
       Any(LastEvent().type(),
-          {mjxproto::EVENT_TYPE_DRAW, mjxproto::EVENT_TYPE_DISCARD_FROM_HAND,
-           mjxproto::EVENT_TYPE_DISCARD_DRAWN_TILE, mjxproto::EVENT_TYPE_RIICHI,
+          {mjxproto::EVENT_TYPE_DRAW, mjxproto::EVENT_TYPE_DISCARD,
+           mjxproto::EVENT_TYPE_TSUMOGIRI, mjxproto::EVENT_TYPE_RIICHI,
            mjxproto::EVENT_TYPE_CHI, mjxproto::EVENT_TYPE_PON,
            mjxproto::EVENT_TYPE_KAN_ADDED, mjxproto::EVENT_TYPE_RON}));
   auto who = AbsolutePos(action.who());
@@ -1189,23 +1189,23 @@ void State::Update(mjxproto::Action &&action) {
       return;
     case mjxproto::ACTION_TYPE_RON:
       Assert(Any(LastEvent().type(),
-                 {mjxproto::EVENT_TYPE_DISCARD_FROM_HAND,
-                  mjxproto::EVENT_TYPE_DISCARD_DRAWN_TILE,
+                 {mjxproto::EVENT_TYPE_DISCARD,
+                  mjxproto::EVENT_TYPE_TSUMOGIRI,
                   mjxproto::EVENT_TYPE_KAN_ADDED, mjxproto::EVENT_TYPE_RON}));
       Ron(who);
       return;
     case mjxproto::ACTION_TYPE_CHI:
     case mjxproto::ACTION_TYPE_PON:
       Assert(
-          Any(LastEvent().type(), {mjxproto::EVENT_TYPE_DISCARD_FROM_HAND,
-                                   mjxproto::EVENT_TYPE_DISCARD_DRAWN_TILE}));
+          Any(LastEvent().type(), {mjxproto::EVENT_TYPE_DISCARD,
+                                   mjxproto::EVENT_TYPE_TSUMOGIRI}));
       if (RequireRiichiScoreChange()) RiichiScoreChange();
       ApplyOpen(who, Open(action.open()));
       return;
     case mjxproto::ACTION_TYPE_OPEN_KAN:
       Assert(
-          Any(LastEvent().type(), {mjxproto::EVENT_TYPE_DISCARD_FROM_HAND,
-                                   mjxproto::EVENT_TYPE_DISCARD_DRAWN_TILE}));
+          Any(LastEvent().type(), {mjxproto::EVENT_TYPE_DISCARD,
+                                   mjxproto::EVENT_TYPE_TSUMOGIRI}));
       if (RequireRiichiScoreChange()) RiichiScoreChange();
       ApplyOpen(who, Open(action.open()));
       Draw(who);
@@ -1237,8 +1237,8 @@ void State::Update(mjxproto::Action &&action) {
       }
       return;
     case mjxproto::ACTION_TYPE_NO:
-      Assert(Any(LastEvent().type(), {mjxproto::EVENT_TYPE_DISCARD_DRAWN_TILE,
-                                      mjxproto::EVENT_TYPE_DISCARD_FROM_HAND,
+      Assert(Any(LastEvent().type(), {mjxproto::EVENT_TYPE_TSUMOGIRI,
+                                      mjxproto::EVENT_TYPE_DISCARD,
                                       mjxproto::EVENT_TYPE_KAN_ADDED}));
 
       // 加槓のあとに mjxproto::ActionType::kNo
