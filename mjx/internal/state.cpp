@@ -489,8 +489,7 @@ void State::Tsumo(AbsolutePos winner) {
 
 void State::Ron(AbsolutePos winner) {
   Assert(Any(LastEvent().type(),
-             {mjxproto::EVENT_TYPE_TSUMOGIRI,
-              mjxproto::EVENT_TYPE_DISCARD,
+             {mjxproto::EVENT_TYPE_TSUMOGIRI, mjxproto::EVENT_TYPE_DISCARD,
               mjxproto::EVENT_TYPE_KAN_ADDED, mjxproto::EVENT_TYPE_RON}));
   AbsolutePos loser = LastEvent().type() != mjxproto::EVENT_TYPE_RON
                           ? AbsolutePos(LastEvent().who())
@@ -1097,12 +1096,11 @@ void State::Update(std::vector<mjxproto::Action> &&action_candidates) {
 }
 
 void State::Update(mjxproto::Action &&action) {
-  Assert(
-      Any(LastEvent().type(),
-          {mjxproto::EVENT_TYPE_DRAW, mjxproto::EVENT_TYPE_DISCARD,
-           mjxproto::EVENT_TYPE_TSUMOGIRI, mjxproto::EVENT_TYPE_RIICHI,
-           mjxproto::EVENT_TYPE_CHI, mjxproto::EVENT_TYPE_PON,
-           mjxproto::EVENT_TYPE_KAN_ADDED, mjxproto::EVENT_TYPE_RON}));
+  Assert(Any(LastEvent().type(),
+             {mjxproto::EVENT_TYPE_DRAW, mjxproto::EVENT_TYPE_DISCARD,
+              mjxproto::EVENT_TYPE_TSUMOGIRI, mjxproto::EVENT_TYPE_RIICHI,
+              mjxproto::EVENT_TYPE_CHI, mjxproto::EVENT_TYPE_PON,
+              mjxproto::EVENT_TYPE_KAN_ADDED, mjxproto::EVENT_TYPE_RON}));
   auto who = AbsolutePos(action.who());
   switch (action.type()) {
     case mjxproto::ACTION_TYPE_DISCARD:
@@ -1193,23 +1191,20 @@ void State::Update(mjxproto::Action &&action) {
       return;
     case mjxproto::ACTION_TYPE_RON:
       Assert(Any(LastEvent().type(),
-                 {mjxproto::EVENT_TYPE_DISCARD,
-                  mjxproto::EVENT_TYPE_TSUMOGIRI,
+                 {mjxproto::EVENT_TYPE_DISCARD, mjxproto::EVENT_TYPE_TSUMOGIRI,
                   mjxproto::EVENT_TYPE_KAN_ADDED, mjxproto::EVENT_TYPE_RON}));
       Ron(who);
       return;
     case mjxproto::ACTION_TYPE_CHI:
     case mjxproto::ACTION_TYPE_PON:
-      Assert(
-          Any(LastEvent().type(), {mjxproto::EVENT_TYPE_DISCARD,
-                                   mjxproto::EVENT_TYPE_TSUMOGIRI}));
+      Assert(Any(LastEvent().type(), {mjxproto::EVENT_TYPE_DISCARD,
+                                      mjxproto::EVENT_TYPE_TSUMOGIRI}));
       if (RequireRiichiScoreChange()) RiichiScoreChange();
       ApplyOpen(who, Open(action.open()));
       return;
     case mjxproto::ACTION_TYPE_OPEN_KAN:
-      Assert(
-          Any(LastEvent().type(), {mjxproto::EVENT_TYPE_DISCARD,
-                                   mjxproto::EVENT_TYPE_TSUMOGIRI}));
+      Assert(Any(LastEvent().type(), {mjxproto::EVENT_TYPE_DISCARD,
+                                      mjxproto::EVENT_TYPE_TSUMOGIRI}));
       if (RequireRiichiScoreChange()) RiichiScoreChange();
       ApplyOpen(who, Open(action.open()));
       Draw(who);
@@ -1241,9 +1236,9 @@ void State::Update(mjxproto::Action &&action) {
       }
       return;
     case mjxproto::ACTION_TYPE_NO:
-      Assert(Any(LastEvent().type(), {mjxproto::EVENT_TYPE_TSUMOGIRI,
-                                      mjxproto::EVENT_TYPE_DISCARD,
-                                      mjxproto::EVENT_TYPE_KAN_ADDED}));
+      Assert(Any(LastEvent().type(),
+                 {mjxproto::EVENT_TYPE_TSUMOGIRI, mjxproto::EVENT_TYPE_DISCARD,
+                  mjxproto::EVENT_TYPE_KAN_ADDED}));
 
       // 加槓のあとに mjxproto::ActionType::kNo
       // が渡されるのは槍槓のロンを否定した場合のみ
