@@ -175,7 +175,7 @@ std::unordered_map<PlayerId, Observation> State::CreateObservations() const {
       // => Ron (7)
       // => Chi, Pon and KanOpened (8)
       { return CreateStealAndRonObservation(); }
-    case mjxproto::EVENT_TYPE_KAN_ADDED: {
+    case mjxproto::EVENT_TYPE_ADDED_KAN: {
       auto observations = CreateStealAndRonObservation();
       Assert(!observations.empty());
       for (const auto &[player_id, observation] : observations)
@@ -186,8 +186,8 @@ std::unordered_map<PlayerId, Observation> State::CreateObservations() const {
     }
     case mjxproto::EVENT_TYPE_TSUMO:
     case mjxproto::EVENT_TYPE_RON:
-    case mjxproto::EVENT_TYPE_KAN_CLOSED:
-    case mjxproto::EVENT_TYPE_KAN_OPENED:
+    case mjxproto::EVENT_TYPE_CLOSED_KAN:
+    case mjxproto::EVENT_TYPE_OPEN_KAN:
     case mjxproto::EVENT_TYPE_NO_WINNER:
     case mjxproto::EVENT_TYPE_NEW_DORA:
     case mjxproto::EVENT_TYPE_RIICHI_SCORE_CHANGE:
@@ -273,15 +273,15 @@ void State::UpdateByEvent(const mjxproto::Event &event) {
       Tsumo(who);
       break;
     case mjxproto::EVENT_TYPE_RON:
-      Assert(LastEvent().type() == mjxproto::EVENT_TYPE_KAN_ADDED ||
+      Assert(LastEvent().type() == mjxproto::EVENT_TYPE_ADDED_KAN ||
              Tile(LastEvent().tile()) == Tile(event.tile()));
       Ron(who);
       break;
     case mjxproto::EVENT_TYPE_CHI:
     case mjxproto::EVENT_TYPE_PON:
-    case mjxproto::EVENT_TYPE_KAN_CLOSED:
-    case mjxproto::EVENT_TYPE_KAN_OPENED:
-    case mjxproto::EVENT_TYPE_KAN_ADDED:
+    case mjxproto::EVENT_TYPE_CLOSED_KAN:
+    case mjxproto::EVENT_TYPE_OPEN_KAN:
+    case mjxproto::EVENT_TYPE_ADDED_KAN:
       ApplyOpen(who, Open(event.open()));
       break;
     case mjxproto::EVENT_TYPE_NEW_DORA:
@@ -319,7 +319,7 @@ Tile State::Draw(AbsolutePos who) {
   mutable_hand(who).Draw(draw);
 
   // 加槓=>槍槓=>Noのときの一発消し。加槓時に自分の一発は外れている外れているはずなので、一発が残っているのは他家のだれか
-  if (HasLastEvent() and LastEvent().type() == mjxproto::EVENT_TYPE_KAN_ADDED)
+  if (HasLastEvent() and LastEvent().type() == mjxproto::EVENT_TYPE_ADDED_KAN)
     for (int i = 0; i < 4; ++i)
       mutable_player(AbsolutePos(i)).is_ippatsu = false;
 
@@ -491,11 +491,11 @@ void State::Ron(AbsolutePos winner) {
   Assert(Any(LastEvent().type(),
              {mjxproto::EVENT_TYPE_TSUMOGIRI,
               mjxproto::EVENT_TYPE_DISCARD,
-              mjxproto::EVENT_TYPE_KAN_ADDED, mjxproto::EVENT_TYPE_RON}));
+              mjxproto::EVENT_TYPE_ADDED_KAN, mjxproto::EVENT_TYPE_RON}));
   AbsolutePos loser = LastEvent().type() != mjxproto::EVENT_TYPE_RON
                           ? AbsolutePos(LastEvent().who())
                           : AbsolutePos(state_.terminal().wins(0).from_who());
-  Tile tile = LastEvent().type() != mjxproto::EVENT_TYPE_KAN_ADDED
+  Tile tile = LastEvent().type() != mjxproto::EVENT_TYPE_ADDED_KAN
                   ? Tile(LastEvent().tile())
                   : Open(LastEvent().open()).LastTile();
 
@@ -862,7 +862,7 @@ std::optional<Tile> State::TargetTile() const {
         event.type() == mjxproto::EventType::EVENT_TYPE_TSUMOGIRI) {
       return Tile(event.tile());
     }
-    if (event.type() == mjxproto::EventType::EVENT_TYPE_KAN_ADDED) {
+    if (event.type() == mjxproto::EventType::EVENT_TYPE_ADDED_KAN) {
       return Open(event.open()).LastTile();
     }
   }
@@ -874,9 +874,9 @@ bool State::IsFirstTurnWithoutOpen() const {
     switch (event.type()) {
       case mjxproto::EVENT_TYPE_CHI:
       case mjxproto::EVENT_TYPE_PON:
-      case mjxproto::EVENT_TYPE_KAN_CLOSED:
-      case mjxproto::EVENT_TYPE_KAN_OPENED:
-      case mjxproto::EVENT_TYPE_KAN_ADDED:
+      case mjxproto::EVENT_TYPE_CLOSED_KAN:
+      case mjxproto::EVENT_TYPE_OPEN_KAN:
+      case mjxproto::EVENT_TYPE_ADDED_KAN:
         return false;
       case mjxproto::EVENT_TYPE_DISCARD:
       case mjxproto::EVENT_TYPE_TSUMOGIRI:
@@ -895,9 +895,9 @@ bool State::IsFourWinds() const {
     switch (event.type()) {
       case mjxproto::EVENT_TYPE_CHI:
       case mjxproto::EVENT_TYPE_PON:
-      case mjxproto::EVENT_TYPE_KAN_CLOSED:
-      case mjxproto::EVENT_TYPE_KAN_OPENED:
-      case mjxproto::EVENT_TYPE_KAN_ADDED:
+      case mjxproto::EVENT_TYPE_CLOSED_KAN:
+      case mjxproto::EVENT_TYPE_OPEN_KAN:
+      case mjxproto::EVENT_TYPE_ADDED_KAN:
         return false;
       case mjxproto::EVENT_TYPE_DISCARD:
       case mjxproto::EVENT_TYPE_TSUMOGIRI:
@@ -920,7 +920,7 @@ bool State::IsRobbingKan() const {
     if (event.type() == mjxproto::EventType::EVENT_TYPE_DRAW) {
       return false;
     }
-    if (event.type() == mjxproto::EventType::EVENT_TYPE_KAN_ADDED) {
+    if (event.type() == mjxproto::EventType::EVENT_TYPE_ADDED_KAN) {
       return true;
     }
   }
@@ -931,9 +931,9 @@ int State::RequireKanDora() const {
   int require_kan_dora = 0;
   for (const auto &event : state_.event_history().events()) {
     switch (event.type()) {
-      case mjxproto::EventType::EVENT_TYPE_KAN_ADDED:
-      case mjxproto::EventType::EVENT_TYPE_KAN_CLOSED:
-      case mjxproto::EventType::EVENT_TYPE_KAN_OPENED:
+      case mjxproto::EventType::EVENT_TYPE_ADDED_KAN:
+      case mjxproto::EventType::EVENT_TYPE_CLOSED_KAN:
+      case mjxproto::EventType::EVENT_TYPE_OPEN_KAN:
         ++require_kan_dora;
         break;
       case mjxproto::EventType::EVENT_TYPE_NEW_DORA:
@@ -951,9 +951,9 @@ bool State::RequireKanDraw() const {
     switch (event.type()) {
       case mjxproto::EventType::EVENT_TYPE_DRAW:
         return false;
-      case mjxproto::EventType::EVENT_TYPE_KAN_ADDED:
-      case mjxproto::EventType::EVENT_TYPE_KAN_CLOSED:
-      case mjxproto::EventType::EVENT_TYPE_KAN_OPENED:
+      case mjxproto::EventType::EVENT_TYPE_ADDED_KAN:
+      case mjxproto::EventType::EVENT_TYPE_CLOSED_KAN:
+      case mjxproto::EventType::EVENT_TYPE_OPEN_KAN:
         return true;
     }
   }
@@ -978,7 +978,7 @@ std::unordered_map<PlayerId, Observation> State::CreateStealAndRonObservation()
     const {
   std::unordered_map<PlayerId, Observation> observations;
   auto discarder = AbsolutePos(LastEvent().who());
-  auto tile = LastEvent().type() != mjxproto::EVENT_TYPE_KAN_ADDED
+  auto tile = LastEvent().type() != mjxproto::EVENT_TYPE_ADDED_KAN
                   ? Tile(LastEvent().tile())
                   : Open(LastEvent().open()).LastTile();
   auto has_draw_left = wall_.HasDrawLeft();
@@ -994,7 +994,7 @@ std::unordered_map<PlayerId, Observation> State::CreateStealAndRonObservation()
     }
 
     // check chi, pon and kan_opened
-    if (has_draw_left && LastEvent().type() != mjxproto::EVENT_TYPE_KAN_ADDED &&
+    if (has_draw_left && LastEvent().type() != mjxproto::EVENT_TYPE_ADDED_KAN &&
         !IsFourKanNoWinner()) {  // if 槍槓 or 四槓散了直前の捨て牌, only ron
       auto relative_pos = ToRelativePos(stealer, discarder);
       auto possible_opens =
@@ -1098,7 +1098,7 @@ void State::Update(mjxproto::Action &&action) {
           {mjxproto::EVENT_TYPE_DRAW, mjxproto::EVENT_TYPE_DISCARD,
            mjxproto::EVENT_TYPE_TSUMOGIRI, mjxproto::EVENT_TYPE_RIICHI,
            mjxproto::EVENT_TYPE_CHI, mjxproto::EVENT_TYPE_PON,
-           mjxproto::EVENT_TYPE_KAN_ADDED, mjxproto::EVENT_TYPE_RON}));
+           mjxproto::EVENT_TYPE_ADDED_KAN, mjxproto::EVENT_TYPE_RON}));
   auto who = AbsolutePos(action.who());
   switch (action.type()) {
     case mjxproto::ACTION_TYPE_DISCARD:
@@ -1191,7 +1191,7 @@ void State::Update(mjxproto::Action &&action) {
       Assert(Any(LastEvent().type(),
                  {mjxproto::EVENT_TYPE_DISCARD,
                   mjxproto::EVENT_TYPE_TSUMOGIRI,
-                  mjxproto::EVENT_TYPE_KAN_ADDED, mjxproto::EVENT_TYPE_RON}));
+                  mjxproto::EVENT_TYPE_ADDED_KAN, mjxproto::EVENT_TYPE_RON}));
       Ron(who);
       return;
     case mjxproto::ACTION_TYPE_CHI:
@@ -1239,11 +1239,11 @@ void State::Update(mjxproto::Action &&action) {
     case mjxproto::ACTION_TYPE_NO:
       Assert(Any(LastEvent().type(), {mjxproto::EVENT_TYPE_TSUMOGIRI,
                                       mjxproto::EVENT_TYPE_DISCARD,
-                                      mjxproto::EVENT_TYPE_KAN_ADDED}));
+                                      mjxproto::EVENT_TYPE_ADDED_KAN}));
 
       // 加槓のあとに mjxproto::ActionType::kNo
       // が渡されるのは槍槓のロンを否定した場合のみ
-      if (LastEvent().type() == mjxproto::EVENT_TYPE_KAN_ADDED) {
+      if (LastEvent().type() == mjxproto::EVENT_TYPE_ADDED_KAN) {
         Draw(AbsolutePos(LastEvent().who()));  // 嶺上ツモ
         return;
       }

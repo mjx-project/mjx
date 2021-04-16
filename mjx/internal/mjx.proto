@@ -24,20 +24,31 @@ enum ActionType {
 }
 
 enum EventType {
-  EVENT_TYPE_DRAW = 0;
-  EVENT_TYPE_DISCARD = 1;
-  EVENT_TYPE_TSUMOGIRI = 2;  // ツモ切り, Tsumogiri
-  EVENT_TYPE_RIICHI = 3;
-  EVENT_TYPE_TSUMO = 4;
-  EVENT_TYPE_RON = 5;
-  EVENT_TYPE_CHI = 6;
-  EVENT_TYPE_PON = 7;
-  EVENT_TYPE_KAN_CLOSED = 8;
-  EVENT_TYPE_KAN_OPENED = 9;
-  EVENT_TYPE_KAN_ADDED = 10;
-  EVENT_TYPE_NEW_DORA = 11;
-  EVENT_TYPE_RIICHI_SCORE_CHANGE = 12;
-  EVENT_TYPE_NO_WINNER = 13;  // 流局
+  // Publicly observable actions
+  EVENT_TYPE_DISCARD = 0;
+  EVENT_TYPE_TSUMOGIRI = 1;  // ツモ切り, Tsumogiri
+  EVENT_TYPE_RIICHI = 2;
+  EVENT_TYPE_CLOSED_KAN = 3;
+  EVENT_TYPE_ADDED_KAN = 4;
+  EVENT_TYPE_TSUMO = 5;
+  //EVENT_TYPE_ABORTIVE_DRAW_NINE_TERMINALS = 6;
+  EVENT_TYPE_CHI = 7;
+  EVENT_TYPE_PON = 8;
+  EVENT_TYPE_OPEN_KAN = 9;
+  EVENT_TYPE_RON = 10;
+  // State transitions made by environment. There is no decision making by players.
+  // 11 is skipped for the consistency to ActionType
+  EVENT_TYPE_DRAW = 12;
+  EVENT_TYPE_RIICHI_SCORE_CHANGE = 13;
+  EVENT_TYPE_NEW_DORA = 14;
+  EVENT_TYPE_NO_WINNER = 15;  // 流局
+  //EVENT_TYPE_ABORTIVE_DRAW_FOUR_RIICHIS = 15;  // 四家立直
+  //EVENT_TYPE_ABORTIVE_DRAW_THREE_RONS = 16;  // 三家和了
+  //EVENT_TYPE_ABORTIVE_DRAW_FOUR_KANS = 17;  // 四槓散了
+  //EVENT_TYPE_ABORTIVE_DRAW_FOUR_WINDS = 18;  // 四風連打
+  //EVENT_TYPE_EXHAUSTIVE_DRAW_NORMAL = 19;  // 通常流局
+  //EVENT_TYPE_EXHAUSTIVE_DRAW_NAGASHI_MANGAN = 20;  // 流し満貫
+  //EVENT_TYPE_ROUND_END = 21;
 }
 
 enum NoWinnerType {  // 流局

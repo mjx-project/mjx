@@ -96,9 +96,9 @@ Hand Observation::current_hand() const {
       hand.Discard(Tile(event.tile()));
     } else if (Any(event.type(),
                    {mjxproto::EVENT_TYPE_CHI, mjxproto::EVENT_TYPE_PON,
-                    mjxproto::EVENT_TYPE_KAN_ADDED,
-                    mjxproto::EVENT_TYPE_KAN_OPENED,
-                    mjxproto::EVENT_TYPE_KAN_CLOSED})) {
+                    mjxproto::EVENT_TYPE_ADDED_KAN,
+                    mjxproto::EVENT_TYPE_OPEN_KAN,
+                    mjxproto::EVENT_TYPE_CLOSED_KAN})) {
       hand.ApplyOpen(Open(event.open()));
     } else if (event.type() == mjxproto::EVENT_TYPE_RON) {
       hand.Ron(Tile(event.tile()));
