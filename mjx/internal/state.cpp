@@ -1027,60 +1027,68 @@ WinStateInfo State::win_state_info(AbsolutePos who) const {
 }
 
 void State::Update(std::vector<mjxproto::Action> &&action_candidates) {
-  static_assert(mjxproto::ACTION_TYPE_NO < mjxproto::ACTION_TYPE_CHI);
-  static_assert(mjxproto::ACTION_TYPE_CHI < mjxproto::ACTION_TYPE_PON);
-  static_assert(mjxproto::ACTION_TYPE_CHI < mjxproto::ACTION_TYPE_KAN_OPENED);
-  static_assert(mjxproto::ACTION_TYPE_PON < mjxproto::ACTION_TYPE_RON);
-  static_assert(mjxproto::ACTION_TYPE_KAN_OPENED < mjxproto::ACTION_TYPE_RON);
   Assert(!action_candidates.empty() && action_candidates.size() <= 3);
 
   if (action_candidates.size() == 1) {
     Update(std::move(action_candidates.front()));
-  } else {
-    // sort in order Ron > KanOpened > Pon > Chi > No
-    std::sort(action_candidates.begin(), action_candidates.end(),
-              [](const mjxproto::Action &x, const mjxproto::Action &y) {
-                return x.type() > y.type();
-              });
-    bool has_ron =
-        action_candidates.front().type() == mjxproto::ACTION_TYPE_RON;
-    if (has_ron) {
-      // ron以外の行動は取られないので消していく
-      while (action_candidates.back().type() != mjxproto::ACTION_TYPE_RON)
-        action_candidates.pop_back();
-      // 上家から順にsortする（ダブロン時に供託が上家取り）
-      auto from_who = LastEvent().who();
-      std::sort(
-          action_candidates.begin(), action_candidates.end(),
-          [&from_who](const mjxproto::Action &x, const mjxproto::Action &y) {
-            return ((x.who() - from_who + 4) % 4) <
-                   ((y.who() - from_who + 4) % 4);
-          });
-      int ron_count = action_candidates.size();
-      if (ron_count == 3) {
-        // 三家和了
-        std::vector<int> ron = {0, 0, 0, 0};
-        for (const auto &action : action_candidates) {
-          if (action.type() == mjxproto::ACTION_TYPE_RON) ron[action.who()] = 1;
-        }
-        Assert(std::accumulate(ron.begin(), ron.end(), 0) == 3);
-        for (int i = 0; i < 4; ++i) {
-          if (ron[i] == 0) three_ronned_player = AbsolutePos(i);
-        }
-        NoWinner();
-        return;
-      }
-      for (auto &action : action_candidates) {
-        if (action.type() != mjxproto::ACTION_TYPE_RON) break;
-        Update(std::move(action));
-      }
-    } else {
-      Assert(
-          Any(action_candidates.front().type(),
-              {mjxproto::ACTION_TYPE_NO, mjxproto::ACTION_TYPE_CHI,
-               mjxproto::ACTION_TYPE_PON, mjxproto::ACTION_TYPE_KAN_OPENED}));
-      Update(std::move(action_candidates.front()));
+    return;
+  }
+
+  // sort in order Ron > KanOpened > Pon > Chi > No
+  auto action_type_priority = [](mjxproto::ActionType t) {
+    switch (t) {
+      case mjxproto::ACTION_TYPE_NO: return 0;
+      case mjxproto::ACTION_TYPE_CHI: return 1;
+      case mjxproto::ACTION_TYPE_PON: return 2;
+      case mjxproto::ACTION_TYPE_OPEN_KAN: return 3;
+      case mjxproto::ACTION_TYPE_RON: return 4;
+      default: Assert(false, "Invalid action type is passed to action_type_priority");
     }
+  };
+  std::sort(action_candidates.begin(), action_candidates.end(),
+            [&](const mjxproto::Action &x, const mjxproto::Action &y) {
+              return action_type_priority(x.type()) > action_type_priority(y.type());
+            });
+  bool has_ron =
+      action_candidates.front().type() == mjxproto::ACTION_TYPE_RON;
+
+  if (!has_ron) {
+    Assert(
+        Any(action_candidates.front().type(),
+            {mjxproto::ACTION_TYPE_NO, mjxproto::ACTION_TYPE_CHI,
+             mjxproto::ACTION_TYPE_PON, mjxproto::ACTION_TYPE_OPEN_KAN}));
+    Update(std::move(action_candidates.front()));
+    return;
+  }
+
+  // ron以外の行動は取られないので消していく
+  while (action_candidates.back().type() != mjxproto::ACTION_TYPE_RON)
+    action_candidates.pop_back();
+  // 上家から順にsortする（ダブロン時に供託が上家取り）
+  auto from_who = LastEvent().who();
+  std::sort(
+      action_candidates.begin(), action_candidates.end(),
+      [&from_who](const mjxproto::Action &x, const mjxproto::Action &y) {
+        return ((x.who() - from_who + 4) % 4) <
+               ((y.who() - from_who + 4) % 4);
+      });
+  int ron_count = action_candidates.size();
+  if (ron_count == 3) {
+    // 三家和了
+    std::vector<int> ron = {0, 0, 0, 0};
+    for (const auto &action : action_candidates) {
+      if (action.type() == mjxproto::ACTION_TYPE_RON) ron[action.who()] = 1;
+    }
+    Assert(std::accumulate(ron.begin(), ron.end(), 0) == 3);
+    for (int i = 0; i < 4; ++i) {
+      if (ron[i] == 0) three_ronned_player = AbsolutePos(i);
+    }
+    NoWinner();
+    return;
+  }
+  for (auto &action : action_candidates) {
+    if (action.type() != mjxproto::ACTION_TYPE_RON) break;
+    Update(std::move(action));
   }
 }
 
@@ -1194,7 +1202,7 @@ void State::Update(mjxproto::Action &&action) {
       if (RequireRiichiScoreChange()) RiichiScoreChange();
       ApplyOpen(who, Open(action.open()));
       return;
-    case mjxproto::ACTION_TYPE_KAN_OPENED:
+    case mjxproto::ACTION_TYPE_OPEN_KAN:
       Assert(
           Any(LastEvent().type(), {mjxproto::EVENT_TYPE_DISCARD_FROM_HAND,
                                    mjxproto::EVENT_TYPE_DISCARD_DRAWN_TILE}));
@@ -1202,7 +1210,7 @@ void State::Update(mjxproto::Action &&action) {
       ApplyOpen(who, Open(action.open()));
       Draw(who);
       return;
-    case mjxproto::ACTION_TYPE_KAN_CLOSED:
+    case mjxproto::ACTION_TYPE_CLOSED_KAN:
       Assert(Any(LastEvent().type(), {mjxproto::EVENT_TYPE_DRAW}));
       ApplyOpen(who, Open(action.open()));
       {
@@ -1215,7 +1223,7 @@ void State::Update(mjxproto::Action &&action) {
       }
       Draw(who);
       return;
-    case mjxproto::ACTION_TYPE_KAN_ADDED:
+    case mjxproto::ACTION_TYPE_ADDED_KAN:
       Assert(Any(LastEvent().type(), {mjxproto::EVENT_TYPE_DRAW}));
       ApplyOpen(who, Open(action.open()));
       // TODO: CreateStealAndRonObservationが状態変化がないのに2回計算されている

@@ -107,9 +107,9 @@ bool Action::IsValid(const mjxproto::Action& action) {
       break;
     case mjxproto::ACTION_TYPE_CHI:
     case mjxproto::ACTION_TYPE_PON:
-    case mjxproto::ACTION_TYPE_KAN_CLOSED:
-    case mjxproto::ACTION_TYPE_KAN_ADDED:
-    case mjxproto::ACTION_TYPE_KAN_OPENED:
+    case mjxproto::ACTION_TYPE_CLOSED_KAN:
+    case mjxproto::ACTION_TYPE_ADDED_KAN:
+    case mjxproto::ACTION_TYPE_OPEN_KAN:
       if (action.discard() != 0) return false;
       break;
     case mjxproto::ACTION_TYPE_RIICHI:
@@ -208,9 +208,9 @@ std::uint8_t Action::Encode(const mjxproto::Action& action) {
           assert(false);
       }
     }
-    case mjxproto::ACTION_TYPE_KAN_CLOSED:
-    case mjxproto::ACTION_TYPE_KAN_OPENED:
-    case mjxproto::ACTION_TYPE_KAN_ADDED: {
+    case mjxproto::ACTION_TYPE_CLOSED_KAN:
+    case mjxproto::ACTION_TYPE_OPEN_KAN:
+    case mjxproto::ACTION_TYPE_ADDED_KAN: {
       // 104~137: Kan m1~rd
       auto tiles = Open(action.open()).Tiles();
       return ToUType(tiles[0].Type()) + 104;
