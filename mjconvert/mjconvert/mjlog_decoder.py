@@ -296,14 +296,14 @@ class MjlogDecoder:
         last_drawer: Optional[int],
         last_draw: Optional[int],
     ) -> mjxproto.Event:
-        type_ = mjxproto.EVENT_TYPE_DISCARD_FROM_HAND
+        type_ = mjxproto.EVENT_TYPE_DISCARD
         if (
             last_drawer is not None
             and last_draw is not None
             and last_drawer == who
             and last_draw == discard
         ):
-            type_ = mjxproto.EVENT_TYPE_DISCARD_DRAWN_TILE
+            type_ = mjxproto.EVENT_TYPE_TSUMOGIRI
         event = mjxproto.Event(
             who=who,
             type=type_,
