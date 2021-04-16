@@ -304,7 +304,7 @@ TEST(state, CreateObservation) {
   observation = observations["ROTTEN"];
   EXPECT_TRUE(ActionTypeCheck(
       {mjxproto::ACTION_TYPE_DISCARD, mjxproto::ACTION_TYPE_TSUMOGIRI,
-       mjxproto::ACTION_TYPE_KAN_ADDED},
+       mjxproto::ACTION_TYPE_ADDED_KAN},
       observation));
 
   // 3. Drawした後、Riichi可能なら、Riichiがアクション候補に入る
@@ -774,10 +774,10 @@ TEST(state, Update) {
   observation = observations.begin()->second;
   EXPECT_TRUE(ActionTypeCheck(
       {mjxproto::ACTION_TYPE_DISCARD, mjxproto::ACTION_TYPE_TSUMOGIRI,
-       mjxproto::ACTION_TYPE_KAN_ADDED},
+       mjxproto::ACTION_TYPE_ADDED_KAN},
       observation));
   possible_action =
-      FindPossibleAction(mjxproto::ACTION_TYPE_KAN_ADDED, observation);
+      FindPossibleAction(mjxproto::ACTION_TYPE_ADDED_KAN, observation);
   actions = {
       Action::CreateOpen(observation.who(), Open(possible_action.open()))};
   state_before.Update(std::move(actions));
@@ -825,10 +825,10 @@ TEST(state, Update) {
   observation = observations.begin()->second;
   EXPECT_TRUE(ActionTypeCheck(
       {mjxproto::ACTION_TYPE_DISCARD, mjxproto::ACTION_TYPE_TSUMOGIRI,
-       mjxproto::ACTION_TYPE_KAN_ADDED},
+       mjxproto::ACTION_TYPE_ADDED_KAN},
       observation));
   possible_action =
-      FindPossibleAction(mjxproto::ACTION_TYPE_KAN_ADDED, observation);
+      FindPossibleAction(mjxproto::ACTION_TYPE_ADDED_KAN, observation);
   actions = {
       Action::CreateOpen(observation.who(), Open(possible_action.open()))};
   state_before.Update(std::move(actions));
@@ -838,10 +838,10 @@ TEST(state, Update) {
   observation = observations.begin()->second;
   EXPECT_TRUE(ActionTypeCheck(
       {mjxproto::ACTION_TYPE_DISCARD, mjxproto::ACTION_TYPE_TSUMOGIRI,
-       mjxproto::ACTION_TYPE_KAN_ADDED},
+       mjxproto::ACTION_TYPE_ADDED_KAN},
       observation));
   possible_action =
-      FindPossibleAction(mjxproto::ACTION_TYPE_KAN_ADDED, observation);
+      FindPossibleAction(mjxproto::ACTION_TYPE_ADDED_KAN, observation);
   actions = {
       Action::CreateOpen(observation.who(), Open(possible_action.open()))};
   state_before.Update(std::move(actions));
@@ -936,9 +936,9 @@ std::vector<std::vector<mjxproto::Action>> ListUpAllActionCombinations(
           break;
         case mjxproto::ACTION_TYPE_CHI:
         case mjxproto::ACTION_TYPE_PON:
-        case mjxproto::ACTION_TYPE_KAN_OPENED:
-        case mjxproto::ACTION_TYPE_KAN_CLOSED:
-        case mjxproto::ACTION_TYPE_KAN_ADDED:
+        case mjxproto::ACTION_TYPE_OPEN_KAN:
+        case mjxproto::ACTION_TYPE_CLOSED_KAN:
+        case mjxproto::ACTION_TYPE_ADDED_KAN:
           actions_per_player.push_back(
               Action::CreateOpen(who, Open(possible_action.open())));
           break;
