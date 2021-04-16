@@ -15,8 +15,8 @@ mjxproto::Event Event::CreateDiscard(AbsolutePos who, Tile discard,
                                      bool tsumogiri) {
   mjxproto::Event proto;
   proto.set_who(ToUType(who));
-  proto.set_type(tsumogiri ? mjxproto::EVENT_TYPE_DISCARD_DRAWN_TILE
-                           : mjxproto::EVENT_TYPE_DISCARD_FROM_HAND);
+  proto.set_type(tsumogiri ? mjxproto::EVENT_TYPE_TSUMOGIRI
+                           : mjxproto::EVENT_TYPE_DISCARD);
   proto.set_tile(discard.Id());
   Assert(IsValid(proto));
   return proto;
@@ -85,8 +85,8 @@ bool Event::IsValid(const mjxproto::Event &event) {
   if (!mjxproto::EventType_IsValid(type)) return false;
   switch (type) {
     case mjxproto::EVENT_TYPE_DRAW:
-    case mjxproto::EVENT_TYPE_DISCARD_FROM_HAND:
-    case mjxproto::EVENT_TYPE_DISCARD_DRAWN_TILE:
+    case mjxproto::EVENT_TYPE_DISCARD:
+    case mjxproto::EVENT_TYPE_TSUMOGIRI:
       if (!mjxproto::EventType_IsValid(event.who())) return false;
       if (!(0 <= event.tile() && event.tile() < 136)) return false;
       if (event.open() != 0) return false;  // open is empty = 0

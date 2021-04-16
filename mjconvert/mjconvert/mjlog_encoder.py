@@ -75,8 +75,8 @@ class MjlogEncoder:
                 draw_ixs[who_ix] += 1
                 ret += f"<{who}{draw}/>"
             elif event.type in [
-                mjxproto.EVENT_TYPE_DISCARD_FROM_HAND,
-                mjxproto.EVENT_TYPE_DISCARD_DRAWN_TILE,
+                mjxproto.EVENT_TYPE_DISCARD,
+                mjxproto.EVENT_TYPE_TSUMOGIRI,
             ]:
                 who = MjlogEncoder._encode_absolute_pos_for_discard(event.who)
                 discard = event.tile

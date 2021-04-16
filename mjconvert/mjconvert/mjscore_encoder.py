@@ -120,12 +120,12 @@ def _change_tumogiri_riich_fmt(tile):  # ツモギリリーチ専用の番号90�
 def parse_discards(events, abs_pos: int):
     discards: List[object] = []
     for i, event in enumerate(events):
-        if event.type == mjxproto.EVENT_TYPE_DISCARD_FROM_HAND and event.who == abs_pos:  # 手出し
+        if event.type == mjxproto.EVENT_TYPE_DISCARD and event.who == abs_pos:  # 手出し
             if events[i - 1].type == mjxproto.EVENT_TYPE_RIICHI:  # 一つ前のeventがriichiかどうか
                 discards.append("r" + str(_change_tile_fmt(event.tile)))
             else:
                 discards.append(_change_tile_fmt(event.tile))
-        elif event.type == mjxproto.EVENT_TYPE_DISCARD_DRAWN_TILE and event.who == abs_pos:  # ツモギリ
+        elif event.type == mjxproto.EVENT_TYPE_TSUMOGIRI and event.who == abs_pos:  # ツモギリ
             if events[i - 1].type == mjxproto.EVENT_TYPE_RIICHI:  # 一つ前のeventがriichiかどうか
                 discards.append("r60")
             else:
@@ -155,9 +155,9 @@ def parse_draw_history(draw_history, events, abs_pos):
     discards = []
     actions = []  #
     for i, event in enumerate(events):
-        if event.type == mjxproto.EVENT_TYPE_DISCARD_FROM_HAND and event.who == abs_pos:  # 手出し
+        if event.type == mjxproto.EVENT_TYPE_DISCARD and event.who == abs_pos:  # 手出し
             discards.append(event.tile)
-        elif event.type == mjxproto.EVENT_TYPE_DISCARD_DRAWN_TILE and event.who == abs_pos:  # ツモギリ
+        elif event.type == mjxproto.EVENT_TYPE_TSUMOGIRI and event.who == abs_pos:  # ツモギリ
             discards.append(60)
         elif event.type == mjxproto.EVENT_TYPE_CHI and event.who == abs_pos:  # チー
             discards.append(event.open)

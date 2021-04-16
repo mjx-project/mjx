@@ -91,8 +91,8 @@ Hand Observation::current_hand() const {
       draw_ix++;
     } else if (event.type() == mjxproto::EVENT_TYPE_RIICHI) {
       hand.Riichi();  // TODO: double riichi
-    } else if (Any(event.type(), {mjxproto::EVENT_TYPE_DISCARD_DRAWN_TILE,
-                                  mjxproto::EVENT_TYPE_DISCARD_FROM_HAND})) {
+    } else if (Any(event.type(), {mjxproto::EVENT_TYPE_TSUMOGIRI,
+                                  mjxproto::EVENT_TYPE_DISCARD})) {
       hand.Discard(Tile(event.tile()));
     } else if (Any(event.type(),
                    {mjxproto::EVENT_TYPE_CHI, mjxproto::EVENT_TYPE_PON,
