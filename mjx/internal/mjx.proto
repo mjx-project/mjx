@@ -7,20 +7,20 @@ service Agent {
 }
 
 enum ActionType {
-  // After draw
+  // After someone's draw
   ACTION_TYPE_DISCARD = 0;
-  ACTION_TYPE_TSUMOGIRI = 1;
+  ACTION_TYPE_TSUMOGIRI = 1;  // ツモ切り, Tsumogiri
   ACTION_TYPE_RIICHI = 2;
-  ACTION_TYPE_CLOSED_KAN = 3;
-  ACTION_TYPE_ADDED_KAN = 4;
+  ACTION_TYPE_CLOSED_KAN = 3;  // 暗槓
+  ACTION_TYPE_ADDED_KAN = 4;  // 加槓
   ACTION_TYPE_TSUMO = 5;
-  ACTION_TYPE_ABORTIVE_DRAW_NINE_TERMINALS = 6;
-  // After other's discard
+  ACTION_TYPE_ABORTIVE_DRAW_NINE_TERMINALS = 6;  // 九種九牌
+  // After someone's discard
   ACTION_TYPE_CHI = 7;
   ACTION_TYPE_PON = 8;
-  ACTION_TYPE_OPEN_KAN = 9;
+  ACTION_TYPE_OPEN_KAN = 9;  // 明槓
   ACTION_TYPE_RON = 10;
-  ACTION_TYPE_NO = 11;
+  ACTION_TYPE_NO = 11;  // Action to ignore chi, pon, open kan, or ron options
 }
 
 enum EventType {
