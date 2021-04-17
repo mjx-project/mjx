@@ -125,9 +125,14 @@ message Win {
   repeated uint32 yakumans = 11;
 }
 
+message Hand {
+  repeated int32 closed_tiles = 1;
+  repeated int32 opens = 2;
+}
+
 message PrivateObservationUtils{
   Hand curr_hand = 1;
-  repeated Action legal_actions = 2;
+  repeated Hand legal_actions = 2;
 }
 
 message NoWinner {
