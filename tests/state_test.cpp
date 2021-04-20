@@ -110,11 +110,16 @@ std::string SwapTiles(const std::string &json_str, Tile a, Tile b) {
       state.mutable_hidden_state()->set_wall(i, a.Id());
   }
   // ura dora
-  for (int i = 0; i < state.hidden_state().utils().curr_ura_dora_indicators_size(); ++i) {
+  for (int i = 0;
+       i < state.hidden_state().utils().curr_ura_dora_indicators_size(); ++i) {
     if (state.hidden_state().utils().curr_ura_dora_indicators(i) == a.Id())
-      state.mutable_hidden_state()->mutable_utils()->set_curr_ura_dora_indicators(i, b.Id());
+      state.mutable_hidden_state()
+          ->mutable_utils()
+          ->set_curr_ura_dora_indicators(i, b.Id());
     else if (state.hidden_state().utils().curr_ura_dora_indicators(i) == b.Id())
-      state.mutable_hidden_state()->mutable_utils()->set_curr_ura_dora_indicators(i, a.Id());
+      state.mutable_hidden_state()
+          ->mutable_utils()
+          ->set_curr_ura_dora_indicators(i, a.Id());
   }
   // init hand, draw_history
   for (int j = 0; j < 4; ++j) {
