@@ -27,7 +27,9 @@ State::State(std::vector<PlayerId> player_ids, std::uint64_t game_seed,
   state_.set_game_seed(game_seed);
   // set protos
   // player_ids
-  for (int i = 0; i < 4; ++i) state_.mutable_public_observation()->mutable_utils()->add_player_ids(player_ids[i]);
+  for (int i = 0; i < 4; ++i)
+    state_.mutable_public_observation()->mutable_utils()->add_player_ids(
+        player_ids[i]);
   // init_score
   state_.mutable_public_observation()->mutable_init_score()->set_round(round);
   state_.mutable_public_observation()->mutable_init_score()->set_honba(honba);
@@ -214,8 +216,10 @@ State::State(const mjxproto::State &state) {
   // &state); Assert(status.ok());
 
   // Set player ids
-  state_.mutable_public_observation()->mutable_utils()->mutable_player_ids()->CopyFrom(
-      state.public_observation().utils().player_ids());
+  state_.mutable_public_observation()
+      ->mutable_utils()
+      ->mutable_player_ids()
+      ->CopyFrom(state.public_observation().utils().player_ids());
   // Set scores
   state_.mutable_public_observation()->mutable_init_score()->CopyFrom(
       state.public_observation().init_score());
@@ -235,8 +239,9 @@ State::State(const mjxproto::State &state) {
       wall_.ura_dora_indicators().front().Id());
   // Set init hands
   for (int i = 0; i < 4; ++i) {
-    players_[i] = Player{state_.public_observation().utils().player_ids(i), AbsolutePos(i),
-                         Hand(wall_.initial_hand_tiles(AbsolutePos(i)))};
+    players_[i] =
+        Player{state_.public_observation().utils().player_ids(i),
+               AbsolutePos(i), Hand(wall_.initial_hand_tiles(AbsolutePos(i)))};
     state_.mutable_private_observations()->Add();
     state_.mutable_private_observations(i)->set_who(i);
     for (auto t : wall_.initial_hand_tiles(AbsolutePos(i))) {
@@ -257,7 +262,8 @@ State::State(const mjxproto::State &state) {
     }
   }
 
-  for (const auto &event : state.public_observation().event_history().events()) {
+  for (const auto &event :
+       state.public_observation().event_history().events()) {
     UpdateByEvent(event);
   }
 }
@@ -332,7 +338,10 @@ Tile State::Draw(AbsolutePos who) {
     for (int i = 0; i < 4; ++i)
       mutable_player(AbsolutePos(i)).is_ippatsu = false;
 
-  state_.mutable_public_observation()->mutable_event_history()->mutable_events()->Add(Event::CreateDraw(who));
+  state_.mutable_public_observation()
+      ->mutable_event_history()
+      ->mutable_events()
+      ->Add(Event::CreateDraw(who));
   state_.mutable_private_observations(ToUType(who))
       ->add_draw_history(draw.Id());
 
@@ -355,8 +364,10 @@ void State::Discard(AbsolutePos who, Tile discard) {
   if (Is(discard.Type(), TileSetType::kTanyao)) {
     mutable_player(who).has_nm = false;
   }
-  state_.mutable_public_observation()->mutable_event_history()->mutable_events()->Add(
-      Event::CreateDiscard(who, discard, tsumogiri));
+  state_.mutable_public_observation()
+      ->mutable_event_history()
+      ->mutable_events()
+      ->Add(Event::CreateDiscard(who, discard, tsumogiri));
   // TODO: set discarded tile to river
 }
 
@@ -365,8 +376,10 @@ void State::Riichi(AbsolutePos who) {
   Assert(wall_.HasNextDrawLeft());
   mutable_hand(who).Riichi(IsFirstTurnWithoutOpen());
 
-  state_.mutable_public_observation()->mutable_event_history()->mutable_events()->Add(
-      Event::CreateRiichi(who));
+  state_.mutable_public_observation()
+      ->mutable_event_history()
+      ->mutable_events()
+      ->Add(Event::CreateRiichi(who));
 }
 
 void State::ApplyOpen(AbsolutePos who, Open open) {
@@ -378,8 +391,10 @@ void State::ApplyOpen(AbsolutePos who, Open open) {
   mutable_player(AbsolutePos(absolute_pos_from)).has_nm =
       false;  // 鳴かれた人は流し満貫が成立しない
 
-  state_.mutable_public_observation()->mutable_event_history()->mutable_events()->Add(
-      Event::CreateOpen(who, open));
+  state_.mutable_public_observation()
+      ->mutable_event_history()
+      ->mutable_events()
+      ->Add(Event::CreateOpen(who, open));
 
   // 一発解消は「純正巡消しは発声＆和了打診後（加槓のみ)、嶺上ツモの前（連続する加槓の２回目には一発は付かない）」なので、
   // 加槓時は自分の一発だけ消して（一発・嶺上開花は併発しない）、その他のときには全員の一発を消す
@@ -394,8 +409,10 @@ void State::ApplyOpen(AbsolutePos who, Open open) {
 void State::AddNewDora() {
   auto [new_dora_ind, new_ura_dora_ind] = wall_.AddKanDora();
 
-  state_.mutable_public_observation()->mutable_event_history()->mutable_events()->Add(
-      Event::CreateNewDora(new_dora_ind));
+  state_.mutable_public_observation()
+      ->mutable_event_history()
+      ->mutable_events()
+      ->Add(Event::CreateNewDora(new_dora_ind));
   state_.add_doras(new_dora_ind.Id());
   state_.mutable_hidden_state()->mutable_utils()->add_curr_ura_dora_indicators(
       new_ura_dora_ind.Id());
@@ -406,8 +423,10 @@ void State::RiichiScoreChange() {
   curr_score_.set_riichi(riichi() + 1);
   curr_score_.set_tens(ToUType(who), ten(who) - 1000);
 
-  state_.mutable_public_observation()->mutable_event_history()->mutable_events()->Add(
-      Event::CreateRiichiScoreChange(who));
+  state_.mutable_public_observation()
+      ->mutable_event_history()
+      ->mutable_events()
+      ->Add(Event::CreateRiichiScoreChange(who));
 
   mutable_player(who).is_ippatsu = true;
 }
@@ -444,8 +463,10 @@ void State::Tsumo(AbsolutePos winner) {
 
   // set event
   Assert(hand_info.win_tile);
-  state_.mutable_public_observation()->mutable_event_history()->mutable_events()->Add(
-      Event::CreateTsumo(winner, hand_info.win_tile.value()));
+  state_.mutable_public_observation()
+      ->mutable_event_history()
+      ->mutable_events()
+      ->Add(Event::CreateTsumo(winner, hand_info.win_tile.value()));
 
   // set terminal
   mjxproto::Win win;
@@ -548,8 +569,10 @@ void State::Ron(AbsolutePos winner) {
   curr_score_.set_riichi(0);
 
   // set event
-  state_.mutable_public_observation()->mutable_event_history()->mutable_events()->Add(
-      Event::CreateRon(winner, tile));
+  state_.mutable_public_observation()
+      ->mutable_event_history()
+      ->mutable_events()
+      ->Add(Event::CreateRon(winner, tile));
 
   // set terminal
   mjxproto::Win win;
@@ -606,8 +629,10 @@ void State::NoWinner() {
     state_.mutable_terminal()->mutable_final_score()->CopyFrom(curr_score_);
     for (int i = 0; i < 4; ++i)
       state_.mutable_terminal()->mutable_no_winner()->add_ten_changes(0);
-    state_.mutable_public_observation()->mutable_event_history()->mutable_events()->Add(
-        Event::CreateNoWinner());
+    state_.mutable_public_observation()
+        ->mutable_event_history()
+        ->mutable_events()
+        ->Add(Event::CreateNoWinner());
   };
   // 九種九牌
   if (IsFirstTurnWithoutOpen() &&
@@ -660,8 +685,10 @@ void State::NoWinner() {
       }));
 
   // set event
-  state_.mutable_public_observation()->mutable_event_history()->mutable_events()->Add(
-      Event::CreateNoWinner());
+  state_.mutable_public_observation()
+      ->mutable_event_history()
+      ->mutable_events()
+      ->Add(Event::CreateNoWinner());
 
   // set terminal
   std::vector<int> is_tenpai = {0, 0, 0, 0};
@@ -817,8 +844,9 @@ std::int32_t State::ten(AbsolutePos who) const {
 State::ScoreInfo State::Next() const {
   // Assert(IsRoundOver());
   Assert(!IsGameOver());
-  std::vector<PlayerId> player_ids(state_.public_observation().utils().player_ids().begin(),
-                                   state_.public_observation().utils().player_ids().end());
+  std::vector<PlayerId> player_ids(
+      state_.public_observation().utils().player_ids().begin(),
+      state_.public_observation().utils().player_ids().end());
   if (LastEvent().type() == mjxproto::EVENT_TYPE_NO_WINNER) {
     // 途中流局や親テンパイで流局の場合は連荘
     if (Any(state_.terminal().no_winner().type(),
@@ -867,7 +895,8 @@ const mjxproto::Event &State::LastEvent() const {
 // Ronされる対象の牌
 std::optional<Tile> State::TargetTile() const {
   for (auto it = state_.public_observation().event_history().events().rbegin();
-       it != state_.public_observation().event_history().events().rend(); ++it) {
+       it != state_.public_observation().event_history().events().rend();
+       ++it) {
     const auto &event = *it;
 
     if (event.type() == mjxproto::EventType::EVENT_TYPE_DISCARD or
@@ -882,7 +911,8 @@ std::optional<Tile> State::TargetTile() const {
 }
 
 bool State::IsFirstTurnWithoutOpen() const {
-  for (const auto &event : state_.public_observation().event_history().events()) {
+  for (const auto &event :
+       state_.public_observation().event_history().events()) {
     switch (event.type()) {
       case mjxproto::EVENT_TYPE_CHI:
       case mjxproto::EVENT_TYPE_PON:
@@ -903,7 +933,8 @@ bool State::IsFirstTurnWithoutOpen() const {
 
 bool State::IsFourWinds() const {
   std::map<TileType, int> discarded_winds;
-  for (const auto &event : state_.public_observation().event_history().events()) {
+  for (const auto &event :
+       state_.public_observation().event_history().events()) {
     switch (event.type()) {
       case mjxproto::EVENT_TYPE_CHI:
       case mjxproto::EVENT_TYPE_PON:
@@ -927,7 +958,8 @@ bool State::IsFourWinds() const {
 
 bool State::IsRobbingKan() const {
   for (auto it = state_.public_observation().event_history().events().rbegin();
-       it != state_.public_observation().event_history().events().rend(); ++it) {
+       it != state_.public_observation().event_history().events().rend();
+       ++it) {
     const auto &event = *it;
     if (event.type() == mjxproto::EventType::EVENT_TYPE_DRAW) {
       return false;
@@ -941,7 +973,8 @@ bool State::IsRobbingKan() const {
 
 int State::RequireKanDora() const {
   int require_kan_dora = 0;
-  for (const auto &event : state_.public_observation().event_history().events()) {
+  for (const auto &event :
+       state_.public_observation().event_history().events()) {
     switch (event.type()) {
       case mjxproto::EventType::EVENT_TYPE_ADDED_KAN:
       case mjxproto::EventType::EVENT_TYPE_CLOSED_KAN:
@@ -958,7 +991,8 @@ int State::RequireKanDora() const {
 
 bool State::RequireKanDraw() const {
   for (auto it = state_.public_observation().event_history().events().rbegin();
-       it != state_.public_observation().event_history().events().rend(); ++it) {
+       it != state_.public_observation().event_history().events().rend();
+       ++it) {
     const auto &event = *it;
     switch (event.type()) {
       case mjxproto::EventType::EVENT_TYPE_DRAW:
@@ -974,7 +1008,8 @@ bool State::RequireKanDraw() const {
 
 bool State::RequireRiichiScoreChange() const {
   for (auto it = state_.public_observation().event_history().events().rbegin();
-       it != state_.public_observation().event_history().events().rend(); ++it) {
+       it != state_.public_observation().event_history().events().rend();
+       ++it) {
     const auto &event = *it;
     switch (event.type()) {
       case mjxproto::EventType::EVENT_TYPE_RIICHI:
@@ -1344,7 +1379,9 @@ bool State::Equals(const State &other) const noexcept {
       if (!Open(x[i]).Equals(Open(y[i]))) return false;
     return true;
   };
-  if (!seq_eq(state_.public_observation().utils().player_ids(), other.state_.public_observation().utils().player_ids())) return false;
+  if (!seq_eq(state_.public_observation().utils().player_ids(),
+              other.state_.public_observation().utils().player_ids()))
+    return false;
   if (!google::protobuf::util::MessageDifferencer::Equals(
           state_.public_observation().init_score(),
           other.state_.public_observation().init_score()))
@@ -1368,9 +1405,11 @@ bool State::Equals(const State &other) const noexcept {
   if (state_.public_observation().event_history().events_size() !=
       other.state_.public_observation().event_history().events_size())
     return false;
-  for (int i = 0; i < state_.public_observation().event_history().events_size(); ++i) {
+  for (int i = 0; i < state_.public_observation().event_history().events_size();
+       ++i) {
     const auto &event = state_.public_observation().event_history().events(i);
-    const auto &other_event = other.state_.public_observation().event_history().events(i);
+    const auto &other_event =
+        other.state_.public_observation().event_history().events(i);
     if (event.type() != other_event.type()) return false;
     if (event.who() != other_event.who()) return false;
     if (event.tile() != other_event.tile() &&
@@ -1437,7 +1476,9 @@ bool State::CanReach(const State &other) const noexcept {
   if (this->Equals(other)) return true;
 
   // いくつかの初期状態が同じである必要がある
-  if (!seq_eq(state_.public_observation().utils().player_ids(), other.state_.public_observation().utils().player_ids())) return false;
+  if (!seq_eq(state_.public_observation().utils().player_ids(),
+              other.state_.public_observation().utils().player_ids()))
+    return false;
   if (!google::protobuf::util::MessageDifferencer::Equals(
           state_.public_observation().init_score(),
           other.state_.public_observation().init_score()))
@@ -1450,9 +1491,11 @@ bool State::CanReach(const State &other) const noexcept {
   if (state_.public_observation().event_history().events_size() >=
       other.state_.public_observation().event_history().events_size())
     return false;  // イベント長が同じならそもそもEqualのはず
-  for (int i = 0; i < state_.public_observation().event_history().events_size(); ++i) {
+  for (int i = 0; i < state_.public_observation().event_history().events_size();
+       ++i) {
     const auto &event = state_.public_observation().event_history().events(i);
-    const auto &other_event = other.state_.public_observation().event_history().events(i);
+    const auto &other_event =
+        other.state_.public_observation().event_history().events(i);
     if (event.type() != other_event.type()) return false;
     if (event.who() != other_event.who()) return false;
     if (event.tile() != other_event.tile() &&
