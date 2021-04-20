@@ -38,7 +38,7 @@ package mjxproto;
  *
  */
 
-/* Details with utils
+/* Details
  *
  *  State
  *  |- HiddenState: hidden_state
@@ -51,10 +51,14 @@ package mjxproto;
  *  |   |- Score: init_score
  *  |   |- int32: init_dora_indicator
  *  |   |- [Event]: event_history
- *  |   |   |- EventType type
- *  |   |   |- int32 who
- *  |   |   |- int32 tile
- *  |   |   |- int32 open
+ *  |       |- EventType type
+ *  |       |- int32 who
+ *  |       |- optional int32 tile
+ *  |       |- optional int32 open
+ *  |       |- optional RouneEnd
+ *  |           |- RoundEndType type
+ *  |           |- [Hand] shown_hands
+ *  |           |- [int32] curr_ura_dora_indicators
  *  |   |- PublicObservationUtils: utils
  *  |       |- uint64: game_id
  *  |       |- [string]: player_ids
@@ -76,32 +80,27 @@ package mjxproto;
  *  |           |   |- int32 ten
  *  |           |   |- [int32] ten_changes
  *  |           |- Draw draw
- *  |           |   |- [Hand]: tenpai_hands
+ *  |           |   |- [Hand]: tenpais
  *  |           |   |- [int32]: ten_changes
  *  |           |- bool: is_game_over
+ *  |
  *  |
  *  |- [PrivateObservation] private_observations
  *  |   |- int32: who
  *  |   |- Hand: init_hand
  *  |   |- [int32]: draw_history
- *  |   |- PrivateObservationUtils: utils
- *  |       |- Hand: curr_hand
- *  |       |- [Action]: legal_actions
- *  |- [StateUtils] utils
- *  
- *  
+ *
  *  Observation
  *  |- int32: who
  *  |- PublicObservation: public_observation
  *  |- PrivateObservation: private_observations
- *  |- ObservationUtils: utils
- *
  *
  *  Action  
  *  |- int32 who
  *  |- ActionType type
- *  |- int32 discard
- *  |- int32 open
+ *  |- optional int32 discard
+ *  |- optional int32 open
+ *
  */
 
 service Agent {
