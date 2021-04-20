@@ -18,7 +18,7 @@ package mjxproto;
  *  |       |- optional RouneEnd
  *  |           |- RoundEndType type
  *  |           |- [Hand] shown_hands
- *  |           |- [int32] curr_ura_dora_indicators
+ *  |           |- [int32] ura_dora_indicators
  *  |
  *  |- [PrivateObservation] private_observations
  *  |   |- int32: who
@@ -58,7 +58,7 @@ package mjxproto;
  *  |       |- optional RouneEnd
  *  |           |- RoundEndType type
  *  |           |- [Hand] shown_hands
- *  |           |- [int32] curr_ura_dora_indicators
+ *  |           |- [int32] ura_dora_indicators
  *  |   |- PublicObservationUtils: utils
  *  |       |- uint64: game_id
  *  |       |- [string]: player_ids
@@ -66,7 +66,7 @@ package mjxproto;
  *  |       |- [int32]: curr_dora_indicators
  *  |       |- [River]: rivers
  *  |       |   |- [int32] tiles
- *  |       |- RoundTerminal: round_terminal
+ *  |       |- RoundEndDetails: round_end_details
  *  |           |- Score: final_score
  *  |           |- [Win] wins
  *  |           |   |- int32 who
@@ -216,10 +216,11 @@ message Event {
   optional RoundEnd round_end = 5;
 }
 
+// public information available only at each round's end
 message RoundEnd {
   RoundEndType type = 1;
   repeated Hand shown_hands = 2;  // hands of winners or tenpai players
-  repeated int32 curr_ura_dora_indicators = 3;  // set even if no player declared riichi
+  repeated int32 ura_dora_indicators = 3;  // set even if no player declared riichi
 }
 
 message Observation {
@@ -290,7 +291,7 @@ message PublicObservationUtils {
   repeated int32 curr_dora_indicators = 4;
   repeated River rivers = 5;  // size is 4
   repeated bool is_declared_riichis = 6;  // size is 4
-  RoundEndDetails round_terminal_details = 7;
+  RoundEndDetails round_end_details = 7;
 }
 
 message PrivateObservationUtils {
