@@ -128,25 +128,28 @@ enum EventType {
   EVENT_TYPE_RIICHI = 2;
   EVENT_TYPE_CLOSED_KAN = 3;
   EVENT_TYPE_ADDED_KAN = 4;
-  EVENT_TYPE_TSUMO = 5;
-  EVENT_TYPE_ABORTIVE_DRAW_NINE_TERMINALS = 6;
   EVENT_TYPE_CHI = 7;
   EVENT_TYPE_PON = 8;
   EVENT_TYPE_OPEN_KAN = 9;
-  EVENT_TYPE_RON = 10;
   // State transitions made by environment. There is no decision making by players.  
   // 11 is skipped for the consistency to ActionType 
   EVENT_TYPE_DRAW = 12; 
   EVENT_TYPE_RIICHI_SCORE_CHANGE = 13; 
   EVENT_TYPE_NEW_DORA = 14; 
-  EVENT_TYPE_ABORTIVE_DRAW_FOUR_RIICHIS = 15;  // 四家立直 
-  EVENT_TYPE_ABORTIVE_DRAW_THREE_RONS = 16;  // 三家和了 
-  EVENT_TYPE_ABORTIVE_DRAW_FOUR_KANS = 17;  // 四槓散了 
-  EVENT_TYPE_ABORTIVE_DRAW_FOUR_WINDS = 18;  // 四風連打 
-  EVENT_TYPE_EXHAUSTIVE_DRAW_NORMAL = 19;  // 通常流局 
-  EVENT_TYPE_EXHAUSTIVE_DRAW_NAGASHI_MANGAN = 20;  // 流し満貫 
   // Round end indicator
   EVENT_TYPE_ROUND_END = 21; // Necessary to handle double ron
+}
+
+enum RouneEndType {
+  ROUND_END_TYPE_TSUMO = 5;
+  ROUND_END_TYPE_ABORTIVE_DRAW_NINE_TERMINALS = 6;
+  ROUND_END_TYPE_RON = 10;
+  ROUND_END_TYPE_ABORTIVE_DRAW_FOUR_RIICHIS = 15;  // 四家立直 
+  ROUND_END_TYPE_ABORTIVE_DRAW_THREE_RONS = 16;  // 三家和了 
+  ROUND_END_TYPE_ABORTIVE_DRAW_FOUR_KANS = 17;  // 四槓散了 
+  ROUND_END_TYPE_ABORTIVE_DRAW_FOUR_WINDS = 18;  // 四風連打 
+  ROUND_END_TYPE_EXHAUSTIVE_DRAW_NORMAL = 19;  // 通常流局 
+  ROUND_END_TYPE_EXHAUSTIVE_DRAW_NAGASHI_MANGAN = 20;  // 流し満貫 
 }
 
 message Action {
@@ -165,8 +168,8 @@ message Action {
   //  NO                           No     No
   int32 who = 1;  // 0: the first dealer in a game  (0: 起家, ..., 3: ラス親)
   ActionType type = 2;
-  int32 discard = 3;
-  int32 open = 4;
+  optional int32 discard = 3;
+  optional int32 open = 4;
 }
 
 message Event {
@@ -205,8 +208,15 @@ message Event {
   // 21. ROUND_END                       No      No      No
   EventType type = 1;
   int32 who = 2;  // 0: the first dealer in a game  (0: 起家, ..., 3: ラス親)
-  int32 tile = 3;
-  int32 open = 4;
+  optional int32 tile = 3;
+  optional int32 open = 4;
+  optional RoundEnd round_end = 5;
+}
+
+message RoundEnd {
+  RoundEndType type = 1;
+  optional repeated Hand shown_hands = 2;
+  repeated int32 curr_ura_dora_indicators = 3;  // set even if no player declared riichi
 }
 
 message Observation {
@@ -259,8 +269,9 @@ message Score {
 }
 
 message Hand {
-  repeated int32 closed_tiles = 1;
-  repeated int32 opens = 2;
+  int32 who = 1;
+  repeated int32 closed_tiles = 2;
+  repeated int32 opens = 3;
 }
 
 // Utilities: information which is not necessary (but may be useful)
@@ -276,7 +287,7 @@ message PublicObservationUtils {
   repeated int32 curr_dora_indicators = 4;
   repeated River rivers = 5;  // size is 4
   repeated bool is_declared_riichis = 6;  // size is 4
-  RoundTerminal round_terminal = 7;
+  RoundEndDetails round_terminal_details = 7;
 }
 
 message PrivateObservationUtils {
@@ -293,11 +304,12 @@ message River {
   repeated int32 tiles = 1;
 }
 
-message RoundTerminal {
-  Score final_score = 1;
-  repeated Win wins = 2;   // Empty if no one wins
-  Draw draw = 3;  // draw.tenpai_hands is empty if any winner exists
-  bool is_game_over = 4;
+message RoundEndDetails {
+  RoundEndType type = 1;
+  Score final_score = 2;
+  repeated Win wins = 3;   // Empty if no one wins
+  Draw draw = 4;  // draw.tenpai_hands is empty if any winner exists
+  bool is_game_over = 5;
 }
 
 message Win {
@@ -314,6 +326,6 @@ message Win {
 }
 
 message Draw {
-  repeated int32 tenpais = 1; // idx of tenpai players
+  repeated Hand tenpais = 1; // idx of tenpai players
   repeated int32 ten_changes = 2;  // Required only for Tenhou mjlog.  TODO: check definition. remove
 }
