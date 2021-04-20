@@ -11,10 +11,14 @@ package mjxproto;
  *  |   |- Score: init_score
  *  |   |- int32: init_dora_indicator
  *  |   |- [Event]: event_history
- *  |   |   |- EventType type
- *  |   |   |- int32 who
- *  |   |   |- int32 tile
- *  |   |   |- int32 open
+ *  |       |- EventType type
+ *  |       |- int32 who
+ *  |       |- optional int32 tile
+ *  |       |- optional int32 open
+ *  |       |- optional RouneEnd
+ *  |           |- RoundEndType type
+ *  |           |- [Hand] shown_hands
+ *  |           |- [int32] curr_ura_dora_indicators
  *  |
  *  |- [PrivateObservation] private_observations
  *  |   |- int32: who
@@ -29,8 +33,8 @@ package mjxproto;
  *  Action  
  *  |- int32 who
  *  |- ActionType type
- *  |- int32 discard
- *  |- int32 open
+ *  |- optional int32 discard
+ *  |- optional int32 open
  *
  */
 
@@ -215,7 +219,7 @@ message Event {
 
 message RoundEnd {
   RoundEndType type = 1;
-  optional repeated Hand shown_hands = 2;
+  repeated Hand shown_hands = 2;  // hands of winners or tenpai players
   repeated int32 curr_ura_dora_indicators = 3;  // set even if no player declared riichi
 }
 
