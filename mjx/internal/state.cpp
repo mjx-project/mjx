@@ -42,8 +42,11 @@ State::State(std::vector<PlayerId> player_ids, std::uint64_t game_seed,
   for (auto t : wall_.tiles())
     state_.mutable_hidden_state()->mutable_wall()->Add(t.Id());
   // doras, ura_doras
-  state_.mutable_public_observation()->set_init_dora_indicator(wall_.dora_indicators().front().Id());
-  state_.mutable_public_observation()->mutable_utils()->add_curr_dora_indicators(wall_.dora_indicators().front().Id());
+  state_.mutable_public_observation()->set_init_dora_indicator(
+      wall_.dora_indicators().front().Id());
+  state_.mutable_public_observation()
+      ->mutable_utils()
+      ->add_curr_dora_indicators(wall_.dora_indicators().front().Id());
   state_.mutable_hidden_state()->mutable_utils()->add_curr_ura_dora_indicators(
       wall_.ura_dora_indicators().front().Id());
   // private info
@@ -235,8 +238,11 @@ State::State(const mjxproto::State &state) {
   // Set seed
   state_.set_game_seed(state.game_seed());
   // Set dora
-  state_.mutable_public_observation()->set_init_dora_indicator(wall_.dora_indicators().front().Id());
-  state_.mutable_public_observation()->mutable_utils()->add_curr_dora_indicators(wall_.dora_indicators().front().Id());
+  state_.mutable_public_observation()->set_init_dora_indicator(
+      wall_.dora_indicators().front().Id());
+  state_.mutable_public_observation()
+      ->mutable_utils()
+      ->add_curr_dora_indicators(wall_.dora_indicators().front().Id());
   state_.mutable_hidden_state()->mutable_utils()->add_curr_ura_dora_indicators(
       wall_.ura_dora_indicators().front().Id());
   // Set init hands
@@ -415,7 +421,9 @@ void State::AddNewDora() {
       ->mutable_event_history()
       ->mutable_events()
       ->Add(Event::CreateNewDora(new_dora_ind));
-  state_.mutable_public_observation()->mutable_utils()->add_curr_dora_indicators(new_dora_ind.Id());
+  state_.mutable_public_observation()
+      ->mutable_utils()
+      ->add_curr_dora_indicators(new_dora_ind.Id());
   state_.mutable_hidden_state()->mutable_utils()->add_curr_ura_dora_indicators(
       new_ura_dora_ind.Id());
 }
@@ -1391,7 +1399,10 @@ bool State::Equals(const State &other) const noexcept {
   if (!tiles_eq(state_.hidden_state().wall(),
                 other.state_.hidden_state().wall()))
     return false;
-  if (!tiles_eq(state_.public_observation().utils().curr_dora_indicators(), other.state_.public_observation().utils().curr_dora_indicators())) return false;
+  if (!tiles_eq(
+          state_.public_observation().utils().curr_dora_indicators(),
+          other.state_.public_observation().utils().curr_dora_indicators()))
+    return false;
   if (!tiles_eq(state_.hidden_state().utils().curr_ura_dora_indicators(),
                 other.state_.hidden_state().utils().curr_ura_dora_indicators()))
     return false;
