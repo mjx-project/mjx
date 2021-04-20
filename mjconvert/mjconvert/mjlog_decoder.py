@@ -141,7 +141,8 @@ class MjlogDecoder:
         self.state.terminal.final_score.riichi = riichi
         self.state.terminal.final_score.tens[:] = [int(x) * 100 for x in val["ten"].split(",")]
         self.state.hidden_state.wall[:] = wall
-        self.state.doras.append(dora)
+        self.state.public_observation.init_dora_indicator = dora
+        self.state.public_observation.utils.curr_dora_indicators.append(dora)
         self.state.hidden_state.utils.curr_ura_dora_indicators.append(wall[131])
         assert dora == wall[130]
         for i in range(4):
@@ -200,7 +201,7 @@ class MjlogDecoder:
                 assert dora == int(val["hai"])
                 ura_dora = wall[129 - 2 * num_kan_dora]
                 num_kan_dora += 1
-                self.state.doras.append(dora)
+                self.state.public_observation.utils.curr_dora_indicators.append(dora)
                 self.state.hidden_state.utils.curr_ura_dora_indicators.append(ura_dora)
                 event = mjxproto.Event(type=mjxproto.EVENT_TYPE_NEW_DORA, tile=dora)
             elif key == "RYUUKYOKU":
@@ -221,7 +222,9 @@ class MjlogDecoder:
                     tile=int(val["machi"]),
                 )
                 win = MjlogDecoder.make_win(val, who, from_who, modify)
-                assert self.state.doras == [int(x) for x in val["doraHai"].split(",")]
+                assert self.state.public_observation.utils.curr_dora_indicators == [
+                    int(x) for x in val["doraHai"].split(",")
+                ]
                 if "doraHaiUra" in val:
                     assert self.state.hidden_state.utils.curr_ura_dora_indicators == [
                         int(x) for x in val["doraHaiUra"].split(",")
