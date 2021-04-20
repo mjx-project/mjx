@@ -50,7 +50,10 @@ Observation::Observation(AbsolutePos who, const mjxproto::State& state) {
       ->CopyFrom(state.public_observation().utils().player_ids());
   proto_.mutable_public_observation()->mutable_init_score()->CopyFrom(
       state.public_observation().init_score());
-  proto_.mutable_doras()->CopyFrom(state.doras());
+  proto_.mutable_public_observation()->mutable_utils()->mutable_curr_dora_indicators()->CopyFrom(
+      state.public_observation().utils().curr_dora_indicators());
+  proto_.mutable_public_observation()->set_init_dora_indicator(
+      state.public_observation().init_dora_indicator());
   // TODO: avoid copy by
   // proto_.set_allocated_event_history(&state.mutable_event_history());
   // proto_.release_event_history(); // in deconstructor

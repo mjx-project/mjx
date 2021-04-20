@@ -419,7 +419,9 @@ def mjxproto_to_mjscore(state: mjxproto.State) -> str:
     round: int = state.public_observation.init_score.round
     honba: int = state.public_observation.init_score.honba
     riichi: int = state.public_observation.init_score.riichi
-    doras: List[int] = [_change_tile_fmt(i) for i in state.doras]
+    doras: List[int] = [
+        _change_tile_fmt(i) for i in state.public_observation.utils.curr_dora_indicators
+    ]
     ura_doras = determine_ura_doras_list(state)
     init_score: List[int] = [i for i in state.public_observation.init_score.tens]
     log = [[round, honba, riichi], init_score, doras, ura_doras]
