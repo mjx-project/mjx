@@ -96,6 +96,13 @@ message EventHistory {
 
 message PublicObservation {
   Score init_score = 1;
+  EventHistory event_history = 3;
+  PublicObservationUtils utils = 4;
+}
+
+message PublicObservationUtils {
+  uint64 game_id = 1;
+  repeated string player_ids = 2;
 }
 
 message PrivateObservation {
@@ -105,11 +112,9 @@ message PrivateObservation {
 }
 
 message Observation {
-  repeated string player_ids = 1;
+  int32 who = 1;
   PublicObservation public_observation = 2;
   repeated uint32 doras = 3;
-  EventHistory event_history = 4;  // public info
-  int32 who = 5;
   PrivateObservation private_observation = 6;
   repeated Action possible_actions = 7;
 }
@@ -148,9 +153,7 @@ message Terminal {
 
 message State {
   // public info
-  repeated string player_ids = 1;
   repeated uint32 doras = 3;
-  EventHistory event_history = 4;
   // private info
   repeated PrivateObservation private_observations = 7;
   uint64 game_seed = 8;
