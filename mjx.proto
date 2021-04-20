@@ -287,7 +287,7 @@ message PublicObservationUtils {
   repeated int32 curr_dora_indicators = 4;
   repeated River rivers = 5;  // size is 4
   repeated bool is_declared_riichis = 6;  // size is 4
-  RoundTerminal round_terminal = 7;
+  RoundEndDetails round_terminal_details = 7;
 }
 
 message PrivateObservationUtils {
@@ -304,7 +304,7 @@ message River {
   repeated int32 tiles = 1;
 }
 
-message RoundTerminal {
+message RoundEndDetails {
   Score final_score = 1;
   repeated Win wins = 2;   // Empty if no one wins
   Draw draw = 3;  // draw.tenpai_hands is empty if any winner exists
