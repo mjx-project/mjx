@@ -45,7 +45,8 @@ void Observation::add_possible_actions(
 
 Observation::Observation(AbsolutePos who, const mjxproto::State& state) {
   proto_.mutable_player_ids()->CopyFrom(state.player_ids());
-  proto_.mutable_init_score()->CopyFrom(state.init_score());
+  proto_.mutable_public_observation()->mutable_init_score()->CopyFrom(
+      state.public_observation().init_score());
   proto_.mutable_doras()->CopyFrom(state.doras());
   // TODO: avoid copy by
   // proto_.set_allocated_event_history(&state.mutable_event_history());
