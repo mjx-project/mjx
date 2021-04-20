@@ -239,7 +239,9 @@ class MjlogEncoder:
         doras = ",".join([str(x) for x in state.doras])
         ret += f'doraHai="{doras}" '
         if under_riichi[win.who]:  # if under riichi (or double riichi)
-            ura_doras = ",".join([str(x) for x in state.ura_doras])
+            ura_doras = ",".join(
+                [str(x) for x in state.hidden_state.utils.curr_ura_dora_indicators]
+            )
             ret += f'doraHaiUra="{ura_doras}" '
         ret += f'who="{win.who}" fromWho="{win.from_who}" '
         sc = []

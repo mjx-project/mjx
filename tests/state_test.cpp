@@ -96,25 +96,25 @@ std::string SwapTiles(const std::string &json_str, Tile a, Tile b) {
   auto status = google::protobuf::util::JsonStringToMessage(json_str, &state);
   Assert(status.ok());
   // wall
-  for (int i = 0; i < state.wall_size(); ++i) {
-    if (state.wall(i) == a.Id())
-      state.set_wall(i, b.Id());
-    else if (state.wall(i) == b.Id())
-      state.set_wall(i, a.Id());
+  for (int i = 0; i < state.hidden_state().wall_size(); ++i) {
+    if (state.hidden_state().wall(i) == a.Id())
+      state.mutable_hidden_state()->set_wall(i, b.Id());
+    else if (state.hidden_state().wall(i) == b.Id())
+      state.mutable_hidden_state()->set_wall(i, a.Id());
   }
   // dora
   for (int i = 0; i < state.doras_size(); ++i) {
     if (state.doras(i) == a.Id())
-      state.set_wall(i, b.Id());
+      state.mutable_hidden_state()->set_wall(i, b.Id());
     else if (state.doras(i) == b.Id())
-      state.set_wall(i, a.Id());
+      state.mutable_hidden_state()->set_wall(i, a.Id());
   }
   // ura dora
-  for (int i = 0; i < state.ura_doras_size(); ++i) {
-    if (state.ura_doras(i) == a.Id())
-      state.set_ura_doras(i, b.Id());
-    else if (state.ura_doras(i) == b.Id())
-      state.set_ura_doras(i, a.Id());
+  for (int i = 0; i < state.hidden_state().utils().curr_ura_dora_indicators_size(); ++i) {
+    if (state.hidden_state().utils().curr_ura_dora_indicators(i) == a.Id())
+      state.mutable_hidden_state()->mutable_utils()->set_curr_ura_dora_indicators(i, b.Id());
+    else if (state.hidden_state().utils().curr_ura_dora_indicators(i) == b.Id())
+      state.mutable_hidden_state()->mutable_utils()->set_curr_ura_dora_indicators(i, a.Id());
   }
   // init hand, draw_history
   for (int j = 0; j < 4; ++j) {
