@@ -436,11 +436,11 @@ def mjxproto_to_mjscore(state: mjxproto.State) -> str:
         log.append(
             parse_draw_history(
                 state.private_observations[abs_pos].draw_history,
-                state.event_history.events,
+                state.public_observation.event_history.events,
                 abs_pos,
             )
         )
-        log.append(parse_discards(state.event_history.events, abs_pos))
+        log.append(parse_discards(state.public_observation.event_history.events, abs_pos))
 
     log.append(parse_terminal(state))
     d: Dict = {"title": [], "name": [], "rule": [], "log": [log]}
