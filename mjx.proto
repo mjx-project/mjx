@@ -215,20 +215,8 @@ message Event {
 
 message RoundEnd {
   RoundEndType type = 1;
-  optional Win wins = 2;
-  optional Tenpai tenpais = 3;
-}
-
-message Win {
-  int32 who = 1;
-  int32 from_who = 2;
-  int32 win_tile = 3;
-  Hand hand = 4;
-}
-
-message Tenpai {
-  int32 who = 1;
-  Hand hand = 2;
+  optional repeated Hand shown_hands = 2;
+  repeated int32 curr_ura_dora_indicators = 3;  // set even if no player declared riichi
 }
 
 message Observation {
@@ -281,8 +269,9 @@ message Score {
 }
 
 message Hand {
-  repeated int32 closed_tiles = 1;
-  repeated int32 opens = 2;
+  int32 who = 1;
+  repeated int32 closed_tiles = 2;
+  repeated int32 opens = 3;
 }
 
 // Utilities: information which is not necessary (but may be useful)
@@ -336,6 +325,6 @@ message Win {
 }
 
 message Draw {
-  repeated int32 tenpais = 1; // idx of tenpai players
+  repeated Hand tenpais = 1; // idx of tenpai players
   repeated int32 ten_changes = 2;  // Required only for Tenhou mjlog.  TODO: check definition. remove
 }
