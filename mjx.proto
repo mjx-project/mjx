@@ -305,10 +305,11 @@ message River {
 }
 
 message RoundEndDetails {
-  Score final_score = 1;
-  repeated Win wins = 2;   // Empty if no one wins
-  Draw draw = 3;  // draw.tenpai_hands is empty if any winner exists
-  bool is_game_over = 4;
+  RoundEndType type = 1;
+  Score final_score = 2;
+  repeated Win wins = 3;   // Empty if no one wins
+  Draw draw = 4;  // draw.tenpai_hands is empty if any winner exists
+  bool is_game_over = 5;
 }
 
 message Win {
