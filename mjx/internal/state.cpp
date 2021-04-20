@@ -24,7 +24,7 @@ State::State(std::vector<PlayerId> player_ids, std::uint64_t game_seed,
     players_[i] = Player{player_ids[i], AbsolutePos(i), std::move(hand)};
   }
   // set game_seed
-  state_.set_game_seed(game_seed);
+  state_.mutable_hidden_state()->mutable_utils()->set_game_seed(game_seed);
   // set protos
   // player_ids
   for (int i = 0; i < 4; ++i)
@@ -233,7 +233,7 @@ State::State(const mjxproto::State &state) {
   state_.mutable_hidden_state()->mutable_wall()->CopyFrom(
       state.hidden_state().wall());
   // Set seed
-  state_.set_game_seed(state.game_seed());
+  state_.mutable_hidden_state()->mutable_utils()->set_game_seed(state.hidden_state().utils().game_seed());
   // Set dora
   state_.mutable_public_observation()->set_init_dora_indicator(wall_.dora_indicators().front().Id());
   state_.mutable_public_observation()->mutable_utils()->add_curr_dora_indicators(wall_.dora_indicators().front().Id());
@@ -829,7 +829,7 @@ std::uint8_t State::honba() const { return curr_score_.honba(); }
 
 std::uint8_t State::riichi() const { return curr_score_.riichi(); }
 
-std::uint64_t State::game_seed() const { return state_.game_seed(); }
+std::uint64_t State::game_seed() const { return state_.hidden_state().utils().game_seed(); }
 
 std::array<std::int32_t, 4> State::tens() const {
   std::array<std::int32_t, 4> tens_{};
