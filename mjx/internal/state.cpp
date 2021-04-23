@@ -517,7 +517,6 @@ void State::Tsumo(AbsolutePos winner) {
   for (int i = 0; i < 4; ++i) win.add_ten_changes(0);
   for (const auto &[who, ten_move] : ten_moves) {
     win.set_ten_changes(ToUType(who), ten_move);
-    //curr_score_.set_tens(ToUType(who), ten(who) + ten_move);
     mutable_curr_score()->set_tens(ToUType(who), ten(who) + ten_move);
   }
 
