@@ -196,8 +196,6 @@ class MjlogDecoder:
                     )
                     self.state.terminal.final_score.riichi += 1
                     self.state.terminal.final_score.tens[who] -= 1000
-                    # self.state.public_observation.utils.curr_score.riichi += 1
-                    # self.state.public_observation.utils.curr_score.tens[who] -= 1000
             elif key == "DORA":
                 dora = wall[128 - 2 * num_kan_dora]
                 assert dora == int(val["hai"])
