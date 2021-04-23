@@ -112,8 +112,8 @@ class State {
 
   // protos
   mjxproto::State state_;
-  mjxproto::Score curr_score_;  // Using state_.terminal.final_score gives wrong
-                                // serialization when round is not finished.
+  // mjxproto::Score curr_score_;  // Using state_.terminal.final_score gives wrong
+  //                               // serialization when round is not finished.
   // containers
   Wall wall_;
   std::array<Player, 4> players_;
