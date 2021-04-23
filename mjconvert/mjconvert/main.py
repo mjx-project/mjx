@@ -62,7 +62,10 @@ class LineBuffer:
     def is_new_round_(line):
         d = json.loads(line)
         state = json_format.ParseDict(d, mjxproto.State())
-        return state.init_score.round == 0 and state.init_score.honba == 0
+        return (
+            state.public_observation.init_score.round == 0
+            and state.public_observation.init_score.honba == 0
+        )
 
     def put(self, line: str) -> None:
         line = line.strip().strip("\n")
