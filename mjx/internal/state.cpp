@@ -728,6 +728,8 @@ void State::NoWinner() {
 }
 
 bool State::IsGameOver() const {
+  Assert(IsRoundOver(), "State::IsGameOver() should be called only when round reached the end.");
+
   auto last_event_type = LastEvent().type();
 
   bool is_dealer_win_or_tenpai =
@@ -743,13 +745,13 @@ bool State::IsGameOver() const {
   if (!Any(last_event_type, {mjxproto::EVENT_TYPE_RON, mjxproto::EVENT_TYPE_TSUMO}))
       no_winner_type = state_.terminal().no_winner().type();
 
-  return CheckGameOver(round(), tens(), is_dealer_win_or_tenpai, no_winner_type);
+  return CheckGameOver(round(), tens(), dealer(), is_dealer_win_or_tenpai, no_winner_type);
 }
 
 bool State::CheckGameOver(int round, std::array<int, 4> tens,
+                                 AbsolutePos dealer,
                           bool is_dealer_win_or_tenpai,
-                          std::optional<mjxproto::NoWinnerType> no_winner_type) const noexcept {
-  if (!IsRoundOver()) return false;
+                          std::optional<mjxproto::NoWinnerType> no_winner_type) noexcept {
 
   // 途中流局の場合は連荘
   if (Any(no_winner_type,
@@ -781,7 +783,7 @@ bool State::CheckGameOver(int round, std::array<int, 4> tens,
   if (!top_has_30000) return false;
 
   // オーラストップ親の上がりやめあり
-  bool dealer_is_not_top = top_score != tens[ToUType(dealer())];
+  bool dealer_is_not_top = top_score != tens[ToUType(dealer)];
   return !(is_dealer_win_or_tenpai && dealer_is_not_top);
 }
 
