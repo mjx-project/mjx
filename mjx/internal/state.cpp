@@ -729,6 +729,7 @@ void State::NoWinner() {
 
 bool State::IsGameOver() const {
   Assert(IsRoundOver(), "State::IsGameOver() should be called only when round reached the end.");
+  Assert(round() < 12, "Round should be less than 12.");
 
   auto last_event_type = LastEvent().type();
 
