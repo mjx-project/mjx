@@ -433,9 +433,7 @@ void State::AddNewDora() {
 
 void State::RiichiScoreChange() {
   auto who = AbsolutePos(LastEvent().who());
-  //curr_score_.set_riichi(riichi() + 1);
   state_.mutable_public_observation()->mutable_utils()->mutable_curr_score()->set_riichi(riichi() + 1);
-  //curr_score_.set_tens(ToUType(who), ten(who) - 1000);
   state_.mutable_public_observation()->mutable_utils()->mutable_curr_score()->set_tens(ToUType(who), ten(who) - 1000);
 
   state_.mutable_public_observation()
