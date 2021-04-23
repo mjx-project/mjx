@@ -919,7 +919,10 @@ State::ScoreInfo State::Next() const {
                        honba() + 1, riichi(),    tens()};
     }
   } else {
-    if (AbsolutePos(LastEvent().who()) == dealer()) {
+    bool is_dealer_win = std::any_of(
+        state_.terminal().wins().begin(), state_.terminal().wins().end(),
+        [&](const auto x) { return AbsolutePos(x.who()) == dealer(); });
+    if (is_dealer_win) {
       return ScoreInfo{player_ids,  game_seed(), round(),
                        honba() + 1, riichi(),    tens()};
     } else {
