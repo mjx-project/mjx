@@ -84,9 +84,10 @@ class State {
   void UpdateByEvent(const mjxproto::Event& event);
 
   static bool CheckGameOver(int round, std::array<int, 4> tens,
-                            AbsolutePos dealer,
-                     bool is_dealer_win_or_tenpai,
-                     std::optional<mjxproto::NoWinnerType> no_winner_type = std::nullopt) noexcept ;
+                            AbsolutePos dealer, bool is_dealer_win_or_tenpai,
+                            std::optional<mjxproto::NoWinnerType>
+                                no_winner_type = std::nullopt) noexcept;
+
  private:
   explicit State(std::vector<PlayerId> player_ids,  // 起家, ..., ラス親
                  std::uint64_t game_seed = 0, int round = 0, int honba = 0,

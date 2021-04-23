@@ -139,9 +139,10 @@ std::unordered_map<PlayerId, Observation> State::CreateObservations() const {
 
       // => Kan (2)
       if (auto possible_kans = hand(who).PossibleOpensAfterDraw();
-          !possible_kans.empty() && !IsFourKanNoWinner()) {  // TODO:
-                                                             // 四槓散了かのチェックは5回目のカンをできないようにするためだが、正しいのか確認
-                                                             // #701
+          !possible_kans.empty() &&
+          !IsFourKanNoWinner()) {  // TODO:
+                                   // 四槓散了かのチェックは5回目のカンをできないようにするためだが、正しいのか確認
+                                   // #701
         for (const auto possible_kan : possible_kans) {
           observation.add_possible_action(
               Action::CreateOpen(who, possible_kan));
@@ -788,7 +789,9 @@ void State::NoWinner() {
 }
 
 bool State::IsGameOver() const {
-  Assert(IsRoundOver(), "State::IsGameOver() should be called only when round reached the end.");
+  Assert(
+      IsRoundOver(),
+      "State::IsGameOver() should be called only when round reached the end.");
   Assert(round() < 12, "Round should be less than 12.");
 
   auto last_event_type = LastEvent().type();
@@ -801,29 +804,30 @@ bool State::IsGameOver() const {
            [&](const auto x) { return AbsolutePos(x.who()) == dealer(); })) ||
       (last_event_type == mjxproto::EVENT_TYPE_NO_WINNER &&
        std::any_of(
-              state_.terminal().no_winner().tenpais().begin(), state_.terminal().no_winner().tenpais().end(),
-              [&](const auto x) { return AbsolutePos(x.who()) == dealer(); })
-      );
+           state_.terminal().no_winner().tenpais().begin(),
+           state_.terminal().no_winner().tenpais().end(),
+           [&](const auto x) { return AbsolutePos(x.who()) == dealer(); }));
 
   std::optional<mjxproto::NoWinnerType> no_winner_type;
-  if (!Any(last_event_type, {mjxproto::EVENT_TYPE_RON, mjxproto::EVENT_TYPE_TSUMO}))
-      no_winner_type = state_.terminal().no_winner().type();
+  if (!Any(last_event_type,
+           {mjxproto::EVENT_TYPE_RON, mjxproto::EVENT_TYPE_TSUMO}))
+    no_winner_type = state_.terminal().no_winner().type();
 
-  return CheckGameOver(round(), tens(), dealer(), is_dealer_win_or_tenpai, no_winner_type);
+  return CheckGameOver(round(), tens(), dealer(), is_dealer_win_or_tenpai,
+                       no_winner_type);
 }
 
-bool State::CheckGameOver(int round, std::array<int, 4> tens,
-                                 AbsolutePos dealer,
-                          bool is_dealer_win_or_tenpai,
-                          std::optional<mjxproto::NoWinnerType> no_winner_type) noexcept {
-
+bool State::CheckGameOver(
+    int round, std::array<int, 4> tens, AbsolutePos dealer,
+    bool is_dealer_win_or_tenpai,
+    std::optional<mjxproto::NoWinnerType> no_winner_type) noexcept {
   // 途中流局の場合は連荘
-  if (no_winner_type.has_value() && Any(no_winner_type,
-          {mjxproto::NO_WINNER_TYPE_KYUUSYU,
-           mjxproto::NO_WINNER_TYPE_FOUR_RIICHI,
-           mjxproto::NO_WINNER_TYPE_THREE_RONS,
-           mjxproto::NO_WINNER_TYPE_FOUR_KANS,
-           mjxproto::NO_WINNER_TYPE_FOUR_WINDS})) {
+  if (no_winner_type.has_value() &&
+      Any(no_winner_type, {mjxproto::NO_WINNER_TYPE_KYUUSYU,
+                           mjxproto::NO_WINNER_TYPE_FOUR_RIICHI,
+                           mjxproto::NO_WINNER_TYPE_THREE_RONS,
+                           mjxproto::NO_WINNER_TYPE_FOUR_KANS,
+                           mjxproto::NO_WINNER_TYPE_FOUR_WINDS})) {
     return false;
   }
 
@@ -832,8 +836,7 @@ bool State::CheckGameOver(int round, std::array<int, 4> tens,
   auto top_score = *std::max_element(tens.begin(), tens.end());
 
   // 箱割れ
-  bool has_minus_point_player =
-      *std::min_element(tens.begin(), tens.end()) < 0;
+  bool has_minus_point_player = *std::min_element(tens.begin(), tens.end()) < 0;
   if (has_minus_point_player) return true;
 
   // 東南戦
@@ -905,16 +908,18 @@ State::ScoreInfo State::Next() const {
   if (LastEvent().type() == mjxproto::EVENT_TYPE_NO_WINNER) {
     // 途中流局や親テンパイで流局の場合は連荘
     bool is_dealer_tenpai = std::any_of(
-          state_.terminal().no_winner().tenpais().begin(), state_.terminal().no_winner().tenpais().end(),
-          [&](const auto x) { return AbsolutePos(x.who()) == dealer(); });
+        state_.terminal().no_winner().tenpais().begin(),
+        state_.terminal().no_winner().tenpais().end(),
+        [&](const auto x) { return AbsolutePos(x.who()) == dealer(); });
     if (Any(state_.terminal().no_winner().type(),
-          {mjxproto::NO_WINNER_TYPE_KYUUSYU,
-           mjxproto::NO_WINNER_TYPE_FOUR_RIICHI,
-           mjxproto::NO_WINNER_TYPE_THREE_RONS,
-           mjxproto::NO_WINNER_TYPE_FOUR_KANS,
-           mjxproto::NO_WINNER_TYPE_FOUR_WINDS}) || is_dealer_tenpai) {
+            {mjxproto::NO_WINNER_TYPE_KYUUSYU,
+             mjxproto::NO_WINNER_TYPE_FOUR_RIICHI,
+             mjxproto::NO_WINNER_TYPE_THREE_RONS,
+             mjxproto::NO_WINNER_TYPE_FOUR_KANS,
+             mjxproto::NO_WINNER_TYPE_FOUR_WINDS}) ||
+        is_dealer_tenpai) {
       return ScoreInfo{player_ids,  game_seed(), round(),
-                     honba() + 1, riichi(),    tens()};
+                       honba() + 1, riichi(),    tens()};
     } else {
       Assert(round() + 1 < 12, "round should be < 12. State:\n" + ToJson());
       return ScoreInfo{player_ids,  game_seed(), round() + 1,

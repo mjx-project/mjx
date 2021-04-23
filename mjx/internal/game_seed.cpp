@@ -20,7 +20,8 @@ std::uint64_t GameSeed::GetWallSeed(int round, int honba) const {
          "Seed cannot be zero. round = " + std::to_string(round) +
              ", honba = " + std::to_string(honba));
   int ix = round * kRoundBase + honba * kHonbaBase;
-  Assert(ix < 512, "round: " + std::to_string(round), "honba: " + std::to_string(honba));
+  Assert(ix < 512, "round: " + std::to_string(round),
+         "honba: " + std::to_string(honba));
   std::uint64_t wall_seed = wall_seeds_.at(ix);
   return wall_seed;
 }
