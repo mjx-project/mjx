@@ -904,15 +904,17 @@ State::ScoreInfo State::Next() const {
       state_.public_observation().utils().player_ids().end());
   if (LastEvent().type() == mjxproto::EVENT_TYPE_NO_WINNER) {
     // 途中流局や親テンパイで流局の場合は連荘
+    bool is_dealer_tenpai = std::any_of(
+          state_.terminal().no_winner().tenpais().begin(), state_.terminal().no_winner().tenpais().end(),
+          [&](const auto x) { return AbsolutePos(x.who()) == dealer(); });
     if (Any(state_.terminal().no_winner().type(),
-            {mjxproto::NO_WINNER_TYPE_KYUUSYU,
-             mjxproto::NO_WINNER_TYPE_FOUR_RIICHI,
-             mjxproto::NO_WINNER_TYPE_THREE_RONS,
-             mjxproto::NO_WINNER_TYPE_FOUR_KANS,
-             mjxproto::NO_WINNER_TYPE_FOUR_WINDS}) ||
-        hand(dealer()).IsTenpai()) {
+          {mjxproto::NO_WINNER_TYPE_KYUUSYU,
+           mjxproto::NO_WINNER_TYPE_FOUR_RIICHI,
+           mjxproto::NO_WINNER_TYPE_THREE_RONS,
+           mjxproto::NO_WINNER_TYPE_FOUR_KANS,
+           mjxproto::NO_WINNER_TYPE_FOUR_WINDS}) || is_dealer_tenpai) {
       return ScoreInfo{player_ids,  game_seed(), round(),
-                       honba() + 1, riichi(),    tens()};
+                     honba() + 1, riichi(),    tens()};
     } else {
       Assert(round() + 1 < 12, "round should be < 12. State:\n" + ToJson());
       return ScoreInfo{player_ids,  game_seed(), round() + 1,
