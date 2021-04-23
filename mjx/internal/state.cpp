@@ -740,7 +740,10 @@ bool State::IsGameOver() const {
            state_.terminal().wins().begin(), state_.terminal().wins().end(),
            [&](const auto x) { return AbsolutePos(x.who()) == dealer(); })) ||
       (last_event_type == mjxproto::EVENT_TYPE_NO_WINNER &&
-       hand(dealer()).IsTenpai());
+       std::any_of(
+              state_.terminal().no_winner().tenpais().begin(), state_.terminal().no_winner().tenpais().end(),
+              [&](const auto x) { return AbsolutePos(x.who()) == dealer(); })
+      );
 
   std::optional<mjxproto::NoWinnerType> no_winner_type;
   if (!Any(last_event_type, {mjxproto::EVENT_TYPE_RON, mjxproto::EVENT_TYPE_TSUMO}))
