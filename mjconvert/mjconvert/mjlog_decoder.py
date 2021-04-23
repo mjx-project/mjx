@@ -256,11 +256,6 @@ class MjlogDecoder:
                 + self.state.terminal.final_score.riichi * 1000
                 == 100000
             )
-            # assert (
-            #    sum(self.state.public_observation.utils.curr_score.tens)
-            #    + self.state.public_observation.utils.curr_score.riichi * 1000
-            #    == 100000
-            # )
 
         yield copy.deepcopy(self.state)
 
