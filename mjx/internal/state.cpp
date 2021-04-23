@@ -37,8 +37,10 @@ State::State(std::vector<PlayerId> player_ids, std::uint64_t game_seed,
   for (int i = 0; i < 4; ++i)
     state_.mutable_public_observation()->mutable_init_score()->add_tens(
         tens[i]);
-  state_.mutable_public_observation()->mutable_utils()->mutable_curr_score()->CopyFrom(
-      state_.public_observation().init_score());
+  state_.mutable_public_observation()
+      ->mutable_utils()
+      ->mutable_curr_score()
+      ->CopyFrom(state_.public_observation().init_score());
   // wall
   for (auto t : wall_.tiles())
     state_.mutable_hidden_state()->mutable_wall()->Add(t.Id());
@@ -228,8 +230,10 @@ State::State(const mjxproto::State &state) {
   // Set scores
   state_.mutable_public_observation()->mutable_init_score()->CopyFrom(
       state.public_observation().init_score());
-  state_.mutable_public_observation()->mutable_utils()->mutable_curr_score()->CopyFrom(
-      state.public_observation().init_score());
+  state_.mutable_public_observation()
+      ->mutable_utils()
+      ->mutable_curr_score()
+      ->CopyFrom(state.public_observation().init_score());
   // Set walls
   auto wall_tiles = std::vector<Tile>();
   for (auto tile_id : state.hidden_state().wall())
@@ -472,7 +476,7 @@ void State::Tsumo(AbsolutePos winner) {
         ten_move -= honba() * 100;
     }
   }
-  //curr_score_.set_riichi(0);
+  // curr_score_.set_riichi(0);
   mutable_curr_score()->set_riichi(0);
 
   // set event
@@ -633,13 +637,15 @@ void State::Ron(AbsolutePos winner) {
   }
   state_.mutable_terminal()->mutable_wins()->Add(std::move(win));
   state_.mutable_terminal()->set_is_game_over(IsGameOver());
-  state_.mutable_terminal()->mutable_final_score()->CopyFrom(state_.public_observation().utils().curr_score());
+  state_.mutable_terminal()->mutable_final_score()->CopyFrom(
+      state_.public_observation().utils().curr_score());
 }
 
 void State::NoWinner() {
   // 四家立直, 三家和了, 四槓散了, 流し満貫
   auto set_terminal_vals = [&]() {
-    state_.mutable_terminal()->mutable_final_score()->CopyFrom(state_.public_observation().utils().curr_score());
+    state_.mutable_terminal()->mutable_final_score()->CopyFrom(
+        state_.public_observation().utils().curr_score());
     for (int i = 0; i < 4; ++i)
       state_.mutable_terminal()->mutable_no_winner()->add_ten_changes(0);
     state_.mutable_public_observation()
@@ -772,7 +778,8 @@ void State::NoWinner() {
     mutable_curr_score()->set_riichi(0);
   }
   state_.mutable_terminal()->set_is_game_over(IsGameOver());
-  state_.mutable_terminal()->mutable_final_score()->CopyFrom(state_.public_observation().utils().curr_score());
+  state_.mutable_terminal()->mutable_final_score()->CopyFrom(
+      state_.public_observation().utils().curr_score());
 }
 
 bool State::IsGameOver() const {
@@ -833,11 +840,17 @@ AbsolutePos State::dealer() const {
   return AbsolutePos(state_.public_observation().init_score().round() % 4);
 }
 
-std::uint8_t State::round() const { return state_.public_observation().utils().curr_score().round(); }
+std::uint8_t State::round() const {
+  return state_.public_observation().utils().curr_score().round();
+}
 
-std::uint8_t State::honba() const { return state_.public_observation().utils().curr_score().honba(); }
+std::uint8_t State::honba() const {
+  return state_.public_observation().utils().curr_score().honba();
+}
 
-std::uint8_t State::riichi() const { return state_.public_observation().utils().curr_score().riichi(); }
+std::uint8_t State::riichi() const {
+  return state_.public_observation().utils().curr_score().riichi();
+}
 
 std::uint64_t State::game_seed() const {
   return state_.hidden_state().utils().game_seed();
@@ -845,7 +858,8 @@ std::uint64_t State::game_seed() const {
 
 std::array<std::int32_t, 4> State::tens() const {
   std::array<std::int32_t, 4> tens_{};
-  for (int i = 0; i < 4; ++i) tens_[i] = state_.public_observation().utils().curr_score().tens(i);
+  for (int i = 0; i < 4; ++i)
+    tens_[i] = state_.public_observation().utils().curr_score().tens(i);
   return tens_;
 }
 
@@ -1349,7 +1363,7 @@ AbsolutePos State::top_player() const {
   int top_ten = INT_MIN;
   for (int i = 0; i < 4; ++i) {
     int ten_ = ten(static_cast<AbsolutePos>(i)) +
-              (4 - i);  // 同着なら起家から順に優先のため +4, +3, +2, +1
+               (4 - i);  // 同着なら起家から順に優先のため +4, +3, +2, +1
     if (top_ten < ten_) {
       top_ix = i;
       top_ten = ten_;
@@ -1357,8 +1371,10 @@ AbsolutePos State::top_player() const {
   }
   return AbsolutePos(top_ix);
 }
-mjxproto::Score* State::mutable_curr_score() {
-  return state_.mutable_public_observation()->mutable_utils()->mutable_curr_score();
+mjxproto::Score *State::mutable_curr_score() {
+  return state_.mutable_public_observation()
+      ->mutable_utils()
+      ->mutable_curr_score();
 }
 mjxproto::Score State::curr_score() const {
   return state_.public_observation().utils().curr_score();
