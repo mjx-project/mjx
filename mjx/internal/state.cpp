@@ -139,7 +139,7 @@ std::unordered_map<PlayerId, Observation> State::CreateObservations() const {
 
       // => Kan (2)
       if (auto possible_kans = hand(who).PossibleOpensAfterDraw();
-          !possible_kans.empty()) {
+          !possible_kans.empty() && !IsFourKanNoWinner()) { // TODO: 四槓散了かのチェックは5回目のカンをできないようにするためだが、正しいのか確認 #701
         for (const auto possible_kan : possible_kans) {
           observation.add_possible_action(
               Action::CreateOpen(who, possible_kan));
@@ -345,6 +345,9 @@ Tile State::Draw(AbsolutePos who) {
   if (!hand(who).IsUnderRiichi())
     mutable_player(who).missed_tiles.reset();  // フリテン解除
 
+  Assert(!RequireKanDraw() || wall_.num_kan_draw() <= 3,
+         "Num kan draw should be <= 3 but got " + std::to_string(wall_.num_kan_draw()) +
+         "\nState: \n" + ToJson());
   auto draw = RequireKanDraw() ? wall_.KanDraw() : wall_.Draw();
   mutable_hand(who).Draw(draw);
 
@@ -1235,18 +1238,11 @@ void State::Update(mjxproto::Action &&action) {
         NoWinner();
         return;
       }
+
       // 鳴きやロンの候補がなく, 2人以上が合計4つ槓をしていたら四槓散了で流局
-      {
-        std::vector<int> kans;
-        for (const Player &p : players_) {
-          if (int num = hand(p.position).TotalKans(); num)
-            kans.emplace_back(num);
-        }
-        if (std::accumulate(kans.begin(), kans.end(), 0) == 4 and
-            kans.size() > 1) {
-          NoWinner();
-          return;
-        }
+      if (IsFourKanNoWinner()) {
+        NoWinner();
+        return;
       }
 
       if (wall_.HasDrawLeft()) {
@@ -1291,9 +1287,11 @@ void State::Update(mjxproto::Action &&action) {
       {
         // 天鳳のカンの仕様については
         // https://github.com/sotetsuk/mahjong/issues/199 で調べている
-        // 暗槓の分で最低一回は新ドラがめくられる
+        // 暗槓の分で最低一回は新ドラがめくられる。加槓=>暗槓の時などに連続でドラがめくられることもある
         int require_kan_dora = RequireKanDora();
-        Assert(require_kan_dora <= 2);
+        Assert(require_kan_dora <= 2,
+               "# of kan doras: " + std::to_string(RequireKanDora()) +
+                   "\nState:\n" + ToJson());
         while (require_kan_dora--) AddNewDora();
       }
       Draw(who);

@@ -37,6 +37,8 @@ class Wall {
   [[nodiscard]] bool HasDrawLeft() const;
   [[nodiscard]] bool HasNextDrawLeft() const;
   [[nodiscard]] std::uint64_t game_seed() const;
+  [[nodiscard]] int num_kan_draw() const;
+  [[nodiscard]] int num_kan_dora() const;
   Tile Draw();
   Tile KanDraw();
   std::pair<Tile, Tile> AddKanDora();
