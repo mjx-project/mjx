@@ -96,25 +96,33 @@ std::string SwapTiles(const std::string &json_str, Tile a, Tile b) {
   auto status = google::protobuf::util::JsonStringToMessage(json_str, &state);
   Assert(status.ok());
   // wall
-  for (int i = 0; i < state.wall_size(); ++i) {
-    if (state.wall(i) == a.Id())
-      state.set_wall(i, b.Id());
-    else if (state.wall(i) == b.Id())
-      state.set_wall(i, a.Id());
+  for (int i = 0; i < state.hidden_state().wall_size(); ++i) {
+    if (state.hidden_state().wall(i) == a.Id())
+      state.mutable_hidden_state()->set_wall(i, b.Id());
+    else if (state.hidden_state().wall(i) == b.Id())
+      state.mutable_hidden_state()->set_wall(i, a.Id());
   }
   // dora
-  for (int i = 0; i < state.doras_size(); ++i) {
-    if (state.doras(i) == a.Id())
-      state.set_wall(i, b.Id());
-    else if (state.doras(i) == b.Id())
-      state.set_wall(i, a.Id());
+  for (int i = 0;
+       i < state.public_observation().utils().curr_dora_indicators_size();
+       ++i) {
+    if (state.public_observation().utils().curr_dora_indicators(i) == a.Id())
+      state.mutable_hidden_state()->set_wall(i, b.Id());
+    else if (state.public_observation().utils().curr_dora_indicators(i) ==
+             b.Id())
+      state.mutable_hidden_state()->set_wall(i, a.Id());
   }
   // ura dora
-  for (int i = 0; i < state.ura_doras_size(); ++i) {
-    if (state.ura_doras(i) == a.Id())
-      state.set_ura_doras(i, b.Id());
-    else if (state.ura_doras(i) == b.Id())
-      state.set_ura_doras(i, a.Id());
+  for (int i = 0;
+       i < state.hidden_state().utils().curr_ura_dora_indicators_size(); ++i) {
+    if (state.hidden_state().utils().curr_ura_dora_indicators(i) == a.Id())
+      state.mutable_hidden_state()
+          ->mutable_utils()
+          ->set_curr_ura_dora_indicators(i, b.Id());
+    else if (state.hidden_state().utils().curr_ura_dora_indicators(i) == b.Id())
+      state.mutable_hidden_state()
+          ->mutable_utils()
+          ->set_curr_ura_dora_indicators(i, a.Id());
   }
   // init hand, draw_history
   for (int j = 0; j < 4; ++j) {
@@ -133,11 +141,13 @@ std::string SwapTiles(const std::string &json_str, Tile a, Tile b) {
     }
   }
   // event history
-  for (int i = 0; i < state.event_history().events_size(); ++i) {
-    auto mevent = state.mutable_event_history()->mutable_events(i);
+  for (int i = 0; i < state.public_observation().event_history().events_size();
+       ++i) {
+    auto mevent = state.mutable_public_observation()
+                      ->mutable_event_history()
+                      ->mutable_events(i);
     if (Any(mevent->type(),
-            {mjxproto::EVENT_TYPE_DISCARD_FROM_HAND,
-             mjxproto::EVENT_TYPE_DISCARD_DRAWN_TILE,
+            {mjxproto::EVENT_TYPE_DISCARD, mjxproto::EVENT_TYPE_TSUMOGIRI,
              mjxproto::EVENT_TYPE_TSUMO, mjxproto::EVENT_TYPE_RON,
              mjxproto::EVENT_TYPE_NEW_DORA})) {
       if (mevent->tile() == a.Id())
@@ -304,7 +314,7 @@ TEST(state, CreateObservation) {
   observation = observations["ROTTEN"];
   EXPECT_TRUE(ActionTypeCheck(
       {mjxproto::ACTION_TYPE_DISCARD, mjxproto::ACTION_TYPE_TSUMOGIRI,
-       mjxproto::ACTION_TYPE_KAN_ADDED},
+       mjxproto::ACTION_TYPE_ADDED_KAN},
       observation));
 
   // 3. Drawした後、Riichi可能なら、Riichiがアクション候補に入る
@@ -774,10 +784,10 @@ TEST(state, Update) {
   observation = observations.begin()->second;
   EXPECT_TRUE(ActionTypeCheck(
       {mjxproto::ACTION_TYPE_DISCARD, mjxproto::ACTION_TYPE_TSUMOGIRI,
-       mjxproto::ACTION_TYPE_KAN_ADDED},
+       mjxproto::ACTION_TYPE_ADDED_KAN},
       observation));
   possible_action =
-      FindPossibleAction(mjxproto::ACTION_TYPE_KAN_ADDED, observation);
+      FindPossibleAction(mjxproto::ACTION_TYPE_ADDED_KAN, observation);
   actions = {
       Action::CreateOpen(observation.who(), Open(possible_action.open()))};
   state_before.Update(std::move(actions));
@@ -825,10 +835,10 @@ TEST(state, Update) {
   observation = observations.begin()->second;
   EXPECT_TRUE(ActionTypeCheck(
       {mjxproto::ACTION_TYPE_DISCARD, mjxproto::ACTION_TYPE_TSUMOGIRI,
-       mjxproto::ACTION_TYPE_KAN_ADDED},
+       mjxproto::ACTION_TYPE_ADDED_KAN},
       observation));
   possible_action =
-      FindPossibleAction(mjxproto::ACTION_TYPE_KAN_ADDED, observation);
+      FindPossibleAction(mjxproto::ACTION_TYPE_ADDED_KAN, observation);
   actions = {
       Action::CreateOpen(observation.who(), Open(possible_action.open()))};
   state_before.Update(std::move(actions));
@@ -838,10 +848,10 @@ TEST(state, Update) {
   observation = observations.begin()->second;
   EXPECT_TRUE(ActionTypeCheck(
       {mjxproto::ACTION_TYPE_DISCARD, mjxproto::ACTION_TYPE_TSUMOGIRI,
-       mjxproto::ACTION_TYPE_KAN_ADDED},
+       mjxproto::ACTION_TYPE_ADDED_KAN},
       observation));
   possible_action =
-      FindPossibleAction(mjxproto::ACTION_TYPE_KAN_ADDED, observation);
+      FindPossibleAction(mjxproto::ACTION_TYPE_ADDED_KAN, observation);
   actions = {
       Action::CreateOpen(observation.who(), Open(possible_action.open()))};
   state_before.Update(std::move(actions));
@@ -936,9 +946,9 @@ std::vector<std::vector<mjxproto::Action>> ListUpAllActionCombinations(
           break;
         case mjxproto::ACTION_TYPE_CHI:
         case mjxproto::ACTION_TYPE_PON:
-        case mjxproto::ACTION_TYPE_KAN_OPENED:
-        case mjxproto::ACTION_TYPE_KAN_CLOSED:
-        case mjxproto::ACTION_TYPE_KAN_ADDED:
+        case mjxproto::ACTION_TYPE_OPEN_KAN:
+        case mjxproto::ACTION_TYPE_CLOSED_KAN:
+        case mjxproto::ACTION_TYPE_ADDED_KAN:
           actions_per_player.push_back(
               Action::CreateOpen(who, Open(possible_action.open())));
           break;
@@ -967,7 +977,9 @@ std::string TruncateAfterFirstDraw(const std::string &json) {
   mjxproto::State state = mjxproto::State();
   auto status = google::protobuf::util::JsonStringToMessage(json, &state);
   Assert(status.ok());
-  auto events = state.mutable_event_history()->mutable_events();
+  auto events = state.mutable_public_observation()
+                    ->mutable_event_history()
+                    ->mutable_events();
   events->erase(events->begin() + 1, events->end());
   state.clear_terminal();
   // drawについては消さなくても良い（wallから引いてsetされるので）

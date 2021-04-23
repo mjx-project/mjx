@@ -49,10 +49,14 @@ class MjlogEncoder:
 
     @staticmethod
     def _parse_each_round(state: mjxproto.State) -> str:
-        assert sum(state.init_score.tens) + state.init_score.riichi * 1000 == 100000
+        assert (
+            sum(state.public_observation.init_score.tens)
+            + state.public_observation.init_score.riichi * 1000
+            == 100000
+        )
         ret = "<INIT "
-        ret += f'seed="{state.init_score.round},{state.init_score.honba},{state.init_score.riichi},,,{state.doras[0]}" '
-        ret += f'ten="{state.init_score.tens[0] // 100},{state.init_score.tens[1] // 100},{state.init_score.tens[2] // 100},{state.init_score.tens[3] // 100}" oya="{state.init_score.round % 4}" '
+        ret += f'seed="{state.public_observation.init_score.round},{state.public_observation.init_score.honba},{state.public_observation.init_score.riichi},,,{state.public_observation.init_dora_indicator}" '
+        ret += f'ten="{state.public_observation.init_score.tens[0] // 100},{state.public_observation.init_score.tens[1] // 100},{state.public_observation.init_score.tens[2] // 100},{state.public_observation.init_score.tens[3] // 100}" oya="{state.public_observation.init_score.round % 4}" '
         hai = [
             ",".join([str(t) for t in hand])
             for hand in [y.init_hand for y in state.private_observations]
@@ -63,10 +67,10 @@ class MjlogEncoder:
         ret += f'hai3="{hai[3]}" '
         ret += "/>"
 
-        curr_score = copy.deepcopy(state.init_score)
+        curr_score = copy.deepcopy(state.public_observation.init_score)
         draw_ixs = [0, 0, 0, 0]
         under_riichi = [False, False, False, False]
-        for event in state.event_history.events:
+        for event in state.public_observation.event_history.events:
             if event.type == mjxproto.EVENT_TYPE_DRAW:
                 who_ix = int(event.who)
                 who = MjlogEncoder._encode_absolute_pos_for_draw(event.who)
@@ -75,8 +79,8 @@ class MjlogEncoder:
                 draw_ixs[who_ix] += 1
                 ret += f"<{who}{draw}/>"
             elif event.type in [
-                mjxproto.EVENT_TYPE_DISCARD_FROM_HAND,
-                mjxproto.EVENT_TYPE_DISCARD_DRAWN_TILE,
+                mjxproto.EVENT_TYPE_DISCARD,
+                mjxproto.EVENT_TYPE_TSUMOGIRI,
             ]:
                 who = MjlogEncoder._encode_absolute_pos_for_discard(event.who)
                 discard = event.tile
@@ -84,9 +88,9 @@ class MjlogEncoder:
             elif event.type in [
                 mjxproto.EVENT_TYPE_CHI,
                 mjxproto.EVENT_TYPE_PON,
-                mjxproto.EVENT_TYPE_KAN_CLOSED,
-                mjxproto.EVENT_TYPE_KAN_OPENED,
-                mjxproto.EVENT_TYPE_KAN_ADDED,
+                mjxproto.EVENT_TYPE_CLOSED_KAN,
+                mjxproto.EVENT_TYPE_OPEN_KAN,
+                mjxproto.EVENT_TYPE_ADDED_KAN,
             ]:
                 ret += f'<N who="{event.who}" '
                 ret += f'm="{event.open}" />'
@@ -232,10 +236,12 @@ class MjlogEncoder:
             ret += f'yakuman="{yakuman}" '
         else:
             is_pao = False
-        doras = ",".join([str(x) for x in state.doras])
+        doras = ",".join([str(x) for x in state.public_observation.utils.curr_dora_indicators])
         ret += f'doraHai="{doras}" '
         if under_riichi[win.who]:  # if under riichi (or double riichi)
-            ura_doras = ",".join([str(x) for x in state.ura_doras])
+            ura_doras = ",".join(
+                [str(x) for x in state.hidden_state.utils.curr_ura_dora_indicators]
+            )
             ret += f'doraHaiUra="{ura_doras}" '
         ret += f'who="{win.who}" fromWho="{win.from_who}" '
         sc = []
@@ -262,7 +268,9 @@ class MjlogEncoder:
 
     @staticmethod
     def _parse_player_id(state: mjxproto.State) -> str:
-        players = [urllib.parse.quote(player) for player in state.player_ids]
+        players = [
+            urllib.parse.quote(player) for player in state.public_observation.utils.player_ids
+        ]
         return f'<UN n0="{players[0]}" n1="{players[1]}" n2="{players[2]}" n3="{players[3]}"/>'
 
     @staticmethod

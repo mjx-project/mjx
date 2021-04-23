@@ -56,7 +56,7 @@ class MjlogDecoder:
         state_ = mjxproto.State()
 
         # set seed
-        state_.game_seed = 0
+        state_.hidden_state.utils.game_seed = 0
 
         assert root.tag == "mjloggm"
         assert root.attrib["ver"] == "2.3"
@@ -68,10 +68,18 @@ class MjlogDecoder:
         # TODO(sotetsuk): if there are > 2 "UN", some user became offline
         un = root.iter("UN")
         for child in un:
-            state_.player_ids.append(urllib.parse.unquote(child.attrib["n0"]))
-            state_.player_ids.append(urllib.parse.unquote(child.attrib["n1"]))
-            state_.player_ids.append(urllib.parse.unquote(child.attrib["n2"]))
-            state_.player_ids.append(urllib.parse.unquote(child.attrib["n3"]))
+            state_.public_observation.utils.player_ids.append(
+                urllib.parse.unquote(child.attrib["n0"])
+            )
+            state_.public_observation.utils.player_ids.append(
+                urllib.parse.unquote(child.attrib["n1"])
+            )
+            state_.public_observation.utils.player_ids.append(
+                urllib.parse.unquote(child.attrib["n2"])
+            )
+            state_.public_observation.utils.player_ids.append(
+                urllib.parse.unquote(child.attrib["n3"])
+            )
             break
         # taikyoku = root.iter("TAIKYOKU")
 
@@ -122,17 +130,20 @@ class MjlogDecoder:
         key, val = kv[0]
         assert key == "INIT"
         round_, honba, riichi, dice1, dice2, dora = [int(x) for x in val["seed"].split(",")]
-        self.state.init_score.round = round_
-        self.state.init_score.honba = honba
-        self.state.init_score.riichi = riichi
-        self.state.init_score.tens[:] = [int(x) * 100 for x in val["ten"].split(",")]
+        self.state.public_observation.init_score.round = round_
+        self.state.public_observation.init_score.honba = honba
+        self.state.public_observation.init_score.riichi = riichi
+        self.state.public_observation.init_score.tens[:] = [
+            int(x) * 100 for x in val["ten"].split(",")
+        ]
         self.state.terminal.final_score.round = round_
         self.state.terminal.final_score.honba = honba
         self.state.terminal.final_score.riichi = riichi
         self.state.terminal.final_score.tens[:] = [int(x) * 100 for x in val["ten"].split(",")]
-        self.state.wall[:] = wall
-        self.state.doras.append(dora)
-        self.state.ura_doras.append(wall[131])
+        self.state.hidden_state.wall[:] = wall
+        self.state.public_observation.init_dora_indicator = dora
+        self.state.public_observation.utils.curr_dora_indicators.append(dora)
+        self.state.hidden_state.utils.curr_ura_dora_indicators.append(wall[131])
         assert dora == wall[130]
         for i in range(4):
             self.state.private_observations.append(
@@ -190,8 +201,8 @@ class MjlogDecoder:
                 assert dora == int(val["hai"])
                 ura_dora = wall[129 - 2 * num_kan_dora]
                 num_kan_dora += 1
-                self.state.doras.append(dora)
-                self.state.ura_doras.append(ura_dora)
+                self.state.public_observation.utils.curr_dora_indicators.append(dora)
+                self.state.hidden_state.utils.curr_ura_dora_indicators.append(ura_dora)
                 event = mjxproto.Event(type=mjxproto.EVENT_TYPE_NEW_DORA, tile=dora)
             elif key == "RYUUKYOKU":
                 reach_terminal = True
@@ -211,9 +222,13 @@ class MjlogDecoder:
                     tile=int(val["machi"]),
                 )
                 win = MjlogDecoder.make_win(val, who, from_who, modify)
-                assert self.state.doras == [int(x) for x in val["doraHai"].split(",")]
+                assert self.state.public_observation.utils.curr_dora_indicators == [
+                    int(x) for x in val["doraHai"].split(",")
+                ]
                 if "doraHaiUra" in val:
-                    assert self.state.ura_doras == [int(x) for x in val["doraHaiUra"].split(",")]
+                    assert self.state.hidden_state.utils.curr_ura_dora_indicators == [
+                        int(x) for x in val["doraHaiUra"].split(",")
+                    ]
                 self.state.terminal.CopyFrom(
                     MjlogDecoder.update_terminal_by_win(self.state.terminal, win, val)
                 )
@@ -226,10 +241,11 @@ class MjlogDecoder:
                 raise KeyError(key)
 
             if event is not None:
-                self.state.event_history.events.append(event)
+                self.state.public_observation.event_history.events.append(event)
             event = None
             # yield copy.deepcopy(self.state)
 
+        self.state.public_observation.utils.curr_score.CopyFrom(self.state.terminal.final_score)
         if not reach_terminal:
             self.state.ClearField("terminal")
         else:
@@ -296,14 +312,14 @@ class MjlogDecoder:
         last_drawer: Optional[int],
         last_draw: Optional[int],
     ) -> mjxproto.Event:
-        type_ = mjxproto.EVENT_TYPE_DISCARD_FROM_HAND
+        type_ = mjxproto.EVENT_TYPE_DISCARD
         if (
             last_drawer is not None
             and last_draw is not None
             and last_drawer == who
             and last_draw == discard
         ):
-            type_ = mjxproto.EVENT_TYPE_DISCARD_DRAWN_TILE
+            type_ = mjxproto.EVENT_TYPE_TSUMOGIRI
         event = mjxproto.Event(
             who=who,
             type=type_,
@@ -414,12 +430,12 @@ class MjlogDecoder:
         elif 1 << 3 & bits:
             return mjxproto.EVENT_TYPE_PON
         elif 1 << 4 & bits:
-            return mjxproto.EVENT_TYPE_KAN_ADDED
+            return mjxproto.EVENT_TYPE_ADDED_KAN
         else:
             if RelativePos.SELF == bits & 3:
-                return mjxproto.EVENT_TYPE_KAN_CLOSED
+                return mjxproto.EVENT_TYPE_CLOSED_KAN
             else:
-                return mjxproto.EVENT_TYPE_KAN_OPENED
+                return mjxproto.EVENT_TYPE_OPEN_KAN
 
 
 def reproduce_wall_from_mjlog(mjlog_str: str) -> List[Tuple[List[int], List[int]]]:

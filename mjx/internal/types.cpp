@@ -83,11 +83,11 @@ mjxproto::EventType OpenTypeToEventType(OpenType open_type) {
     case OpenType::kPon:
       return mjxproto::EVENT_TYPE_PON;
     case OpenType::kKanOpened:
-      return mjxproto::EVENT_TYPE_KAN_OPENED;
+      return mjxproto::EVENT_TYPE_OPEN_KAN;
     case OpenType::kKanClosed:
-      return mjxproto::EVENT_TYPE_KAN_CLOSED;
+      return mjxproto::EVENT_TYPE_CLOSED_KAN;
     case OpenType::kKanAdded:
-      return mjxproto::EVENT_TYPE_KAN_ADDED;
+      return mjxproto::EVENT_TYPE_ADDED_KAN;
   }
 }
 
@@ -98,11 +98,11 @@ mjxproto::ActionType OpenTypeToActionType(OpenType open_type) {
     case OpenType::kPon:
       return mjxproto::ACTION_TYPE_PON;
     case OpenType::kKanOpened:
-      return mjxproto::ACTION_TYPE_KAN_OPENED;
+      return mjxproto::ACTION_TYPE_OPEN_KAN;
     case OpenType::kKanClosed:
-      return mjxproto::ACTION_TYPE_KAN_CLOSED;
+      return mjxproto::ACTION_TYPE_CLOSED_KAN;
     case OpenType::kKanAdded:
-      return mjxproto::ACTION_TYPE_KAN_ADDED;
+      return mjxproto::ACTION_TYPE_ADDED_KAN;
   }
 }
 

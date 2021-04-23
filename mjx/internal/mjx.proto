@@ -7,37 +7,48 @@ service Agent {
 }
 
 enum ActionType {
-  // After draw
+  // After someone's draw
   ACTION_TYPE_DISCARD = 0;
-  ACTION_TYPE_TSUMOGIRI = 1;
+  ACTION_TYPE_TSUMOGIRI = 1;  // ツモ切り, Tsumogiri
   ACTION_TYPE_RIICHI = 2;
-  ACTION_TYPE_TSUMO = 3;
-  ACTION_TYPE_KAN_CLOSED = 4;
-  ACTION_TYPE_KAN_ADDED = 5;
-  ACTION_TYPE_ABORTIVE_DRAW_NINE_TERMINALS = 6;
-  // After other's discard
-  ACTION_TYPE_NO = 7;
-  ACTION_TYPE_CHI = 8;
-  ACTION_TYPE_PON = 9;
-  ACTION_TYPE_KAN_OPENED = 10;
-  ACTION_TYPE_RON = 11;
+  ACTION_TYPE_CLOSED_KAN = 3;  // 暗槓
+  ACTION_TYPE_ADDED_KAN = 4;  // 加槓
+  ACTION_TYPE_TSUMO = 5;
+  ACTION_TYPE_ABORTIVE_DRAW_NINE_TERMINALS = 6;  // 九種九牌
+  // After someone's discard
+  ACTION_TYPE_CHI = 7;
+  ACTION_TYPE_PON = 8;
+  ACTION_TYPE_OPEN_KAN = 9;  // 明槓
+  ACTION_TYPE_RON = 10;
+  ACTION_TYPE_NO = 11;  // Action to ignore chi, pon, open kan, or ron options
 }
 
 enum EventType {
-  EVENT_TYPE_DRAW = 0;
-  EVENT_TYPE_DISCARD_FROM_HAND = 1;
-  EVENT_TYPE_DISCARD_DRAWN_TILE = 2;  // ツモ切り, Tsumogiri
-  EVENT_TYPE_RIICHI = 3;
-  EVENT_TYPE_TSUMO = 4;
-  EVENT_TYPE_RON = 5;
-  EVENT_TYPE_CHI = 6;
-  EVENT_TYPE_PON = 7;
-  EVENT_TYPE_KAN_CLOSED = 8;
-  EVENT_TYPE_KAN_OPENED = 9;
-  EVENT_TYPE_KAN_ADDED = 10;
-  EVENT_TYPE_NEW_DORA = 11;
-  EVENT_TYPE_RIICHI_SCORE_CHANGE = 12;
-  EVENT_TYPE_NO_WINNER = 13;  // 流局
+  // Publicly observable actions
+  EVENT_TYPE_DISCARD = 0;
+  EVENT_TYPE_TSUMOGIRI = 1;  // ツモ切り, Tsumogiri
+  EVENT_TYPE_RIICHI = 2;
+  EVENT_TYPE_CLOSED_KAN = 3;
+  EVENT_TYPE_ADDED_KAN = 4;
+  EVENT_TYPE_TSUMO = 5;
+  //EVENT_TYPE_ABORTIVE_DRAW_NINE_TERMINALS = 6;
+  EVENT_TYPE_CHI = 7;
+  EVENT_TYPE_PON = 8;
+  EVENT_TYPE_OPEN_KAN = 9;
+  EVENT_TYPE_RON = 10;
+  // State transitions made by environment. There is no decision making by players.
+  // 11 is skipped for the consistency to ActionType
+  EVENT_TYPE_DRAW = 12;
+  EVENT_TYPE_RIICHI_SCORE_CHANGE = 13;
+  EVENT_TYPE_NEW_DORA = 14;
+  EVENT_TYPE_NO_WINNER = 15;  // 流局
+  //EVENT_TYPE_ABORTIVE_DRAW_FOUR_RIICHIS = 15;  // 四家立直
+  //EVENT_TYPE_ABORTIVE_DRAW_THREE_RONS = 16;  // 三家和了
+  //EVENT_TYPE_ABORTIVE_DRAW_FOUR_KANS = 17;  // 四槓散了
+  //EVENT_TYPE_ABORTIVE_DRAW_FOUR_WINDS = 18;  // 四風連打
+  //EVENT_TYPE_EXHAUSTIVE_DRAW_NORMAL = 19;  // 通常流局
+  //EVENT_TYPE_EXHAUSTIVE_DRAW_NAGASHI_MANGAN = 20;  // 流し満貫
+  //EVENT_TYPE_ROUND_END = 21;
 }
 
 enum NoWinnerType {  // 流局
@@ -60,8 +71,8 @@ message Score {
 message Event {
   //                       who    tile    open
   // DRAW                  Yes    No      No      Tile is No since it's private info. EventHistory will be passed to Observation as public info.
-  // DISCARD_FROM_HAND     Yes    Yes     No
-  // DISCARD_DRAWN_TILE    Yes    Yes     No
+  // DISCARD               Yes    Yes     No
+  // TSUMOGIRI             Yes    Yes     No
   // RIICHI                Yes    No      No
   // TSUMO                 Yes    Yes     No
   // RON                   Yes    Yes     No
@@ -83,6 +94,20 @@ message EventHistory {
   repeated Event events = 2;
 }
 
+message PublicObservation {
+  Score init_score = 1;
+  uint64 init_dora_indicator = 2;
+  EventHistory event_history = 3;
+  PublicObservationUtils utils = 4;
+}
+
+message PublicObservationUtils {
+  uint64 game_id = 1;
+  repeated string player_ids = 2;
+  Score curr_score = 3;
+  repeated uint32 curr_dora_indicators = 4;
+}
+
 message PrivateObservation {
   int32 who = 1;
   repeated uint32 init_hand = 2;
@@ -90,11 +115,8 @@ message PrivateObservation {
 }
 
 message Observation {
-  repeated string player_ids = 1;
-  Score init_score = 2;  // public info
-  repeated uint32 doras = 3;
-  EventHistory event_history = 4;  // public info
-  int32 who = 5;
+  int32 who = 1;
+  PublicObservation public_observation = 2;
   PrivateObservation private_observation = 6;
   repeated Action possible_actions = 7;
 }
@@ -133,22 +155,28 @@ message Terminal {
 
 message State {
   // public info
-  repeated string player_ids = 1;
-  Score init_score = 2;  // Required for Tenhou mjlog.
-  repeated uint32 doras = 3;
-  EventHistory event_history = 4;
   // private info
-  repeated uint32 wall = 5;
-  repeated uint32 ura_doras = 6;
   repeated PrivateObservation private_observations = 7;
-  uint64 game_seed = 8;
   // win/ryuukyoku information
   Terminal terminal = 9;
+  PublicObservation public_observation = 10;
+  HiddenState hidden_state = 11;
+}
+
+message HiddenState {
+  repeated uint32 wall = 1;
+  HiddenStateUtils utils = 2;
+}
+
+message HiddenStateUtils {
+  uint64 game_seed = 1;
+  repeated uint32 curr_ura_dora_indicators = 2;
 }
 
 message Action {
   //                discard   open
   //  DISCARD           Yes     No
+  //  TSUMOGIRI         Yes     No
   //  RIICHI             No     No
   //  TSUMO              No     No
   //  KAN_CLOSED         No    Yes

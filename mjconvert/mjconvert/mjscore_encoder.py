@@ -43,7 +43,7 @@ def _change_action_format(bits: int) -> str:  # TODO カン
             return str(open_tiles[0]) + "p" + str(stolen_tile) + str(open_tiles[1])
         else:
             return str(open_tiles[0]) + str(open_tiles[1]) + "p" + str(stolen_tile)
-    elif event_type == mjxproto.EVENT_TYPE_KAN_ADDED:  # 加槓
+    elif event_type == mjxproto.EVENT_TYPE_ADDED_KAN:  # 加槓
         if open_from == RelativePos.LEFT:
             return (
                 "k"
@@ -68,7 +68,7 @@ def _change_action_format(bits: int) -> str:  # TODO カン
                 + str(stolen_tile)
                 + str(open_tiles[2])
             )
-    elif event_type == mjxproto.EVENT_TYPE_KAN_CLOSED:  # 暗槓
+    elif event_type == mjxproto.EVENT_TYPE_CLOSED_KAN:  # 暗槓
         return str(stolen_tile) + str(stolen_tile) + str(stolen_tile) + "a" + str(open_tiles[-1])
     else:  # 明槓
         if open_from == RelativePos.LEFT:
@@ -120,22 +120,22 @@ def _change_tumogiri_riich_fmt(tile):  # ツモギリリーチ専用の番号90�
 def parse_discards(events, abs_pos: int):
     discards: List[object] = []
     for i, event in enumerate(events):
-        if event.type == mjxproto.EVENT_TYPE_DISCARD_FROM_HAND and event.who == abs_pos:  # 手出し
+        if event.type == mjxproto.EVENT_TYPE_DISCARD and event.who == abs_pos:  # 手出し
             if events[i - 1].type == mjxproto.EVENT_TYPE_RIICHI:  # 一つ前のeventがriichiかどうか
                 discards.append("r" + str(_change_tile_fmt(event.tile)))
             else:
                 discards.append(_change_tile_fmt(event.tile))
-        elif event.type == mjxproto.EVENT_TYPE_DISCARD_DRAWN_TILE and event.who == abs_pos:  # ツモギリ
+        elif event.type == mjxproto.EVENT_TYPE_TSUMOGIRI and event.who == abs_pos:  # ツモギリ
             if events[i - 1].type == mjxproto.EVENT_TYPE_RIICHI:  # 一つ前のeventがriichiかどうか
                 discards.append("r60")
             else:
                 discards.append(60)
-        elif event.type == mjxproto.EVENT_TYPE_KAN_CLOSED and event.who == abs_pos:
+        elif event.type == mjxproto.EVENT_TYPE_CLOSED_KAN and event.who == abs_pos:
             discards.append(_change_action_format(event.open))
-        elif event.type == mjxproto.EVENT_TYPE_KAN_ADDED and event.who == abs_pos:
+        elif event.type == mjxproto.EVENT_TYPE_ADDED_KAN and event.who == abs_pos:
             discards.append(_change_action_format(event.open))
         elif (
-            events[i - 1].type == mjxproto.EVENT_TYPE_KAN_OPENED and event.who == abs_pos
+            events[i - 1].type == mjxproto.EVENT_TYPE_OPEN_KAN and event.who == abs_pos
         ):  # 明槓のあと捨て牌の情報に情報のない0が追加される。
             discards.append(0)
     return discards
@@ -155,9 +155,9 @@ def parse_draw_history(draw_history, events, abs_pos):
     discards = []
     actions = []  #
     for i, event in enumerate(events):
-        if event.type == mjxproto.EVENT_TYPE_DISCARD_FROM_HAND and event.who == abs_pos:  # 手出し
+        if event.type == mjxproto.EVENT_TYPE_DISCARD and event.who == abs_pos:  # 手出し
             discards.append(event.tile)
-        elif event.type == mjxproto.EVENT_TYPE_DISCARD_DRAWN_TILE and event.who == abs_pos:  # ツモギリ
+        elif event.type == mjxproto.EVENT_TYPE_TSUMOGIRI and event.who == abs_pos:  # ツモギリ
             discards.append(60)
         elif event.type == mjxproto.EVENT_TYPE_CHI and event.who == abs_pos:  # チー
             discards.append(event.open)
@@ -165,11 +165,11 @@ def parse_draw_history(draw_history, events, abs_pos):
         elif event.type == mjxproto.EVENT_TYPE_PON and event.who == abs_pos:  # ポン
             discards.append(event.open)
             actions.append(event.open)
-        elif event.type == mjxproto.EVENT_TYPE_KAN_OPENED and event.who == abs_pos:  # 明槓
+        elif event.type == mjxproto.EVENT_TYPE_OPEN_KAN and event.who == abs_pos:  # 明槓
             discards.append(event.open)
             actions.append(event.open)
         elif (
-            event.type == mjxproto.EVENT_TYPE_KAN_CLOSED and event.who == abs_pos
+            event.type == mjxproto.EVENT_TYPE_CLOSED_KAN and event.who == abs_pos
         ):  # 捨て牌の情報には暗槓も含まれているので、追加しないとずれる。
             discards.append(_change_action_format(event.open))
     for i, action in enumerate(actions):
@@ -368,7 +368,7 @@ def _winner_yakus(yakus: List[int], fans: List[int], yakumans: List[int]) -> Lis
 
 
 def _yaku_point_info(state: mjxproto.State, winner_num: int):
-    round = state.init_score.round
+    round = state.public_observation.init_score.round
     who = state.terminal.wins[winner_num].who
     from_who = state.terminal.wins[winner_num].from_who
     fans = [i for i in state.terminal.wins[winner_num].fans]  # [役での飜数, ドラの数]
@@ -411,17 +411,19 @@ def determine_ura_doras_list(state: mjxproto.State) -> List:
     has_riichi = 1 not in state.terminal.wins[0].yakus and 21 not in state.terminal.wins[0].yakus
     if has_riichi:  # リーチまたはダブリーがかかっていないと、上がって裏ドラが表示されない.
         return []
-    return [_change_tile_fmt(i) for i in state.ura_doras]
+    return [_change_tile_fmt(i) for i in state.hidden_state.utils.curr_ura_dora_indicators]
 
 
 # ここを実装
 def mjxproto_to_mjscore(state: mjxproto.State) -> str:
-    round: int = state.init_score.round
-    honba: int = state.init_score.honba
-    riichi: int = state.init_score.riichi
-    doras: List[int] = [_change_tile_fmt(i) for i in state.doras]
+    round: int = state.public_observation.init_score.round
+    honba: int = state.public_observation.init_score.honba
+    riichi: int = state.public_observation.init_score.riichi
+    doras: List[int] = [
+        _change_tile_fmt(i) for i in state.public_observation.utils.curr_dora_indicators
+    ]
     ura_doras = determine_ura_doras_list(state)
-    init_score: List[int] = [i for i in state.init_score.tens]
+    init_score: List[int] = [i for i in state.public_observation.init_score.tens]
     log = [[round, honba, riichi], init_score, doras, ura_doras]
     absolute_pos = [
         AbsolutePos.INIT_EAST,
@@ -436,11 +438,11 @@ def mjxproto_to_mjscore(state: mjxproto.State) -> str:
         log.append(
             parse_draw_history(
                 state.private_observations[abs_pos].draw_history,
-                state.event_history.events,
+                state.public_observation.event_history.events,
                 abs_pos,
             )
         )
-        log.append(parse_discards(state.event_history.events, abs_pos))
+        log.append(parse_discards(state.public_observation.event_history.events, abs_pos))
 
     log.append(parse_terminal(state))
     d: Dict = {"title": [], "name": [], "rule": [], "log": [log]}

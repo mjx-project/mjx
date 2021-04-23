@@ -16,10 +16,13 @@ std::vector<mjxproto::Action> StrategyRuleBased::TakeActions(
 mjxproto::Action StrategyRuleBased::TakeAction(
     Observation &&observation) const {
   // Prepare some seed and MT engine for reproducibility
-  const std::uint64_t seed =
-      12345 + 4096 * observation.proto().event_history().events_size() +
-      16 * observation.possible_actions().size() +
-      1 * observation.proto().who();
+  const std::uint64_t seed = 12345 +
+                             4096 * observation.proto()
+                                        .public_observation()
+                                        .event_history()
+                                        .events_size() +
+                             16 * observation.possible_actions().size() +
+                             1 * observation.proto().who();
   auto mt = std::mt19937_64(seed);
 
   auto possible_actions = observation.possible_actions();
@@ -28,13 +31,13 @@ mjxproto::Action StrategyRuleBased::TakeAction(
       {mjxproto::ACTION_TYPE_TSUMO, 0},
       {mjxproto::ACTION_TYPE_RIICHI, 1},
       {mjxproto::ACTION_TYPE_ABORTIVE_DRAW_NINE_TERMINALS, 2},
-      {mjxproto::ACTION_TYPE_KAN_CLOSED, 3},
-      {mjxproto::ACTION_TYPE_KAN_ADDED, 4},
+      {mjxproto::ACTION_TYPE_CLOSED_KAN, 3},
+      {mjxproto::ACTION_TYPE_ADDED_KAN, 4},
       {mjxproto::ACTION_TYPE_TSUMOGIRI, 5},
       {mjxproto::ACTION_TYPE_DISCARD, 6},
       {mjxproto::ACTION_TYPE_RON, 7},
       {mjxproto::ACTION_TYPE_PON, 8},
-      {mjxproto::ACTION_TYPE_KAN_OPENED, 9},
+      {mjxproto::ACTION_TYPE_OPEN_KAN, 9},
       {mjxproto::ACTION_TYPE_CHI, 10},
       {mjxproto::ACTION_TYPE_NO, 11},
   };
@@ -61,7 +64,7 @@ mjxproto::Action StrategyRuleBased::TakeAction(
 
   // テンパっているときには他家から鳴かない
   if (Any(selected.type(),
-          {mjxproto::ACTION_TYPE_KAN_OPENED, mjxproto::ACTION_TYPE_PON,
+          {mjxproto::ACTION_TYPE_OPEN_KAN, mjxproto::ACTION_TYPE_PON,
            mjxproto::ACTION_TYPE_CHI})) {
     if (curr_hand.IsTenpai()) {
       selected = *possible_actions.rbegin();
@@ -72,19 +75,19 @@ mjxproto::Action StrategyRuleBased::TakeAction(
 
   // 鳴ける場合にはランダムに行動選択
   if (Any(selected.type(),
-          {mjxproto::ACTION_TYPE_KAN_OPENED, mjxproto::ACTION_TYPE_PON,
+          {mjxproto::ACTION_TYPE_OPEN_KAN, mjxproto::ACTION_TYPE_PON,
            mjxproto::ACTION_TYPE_CHI})) {
     selected =
         *SelectRandomly(possible_actions.begin(), possible_actions.end(), mt);
     Assert(Any(selected.type(),
-               {mjxproto::ACTION_TYPE_KAN_OPENED, mjxproto::ACTION_TYPE_PON,
+               {mjxproto::ACTION_TYPE_OPEN_KAN, mjxproto::ACTION_TYPE_PON,
                 mjxproto::ACTION_TYPE_CHI, mjxproto::ACTION_TYPE_NO}));
     return selected;
   }
 
   // 暗槓、加槓ができるときはランダムに実行
-  if (Any(selected.type(), {mjxproto::ACTION_TYPE_KAN_CLOSED,
-                            mjxproto::ACTION_TYPE_KAN_ADDED})) {
+  if (Any(selected.type(), {mjxproto::ACTION_TYPE_CLOSED_KAN,
+                            mjxproto::ACTION_TYPE_ADDED_KAN})) {
     auto prob = RandomProb(mt);
     if (prob > 0.5) return selected;
   }

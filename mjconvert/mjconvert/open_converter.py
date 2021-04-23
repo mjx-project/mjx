@@ -13,7 +13,7 @@ def open_event_type(bits: int) -> mjxproto.EventTypeValue:
     True
     >>> open_event_type(49495) == mjxproto.EVENT_TYPE_CHI
     True
-    >>> open_event_type(28722) == mjxproto.EVENT_TYPE_KAN_ADDED
+    >>> open_event_type(28722) == mjxproto.EVENT_TYPE_ADDED_KAN
     True
     """
     if 1 << 2 & bits:
@@ -21,12 +21,12 @@ def open_event_type(bits: int) -> mjxproto.EventTypeValue:
     elif 1 << 3 & bits:
         return mjxproto.EVENT_TYPE_PON
     elif 1 << 4 & bits:
-        return mjxproto.EVENT_TYPE_KAN_ADDED
+        return mjxproto.EVENT_TYPE_ADDED_KAN
     else:
         if RelativePos.SELF == bits & 3:
-            return mjxproto.EVENT_TYPE_KAN_CLOSED
+            return mjxproto.EVENT_TYPE_CLOSED_KAN
         else:
-            return mjxproto.EVENT_TYPE_KAN_OPENED
+            return mjxproto.EVENT_TYPE_OPEN_KAN
 
 
 def open_from(bits: int) -> RelativePos:
@@ -44,8 +44,8 @@ def open_from(bits: int) -> RelativePos:
         return RelativePos.LEFT
     elif (
         event_type == mjxproto.EVENT_TYPE_PON
-        or event_type == mjxproto.EVENT_TYPE_KAN_OPENED
-        or event_type == mjxproto.EVENT_TYPE_KAN_ADDED
+        or event_type == mjxproto.EVENT_TYPE_OPEN_KAN
+        or event_type == mjxproto.EVENT_TYPE_ADDED_KAN
     ):
         return RelativePos(bits & 3)
     else:
@@ -75,7 +75,7 @@ def is_stolen_red(bits: int, stolen_tile_kind) -> bool:  # TODO: test  さらに
         stolen_tile_mod3 = (bits >> 10) % 3  # 鳴いた牌のindex
         stolen_tile_id_mod4 = (bits >> (3 + 2 * stolen_tile_mod3)) % 4  # 鳴いた牌のi
         return stolen_tile_id_mod4 == 0  # 鳴いた牌のid mod 4=0→赤
-    elif event_type == mjxproto.EVENT_TYPE_PON or event_type == mjxproto.EVENT_TYPE_KAN_ADDED:
+    elif event_type == mjxproto.EVENT_TYPE_PON or event_type == mjxproto.EVENT_TYPE_ADDED_KAN:
         unused_id_mod4 = (bits >> 5) % 4  # 未使用牌のid mod 4
         stolen_tile_mod3 = (bits >> 9) % 3  # 鳴いた牌のindex
         return unused_id_mod4 != 0 and stolen_tile_mod3 == 0  # 未使用牌が赤でなく、鳴いた牌のインデックスが0の時→赤
@@ -132,7 +132,7 @@ def has_red(bits: int) -> bool:
     event_type = open_event_type(bits)
     if event_type == mjxproto.EVENT_TYPE_CHI:
         return has_red_chi(bits)
-    elif event_type == mjxproto.EVENT_TYPE_PON or event_type == mjxproto.EVENT_TYPE_KAN_ADDED:
+    elif event_type == mjxproto.EVENT_TYPE_PON or event_type == mjxproto.EVENT_TYPE_ADDED_KAN:
         return has_red_pon_kan_added(bits)
     else:
         return has_red_kan_closed_kan_opend(bits)  # ダイミンカンとアンカンは必ず赤を含む
@@ -178,7 +178,7 @@ def open_stolen_tile_type(bits: int) -> int:
         min_tile = _min_tile_chi(bits)
         stolen_tile_kind = min_tile + (bits >> 10) % 3
         return transform_red_stolen(bits, stolen_tile_kind)
-    elif event_type == mjxproto.EVENT_TYPE_PON or event_type == mjxproto.EVENT_TYPE_KAN_ADDED:
+    elif event_type == mjxproto.EVENT_TYPE_PON or event_type == mjxproto.EVENT_TYPE_ADDED_KAN:
         stolen_tile_kind = (bits >> 9) // 3
         return transform_red_stolen(bits, stolen_tile_kind)
     else:
