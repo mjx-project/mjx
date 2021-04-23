@@ -125,6 +125,8 @@ class State {
   [[nodiscard]] Hand& mutable_hand(AbsolutePos who);
   [[nodiscard]] WinStateInfo win_state_info(AbsolutePos who) const;
   [[nodiscard]] AbsolutePos top_player() const;
+  [[nodiscard]] mjxproto::Score* mutable_curr_score();
+  [[nodiscard]] mjxproto::Score curr_score() const;
 
   // update
   void Update(mjxproto::Action&& action);

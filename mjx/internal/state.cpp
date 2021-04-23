@@ -433,8 +433,8 @@ void State::AddNewDora() {
 
 void State::RiichiScoreChange() {
   auto who = AbsolutePos(LastEvent().who());
-  state_.mutable_public_observation()->mutable_utils()->mutable_curr_score()->set_riichi(riichi() + 1);
-  state_.mutable_public_observation()->mutable_utils()->mutable_curr_score()->set_tens(ToUType(who), ten(who) - 1000);
+  mutable_curr_score()->set_riichi(riichi() + 1);
+  mutable_curr_score()->set_tens(ToUType(who), ten(who) - 1000);
 
   state_.mutable_public_observation()
       ->mutable_event_history()
@@ -473,7 +473,7 @@ void State::Tsumo(AbsolutePos winner) {
     }
   }
   //curr_score_.set_riichi(0);
-  state_.mutable_public_observation()->mutable_utils()->mutable_curr_score()->set_riichi(0);
+  mutable_curr_score()->set_riichi(0);
 
   // set event
   Assert(hand_info.win_tile);
@@ -518,18 +518,14 @@ void State::Tsumo(AbsolutePos winner) {
   for (const auto &[who, ten_move] : ten_moves) {
     win.set_ten_changes(ToUType(who), ten_move);
     //curr_score_.set_tens(ToUType(who), ten(who) + ten_move);
-    state_.mutable_public_observation()->mutable_utils()->mutable_curr_score()->set_tens(ToUType(who), ten(who) + ten_move);
+    mutable_curr_score()->set_tens(ToUType(who), ten(who) + ten_move);
   }
 
   // set terminal
   if (IsGameOver()) {
     AbsolutePos top = top_player();
-    //curr_score_.set_tens(ToUType(top),
-    //                     curr_score_.tens(ToUType(top)) + 1000 * riichi());
-    state_.mutable_public_observation()->mutable_utils()->mutable_curr_score()->set_tens(
-        ToUType(top), ten(top) + 1000 * riichi());
-    //curr_score_.set_riichi(0);
-    state_.mutable_public_observation()->mutable_utils()->mutable_curr_score()->set_riichi(0);
+    mutable_curr_score()->set_tens(ToUType(top), ten(top) + 1000 * riichi());
+    mutable_curr_score()->set_riichi(0);
   }
   state_.mutable_terminal()->mutable_wins()->Add(std::move(win));
   state_.mutable_terminal()->set_is_game_over(IsGameOver());
@@ -585,7 +581,7 @@ void State::Ron(AbsolutePos winner) {
         ten_move -= honba_ * 300;
     }
   }
-  state_.mutable_public_observation()->mutable_utils()->mutable_curr_score()->set_riichi(0);
+  mutable_curr_score()->set_riichi(0);
 
   // set event
   state_.mutable_public_observation()
@@ -627,16 +623,14 @@ void State::Ron(AbsolutePos winner) {
   for (int i = 0; i < 4; ++i) win.add_ten_changes(0);
   for (const auto &[who, ten_move] : ten_moves) {
     win.set_ten_changes(ToUType(who), ten_move);
-    state_.mutable_public_observation()->mutable_utils()->mutable_curr_score()->set_tens(
-        ToUType(who), ten(who) + ten_move);
+    mutable_curr_score()->set_tens(ToUType(who), ten(who) + ten_move);
   }
 
   // set win to terminal
   if (IsGameOver()) {
     AbsolutePos top = top_player();
-    state_.mutable_public_observation()->mutable_utils()->mutable_curr_score()->set_tens(
-                         ToUType(top), ten(top) + 1000 * riichi());
-    state_.mutable_public_observation()->mutable_utils()->mutable_curr_score()->set_riichi(0);
+    mutable_curr_score()->set_tens(ToUType(top), ten(top) + 1000 * riichi());
+    mutable_curr_score()->set_riichi(0);
   }
   state_.mutable_terminal()->mutable_wins()->Add(std::move(win));
   state_.mutable_terminal()->set_is_game_over(IsGameOver());
@@ -769,15 +763,14 @@ void State::NoWinner() {
   for (int i = 0; i < 4; ++i) {
     state_.mutable_terminal()->mutable_no_winner()->add_ten_changes(
         ten_move[i]);
-    state_.mutable_public_observation()->mutable_utils()->mutable_curr_score()->set_tens(i, ten(AbsolutePos(i)) + ten_move[i]);
+    mutable_curr_score()->set_tens(i, ten(AbsolutePos(i)) + ten_move[i]);
   }
 
   // set terminal
   if (IsGameOver()) {
     AbsolutePos top = top_player();
-    state_.mutable_public_observation()->mutable_utils()->mutable_curr_score()->set_tens(
-         ToUType(top), ten(top) + 1000 * riichi());
-    state_.mutable_public_observation()->mutable_utils()->mutable_curr_score()->set_riichi(0);
+    mutable_curr_score()->set_tens(ToUType(top), ten(top) + 1000 * riichi());
+    mutable_curr_score()->set_riichi(0);
   }
   state_.mutable_terminal()->set_is_game_over(IsGameOver());
   state_.mutable_terminal()->mutable_final_score()->CopyFrom(state_.public_observation().utils().curr_score());
@@ -1364,6 +1357,12 @@ AbsolutePos State::top_player() const {
     }
   }
   return AbsolutePos(top_ix);
+}
+mjxproto::Score* State::mutable_curr_score() {
+  return state_.mutable_public_observation()->mutable_utils()->mutable_curr_score();
+}
+mjxproto::Score State::curr_score() const {
+  return state_.public_observation().utils().curr_score();
 }
 
 bool State::IsFourKanNoWinner() const noexcept {
