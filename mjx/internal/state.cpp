@@ -585,7 +585,6 @@ void State::Ron(AbsolutePos winner) {
         ten_move -= honba_ * 300;
     }
   }
-  //curr_score_.set_riichi(0);
   state_.mutable_public_observation()->mutable_utils()->mutable_curr_score()->set_riichi(0);
 
   // set event
