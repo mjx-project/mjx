@@ -728,23 +728,31 @@ void State::NoWinner() {
 }
 
 bool State::IsGameOver() const {
+  auto last_event_type = LastEvent().type();
+
   bool is_dealer_win_or_tenpai =
-      (Any(LastEvent().type(),
+      (Any(last_event_type,
            {mjxproto::EVENT_TYPE_RON, mjxproto::EVENT_TYPE_TSUMO}) &&
        std::any_of(
            state_.terminal().wins().begin(), state_.terminal().wins().end(),
            [&](const auto x) { return AbsolutePos(x.who()) == dealer(); })) ||
-      (LastEvent().type() == mjxproto::EVENT_TYPE_NO_WINNER &&
+      (last_event_type == mjxproto::EVENT_TYPE_NO_WINNER &&
        hand(dealer()).IsTenpai());
 
-  return CheckGameOver(round(), tens(), is_dealer_win_or_tenpai);
+  std::optional<mjxproto::NoWinnerType> no_winner_type;
+  if (!Any(last_event_type, {mjxproto::EVENT_TYPE_RON, mjxproto::EVENT_TYPE_TSUMO}))
+      no_winner_type = state_.terminal().no_winner().type();
+
+  return CheckGameOver(round(), tens(), is_dealer_win_or_tenpai, no_winner_type);
 }
 
-bool State::CheckGameOver(int round, std::array<int, 4> tens, bool is_dealer_win_or_tenpai) const noexcept {
+bool State::CheckGameOver(int round, std::array<int, 4> tens,
+                          bool is_dealer_win_or_tenpai,
+                          std::optional<mjxproto::NoWinnerType> no_winner_type) const noexcept {
   if (!IsRoundOver()) return false;
 
   // 途中流局の場合は連荘
-  if (Any(state_.terminal().no_winner().type(),
+  if (Any(no_winner_type,
           {mjxproto::NO_WINNER_TYPE_KYUUSYU,
            mjxproto::NO_WINNER_TYPE_FOUR_RIICHI,
            mjxproto::NO_WINNER_TYPE_THREE_RONS,
