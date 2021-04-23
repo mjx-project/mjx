@@ -780,6 +780,11 @@ bool State::CheckGameOver(int round, std::array<int, 4> tens,
   if (round < 7) return false;
 
   // 北入なし
+  bool dealer_is_not_top = top_score != tens[ToUType(dealer)];
+  if (round == 11) {
+    // 西4局は基本的に終局。例外は親がテンパイでトップ目でない場合のみ。
+    return !(is_dealer_win_or_tenpai && dealer_is_not_top);
+  }
   if (round == 11 && !is_dealer_win_or_tenpai) return true;
 
   // トップが3万点必要（供託未収）
@@ -787,7 +792,6 @@ bool State::CheckGameOver(int round, std::array<int, 4> tens,
   if (!top_has_30000) return false;
 
   // オーラストップ親の上がりやめあり
-  bool dealer_is_not_top = top_score != tens[ToUType(dealer)];
   return !(is_dealer_win_or_tenpai && dealer_is_not_top);
 }
 
