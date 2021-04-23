@@ -755,7 +755,7 @@ bool State::CheckGameOver(int round, std::array<int, 4> tens,
                           std::optional<mjxproto::NoWinnerType> no_winner_type) noexcept {
 
   // 途中流局の場合は連荘
-  if (Any(no_winner_type,
+  if (no_winner_type.has_value() && Any(no_winner_type,
           {mjxproto::NO_WINNER_TYPE_KYUUSYU,
            mjxproto::NO_WINNER_TYPE_FOUR_RIICHI,
            mjxproto::NO_WINNER_TYPE_THREE_RONS,
