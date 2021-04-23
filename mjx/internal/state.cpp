@@ -837,6 +837,7 @@ State::ScoreInfo State::Next() const {
       return ScoreInfo{player_ids,  game_seed(), round(),
                        honba() + 1, riichi(),    tens()};
     } else {
+      Assert(round() + 1 < 12, "round should be < 12. State:\n" + ToJson());
       return ScoreInfo{player_ids,  game_seed(), round() + 1,
                        honba() + 1, riichi(),    tens()};
     }
@@ -845,6 +846,7 @@ State::ScoreInfo State::Next() const {
       return ScoreInfo{player_ids,  game_seed(), round(),
                        honba() + 1, riichi(),    tens()};
     } else {
+      Assert(round() + 1 < 12, "round should be < 12. State:\n" + ToJson());
       return ScoreInfo{player_ids, game_seed(), round() + 1,
                        0,          riichi(),    tens()};
     }
