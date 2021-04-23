@@ -228,7 +228,6 @@ State::State(const mjxproto::State &state) {
   // Set scores
   state_.mutable_public_observation()->mutable_init_score()->CopyFrom(
       state.public_observation().init_score());
-  //curr_score_.CopyFrom(state.public_observation().init_score());
   state_.mutable_public_observation()->mutable_utils()->mutable_curr_score()->CopyFrom(
       state.public_observation().init_score());
   // Set walls
