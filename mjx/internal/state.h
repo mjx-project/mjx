@@ -149,7 +149,7 @@ class State {
   // utils
   bool IsFourKanNoWinner() const noexcept;
   std::optional<AbsolutePos> HasPao(AbsolutePos winner) const noexcept;
-  bool CheckGameOver(int round, std::array<int, 4> tens) const noexcept ;
+  bool CheckGameOver(int round, std::array<int, 4> tens, bool is_dealer_win_or_tenpai) const noexcept ;
 
   // action validators
   bool CanRon(AbsolutePos who, Tile tile) const;

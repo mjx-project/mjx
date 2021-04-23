@@ -728,10 +728,19 @@ void State::NoWinner() {
 }
 
 bool State::IsGameOver() const {
-  return CheckGameOver(round(), tens());
+  bool is_dealer_win_or_tenpai =
+      (Any(LastEvent().type(),
+           {mjxproto::EVENT_TYPE_RON, mjxproto::EVENT_TYPE_TSUMO}) &&
+       std::any_of(
+           state_.terminal().wins().begin(), state_.terminal().wins().end(),
+           [&](const auto x) { return AbsolutePos(x.who()) == dealer(); })) ||
+      (LastEvent().type() == mjxproto::EVENT_TYPE_NO_WINNER &&
+       hand(dealer()).IsTenpai());
+
+  return CheckGameOver(round(), tens(), is_dealer_win_or_tenpai);
 }
 
-bool State::CheckGameOver(int round, std::array<int, 4> tens) const noexcept {
+bool State::CheckGameOver(int round, std::array<int, 4> tens, bool is_dealer_win_or_tenpai) const noexcept {
   if (!IsRoundOver()) return false;
 
   // 途中流局の場合は連荘
@@ -757,15 +766,7 @@ bool State::CheckGameOver(int round, std::array<int, 4> tens) const noexcept {
   if (round < 7) return false;
 
   // 北入なし
-  bool dealer_win_or_tenpai =
-      (Any(LastEvent().type(),
-           {mjxproto::EVENT_TYPE_RON, mjxproto::EVENT_TYPE_TSUMO}) &&
-       std::any_of(
-           state_.terminal().wins().begin(), state_.terminal().wins().end(),
-           [&](const auto x) { return AbsolutePos(x.who()) == dealer(); })) ||
-      (LastEvent().type() == mjxproto::EVENT_TYPE_NO_WINNER &&
-       hand(dealer()).IsTenpai());
-  if (round == 11 && !dealer_win_or_tenpai) return true;
+  if (round == 11 && !is_dealer_win_or_tenpai) return true;
 
   // トップが3万点必要（供託未収）
   bool top_has_30000 = *std::max_element(tens.begin(), tens.end()) >= 30000;
@@ -773,7 +774,7 @@ bool State::CheckGameOver(int round, std::array<int, 4> tens) const noexcept {
 
   // オーラストップ親の上がりやめあり
   bool dealer_is_not_top = top_score != tens[ToUType(dealer())];
-  return !(dealer_win_or_tenpai && dealer_is_not_top);
+  return !(is_dealer_win_or_tenpai && dealer_is_not_top);
 }
 
 std::pair<State::HandInfo, WinScore> State::EvalWinHand(
