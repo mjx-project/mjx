@@ -140,6 +140,12 @@ class MjlogDecoder:
         self.state.terminal.final_score.honba = honba
         self.state.terminal.final_score.riichi = riichi
         self.state.terminal.final_score.tens[:] = [int(x) * 100 for x in val["ten"].split(",")]
+        # self.state.public_observation.utils.curr_score.round = round_
+        # self.state.public_observation.utils.curr_score.honba = honba
+        # self.state.public_observation.utils.curr_score.riichi = riichi
+        # self.state.public_observation.utils.curr_score.tens[:] = [
+        #    int(x) * 100 for x in val["ten"].split(",")
+        # ]
         self.state.hidden_state.wall[:] = wall
         self.state.public_observation.init_dora_indicator = dora
         self.state.public_observation.utils.curr_dora_indicators.append(dora)
@@ -196,6 +202,8 @@ class MjlogDecoder:
                     )
                     self.state.terminal.final_score.riichi += 1
                     self.state.terminal.final_score.tens[who] -= 1000
+                    # self.state.public_observation.utils.curr_score.riichi += 1
+                    # self.state.public_observation.utils.curr_score.tens[who] -= 1000
             elif key == "DORA":
                 dora = wall[128 - 2 * num_kan_dora]
                 assert dora == int(val["hai"])
@@ -245,6 +253,7 @@ class MjlogDecoder:
             event = None
             # yield copy.deepcopy(self.state)
 
+        self.state.public_observation.utils.curr_score.CopyFrom(self.state.terminal.final_score)
         if not reach_terminal:
             self.state.ClearField("terminal")
         else:
@@ -253,6 +262,11 @@ class MjlogDecoder:
                 + self.state.terminal.final_score.riichi * 1000
                 == 100000
             )
+            # assert (
+            #    sum(self.state.public_observation.utils.curr_score.tens)
+            #    + self.state.public_observation.utils.curr_score.riichi * 1000
+            #    == 100000
+            # )
 
         yield copy.deepcopy(self.state)
 
