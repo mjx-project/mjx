@@ -245,6 +245,7 @@ class MjlogDecoder:
             event = None
             # yield copy.deepcopy(self.state)
 
+        self.state.public_observation.utils.curr_score.CopyFrom(self.state.terminal.final_score)
         if not reach_terminal:
             self.state.ClearField("terminal")
         else:
