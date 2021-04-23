@@ -37,7 +37,6 @@ State::State(std::vector<PlayerId> player_ids, std::uint64_t game_seed,
   for (int i = 0; i < 4; ++i)
     state_.mutable_public_observation()->mutable_init_score()->add_tens(
         tens[i]);
-  //curr_score_.CopyFrom(state_.public_observation().init_score());
   state_.mutable_public_observation()->mutable_utils()->mutable_curr_score()->CopyFrom(
       state_.public_observation().init_score());
   // wall
