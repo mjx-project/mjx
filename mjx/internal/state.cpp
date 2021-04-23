@@ -775,11 +775,8 @@ void State::NoWinner() {
   // set terminal
   if (IsGameOver()) {
     AbsolutePos top = top_player();
-    //curr_score_.set_tens(ToUType(top),
-    //     curr_score_.tens(ToUType(top)) + 1000 * riichi());
     state_.mutable_public_observation()->mutable_utils()->mutable_curr_score()->set_tens(
          ToUType(top), ten(top) + 1000 * riichi());
-    //curr_score_.set_riichi(0);
     state_.mutable_public_observation()->mutable_utils()->mutable_curr_score()->set_riichi(0);
   }
   state_.mutable_terminal()->set_is_game_over(IsGameOver());
