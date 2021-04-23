@@ -728,6 +728,10 @@ void State::NoWinner() {
 }
 
 bool State::IsGameOver() const {
+  return CheckGameOver();
+}
+
+bool State::CheckGameOver() const noexcept {
   if (!IsRoundOver()) return false;
 
   // 途中流局の場合は連荘
