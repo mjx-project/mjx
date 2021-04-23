@@ -1050,3 +1050,39 @@ TEST(state, game_seed) {
     EXPECT_EQ(wall_origin[i], wall_restored[i]);
   }
 }
+
+TEST(state, CheckGameOver) {
+  // 西場の挙動に関してはこちらを参照 https://hagurin-tenhou.com/article/475618521.html
+
+  // 西場は3万点を超えるプレイヤーがいれば原則終局
+  EXPECT_EQ(State::CheckGameOver(
+                9, {30000, 20000, 25000, 25000}, AbsolutePos::kInitSouth, false
+      ), true);
+  EXPECT_EQ(State::CheckGameOver(
+      9, {25000, 25000, 26000, 24000}, AbsolutePos::kInitSouth, false
+  ), false);
+
+  // ただし、3万点を超えるプレイヤーがいても、親がテンパイしている場合は一本場になる
+  EXPECT_EQ(State::CheckGameOver(
+      9, {30000, 20000, 25000, 25000}, AbsolutePos::kInitSouth, true, mjxproto::NO_WINNER_TYPE_NORMAL
+  ), false);
+
+  // 西4局 親がテンパイできていない場合はトップでもトップでもなくても終局
+  EXPECT_EQ(State::CheckGameOver(
+      11, {25000, 25000, 24000, 26000}, AbsolutePos::kInitNorth, false
+  ), true);
+  EXPECT_EQ(State::CheckGameOver(
+      11, {25000, 25000, 26000, 24000}, AbsolutePos::kInitNorth, false
+  ), true);
+
+  // 西4局 親がテンパイしていて、トップ目でない場合は終局しない
+  EXPECT_EQ(State::CheckGameOver(
+      11, {25000, 25000, 26000, 24000}, AbsolutePos::kInitNorth, true
+  ), false);
+
+  // 西4局 親がテンパイしていて、トップ目の場合は3万点未満でも終局
+  // NOTE: この挙動が正しいかは未確認
+  EXPECT_EQ(State::CheckGameOver(
+      11, {25000, 25000, 24000, 26000}, AbsolutePos::kInitNorth, true
+  ), true);
+}
