@@ -139,7 +139,9 @@ std::unordered_map<PlayerId, Observation> State::CreateObservations() const {
 
       // => Kan (2)
       if (auto possible_kans = hand(who).PossibleOpensAfterDraw();
-          !possible_kans.empty() && !IsFourKanNoWinner()) { // TODO: 四槓散了かのチェックは5回目のカンをできないようにするためだが、正しいのか確認 #701
+          !possible_kans.empty() && !IsFourKanNoWinner()) {  // TODO:
+                                                             // 四槓散了かのチェックは5回目のカンをできないようにするためだが、正しいのか確認
+                                                             // #701
         for (const auto possible_kan : possible_kans) {
           observation.add_possible_action(
               Action::CreateOpen(who, possible_kan));
@@ -346,8 +348,8 @@ Tile State::Draw(AbsolutePos who) {
     mutable_player(who).missed_tiles.reset();  // フリテン解除
 
   Assert(!RequireKanDraw() || wall_.num_kan_draw() <= 3,
-         "Num kan draw should be <= 3 but got " + std::to_string(wall_.num_kan_draw()) +
-         "\nState: \n" + ToJson());
+         "Num kan draw should be <= 3 but got " +
+             std::to_string(wall_.num_kan_draw()) + "\nState: \n" + ToJson());
   auto draw = RequireKanDraw() ? wall_.KanDraw() : wall_.Draw();
   mutable_hand(who).Draw(draw);
 
