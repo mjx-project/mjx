@@ -140,12 +140,6 @@ class MjlogDecoder:
         self.state.terminal.final_score.honba = honba
         self.state.terminal.final_score.riichi = riichi
         self.state.terminal.final_score.tens[:] = [int(x) * 100 for x in val["ten"].split(",")]
-        # self.state.public_observation.utils.curr_score.round = round_
-        # self.state.public_observation.utils.curr_score.honba = honba
-        # self.state.public_observation.utils.curr_score.riichi = riichi
-        # self.state.public_observation.utils.curr_score.tens[:] = [
-        #    int(x) * 100 for x in val["ten"].split(",")
-        # ]
         self.state.hidden_state.wall[:] = wall
         self.state.public_observation.init_dora_indicator = dora
         self.state.public_observation.utils.curr_dora_indicators.append(dora)
