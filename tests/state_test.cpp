@@ -1,4 +1,6 @@
 #include <google/protobuf/util/message_differencer.h>
+#include <mjx/internal/agent.h>
+#include <mjx/internal/mjx.h>
 #include <mjx/internal/state.h>
 #include <mjx/internal/utils.h>
 
@@ -1049,4 +1051,19 @@ TEST(state, game_seed) {
   for (int i = 0; i < wall_origin.size(); ++i) {
     EXPECT_EQ(wall_origin[i], wall_restored[i]);
   }
+}
+
+TEST(state, AvoidFifthKan) {
+  // https://github.com/mjx-project/mjx/pull/701
+  const std::vector<std::shared_ptr<Agent>> agents = {
+      std::make_shared<AgentLocal>("agent01",
+                                   std::make_unique<StrategyRuleBased>()),
+      std::make_shared<AgentLocal>("agent02",
+                                   std::make_unique<StrategyRuleBased>()),
+      std::make_shared<AgentLocal>("agent03",
+                                   std::make_unique<StrategyRuleBased>()),
+      std::make_shared<AgentLocal>("agent04",
+                                   std::make_unique<StrategyRuleBased>())};
+  Environment env(agents);
+  env.RunOneGame(13762514072779568829);
 }
