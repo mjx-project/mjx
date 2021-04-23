@@ -865,7 +865,6 @@ Wind State::prevalent_wind() const { return Wind(round() / 4); }
 
 std::int32_t State::ten(AbsolutePos who) const {
   return state_.public_observation().utils().curr_score().tens(ToUType(who));
-  //return curr_score_.tens(ToUType(who));
 }
 
 State::ScoreInfo State::Next() const {
