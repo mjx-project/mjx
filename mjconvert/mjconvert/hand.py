@@ -51,8 +51,8 @@ class Hand:
         [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 82, 86, 90, 124, 125, 126]
         """
         # convert into t  ile_ids
-        addtional_ids = open_tile_ids_converter.open_additional_tile_ids(open)
-        removable_ids = open_tile_ids_converter.open_removable_tile_ids(open)
+        addtional_ids = open_additional_tile_ids(open)
+        removable_ids = open_removable_tile_ids(open)
         # move the tiles from close to open
         # remove from close
         for id in removable_ids:
