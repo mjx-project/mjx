@@ -1,6 +1,8 @@
-from mjconvert.open_tile_ids_converter import open_additional_tile_ids, open_removable_tile_ids
-from typing import List
 import doctest
+from typing import List
+
+from mjconvert.open_tile_ids_converter import open_additional_tile_ids, open_removable_tile_ids
+
 
 class Hand:
     def __init__(self, closed_tiles: List[int] = [], open_tiles: List[int] = []):
@@ -62,5 +64,3 @@ class Hand:
             self.opens_.append(id)
 
         self.opens_.sort()
-
-
