@@ -19,33 +19,29 @@ class Hand:
 
     def apply_open(self, open: int):
         """
-        chi,
-        pon,
-        open_kan,
-        closed_kan,
-        added_kan
+        各鳴きをHandに適用し、closed_tilesとopen_tilesを変更する
         >>> hand = Hand([2, 4, 6, 5, 11, 10, 8, 9, 86, 90, 125, 126], [0, 3, 1])
-        >>> hand.apply_open(49495)
+        >>> hand.apply_open(49495)  # chi
         >>> hand.closed_tiles
         [2, 4, 5, 6, 8, 9, 10, 11, 125, 126]
         >>> hand.open_tiles
         [0, 1, 3, 82, 86, 90]
-        >>> hand.apply_open(47723)
+        >>> hand.apply_open(47723)  # pon
         >>> hand.closed_tiles
         [2, 4, 5, 6, 8, 9, 10, 11]
         >>> hand.open_tiles
         [0, 1, 3, 82, 86, 90, 124, 125, 126]
-        >>> hand.apply_open(1793)
+        >>> hand.apply_open(1793)  # open_kan
         >>> hand.closed_tiles
         [2, 8, 9, 10, 11]
         >>> hand.open_tiles
         [0, 1, 3, 4, 5, 6, 7, 82, 86, 90, 124, 125, 126]
-        >>> hand.apply_open(2048)
+        >>> hand.apply_open(2048)  # closed_kan
         >>> hand.closed_tiles
         [2]
         >>> hand.open_tiles
         [0, 1, 3, 4, 5, 6, 7, 8, 9, 10, 11, 82, 86, 90, 124, 125, 126]
-        >>> hand.apply_open(530)
+        >>> hand.apply_open(530)  # added_kan
         >>> hand.closed_tiles
         []
         >>> hand.open_tiles
