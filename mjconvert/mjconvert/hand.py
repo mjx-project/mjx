@@ -1,4 +1,3 @@
-import doctest
 from typing import List
 
 from mjconvert.open_tile_ids_converter import open_additional_tile_ids, open_removable_tile_ids
@@ -16,7 +15,7 @@ class Hand:
         self.closed_tiles_.sort()
 
     def discard(self, tile_id: int):
-        self.remove(tile_id)
+        self.closed_tiles_.remove(tile_id)
 
     def apply_open(self, open: int):
         """

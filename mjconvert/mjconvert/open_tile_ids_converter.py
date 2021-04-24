@@ -1,4 +1,4 @@
-from typing import Dict, List
+from typing import List
 
 import mjxproto
 from mjconvert.open_converter import open_event_type
@@ -34,7 +34,7 @@ def open_additional_tile_ids(bits: int) -> List[int]:
         return oepn_kan_ids(bits)
     elif event_type == mjxproto.EVENT_TYPE_CLOSED_KAN:
         return closed_kan_ids(bits)
-    elif event_type == mjxproto.EVENT_TYPE_ADDED_KAN:
+    else:
         type = (bits >> 9) // 3
         stolen_ix = (bits >> 9) % 3
         unused_offset = (bits & MASK_PON_UNUSED_OFFSET) >> 5
@@ -76,7 +76,7 @@ def open_removable_tile_ids(bits: int) -> List[int]:
         return tiles
     elif event_type == mjxproto.EVENT_TYPE_CLOSED_KAN:
         return oepn_kan_ids(bits)
-    elif event_type == mjxproto.EVENT_TYPE_ADDED_KAN:
+    else:
         type = (bits >> 9) // 3
         stolen_ix = (bits >> 9) % 3
         unused_offset = (bits & MASK_PON_UNUSED_OFFSET) >> 5
