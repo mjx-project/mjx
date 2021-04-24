@@ -1,4 +1,4 @@
-import open_tile_ids_converter
+import mjconvert.open_tile_ids_converter
 from typing import List
 import doctest
 

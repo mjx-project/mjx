@@ -1,5 +1,5 @@
 import mjxproto
-from open_converter import open_event_type
+from mjconvert.open_converter import open_event_type
 from typing import Dict, List
 
 MASK_CHI_OFFSET = [0b0000000000011000, 0b0000000001100000, 0b0000000110000000]
