@@ -164,9 +164,6 @@ class State {
       AbsolutePos who) const noexcept;
 
   static mjxproto::State LoadJson(const std::string& json_str);
-
-  // update state_.private_observation.utils
-  void UpdatePrivateObservationUtils(AbsolutePos who);
 };
 }  // namespace mjx::internal
 

@@ -96,7 +96,7 @@ class Hand {
   // get winning info
   [[nodiscard]] WinHandInfo win_info() const noexcept;
 
-  mjxproto::Hand ToProto();
+  mjxproto::Hand ToProto() const noexcept;
 
  private:
   std::unordered_set<Tile, HashTile> closed_tiles_;

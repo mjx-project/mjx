@@ -62,10 +62,6 @@ State::State(std::vector<PlayerId> player_ids, std::uint64_t game_seed,
 
   // dealer draws the first tusmo
   Draw(dealer());
-
-  for (int i = 0; i < 4; ++i) {
-    UpdatePrivateObservationUtils(AbsolutePos(i));
-  }
 }
 
 bool State::IsRoundOver() const {
@@ -331,7 +327,6 @@ void State::UpdateByEvent(const mjxproto::Event &event) {
       NoWinner();
       break;
   }
-  UpdatePrivateObservationUtils(who)
 }
 
 std::string State::ToJson() const {
@@ -371,6 +366,11 @@ Tile State::Draw(AbsolutePos who) {
   state_.mutable_private_observations(ToUType(who))
       ->add_draw_history(draw.Id());
 
+  state_.mutable_private_observations(ToUType(who))
+      ->mutable_utils()
+      ->mutable_curr_hand()
+      ->CopyFrom(mutable_hand(who).ToProto());
+
   return draw;
 }
 
@@ -395,6 +395,11 @@ void State::Discard(AbsolutePos who, Tile discard) {
       ->mutable_events()
       ->Add(Event::CreateDiscard(who, discard, tsumogiri));
   // TODO: set discarded tile to river
+
+  state_.mutable_private_observations(ToUType(who))
+      ->mutable_utils()
+      ->mutable_curr_hand()
+      ->CopyFrom(mutable_hand(who).ToProto());
 }
 
 void State::Riichi(AbsolutePos who) {
@@ -430,6 +435,11 @@ void State::ApplyOpen(AbsolutePos who, Open open) {
     for (int i = 0; i < 4; ++i)
       mutable_player(AbsolutePos(i)).is_ippatsu = false;
   }
+
+  state_.mutable_private_observations(ToUType(who))
+      ->mutable_utils()
+      ->mutable_curr_hand()
+      ->CopyFrom(mutable_hand(who).ToProto());
 }
 
 void State::AddNewDora() {
@@ -1395,7 +1405,6 @@ void State::Update(mjxproto::Action &&action) {
       NoWinner();
       break;
   }
-  UpdatePrivateObservationUtils(who);
 }
 
 AbsolutePos State::top_player() const {
@@ -1628,13 +1637,4 @@ std::optional<State::HandInfo> State::EvalTenpai(
                   hand(who).LastTileAdded()};
 }
 
-void State::UpdatePrivateObservationUtils(AbsolutePos who){
-  auto observation = Observation(who, state_);
-  mjxproto::PrivateObservationUtils utils;
-  for(const auto &action : observation.possible_actions()){
-    utils.mutable_legal_actions()->Add(mjxproto::Action(action));
-  }
-  utils.mutable_curr_hand()->CopyFrom(mutable_hand(who).ToProto());
-  state_.mutable_private_observations(ToUType(who))->mutable_utils()->CopyFrom(utils);
-}
 }  // namespace mjx::internal

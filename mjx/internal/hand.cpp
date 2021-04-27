@@ -709,9 +709,13 @@ WinHandInfo Hand::win_info() const noexcept {
                      IsDoubleRiichi(), IsMenzen());
 }
 
-mjxproto::Hand Hand::ToProto() {
+mjxproto::Hand Hand::ToProto() const noexcept{
   mjxproto::Hand hand;
-  for(const auto &tile : closed_tiles_){
+  // sort by tile_id
+  std::vector<Tile> sorted_tiles(closed_tiles_.begin(), closed_tiles_.end());
+  std::sort(sorted_tiles.begin(), sorted_tiles.end(),
+            [](Tile a, Tile b){return  a.Id() < b.Id();});
+  for(const auto &tile : sorted_tiles){
     hand.add_closed_tiles(tile.Id());
   }
   for(const auto &open : opens_){
