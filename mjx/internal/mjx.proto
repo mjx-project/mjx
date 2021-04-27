@@ -137,8 +137,8 @@ message Win {
 }
 
 message Hand {
-  repeated int32 closed_tiles = 1;
-  repeated int32 opens = 2;
+  repeated int32 closed_tiles = 1;  // sorted in tile id
+  repeated int32 opens = 2;  // ordered in the turn where it is called
 }
 
 message PrivateObservationUtils{
