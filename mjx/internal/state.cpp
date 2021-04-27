@@ -1636,5 +1636,4 @@ std::optional<State::HandInfo> State::EvalTenpai(
   return HandInfo{hand(who).ToVectorClosed(true), hand(who).Opens(),
                   hand(who).LastTileAdded()};
 }
-
 }  // namespace mjx::internal
