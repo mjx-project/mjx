@@ -98,8 +98,7 @@ message PrivateObservation {
   int32 who = 1;
   repeated uint32 init_hand = 2;
   repeated uint32 draw_history = 3;
-  repeated int32 closed_tiles = 4;
-  repeated int32 opens = 5;
+  PrivateObservationUtils utils = 4;
 }
 
 message Observation {
