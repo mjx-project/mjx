@@ -368,7 +368,7 @@ def _winner_yakus(yakus: List[int], fans: List[int], yakumans: List[int]) -> Lis
 
 
 def _yaku_point_info(state: mjxproto.State, winner_num: int):
-    round = state.init_score.round
+    round = state.public_observation.init_score.round
     who = state.terminal.wins[winner_num].who
     from_who = state.terminal.wins[winner_num].from_who
     fans = [i for i in state.terminal.wins[winner_num].fans]  # [役での飜数, ドラの数]
@@ -411,17 +411,19 @@ def determine_ura_doras_list(state: mjxproto.State) -> List:
     has_riichi = 1 not in state.terminal.wins[0].yakus and 21 not in state.terminal.wins[0].yakus
     if has_riichi:  # リーチまたはダブリーがかかっていないと、上がって裏ドラが表示されない.
         return []
-    return [_change_tile_fmt(i) for i in state.ura_doras]
+    return [_change_tile_fmt(i) for i in state.hidden_state.utils.curr_ura_dora_indicators]
 
 
 # ここを実装
 def mjxproto_to_mjscore(state: mjxproto.State) -> str:
-    round: int = state.init_score.round
-    honba: int = state.init_score.honba
-    riichi: int = state.init_score.riichi
-    doras: List[int] = [_change_tile_fmt(i) for i in state.doras]
+    round: int = state.public_observation.init_score.round
+    honba: int = state.public_observation.init_score.honba
+    riichi: int = state.public_observation.init_score.riichi
+    doras: List[int] = [
+        _change_tile_fmt(i) for i in state.public_observation.utils.curr_dora_indicators
+    ]
     ura_doras = determine_ura_doras_list(state)
-    init_score: List[int] = [i for i in state.init_score.tens]
+    init_score: List[int] = [i for i in state.public_observation.init_score.tens]
     log = [[round, honba, riichi], init_score, doras, ura_doras]
     absolute_pos = [
         AbsolutePos.INIT_EAST,
@@ -436,11 +438,11 @@ def mjxproto_to_mjscore(state: mjxproto.State) -> str:
         log.append(
             parse_draw_history(
                 state.private_observations[abs_pos].draw_history,
-                state.event_history.events,
+                state.public_observation.event_history.events,
                 abs_pos,
             )
         )
-        log.append(parse_discards(state.event_history.events, abs_pos))
+        log.append(parse_discards(state.public_observation.event_history.events, abs_pos))
 
     log.append(parse_terminal(state))
     d: Dict = {"title": [], "name": [], "rule": [], "log": [log]}

@@ -96,25 +96,33 @@ std::string SwapTiles(const std::string &json_str, Tile a, Tile b) {
   auto status = google::protobuf::util::JsonStringToMessage(json_str, &state);
   Assert(status.ok());
   // wall
-  for (int i = 0; i < state.wall_size(); ++i) {
-    if (state.wall(i) == a.Id())
-      state.set_wall(i, b.Id());
-    else if (state.wall(i) == b.Id())
-      state.set_wall(i, a.Id());
+  for (int i = 0; i < state.hidden_state().wall_size(); ++i) {
+    if (state.hidden_state().wall(i) == a.Id())
+      state.mutable_hidden_state()->set_wall(i, b.Id());
+    else if (state.hidden_state().wall(i) == b.Id())
+      state.mutable_hidden_state()->set_wall(i, a.Id());
   }
   // dora
-  for (int i = 0; i < state.doras_size(); ++i) {
-    if (state.doras(i) == a.Id())
-      state.set_wall(i, b.Id());
-    else if (state.doras(i) == b.Id())
-      state.set_wall(i, a.Id());
+  for (int i = 0;
+       i < state.public_observation().utils().curr_dora_indicators_size();
+       ++i) {
+    if (state.public_observation().utils().curr_dora_indicators(i) == a.Id())
+      state.mutable_hidden_state()->set_wall(i, b.Id());
+    else if (state.public_observation().utils().curr_dora_indicators(i) ==
+             b.Id())
+      state.mutable_hidden_state()->set_wall(i, a.Id());
   }
   // ura dora
-  for (int i = 0; i < state.ura_doras_size(); ++i) {
-    if (state.ura_doras(i) == a.Id())
-      state.set_ura_doras(i, b.Id());
-    else if (state.ura_doras(i) == b.Id())
-      state.set_ura_doras(i, a.Id());
+  for (int i = 0;
+       i < state.hidden_state().utils().curr_ura_dora_indicators_size(); ++i) {
+    if (state.hidden_state().utils().curr_ura_dora_indicators(i) == a.Id())
+      state.mutable_hidden_state()
+          ->mutable_utils()
+          ->set_curr_ura_dora_indicators(i, b.Id());
+    else if (state.hidden_state().utils().curr_ura_dora_indicators(i) == b.Id())
+      state.mutable_hidden_state()
+          ->mutable_utils()
+          ->set_curr_ura_dora_indicators(i, a.Id());
   }
   // init hand, draw_history
   for (int j = 0; j < 4; ++j) {
@@ -133,8 +141,11 @@ std::string SwapTiles(const std::string &json_str, Tile a, Tile b) {
     }
   }
   // event history
-  for (int i = 0; i < state.event_history().events_size(); ++i) {
-    auto mevent = state.mutable_event_history()->mutable_events(i);
+  for (int i = 0; i < state.public_observation().event_history().events_size();
+       ++i) {
+    auto mevent = state.mutable_public_observation()
+                      ->mutable_event_history()
+                      ->mutable_events(i);
     if (Any(mevent->type(),
             {mjxproto::EVENT_TYPE_DISCARD, mjxproto::EVENT_TYPE_TSUMOGIRI,
              mjxproto::EVENT_TYPE_TSUMO, mjxproto::EVENT_TYPE_RON,
@@ -966,7 +977,9 @@ std::string TruncateAfterFirstDraw(const std::string &json) {
   mjxproto::State state = mjxproto::State();
   auto status = google::protobuf::util::JsonStringToMessage(json, &state);
   Assert(status.ok());
-  auto events = state.mutable_event_history()->mutable_events();
+  auto events = state.mutable_public_observation()
+                    ->mutable_event_history()
+                    ->mutable_events();
   events->erase(events->begin() + 1, events->end());
   state.clear_terminal();
   // drawについては消さなくても良い（wallから引いてsetされるので）
@@ -1048,4 +1061,42 @@ TEST(state, game_seed) {
   for (int i = 0; i < wall_origin.size(); ++i) {
     EXPECT_EQ(wall_origin[i], wall_restored[i]);
   }
+}
+
+TEST(state, CheckGameOver) {
+  // 西場の挙動に関してはこちらを参照
+  // https://hagurin-tenhou.com/article/475618521.html
+
+  // 西場は3万点を超えるプレイヤーがいれば原則終局
+  EXPECT_EQ(State::CheckGameOver(9, {30000, 20000, 25000, 25000},
+                                 AbsolutePos::kInitSouth, false),
+            true);
+  EXPECT_EQ(State::CheckGameOver(9, {25000, 25000, 26000, 24000},
+                                 AbsolutePos::kInitSouth, false),
+            false);
+
+  // ただし、3万点を超えるプレイヤーがいても、親がテンパイしている場合は一本場になる
+  EXPECT_EQ(State::CheckGameOver(9, {30000, 20000, 25000, 25000},
+                                 AbsolutePos::kInitSouth, true,
+                                 mjxproto::NO_WINNER_TYPE_NORMAL),
+            false);
+
+  // 西4局 親がテンパイできていない場合はトップでもトップでもなくても終局
+  EXPECT_EQ(State::CheckGameOver(11, {25000, 25000, 24000, 26000},
+                                 AbsolutePos::kInitNorth, false),
+            true);
+  EXPECT_EQ(State::CheckGameOver(11, {25000, 25000, 26000, 24000},
+                                 AbsolutePos::kInitNorth, false),
+            true);
+
+  // 西4局 親がテンパイしていて、トップ目でない場合は終局しない
+  EXPECT_EQ(State::CheckGameOver(11, {25000, 25000, 26000, 24000},
+                                 AbsolutePos::kInitNorth, true),
+            false);
+
+  // 西4局 親がテンパイしていて、トップ目の場合は3万点未満でも終局
+  // NOTE: この挙動が正しいかは未確認
+  EXPECT_EQ(State::CheckGameOver(11, {25000, 25000, 24000, 26000},
+                                 AbsolutePos::kInitNorth, true),
+            true);
 }
