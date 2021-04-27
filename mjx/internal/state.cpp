@@ -49,6 +49,10 @@ State::State(std::vector<PlayerId> player_ids, std::uint64_t game_seed,
 
   // dealer draws the first tusmo
   Draw(dealer());
+
+  for (int i = 0; i < 4; ++i) {
+    UpdatePrivateObservationUtils(AbsolutePos(i));
+  }
 }
 
 bool State::IsRoundOver() const {
