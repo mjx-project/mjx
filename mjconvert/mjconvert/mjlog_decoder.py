@@ -148,20 +148,17 @@ class MjlogDecoder:
 
         event = None
         num_kan_dora = 0
-        closed_tiles_set = [set(self.state.private_observations[i].init_hand) for i in range(4)]
-        opens_set = [[] for i in range(4)]
         self.last_drawer = None
         self.last_draw = None
         reach_terminal = False
         for key, val in kv[1:]:
             if key != "UN" and key[0] in ["T", "U", "V", "W"]:  # draw
                 who, draw = MjlogDecoder.parse_draw(key)
-                closed_tiles_set[int(who)].add(draw)
+                self.state.private_observations[int(who)].draw_history.append(draw)
                 event = MjlogDecoder.make_draw_event(who)
                 self.last_drawer, self.last_draw = who, draw
             elif key != "DORA" and key[0] in ["D", "E", "F", "G"]:  # discard
                 who, discard = MjlogDecoder.parse_discard(key)
-                closed_tiles_set[int(who)].remove(discard)
                 event = MjlogDecoder.make_discard_event(
                     who, discard, self.last_drawer, self.last_draw
                 )
@@ -232,10 +229,6 @@ class MjlogDecoder:
                 self.state.event_history.events.append(event)
             event = None
             # yield copy.deepcopy(self.state)
-
-        for i in range(4):
-            for tile in closed_tiles_set[i]:
-                self.state.private_observations[i].closed_tiles.append(tile)
 
         if not reach_terminal:
             self.state.ClearField("terminal")
