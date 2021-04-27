@@ -13,3 +13,8 @@ class RelativePos(IntEnum):
     RIGHT = 1
     MID = 2
     LEFT = 3
+
+
+class Yaku(IntEnum):
+    RIICHI = 1
+    DOUBLE_RIICHI = 21

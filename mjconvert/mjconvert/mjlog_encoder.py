@@ -37,7 +37,7 @@ class MjlogEncoder:
             self.xml += """<TAIKYOKU oya="0"/>"""
             self.is_init_round = False
         self.xml += MjlogEncoder._parse_each_round(state)
-        if state.terminal.is_game_over:
+        if state.public_observation.utils.round_end_details.is_game_over:
             self.xml += """</mjloggm>\n"""
 
     def get(self) -> str:
@@ -104,34 +104,45 @@ class MjlogEncoder:
             elif event.type == mjxproto.EVENT_TYPE_NEW_DORA:
                 ret += f'<DORA hai="{event.tile}" />'
             elif event.type in [mjxproto.EVENT_TYPE_TSUMO, mjxproto.EVENT_TYPE_RON]:
-                assert len(state.terminal.wins) != 0
+                assert len(state.public_observation.utils.round_end_details.wins) != 0
             elif event.type == mjxproto.EVENT_TYPE_NO_WINNER:
-                assert len(state.terminal.wins) == 0
+                assert len(state.public_observation.utils.round_end_details.wins) == 0
 
-        if state.HasField("terminal"):
-            if len(state.terminal.wins) == 0:
+        if state.public_observation.utils.HasField("round_end_details"):
+            if len(state.public_observation.utils.round_end_details.wins) == 0:
                 ret += MjlogEncoder.update_by_no_winner(state, curr_score)
             else:
                 # NOTE: ダブロン時、winsは上家から順になっている必要がある
-                for win in state.terminal.wins:
+                for win in state.public_observation.utils.round_end_details.wins:
                     win_str = MjlogEncoder.update_by_win(win, state, curr_score, under_riichi)
                     for i in range(4):
                         curr_score.tens[i] += win.ten_changes[i]
                     curr_score.riichi = 0  # ダブロンのときは上家がリー棒を総取りしてその時点で riichi = 0 となる
                     ret += win_str
 
-                if state.terminal.is_game_over:
+                if state.public_observation.utils.round_end_details.is_game_over:
                     ret = ret[:-2]
                     final_scores = MjlogEncoder._calc_final_score(
-                        [int(x) for x in state.terminal.final_score.tens]
+                        [
+                            int(x)
+                            for x in state.public_observation.utils.round_end_details.final_score.tens
+                        ]
                     )
-                    ret += f'owari="{state.terminal.final_score.tens[0] // 100},{final_scores[0]:.1f},{state.terminal.final_score.tens[1] // 100},{final_scores[1]:.1f},{state.terminal.final_score.tens[2] // 100},{final_scores[2]:.1f},{state.terminal.final_score.tens[3] // 100},{final_scores[3]:.1f}" '
+                    ret += f'owari="{state.public_observation.utils.round_end_details.final_score.tens[0] // 100},{final_scores[0]:.1f}, \
+                            {state.public_observation.utils.round_end_details.final_score.tens[1] // 100}, \
+                            {final_scores[1]:.1f},{state.public_observation.utils.round_end_details.final_score.tens[2] // 100}, \
+                            {final_scores[2]:.1f},{state.public_observation.utils.round_end_details.final_score.tens[3] // 100}, \
+                            {final_scores[3]:.1f}" '
                     ret += "/>"
 
             for i in range(4):
-                assert curr_score.tens[i] == state.terminal.final_score.tens[i]
+                assert (
+                    curr_score.tens[i]
+                    == state.public_observation.utils.round_end_details.final_score.tens[i]
+                )
             assert (
-                sum(state.terminal.final_score.tens) + state.terminal.final_score.riichi * 1000
+                sum(state.public_observation.utils.round_end_details.final_score.tens)
+                + state.public_observation.utils.round_end_details.final_score.riichi * 1000
                 == 100000
             )
 
@@ -140,19 +151,37 @@ class MjlogEncoder:
     @staticmethod
     def update_by_no_winner(state, curr_score):
         ret = "<RYUUKYOKU "
-        if state.terminal.no_winner.type != mjxproto.NO_WINNER_TYPE_NORMAL:
+        if state.public_observation.utils.round_end_details.type != mjxproto.ROUND_END_TYPE_NORMAL:
             no_winner_type = ""
-            if state.terminal.no_winner.type == mjxproto.NO_WINNER_TYPE_KYUUSYU:
+            if (
+                state.public_observation.utils.round_end_details.type
+                == mjxproto.ROUND_END_TYPE_ABORTIVE_DRAW_NINE_TERMINALS
+            ):
                 no_winner_type = "yao9"
-            elif state.terminal.no_winner.type == mjxproto.NO_WINNER_TYPE_FOUR_RIICHI:
+            elif (
+                state.public_observation.utils.round_end_details.type
+                == mjxproto.ROUND_END_TYPE_ABORTIVE_DRAW_FOUR_RIICHIS
+            ):
                 no_winner_type = "reach4"
-            elif state.terminal.no_winner.type == mjxproto.NO_WINNER_TYPE_THREE_RONS:
+            elif (
+                state.public_observation.utils.round_end_details.type
+                == mjxproto.ROUND_END_TYPE_ABORTIVE_DRAW_THREE_RONS
+            ):
                 no_winner_type = "ron3"
-            elif state.terminal.no_winner.type == mjxproto.NO_WINNER_TYPE_FOUR_KANS:
+            elif (
+                state.public_observation.utils.round_end_details.type
+                == mjxproto.ROUND_END_TYPE_ABORTIVE_DRAW_FOUR_KANS
+            ):
                 no_winner_type = "kan4"
-            elif state.terminal.no_winner.type == mjxproto.NO_WINNER_TYPE_FOUR_WINDS:
+            elif (
+                state.public_observation.utils.round_end_details.type
+                == mjxproto.ROUND_END_TYPE_ABORTIVE_DRAW_FOUR_WINDS
+            ):
                 no_winner_type = "kaze4"
-            elif state.terminal.no_winner.type == mjxproto.NO_WINNER_TYPE_NM:
+            elif (
+                state.public_observation.utils.round_end_details.type
+                == mjxproto.ROUND_END_TYPE_EXHAUSTIVE_DRAW_NAGASHI_MANGAN
+            ):
                 no_winner_type = "nm"
             assert no_winner_type
             ret += f'type="{no_winner_type}" '
@@ -160,14 +189,14 @@ class MjlogEncoder:
         sc = []
         for i in range(4):
             sc.append(curr_score.tens[i] // 100)
-            change = state.terminal.no_winner.ten_changes[i]
+            change = state.public_observation.utils.round_end_details.draw.ten_changes[i]
             sc.append(change // 100)
             curr_score.tens[i] += change
         ret += f'sc="{",".join([str(x) for x in sc])}" '
-        for tenpai in state.terminal.no_winner.tenpais:
+        for tenpai in state.public_observation.utils.round_end_details.draw.tenpais:
             closed_tiles = ",".join([str(x) for x in tenpai.closed_tiles])
             ret += f'hai{tenpai.who}="{closed_tiles}" '
-        if state.terminal.is_game_over:
+        if state.public_observation.utils.round_end_details.is_game_over:
             # オーラス流局時のリーチ棒はトップ総取り
             # TODO: 同着トップ時には上家が総取りしてるが正しい？
             # TODO: 上家総取りになってない。。。

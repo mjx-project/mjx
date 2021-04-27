@@ -136,10 +136,12 @@ class MjlogDecoder:
         self.state.public_observation.init_score.tens[:] = [
             int(x) * 100 for x in val["ten"].split(",")
         ]
-        self.state.terminal.final_score.round = round_
-        self.state.terminal.final_score.honba = honba
-        self.state.terminal.final_score.riichi = riichi
-        self.state.terminal.final_score.tens[:] = [int(x) * 100 for x in val["ten"].split(",")]
+        self.state.public_observation.utils.round_end_details.final_score.round = round_
+        self.state.public_observation.utils.round_end_details.final_score.honba = honba
+        self.state.public_observation.utils.round_end_details.final_score.riichi = riichi
+        self.state.public_observation.utils.round_end_details.final_score.tens[:] = [
+            int(x) * 100 for x in val["ten"].split(",")
+        ]
         self.state.hidden_state.wall[:] = wall
         self.state.public_observation.init_dora_indicator = dora
         self.state.public_observation.utils.curr_dora_indicators.append(dora)
@@ -194,8 +196,10 @@ class MjlogDecoder:
                         who=who,
                         type=mjxproto.EVENT_TYPE_RIICHI_SCORE_CHANGE,
                     )
-                    self.state.terminal.final_score.riichi += 1
-                    self.state.terminal.final_score.tens[who] -= 1000
+                    self.state.public_observation.utils.round_end_details.final_score.riichi += 1
+                    self.state.public_observation.utils.round_end_details.final_score.tens[
+                        who
+                    ] -= 1000
             elif key == "DORA":
                 dora = wall[128 - 2 * num_kan_dora]
                 assert dora == int(val["hai"])
@@ -206,8 +210,10 @@ class MjlogDecoder:
                 event = mjxproto.Event(type=mjxproto.EVENT_TYPE_NEW_DORA, tile=dora)
             elif key == "RYUUKYOKU":
                 reach_terminal = True
-                self.state.terminal.CopyFrom(
-                    MjlogDecoder.update_terminal_by_no_winner(self.state.terminal, val)
+                self.state.public_observation.utils.round_end_details.CopyFrom(
+                    MjlogDecoder.update_round_end_details_by_draw(
+                        self.state.public_observation.utils.round_end_details, val
+                    )
                 )
                 event = mjxproto.Event(type=mjxproto.EVENT_TYPE_NO_WINNER)
             elif key == "AGARI":
@@ -229,8 +235,10 @@ class MjlogDecoder:
                     assert self.state.hidden_state.utils.curr_ura_dora_indicators == [
                         int(x) for x in val["doraHaiUra"].split(",")
                     ]
-                self.state.terminal.CopyFrom(
-                    MjlogDecoder.update_terminal_by_win(self.state.terminal, win, val)
+                self.state.public_observation.utils.round_end_details.CopyFrom(
+                    MjlogDecoder.update_round_end_details_by_win(
+                        self.state.public_observation.utils.round_end_details, win, val
+                    )
                 )
 
             elif key == "BYE":  # 接続切れ
@@ -245,65 +253,69 @@ class MjlogDecoder:
             event = None
             # yield copy.deepcopy(self.state)
 
-        self.state.public_observation.utils.curr_score.CopyFrom(self.state.terminal.final_score)
+        self.state.public_observation.utils.curr_score.CopyFrom(
+            self.state.public_observation.utils.round_end_details.final_score
+        )
         if not reach_terminal:
-            self.state.ClearField("terminal")
+            self.state.public_observation.utils.ClearField("round_end_details")
         else:
             assert (
-                sum(self.state.terminal.final_score.tens)
-                + self.state.terminal.final_score.riichi * 1000
+                sum(self.state.public_observation.utils.round_end_details.final_score.tens)
+                + self.state.public_observation.utils.round_end_details.final_score.riichi * 1000
                 == 100000
             )
 
         yield copy.deepcopy(self.state)
 
     @staticmethod
-    def update_terminal_by_win(
-        terminal: mjxproto.Terminal, win: mjxproto.Win, val: Dict[str, str]
-    ) -> mjxproto.Terminal:
+    def update_round_end_details_by_win(
+        round_end_details: mjxproto.RoundEndDetails, win: mjxproto.Win, val: Dict[str, str]
+    ) -> mjxproto.RoundEndDetails:
         for i in range(4):
-            terminal.final_score.tens[i] += win.ten_changes[i]
-        terminal.final_score.riichi = 0
-        terminal.wins.append(win)
+            round_end_details.final_score.tens[i] += win.ten_changes[i]
+        round_end_details.final_score.riichi = 0
+        round_end_details.wins.append(win)
         if "owari" in val:
-            terminal.is_game_over = True
-        return terminal
+            round_end_details.is_game_over = True
+        return round_end_details
 
     @staticmethod
-    def update_terminal_by_no_winner(
-        terminal: mjxproto.Terminal, val: Dict[str, str]
-    ) -> mjxproto.Terminal:
+    def update_round_end_details_by_draw(
+        round_end_details: mjxproto.RoundEndDetails, val: Dict[str, str]
+    ) -> mjxproto.RoundEndDetails:
         ba, riichi = [int(x) for x in val["ba"].split(",")]
-        terminal.no_winner.ten_changes[:] = [
+        round_end_details.draw.ten_changes[:] = [
             int(x) * 100 for i, x in enumerate(val["sc"].split(",")) if i % 2 == 1
         ]
         for i in range(4):
-            terminal.final_score.tens[i] += terminal.no_winner.ten_changes[i]
+            round_end_details.final_score.tens[i] += round_end_details.draw.ten_changes[i]
         for i in range(4):
             hai_key = "hai" + str(i)
             if hai_key not in val:
                 continue
-            terminal.no_winner.tenpais.append(
-                mjxproto.TenpaiHand(
+            round_end_details.draw.tenpais.append(
+                mjxproto.Hand(
                     who=i,
                     closed_tiles=[int(x) for x in val[hai_key].split(",")],
                 )
             )
         if "type" in val:
-            terminal.no_winner.type = MjlogDecoder.parse_no_winner_type(val)
+            round_end_details.type = MjlogDecoder.parse_round_end_type(val)
         if "owari" in val:
             # オーラス流局時のリーチ棒はトップ総取り
             # TODO: 同着トップ時には上家が総取りしてるが正しい？
             # TODO: 上家総取りになってない。。。
-            if terminal.final_score.riichi != 0:
-                max_ten = max(terminal.final_score.tens)
+            if round_end_details.final_score.riichi != 0:
+                max_ten = max(round_end_details.final_score.tens)
                 for i in range(4):
-                    if terminal.final_score.tens[i] == max_ten:
-                        terminal.final_score.tens[i] += 1000 * terminal.final_score.riichi
+                    if round_end_details.final_score.tens[i] == max_ten:
+                        round_end_details.final_score.tens[i] += (
+                            1000 * round_end_details.final_score.riichi
+                        )
                         break
-            terminal.final_score.riichi = 0
-            terminal.is_game_over = True
-        return terminal
+            round_end_details.final_score.riichi = 0
+            round_end_details.is_game_over = True
+        return round_end_details
 
     @staticmethod
     def make_discard_event(
@@ -334,22 +346,20 @@ class MjlogDecoder:
         return who, discard
 
     @staticmethod
-    def parse_no_winner_type(val: Dict[str, str]) -> mjxproto.NoWinnerTypeValue:
-        no_winner_type: mjxproto.NoWinnerTypeValue
+    def parse_round_end_type(val: Dict[str, str]) -> mjxproto.RoundEndTypeValue:
+        round_end_type: mjxproto.RoundEndTypeValue
         if val["type"] == "yao9":
-            no_winner_type = mjxproto.NO_WINNER_TYPE_KYUUSYU
+            no_winner_type = mjxproto.ROUND_END_TYPE_ABORTIVE_DRAW_NINE_TERMINALS
         elif val["type"] == "reach4":
-            no_winner_type = mjxproto.NO_WINNER_TYPE_FOUR_RIICHI
+            no_winner_type = mjxproto.ROUND_END_TYPE_ABORTIVE_DRAW_FOUR_RIICHIS
         elif val["type"] == "ron3":
-            no_winner_type = mjxproto.NO_WINNER_TYPE_THREE_RONS
+            no_winner_type = mjxproto.ROUND_END_TYPE_ABORTIVE_DRAW_THREE_RONS
         elif val["type"] == "kan4":
-            no_winner_type = mjxproto.NO_WINNER_TYPE_FOUR_KANS
-        elif val["type"] == "kan4":
-            no_winner_type = mjxproto.NO_WINNER_TYPE_FOUR_KANS
+            no_winner_type = mjxproto.ROUND_END_TYPE_ABORTIVE_DRAW_FOUR_KANS
         elif val["type"] == "kaze4":
-            no_winner_type = mjxproto.NO_WINNER_TYPE_FOUR_WINDS
+            no_winner_type = mjxproto.ROUND_END_TYPE_ABORTIVE_DRAW_FOUR_WINDS
         elif val["type"] == "nm":
-            no_winner_type = mjxproto.NO_WINNER_TYPE_NM
+            no_winner_type = mjxproto.ROUND_END_TYPE_EXHAUSTIVE_DRAW_NAGASHI_MANGAN
         else:
             assert False
         return no_winner_type
