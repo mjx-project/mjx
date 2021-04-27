@@ -62,11 +62,11 @@ bool ActionTypeCheck(const std::vector<mjxproto::ActionType> &action_types,
 bool YakuCheck(const State &state, AbsolutePos winner,
                std::vector<Yaku> &&yakus) {
   mjxproto::State state_proto = state.proto();
-  Assert(std::any_of(state_proto.terminal().wins().begin(),
-                     state_proto.terminal().wins().end(), [&](const auto &win) {
+  Assert(std::any_of(state_proto.public_observation().utils().round_end_details().wins().begin(),
+                     state_proto.public_observation().utils().round_end_details().wins().end(), [&](const auto &win) {
                        return AbsolutePos(win.who()) == winner;
                      }));
-  for (const auto &win : state_proto.terminal().wins()) {
+  for (const auto &win : state_proto.public_observation().utils().round_end_details().wins()) {
     bool ok = true;
     if (AbsolutePos(win.who()) == winner) {
       if (win.yakus().size() != yakus.size()) ok = false;
@@ -981,7 +981,7 @@ std::string TruncateAfterFirstDraw(const std::string &json) {
                     ->mutable_event_history()
                     ->mutable_events();
   events->erase(events->begin() + 1, events->end());
-  state.clear_terminal();
+  state.mutable_public_observation()->mutable_utils()->clear_round_end_details();
   // drawについては消さなくても良い（wallから引いてsetされるので）
   std::string serialized;
   status = google::protobuf::util::MessageToJsonString(state, &serialized);
@@ -1078,7 +1078,7 @@ TEST(state, CheckGameOver) {
   // ただし、3万点を超えるプレイヤーがいても、親がテンパイしている場合は一本場になる
   EXPECT_EQ(State::CheckGameOver(9, {30000, 20000, 25000, 25000},
                                  AbsolutePos::kInitSouth, true,
-                                 mjxproto::NO_WINNER_TYPE_NORMAL),
+                                 mjxproto::ROUND_END_TYPE_NORMAL),
             false);
 
   // 西4局 親がテンパイできていない場合はトップでもトップでもなくても終局

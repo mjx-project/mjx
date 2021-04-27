@@ -85,8 +85,8 @@ class State {
 
   static bool CheckGameOver(int round, std::array<int, 4> tens,
                             AbsolutePos dealer, bool is_dealer_win_or_tenpai,
-                            std::optional<mjxproto::NoWinnerType>
-                                no_winner_type = std::nullopt) noexcept;
+                            std::optional<mjxproto::RoundEndType>
+                                round_end_type = std::nullopt) noexcept;
 
  private:
   explicit State(std::vector<PlayerId> player_ids,  // 起家, ..., ラス親
@@ -132,6 +132,8 @@ class State {
   [[nodiscard]] AbsolutePos top_player() const;
   [[nodiscard]] mjxproto::Score* mutable_curr_score();
   [[nodiscard]] mjxproto::Score curr_score() const;
+  [[nodiscard]] mjxproto::RoundEndDetails* mutable_round_end_details();
+  [[nodiscard]] mjxproto::RoundEndDetails round_end_details() const;
 
   // update
   void Update(mjxproto::Action&& action);
