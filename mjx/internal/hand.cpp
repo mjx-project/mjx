@@ -709,6 +709,17 @@ WinHandInfo Hand::win_info() const noexcept {
                      IsDoubleRiichi(), IsMenzen());
 }
 
+mjxproto::Hand Hand::ToProto() {
+  mjxproto::Hand hand;
+  for(const auto &tile : closed_tiles_){
+    hand.add_closed_tiles(tile.Id());
+  }
+  for(const auto &open : opens_){
+    hand.add_opens(open.GetBits());
+  }
+  return hand;
+}
+
 bool Hand::IsTenpai() const {
   Assert(stage_ == HandStage::kAfterDiscards);
   Assert(SizeClosed() == 1 || SizeClosed() == 4 || SizeClosed() == 7 ||

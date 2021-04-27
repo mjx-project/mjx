@@ -96,6 +96,8 @@ class Hand {
   // get winning info
   [[nodiscard]] WinHandInfo win_info() const noexcept;
 
+  mjxproto::Hand ToProto();
+
  private:
   std::unordered_set<Tile, HashTile> closed_tiles_;
   std::vector<Open> opens_;  // Though open only uses 16 bits, to handle
