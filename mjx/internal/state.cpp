@@ -371,7 +371,6 @@ Tile State::Draw(AbsolutePos who) {
   state_.mutable_private_observations(ToUType(who))
       ->add_draw_history(draw.Id());
 
-
   return draw;
 }
 
