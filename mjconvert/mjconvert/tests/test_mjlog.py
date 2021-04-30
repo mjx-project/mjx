@@ -16,5 +16,5 @@ def test_encode_decode():
             original = lines[0]
             decoded: List[str] = decoder.decode(original)
             restored = encoder.encode(decoded)
-            print(mjlog)
+            print("mjlog:", mjlog)
             assert check_equality(original, restored)

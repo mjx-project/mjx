@@ -40,7 +40,11 @@ def check_equality(original: str, restored: str) -> bool:
             continue
         if not line.strip():
             continue
-        sys.stdout.write(line + "\n")
+        print("line:", line)
+        # sys.stdout.write(line + "\n")
+        for line in difflib.unified_diff(split_mjlog(original), split_mjlog(restored), n=0):
+            print(line)
+
         return False
     return True
 

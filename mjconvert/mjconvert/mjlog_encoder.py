@@ -128,11 +128,7 @@ class MjlogEncoder:
                             for x in state.public_observation.utils.round_end_details.final_score.tens
                         ]
                     )
-                    ret += f'owari="{state.public_observation.utils.round_end_details.final_score.tens[0] // 100},{final_scores[0]:.1f}, \
-                            {state.public_observation.utils.round_end_details.final_score.tens[1] // 100}, \
-                            {final_scores[1]:.1f},{state.public_observation.utils.round_end_details.final_score.tens[2] // 100}, \
-                            {final_scores[2]:.1f},{state.public_observation.utils.round_end_details.final_score.tens[3] // 100}, \
-                            {final_scores[3]:.1f}" '
+                    ret += f'owari="{state.public_observation.utils.round_end_details.final_score.tens[0] // 100},{final_scores[0]:.1f},{state.public_observation.utils.round_end_details.final_score.tens[1] // 100},{final_scores[1]:.1f},{state.public_observation.utils.round_end_details.final_score.tens[2] // 100},{final_scores[2]:.1f},{state.public_observation.utils.round_end_details.final_score.tens[3] // 100},{final_scores[3]:.1f}" '
                     ret += "/>"
 
             for i in range(4):
@@ -208,9 +204,9 @@ class MjlogEncoder:
                         break
             assert sum(curr_score.tens) == 100000
             final_scores = MjlogEncoder._calc_final_score(
-                [int(x) for x in state.terminal.final_score.tens]
+                [int(x) for x in state.public_observation.utils.round_end_details.final_score.tens]
             )
-            ret += f'owari="{state.terminal.final_score.tens[0] // 100},{final_scores[0]:.1f},{state.terminal.final_score.tens[1] // 100},{final_scores[1]:.1f},{state.terminal.final_score.tens[2] // 100},{final_scores[2]:.1f},{state.terminal.final_score.tens[3] // 100},{final_scores[3]:.1f}" '
+            ret += f'owari="{state.public_observation.utils.round_end_details.final_score.tens[0] // 100},{final_scores[0]:.1f},{state.public_observation.utils.round_end_details.final_score.tens[1] // 100},{final_scores[1]:.1f},{state.public_observation.utils.round_end_details.final_score.tens[2] // 100},{final_scores[2]:.1f},{state.public_observation.utils.round_end_details.final_score.tens[3] // 100},{final_scores[3]:.1f}" '
         ret += "/>"
         return ret
 
