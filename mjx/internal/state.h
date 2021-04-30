@@ -133,7 +133,7 @@ class State {
   [[nodiscard]] mjxproto::Score* mutable_curr_score();
   [[nodiscard]] mjxproto::Score curr_score() const;
   [[nodiscard]] mjxproto::RoundEndDetails* mutable_round_end_details();
-  [[nodiscard]] mjxproto::RoundEndDetails round_end_details() const;
+  [[nodiscard]] const mjxproto::RoundEndDetails& round_end_details() const;
 
   // update
   void Update(mjxproto::Action&& action);

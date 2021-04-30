@@ -1419,7 +1419,7 @@ mjxproto::RoundEndDetails *State::mutable_round_end_details() {
       ->mutable_utils()
       ->mutable_round_end_details();
 }
-mjxproto::RoundEndDetails State::round_end_details() const {
+const mjxproto::RoundEndDetails& State::round_end_details() const {
   return state_.public_observation().utils().round_end_details();
 }
 
