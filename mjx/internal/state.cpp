@@ -1236,23 +1236,23 @@ void State::Update(mjxproto::Action &&action) {
           "State = " + ToJson() + "\n" + "Hand = " + hand(who).ToString(true));
       Assert(
           LastEvent().type() == mjxproto::EVENT_TYPE_RIICHI ||
-          Any(hand(who).PossibleDiscards(),
-              [&action](const auto &possible_discard) {
-                return possible_discard.first.Equals(
-                    Tile(action.discard()));
-              }),
+            Any(hand(who).PossibleDiscards(),
+                [&action](const auto &possible_discard) {
+                  return possible_discard.first.Equals(
+                      Tile(action.discard()));
+                }),
           "State = " + ToJson() + "\n" + "Hand = " + hand(who).ToString(true));
       Assert(
           LastEvent().type() != mjxproto::EVENT_TYPE_RIICHI ||
-          Any(hand(who).PossibleDiscardsJustAfterRiichi(),
-              [&action](const auto &possible_discard) {
-                return possible_discard.first.Equals(
-                    Tile(action.discard()));
-              }),
+            Any(hand(who).PossibleDiscardsJustAfterRiichi(),
+                [&action](const auto &possible_discard) {
+                  return possible_discard.first.Equals(
+                      Tile(action.discard()));
+                }),
           "State = " + ToJson() + "\n" + "Hand = " + hand(who).ToString(true));
       Assert(action.type() != mjxproto::ACTION_TYPE_TSUMOGIRI ||
-             hand(AbsolutePos(action.who())).LastTileAdded().value().Id() ==
-             action.discard(),
+               hand(AbsolutePos(action.who())).LastTileAdded().value().Id() ==
+                 action.discard(),
              "If action is tsumogiri, the discarded tile should be equal to "
              "the last drawn tile.");
       {
@@ -1333,7 +1333,7 @@ void State::Update(mjxproto::Action &&action) {
         int require_kan_dora = RequireKanDora();
         Assert(require_kan_dora <= 2,
                "# of kan doras: " + std::to_string(RequireKanDora()) +
-               "\nState:\n" + ToJson());
+                 "\nState:\n" + ToJson());
         while (require_kan_dora--) AddNewDora();
       }
       Draw(who);
