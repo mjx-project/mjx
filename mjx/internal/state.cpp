@@ -1621,4 +1621,20 @@ std::optional<State::HandInfo> State::EvalTenpai(
   return HandInfo{hand(who).ToVectorClosed(true), hand(who).Opens(),
                   hand(who).LastTileAdded()};
 }
+
+void State::AdjustLegalActions(){
+  auto observations = CreateObservations();
+  for(int i = 0; i < 4; i++){
+    state_.mutable_private_observations(i)
+        ->mutable_utils()
+        ->clear_legal_actions();
+    for(auto action: observations[player(AbsolutePos(i)).player_id].possible_actions()){
+      state_.mutable_private_observations(i)
+          ->mutable_utils()
+          ->mutable_legal_actions()
+          ->Add(std::move(action));
+    }
+  }
+
+}
 }  // namespace mjx::internal

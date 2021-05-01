@@ -116,7 +116,7 @@ class State {
   };
 
   // protos
-  mjxproto::State state_;
+  mutable mjxproto::State state_;
   // containers
   Wall wall_;
   std::array<Player, 4> players_;
@@ -164,6 +164,9 @@ class State {
       AbsolutePos who) const noexcept;
 
   static mjxproto::State LoadJson(const std::string& json_str);
+
+  // legal_actionsをpossible_actionsに同期する
+  void AdjustLegalActions();
 };
 }  // namespace mjx::internal
 
