@@ -106,6 +106,7 @@ message PublicObservationUtils {
   repeated string player_ids = 2;
   Score curr_score = 3;
   repeated uint32 curr_dora_indicators = 4;
+  repeated River rivers = 5;
 }
 
 message PrivateObservation {
@@ -171,6 +172,10 @@ message HiddenState {
 message HiddenStateUtils {
   uint64 game_seed = 1;
   repeated uint32 curr_ura_dora_indicators = 2;
+}
+
+message River{
+  repeated int32 tiles = 1;
 }
 
 message Action {
