@@ -366,7 +366,7 @@ Tile State::Draw(AbsolutePos who) {
   state_.mutable_private_observations(ToUType(who))
       ->add_draw_history(draw.Id());
 
-  AdjustCurrHand();
+  AdjustCurrHand(who);
 
   return draw;
 }
@@ -393,7 +393,7 @@ void State::Discard(AbsolutePos who, Tile discard) {
       ->Add(Event::CreateDiscard(who, discard, tsumogiri));
   // TODO: set discarded tile to river
 
-  AdjustCurrHand();
+  AdjustCurrHand(who);
 }
 
 void State::Riichi(AbsolutePos who) {
@@ -430,7 +430,7 @@ void State::ApplyOpen(AbsolutePos who, Open open) {
       mutable_player(AbsolutePos(i)).is_ippatsu = false;
   }
 
-  AdjustCurrHand();
+  AdjustCurrHand(who);
 }
 
 void State::AddNewDora() {
