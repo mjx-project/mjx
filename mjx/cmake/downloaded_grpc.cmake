@@ -26,14 +26,14 @@ set(FETCHCONTENT_BASE_DIR ${MJX_EXTERNALDIR})
 set(FETCHCONTENT_QUIET OFF)
 set(FETCHCONTENT_UPDATES_DISCONNECTED ON)
 
-FetchContent_Declare(
+fetchcontent_declare(
   grpc
   GIT_REPOSITORY https://github.com/grpc/grpc.git
-  GIT_TAG        v1.36.4
+  GIT_TAG v1.36.4
 )
-FetchContent_MakeAvailable(grpc)
+fetchcontent_makeavailable(grpc)
 
-# TODO: if there is preinstalled protoc, preinstalled one may be used.
+# TODO: if there is preinstalled protoc, preinstalled one may be used. We should prevent it.
 set(_PROTOBUF_LIBPROTOBUF libprotobuf)
 set(_REFLECTION grpc++_reflection)
 set(_PROTOBUF_PROTOC $<TARGET_FILE:protoc>)
