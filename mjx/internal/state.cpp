@@ -1628,7 +1628,7 @@ std::optional<State::HandInfo> State::EvalTenpai(
                   hand(who).LastTileAdded()};
 }
 
-void State::SyncCurrHand(AbsolutePos who) {
+void State::AdjustCurrHand(AbsolutePos who) {
   state_.mutable_private_observations(ToUType(who))
       ->mutable_utils()
       ->mutable_curr_hand()

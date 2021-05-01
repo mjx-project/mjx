@@ -166,7 +166,7 @@ class State {
   static mjxproto::State LoadJson(const std::string& json_str);
 
   // protoのcurr_handを同期する。
-  void AdjustCurrHand();
+  void AdjustCurrHand(AbsolutePos who);
 };
 }  // namespace mjx::internal
 
