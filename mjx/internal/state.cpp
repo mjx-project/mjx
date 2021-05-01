@@ -1245,23 +1245,23 @@ void State::Update(mjxproto::Action &&action) {
           "State = " + ToJson() + "\n" + "Hand = " + hand(who).ToString(true));
       Assert(
           LastEvent().type() == mjxproto::EVENT_TYPE_RIICHI ||
-              Any(hand(who).PossibleDiscards(),
-                  [&action](const auto &possible_discard) {
-                    return possible_discard.first.Equals(
-                        Tile(action.discard()));
-                  }),
+          Any(hand(who).PossibleDiscards(),
+              [&action](const auto &possible_discard) {
+                return possible_discard.first.Equals(
+                    Tile(action.discard()));
+              }),
           "State = " + ToJson() + "\n" + "Hand = " + hand(who).ToString(true));
       Assert(
           LastEvent().type() != mjxproto::EVENT_TYPE_RIICHI ||
-              Any(hand(who).PossibleDiscardsJustAfterRiichi(),
-                  [&action](const auto &possible_discard) {
-                    return possible_discard.first.Equals(
-                        Tile(action.discard()));
-                  }),
+          Any(hand(who).PossibleDiscardsJustAfterRiichi(),
+              [&action](const auto &possible_discard) {
+                return possible_discard.first.Equals(
+                    Tile(action.discard()));
+              }),
           "State = " + ToJson() + "\n" + "Hand = " + hand(who).ToString(true));
       Assert(action.type() != mjxproto::ACTION_TYPE_TSUMOGIRI ||
-                 hand(AbsolutePos(action.who())).LastTileAdded().value().Id() ==
-                     action.discard(),
+             hand(AbsolutePos(action.who())).LastTileAdded().value().Id() ==
+             action.discard(),
              "If action is tsumogiri, the discarded tile should be equal to "
              "the last drawn tile.");
       {
@@ -1272,13 +1272,13 @@ void State::Update(mjxproto::Action &&action) {
       Discard(who, Tile(action.discard()));
       if (IsFourWinds()) {  // 四風子連打
         NoWinner();
-        break;
+        return;
       }
       // TODO:
       // CreateStealAndRonObservationが2回stateが変わらないのに呼ばれている（CreateObservation内で）
       if (bool has_steal_or_ron = !CreateStealAndRonObservation().empty();
           has_steal_or_ron)
-        break;
+        return;
 
       // 鳴きやロンの候補がなく, 全員が立直していたら四家立直で流局
       if (std::all_of(players_.begin(), players_.end(),
@@ -1287,13 +1287,13 @@ void State::Update(mjxproto::Action &&action) {
                       })) {
         RiichiScoreChange();
         NoWinner();
-        break;
+        return;
       }
 
       // 鳴きやロンの候補がなく, 2人以上が合計4つ槓をしていたら四槓散了で流局
       if (IsFourKanNoWinner()) {
         NoWinner();
-        break;
+        return;
       }
 
       if (wall_.HasDrawLeft()) {
@@ -1303,35 +1303,35 @@ void State::Update(mjxproto::Action &&action) {
         NoWinner();
       }
     }
-      break;
+      return;
     case mjxproto::ACTION_TYPE_RIICHI:
       Assert(Any(LastEvent().type(), {mjxproto::EVENT_TYPE_DRAW}));
       Riichi(who);
-      break;
+      return;
     case mjxproto::ACTION_TYPE_TSUMO:
       Assert(Any(LastEvent().type(), {mjxproto::EVENT_TYPE_DRAW}));
       Tsumo(who);
-      break;
+      return;
     case mjxproto::ACTION_TYPE_RON:
       Assert(Any(LastEvent().type(),
                  {mjxproto::EVENT_TYPE_DISCARD, mjxproto::EVENT_TYPE_TSUMOGIRI,
                   mjxproto::EVENT_TYPE_ADDED_KAN, mjxproto::EVENT_TYPE_RON}));
       Ron(who);
-      break;
+      return;
     case mjxproto::ACTION_TYPE_CHI:
     case mjxproto::ACTION_TYPE_PON:
       Assert(Any(LastEvent().type(), {mjxproto::EVENT_TYPE_DISCARD,
                                       mjxproto::EVENT_TYPE_TSUMOGIRI}));
       if (RequireRiichiScoreChange()) RiichiScoreChange();
       ApplyOpen(who, Open(action.open()));
-      break;
+      return;
     case mjxproto::ACTION_TYPE_OPEN_KAN:
       Assert(Any(LastEvent().type(), {mjxproto::EVENT_TYPE_DISCARD,
                                       mjxproto::EVENT_TYPE_TSUMOGIRI}));
       if (RequireRiichiScoreChange()) RiichiScoreChange();
       ApplyOpen(who, Open(action.open()));
       Draw(who);
-      break;
+      return;
     case mjxproto::ACTION_TYPE_CLOSED_KAN:
       Assert(Any(LastEvent().type(), {mjxproto::EVENT_TYPE_DRAW}));
       ApplyOpen(who, Open(action.open()));
@@ -1342,11 +1342,11 @@ void State::Update(mjxproto::Action &&action) {
         int require_kan_dora = RequireKanDora();
         Assert(require_kan_dora <= 2,
                "# of kan doras: " + std::to_string(RequireKanDora()) +
-                   "\nState:\n" + ToJson());
+               "\nState:\n" + ToJson());
         while (require_kan_dora--) AddNewDora();
       }
       Draw(who);
-      break;
+      return;
     case mjxproto::ACTION_TYPE_ADDED_KAN:
       Assert(Any(LastEvent().type(), {mjxproto::EVENT_TYPE_DRAW}));
       ApplyOpen(who, Open(action.open()));
@@ -1359,7 +1359,7 @@ void State::Update(mjxproto::Action &&action) {
           AddNewDora();  // 前のカンの分の新ドラをめくる。1回分はここでの加槓の分なので、ここではめくられない
         Draw(who);
       }
-      break;
+      return;
     case mjxproto::ACTION_TYPE_NO:
       Assert(Any(LastEvent().type(),
                  {mjxproto::EVENT_TYPE_TSUMOGIRI, mjxproto::EVENT_TYPE_DISCARD,
@@ -1369,7 +1369,7 @@ void State::Update(mjxproto::Action &&action) {
       // が渡されるのは槍槓のロンを否定した場合のみ
       if (LastEvent().type() == mjxproto::EVENT_TYPE_ADDED_KAN) {
         Draw(AbsolutePos(LastEvent().who()));  // 嶺上ツモ
-        break;
+        return;
       }
 
       // 全員が立直している状態で mjxproto::ActionType::kNo が渡されるのは,
@@ -1381,7 +1381,7 @@ void State::Update(mjxproto::Action &&action) {
                       })) {
         RiichiScoreChange();
         NoWinner();
-        break;
+        return;
       }
 
       // 2人以上が合計4つ槓をしている状態で mjxproto::ActionType::kNo
@@ -1390,7 +1390,7 @@ void State::Update(mjxproto::Action &&action) {
       // 四槓散了で流局とする.
       if (IsFourKanNoWinner()) {
         NoWinner();
-        break;
+        return;
       }
 
       if (wall_.HasDrawLeft()) {
@@ -1399,11 +1399,11 @@ void State::Update(mjxproto::Action &&action) {
       } else {
         NoWinner();
       }
-      break;
+      return;
     case mjxproto::ACTION_TYPE_ABORTIVE_DRAW_NINE_TERMINALS:
       Assert(Any(LastEvent().type(), {mjxproto::EVENT_TYPE_DRAW}));
       NoWinner();
-      break;
+      return;
   }
 }
 
