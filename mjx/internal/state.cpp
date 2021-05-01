@@ -390,6 +390,10 @@ void State::Discard(AbsolutePos who, Tile discard) {
       ->mutable_events()
       ->Add(Event::CreateDiscard(who, discard, tsumogiri));
   // TODO: set discarded tile to river
+  state_.mutable_public_observation()
+      ->mutable_utils()
+      ->mutable_rivers(ToUType(who))
+      ->add_tiles(discard.Id());
 }
 
 void State::Riichi(AbsolutePos who) {
