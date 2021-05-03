@@ -231,95 +231,12 @@ void State::UpdateObservation() {
 }
 
 std::unordered_map<PlayerId, Observation> State::CreateObservations() const {
-  switch (LastEvent().type()) {
-    case mjxproto::EVENT_TYPE_DRAW: {
-      auto who = AbsolutePos(LastEvent().who());
-      auto player_id = player(who).player_id;
-      auto observation = Observation(who, state_);
-      Assert(!observation.has_possible_action(),
-             "possible_actions should be empty.");
-
-      // => NineTiles
-      if (IsFirstTurnWithoutOpen() && hand(who).CanNineTiles()) {
-        observation.add_possible_action(Action::CreateNineTiles(who));
-      }
-
-      // => Tsumo (1)
-      if (hand(who).IsCompleted() && CanTsumo(who))
-        observation.add_possible_action(Action::CreateTsumo(who));
-
-      // => Kan (2)
-      if (auto possible_kans = hand(who).PossibleOpensAfterDraw();
-          !possible_kans.empty() &&
-          !IsFourKanNoWinner()) {  // TODO:
-                                   // 四槓散了かのチェックは5回目のカンをできないようにするためだが、正しいのか確認
-                                   // #701
-        for (const auto possible_kan : possible_kans) {
-          observation.add_possible_action(
-              Action::CreateOpen(who, possible_kan));
-        }
-      }
-
-      // => Riichi (3)
-      if (CanRiichi(who))
-        observation.add_possible_action(Action::CreateRiichi(who));
-
-      // => Discard (4)
-      observation.add_possible_actions(Action::CreateDiscardsAndTsumogiri(
-          who, hand(who).PossibleDiscards()));
-      const auto &possible_actions = observation.possible_actions();
-      Assert(std::count_if(possible_actions.begin(), possible_actions.end(),
-                           [](const auto &x) {
-                             return x.type() == mjxproto::ACTION_TYPE_TSUMOGIRI;
-                           }) == 1,
-             "There should be exactly one tsumogiri action");
-      return {{player_id, std::move(observation)}};
-    }
-    case mjxproto::EVENT_TYPE_RIICHI: {
-      // => Discard (5)
-      auto who = AbsolutePos(LastEvent().who());
-      auto observation = Observation(who, state_);
-      observation.add_possible_actions(Action::CreateDiscardsAndTsumogiri(
-          who, hand(who).PossibleDiscardsJustAfterRiichi()));
-      return {{player(who).player_id, std::move(observation)}};
-    }
-    case mjxproto::EVENT_TYPE_CHI:
-    case mjxproto::EVENT_TYPE_PON: {
-      // => Discard (6)
-      auto who = AbsolutePos(LastEvent().who());
-      auto observation = Observation(who, state_);
-      observation.add_possible_actions(Action::CreateDiscardsAndTsumogiri(
-          who, hand(who).PossibleDiscards()));
-      Assert(!Any(observation.possible_actions(),
-                  [](const auto &x) {
-                    return x.type() == mjxproto::ACTION_TYPE_TSUMOGIRI;
-                  }),
-             "After chi/pon, there should be no legal tsumogiri action");
-      return {{player(who).player_id, std::move(observation)}};
-    }
-    case mjxproto::EVENT_TYPE_DISCARD:
-    case mjxproto::EVENT_TYPE_TSUMOGIRI:
-      // => Ron (7)
-      // => Chi, Pon and KanOpened (8)
-      { return CreateStealAndRonObservation(); }
-    case mjxproto::EVENT_TYPE_ADDED_KAN: {
-      auto observations = CreateStealAndRonObservation();
-      Assert(!observations.empty());
-      for (const auto &[player_id, observation] : observations)
-        for (const auto &possible_action : observation.possible_actions())
-          Assert(Any(possible_action.type(),
-                     {mjxproto::ACTION_TYPE_RON, mjxproto::ACTION_TYPE_NO}));
-      return observations;
-    }
-    case mjxproto::EVENT_TYPE_TSUMO:
-    case mjxproto::EVENT_TYPE_RON:
-    case mjxproto::EVENT_TYPE_CLOSED_KAN:
-    case mjxproto::EVENT_TYPE_OPEN_KAN:
-    case mjxproto::EVENT_TYPE_NO_WINNER:
-    case mjxproto::EVENT_TYPE_NEW_DORA:
-    case mjxproto::EVENT_TYPE_RIICHI_SCORE_CHANGE:
-      Assert(false);  // Impossible state
+  std::unordered_map<PlayerId, Observation> observations;
+  for(int i = 0; i < 4; i++){
+    auto who = AbsolutePos(i);
+    observations[player(who).player_id] = Observation(who, state_);
   }
+  return observations;
 }
 
 mjxproto::State State::LoadJson(const std::string &json_str) {
