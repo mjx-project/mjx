@@ -354,6 +354,7 @@ void State::UpdateByEvent(const mjxproto::Event &event) {
       NoWinner();
       break;
   }
+  UpdateObservation();
 }
 
 std::string State::ToJson() const {
@@ -1284,13 +1285,13 @@ void State::Update(mjxproto::Action &&action) {
       Discard(who, Tile(action.discard()));
       if (IsFourWinds()) {  // 四風子連打
         NoWinner();
-        return;
+        break;
       }
       // TODO:
       // CreateStealAndRonObservationが2回stateが変わらないのに呼ばれている（CreateObservation内で）
       if (bool has_steal_or_ron = !CreateStealAndRonObservation().empty();
           has_steal_or_ron)
-        return;
+        break;
 
       // 鳴きやロンの候補がなく, 全員が立直していたら四家立直で流局
       if (std::all_of(players_.begin(), players_.end(),
@@ -1299,13 +1300,13 @@ void State::Update(mjxproto::Action &&action) {
                       })) {
         RiichiScoreChange();
         NoWinner();
-        return;
+        break;
       }
 
       // 鳴きやロンの候補がなく, 2人以上が合計4つ槓をしていたら四槓散了で流局
       if (IsFourKanNoWinner()) {
         NoWinner();
-        return;
+        break;
       }
 
       if (wall_.HasDrawLeft()) {
@@ -1315,35 +1316,35 @@ void State::Update(mjxproto::Action &&action) {
         NoWinner();
       }
     }
-      return;
+      break;
     case mjxproto::ACTION_TYPE_RIICHI:
       Assert(Any(LastEvent().type(), {mjxproto::EVENT_TYPE_DRAW}));
       Riichi(who);
-      return;
+      break;
     case mjxproto::ACTION_TYPE_TSUMO:
       Assert(Any(LastEvent().type(), {mjxproto::EVENT_TYPE_DRAW}));
       Tsumo(who);
-      return;
+      break;
     case mjxproto::ACTION_TYPE_RON:
       Assert(Any(LastEvent().type(),
                  {mjxproto::EVENT_TYPE_DISCARD, mjxproto::EVENT_TYPE_TSUMOGIRI,
                   mjxproto::EVENT_TYPE_ADDED_KAN, mjxproto::EVENT_TYPE_RON}));
       Ron(who);
-      return;
+      break;
     case mjxproto::ACTION_TYPE_CHI:
     case mjxproto::ACTION_TYPE_PON:
       Assert(Any(LastEvent().type(), {mjxproto::EVENT_TYPE_DISCARD,
                                       mjxproto::EVENT_TYPE_TSUMOGIRI}));
       if (RequireRiichiScoreChange()) RiichiScoreChange();
       ApplyOpen(who, Open(action.open()));
-      return;
+      break;
     case mjxproto::ACTION_TYPE_OPEN_KAN:
       Assert(Any(LastEvent().type(), {mjxproto::EVENT_TYPE_DISCARD,
                                       mjxproto::EVENT_TYPE_TSUMOGIRI}));
       if (RequireRiichiScoreChange()) RiichiScoreChange();
       ApplyOpen(who, Open(action.open()));
       Draw(who);
-      return;
+      break;
     case mjxproto::ACTION_TYPE_CLOSED_KAN:
       Assert(Any(LastEvent().type(), {mjxproto::EVENT_TYPE_DRAW}));
       ApplyOpen(who, Open(action.open()));
@@ -1358,7 +1359,7 @@ void State::Update(mjxproto::Action &&action) {
         while (require_kan_dora--) AddNewDora();
       }
       Draw(who);
-      return;
+      break;
     case mjxproto::ACTION_TYPE_ADDED_KAN:
       Assert(Any(LastEvent().type(), {mjxproto::EVENT_TYPE_DRAW}));
       ApplyOpen(who, Open(action.open()));
@@ -1371,7 +1372,7 @@ void State::Update(mjxproto::Action &&action) {
           AddNewDora();  // 前のカンの分の新ドラをめくる。1回分はここでの加槓の分なので、ここではめくられない
         Draw(who);
       }
-      return;
+      break;
     case mjxproto::ACTION_TYPE_NO:
       Assert(Any(LastEvent().type(),
                  {mjxproto::EVENT_TYPE_TSUMOGIRI, mjxproto::EVENT_TYPE_DISCARD,
@@ -1381,7 +1382,7 @@ void State::Update(mjxproto::Action &&action) {
       // が渡されるのは槍槓のロンを否定した場合のみ
       if (LastEvent().type() == mjxproto::EVENT_TYPE_ADDED_KAN) {
         Draw(AbsolutePos(LastEvent().who()));  // 嶺上ツモ
-        return;
+        break;
       }
 
       // 全員が立直している状態で mjxproto::ActionType::kNo が渡されるのは,
@@ -1393,7 +1394,7 @@ void State::Update(mjxproto::Action &&action) {
                       })) {
         RiichiScoreChange();
         NoWinner();
-        return;
+        break;
       }
 
       // 2人以上が合計4つ槓をしている状態で mjxproto::ActionType::kNo
@@ -1402,7 +1403,7 @@ void State::Update(mjxproto::Action &&action) {
       // 四槓散了で流局とする.
       if (IsFourKanNoWinner()) {
         NoWinner();
-        return;
+        break;
       }
 
       if (wall_.HasDrawLeft()) {
@@ -1411,12 +1412,13 @@ void State::Update(mjxproto::Action &&action) {
       } else {
         NoWinner();
       }
-      return;
+      break;
     case mjxproto::ACTION_TYPE_ABORTIVE_DRAW_NINE_TERMINALS:
       Assert(Any(LastEvent().type(), {mjxproto::EVENT_TYPE_DRAW}));
       NoWinner();
-      return;
+      break;
   }
+  UpdateObservation();
 }
 
 AbsolutePos State::top_player() const {
