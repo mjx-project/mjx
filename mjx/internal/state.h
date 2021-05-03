@@ -43,6 +43,7 @@ class State {
   bool IsRoundOver() const;
   bool IsGameOver() const;
   void Update(std::vector<mjxproto::Action>&& action_candidates);
+  void UpdateObservation();
   std::unordered_map<PlayerId, Observation> CreateObservations() const;
   std::string ToJson() const;
   mjxproto::State proto() const;
