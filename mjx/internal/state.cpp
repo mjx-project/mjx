@@ -197,23 +197,22 @@ void State::UpdateObservation() {
       // => Ron (7)
       // => Chi, Pon and KanOpened (8)
       auto observations = CreateStealAndRonObservation();
-      for(int i = 0; i < 4; i++){
+      for(int i = 0; i < 4; i++)
         for (auto possible_action : observations[player(AbsolutePos(i)).player_id].possible_actions()){
           state_.mutable_private_observations(i)
               ->mutable_utils()
               ->mutable_legal_actions()
               ->Add(std::move(possible_action));
         }
-      }
     }
     case mjxproto::EVENT_TYPE_ADDED_KAN: {
       auto observations = CreateStealAndRonObservation();
       Assert(!observations.empty());
-      for (const auto &[player_id, observation] : observations)
-        for (auto possible_action : observation.possible_actions()){
+      for(int i = 0; i < 4; i++)
+        for (auto possible_action : observations[player(AbsolutePos(i)).player_id].possible_actions()){
           Assert(Any(possible_action.type(),
                      {mjxproto::ACTION_TYPE_RON, mjxproto::ACTION_TYPE_NO}));
-          state_.mutable_private_observations(ToUType(who))
+          state_.mutable_private_observations(i)
               ->mutable_utils()
               ->mutable_legal_actions()
               ->Add(std::move(possible_action));
