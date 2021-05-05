@@ -33,7 +33,7 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(grpc)
 
-# TODO: if there is preinstalled protoc, preinstalled one may be used.
+# TODO: if there is a preinstalled protoc, preinstalled one may be used. We should prevent it.
 set(_PROTOBUF_LIBPROTOBUF libprotobuf)
 set(_REFLECTION grpc++_reflection)
 set(_PROTOBUF_PROTOC $<TARGET_FILE:protoc>)
