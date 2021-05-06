@@ -215,12 +215,21 @@ class MjlogDecoder:
                 ba, riichi = [int(x) for x in val["ba"].split(",")]
                 who = int(val["who"])
                 from_who = int(val["fromWho"])
+
                 # set event
-                event = mjxproto.Event(
-                    who=who,
-                    type=mjxproto.EVENT_TYPE_TSUMO if who == from_who else mjxproto.EVENT_TYPE_RON,
-                    tile=int(val["machi"]),
-                )
+                if event is None:
+                    event = mjxproto.Event(
+                        type=mjxproto.EVENT_TYPE_ROUND_END,
+                        round_end=mjxproto.RoundEnd(
+                            type=mjxproto.ROUND_END_TYPE_TSUMO
+                            if who == from_who
+                            else mjxproto.ROUND_END_TYPE_RON,
+                            shown_hands=[mjxproto.Hand(who=who)],
+                        ),
+                    )
+                else:
+                    event.round_end.shown_hands.append(mjxproto.Hand(who=who))
+
                 win = MjlogDecoder.make_win(val, who, from_who, modify)
                 assert self.state.public_observation.utils.curr_dora_indicators == [
                     int(x) for x in val["doraHai"].split(",")
@@ -240,10 +249,15 @@ class MjlogDecoder:
             else:
                 raise KeyError(key)
 
-            if event is not None:
+            # ダブロンがあるため, ROUND_END はここではappendしない
+            if event is not None and event.type != mjxproto.EVENT_TYPE_ROUND_END:
                 self.state.public_observation.event_history.events.append(event)
             event = None
             # yield copy.deepcopy(self.state)
+
+        # ROUND_END のEventはここでappend
+        if event is not None:
+            self.state.public_observation.event_history.events.append(event)
 
         self.state.public_observation.utils.curr_score.CopyFrom(self.state.terminal.final_score)
         if not reach_terminal:

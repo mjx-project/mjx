@@ -48,7 +48,7 @@ enum EventType {
   //EVENT_TYPE_ABORTIVE_DRAW_FOUR_WINDS = 18;  // 四風連打
   //EVENT_TYPE_EXHAUSTIVE_DRAW_NORMAL = 19;  // 通常流局
   //EVENT_TYPE_EXHAUSTIVE_DRAW_NAGASHI_MANGAN = 20;  // 流し満貫
-  //EVENT_TYPE_ROUND_END = 21;
+  EVENT_TYPE_ROUND_END = 21;
 }
 
 enum NoWinnerType {  // 流局
@@ -69,8 +69,8 @@ message Score {
 }
 
 message Event {
-  //                       who    tile    open
-  // DRAW                  Yes    No      No      Tile is No since it's private info. EventHistory will be passed to Observation as public info.
+  //                       who    tile    open    round_end
+  // DRAW                  Yes    No      No          Tile is No since it's private info. EventHistory will be passed to Observation as public info.
   // DISCARD               Yes    Yes     No
   // TSUMOGIRI             Yes    Yes     No
   // RIICHI                Yes    No      No
@@ -84,10 +84,38 @@ message Event {
   // NEW_DORA              No     Yes     No
   // RIICHI_SCORE_CHANGE   Yes    No      No
   // NO_WINNER             No     No      No
+  // ROUND_END             No     No      No       Yes
   EventType type = 1;
   int32 who = 2;
   uint32 tile = 3;
   uint32 open = 4;
+  RoundEnd round_end = 5;
+}
+
+// public information available only at each round's end
+message RoundEnd {
+  RoundEndType type = 1;
+  repeated Hand shown_hands = 2;  // hands of winners or tenpai players
+  // repeated int32 ura_dora_indicators = 3;  // set even if no player declared riichi
+}
+
+message Hand {
+  int32 who = 1;
+  // repeated int32 closed_tiles = 2;
+  // repeated int32 opens = 3;
+}
+
+enum RoundEndType {
+  DO_NOT_USE = 0;
+  ROUND_END_TYPE_TSUMO = 5;
+  ROUND_END_TYPE_ABORTIVE_DRAW_NINE_TERMINALS = 6;
+  ROUND_END_TYPE_RON = 10;
+  ROUND_END_TYPE_ABORTIVE_DRAW_FOUR_RIICHIS = 15;  // 四家立直
+  ROUND_END_TYPE_ABORTIVE_DRAW_THREE_RONS = 16;  // 三家和了
+  ROUND_END_TYPE_ABORTIVE_DRAW_FOUR_KANS = 17;  // 四槓散了
+  ROUND_END_TYPE_ABORTIVE_DRAW_FOUR_WINDS = 18;  // 四風連打
+  ROUND_END_TYPE_EXHAUSTIVE_DRAW_NORMAL = 19;  // 通常流局
+  ROUND_END_TYPE_EXHAUSTIVE_DRAW_NAGASHI_MANGAN = 20;  // 流し満貫
 }
 
 message EventHistory {
