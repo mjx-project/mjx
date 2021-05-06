@@ -252,12 +252,13 @@ class MjlogDecoder:
             # ダブロンがあるため, ROUND_END はここではappendしない
             if event is not None and event.type != mjxproto.EVENT_TYPE_ROUND_END:
                 self.state.public_observation.event_history.events.append(event)
-            event = None
+                event = None
             # yield copy.deepcopy(self.state)
 
         # ROUND_END のEventはここでappend
         if event is not None:
             self.state.public_observation.event_history.events.append(event)
+            event = None
 
         self.state.public_observation.utils.curr_score.CopyFrom(self.state.terminal.final_score)
         if not reach_terminal:
