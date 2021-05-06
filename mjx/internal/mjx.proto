@@ -41,25 +41,9 @@ enum EventType {
   EVENT_TYPE_DRAW = 12;
   EVENT_TYPE_RIICHI_SCORE_CHANGE = 13;
   EVENT_TYPE_NEW_DORA = 14;
-  EVENT_TYPE_NO_WINNER = 15;  // 流局
-  //EVENT_TYPE_ABORTIVE_DRAW_FOUR_RIICHIS = 15;  // 四家立直
-  //EVENT_TYPE_ABORTIVE_DRAW_THREE_RONS = 16;  // 三家和了
-  //EVENT_TYPE_ABORTIVE_DRAW_FOUR_KANS = 17;  // 四槓散了
-  //EVENT_TYPE_ABORTIVE_DRAW_FOUR_WINDS = 18;  // 四風連打
-  //EVENT_TYPE_EXHAUSTIVE_DRAW_NORMAL = 19;  // 通常流局
-  //EVENT_TYPE_EXHAUSTIVE_DRAW_NAGASHI_MANGAN = 20;  // 流し満貫
-  //EVENT_TYPE_ROUND_END = 21;
+  EVENT_TYPE_NO_WINNER = 15;  // 流局 TODO: remove
+  EVENT_TYPE_ROUND_END = 21;
 }
-
-// enum NoWinnerType {  // 流局
-//   NO_WINNER_TYPE_NORMAL = 0;
-//   NO_WINNER_TYPE_KYUUSYU = 1; // 九種九牌  // TODO(sotetsuk): rename
-//   NO_WINNER_TYPE_FOUR_RIICHI = 2;  // 四家立直
-//   NO_WINNER_TYPE_THREE_RONS = 3;  // 三家和了
-//   NO_WINNER_TYPE_FOUR_KANS = 4;  // 四槓散了
-//   NO_WINNER_TYPE_FOUR_WINDS = 5;  // 四風連打
-//   NO_WINNER_TYPE_NM = 6;  // 流し満貫  # TODO(sotetsuk): rename
-// }
 
 message Score {
   uint32 round = 1;
@@ -69,21 +53,22 @@ message Score {
 }
 
 message Event {
-  //                       who    tile    open
-  // DRAW                  Yes    No      No      Tile is No since it's private info. EventHistory will be passed to Observation as public info.
-  // DISCARD               Yes    Yes     No
-  // TSUMOGIRI             Yes    Yes     No
-  // RIICHI                Yes    No      No
-  // TSUMO                 Yes    Yes     No
-  // RON                   Yes    Yes     No
-  // CHI                   Yes    No      Yes
-  // PON                   Yes    No      Yes
-  // KAN_CLOSED            Yes    No      Yes
-  // KAN_OPENED            Yes    No      Yes
-  // KAN_ADDED             Yes    No      Yes
-  // NEW_DORA              No     Yes     No
-  // RIICHI_SCORE_CHANGE   Yes    No      No
-  // NO_WINNER             No     No      No
+  //                       who    tile   open   round_end
+  // DISCARD               Yes    Yes    No     No
+  // TSUMOGIRI             Yes    Yes    No     No
+  // RIICHI                Yes    No     No     No
+  // CLOSED_KAN            Yes    No     Yes    No
+  // ADDED_KAN             Yes    No     Yes    No
+  // TSUMO                 Yes    Yes    No     No      TODO: remove
+  // CHI                   Yes    No     Yes    No
+  // PON                   Yes    No     Yes    No
+  // OPEN_KAN              Yes    No     Yes    No
+  // RON                   Yes    Yes    No     No      TODO: remove
+  // DRAW                  Yes    No     No     No      Tile is No since it's private info. EventHistory will be passed to Observation as public info.
+  // RIICHI_SCORE_CHANGE   Yes    No     No     No
+  // NEW_DORA              No     Yes    No     No
+  // NO_WINNER             No     No     No     No      TODO: remove
+  // ROUND_END             No     No     No     Yes     TODO: implement
   EventType type = 1;
   int32 who = 2;
   uint32 tile = 3;
@@ -175,35 +160,21 @@ message Win {
   repeated uint32 yakumans = 11;
 }
 
-//message NoWinner {
-//  repeated TenpaiHand tenpais = 1;
-//  repeated int32 ten_changes = 2;  // Required for Tenhou mjlog.
-//  NoWinnerType type = 3;  // Following Tenhou mjlog format. 0, normal. 九種九牌, 四家立直, 三家和了, 四槓散了, 四風連打, 流し満貫
-//}
-
-//message TenpaiHand {
-//  int32 who = 1;
-//  repeated uint32 closed_tiles = 2;
-//}
-
-//message Terminal {
-//  Score final_score = 1;
-//  repeated Win wins = 2;   // Empty if no one wins
-//  NoWinner no_winner = 3;  // Empty if a winner exists
-//  bool is_game_over = 4;
-//}
-
 message State {
-  // public info
-  // private info
-  repeated PrivateObservation private_observations = 7;
-  // win/ryuukyoku information
-  //Terminal terminal = 9;
-  PublicObservation public_observation = 10;
-  HiddenState hidden_state = 11;
+  HiddenState hidden_state = 1;  // Information no one can access
+  PublicObservation public_observation = 2;  // Information any player can observe
+  repeated PrivateObservation private_observations = 3;  // Information only the corresponding player can access. size is 4.
 }
 
 message HiddenState {
+  // 136 tiles, indexed [0, ..., 135]
+  // - [0, ..., 51] (13*4=52): initial hands (depend on round info)
+  // - [52, ..., 121] (70): draws
+  // - [122, 124, 126, 128] Kan dora indicators 3, 2, 1, 0
+  // - [123, 125, 127, 129] Kan ura Dora indicators 3, 2, 1, 0
+  // - [130] Dora indicator
+  // - [131] Ura dora indicator
+  // - [132, ..., 135]  Kan draw 2, 3, 0, 1
   repeated uint32 wall = 1;
   HiddenStateUtils utils = 2;
 }

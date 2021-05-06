@@ -325,6 +325,7 @@ void State::UpdateByEvent(const mjxproto::Event &event) {
       break;
     case mjxproto::EVENT_TYPE_NO_WINNER:
       NoWinner();
+      // RoundEnd.type でどの種類の途中流局かわかるはず.
       break;
   }
 }
@@ -1202,7 +1203,7 @@ void State::Update(std::vector<mjxproto::Action> &&action_candidates) {
     for (int i = 0; i < 4; ++i) {
       if (ron[i] == 0) three_ronned_player = AbsolutePos(i);
     }
-    NoWinner();
+    NoWinner();   // 三家和了確定
     return;
   }
   for (auto &action : action_candidates) {
@@ -1257,7 +1258,7 @@ void State::Update(mjxproto::Action &&action) {
       }
       Discard(who, Tile(action.discard()));
       if (IsFourWinds()) {  // 四風子連打
-        NoWinner();
+        NoWinner(); // 四風子連打確定
         return;
       }
       // TODO:
@@ -1272,13 +1273,13 @@ void State::Update(mjxproto::Action &&action) {
                         return hand(player.position).IsUnderRiichi();
                       })) {
         RiichiScoreChange();
-        NoWinner();
+        NoWinner(); // 四家立直確定
         return;
       }
 
       // 鳴きやロンの候補がなく, 2人以上が合計4つ槓をしていたら四槓散了で流局
       if (IsFourKanNoWinner()) {
-        NoWinner();
+        NoWinner(); // 四槓散了確定
         return;
       }
 
@@ -1286,7 +1287,7 @@ void State::Update(mjxproto::Action &&action) {
         if (RequireRiichiScoreChange()) RiichiScoreChange();
         Draw(AbsolutePos((ToUType(who) + 1) % 4));
       } else {
-        NoWinner();
+        NoWinner(); // 通常流局(流し満貫の可能性あり)
       }
     }
       return;
@@ -1366,7 +1367,7 @@ void State::Update(mjxproto::Action &&action) {
                         return hand(player.position).IsUnderRiichi();
                       })) {
         RiichiScoreChange();
-        NoWinner();
+        NoWinner(); // 四家立直確定
         return;
       }
 
@@ -1375,7 +1376,7 @@ void State::Update(mjxproto::Action &&action) {
       // 4つ目の槓をした人の打牌を他家がロンできるけど無視したときのみ.
       // 四槓散了で流局とする.
       if (IsFourKanNoWinner()) {
-        NoWinner();
+        NoWinner(); // 四槓散了確定
         return;
       }
 
@@ -1383,12 +1384,12 @@ void State::Update(mjxproto::Action &&action) {
         if (RequireRiichiScoreChange()) RiichiScoreChange();
         Draw(AbsolutePos((LastEvent().who() + 1) % 4));
       } else {
-        NoWinner();
+        NoWinner(); // 通常流局(流し満貫の可能性あり)
       }
       return;
     case mjxproto::ACTION_TYPE_ABORTIVE_DRAW_NINE_TERMINALS:
       Assert(Any(LastEvent().type(), {mjxproto::EVENT_TYPE_DRAW}));
-      NoWinner();
+      NoWinner(); // 九種九牌確定
       return;
   }
 }
