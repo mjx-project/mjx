@@ -157,7 +157,6 @@ class MjlogDecoder:
         for i in range(4 * 12, 4 * 13):
             assert wall[i] in self.state.private_observations[(i + round_) % 4].init_hand
 
-        event = None
         num_kan_dora = 0
         self.last_drawer = None
         self.last_draw = None
@@ -166,33 +165,41 @@ class MjlogDecoder:
             if key != "UN" and key[0] in ["T", "U", "V", "W"]:  # draw
                 who, draw = MjlogDecoder.parse_draw(key)
                 self.state.private_observations[int(who)].draw_history.append(draw)
-                event = MjlogDecoder.make_draw_event(who)
+                self.state.public_observation.event_history.events.append(
+                    MjlogDecoder.make_draw_event(who)
+                )
                 self.last_drawer, self.last_draw = who, draw
             elif key != "DORA" and key[0] in ["D", "E", "F", "G"]:  # discard
                 who, discard = MjlogDecoder.parse_discard(key)
-                event = MjlogDecoder.make_discard_event(
-                    who, discard, self.last_drawer, self.last_draw
+                self.state.public_observation.event_history.events.append(
+                    MjlogDecoder.make_discard_event(who, discard, self.last_drawer, self.last_draw)
                 )
                 self.last_drawer, self.last_draw = None, None
             elif key == "N":  # open
                 who = int(val["who"])
                 open = int(val["m"])
-                event = mjxproto.Event(
-                    who=who,
-                    type=MjlogDecoder._open_type(open),
-                    open=open,
+                self.state.public_observation.event_history.events.append(
+                    mjxproto.Event(
+                        who=who,
+                        type=MjlogDecoder._open_type(open),
+                        open=open,
+                    )
                 )
             elif key == "REACH":
                 who = int(val["who"])
                 if int(val["step"]) == 1:
-                    event = mjxproto.Event(
-                        who=who,
-                        type=mjxproto.EVENT_TYPE_RIICHI,
+                    self.state.public_observation.event_history.events.append(
+                        mjxproto.Event(
+                            who=who,
+                            type=mjxproto.EVENT_TYPE_RIICHI,
+                        )
                     )
                 else:
-                    event = mjxproto.Event(
-                        who=who,
-                        type=mjxproto.EVENT_TYPE_RIICHI_SCORE_CHANGE,
+                    self.state.public_observation.event_history.events.append(
+                        mjxproto.Event(
+                            who=who,
+                            type=mjxproto.EVENT_TYPE_RIICHI_SCORE_CHANGE,
+                        )
                     )
                     self.state.terminal.final_score.riichi += 1
                     self.state.terminal.final_score.tens[who] -= 1000
@@ -203,13 +210,17 @@ class MjlogDecoder:
                 num_kan_dora += 1
                 self.state.public_observation.utils.curr_dora_indicators.append(dora)
                 self.state.hidden_state.utils.curr_ura_dora_indicators.append(ura_dora)
-                event = mjxproto.Event(type=mjxproto.EVENT_TYPE_NEW_DORA, tile=dora)
+                self.state.public_observation.event_history.events.append(
+                    mjxproto.Event(type=mjxproto.EVENT_TYPE_NEW_DORA, tile=dora)
+                )
             elif key == "RYUUKYOKU":
                 reach_terminal = True
                 self.state.terminal.CopyFrom(
                     MjlogDecoder.update_terminal_by_no_winner(self.state.terminal, val)
                 )
-                event = mjxproto.Event(type=mjxproto.EVENT_TYPE_NO_WINNER)
+                self.state.public_observation.event_history.events.append(
+                    mjxproto.Event(type=mjxproto.EVENT_TYPE_NO_WINNER)
+                )
             elif key == "AGARI":
                 reach_terminal = True
                 ba, riichi = [int(x) for x in val["ba"].split(",")]
@@ -217,18 +228,25 @@ class MjlogDecoder:
                 from_who = int(val["fromWho"])
 
                 # set event
-                if event is None:
-                    event = mjxproto.Event(
-                        type=mjxproto.EVENT_TYPE_ROUND_END,
-                        round_end=mjxproto.RoundEnd(
-                            type=mjxproto.ROUND_END_TYPE_TSUMO
-                            if who == from_who
-                            else mjxproto.ROUND_END_TYPE_RON,
-                            shown_hands=[mjxproto.Hand(who=who)],
-                        ),
-                    )
+                if who != from_who and (
+                    self.state.public_observation.event_history.events[-1].type
+                    == mjxproto.EVENT_TYPE_ROUND_END
+                ):
+                    self.state.public_observation.event_history.events[
+                        -1
+                    ].round_end.shown_hands.append(mjxproto.Hand(who=who))
                 else:
-                    event.round_end.shown_hands.append(mjxproto.Hand(who=who))
+                    self.state.public_observation.event_history.events.append(
+                        mjxproto.Event(
+                            type=mjxproto.EVENT_TYPE_ROUND_END,
+                            round_end=mjxproto.RoundEnd(
+                                type=mjxproto.ROUND_END_TYPE_TSUMO
+                                if who == from_who
+                                else mjxproto.ROUND_END_TYPE_RON,
+                                shown_hands=[mjxproto.Hand(who=who)],
+                            ),
+                        )
+                    )
 
                 win = MjlogDecoder.make_win(val, who, from_who, modify)
                 assert self.state.public_observation.utils.curr_dora_indicators == [
@@ -249,16 +267,7 @@ class MjlogDecoder:
             else:
                 raise KeyError(key)
 
-            # ダブロンがあるため, ROUND_END はここではappendしない
-            if event is not None and event.type != mjxproto.EVENT_TYPE_ROUND_END:
-                self.state.public_observation.event_history.events.append(event)
-                event = None
             # yield copy.deepcopy(self.state)
-
-        # ROUND_END のEventはここでappend
-        if event is not None:
-            self.state.public_observation.event_history.events.append(event)
-            event = None
 
         self.state.public_observation.utils.curr_score.CopyFrom(self.state.terminal.final_score)
         if not reach_terminal:
@@ -368,6 +377,26 @@ class MjlogDecoder:
         else:
             assert False
         return no_winner_type
+
+    @staticmethod
+    def make_agari_event(
+        event: Optional[mjxproto.Event],
+        who: int,
+        from_who: int,
+    ) -> mjxproto.Event:
+        if event is None:
+            return mjxproto.Event(
+                type=mjxproto.EVENT_TYPE_ROUND_END,
+                round_end=mjxproto.RoundEnd(
+                    type=mjxproto.ROUND_END_TYPE_TSUMO
+                    if who == from_who
+                    else mjxproto.ROUND_END_TYPE_RON,
+                    shown_hands=[mjxproto.Hand(who=who)],
+                ),
+            )
+        else:
+            event.round_end.shown_hands.append(mjxproto.Hand(who=who))
+            return event
 
     @staticmethod
     def make_win(
