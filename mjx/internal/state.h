@@ -43,7 +43,6 @@ class State {
   bool IsRoundOver() const;
   bool IsGameOver() const;
   void Update(std::vector<mjxproto::Action>&& action_candidates);
-  void UpdateObservation();
   std::unordered_map<PlayerId, Observation> CreateObservations() const;
   std::string ToJson() const;
   mjxproto::State proto() const;
@@ -121,6 +120,7 @@ class State {
   // containers
   Wall wall_;
   std::array<Player, 4> players_;
+  std::array<std::vector<mjxproto::Action>, 4> possible_actions_;
   // temporal memory
   std::optional<AbsolutePos> three_ronned_player = std::nullopt;
 
@@ -136,6 +136,7 @@ class State {
 
   // update
   void Update(mjxproto::Action&& action);
+  void UpdateObservation();
 
   // event operations
   Tile Draw(AbsolutePos who);

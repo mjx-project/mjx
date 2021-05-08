@@ -124,20 +124,21 @@ void State::UpdateObservation() {
     case mjxproto::EVENT_TYPE_DRAW: {
       auto who = AbsolutePos(LastEvent().who());
       auto player_id = player(who).player_id;
-      auto *actions = state_.mutable_private_observations(ToUType(who))
-                          ->mutable_utils()
-                          ->mutable_legal_actions();
+      auto *actions = &possible_actions_[ToUType(who)];
+      // possible_actons_はメンバ変数なのでここでClear
+      // プロトを使う場合、ここでclearは必要ない
+      actions->clear();
       Assert(actions->empty(),
              "possible_actions should be empty.");
 
       // => NineTiles
       if (IsFirstTurnWithoutOpen() && hand(who).CanNineTiles()) {
-        actions->Add(Action::CreateNineTiles(who));
+        actions->emplace_back(Action::CreateNineTiles(who));
       }
 
       // => Tsumo (1)
       if (hand(who).IsCompleted() && CanTsumo(who))
-        actions->Add(Action::CreateTsumo(who));
+        actions->emplace_back(Action::CreateTsumo(who));
 
       // => Kan (2)
       if (auto possible_kans = hand(who).PossibleOpensAfterDraw();
@@ -146,19 +147,19 @@ void State::UpdateObservation() {
         // 四槓散了かのチェックは5回目のカンをできないようにするためだが、正しいのか確認
         // #701
         for (const auto possible_kan : possible_kans) {
-          actions->Add(
+          actions->emplace_back(
               Action::CreateOpen(who, possible_kan));
         }
       }
 
       // => Riichi (3)
       if (CanRiichi(who))
-        actions->Add(Action::CreateRiichi(who));
+        actions->emplace_back(Action::CreateRiichi(who));
 
       // => Discard (4)
       for(auto action :Action::CreateDiscardsAndTsumogiri(
           who, hand(who).PossibleDiscards())){
-        actions->Add(std::move(action));
+        actions->emplace_back(std::move(action));
       }
       Assert(std::count_if(actions->begin(), actions->end(),
                            [](const auto &x) {
@@ -170,21 +171,16 @@ void State::UpdateObservation() {
       // => Discard (5)
       auto who = AbsolutePos(LastEvent().who());
       for(auto action : Action::CreateDiscardsAndTsumogiri(who, hand(who).PossibleDiscardsJustAfterRiichi())){
-        state_.mutable_private_observations(ToUType(who))
-            ->mutable_utils()
-            ->mutable_legal_actions()
-            ->Add(std::move(action));
+        possible_actions_[ToUType(who)].emplace_back(std::move(action));
       }
     }
     case mjxproto::EVENT_TYPE_CHI:
     case mjxproto::EVENT_TYPE_PON: {
       // => Discard (6)
       auto who = AbsolutePos(LastEvent().who());
-      auto *actions = state_.mutable_private_observations(ToUType(who))
-          ->mutable_utils()
-          ->mutable_legal_actions();
+      auto *actions = &possible_actions_[ToUType(who)];
       for(auto action : Action::CreateDiscardsAndTsumogiri(who, hand(who).PossibleDiscards())){
-        actions->Add(std::move(action));
+        actions->emplace_back(std::move(action));
       }
       Assert(!std::any_of(actions->begin(), actions->end(),
                   [](const auto &x) {
@@ -199,10 +195,7 @@ void State::UpdateObservation() {
       auto observations = CreateStealAndRonObservation();
       for(int i = 0; i < 4; i++)
         for (auto possible_action : observations[player(AbsolutePos(i)).player_id].possible_actions()){
-          state_.mutable_private_observations(i)
-              ->mutable_utils()
-              ->mutable_legal_actions()
-              ->Add(std::move(possible_action));
+          possible_actions_[i].emplace_back(std::move(possible_action));
         }
     }
     case mjxproto::EVENT_TYPE_ADDED_KAN: {
@@ -212,10 +205,7 @@ void State::UpdateObservation() {
         for (auto possible_action : observations[player(AbsolutePos(i)).player_id].possible_actions()){
           Assert(Any(possible_action.type(),
                      {mjxproto::ACTION_TYPE_RON, mjxproto::ACTION_TYPE_NO}));
-          state_.mutable_private_observations(i)
-              ->mutable_utils()
-              ->mutable_legal_actions()
-              ->Add(std::move(possible_action));
+          possible_actions_[i].emplace_back(std::move(possible_action));
         }
     }
     case mjxproto::EVENT_TYPE_TSUMO:
@@ -233,7 +223,12 @@ std::unordered_map<PlayerId, Observation> State::CreateObservations() const {
   std::unordered_map<PlayerId, Observation> observations;
   for(int i = 0; i < 4; i++){
     auto who = AbsolutePos(i);
-    observations[player(who).player_id] = Observation(who, state_);
+    auto id = player(who).player_id;
+    if(possible_actions_[i].empty()) continue;
+    observations[id] = Observation(who, state_);
+    for(auto action : possible_actions_[i]){
+      observations[id].add_possible_action(std::move(action));
+    }
   }
   return observations;
 }
