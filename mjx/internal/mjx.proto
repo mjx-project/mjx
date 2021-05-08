@@ -112,7 +112,6 @@ message PrivateObservation {
   int32 who = 1;
   repeated uint32 init_hand = 2;
   repeated uint32 draw_history = 3;
-  PrivateObservationUtils utils = 4;
 }
 
 message Observation {
@@ -167,10 +166,6 @@ message State {
 message HiddenState {
   repeated uint32 wall = 1;
   HiddenStateUtils utils = 2;
-}
-
-message PrivateObservationUtils {
-  repeated Action legal_actions = 1;
 }
 
 message HiddenStateUtils {
