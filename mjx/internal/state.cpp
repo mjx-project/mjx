@@ -62,6 +62,7 @@ State::State(std::vector<PlayerId> player_ids, std::uint64_t game_seed,
 
   // dealer draws the first tusmo
   Draw(dealer());
+  UpdateObservation();
 }
 
 bool State::IsRoundOver() const {
@@ -120,14 +121,15 @@ GameResult State::result() const {
 }
 
 void State::UpdateObservation() {
+  for(int i = 0; i < 4; i++){
+    possible_actions_[i].clear();
+  }
   switch (LastEvent().type()) {
     case mjxproto::EVENT_TYPE_DRAW: {
       auto who = AbsolutePos(LastEvent().who());
       auto player_id = player(who).player_id;
       auto *actions = &possible_actions_[ToUType(who)];
-      // possible_actons_はメンバ変数なのでここでClear
-      // プロトを使う場合、ここでclearは必要ない
-      actions->clear();
+      *actions = Observation(who, state_).possible_actions();
       Assert(actions->empty(),
              "possible_actions should be empty.");
 
@@ -166,19 +168,24 @@ void State::UpdateObservation() {
                              return x.type() == mjxproto::ACTION_TYPE_TSUMOGIRI;
                            }) == 1,
              "There should be exactly one tsumogiri action");
+      return;
     }
     case mjxproto::EVENT_TYPE_RIICHI: {
       // => Discard (5)
       auto who = AbsolutePos(LastEvent().who());
+      auto observation = Observation(who, state_);
+      possible_actions_[ToUType(who)] = Observation(who, state_).possible_actions();
       for(auto action : Action::CreateDiscardsAndTsumogiri(who, hand(who).PossibleDiscardsJustAfterRiichi())){
         possible_actions_[ToUType(who)].emplace_back(std::move(action));
       }
+      return;
     }
     case mjxproto::EVENT_TYPE_CHI:
     case mjxproto::EVENT_TYPE_PON: {
       // => Discard (6)
       auto who = AbsolutePos(LastEvent().who());
       auto *actions = &possible_actions_[ToUType(who)];
+      *actions = Observation(who, state_).possible_actions();
       for(auto action : Action::CreateDiscardsAndTsumogiri(who, hand(who).PossibleDiscards())){
         actions->emplace_back(std::move(action));
       }
@@ -187,26 +194,35 @@ void State::UpdateObservation() {
                     return x.type() == mjxproto::ACTION_TYPE_TSUMOGIRI;
                   }),
              "After chi/pon, there should be no legal tsumogiri action");
+      return;
     }
     case mjxproto::EVENT_TYPE_DISCARD:
     case mjxproto::EVENT_TYPE_TSUMOGIRI: {
       // => Ron (7)
       // => Chi, Pon and KanOpened (8)
       auto observations = CreateStealAndRonObservation();
-      for(int i = 0; i < 4; i++)
-        for (auto possible_action : observations[player(AbsolutePos(i)).player_id].possible_actions()){
+      for(int i = 0; i < 4; i++) {
+        possible_actions_[i].clear();
+        for (auto possible_action :
+            observations[player(AbsolutePos(i)).player_id]
+                .possible_actions()) {
           possible_actions_[i].emplace_back(std::move(possible_action));
         }
+      }
+      return;
     }
     case mjxproto::EVENT_TYPE_ADDED_KAN: {
       auto observations = CreateStealAndRonObservation();
       Assert(!observations.empty());
-      for(int i = 0; i < 4; i++)
+      for(int i = 0; i < 4; i++){
+        possible_actions_[i].clear();
         for (auto possible_action : observations[player(AbsolutePos(i)).player_id].possible_actions()){
           Assert(Any(possible_action.type(),
                      {mjxproto::ACTION_TYPE_RON, mjxproto::ACTION_TYPE_NO}));
           possible_actions_[i].emplace_back(std::move(possible_action));
         }
+      }
+      return;
     }
     case mjxproto::EVENT_TYPE_TSUMO:
     case mjxproto::EVENT_TYPE_RON:
@@ -350,6 +366,7 @@ void State::UpdateByEvent(const mjxproto::Event &event) {
       break;
   }
   UpdateObservation();
+  return;
 }
 
 std::string State::ToJson() const {
