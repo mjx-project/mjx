@@ -1,4 +1,5 @@
 import argparse
+import os
 from converter import TileUnitType, FromWho
 from converter import get_modifier, get_tile_char, get_wind_char
 from rich import print
@@ -641,6 +642,25 @@ def main():
         game_board.show_by_rich(game_board.load_data())
     else:
         print(game_board.show_by_text(game_board.load_data()))
+
+    while input() != "q":
+        if os.name == "nt":
+            os.system("cls")
+        else:
+            os.system("clear")
+
+        hands = ""
+        for tiles in game_board.table.players[0].tile_units:
+            if tiles.tile_unit_type == TileUnitType.HAND:
+                hands = tiles
+                break
+        replace_tile = Tile(48, True, args.uni)
+        hands.tiles = [replace_tile if t.id == 0 else t for t in hands.tiles]
+
+        if args.rich:
+            game_board.show_by_rich(game_board.table)
+        else:
+            print(game_board.show_by_text(game_board.table))
 
 
 if __name__ == "__main__":
