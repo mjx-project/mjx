@@ -659,29 +659,38 @@ def main():
         game_board.show_by_rich(game_board.load_data())
     else:
         print(game_board.show_by_text(game_board.load_data()))
-
+    i = 0
     while input() != "q":
         if os.name == "nt":
             os.system("cls")
         else:
             os.system("clear")
+        if i % 2 == 1:
+            game_board.table = game_board.load_data()
+        else:
+            hands = ""
+            for tiles in game_board.table.players[0].tile_units:
+                if tiles.tile_unit_type == TileUnitType.HAND:
+                    hands = tiles
+                    break
+            before_id = 0
+            after_id = 48
+            hands.tiles = [
+                Tile(after_id, True, args.uni) if t.id == before_id else t
+                for t in hands.tiles
+            ]
 
-        hands = ""
-        for tiles in game_board.table.players[0].tile_units:
-            if tiles.tile_unit_type == TileUnitType.HAND:
-                hands = tiles
-                break
-        before_id = 0
-        after_id = 48
-        hands.tiles = [
-            Tile(after_id, True, args.uni) if t.id == before_id else t
-            for t in hands.tiles
-        ]
+            for tiles in game_board.table.players[0].tile_units:
+                if tiles.tile_unit_type == TileUnitType.DISCARD:
+                    tiles.tiles.append(Tile(before_id, True, args.uni))
+                    break
 
         if args.rich:
             game_board.show_by_rich(game_board.table)
         else:
             print(game_board.show_by_text(game_board.table))
+
+        i += 1
 
 
 if __name__ == "__main__":
