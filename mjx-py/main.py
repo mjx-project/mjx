@@ -21,9 +21,10 @@ class Tile:
         else:
             self.char = get_tile_char(tile_id, is_using_unicode)
         if is_tsumogiri:
-            self.char += " *"
-        if tile_id != 33:
-            self.char += ""
+            if is_using_unicode and self.char != "\U0001F004\uFE0E":
+                self.char += " *"
+            else:
+                self.char += "*"
 
 
 class TileUnit:
@@ -345,14 +346,14 @@ class GameBoard:
                     TileUnitType.DISCARD,
                     FromWho.NONE,
                     [
-                        Tile(104, True, self.is_using_unicode),
+                        Tile(124, True, self.is_using_unicode),
+                        Tile(128, True, self.is_using_unicode, True),
+                        Tile(132, True, self.is_using_unicode, True),
+                        Tile(132, True, self.is_using_unicode),
                         Tile(108, True, self.is_using_unicode, True),
                         Tile(112, True, self.is_using_unicode),
                         Tile(116, True, self.is_using_unicode),
                         Tile(120, True, self.is_using_unicode, True),
-                        Tile(124, True, self.is_using_unicode),
-                        Tile(128, True, self.is_using_unicode, True),
-                        Tile(132, True, self.is_using_unicode),
                     ],
                 )
             )
@@ -376,10 +377,10 @@ class GameBoard:
             for tile_unit in self.table.players[player_idx].tile_units:
                 if tile_unit.tile_unit_type == tile_unit_type:
                     if tile_unit.tile_unit_type == TileUnitType.DISCARD:
-                        discards = [tile.char for tile in tile_unit.tiles]
+                        discards = [tile.char + " " for tile in tile_unit.tiles]
                         tiles += "\n".join(
                             [
-                                " ".join(discards[idx : idx + 6])
+                                "".join(discards[idx : idx + 6])
                                 for idx in range(0, len(discards), 6)
                             ]
                         )
@@ -388,13 +389,20 @@ class GameBoard:
                         if tile_unit.tile_unit_type == TileUnitType.HAND:
                             tiles += " ".join([tile.char for tile in tile_unit.tiles])
                             break
-                        tiles += (
-                            (" " if self.is_using_unicode else "").join(
-                                [tile.char for tile in tile_unit.tiles]
-                            )
-                            + (" " if self.is_using_unicode else "")
-                            + get_modifier(tile_unit.from_who, tile_unit.tile_unit_type)
-                        )
+                        tiles += "".join(
+                            [
+                                tile.char
+                                + (
+                                    ""
+                                    if (
+                                        not self.is_using_unicode
+                                        or tile.char == "\U0001F004\uFE0E"
+                                    )
+                                    else " "
+                                )
+                                for tile in tile_unit.tiles
+                            ]
+                        ) + get_modifier(tile_unit.from_who, tile_unit.tile_unit_type)
                     else:
                         tiles += (
                             "\n"
@@ -412,22 +420,29 @@ class GameBoard:
                         tiles += " ".join([tile.char for tile in tile_unit.tiles])
                         break
                     if tile_unit.tile_unit_type == TileUnitType.DISCARD:
-                        discards = [tile.char for tile in tile_unit.tiles]
-                        tiles += " ".join(
+                        discards = [tile.char + " " for tile in tile_unit.tiles]
+                        tiles += "\n".join(
                             [
-                                " ".join(discards[idx : idx + 6])
+                                "".join(discards[idx : idx + 6])
                                 for idx in range(0, len(discards), 6)
                             ]
                         )
                         break
 
-                    tiles += (
-                        (" " if self.is_using_unicode else "").join(
-                            [tile.char for tile in tile_unit.tiles]
-                        )
-                        + (" " if self.is_using_unicode else "")
-                        + get_modifier(tile_unit.from_who, tile_unit.tile_unit_type)
-                    )
+                    tiles += "".join(
+                        [
+                            tile.char
+                            + (
+                                ""
+                                if (
+                                    not self.is_using_unicode
+                                    or tile.char == "\U0001F004\uFE0E"
+                                )
+                                else " "
+                            )
+                            for tile in tile_unit.tiles
+                        ]
+                    ) + get_modifier(tile_unit.from_who, tile_unit.tile_unit_type)
 
             return tiles
 
@@ -550,28 +565,32 @@ def main():
     <BLANKLINE>
     m1 m2 m3 m4 m5 m6 m7 m8  p4p5p6L p7p8p9L
     <BLANKLINE>
-    s9 ew * sw ww nw * wd gd * rd
+    wd gd* rd* rd ew* sw
+    ww nw*
     <BLANKLINE>
     <BLANKLINE>
     SOUTH [ 25000 ] 次郎
     <BLANKLINE>
     # # # # # # # #  s1s1s1M s2s2s2R
     <BLANKLINE>
-    s9 ew * sw ww nw * wd gd * rd
+    wd gd* rd* rd ew* sw
+    ww nw*
     <BLANKLINE>
     <BLANKLINE>
     WEST [ 25000, riichi ] 三郎
     <BLANKLINE>
     # # # # # # # #  s3s3s3s3R s4s4s4s4R
     <BLANKLINE>
-    s9 ew * sw ww nw * wd gd * rd
+    wd gd* rd* rd ew* sw
+    ww nw*
     <BLANKLINE>
     <BLANKLINE>
     NORTH [ 25000 ] 四郎
     <BLANKLINE>
     # # # # # # # #  s7s7s7s7R s8s8s8s8L(Add)
     <BLANKLINE>
-    s9 ew * sw ww nw * wd gd * rd
+    wd gd* rd* rd ew* sw
+    ww nw*
     <BLANKLINE>
     <BLANKLINE>
     NORTH's turn now.
