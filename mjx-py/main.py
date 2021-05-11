@@ -119,12 +119,21 @@ class GameBoard:
         self.layout = Layout()
         self.layout.split_column(
             Layout(name="info"),
+            Layout(name="players_info"),
             Layout(" ", name="space"),
             Layout(name="table"),
         )
         self.layout["info"].size = 3
-        self.layout["space"].size = 3
-        # self.layout["table"].size = 60
+        self.layout["players_info"].size = 4
+        self.layout["space"].size = 1
+        self.layout["table"].size = 35
+
+        self.layout["players_info"].split_row(
+            Layout(name="player1"),
+            Layout(name="player2"),
+            Layout(name="player3"),
+            Layout(name="player4"),
+        )
 
         self.layout["table"].split_column(
             Layout(name="upper1"),
@@ -133,7 +142,6 @@ class GameBoard:
         )
 
         self.layout["upper1"].size = 3
-        self.layout["middle1"].size = 25
         self.layout["lower1"].size = 3
 
         self.layout["upper1"].split_row(
@@ -168,22 +176,18 @@ class GameBoard:
             Layout(name="discard3"),
             Layout(" "),
         )
-        # self.layout["discard3"].ratio = 2
 
         self.layout["middle3"].split_row(
             Layout(name="discard4"),
-            Layout(name="center"),
+            Layout(" "),
             Layout(name="discard2"),
         )
-        # self.layout["center"].ratio = 2
 
         self.layout["lower2"].split_row(
             Layout(" "),
             Layout(name="discard1"),
             Layout(" "),
         )
-        # self.layout["discard1"].ratio = 2
-        self.layout["center"].update(Panel(" "))
 
     def load_data(self) -> MahjongTable:
         """
@@ -536,10 +540,29 @@ class GameBoard:
         )
 
         table.players.sort(key=lambda x: (x.player_idx - self.my_idx) % 4)
+
+        players_idx = ["player1", "player2", "player3", "player4"]
         hands_idx = ["hand1", "hand2", "hand3", "hand4"]
         discards_idx = ["discard1", "discard2", "discard3", "discard4"]
 
         for i, p in enumerate(table.players):
+            player_info = get_wind_char(p.wind, self.language)
+            if self.show_name:
+                player_info += " " + p.name
+            player_info += "\n" + "".join(
+                [
+                    str(p.score)
+                    + (
+                        [", riichi", ", リーチ"][self.language]
+                        if p.is_declared_riichi
+                        else ""
+                    )
+                ]
+            )
+            self.layout[players_idx[i]].update(
+                Panel(Text(player_info, justify="center", no_wrap=True))
+            )
+
             hand = self.get_modified_tiles(i, TileUnitType.HAND)
             chi = self.get_modified_tiles(i, TileUnitType.CHI)
             pon = self.get_modified_tiles(i, TileUnitType.PON)
