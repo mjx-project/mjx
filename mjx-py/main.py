@@ -377,7 +377,10 @@ class GameBoard:
             for tile_unit in self.table.players[player_idx].tile_units:
                 if tile_unit.tile_unit_type == tile_unit_type:
                     if tile_unit.tile_unit_type == TileUnitType.DISCARD:
-                        discards = [tile.char + " " for tile in tile_unit.tiles]
+                        discards = [
+                            tile.char + ("" if tile.char == "\U0001F004\uFE0E" else " ")
+                            for tile in tile_unit.tiles
+                        ]
                         tiles += "\n".join(
                             [
                                 "".join(discards[idx : idx + 6])
@@ -420,7 +423,10 @@ class GameBoard:
                         tiles += " ".join([tile.char for tile in tile_unit.tiles])
                         break
                     if tile_unit.tile_unit_type == TileUnitType.DISCARD:
-                        discards = [tile.char + " " for tile in tile_unit.tiles]
+                        discards = [
+                            tile.char + ("" if tile.char == "\U0001F004\uFE0E" else " ")
+                            for tile in tile_unit.tiles
+                        ]
                         tiles += "\n".join(
                             [
                                 "".join(discards[idx : idx + 6])
