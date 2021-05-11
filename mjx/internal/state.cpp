@@ -322,6 +322,16 @@ State::State(const mjxproto::State &state) {
        state.public_observation().event_history().events()) {
     UpdateByEvent(event);
   }
+  auto type = LastEvent().type();
+  if(type != mjxproto::EVENT_TYPE_TSUMO &&
+     type != mjxproto::EVENT_TYPE_RON &&
+     type != mjxproto::EVENT_TYPE_CLOSED_KAN &&
+     type != mjxproto::EVENT_TYPE_OPEN_KAN &&
+     type != mjxproto::EVENT_TYPE_NO_WINNER &&
+     type != mjxproto::EVENT_TYPE_NEW_DORA &&
+     type != mjxproto::EVENT_TYPE_RIICHI_SCORE_CHANGE){
+    UpdateObservation();
+  }
 }
 
 void State::UpdateByEvent(const mjxproto::Event &event) {
@@ -365,7 +375,6 @@ void State::UpdateByEvent(const mjxproto::Event &event) {
       NoWinner();
       break;
   }
-  UpdateObservation();
   return;
 }
 
@@ -1430,7 +1439,9 @@ void State::Update(mjxproto::Action &&action) {
       NoWinner();
       break;
   }
-  UpdateObservation();
+  if(!IsRoundOver()){
+    UpdateObservation();
+  }
 }
 
 AbsolutePos State::top_player() const {
