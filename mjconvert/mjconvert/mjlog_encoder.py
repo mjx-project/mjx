@@ -70,7 +70,7 @@ class MjlogEncoder:
         curr_score = copy.deepcopy(state.public_observation.init_score)
         draw_ixs = [0, 0, 0, 0]
         under_riichi = [False, False, False, False]
-        for event in state.public_observation.event_history.events:
+        for event in state.event_history.events:
             if event.type == mjxproto.EVENT_TYPE_DRAW:
                 who_ix = int(event.who)
                 who = MjlogEncoder._encode_absolute_pos_for_draw(event.who)
@@ -268,9 +268,7 @@ class MjlogEncoder:
 
     @staticmethod
     def _parse_player_id(state: mjxproto.State) -> str:
-        players = [
-            urllib.parse.quote(player) for player in state.public_observation.utils.player_ids
-        ]
+        players = [urllib.parse.quote(player) for player in state.player_ids]
         return f'<UN n0="{players[0]}" n1="{players[1]}" n2="{players[2]}" n3="{players[3]}"/>'
 
     @staticmethod

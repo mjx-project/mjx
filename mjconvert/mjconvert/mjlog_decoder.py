@@ -68,18 +68,10 @@ class MjlogDecoder:
         # TODO(sotetsuk): if there are > 2 "UN", some user became offline
         un = root.iter("UN")
         for child in un:
-            state_.public_observation.utils.player_ids.append(
-                urllib.parse.unquote(child.attrib["n0"])
-            )
-            state_.public_observation.utils.player_ids.append(
-                urllib.parse.unquote(child.attrib["n1"])
-            )
-            state_.public_observation.utils.player_ids.append(
-                urllib.parse.unquote(child.attrib["n2"])
-            )
-            state_.public_observation.utils.player_ids.append(
-                urllib.parse.unquote(child.attrib["n3"])
-            )
+            state_.player_ids.append(urllib.parse.unquote(child.attrib["n0"]))
+            state_.player_ids.append(urllib.parse.unquote(child.attrib["n1"]))
+            state_.player_ids.append(urllib.parse.unquote(child.attrib["n2"]))
+            state_.player_ids.append(urllib.parse.unquote(child.attrib["n3"]))
             break
         # taikyoku = root.iter("TAIKYOKU")
 
@@ -238,7 +230,7 @@ class MjlogDecoder:
                 raise KeyError(key)
 
             if event is not None:
-                self.state.public_observation.event_history.events.append(event)
+                self.state.event_history.events.append(event)
             event = None
             # yield copy.deepcopy(self.state)
 
