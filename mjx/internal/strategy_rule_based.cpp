@@ -16,13 +16,10 @@ std::vector<mjxproto::Action> StrategyRuleBased::TakeActions(
 mjxproto::Action StrategyRuleBased::TakeAction(
     Observation &&observation) const {
   // Prepare some seed and MT engine for reproducibility
-  const std::uint64_t seed = 12345 +
-                             4096 * observation.proto()
-                                        .public_observation()
-                                        .event_history()
-                                        .events_size() +
-                             16 * observation.possible_actions().size() +
-                             1 * observation.proto().who();
+  const std::uint64_t seed =
+      12345 + 4096 * observation.proto().public_observation().event_history().events_size() +
+      16 * observation.possible_actions().size() +
+      1 * observation.proto().who();
   auto mt = std::mt19937_64(seed);
 
   auto possible_actions = observation.possible_actions();
