@@ -79,7 +79,9 @@ message Event {
 }
 
 message PublicObservation {
-  repeated Event events = 2;
+  Score init_score = 1;  // public info
+  repeated uint32 doras = 2;
+  repeated Event events = 3;
 }
 
 message PrivateInfo {
@@ -90,8 +92,6 @@ message PrivateInfo {
 
 message Observation {
   repeated string player_ids = 1;
-  Score init_score = 2;  // public info
-  repeated uint32 doras = 3;
   PublicObservation public_observation = 4;  // public info
   int32 who = 5;
   PrivateInfo private_info = 6;
@@ -133,8 +133,6 @@ message Terminal {
 message State {
   // public info
   repeated string player_ids = 1;
-  Score init_score = 2;  // Required for Tenhou mjlog.
-  repeated uint32 doras = 3;
   PublicObservation public_observation = 4;
   // private info
   repeated uint32 wall = 5;
