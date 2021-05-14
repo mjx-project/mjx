@@ -84,7 +84,7 @@ message PublicObservation {
   repeated Event events = 3;
 }
 
-message PrivateInfo {
+message PrivateObservation {
   int32 who = 1;
   repeated uint32 init_hand = 2;
   repeated uint32 draws = 3;
@@ -94,7 +94,7 @@ message Observation {
   repeated string player_ids = 1;
   PublicObservation public_observation = 4;  // public info
   int32 who = 5;
-  PrivateInfo private_info = 6;
+  PrivateObservation private_observation = 6;
   repeated Action possible_actions = 7;
 }
 
@@ -142,7 +142,7 @@ message State {
   HiddenState hidden_state = 2;
   PublicObservation public_observation = 4;
   // private info
-  repeated PrivateInfo private_infos = 7;
+  repeated PrivateObservation private_observations = 7;
   // win/ryuukyoku information
   Terminal terminal = 9;
 }
