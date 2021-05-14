@@ -156,6 +156,7 @@ message State {
   // public info
   // private info
   repeated PrivateObservation private_observations = 7;
+  uint64 game_seed = 8;
   // win/ryuukyoku information
   Terminal terminal = 9;
   PublicObservation public_observation = 10;
