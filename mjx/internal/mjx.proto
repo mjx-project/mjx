@@ -94,17 +94,6 @@ message EventHistory {
   repeated Event events = 2;
 }
 
-message PublicObservation {
-  Score init_score = 1;
-  EventHistory event_history = 3;
-  PublicObservationUtils utils = 4;
-}
-
-message PublicObservationUtils {
-  uint64 game_id = 1;
-  repeated string player_ids = 2;
-}
-
 message PrivateObservation {
   int32 who = 1;
   repeated uint32 init_hand = 2;
@@ -112,9 +101,11 @@ message PrivateObservation {
 }
 
 message Observation {
-  int32 who = 1;
-  PublicObservation public_observation = 2;
+  repeated string player_ids = 1;
+  Score init_score = 2;  // public info
   repeated uint32 doras = 3;
+  EventHistory event_history = 4;  // public info
+  int32 who = 5;
   PrivateObservation private_observation = 6;
   repeated Action possible_actions = 7;
 }
@@ -153,24 +144,17 @@ message Terminal {
 
 message State {
   // public info
+  repeated string player_ids = 1;
+  Score init_score = 2;  // Required for Tenhou mjlog.
   repeated uint32 doras = 3;
+  EventHistory event_history = 4;
   // private info
+  repeated uint32 wall = 5;
+  repeated uint32 ura_doras = 6;
   repeated PrivateObservation private_observations = 7;
   uint64 game_seed = 8;
   // win/ryuukyoku information
   Terminal terminal = 9;
-  PublicObservation public_observation = 10;
-  HiddenState hidden_state = 11;
-}
-
-message HiddenState {
-  repeated uint32 wall = 1;
-  HiddenStateUtils utils = 2;
-}
-
-message HiddenStateUtils {
-  uint64 game_seed = 1;
-  repeated uint32 curr_ura_dora_indicators = 2;
 }
 
 message Action {

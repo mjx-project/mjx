@@ -96,30 +96,25 @@ std::string SwapTiles(const std::string &json_str, Tile a, Tile b) {
   auto status = google::protobuf::util::JsonStringToMessage(json_str, &state);
   Assert(status.ok());
   // wall
-  for (int i = 0; i < state.hidden_state().wall_size(); ++i) {
-    if (state.hidden_state().wall(i) == a.Id())
-      state.mutable_hidden_state()->set_wall(i, b.Id());
-    else if (state.hidden_state().wall(i) == b.Id())
-      state.mutable_hidden_state()->set_wall(i, a.Id());
+  for (int i = 0; i < state.wall_size(); ++i) {
+    if (state.wall(i) == a.Id())
+      state.set_wall(i, b.Id());
+    else if (state.wall(i) == b.Id())
+      state.set_wall(i, a.Id());
   }
   // dora
   for (int i = 0; i < state.doras_size(); ++i) {
     if (state.doras(i) == a.Id())
-      state.mutable_hidden_state()->set_wall(i, b.Id());
+      state.set_wall(i, b.Id());
     else if (state.doras(i) == b.Id())
-      state.mutable_hidden_state()->set_wall(i, a.Id());
+      state.set_wall(i, a.Id());
   }
   // ura dora
-  for (int i = 0;
-       i < state.hidden_state().utils().curr_ura_dora_indicators_size(); ++i) {
-    if (state.hidden_state().utils().curr_ura_dora_indicators(i) == a.Id())
-      state.mutable_hidden_state()
-          ->mutable_utils()
-          ->set_curr_ura_dora_indicators(i, b.Id());
-    else if (state.hidden_state().utils().curr_ura_dora_indicators(i) == b.Id())
-      state.mutable_hidden_state()
-          ->mutable_utils()
-          ->set_curr_ura_dora_indicators(i, a.Id());
+  for (int i = 0; i < state.ura_doras_size(); ++i) {
+    if (state.ura_doras(i) == a.Id())
+      state.set_ura_doras(i, b.Id());
+    else if (state.ura_doras(i) == b.Id())
+      state.set_ura_doras(i, a.Id());
   }
   // init hand, draw_history
   for (int j = 0; j < 4; ++j) {
@@ -138,11 +133,8 @@ std::string SwapTiles(const std::string &json_str, Tile a, Tile b) {
     }
   }
   // event history
-  for (int i = 0; i < state.public_observation().event_history().events_size();
-       ++i) {
-    auto mevent = state.mutable_public_observation()
-                      ->mutable_event_history()
-                      ->mutable_events(i);
+  for (int i = 0; i < state.event_history().events_size(); ++i) {
+    auto mevent = state.mutable_event_history()->mutable_events(i);
     if (Any(mevent->type(),
             {mjxproto::EVENT_TYPE_DISCARD, mjxproto::EVENT_TYPE_TSUMOGIRI,
              mjxproto::EVENT_TYPE_TSUMO, mjxproto::EVENT_TYPE_RON,
@@ -974,9 +966,7 @@ std::string TruncateAfterFirstDraw(const std::string &json) {
   mjxproto::State state = mjxproto::State();
   auto status = google::protobuf::util::JsonStringToMessage(json, &state);
   Assert(status.ok());
-  auto events = state.mutable_public_observation()
-                    ->mutable_event_history()
-                    ->mutable_events();
+  auto events = state.mutable_event_history()->mutable_events();
   events->erase(events->begin() + 1, events->end());
   state.clear_terminal();
   // drawについては消さなくても良い（wallから引いてsetされるので）
