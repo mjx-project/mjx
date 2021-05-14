@@ -6,25 +6,11 @@ service Agent {
   rpc TakeAction (Observation) returns (Action) {}
 }
 
-enum Wind {
-  WIND_EAST = 0;
-  WIND_SOUTH = 1;
-  WIND_WEST = 2;
-  WIND_NORTH = 3;
-}
-
 enum AbsolutePos {
   ABSOLUTE_POS_INIT_EAST = 0;  // 起家
   ABSOLUTE_POS_INIT_SOUTH = 1;
   ABSOLUTE_POS_INIT_WEST = 2;
   ABSOLUTE_POS_INIT_NORTH = 3;  // ラス親
-}
-
-enum RelativePos {
-  RELATIVE_POS_SELF = 0;
-  RELATIVE_POS_RIGHT = 1;  // 下家
-  RELATIVE_POS_MID = 2;    // 対面
-  RELATIVE_POS_LEFT = 3;   // 上家
 }
 
 enum ActionType {
