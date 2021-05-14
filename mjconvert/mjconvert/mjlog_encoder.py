@@ -49,14 +49,10 @@ class MjlogEncoder:
 
     @staticmethod
     def _parse_each_round(state: mjxproto.State) -> str:
-        assert (
-            sum(state.public_observation.init_score.tens)
-            + state.public_observation.init_score.riichi * 1000
-            == 100000
-        )
+        assert sum(state.init_score.tens) + state.init_score.riichi * 1000 == 100000
         ret = "<INIT "
-        ret += f'seed="{state.public_observation.init_score.round},{state.public_observation.init_score.honba},{state.public_observation.init_score.riichi},,,{state.doras[0]}" '
-        ret += f'ten="{state.public_observation.init_score.tens[0] // 100},{state.public_observation.init_score.tens[1] // 100},{state.public_observation.init_score.tens[2] // 100},{state.public_observation.init_score.tens[3] // 100}" oya="{state.public_observation.init_score.round % 4}" '
+        ret += f'seed="{state.init_score.round},{state.init_score.honba},{state.init_score.riichi},,,{state.doras[0]}" '
+        ret += f'ten="{state.init_score.tens[0] // 100},{state.init_score.tens[1] // 100},{state.init_score.tens[2] // 100},{state.init_score.tens[3] // 100}" oya="{state.init_score.round % 4}" '
         hai = [
             ",".join([str(t) for t in hand])
             for hand in [y.init_hand for y in state.private_observations]
@@ -67,7 +63,7 @@ class MjlogEncoder:
         ret += f'hai3="{hai[3]}" '
         ret += "/>"
 
-        curr_score = copy.deepcopy(state.public_observation.init_score)
+        curr_score = copy.deepcopy(state.init_score)
         draw_ixs = [0, 0, 0, 0]
         under_riichi = [False, False, False, False]
         for event in state.event_history.events:
@@ -239,9 +235,7 @@ class MjlogEncoder:
         doras = ",".join([str(x) for x in state.doras])
         ret += f'doraHai="{doras}" '
         if under_riichi[win.who]:  # if under riichi (or double riichi)
-            ura_doras = ",".join(
-                [str(x) for x in state.hidden_state.utils.curr_ura_dora_indicators]
-            )
+            ura_doras = ",".join([str(x) for x in state.ura_doras])
             ret += f'doraHaiUra="{ura_doras}" '
         ret += f'who="{win.who}" fromWho="{win.from_who}" '
         sc = []
