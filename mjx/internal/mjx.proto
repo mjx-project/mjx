@@ -53,7 +53,7 @@ message Score {
   uint32 round = 1;
   uint32 honba = 2;
   uint32 riichi = 3;  // For final score, riichi = 0 if someone wins (or at the end of game)
-  repeated int32 ten = 4;  // Following rule holds for all rounds: sum(score.ten) + score.riichi * 1000 == 100000
+  repeated int32 tens = 4;  // Following rule holds for all rounds: sum(score.ten) + score.riichi * 1000 == 100000
 }
 
 message Event {
