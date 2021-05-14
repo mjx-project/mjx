@@ -411,7 +411,7 @@ def determine_ura_doras_list(state: mjxproto.State) -> List:
     has_riichi = 1 not in state.terminal.wins[0].yakus and 21 not in state.terminal.wins[0].yakus
     if has_riichi:  # リーチまたはダブリーがかかっていないと、上がって裏ドラが表示されない.
         return []
-    return [_change_tile_fmt(i) for i in state.hidden_state.utils.curr_ura_dora_indicators]
+    return [_change_tile_fmt(i) for i in state.ura_doras]
 
 
 # ここを実装
