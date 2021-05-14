@@ -9,6 +9,7 @@ service Agent {
 enum ActionType {
   // After draw
   ACTION_TYPE_DISCARD = 0;
+  ACTION_TYPE_TSUMOGIRI = 1;
   ACTION_TYPE_RIICHI = 1;
   ACTION_TYPE_TSUMO = 2;
   ACTION_TYPE_CLOSED_KAN = 3;
