@@ -56,7 +56,7 @@ class MjlogDecoder:
         state_ = mjxproto.State()
 
         # set seed
-        state_.hidden_state.utils.game_seed = 0
+        state_.game_seed = 0
 
         assert root.tag == "mjloggm"
         assert root.attrib["ver"] == "2.3"
