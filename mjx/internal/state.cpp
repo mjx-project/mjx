@@ -37,12 +37,10 @@ State::State(std::vector<PlayerId> player_ids, std::uint64_t game_seed,
         tens[i]);
   curr_score_.CopyFrom(state_.public_observation().init_score());
   // wall
-  for (auto t : wall_.tiles())
-    state_.mutable_hidden_state()->mutable_wall()->Add(t.Id());
+  for (auto t : wall_.tiles()) state_.mutable_hidden_state()->mutable_wall()->Add(t.Id());
   // doras, ura_doras
   state_.add_doras(wall_.dora_indicators().front().Id());
-  state_.mutable_hidden_state()->mutable_utils()->add_curr_ura_dora_indicators(
-      wall_.ura_dora_indicators().front().Id());
+  state_.mutable_hidden_state()->mutable_utils()->add_curr_ura_dora_indicators(wall_.ura_dora_indicators().front().Id());
   // private info
   for (int i = 0; i < 4; ++i) {
     state_.add_private_observations()->set_who(i);
@@ -224,17 +222,14 @@ State::State(const mjxproto::State &state) {
   curr_score_.CopyFrom(state.public_observation().init_score());
   // Set walls
   auto wall_tiles = std::vector<Tile>();
-  for (auto tile_id : state.hidden_state().wall())
-    wall_tiles.emplace_back(Tile(tile_id));
+  for (auto tile_id : state.hidden_state().wall()) wall_tiles.emplace_back(Tile(tile_id));
   wall_ = Wall(round(), wall_tiles);
-  state_.mutable_hidden_state()->mutable_wall()->CopyFrom(
-      state.hidden_state().wall());
+  state_.mutable_hidden_state()->mutable_wall()->CopyFrom(state.hidden_state().wall());
   // Set seed
   state_.set_game_seed(state.game_seed());
   // Set dora
   state_.add_doras(wall_.dora_indicators().front().Id());
-  state_.mutable_hidden_state()->mutable_utils()->add_curr_ura_dora_indicators(
-      wall_.ura_dora_indicators().front().Id());
+  state_.mutable_hidden_state()->mutable_utils()->add_curr_ura_dora_indicators(wall_.ura_dora_indicators().front().Id());
   // Set init hands
   for (int i = 0; i < 4; ++i) {
     players_[i] = Player{state_.player_ids(i), AbsolutePos(i),
@@ -402,8 +397,7 @@ void State::AddNewDora() {
   state_.mutable_event_history()->mutable_events()->Add(
       Event::CreateNewDora(new_dora_ind));
   state_.add_doras(new_dora_ind.Id());
-  state_.mutable_hidden_state()->mutable_utils()->add_curr_ura_dora_indicators(
-      new_ura_dora_ind.Id());
+  state_.mutable_hidden_state()->mutable_utils()->add_curr_ura_dora_indicators(new_ura_dora_ind.Id());
 }
 
 void State::RiichiScoreChange() {
@@ -1382,13 +1376,9 @@ bool State::Equals(const State &other) const noexcept {
           state_.public_observation().init_score(),
           other.state_.public_observation().init_score()))
     return false;
-  if (!tiles_eq(state_.hidden_state().wall(),
-                other.state_.hidden_state().wall()))
-    return false;
+  if (!tiles_eq(state_.hidden_state().wall(), other.state_.hidden_state().wall())) return false;
   if (!tiles_eq(state_.doras(), other.state_.doras())) return false;
-  if (!tiles_eq(state_.hidden_state().utils().curr_ura_dora_indicators(),
-                other.state_.hidden_state().utils().curr_ura_dora_indicators()))
-    return false;
+  if (!tiles_eq(state_.hidden_state().utils().curr_ura_dora_indicators(), other.state_.hidden_state().utils().curr_ura_dora_indicators())) return false;
   for (int i = 0; i < 4; ++i)
     if (!tiles_eq(state_.private_observations(i).init_hand(),
                   other.state_.private_observations(i).init_hand()))
@@ -1475,9 +1465,7 @@ bool State::CanReach(const State &other) const noexcept {
           state_.public_observation().init_score(),
           other.state_.public_observation().init_score()))
     return false;
-  if (!tiles_eq(state_.hidden_state().wall(),
-                other.state_.hidden_state().wall()))
-    return false;
+  if (!tiles_eq(state_.hidden_state().wall(), other.state_.hidden_state().wall())) return false;
 
   // 現在の時点まではイベントがすべて同じである必要がある
   if (state_.event_history().events_size() >=
