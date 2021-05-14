@@ -79,9 +79,10 @@ message Event {
 }
 
 message PublicObservation {
-  Score init_score = 1;  // public info
-  repeated uint32 doras = 2;
-  repeated Event events = 3;
+  repeated string player_ids = 1;
+  Score init_score = 2;  // public info
+  repeated uint32 doras = 3;
+  repeated Event events = 4;
 }
 
 message PrivateObservation {
@@ -91,7 +92,6 @@ message PrivateObservation {
 }
 
 message Observation {
-  repeated string player_ids = 1;
   PublicObservation public_observation = 4;  // public info
   int32 who = 5;
   PrivateObservation private_observation = 6;
@@ -138,7 +138,6 @@ message HiddenState {
 
 message State {
   // public info
-  repeated string player_ids = 1;
   HiddenState hidden_state = 2;
   PublicObservation public_observation = 4;
   // private info
