@@ -24,8 +24,8 @@ enum ActionType {
 
 enum EventType {
   EVENT_TYPE_DRAW = 0;
-  EVENT_TYPE_DISCARD_FROM_HAND = 1;
-  EVENT_TYPE_DISCARD_DRAWN_TILE = 2;  // ツモ切り, Tsumogiri
+  EVENT_TYPE_DISCARD = 1;
+  EVENT_TYPE_TSUMOGIRI = 2;  // ツモ切り, Tsumogiri
   EVENT_TYPE_RIICHI = 3;
   EVENT_TYPE_TSUMO = 4;
   EVENT_TYPE_RON = 5;
@@ -59,8 +59,8 @@ message Score {
 message Event {
   //                       who    tile    open
   // DRAW                  Yes    No      No      Tile is No since it's private info. PublicObservation will be passed to Observation as public info.
-  // DISCARD_FROM_HAND     Yes    Yes     No
-  // DISCARD_DRAWN_TILE    Yes    Yes     No
+  // DISCARD     Yes    Yes     No
+  // TSUMOGIRI    Yes    Yes     No
   // RIICHI                Yes    No      No
   // TSUMO                 Yes    Yes     No
   // RON                   Yes    Yes     No
