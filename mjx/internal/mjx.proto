@@ -130,15 +130,19 @@ message Terminal {
   bool is_game_over = 4;
 }
 
+message HiddenState {
+  uint64 game_seed = 1;
+  repeated uint32 wall = 2;
+  repeated uint32 ura_doras = 3;
+}
+
 message State {
   // public info
   repeated string player_ids = 1;
+  HiddenState hidden_state = 2;
   PublicObservation public_observation = 4;
   // private info
-  repeated uint32 wall = 5;
-  repeated uint32 ura_doras = 6;
   repeated PrivateInfo private_infos = 7;
-  uint64 game_seed = 8;
   // win/ryuukyoku information
   Terminal terminal = 9;
 }
