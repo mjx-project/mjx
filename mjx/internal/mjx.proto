@@ -58,7 +58,7 @@ message Score {
 
 message Event {
   //                       who    tile    open
-  // DRAW                  Yes    No      No      Tile is No since it's private info. EventHistory will be passed to Observation as public info.
+  // DRAW                  Yes    No      No      Tile is No since it's private info. PublicObservation will be passed to Observation as public info.
   // DISCARD_FROM_HAND     Yes    Yes     No
   // DISCARD_DRAWN_TILE    Yes    Yes     No
   // RIICHI                Yes    No      No
@@ -78,7 +78,7 @@ message Event {
   uint32 open = 4;
 }
 
-message EventHistory {
+message PublicObservation {
   repeated Event events = 2;
 }
 
@@ -92,7 +92,7 @@ message Observation {
   repeated string player_ids = 1;
   Score init_score = 2;  // public info
   repeated uint32 doras = 3;
-  EventHistory event_history = 4;  // public info
+  PublicObservation public_observation = 4;  // public info
   int32 who = 5;
   PrivateInfo private_info = 6;
   repeated Action possible_actions = 7;
@@ -135,7 +135,7 @@ message State {
   repeated string player_ids = 1;
   Score init_score = 2;  // Required for Tenhou mjlog.
   repeated uint32 doras = 3;
-  EventHistory event_history = 4;
+  PublicObservation public_observation = 4;
   // private info
   repeated uint32 wall = 5;
   repeated uint32 ura_doras = 6;
