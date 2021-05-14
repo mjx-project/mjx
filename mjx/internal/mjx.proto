@@ -11,14 +11,14 @@ enum ActionType {
   ACTION_TYPE_DISCARD = 0;
   ACTION_TYPE_RIICHI = 1;
   ACTION_TYPE_TSUMO = 2;
-  ACTION_TYPE_KAN_CLOSED = 3;
-  ACTION_TYPE_KAN_ADDED = 4;
+  ACTION_TYPE_CLOSED_KAN = 3;
+  ACTION_TYPE_ADDED_KAN = 4;
   ACTION_TYPE_KYUSYU = 5;
   // After other's discard
   ACTION_TYPE_NO = 6;
   ACTION_TYPE_CHI = 7;
   ACTION_TYPE_PON = 8;
-  ACTION_TYPE_KAN_OPENED = 9;
+  ACTION_TYPE_OPEN_KAN = 9;
   ACTION_TYPE_RON = 10;
 }
 
@@ -31,9 +31,9 @@ enum EventType {
   EVENT_TYPE_RON = 5;
   EVENT_TYPE_CHI = 6;
   EVENT_TYPE_PON = 7;
-  EVENT_TYPE_KAN_CLOSED = 8;
-  EVENT_TYPE_KAN_OPENED = 9;
-  EVENT_TYPE_KAN_ADDED = 10;
+  EVENT_TYPE_CLOSED_KAN = 8;
+  EVENT_TYPE_OPEN_KAN = 9;
+  EVENT_TYPE_ADDED_KAN = 10;
   EVENT_TYPE_NEW_DORA = 11;
   EVENT_TYPE_RIICHI_SCORE_CHANGE = 12;
   EVENT_TYPE_NO_WINNER = 13;  // 流局
@@ -66,9 +66,9 @@ message Event {
   // RON                   Yes    Yes     No
   // CHI                   Yes    No      Yes
   // PON                   Yes    No      Yes
-  // KAN_CLOSED            Yes    No      Yes
-  // KAN_OPENED            Yes    No      Yes
-  // KAN_ADDED             Yes    No      Yes
+  // CLOSED_KAN            Yes    No      Yes
+  // OPEN_KAN            Yes    No      Yes
+  // ADDED_KAN             Yes    No      Yes
   // NEW_DORA              No     Yes     No
   // RIICHI_SCORE_CHANGE   Yes    No      No
   // NO_WINNER             No     No      No
@@ -157,13 +157,13 @@ message Action {
   //  DISCARD           Yes     No
   //  RIICHI             No     No
   //  TSUMO              No     No
-  //  KAN_CLOSED         No    Yes
-  //  KAN_ADDED          No    Yes
+  //  CLOSED_KAN         No    Yes
+  //  ADDED_KAN          No    Yes
   //  KYUSYU             No     No
   //  NO                 No     No
   //  CHI                No    Yes
   //  PON                No    Yes
-  //  KAN_OPENED         No    Yes
+  //  OPEN_KAN         No    Yes
   //  RON                No     No
   uint32 game_id = 1;
   int32 who = 2;
