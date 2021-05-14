@@ -104,8 +104,7 @@ message PublicObservation {
 message PublicObservationUtils {
   uint64 game_id = 1;
   repeated string player_ids = 2;
-  Score curr_score = 3;
-  repeated uint32 curr_dora_indicators = 4;
+  repeated uint32 curr_dora_indicators = 3;
 }
 
 message PrivateObservation {
