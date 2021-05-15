@@ -1065,7 +1065,7 @@ TEST(state, CheckGameOver) {
   // ただし、3万点を超えるプレイヤーがいても、親がテンパイしている場合は一本場になる
   EXPECT_EQ(State::CheckGameOver(9, {30000, 20000, 25000, 25000},
                                  AbsolutePos::kInitSouth, true,
-                                 mjxproto::NO_WINNER_TYPE_NORMAL),
+                                 mjxproto::EVENT_TYPE_EXHAUSTIVE_DRAW_NORMAL),
             false);
 
   // 西4局 親がテンパイできていない場合はトップでもトップでもなくても終局

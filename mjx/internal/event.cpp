@@ -73,9 +73,53 @@ mjxproto::Event Event::CreateRon(AbsolutePos who, Tile tile) {
   return proto;
 }
 
-mjxproto::Event Event::CreateNoWinner() {
+// mjxproto::Event Event::CreateNoWinner() {
+//   mjxproto::Event proto;
+//   Assert(IsValid(proto));
+//   return proto;
+// }
+
+
+mjxproto::Event Event::CreateAbortiveDrawNineTerminals(AbsolutePos who) {
   mjxproto::Event proto;
-  proto.set_type(mjxproto::EVENT_TYPE_NO_WINNER);
+  proto.set_who(ToUType(who));
+  proto.set_type(mjxproto::EVENT_TYPE_ABORTIVE_DRAW_NINE_TERMINALS);
+  Assert(IsValid(proto));
+  return proto;
+}
+mjxproto::Event Event::CreateAbortiveDrawFourRiichis() {
+  mjxproto::Event proto;
+  proto.set_type(mjxproto::EVENT_TYPE_ABORTIVE_DRAW_FOUR_RIICHIS);
+  Assert(IsValid(proto));
+  return proto;
+}
+mjxproto::Event Event::CreateAbortiveDrawThreeRons() {
+  mjxproto::Event proto;
+  proto.set_type(mjxproto::EVENT_TYPE_ABORTIVE_DRAW_THREE_RONS);
+  Assert(IsValid(proto));
+  return proto;
+}
+mjxproto::Event Event::CreateAbortiveDrawFourKans() {
+  mjxproto::Event proto;
+  proto.set_type(mjxproto::EVENT_TYPE_ABORTIVE_DRAW_FOUR_KANS);
+  Assert(IsValid(proto));
+  return proto;
+}
+mjxproto::Event Event::CreateAbortiveDrawFourWinds() {
+  mjxproto::Event proto;
+  proto.set_type(mjxproto::EVENT_TYPE_ABORTIVE_DRAW_FOUR_WINDS);
+  Assert(IsValid(proto));
+  return proto;
+}
+mjxproto::Event Event::CreateExhaustiveDrawNormal() {
+  mjxproto::Event proto;
+  proto.set_type(mjxproto::EVENT_TYPE_EXHAUSTIVE_DRAW_NORMAL);
+  Assert(IsValid(proto));
+  return proto;
+}
+mjxproto::Event Event::CreateExhaustiveDrawNagashiMangan() {
+  mjxproto::Event proto;
+  proto.set_type(mjxproto::EVENT_TYPE_EXHAUSTIVE_DRAW_NAGASHI_MANGAN);
   Assert(IsValid(proto));
   return proto;
 }
@@ -118,7 +162,16 @@ bool Event::IsValid(const mjxproto::Event &event) {
       if (!(0 <= event.tile() && event.tile() < 136)) return false;
       if (event.open() != 0) return false;  // open is empty = 0
       break;
-    case mjxproto::EVENT_TYPE_NO_WINNER:
+    case mjxproto::EVENT_TYPE_ABORTIVE_DRAW_NINE_TERMINALS:
+      if (event.tile() != 0) return false;  // tile is empty = 0
+      if (event.open() != 0) return false;  // open is empty = 0
+      break;
+    case mjxproto::EVENT_TYPE_ABORTIVE_DRAW_FOUR_RIICHIS:
+    case mjxproto::EVENT_TYPE_ABORTIVE_DRAW_THREE_RONS:
+    case mjxproto::EVENT_TYPE_ABORTIVE_DRAW_FOUR_KANS:
+    case mjxproto::EVENT_TYPE_ABORTIVE_DRAW_FOUR_WINDS:
+    case mjxproto::EVENT_TYPE_EXHAUSTIVE_DRAW_NORMAL:
+    case mjxproto::EVENT_TYPE_EXHAUSTIVE_DRAW_NAGASHI_MANGAN:
       if (event.who() != ToUType(AbsolutePos::kInitEast))
         return false;                       // who is empty = default
       if (event.tile() != 0) return false;  // tile is empty = 0
