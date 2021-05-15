@@ -129,7 +129,6 @@ message Win {
   uint32 win_tile = 5;
   uint32 fu = 6;
   uint32 ten = 7;
-  repeated int32 ten_changes = 8;  // Required for Tenhou mjlog.
   repeated uint32 yakus = 9;
   repeated uint32 fans = 10;
   repeated uint32 yakumans = 11;
@@ -137,7 +136,6 @@ message Win {
 
 message NoWinner {
   repeated TenpaiHand tenpais = 1;
-  repeated int32 ten_changes = 2;  // Required for Tenhou mjlog.
 }
 
 message TenpaiHand {
@@ -149,7 +147,8 @@ message Terminal {
   Score final_score = 1;
   repeated Win wins = 2;   // Empty if no one wins
   NoWinner no_winner = 3;  // Empty if a winner exists
-  bool is_game_over = 4;
+  repeated int32 ten_changes = 4;  // Required for Tenhou mjlog.
+  bool is_game_over = 5;
 }
 
 message HiddenState {
