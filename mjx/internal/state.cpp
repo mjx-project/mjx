@@ -811,8 +811,17 @@ bool State::IsGameOver() const {
 
   std::optional<mjxproto::EventType> no_winner_type;
   if (!Any(last_event_type,
-           {mjxproto::EVENT_TYPE_RON, mjxproto::EVENT_TYPE_TSUMO}))
+           {mjxproto::EVENT_TYPE_RON, mjxproto::EVENT_TYPE_TSUMO}) and
+      Any(last_event_type, {
+           mjxproto::EVENT_TYPE_ABORTIVE_DRAW_NINE_TERMINALS,
+           mjxproto::EVENT_TYPE_ABORTIVE_DRAW_THREE_RONS,
+           mjxproto::EVENT_TYPE_ABORTIVE_DRAW_FOUR_KANS,
+           mjxproto::EVENT_TYPE_ABORTIVE_DRAW_FOUR_WINDS,
+           mjxproto::EVENT_TYPE_EXHAUSTIVE_DRAW_NORMAL,
+           mjxproto::EVENT_TYPE_EXHAUSTIVE_DRAW_NAGASHI_MANGAN
+                                })) {
     no_winner_type = last_event_type;
+  }
 
   return CheckGameOver(round(), tens(), dealer(), is_dealer_win_or_tenpai,
                        no_winner_type);
@@ -828,9 +837,7 @@ bool State::CheckGameOver(
                            mjxproto::EVENT_TYPE_ABORTIVE_DRAW_FOUR_RIICHIS,
                            mjxproto::EVENT_TYPE_ABORTIVE_DRAW_THREE_RONS,
                            mjxproto::EVENT_TYPE_ABORTIVE_DRAW_FOUR_KANS,
-                           mjxproto::EVENT_TYPE_ABORTIVE_DRAW_FOUR_WINDS,
-                           mjxproto::EVENT_TYPE_EXHAUSTIVE_DRAW_NORMAL,
-                           mjxproto::EVENT_TYPE_EXHAUSTIVE_DRAW_NAGASHI_MANGAN
+                           mjxproto::EVENT_TYPE_ABORTIVE_DRAW_FOUR_WINDS
                           })) {
     return false;
   }

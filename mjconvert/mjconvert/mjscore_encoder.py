@@ -6,7 +6,7 @@ from typing import Dict, List
 
 import mjxproto
 from mjconvert import open_converter
-from mjconvert.const import AbsolutePos, RelativePos
+from mjconvert.const import AbsolutePos, EventType, RelativePos
 
 
 def _change_tile_fmt(tile_id: int) -> int:
@@ -264,7 +264,14 @@ non_dealer_tsumo_dict = {
     24000: "6000-12000",
     32000: "8000-16000",
 }
-no_winner_dict = {0: "流局", 1: "九種九牌", 2: "四家立直", 3: "三家和了", 4: "四槓散了", 5: "四風連打"}
+no_winner_dict = {
+    EventType.EXHAUSTIVE_DRAW_NORMAL: "流局",
+    EventType.ABORTIVE_DRAW_NINE_TERMINALS: "九種九牌",
+    EventType.ABORTIVE_DRAW_FOUR_RIICHIS: "四家立直",
+    EventType.ABORTIVE_DRAW_THREE_RONS: "三家和了",
+    EventType.ABORTIVE_DRAW_FOUR_KANS: "四槓散了",
+    EventType.ABORTIVE_DRAW_FOUR_WINDS: "四風連打",
+}
 dealer_point_dict = {12000: "満貫", 18000: "跳満", 24000: "倍満", 36000: "三倍満", 48000: "役満"}
 no_dealer_point_dict = {8000: "満貫", 12000: "跳満", 16000: "倍満", 24000: "三倍満", 32000: "役満"}
 
@@ -387,14 +394,15 @@ def _yaku_point_info(state: mjxproto.State, winner_num: int):
 def parse_terminal(state: mjxproto.State):
     if len(state.terminal.wins) == 0:  # あがった人がいない場合,# state.terminal.winsの長さは0
         ten_changes = [i for i in state.terminal.no_winner.ten_changes]
-        if state.terminal.no_winner.type == 0:
+        if state.public_observation.events[-1].type == EventType.EXHAUSTIVE_DRAW_NORMAL:
             if len(state.terminal.no_winner.tenpais) == 0:
                 return ["全員不聴"]
             else:
                 return ["流局", ten_changes]
-        if state.terminal.no_winner.type == 6:  # 流し満貫はten_changes も表示される。
+        if state.public_observation.events[-1].type == EventType.EXHAUSTIVE_DRAW_NAGASHI_MANGAN:
+            # 流し満貫はten_changes も表示される。
             return ["流し満貫", ten_changes]
-        return [no_winner_dict[state.terminal.no_winner.type]]
+        return [no_winner_dict[EventType(int(state.public_observation.events[-1].type))]]
     else:
         terminal_info: List = ["和了"]
         for i in range(len(state.terminal.wins)):  # ダブロンに対応するために上がり者の数に応じてfor文を回すようにする。
