@@ -124,8 +124,6 @@ message Observation {
 message Win {
   int32 who = 1;
   int32 from_who = 2;
-  repeated uint32 closed_tiles = 3;
-  repeated uint32 opens = 4;
   uint32 win_tile = 5;
   uint32 fu = 6;
   uint32 ten = 7;
@@ -136,13 +134,8 @@ message Win {
 }
 
 message NoWinner {
-  repeated TenpaiHand tenpais = 1;
+  repeated int32 tenpai_players = 1;
   repeated int32 ten_changes = 2;  // Required for Tenhou mjlog.
-}
-
-message TenpaiHand {
-  int32 who = 1;
-  repeated uint32 closed_tiles = 2;
 }
 
 message Terminal {
