@@ -122,8 +122,6 @@ class State {
   // containers
   Wall wall_;
   std::array<Player, 4> players_;
-  // temporal memory
-  // std::optional<AbsolutePos> three_ronned_player = std::nullopt;
 
   // accessors
   [[nodiscard]] const Player& player(AbsolutePos pos) const;

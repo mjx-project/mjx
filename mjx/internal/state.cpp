@@ -263,19 +263,6 @@ State::State(const mjxproto::State &state) {
       state_.mutable_private_observations(i)->add_init_hand(t.Id());
     }
   }
-  // // 三家和了はEventからは復元できないので, ここでSetする
-  // if (state.terminal().has_no_winner() and
-  //     state.terminal().no_winner().type() ==
-  //         mjxproto::NO_WINNER_TYPE_THREE_RONS) {
-  //   std::vector<int> tenpai = {0, 0, 0, 0};
-  //   for (auto t : state.terminal().no_winner().tenpais()) {
-  //     tenpai[t.who()] = 1;
-  //   }
-  //   Assert(std::accumulate(tenpai.begin(), tenpai.end(), 0) == 3);
-  //   for (int i = 0; i < 4; ++i) {
-  //     if (tenpai[i] == 0) three_ronned_player = AbsolutePos(i);
-  //   }
-  // }
 
   for (const auto &event : state.public_observation().events()) {
     UpdateByEvent(event);
