@@ -7,20 +7,20 @@ service Agent {
 }
 
 enum ActionType {
-  // After someone's draw
+  // After draw
   ACTION_TYPE_DISCARD = 0;
-  ACTION_TYPE_TSUMOGIRI = 1;  // ツモ切り, Tsumogiri
+  ACTION_TYPE_TSUMOGIRI = 1;
   ACTION_TYPE_RIICHI = 2;
-  ACTION_TYPE_CLOSED_KAN = 3;  // 暗槓
-  ACTION_TYPE_ADDED_KAN = 4;  // 加槓
+  ACTION_TYPE_CLOSED_KAN = 3;
+  ACTION_TYPE_ADDED_KAN = 4;
   ACTION_TYPE_TSUMO = 5;
   ACTION_TYPE_ABORTIVE_DRAW_NINE_TERMINALS = 6;  // 九種九牌
-  // After someone's discard
+  // After other's discard
   ACTION_TYPE_CHI = 7;
   ACTION_TYPE_PON = 8;
-  ACTION_TYPE_OPEN_KAN = 9;  // 明槓
+  ACTION_TYPE_OPEN_KAN = 9;
   ACTION_TYPE_RON = 10;
-  ACTION_TYPE_NO = 11;  // Action to ignore chi, pon, open kan, or ron options
+  ACTION_TYPE_NO = 11;
 }
 
 enum EventType {
@@ -69,29 +69,42 @@ message Score {
 }
 
 message Event {
-  //                       who    tile    open
-  // DRAW                  Yes    No      No      Tile is No since it's private info. EventHistory will be passed to Observation as public info.
-  // DISCARD               Yes    Yes     No
-  // TSUMOGIRI             Yes    Yes     No
-  // RIICHI                Yes    No      No
-  // TSUMO                 Yes    Yes     No
-  // RON                   Yes    Yes     No
-  // CHI                   Yes    No      Yes
-  // PON                   Yes    No      Yes
-  // KAN_CLOSED            Yes    No      Yes
-  // KAN_OPENED            Yes    No      Yes
-  // KAN_ADDED             Yes    No      Yes
-  // NEW_DORA              No     Yes     No
-  // RIICHI_SCORE_CHANGE   Yes    No      No
-  // NO_WINNER             No     No      No
+  // Publicly observable event, which include
+  //
+  //   1. publicly observable and actually realized actions taken by all layers
+  //   2. publicly observable state transitions made by envionment
+  //
+  // Note that "No" action is **NOT** collected as event since it's not publicly observable.
+  // Also, "Chi" prevented by other player's "Pon/Ron" is also **NOT** collected in event_history.
+  // Drawn tile does not use tile entry because it's not publicly observable.
+  // Only the fact that the player drew something is collected.
+  //
+  // Table. Is who/tile/open entry set?
+  //                                    who    tile    open
+  //  0. DISCARD                        Yes     Yes      No
+  //  1. TSUMOGIRI                      Yes     Yes      No
+  //  2. RIICHI                         Yes      No      No
+  //  3. CLOSED_KAN                     Yes      No     Yes
+  //  4. ADDED_KAN                      Yes      No     Yes
+  //  5. TSUMO                          Yes     Yes      No
+  //  7. CHI                            Yes      No     Yes
+  //  8. PON                            Yes      No     Yes
+  //  9. OPEN_KAN                       Yes      No     Yes
+  // 10. RON                            Yes     Yes      No
+  // 12. DRAW                           Yes      No      No
+  // 13. RIICHI_SCORE_CHANGE            Yes      No      No
+  // 14. NEW_DORA                        No     Yes      No
   EventType type = 1;
   int32 who = 2;
   uint32 tile = 3;
   uint32 open = 4;
 }
 
-message EventHistory {
-  repeated Event events = 2;
+message PublicObservation {
+  repeated string player_ids = 1;
+  Score init_score = 2;  // public info
+  repeated uint32 doras = 3;
+  repeated Event events = 4;
 }
 
 message PrivateObservation {
@@ -101,10 +114,10 @@ message PrivateObservation {
 }
 
 message Observation {
-  int32 who = 5;
-  PublicObservation public_observation = 1;
-  PrivateObservation private_observation = 6;
-  repeated Action possible_actions = 7;
+  int32 who = 1;
+  PublicObservation public_observation = 2;
+  PrivateObservation private_observation = 3;
+  repeated Action possible_actions = 4;
 }
 
 message Win {
@@ -140,20 +153,10 @@ message Terminal {
 }
 
 message State {
-  // public info
-  PublicObservation public_observation = 1;
-  // private info
-  repeated PrivateObservation private_observations = 7;
-  // win/ryuukyoku information
-  Terminal terminal = 9;
-  HiddenState hidden_state = 10;
-}
-
-message PublicObservation {
-  repeated string player_ids = 1;
-  Score init_score = 2;  // public info
-  repeated uint32 doras = 3;
-  repeated Event events = 4;
+  HiddenState hidden_state = 1;
+  PublicObservation public_observation = 2;
+  repeated PrivateObservation private_observations = 3;
+  Terminal terminal = 4;
 }
 
 message HiddenState {
@@ -165,16 +168,15 @@ message HiddenState {
 message Action {
   //                discard   open
   //  DISCARD           Yes     No
-  //  TSUMOGIRI         Yes     No
   //  RIICHI             No     No
   //  TSUMO              No     No
-  //  KAN_CLOSED         No    Yes
-  //  KAN_ADDED          No    Yes
+  //  CLOSED_KAN         No    Yes
+  //  ADDED_KAN          No    Yes
   //  KYUSYU             No     No
   //  NO                 No     No
   //  CHI                No    Yes
   //  PON                No    Yes
-  //  KAN_OPENED         No    Yes
+  //  OPEN_KAN           No    Yes
   //  RON                No     No
   uint32 game_id = 1;
   int32 who = 2;
