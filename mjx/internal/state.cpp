@@ -27,19 +27,24 @@ State::State(std::vector<PlayerId> player_ids, std::uint64_t game_seed,
   state_.mutable_hidden_state()->set_game_seed(game_seed);
   // set protos
   // player_ids
-  for (int i = 0; i < 4; ++i) state_.mutable_public_observation()->add_player_ids(player_ids[i]);
+  for (int i = 0; i < 4; ++i)
+    state_.mutable_public_observation()->add_player_ids(player_ids[i]);
   // init_score
   state_.mutable_public_observation()->mutable_init_score()->set_round(round);
   state_.mutable_public_observation()->mutable_init_score()->set_honba(honba);
   state_.mutable_public_observation()->mutable_init_score()->set_riichi(riichi);
-  for (int i = 0; i < 4; ++i) state_.mutable_public_observation()->mutable_init_score()->add_tens(tens[i]);
+  for (int i = 0; i < 4; ++i)
+    state_.mutable_public_observation()->mutable_init_score()->add_tens(
+        tens[i]);
   curr_score_.CopyFrom(state_.public_observation().init_score());
   // wall
   for (auto t : wall_.tiles())
     state_.mutable_hidden_state()->mutable_wall()->Add(t.Id());
   // doras, ura_doras
-  state_.mutable_public_observation()->add_doras(wall_.dora_indicators().front().Id());
-  state_.mutable_hidden_state()->add_ura_doras(wall_.ura_dora_indicators().front().Id());
+  state_.mutable_public_observation()->add_doras(
+      wall_.dora_indicators().front().Id());
+  state_.mutable_hidden_state()->add_ura_doras(
+      wall_.ura_dora_indicators().front().Id());
   // private info
   for (int i = 0; i < 4; ++i) {
     state_.add_private_observations()->set_who(i);
@@ -214,9 +219,11 @@ State::State(const mjxproto::State &state) {
   // &state); Assert(status.ok());
 
   // Set player ids
-  state_.mutable_public_observation()->mutable_player_ids()->CopyFrom(state.public_observation().player_ids());
+  state_.mutable_public_observation()->mutable_player_ids()->CopyFrom(
+      state.public_observation().player_ids());
   // Set scores
-  state_.mutable_public_observation()->mutable_init_score()->CopyFrom(state.public_observation().init_score());
+  state_.mutable_public_observation()->mutable_init_score()->CopyFrom(
+      state.public_observation().init_score());
   curr_score_.CopyFrom(state.public_observation().init_score());
   // Set walls
   auto wall_tiles = std::vector<Tile>();
@@ -229,12 +236,15 @@ State::State(const mjxproto::State &state) {
   state_.mutable_hidden_state()->set_game_seed(
       state.hidden_state().game_seed());
   // Set dora
-  state_.mutable_public_observation()->add_doras(wall_.dora_indicators().front().Id());
-  state_.mutable_hidden_state()->add_ura_doras(wall_.ura_dora_indicators().front().Id());
+  state_.mutable_public_observation()->add_doras(
+      wall_.dora_indicators().front().Id());
+  state_.mutable_hidden_state()->add_ura_doras(
+      wall_.ura_dora_indicators().front().Id());
   // Set init hands
   for (int i = 0; i < 4; ++i) {
-    players_[i] = Player{state_.public_observation().player_ids(i), AbsolutePos(i),
-                         Hand(wall_.initial_hand_tiles(AbsolutePos(i)))};
+    players_[i] =
+        Player{state_.public_observation().player_ids(i), AbsolutePos(i),
+               Hand(wall_.initial_hand_tiles(AbsolutePos(i)))};
     state_.mutable_private_observations()->Add();
     state_.mutable_private_observations(i)->set_who(i);
     for (auto t : wall_.initial_hand_tiles(AbsolutePos(i))) {
@@ -333,7 +343,8 @@ Tile State::Draw(AbsolutePos who) {
     for (int i = 0; i < 4; ++i)
       mutable_player(AbsolutePos(i)).is_ippatsu = false;
 
-  state_.mutable_public_observation()->mutable_events()->Add(Event::CreateDraw(who));
+  state_.mutable_public_observation()->mutable_events()->Add(
+      Event::CreateDraw(who));
   state_.mutable_private_observations(ToUType(who))
       ->add_draw_history(draw.Id());
 
@@ -843,8 +854,9 @@ std::int32_t State::ten(AbsolutePos who) const {
 State::ScoreInfo State::Next() const {
   // Assert(IsRoundOver());
   Assert(!IsGameOver());
-  std::vector<PlayerId> player_ids(state_.public_observation().player_ids().begin(),
-                                   state_.public_observation().player_ids().end());
+  std::vector<PlayerId> player_ids(
+      state_.public_observation().player_ids().begin(),
+      state_.public_observation().player_ids().end());
   if (LastEvent().type() == mjxproto::EVENT_TYPE_NO_WINNER) {
     // 途中流局や親テンパイで流局の場合は連荘
     bool is_dealer_tenpai = std::any_of(
@@ -880,11 +892,14 @@ State::ScoreInfo State::Next() const {
   }
 }
 
-std::uint8_t State::init_riichi() const { return state_.public_observation().init_score().riichi(); }
+std::uint8_t State::init_riichi() const {
+  return state_.public_observation().init_score().riichi();
+}
 
 std::array<std::int32_t, 4> State::init_tens() const {
   std::array<std::int32_t, 4> tens_{};
-  for (int i = 0; i < 4; ++i) tens_[i] = state_.public_observation().init_score().tens(i);
+  for (int i = 0; i < 4; ++i)
+    tens_[i] = state_.public_observation().init_score().tens(i);
   return tens_;
 }
 
@@ -1371,13 +1386,22 @@ bool State::Equals(const State &other) const noexcept {
       if (!Open(x[i]).Equals(Open(y[i]))) return false;
     return true;
   };
-  if (!seq_eq(state_.public_observation().player_ids(), other.state_.public_observation().player_ids())) return false;
-  if (!google::protobuf::util::MessageDifferencer::Equals(
-          state_.public_observation().init_score(), other.state_.public_observation().init_score()))
+  if (!seq_eq(state_.public_observation().player_ids(),
+              other.state_.public_observation().player_ids()))
     return false;
-  if (!tiles_eq(state_.hidden_state().wall(), other.state_.hidden_state().wall())) return false;
-  if (!tiles_eq(state_.public_observation().doras(), other.state_.public_observation().doras())) return false;
-  if (!tiles_eq(state_.hidden_state().ura_doras(), other.state_.hidden_state().ura_doras())) return false;
+  if (!google::protobuf::util::MessageDifferencer::Equals(
+          state_.public_observation().init_score(),
+          other.state_.public_observation().init_score()))
+    return false;
+  if (!tiles_eq(state_.hidden_state().wall(),
+                other.state_.hidden_state().wall()))
+    return false;
+  if (!tiles_eq(state_.public_observation().doras(),
+                other.state_.public_observation().doras()))
+    return false;
+  if (!tiles_eq(state_.hidden_state().ura_doras(),
+                other.state_.hidden_state().ura_doras()))
+    return false;
   for (int i = 0; i < 4; ++i)
     if (!tiles_eq(state_.private_observations(i).init_hand(),
                   other.state_.private_observations(i).init_hand()))
@@ -1459,9 +1483,12 @@ bool State::CanReach(const State &other) const noexcept {
   if (this->Equals(other)) return true;
 
   // いくつかの初期状態が同じである必要がある
-  if (!seq_eq(state_.public_observation().player_ids(), other.state_.public_observation().player_ids())) return false;
+  if (!seq_eq(state_.public_observation().player_ids(),
+              other.state_.public_observation().player_ids()))
+    return false;
   if (!google::protobuf::util::MessageDifferencer::Equals(
-          state_.public_observation().init_score(), other.state_.public_observation().init_score()))
+          state_.public_observation().init_score(),
+          other.state_.public_observation().init_score()))
     return false;
   if (!tiles_eq(state_.hidden_state().wall(),
                 other.state_.hidden_state().wall()))

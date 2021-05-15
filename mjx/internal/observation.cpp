@@ -44,13 +44,17 @@ void Observation::add_possible_actions(
 }
 
 Observation::Observation(AbsolutePos who, const mjxproto::State& state) {
-  proto_.mutable_public_observation()->mutable_player_ids()->CopyFrom(state.public_observation().player_ids());
-  proto_.mutable_public_observation()->mutable_init_score()->CopyFrom(state.public_observation().init_score());
-  proto_.mutable_public_observation()->mutable_doras()->CopyFrom(state.public_observation().doras());
+  proto_.mutable_public_observation()->mutable_player_ids()->CopyFrom(
+      state.public_observation().player_ids());
+  proto_.mutable_public_observation()->mutable_init_score()->CopyFrom(
+      state.public_observation().init_score());
+  proto_.mutable_public_observation()->mutable_doras()->CopyFrom(
+      state.public_observation().doras());
   // TODO: avoid copy by
   // proto_.set_allocated_event_history(&state.mutable_event_history());
   // proto_.release_event_history(); // in deconstructor
-  proto_.mutable_public_observation()->mutable_events()->CopyFrom(state.public_observation().events());
+  proto_.mutable_public_observation()->mutable_events()->CopyFrom(
+      state.public_observation().events());
   proto_.set_who(ToUType(who));
   proto_.mutable_private_observation()->CopyFrom(
       state.private_observations(ToUType(who)));
