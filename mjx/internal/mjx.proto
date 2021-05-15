@@ -96,10 +96,11 @@ message Event {
 }
 
 message PublicObservation {
-  repeated string player_ids = 1;
-  Score init_score = 2;  // public info
-  repeated uint32 doras = 3;
-  repeated Event events = 4;
+  uint64 game_id = 1;
+  repeated string player_ids = 2;
+  Score init_score = 3;  // public info
+  repeated uint32 doras = 4;
+  repeated Event events = 5;
 }
 
 message Hand {
