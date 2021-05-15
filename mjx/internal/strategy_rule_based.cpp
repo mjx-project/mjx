@@ -17,7 +17,7 @@ mjxproto::Action StrategyRuleBased::TakeAction(
     Observation &&observation) const {
   // Prepare some seed and MT engine for reproducibility
   const std::uint64_t seed =
-      12345 + 4096 * observation.proto().event_history().events_size() +
+      12345 + 4096 * observation.proto().public_observation().events_size() +
       16 * observation.possible_actions().size() +
       1 * observation.proto().who();
   auto mt = std::mt19937_64(seed);

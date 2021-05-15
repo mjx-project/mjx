@@ -68,10 +68,10 @@ class MjlogDecoder:
         # TODO(sotetsuk): if there are > 2 "UN", some user became offline
         un = root.iter("UN")
         for child in un:
-            state_.player_ids.append(urllib.parse.unquote(child.attrib["n0"]))
-            state_.player_ids.append(urllib.parse.unquote(child.attrib["n1"]))
-            state_.player_ids.append(urllib.parse.unquote(child.attrib["n2"]))
-            state_.player_ids.append(urllib.parse.unquote(child.attrib["n3"]))
+            state_.public_observation.player_ids.append(urllib.parse.unquote(child.attrib["n0"]))
+            state_.public_observation.player_ids.append(urllib.parse.unquote(child.attrib["n1"]))
+            state_.public_observation.player_ids.append(urllib.parse.unquote(child.attrib["n2"]))
+            state_.public_observation.player_ids.append(urllib.parse.unquote(child.attrib["n3"]))
             break
         # taikyoku = root.iter("TAIKYOKU")
 
@@ -122,16 +122,18 @@ class MjlogDecoder:
         key, val = kv[0]
         assert key == "INIT"
         round_, honba, riichi, dice1, dice2, dora = [int(x) for x in val["seed"].split(",")]
-        self.state.init_score.round = round_
-        self.state.init_score.honba = honba
-        self.state.init_score.riichi = riichi
-        self.state.init_score.tens[:] = [int(x) * 100 for x in val["ten"].split(",")]
+        self.state.public_observation.init_score.round = round_
+        self.state.public_observation.init_score.honba = honba
+        self.state.public_observation.init_score.riichi = riichi
+        self.state.public_observation.init_score.tens[:] = [
+            int(x) * 100 for x in val["ten"].split(",")
+        ]
         self.state.terminal.final_score.round = round_
         self.state.terminal.final_score.honba = honba
         self.state.terminal.final_score.riichi = riichi
         self.state.terminal.final_score.tens[:] = [int(x) * 100 for x in val["ten"].split(",")]
         self.state.hidden_state.wall[:] = wall
-        self.state.doras.append(dora)
+        self.state.public_observation.doras.append(dora)
         self.state.hidden_state.ura_doras.append(wall[131])
         assert dora == wall[130]
         for i in range(4):
@@ -190,7 +192,7 @@ class MjlogDecoder:
                 assert dora == int(val["hai"])
                 ura_dora = wall[129 - 2 * num_kan_dora]
                 num_kan_dora += 1
-                self.state.doras.append(dora)
+                self.state.public_observation.doras.append(dora)
                 self.state.hidden_state.ura_doras.append(ura_dora)
                 event = mjxproto.Event(type=mjxproto.EVENT_TYPE_NEW_DORA, tile=dora)
             elif key == "RYUUKYOKU":
@@ -211,7 +213,9 @@ class MjlogDecoder:
                     tile=int(val["machi"]),
                 )
                 win = MjlogDecoder.make_win(val, who, from_who, modify)
-                assert self.state.doras == [int(x) for x in val["doraHai"].split(",")]
+                assert self.state.public_observation.doras == [
+                    int(x) for x in val["doraHai"].split(",")
+                ]
                 if "doraHaiUra" in val:
                     assert self.state.hidden_state.ura_doras == [
                         int(x) for x in val["doraHaiUra"].split(",")
@@ -228,7 +232,7 @@ class MjlogDecoder:
                 raise KeyError(key)
 
             if event is not None:
-                self.state.event_history.events.append(event)
+                self.state.public_observation.events.append(event)
             event = None
             # yield copy.deepcopy(self.state)
 

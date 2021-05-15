@@ -44,13 +44,13 @@ void Observation::add_possible_actions(
 }
 
 Observation::Observation(AbsolutePos who, const mjxproto::State& state) {
-  proto_.mutable_player_ids()->CopyFrom(state.player_ids());
-  proto_.mutable_init_score()->CopyFrom(state.init_score());
-  proto_.mutable_doras()->CopyFrom(state.doras());
+  proto_.mutable_public_observation()->mutable_player_ids()->CopyFrom(state.public_observation().player_ids());
+  proto_.mutable_public_observation()->mutable_init_score()->CopyFrom(state.public_observation().init_score());
+  proto_.mutable_public_observation()->mutable_doras()->CopyFrom(state.public_observation().doras());
   // TODO: avoid copy by
   // proto_.set_allocated_event_history(&state.mutable_event_history());
   // proto_.release_event_history(); // in deconstructor
-  proto_.mutable_event_history()->CopyFrom(state.event_history());
+  proto_.mutable_public_observation()->mutable_events()->CopyFrom(state.public_observation().events());
   proto_.set_who(ToUType(who));
   proto_.mutable_private_observation()->CopyFrom(
       state.private_observations(ToUType(who)));
@@ -84,7 +84,7 @@ Hand Observation::current_hand() const {
     tiles.emplace_back(tile_id);
   Hand hand = Hand(tiles);
   int draw_ix = 0;
-  for (const auto& event : proto_.event_history().events()) {
+  for (const auto& event : proto_.public_observation().events()) {
     if (event.who() != proto_.who()) continue;
     if (event.type() == mjxproto::EVENT_TYPE_DRAW) {
       hand.Draw(Tile(proto_.private_observation().draw_history(draw_ix)));
@@ -111,7 +111,7 @@ Hand Observation::current_hand() const {
 
 std::vector<mjxproto::Event> Observation::EventHistory() const {
   std::vector<mjxproto::Event> events;
-  for (const auto& event : proto_.event_history().events()) {
+  for (const auto& event : proto_.public_observation().events()) {
     events.emplace_back(event);
   }
   return events;
