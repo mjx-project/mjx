@@ -103,7 +103,7 @@ message PublicObservation {
 }
 
 message Hand {
-  repeated uint32 init_hand = 1;
+  repeated uint32 closed_tiles = 1;
   repeated uint32 opens = 2;
 }
 
