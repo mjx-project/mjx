@@ -101,11 +101,8 @@ message PrivateObservation {
 }
 
 message Observation {
-  repeated string player_ids = 1;
-  Score init_score = 2;  // public info
-  repeated uint32 doras = 3;
-  EventHistory event_history = 4;  // public info
   int32 who = 5;
+  PublicObservation public_observation = 1;
   PrivateObservation private_observation = 6;
   repeated Action possible_actions = 7;
 }
@@ -144,15 +141,19 @@ message Terminal {
 
 message State {
   // public info
-  repeated string player_ids = 1;
-  Score init_score = 2;  // Required for Tenhou mjlog.
-  repeated uint32 doras = 3;
-  EventHistory event_history = 4;
+  PublicObservation public_observation = 1;
   // private info
   repeated PrivateObservation private_observations = 7;
   // win/ryuukyoku information
   Terminal terminal = 9;
   HiddenState hidden_state = 10;
+}
+
+message PublicObservation {
+  repeated string player_ids = 1;
+  Score init_score = 2;  // public info
+  repeated uint32 doras = 3;
+  repeated Event events = 4;
 }
 
 message HiddenState {

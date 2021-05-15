@@ -103,10 +103,10 @@ std::string SwapTiles(const std::string &json_str, Tile a, Tile b) {
       state.mutable_hidden_state()->set_wall(i, a.Id());
   }
   // dora
-  for (int i = 0; i < state.doras_size(); ++i) {
-    if (state.doras(i) == a.Id())
+  for (int i = 0; i < state.public_observation().doras_size(); ++i) {
+    if (state.public_observation().doras(i) == a.Id())
       state.mutable_hidden_state()->set_wall(i, b.Id());
-    else if (state.doras(i) == b.Id())
+    else if (state.public_observation().doras(i) == b.Id())
       state.mutable_hidden_state()->set_wall(i, a.Id());
   }
   // ura dora
@@ -133,8 +133,8 @@ std::string SwapTiles(const std::string &json_str, Tile a, Tile b) {
     }
   }
   // event history
-  for (int i = 0; i < state.event_history().events_size(); ++i) {
-    auto mevent = state.mutable_event_history()->mutable_events(i);
+  for (int i = 0; i < state.public_observation().events_size(); ++i) {
+    auto mevent = state.mutable_public_observation()->mutable_events(i);
     if (Any(mevent->type(),
             {mjxproto::EVENT_TYPE_DISCARD, mjxproto::EVENT_TYPE_TSUMOGIRI,
              mjxproto::EVENT_TYPE_TSUMO, mjxproto::EVENT_TYPE_RON,
@@ -966,7 +966,7 @@ std::string TruncateAfterFirstDraw(const std::string &json) {
   mjxproto::State state = mjxproto::State();
   auto status = google::protobuf::util::JsonStringToMessage(json, &state);
   Assert(status.ok());
-  auto events = state.mutable_event_history()->mutable_events();
+  auto events = state.mutable_public_observation()->mutable_events();
   events->erase(events->begin() + 1, events->end());
   state.clear_terminal();
   // drawについては消さなくても良い（wallから引いてsetされるので）
