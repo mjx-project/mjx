@@ -149,12 +149,16 @@ message State {
   repeated uint32 doras = 3;
   EventHistory event_history = 4;
   // private info
-  repeated uint32 wall = 5;
-  repeated uint32 ura_doras = 6;
   repeated PrivateObservation private_observations = 7;
-  uint64 game_seed = 8;
   // win/ryuukyoku information
   Terminal terminal = 9;
+  HiddenState hidden_state = 10;
+}
+
+message HiddenState {
+  uint64 game_seed = 1;
+  repeated uint32 wall = 2;
+  repeated uint32 ura_doras = 3;
 }
 
 message Action {

@@ -24,7 +24,7 @@ State::State(std::vector<PlayerId> player_ids, std::uint64_t game_seed,
     players_[i] = Player{player_ids[i], AbsolutePos(i), std::move(hand)};
   }
   // set game_seed
-  state_.set_game_seed(game_seed);
+  state_.mutable_hidden_state()->set_game_seed(game_seed);
   // set protos
   // player_ids
   for (int i = 0; i < 4; ++i) state_.add_player_ids(player_ids[i]);
@@ -35,10 +35,10 @@ State::State(std::vector<PlayerId> player_ids, std::uint64_t game_seed,
   for (int i = 0; i < 4; ++i) state_.mutable_init_score()->add_tens(tens[i]);
   curr_score_.CopyFrom(state_.init_score());
   // wall
-  for (auto t : wall_.tiles()) state_.mutable_wall()->Add(t.Id());
+  for (auto t : wall_.tiles()) state_.mutable_hidden_state()->mutable_wall()->Add(t.Id());
   // doras, ura_doras
   state_.add_doras(wall_.dora_indicators().front().Id());
-  state_.add_ura_doras(wall_.ura_dora_indicators().front().Id());
+  state_.mutable_hidden_state()->add_ura_doras(wall_.ura_dora_indicators().front().Id());
   // private info
   for (int i = 0; i < 4; ++i) {
     state_.add_private_observations()->set_who(i);
@@ -219,14 +219,14 @@ State::State(const mjxproto::State &state) {
   curr_score_.CopyFrom(state.init_score());
   // Set walls
   auto wall_tiles = std::vector<Tile>();
-  for (auto tile_id : state.wall()) wall_tiles.emplace_back(Tile(tile_id));
+  for (auto tile_id : state.hidden_state().wall()) wall_tiles.emplace_back(Tile(tile_id));
   wall_ = Wall(round(), wall_tiles);
-  state_.mutable_wall()->CopyFrom(state.wall());
+  state_.mutable_hidden_state()->mutable_wall()->CopyFrom(state.hidden_state().wall());
   // Set seed
-  state_.set_game_seed(state.game_seed());
+  state_.mutable_hidden_state()->set_game_seed(state.hidden_state().game_seed());
   // Set dora
   state_.add_doras(wall_.dora_indicators().front().Id());
-  state_.add_ura_doras(wall_.ura_dora_indicators().front().Id());
+  state_.mutable_hidden_state()->add_ura_doras(wall_.ura_dora_indicators().front().Id());
   // Set init hands
   for (int i = 0; i < 4; ++i) {
     players_[i] = Player{state_.player_ids(i), AbsolutePos(i),
@@ -394,7 +394,7 @@ void State::AddNewDora() {
   state_.mutable_event_history()->mutable_events()->Add(
       Event::CreateNewDora(new_dora_ind));
   state_.add_doras(new_dora_ind.Id());
-  state_.add_ura_doras(new_ura_dora_ind.Id());
+  state_.mutable_hidden_state()->add_ura_doras(new_ura_dora_ind.Id());
 }
 
 void State::RiichiScoreChange() {
@@ -820,7 +820,7 @@ std::uint8_t State::honba() const { return curr_score_.honba(); }
 
 std::uint8_t State::riichi() const { return curr_score_.riichi(); }
 
-std::uint64_t State::game_seed() const { return state_.game_seed(); }
+std::uint64_t State::game_seed() const { return state_.hidden_state().game_seed(); }
 
 std::array<std::int32_t, 4> State::tens() const {
   std::array<std::int32_t, 4> tens_{};
@@ -1369,9 +1369,9 @@ bool State::Equals(const State &other) const noexcept {
   if (!google::protobuf::util::MessageDifferencer::Equals(
           state_.init_score(), other.state_.init_score()))
     return false;
-  if (!tiles_eq(state_.wall(), other.state_.wall())) return false;
+  if (!tiles_eq(state_.hidden_state().wall(), other.state_.hidden_state().wall())) return false;
   if (!tiles_eq(state_.doras(), other.state_.doras())) return false;
-  if (!tiles_eq(state_.ura_doras(), other.state_.ura_doras())) return false;
+  if (!tiles_eq(state_.hidden_state().ura_doras(), other.state_.hidden_state().ura_doras())) return false;
   for (int i = 0; i < 4; ++i)
     if (!tiles_eq(state_.private_observations(i).init_hand(),
                   other.state_.private_observations(i).init_hand()))
@@ -1457,7 +1457,7 @@ bool State::CanReach(const State &other) const noexcept {
   if (!google::protobuf::util::MessageDifferencer::Equals(
           state_.init_score(), other.state_.init_score()))
     return false;
-  if (!tiles_eq(state_.wall(), other.state_.wall())) return false;
+  if (!tiles_eq(state_.hidden_state().wall(), other.state_.hidden_state().wall())) return false;
 
   // 現在の時点まではイベントがすべて同じである必要がある
   if (state_.event_history().events_size() >=
