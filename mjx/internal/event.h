@@ -20,7 +20,6 @@ class Event {
   static mjxproto::Event CreateRiichiScoreChange(AbsolutePos who);
   static mjxproto::Event CreateTsumo(AbsolutePos who, Tile tile);
   static mjxproto::Event CreateRon(AbsolutePos who, Tile tile);
-  // static mjxproto::Event CreateNoWinner();
   static mjxproto::Event CreateAbortiveDrawNineTerminals(AbsolutePos who);
   static mjxproto::Event CreateAbortiveDrawFourRiichis();
   static mjxproto::Event CreateAbortiveDrawThreeRons();
