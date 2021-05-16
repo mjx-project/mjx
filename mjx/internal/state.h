@@ -164,6 +164,9 @@ class State {
       AbsolutePos who) const noexcept;
 
   static mjxproto::State LoadJson(const std::string& json_str);
+
+  // protoのcurr_handを同期する。
+  void SyncCurrHand(AbsolutePos who);
 };
 }  // namespace mjx::internal
 

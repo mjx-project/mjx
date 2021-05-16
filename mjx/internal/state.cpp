@@ -347,6 +347,7 @@ Tile State::Draw(AbsolutePos who) {
       Event::CreateDraw(who));
   state_.mutable_private_observations(ToUType(who))
       ->add_draw_history(draw.Id());
+  SyncCurrHand(who);
 
   return draw;
 }
@@ -369,6 +370,7 @@ void State::Discard(AbsolutePos who, Tile discard) {
   }
   state_.mutable_public_observation()->mutable_events()->Add(
       Event::CreateDiscard(who, discard, tsumogiri));
+  SyncCurrHand(who);
   // TODO: set discarded tile to river
 }
 
@@ -401,6 +403,7 @@ void State::ApplyOpen(AbsolutePos who, Open open) {
     for (int i = 0; i < 4; ++i)
       mutable_player(AbsolutePos(i)).is_ippatsu = false;
   }
+  SyncCurrHand(who);
 }
 
 void State::AddNewDora() {
@@ -1552,5 +1555,11 @@ std::optional<State::HandInfo> State::EvalTenpai(
   if (!hand(who).IsTenpai()) return std::nullopt;
   return HandInfo{hand(who).ToVectorClosed(true), hand(who).Opens(),
                   hand(who).LastTileAdded()};
+}
+
+void State::SyncCurrHand(AbsolutePos who) {
+  state_.mutable_private_observations(ToUType(who))
+      ->mutable_curr_hand()
+      ->CopyFrom(mutable_hand(who).ToProto());
 }
 }  // namespace mjx::internal
