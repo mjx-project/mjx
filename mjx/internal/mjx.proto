@@ -146,7 +146,7 @@ message Draw {
   repeated int32 ten_changes = 2;  // Required for Tenhou mjlog.
 }
 
-message Terminal {
+message RoundTerminal {
   Score final_score = 1;
   repeated Win wins = 2;   // Empty if no one wins
   Draw draw = 3;  // Empty if a winner exists
@@ -163,7 +163,7 @@ message State {
   HiddenState hidden_state = 2;
   PublicObservation public_observation = 2;
   repeated PrivateObservation private_observations = 3;
-  Terminal terminal = 4;
+  RoundTerminal round_terminal = 4;
 }
 
 message Action {
