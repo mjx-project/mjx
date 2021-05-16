@@ -116,24 +116,24 @@ message PrivateObservation {
 }
 
 message Observation {
-  PublicObservation public_observation = 4;  // public info
-  int32 who = 5;
-  PrivateObservation private_observation = 6;
-  repeated Action possible_actions = 7;
+  int32 who = 1;
+  PublicObservation public_observation = 2;
+  PrivateObservation private_observation = 3;
+  repeated Action possible_actions = 4;
 }
 
 message Win {
   int32 who = 1;
   int32 from_who = 2;
   Hand hand = 3;
-  uint32 win_tile = 5;
-  uint32 fu = 6;
-  uint32 ten = 7;
-  repeated int32 ten_changes = 8;  // Required for Tenhou mjlog.
-  repeated uint32 yakus = 9;
-  repeated uint32 fans = 10;
-  repeated uint32 yakumans = 11;
-  repeated uint32 ura_dora_indicators = 12;  // set if this player is under riichi
+  uint32 win_tile = 4;
+  uint32 fu = 5;
+  uint32 ten = 6;
+  repeated int32 ten_changes = 7;  // Required for Tenhou mjlog.
+  repeated uint32 yakus = 8;
+  repeated uint32 fans = 9;
+  repeated uint32 yakumans = 10;
+  repeated uint32 ura_dora_indicators = 11;  // set if this player is under riichi
 }
 
 message Tenpai {
@@ -160,13 +160,10 @@ message HiddenState {
 }
 
 message State {
-  // public info
   HiddenState hidden_state = 2;
-  PublicObservation public_observation = 4;
-  // private info
-  repeated PrivateObservation private_observations = 7;
-  // win/ryuukyoku information
-  Terminal terminal = 9;
+  PublicObservation public_observation = 2;
+  repeated PrivateObservation private_observations = 3;
+  Terminal terminal = 4;
 }
 
 message Action {
