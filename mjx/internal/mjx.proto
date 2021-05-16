@@ -139,13 +139,13 @@ message Win {
   repeated uint32 ura_dora_indicators = 11;  // set if this player is under riichi
 }
 
-message Tenpai {
+message TenpaiHand {
   int32 who = 1;
   Hand hand = 2;
 }
 
 message NoWinner {
-  repeated Tenpai tenpais = 1;
+  repeated TenpaiHand tenpais = 1;
   repeated int32 ten_changes = 2;  // Required for Tenhou mjlog.
 }
 
