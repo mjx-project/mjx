@@ -47,18 +47,7 @@ enum EventType {
   EVENT_TYPE_ABORTIVE_DRAW_FOUR_WINDS = 18;  // 四風連打
   EVENT_TYPE_EXHAUSTIVE_DRAW_NORMAL = 19;  // 通常流局
   EVENT_TYPE_EXHAUSTIVE_DRAW_NAGASHI_MANGAN = 20;  // 流し満貫
-  // EVENT_TYPE_ROUND_END = 21;
 }
-
-// enum NoWinnerType {  // 流局
-//   NO_WINNER_TYPE_NORMAL = 0;
-//   NO_WINNER_TYPE_KYUUSYU = 1; // 九種九牌  // TODO(sotetsuk): rename
-//   NO_WINNER_TYPE_FOUR_RIICHI = 2;  // 四家立直
-//   NO_WINNER_TYPE_THREE_RONS = 3;  // 三家和了
-//   NO_WINNER_TYPE_FOUR_KANS = 4;  // 四槓散了
-//   NO_WINNER_TYPE_FOUR_WINDS = 5;  // 四風連打
-//   NO_WINNER_TYPE_NM = 6;  // 流し満貫  # TODO(sotetsuk): rename
-// }
 
 message Score {
   uint32 round = 1;
@@ -143,7 +132,6 @@ message Win {
 message NoWinner {
   repeated TenpaiHand tenpais = 1;
   repeated int32 ten_changes = 2;  // Required for Tenhou mjlog.
-  // NoWinnerType type = 3;  // Following Tenhou mjlog format. 0, normal. 九種九牌, 四家立直, 三家和了, 四槓散了, 四風連打, 流し満貫
 }
 
 message TenpaiHand {
