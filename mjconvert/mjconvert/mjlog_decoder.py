@@ -180,6 +180,7 @@ class MjlogDecoder:
                     open=open,
                 )
                 curr_hands[int(who)].apply_open(open)
+                self.state.private_observations[int(who)].curr_hand.opens.append(open)
             elif key == "REACH":
                 who = int(val["who"])
                 if int(val["step"]) == 1:
@@ -255,8 +256,6 @@ class MjlogDecoder:
         for i in range(4):
             for tile in curr_hands[i].closed_tiles:
                 self.state.private_observations[i].curr_hand.closed_tiles.append(tile)
-            for tile in curr_hands[i].open_tiles:
-                self.state.private_observations[i].curr_hand.opens.append(tile)
 
         yield copy.deepcopy(self.state)
 
