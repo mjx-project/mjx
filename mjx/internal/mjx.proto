@@ -99,7 +99,7 @@ message PublicObservation {
   uint64 game_id = 1;
   repeated string player_ids = 2;
   Score init_score = 3;  // public info
-  repeated uint32 dora_indicators = 4;
+  repeated uint32 dora_indicators = 4;  // len(dora_indicators) = 1 + # of Kan
   repeated Event events = 5;
 }
 
@@ -133,6 +133,7 @@ message Win {
   repeated uint32 yakus = 9;
   repeated uint32 fans = 10;
   repeated uint32 yakumans = 11;
+  repeated uint32 ura_dora_indicators = 12;  // set if this player is under riichi
 }
 
 message Tenpai {
@@ -155,7 +156,7 @@ message Terminal {
 message HiddenState {
   uint64 game_seed = 1;
   repeated uint32 wall = 2;
-  repeated uint32 ura_dora_indicators = 3;
+  repeated uint32 ura_dora_indicators = 3;  // len(ura_dora_indicators) = 1 + # of Kan
 }
 
 message State {
