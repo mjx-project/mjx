@@ -85,7 +85,7 @@ class State {
 
   static bool CheckGameOver(int round, std::array<int, 4> tens,
                             AbsolutePos dealer, bool is_dealer_win_or_tenpai,
-                            std::optional<mjxproto::NoWinnerType>
+                            std::optional<mjxproto::EventType>
                                 no_winner_type = std::nullopt) noexcept;
 
  private:
@@ -122,8 +122,6 @@ class State {
   // containers
   Wall wall_;
   std::array<Player, 4> players_;
-  // temporal memory
-  std::optional<AbsolutePos> three_ronned_player = std::nullopt;
 
   // accessors
   [[nodiscard]] const Player& player(AbsolutePos pos) const;
@@ -145,7 +143,7 @@ class State {
   void RiichiScoreChange();
   void Tsumo(AbsolutePos winner);
   void Ron(AbsolutePos winner);
-  void NoWinner();
+  void NoWinner(mjxproto::EventType nowinner_type);
   [[nodiscard]] std::unordered_map<PlayerId, Observation>
   CreateStealAndRonObservation() const;
   [[nodiscard]] std::pair<HandInfo, WinScore> EvalWinHand(

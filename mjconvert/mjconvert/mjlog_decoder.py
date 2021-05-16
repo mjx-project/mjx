@@ -200,7 +200,11 @@ class MjlogDecoder:
                 self.state.terminal.CopyFrom(
                     MjlogDecoder.update_terminal_by_no_winner(self.state.terminal, val)
                 )
-                event = mjxproto.Event(type=mjxproto.EVENT_TYPE_NO_WINNER)
+                nowinner_type = MjlogDecoder.parse_no_winner_type(val)
+                if nowinner_type == mjxproto.EVENT_TYPE_ABORTIVE_DRAW_NINE_TERMINALS:
+                    event = mjxproto.Event(type=nowinner_type, who=self.last_drawer)
+                else:
+                    event = mjxproto.Event(type=nowinner_type)
             elif key == "AGARI":
                 reach_terminal = True
                 ba, riichi = [int(x) for x in val["ba"].split(",")]
@@ -279,8 +283,6 @@ class MjlogDecoder:
                     closed_tiles=[int(x) for x in val[hai_key].split(",")],
                 )
             )
-        if "type" in val:
-            terminal.no_winner.type = MjlogDecoder.parse_no_winner_type(val)
         if "owari" in val:
             # オーラス流局時のリーチ棒はトップ総取り
             # TODO: 同着トップ時には上家が総取りしてるが正しい？
@@ -324,25 +326,23 @@ class MjlogDecoder:
         return who, discard
 
     @staticmethod
-    def parse_no_winner_type(val: Dict[str, str]) -> mjxproto.NoWinnerTypeValue:
-        no_winner_type: mjxproto.NoWinnerTypeValue
-        if val["type"] == "yao9":
-            no_winner_type = mjxproto.NO_WINNER_TYPE_KYUUSYU
+    def parse_no_winner_type(val: Dict[str, str]) -> mjxproto.EventTypeValue:
+        if "type" not in val:
+            return mjxproto.EVENT_TYPE_EXHAUSTIVE_DRAW_NORMAL
+        elif val["type"] == "yao9":
+            return mjxproto.EVENT_TYPE_ABORTIVE_DRAW_NINE_TERMINALS
         elif val["type"] == "reach4":
-            no_winner_type = mjxproto.NO_WINNER_TYPE_FOUR_RIICHI
+            return mjxproto.EVENT_TYPE_ABORTIVE_DRAW_FOUR_RIICHIS
         elif val["type"] == "ron3":
-            no_winner_type = mjxproto.NO_WINNER_TYPE_THREE_RONS
+            return mjxproto.EVENT_TYPE_ABORTIVE_DRAW_THREE_RONS
         elif val["type"] == "kan4":
-            no_winner_type = mjxproto.NO_WINNER_TYPE_FOUR_KANS
-        elif val["type"] == "kan4":
-            no_winner_type = mjxproto.NO_WINNER_TYPE_FOUR_KANS
+            return mjxproto.EVENT_TYPE_ABORTIVE_DRAW_FOUR_KANS
         elif val["type"] == "kaze4":
-            no_winner_type = mjxproto.NO_WINNER_TYPE_FOUR_WINDS
+            return mjxproto.EVENT_TYPE_ABORTIVE_DRAW_FOUR_WINDS
         elif val["type"] == "nm":
-            no_winner_type = mjxproto.NO_WINNER_TYPE_NM
+            return mjxproto.EVENT_TYPE_EXHAUSTIVE_DRAW_NAGASHI_MANGAN
         else:
             assert False
-        return no_winner_type
 
     @staticmethod
     def make_win(

@@ -20,7 +20,13 @@ class Event {
   static mjxproto::Event CreateRiichiScoreChange(AbsolutePos who);
   static mjxproto::Event CreateTsumo(AbsolutePos who, Tile tile);
   static mjxproto::Event CreateRon(AbsolutePos who, Tile tile);
-  static mjxproto::Event CreateNoWinner();
+  static mjxproto::Event CreateAbortiveDrawNineTerminals(AbsolutePos who);
+  static mjxproto::Event CreateAbortiveDrawFourRiichis();
+  static mjxproto::Event CreateAbortiveDrawThreeRons();
+  static mjxproto::Event CreateAbortiveDrawFourKans();
+  static mjxproto::Event CreateAbortiveDrawFourWinds();
+  static mjxproto::Event CreateExhaustiveDrawNormal();
+  static mjxproto::Event CreateExhaustiveDrawNagashiMangan();
 };
 }  // namespace mjx::internal
 
