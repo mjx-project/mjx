@@ -73,13 +73,6 @@ mjxproto::Event Event::CreateRon(AbsolutePos who, Tile tile) {
   return proto;
 }
 
-// mjxproto::Event Event::CreateNoWinner() {
-//   mjxproto::Event proto;
-//   Assert(IsValid(proto));
-//   return proto;
-// }
-
-
 mjxproto::Event Event::CreateAbortiveDrawNineTerminals(AbsolutePos who) {
   mjxproto::Event proto;
   proto.set_who(ToUType(who));
