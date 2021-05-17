@@ -4,7 +4,6 @@ line-length = 99
 # https://black.readthedocs.io/en/stable/compatible_configs.html
 [flake8]  
 max-line-length = 99
-max-complexity = 20
 ignore = ['E203', 'E501', 'W503']
 
 # https://black.readthedocs.io/en/stable/compatible_configs.html

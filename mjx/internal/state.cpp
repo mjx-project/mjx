@@ -55,6 +55,9 @@ State::State(std::vector<PlayerId> player_ids, std::uint64_t game_seed,
 
   // dealer draws the first tusmo
   Draw(dealer());
+
+  // sync curr_hand
+  for (int i = 0; i < 4; ++i) SyncCurrHand(AbsolutePos(i));
 }
 
 bool State::IsRoundOver() const {
@@ -267,6 +270,9 @@ State::State(const mjxproto::State &state) {
   for (const auto &event : state.public_observation().events()) {
     UpdateByEvent(event);
   }
+
+  // sync curr_hand
+  for (int i = 0; i < 4; ++i) SyncCurrHand(AbsolutePos(i));
 }
 
 void State::UpdateByEvent(const mjxproto::Event &event) {
@@ -352,6 +358,7 @@ Tile State::Draw(AbsolutePos who) {
       Event::CreateDraw(who));
   state_.mutable_private_observations(ToUType(who))
       ->add_draw_history(draw.Id());
+  SyncCurrHand(who);
 
   return draw;
 }
@@ -374,6 +381,7 @@ void State::Discard(AbsolutePos who, Tile discard) {
   }
   state_.mutable_public_observation()->mutable_events()->Add(
       Event::CreateDiscard(who, discard, tsumogiri));
+  SyncCurrHand(who);
   // TODO: set discarded tile to river
 }
 
@@ -406,6 +414,7 @@ void State::ApplyOpen(AbsolutePos who, Open open) {
     for (int i = 0; i < 4; ++i)
       mutable_player(AbsolutePos(i)).is_ippatsu = false;
   }
+  SyncCurrHand(who);
 }
 
 void State::AddNewDora() {
@@ -614,6 +623,8 @@ void State::Ron(AbsolutePos winner) {
   state_.mutable_terminal()->mutable_wins()->Add(std::move(win));
   state_.mutable_terminal()->set_is_game_over(IsGameOver());
   state_.mutable_terminal()->mutable_final_score()->CopyFrom(curr_score_);
+
+  SyncCurrHand(winner);
 }
 
 void State::NoWinner(mjxproto::EventType nowinner_type) {
@@ -1591,5 +1602,11 @@ std::optional<State::HandInfo> State::EvalTenpai(
   if (!hand(who).IsTenpai()) return std::nullopt;
   return HandInfo{hand(who).ToVectorClosed(true), hand(who).Opens(),
                   hand(who).LastTileAdded()};
+}
+
+void State::SyncCurrHand(AbsolutePos who) {
+  state_.mutable_private_observations(ToUType(who))
+      ->mutable_curr_hand()
+      ->CopyFrom(mutable_hand(who).ToProto());
 }
 }  // namespace mjx::internal

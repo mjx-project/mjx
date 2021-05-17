@@ -13,6 +13,7 @@ from google.protobuf import json_format
 
 import mjxproto
 from mjconvert.const import AbsolutePos, RelativePos
+from mjconvert.hand import Hand
 
 
 class MjlogDecoder:
@@ -148,6 +149,9 @@ class MjlogDecoder:
         for i in range(4 * 12, 4 * 13):
             assert wall[i] in self.state.private_observations[(i + round_) % 4].init_hand
 
+        curr_hands = []
+        for i in range(4):
+            curr_hands.append(Hand([int(x) for x in val["hai" + str(i)].split(",")], []))
         event = None
         num_kan_dora = 0
         self.last_drawer = None
@@ -158,12 +162,14 @@ class MjlogDecoder:
                 who, draw = MjlogDecoder.parse_draw(key)
                 self.state.private_observations[int(who)].draw_history.append(draw)
                 event = MjlogDecoder.make_draw_event(who)
+                curr_hands[int(who)].add(draw)
                 self.last_drawer, self.last_draw = who, draw
             elif key != "DORA" and key[0] in ["D", "E", "F", "G"]:  # discard
                 who, discard = MjlogDecoder.parse_discard(key)
                 event = MjlogDecoder.make_discard_event(
                     who, discard, self.last_drawer, self.last_draw
                 )
+                curr_hands[int(who)].discard(discard)
                 self.last_drawer, self.last_draw = None, None
             elif key == "N":  # open
                 who = int(val["who"])
@@ -173,6 +179,7 @@ class MjlogDecoder:
                     type=MjlogDecoder._open_type(open),
                     open=open,
                 )
+                curr_hands[int(who)].apply_open(open)
             elif key == "REACH":
                 who = int(val["who"])
                 if int(val["step"]) == 1:
@@ -211,10 +218,11 @@ class MjlogDecoder:
                 who = int(val["who"])
                 from_who = int(val["fromWho"])
                 # set event
+                win_tile = int(val["machi"])
                 event = mjxproto.Event(
                     who=who,
                     type=mjxproto.EVENT_TYPE_TSUMO if who == from_who else mjxproto.EVENT_TYPE_RON,
-                    tile=int(val["machi"]),
+                    tile=win_tile,
                 )
                 win = MjlogDecoder.make_win(val, who, from_who, modify)
                 assert self.state.public_observation.doras == [
@@ -227,6 +235,8 @@ class MjlogDecoder:
                 self.state.terminal.CopyFrom(
                     MjlogDecoder.update_terminal_by_win(self.state.terminal, win, val)
                 )
+                if who != from_who:  # ron
+                    curr_hands[who].add(win_tile)
 
             elif key == "BYE":  # 接続切れ
                 pass
@@ -248,6 +258,14 @@ class MjlogDecoder:
                 + self.state.terminal.final_score.riichi * 1000
                 == 100000
             )
+
+        # set curr_hand before yield
+        for i in range(4):
+            self.state.private_observations[i].curr_hand.Clear()
+            for tile in curr_hands[i].closed_tiles:
+                self.state.private_observations[i].curr_hand.closed_tiles.append(tile)
+            for open in curr_hands[i].opens:
+                self.state.private_observations[i].curr_hand.opens.append(open)
 
         yield copy.deepcopy(self.state)
 

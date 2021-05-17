@@ -102,10 +102,16 @@ message PublicObservation {
   repeated Event events = 4;
 }
 
+message Hand {
+  repeated uint32 closed_tiles = 1;
+  repeated uint32 opens = 2;
+}
+
 message PrivateObservation {
   int32 who = 1;
   repeated uint32 init_hand = 2;
   repeated uint32 draw_history = 3;
+  Hand curr_hand = 4;
 }
 
 message Observation {
