@@ -41,8 +41,8 @@ enum EventType {
   // State transitions made by environment. There is no decision making by players.
   // 11 is skipped for the consistency to ActionType
   EVENT_TYPE_DRAW = 12;
-  EVENT_TYPE_NEW_DORA = 13;
-  EVENT_TYPE_RIICHI_SCORE_CHANGE = 14;
+  EVENT_TYPE_RIICHI_SCORE_CHANGE = 13;
+  EVENT_TYPE_NEW_DORA = 14;
   EVENT_TYPE_ABORTIVE_DRAW_FOUR_RIICHIS = 15;  // 四家立直
   EVENT_TYPE_ABORTIVE_DRAW_THREE_RONS = 16;  // 三家和了
   EVENT_TYPE_ABORTIVE_DRAW_FOUR_KANS = 17;  // 四槓散了
@@ -60,13 +60,13 @@ message Score {
 
 message Event {
   // Publicly observable event, which include
-  // 
-  //   1. publicly observable and actually realized actions taken by all layers 
+  //
+  //   1. publicly observable and actually realized actions taken by all layers
   //   2. publicly observable state transitions made by envionment
-  // 
+  //
   // Note that "No" action is **NOT** collected as event since it's not publicly observable.
   // Also, "Chi" prevented by other player's "Pon/Ron" is also **NOT** collected in event_history.
-  // Drawn tile does not use tile entry because it's not publicly observable. 
+  // Drawn tile does not use tile entry because it's not publicly observable.
   // Only the fact that the player drew something is collected.
   //
   // Table. Is who/tile/open entry set?
@@ -85,11 +85,11 @@ message Event {
   // 12. DRAW                           Yes      No      No
   // 13. RIICHI_SCORE_CHANGE            Yes      No      No
   // 14. NEW_DORA                        No     Yes      No
-  // 16. ABORTIVE_DRAW_FOUR_RIICHIS      No      No      No
-  // 17. ABORTIVE_DRAW_THREE_RONS        NO      NO      NO
-  // 18. ABORTIVE_DRAW_FOUR_KANS         No      No      No
-  // 19. ABORTIVE_DRAW_FOUR_WINDS        No      No      No
-  // 15. EXHAUSTIVE_DRAW_NORMAL          No      No      No
+  // 15. ABORTIVE_DRAW_FOUR_RIICHIS      No      No      No
+  // 16. ABORTIVE_DRAW_THREE_RONS        No      No      No
+  // 17. ABORTIVE_DRAW_FOUR_KANS         No      No      No
+  // 18. ABORTIVE_DRAW_FOUR_WINDS        No      No      No
+  // 19. EXHAUSTIVE_DRAW_NORMAL          No      No      No
   // 20. EXHAUSTIVE_DRAW_NAGASHI_MANGAN  No      No      No
   EventType type = 1;
   int32 who = 2;
@@ -139,14 +139,14 @@ message Win {
   repeated uint32 ura_dora_indicators = 11;  // set if this player is under riichi
 }
 
-message TenpaiHand {
-  int32 who = 1;
-  Hand hand = 2;
-}
-
 message NoWinner {
   repeated TenpaiHand tenpais = 1;
   repeated int32 ten_changes = 2;  // Required for Tenhou mjlog.
+}
+
+message TenpaiHand {
+  int32 who = 1;
+  Hand hand = 2;
 }
 
 message RoundTerminal {
@@ -156,17 +156,17 @@ message RoundTerminal {
   bool is_game_over = 4;
 }
 
+message State {
+  HiddenState hidden_state = 1;
+  PublicObservation public_observation = 2;
+  repeated PrivateObservation private_observations = 3;
+  RoundTerminal round_terminal = 4;
+}
+
 message HiddenState {
   uint64 game_seed = 1;
   repeated uint32 wall = 2;
   repeated uint32 ura_dora_indicators = 3;  // len(ura_dora_indicators) = 1 + # of Kan
-}
-
-message State {
-  HiddenState hidden_state = 2;
-  PublicObservation public_observation = 2;
-  repeated PrivateObservation private_observations = 3;
-  RoundTerminal round_terminal = 4;
 }
 
 message Action {
@@ -180,7 +180,7 @@ message Action {
   //  NO                 No     No
   //  CHI                No    Yes
   //  PON                No    Yes
-  //  OPEN_KAN         No    Yes
+  //  OPEN_KAN           No    Yes
   //  RON                No     No
   uint32 game_id = 1;
   int32 who = 2;
