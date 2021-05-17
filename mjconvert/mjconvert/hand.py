@@ -52,6 +52,8 @@ class Hand:
 
         self.opens.append(open)
 
+        assert len(self.opens) == len(set(self.opens))
+
     def _apply_added_kan(self, open: int) -> None:
         assert open_event_type(open) == mjxproto.EVENT_TYPE_ADDED_KAN
         num_closed_tiles = len(self._closed_tiles)
@@ -61,7 +63,7 @@ class Hand:
         for ix, old_open in enumerate(opens):
             if open_event_type(old_open) != mjxproto.EVENT_TYPE_PON:
                 continue
-            if open_tile_ids(old_open)[0] % 4 != open_tile_ids(open)[0] % 4:
+            if open_tile_ids(old_open)[0] // 4 != open_tile_ids(open)[0] // 4:
                 continue
             self.opens[ix] = open
 
@@ -73,3 +75,4 @@ class Hand:
 
         assert num_closed_tiles - 1 == len(self._closed_tiles)
         assert num_opens == len(self.opens)
+        assert len(self.opens) == len(set(self.opens))
