@@ -1,6 +1,6 @@
 from typing import List
 
-from mjconvert.open_tile_ids_converter import open_event_type, open_tile_ids
+from mjconvert.open_tile_ids_converter import open_tile_ids
 
 
 class Hand:
