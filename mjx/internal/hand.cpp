@@ -714,11 +714,11 @@ mjxproto::Hand Hand::ToProto() const noexcept {
   // sort by tile_id
   std::vector<Tile> sorted_tiles(closed_tiles_.begin(), closed_tiles_.end());
   std::sort(sorted_tiles.begin(), sorted_tiles.end(),
-            [](Tile a, Tile b){return  a.Id() < b.Id();});
-  for(const auto &tile : sorted_tiles){
+            [](Tile a, Tile b) { return a.Id() < b.Id(); });
+  for (const auto &tile : sorted_tiles) {
     hand.add_closed_tiles(tile.Id());
   }
-  for(const auto &open : opens_){
+  for (const auto &open : opens_) {
     hand.add_opens(open.GetBits());
   }
   return hand;

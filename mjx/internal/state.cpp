@@ -57,7 +57,7 @@ State::State(std::vector<PlayerId> player_ids, std::uint64_t game_seed,
   Draw(dealer());
 
   // sync curr_hand
-  for(int i = 0; i < 4; ++i) SyncCurrHand(AbsolutePos(i));
+  for (int i = 0; i < 4; ++i) SyncCurrHand(AbsolutePos(i));
 }
 
 bool State::IsRoundOver() const {
@@ -272,7 +272,7 @@ State::State(const mjxproto::State &state) {
   }
 
   // sync curr_hand
-  for(int i = 0; i < 4; ++i) SyncCurrHand(AbsolutePos(i));
+  for (int i = 0; i < 4; ++i) SyncCurrHand(AbsolutePos(i));
 }
 
 void State::UpdateByEvent(const mjxproto::Event &event) {
