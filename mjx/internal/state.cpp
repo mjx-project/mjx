@@ -612,6 +612,8 @@ void State::Ron(AbsolutePos winner) {
   state_.mutable_terminal()->mutable_wins()->Add(std::move(win));
   state_.mutable_terminal()->set_is_game_over(IsGameOver());
   state_.mutable_terminal()->mutable_final_score()->CopyFrom(curr_score_);
+
+  SyncCurrHand(winner);
 }
 
 void State::NoWinner() {
