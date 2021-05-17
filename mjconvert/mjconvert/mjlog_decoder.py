@@ -162,7 +162,7 @@ class MjlogDecoder:
                 who, draw = MjlogDecoder.parse_draw(key)
                 self.state.private_observations[int(who)].draw_history.append(draw)
                 event = MjlogDecoder.make_draw_event(who)
-                curr_hands[int(who)].draw(draw)
+                curr_hands[int(who)].add(draw)
                 self.last_drawer, self.last_draw = who, draw
             elif key != "DORA" and key[0] in ["D", "E", "F", "G"]:  # discard
                 who, discard = MjlogDecoder.parse_discard(key)
@@ -214,10 +214,11 @@ class MjlogDecoder:
                 who = int(val["who"])
                 from_who = int(val["fromWho"])
                 # set event
+                win_tile = int(val["machi"])
                 event = mjxproto.Event(
                     who=who,
                     type=mjxproto.EVENT_TYPE_TSUMO if who == from_who else mjxproto.EVENT_TYPE_RON,
-                    tile=int(val["machi"]),
+                    tile=win_tile,
                 )
                 win = MjlogDecoder.make_win(val, who, from_who, modify)
                 assert self.state.public_observation.doras == [
@@ -230,6 +231,8 @@ class MjlogDecoder:
                 self.state.terminal.CopyFrom(
                     MjlogDecoder.update_terminal_by_win(self.state.terminal, win, val)
                 )
+                if who != from_who:  # ron
+                    curr_hands[who].add(win_tile)
 
             elif key == "BYE":  # 接続切れ
                 pass

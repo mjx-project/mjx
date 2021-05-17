@@ -14,12 +14,15 @@ class Hand:
         self._closed_tiles.sort()
         return self._closed_tiles
 
-    def draw(self, tile_id: int):
-        assert len(self.closed_tiles) in [1, 4, 7, 10, 13]
+    def add(self, tile_id: int):
+        """Used for draw and ron"""
+        assert len(self._closed_tiles) in [1, 4, 7, 10, 13]
+        assert tile_id not in self._closed_tiles
         self.closed_tiles.append(tile_id)
 
     def discard(self, tile_id: int):
-        assert len(self.closed_tiles) in [2, 5, 8, 11, 14]
+        assert len(self._closed_tiles) in [2, 5, 8, 11, 14]
+        assert tile_id in self._closed_tiles
         self.closed_tiles.remove(tile_id)
 
     def apply_open(self, open: int):
