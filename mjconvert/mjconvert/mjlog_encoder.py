@@ -105,7 +105,15 @@ class MjlogEncoder:
                 ret += f'<DORA hai="{event.tile}" />'
             elif event.type in [mjxproto.EVENT_TYPE_TSUMO, mjxproto.EVENT_TYPE_RON]:
                 assert len(state.terminal.wins) != 0
-            elif event.type == mjxproto.EVENT_TYPE_NO_WINNER:
+            elif event.type in [
+                mjxproto.EVENT_TYPE_ABORTIVE_DRAW_NINE_TERMINALS,
+                mjxproto.EVENT_TYPE_ABORTIVE_DRAW_FOUR_WINDS,
+                mjxproto.EVENT_TYPE_ABORTIVE_DRAW_FOUR_KANS,
+                mjxproto.EVENT_TYPE_ABORTIVE_DRAW_FOUR_RIICHIS,
+                mjxproto.EVENT_TYPE_ABORTIVE_DRAW_THREE_RONS,
+                mjxproto.EVENT_TYPE_EXHAUSTIVE_DRAW_NORMAL,
+                mjxproto.EVENT_TYPE_EXHAUSTIVE_DRAW_NAGASHI_MANGAN,
+            ]:
                 assert len(state.terminal.wins) == 0
 
         if state.HasField("terminal"):
@@ -140,22 +148,36 @@ class MjlogEncoder:
     @staticmethod
     def update_by_no_winner(state, curr_score):
         ret = "<RYUUKYOKU "
-        if state.terminal.no_winner.type != mjxproto.NO_WINNER_TYPE_NORMAL:
-            no_winner_type = ""
-            if state.terminal.no_winner.type == mjxproto.NO_WINNER_TYPE_KYUUSYU:
-                no_winner_type = "yao9"
-            elif state.terminal.no_winner.type == mjxproto.NO_WINNER_TYPE_FOUR_RIICHI:
-                no_winner_type = "reach4"
-            elif state.terminal.no_winner.type == mjxproto.NO_WINNER_TYPE_THREE_RONS:
-                no_winner_type = "ron3"
-            elif state.terminal.no_winner.type == mjxproto.NO_WINNER_TYPE_FOUR_KANS:
-                no_winner_type = "kan4"
-            elif state.terminal.no_winner.type == mjxproto.NO_WINNER_TYPE_FOUR_WINDS:
-                no_winner_type = "kaze4"
-            elif state.terminal.no_winner.type == mjxproto.NO_WINNER_TYPE_NM:
-                no_winner_type = "nm"
-            assert no_winner_type
-            ret += f'type="{no_winner_type}" '
+        if (
+            state.public_observation.events[-1].type
+            == mjxproto.EVENT_TYPE_ABORTIVE_DRAW_NINE_TERMINALS
+        ):
+            ret += 'type="yao9" '
+        elif (
+            state.public_observation.events[-1].type
+            == mjxproto.EVENT_TYPE_ABORTIVE_DRAW_FOUR_RIICHIS
+        ):
+            ret += 'type="reach4" '
+        elif (
+            state.public_observation.events[-1].type
+            == mjxproto.EVENT_TYPE_ABORTIVE_DRAW_THREE_RONS
+        ):
+            ret += 'type="ron3" '
+        elif (
+            state.public_observation.events[-1].type == mjxproto.EVENT_TYPE_ABORTIVE_DRAW_FOUR_KANS
+        ):
+            ret += 'type="kan4" '
+        elif (
+            state.public_observation.events[-1].type
+            == mjxproto.EVENT_TYPE_ABORTIVE_DRAW_FOUR_WINDS
+        ):
+            ret += 'type="kaze4" '
+        elif (
+            state.public_observation.events[-1].type
+            == mjxproto.EVENT_TYPE_EXHAUSTIVE_DRAW_NAGASHI_MANGAN
+        ):
+            ret += 'type="nm" '
+
         ret += f'ba="{curr_score.honba},{curr_score.riichi}" '
         sc = []
         for i in range(4):

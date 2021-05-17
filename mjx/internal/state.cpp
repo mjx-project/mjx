@@ -62,9 +62,15 @@ State::State(std::vector<PlayerId> player_ids, std::uint64_t game_seed,
 
 bool State::IsRoundOver() const {
   switch (LastEvent().type()) {
-    case mjxproto::EventType::EVENT_TYPE_TSUMO:
-    case mjxproto::EventType::EVENT_TYPE_RON:
-    case mjxproto::EventType::EVENT_TYPE_NO_WINNER:
+    case mjxproto::EVENT_TYPE_TSUMO:
+    case mjxproto::EVENT_TYPE_RON:
+    case mjxproto::EVENT_TYPE_ABORTIVE_DRAW_NINE_TERMINALS:
+    case mjxproto::EVENT_TYPE_ABORTIVE_DRAW_FOUR_RIICHIS:
+    case mjxproto::EVENT_TYPE_ABORTIVE_DRAW_THREE_RONS:
+    case mjxproto::EVENT_TYPE_ABORTIVE_DRAW_FOUR_KANS:
+    case mjxproto::EVENT_TYPE_ABORTIVE_DRAW_FOUR_WINDS:
+    case mjxproto::EVENT_TYPE_EXHAUSTIVE_DRAW_NORMAL:
+    case mjxproto::EVENT_TYPE_EXHAUSTIVE_DRAW_NAGASHI_MANGAN:
       return true;
     default:
       return false;
@@ -200,7 +206,13 @@ std::unordered_map<PlayerId, Observation> State::CreateObservations() const {
     case mjxproto::EVENT_TYPE_RON:
     case mjxproto::EVENT_TYPE_CLOSED_KAN:
     case mjxproto::EVENT_TYPE_OPEN_KAN:
-    case mjxproto::EVENT_TYPE_NO_WINNER:
+    case mjxproto::EVENT_TYPE_ABORTIVE_DRAW_NINE_TERMINALS:
+    case mjxproto::EVENT_TYPE_ABORTIVE_DRAW_FOUR_RIICHIS:
+    case mjxproto::EVENT_TYPE_ABORTIVE_DRAW_THREE_RONS:
+    case mjxproto::EVENT_TYPE_ABORTIVE_DRAW_FOUR_KANS:
+    case mjxproto::EVENT_TYPE_ABORTIVE_DRAW_FOUR_WINDS:
+    case mjxproto::EVENT_TYPE_EXHAUSTIVE_DRAW_NORMAL:
+    case mjxproto::EVENT_TYPE_EXHAUSTIVE_DRAW_NAGASHI_MANGAN:
     case mjxproto::EVENT_TYPE_NEW_DORA:
     case mjxproto::EVENT_TYPE_RIICHI_SCORE_CHANGE:
       Assert(false);  // Impossible state
@@ -254,19 +266,6 @@ State::State(const mjxproto::State &state) {
       state_.mutable_private_observations(i)->add_init_hand(t.Id());
     }
   }
-  // 三家和了はEventからは復元できないので, ここでSetする
-  if (state.terminal().has_no_winner() and
-      state.terminal().no_winner().type() ==
-          mjxproto::NO_WINNER_TYPE_THREE_RONS) {
-    std::vector<int> tenpai = {0, 0, 0, 0};
-    for (auto t : state.terminal().no_winner().tenpais()) {
-      tenpai[t.who()] = 1;
-    }
-    Assert(std::accumulate(tenpai.begin(), tenpai.end(), 0) == 3);
-    for (int i = 0; i < 4; ++i) {
-      if (tenpai[i] == 0) three_ronned_player = AbsolutePos(i);
-    }
-  }
 
   for (const auto &event : state.public_observation().events()) {
     UpdateByEvent(event);
@@ -313,8 +312,14 @@ void State::UpdateByEvent(const mjxproto::Event &event) {
     case mjxproto::EVENT_TYPE_RIICHI_SCORE_CHANGE:
       RiichiScoreChange();
       break;
-    case mjxproto::EVENT_TYPE_NO_WINNER:
-      NoWinner();
+    case mjxproto::EVENT_TYPE_ABORTIVE_DRAW_NINE_TERMINALS:
+    case mjxproto::EVENT_TYPE_ABORTIVE_DRAW_FOUR_RIICHIS:
+    case mjxproto::EVENT_TYPE_ABORTIVE_DRAW_THREE_RONS:
+    case mjxproto::EVENT_TYPE_ABORTIVE_DRAW_FOUR_KANS:
+    case mjxproto::EVENT_TYPE_ABORTIVE_DRAW_FOUR_WINDS:
+    case mjxproto::EVENT_TYPE_EXHAUSTIVE_DRAW_NORMAL:
+    case mjxproto::EVENT_TYPE_EXHAUSTIVE_DRAW_NAGASHI_MANGAN:
+      NoWinner(event.type());
       break;
   }
 }
@@ -622,68 +627,88 @@ void State::Ron(AbsolutePos winner) {
   SyncCurrHand(winner);
 }
 
-void State::NoWinner() {
-  // 四家立直, 三家和了, 四槓散了, 流し満貫
-  auto set_terminal_vals = [&]() {
-    state_.mutable_terminal()->mutable_final_score()->CopyFrom(curr_score_);
-    for (int i = 0; i < 4; ++i)
-      state_.mutable_terminal()->mutable_no_winner()->add_ten_changes(0);
-    state_.mutable_public_observation()->mutable_events()->Add(
-        Event::CreateNoWinner());
-  };
-  // 九種九牌
-  if (IsFirstTurnWithoutOpen() &&
-      LastEvent().type() == mjxproto::EVENT_TYPE_DRAW) {
-    state_.mutable_terminal()->mutable_no_winner()->set_type(
-        mjxproto::NO_WINNER_TYPE_KYUUSYU);
-    mjxproto::TenpaiHand tenpai;
-    tenpai.set_who(LastEvent().who());
-    for (auto tile : hand(AbsolutePos(LastEvent().who())).ToVectorClosed(true))
-      tenpai.mutable_closed_tiles()->Add(tile.Id());
-    state_.mutable_terminal()->mutable_no_winner()->mutable_tenpais()->Add(
-        std::move(tenpai));
-    set_terminal_vals();
-    return;
-  }
-  // 四風子連打
-  if (IsFourWinds()) {
-    state_.mutable_terminal()->mutable_no_winner()->set_type(
-        mjxproto::NO_WINNER_TYPE_FOUR_WINDS);
-    set_terminal_vals();
-    return;
-  }
-  // 四槓散了
-  if (IsFourKanNoWinner()) {
-    state_.mutable_terminal()->mutable_no_winner()->set_type(
-        mjxproto::NO_WINNER_TYPE_FOUR_KANS);
-    set_terminal_vals();
-    return;
-  }
-  // 三家和了
-  if (three_ronned_player) {
-    state_.mutable_terminal()->mutable_no_winner()->set_type(
-        mjxproto::NO_WINNER_TYPE_THREE_RONS);
-    // 聴牌の情報が必要なため, ここでreturnしてはいけない.
-  }
-  // 四家立直
-  if (std::all_of(players_.begin(), players_.end(), [&](const Player &player) {
-        return hand(player.position).IsUnderRiichi();
-      })) {
-    state_.mutable_terminal()->mutable_no_winner()->set_type(
-        mjxproto::NO_WINNER_TYPE_FOUR_RIICHI);
-    // 聴牌の情報が必要なため, ここでreturnしてはいけない.
+void State::NoWinner(mjxproto::EventType nowinner_type) {
+  std::optional<AbsolutePos> three_ronned_player = std::nullopt;
+  switch (nowinner_type) {
+    case mjxproto::EVENT_TYPE_ABORTIVE_DRAW_NINE_TERMINALS: {
+      // 九種九牌
+      assert(IsFirstTurnWithoutOpen() &&
+             LastEvent().type() == mjxproto::EVENT_TYPE_DRAW);
+      mjxproto::TenpaiHand tenpai;
+      tenpai.set_who(LastEvent().who());
+      for (auto tile :
+           hand(AbsolutePos(LastEvent().who())).ToVectorClosed(true))
+        tenpai.mutable_closed_tiles()->Add(tile.Id());
+      state_.mutable_terminal()->mutable_no_winner()->mutable_tenpais()->Add(
+          std::move(tenpai));
+      state_.mutable_terminal()->mutable_final_score()->CopyFrom(curr_score_);
+      for (int i = 0; i < 4; ++i)
+        state_.mutable_terminal()->mutable_no_winner()->add_ten_changes(0);
+      state_.mutable_public_observation()->mutable_events()->Add(
+          Event::CreateAbortiveDrawNineTerminals(
+              static_cast<AbsolutePos>(LastEvent().who())));
+      return;
+    }
+    case mjxproto::EVENT_TYPE_ABORTIVE_DRAW_FOUR_WINDS: {
+      // 四風子連打
+      assert(IsFourWinds());
+      state_.mutable_terminal()->mutable_final_score()->CopyFrom(curr_score_);
+      for (int i = 0; i < 4; ++i)
+        state_.mutable_terminal()->mutable_no_winner()->add_ten_changes(0);
+      state_.mutable_public_observation()->mutable_events()->Add(
+          Event::CreateAbortiveDrawFourWinds());
+      return;
+    }
+    case mjxproto::EVENT_TYPE_ABORTIVE_DRAW_FOUR_KANS: {
+      // 四槓散了
+      assert(IsFourKanNoWinner());
+      state_.mutable_terminal()->mutable_final_score()->CopyFrom(curr_score_);
+      for (int i = 0; i < 4; ++i)
+        state_.mutable_terminal()->mutable_no_winner()->add_ten_changes(0);
+      state_.mutable_public_observation()->mutable_events()->Add(
+          Event::CreateAbortiveDrawFourKans());
+      return;
+    }
+    case mjxproto::EVENT_TYPE_ABORTIVE_DRAW_THREE_RONS: {
+      // 三家和了
+      assert(LastEvent().type() == mjxproto::EVENT_TYPE_DISCARD or
+             LastEvent().type() == mjxproto::EVENT_TYPE_TSUMOGIRI);
+      three_ronned_player = static_cast<AbsolutePos>(LastEvent().who());
+      state_.mutable_public_observation()->mutable_events()->Add(
+          Event::CreateAbortiveDrawThreeRons());
+      break;
+    }
+    case mjxproto::EVENT_TYPE_ABORTIVE_DRAW_FOUR_RIICHIS: {
+      // 四家立直
+      assert(std::all_of(players_.begin(), players_.end(),
+                         [&](const Player &player) {
+                           return hand(player.position).IsUnderRiichi();
+                         }));
+      state_.mutable_public_observation()->mutable_events()->Add(
+          Event::CreateAbortiveDrawFourRiichis());
+      break;
+    }
+    case mjxproto::EVENT_TYPE_EXHAUSTIVE_DRAW_NORMAL: {
+      state_.mutable_public_observation()->mutable_events()->Add(
+          Event::CreateExhaustiveDrawNormal());
+      break;
+    }
+    case mjxproto::EVENT_TYPE_EXHAUSTIVE_DRAW_NAGASHI_MANGAN: {
+      state_.mutable_public_observation()->mutable_events()->Add(
+          Event::CreateExhaustiveDrawNagashiMangan());
+      break;
+    }
+    default:
+      Assert(false, "impossible state");
   }
 
+  // TODO: 何をやっているか確認
   // Handが最後リーチで終わってて、かつ一発が残っていることはないはず（通常流局なら）
   Assert(
-      state_.terminal().no_winner().type() != mjxproto::NO_WINNER_TYPE_NORMAL ||
+      LastEvent().type() != mjxproto::EVENT_TYPE_EXHAUSTIVE_DRAW_NORMAL ||
       !std::any_of(players_.begin(), players_.end(), [&](const Player &player) {
         return player.is_ippatsu && hand(player.position).IsUnderRiichi();
       }));
-
-  // set event
-  state_.mutable_public_observation()->mutable_events()->Add(
-      Event::CreateNoWinner());
 
   // set terminal
   std::vector<int> is_tenpai = {0, 0, 0, 0};
@@ -718,8 +743,8 @@ void State::NoWinner() {
         }
       }
     }
-    state_.mutable_terminal()->mutable_no_winner()->set_type(
-        mjxproto::NO_WINNER_TYPE_NM);
+    state_.mutable_public_observation()->mutable_events()->rbegin()->set_type(
+        mjxproto::EVENT_TYPE_EXHAUSTIVE_DRAW_NAGASHI_MANGAN);
   } else if (!three_ronned_player) {
     auto num_tenpai = std::accumulate(is_tenpai.begin(), is_tenpai.end(), 0);
     for (int i = 0; i < 4; ++i) {
@@ -772,16 +797,30 @@ bool State::IsGameOver() const {
        std::any_of(
            state_.terminal().wins().begin(), state_.terminal().wins().end(),
            [&](const auto x) { return AbsolutePos(x.who()) == dealer(); })) ||
-      (last_event_type == mjxproto::EVENT_TYPE_NO_WINNER &&
+      (Any(last_event_type,
+           {mjxproto::EVENT_TYPE_ABORTIVE_DRAW_NINE_TERMINALS,
+            mjxproto::EVENT_TYPE_ABORTIVE_DRAW_THREE_RONS,
+            mjxproto::EVENT_TYPE_ABORTIVE_DRAW_FOUR_KANS,
+            mjxproto::EVENT_TYPE_ABORTIVE_DRAW_FOUR_WINDS,
+            mjxproto::EVENT_TYPE_EXHAUSTIVE_DRAW_NORMAL,
+            mjxproto::EVENT_TYPE_EXHAUSTIVE_DRAW_NAGASHI_MANGAN}) &&
        std::any_of(
            state_.terminal().no_winner().tenpais().begin(),
            state_.terminal().no_winner().tenpais().end(),
            [&](const auto x) { return AbsolutePos(x.who()) == dealer(); }));
 
-  std::optional<mjxproto::NoWinnerType> no_winner_type;
+  std::optional<mjxproto::EventType> no_winner_type;
   if (!Any(last_event_type,
-           {mjxproto::EVENT_TYPE_RON, mjxproto::EVENT_TYPE_TSUMO}))
-    no_winner_type = state_.terminal().no_winner().type();
+           {mjxproto::EVENT_TYPE_RON, mjxproto::EVENT_TYPE_TSUMO}) and
+      Any(last_event_type,
+          {mjxproto::EVENT_TYPE_ABORTIVE_DRAW_NINE_TERMINALS,
+           mjxproto::EVENT_TYPE_ABORTIVE_DRAW_THREE_RONS,
+           mjxproto::EVENT_TYPE_ABORTIVE_DRAW_FOUR_KANS,
+           mjxproto::EVENT_TYPE_ABORTIVE_DRAW_FOUR_WINDS,
+           mjxproto::EVENT_TYPE_EXHAUSTIVE_DRAW_NORMAL,
+           mjxproto::EVENT_TYPE_EXHAUSTIVE_DRAW_NAGASHI_MANGAN})) {
+    no_winner_type = last_event_type;
+  }
 
   return CheckGameOver(round(), tens(), dealer(), is_dealer_win_or_tenpai,
                        no_winner_type);
@@ -790,14 +829,14 @@ bool State::IsGameOver() const {
 bool State::CheckGameOver(
     int round, std::array<int, 4> tens, AbsolutePos dealer,
     bool is_dealer_win_or_tenpai,
-    std::optional<mjxproto::NoWinnerType> no_winner_type) noexcept {
+    std::optional<mjxproto::EventType> no_winner_type) noexcept {
   // 途中流局の場合は連荘
   if (no_winner_type.has_value() &&
-      Any(no_winner_type, {mjxproto::NO_WINNER_TYPE_KYUUSYU,
-                           mjxproto::NO_WINNER_TYPE_FOUR_RIICHI,
-                           mjxproto::NO_WINNER_TYPE_THREE_RONS,
-                           mjxproto::NO_WINNER_TYPE_FOUR_KANS,
-                           mjxproto::NO_WINNER_TYPE_FOUR_WINDS})) {
+      Any(no_winner_type, {mjxproto::EVENT_TYPE_ABORTIVE_DRAW_NINE_TERMINALS,
+                           mjxproto::EVENT_TYPE_ABORTIVE_DRAW_FOUR_RIICHIS,
+                           mjxproto::EVENT_TYPE_ABORTIVE_DRAW_THREE_RONS,
+                           mjxproto::EVENT_TYPE_ABORTIVE_DRAW_FOUR_KANS,
+                           mjxproto::EVENT_TYPE_ABORTIVE_DRAW_FOUR_WINDS})) {
     return false;
   }
 
@@ -868,18 +907,25 @@ State::ScoreInfo State::Next() const {
   std::vector<PlayerId> player_ids(
       state_.public_observation().player_ids().begin(),
       state_.public_observation().player_ids().end());
-  if (LastEvent().type() == mjxproto::EVENT_TYPE_NO_WINNER) {
+  if (Any(LastEvent().type(),
+          {mjxproto::EVENT_TYPE_ABORTIVE_DRAW_NINE_TERMINALS,
+           mjxproto::EVENT_TYPE_ABORTIVE_DRAW_FOUR_RIICHIS,
+           mjxproto::EVENT_TYPE_ABORTIVE_DRAW_THREE_RONS,
+           mjxproto::EVENT_TYPE_ABORTIVE_DRAW_FOUR_KANS,
+           mjxproto::EVENT_TYPE_ABORTIVE_DRAW_FOUR_WINDS,
+           mjxproto::EVENT_TYPE_EXHAUSTIVE_DRAW_NORMAL,
+           mjxproto::EVENT_TYPE_EXHAUSTIVE_DRAW_NAGASHI_MANGAN})) {
     // 途中流局や親テンパイで流局の場合は連荘
     bool is_dealer_tenpai = std::any_of(
         state_.terminal().no_winner().tenpais().begin(),
         state_.terminal().no_winner().tenpais().end(),
         [&](const auto x) { return AbsolutePos(x.who()) == dealer(); });
-    if (Any(state_.terminal().no_winner().type(),
-            {mjxproto::NO_WINNER_TYPE_KYUUSYU,
-             mjxproto::NO_WINNER_TYPE_FOUR_RIICHI,
-             mjxproto::NO_WINNER_TYPE_THREE_RONS,
-             mjxproto::NO_WINNER_TYPE_FOUR_KANS,
-             mjxproto::NO_WINNER_TYPE_FOUR_WINDS}) ||
+    if (Any(LastEvent().type(),
+            {mjxproto::EVENT_TYPE_ABORTIVE_DRAW_NINE_TERMINALS,
+             mjxproto::EVENT_TYPE_ABORTIVE_DRAW_FOUR_RIICHIS,
+             mjxproto::EVENT_TYPE_ABORTIVE_DRAW_THREE_RONS,
+             mjxproto::EVENT_TYPE_ABORTIVE_DRAW_FOUR_KANS,
+             mjxproto::EVENT_TYPE_ABORTIVE_DRAW_FOUR_WINDS}) ||
         is_dealer_tenpai) {
       return ScoreInfo{player_ids,  game_seed(), round(),
                        honba() + 1, riichi(),    tens()};
@@ -1149,15 +1195,7 @@ void State::Update(std::vector<mjxproto::Action> &&action_candidates) {
   int ron_count = action_candidates.size();
   if (ron_count == 3) {
     // 三家和了
-    std::vector<int> ron = {0, 0, 0, 0};
-    for (const auto &action : action_candidates) {
-      if (action.type() == mjxproto::ACTION_TYPE_RON) ron[action.who()] = 1;
-    }
-    Assert(std::accumulate(ron.begin(), ron.end(), 0) == 3);
-    for (int i = 0; i < 4; ++i) {
-      if (ron[i] == 0) three_ronned_player = AbsolutePos(i);
-    }
-    NoWinner();
+    NoWinner(mjxproto::EVENT_TYPE_ABORTIVE_DRAW_THREE_RONS);
     return;
   }
   for (auto &action : action_candidates) {
@@ -1212,7 +1250,7 @@ void State::Update(mjxproto::Action &&action) {
       }
       Discard(who, Tile(action.discard()));
       if (IsFourWinds()) {  // 四風子連打
-        NoWinner();
+        NoWinner(mjxproto::EVENT_TYPE_ABORTIVE_DRAW_FOUR_WINDS);
         return;
       }
       // TODO:
@@ -1227,13 +1265,13 @@ void State::Update(mjxproto::Action &&action) {
                         return hand(player.position).IsUnderRiichi();
                       })) {
         RiichiScoreChange();
-        NoWinner();
+        NoWinner(mjxproto::EVENT_TYPE_ABORTIVE_DRAW_FOUR_RIICHIS);
         return;
       }
 
       // 鳴きやロンの候補がなく, 2人以上が合計4つ槓をしていたら四槓散了で流局
       if (IsFourKanNoWinner()) {
-        NoWinner();
+        NoWinner(mjxproto::EVENT_TYPE_ABORTIVE_DRAW_FOUR_KANS);
         return;
       }
 
@@ -1241,7 +1279,8 @@ void State::Update(mjxproto::Action &&action) {
         if (RequireRiichiScoreChange()) RiichiScoreChange();
         Draw(AbsolutePos((ToUType(who) + 1) % 4));
       } else {
-        NoWinner();
+        NoWinner(mjxproto::EVENT_TYPE_EXHAUSTIVE_DRAW_NORMAL);
+        // 流し満貫の可能性があるが、それはNoWinner内で判定する
       }
     }
       return;
@@ -1321,7 +1360,7 @@ void State::Update(mjxproto::Action &&action) {
                         return hand(player.position).IsUnderRiichi();
                       })) {
         RiichiScoreChange();
-        NoWinner();
+        NoWinner(mjxproto::EVENT_TYPE_ABORTIVE_DRAW_FOUR_RIICHIS);
         return;
       }
 
@@ -1330,7 +1369,7 @@ void State::Update(mjxproto::Action &&action) {
       // 4つ目の槓をした人の打牌を他家がロンできるけど無視したときのみ.
       // 四槓散了で流局とする.
       if (IsFourKanNoWinner()) {
-        NoWinner();
+        NoWinner(mjxproto::EVENT_TYPE_ABORTIVE_DRAW_FOUR_KANS);
         return;
       }
 
@@ -1338,12 +1377,13 @@ void State::Update(mjxproto::Action &&action) {
         if (RequireRiichiScoreChange()) RiichiScoreChange();
         Draw(AbsolutePos((LastEvent().who() + 1) % 4));
       } else {
-        NoWinner();
+        NoWinner(mjxproto::EVENT_TYPE_EXHAUSTIVE_DRAW_NORMAL);
+        // 流し満貫の可能性があるが、それはNoWinner内で判定する
       }
       return;
     case mjxproto::ACTION_TYPE_ABORTIVE_DRAW_NINE_TERMINALS:
       Assert(Any(LastEvent().type(), {mjxproto::EVENT_TYPE_DRAW}));
-      NoWinner();
+      NoWinner(mjxproto::EVENT_TYPE_ABORTIVE_DRAW_NINE_TERMINALS);
       return;
   }
 }
@@ -1472,7 +1512,6 @@ bool State::Equals(const State &other) const noexcept {
   }
   if (!seq_eq(no_winner.ten_changes(), other_no_winner.ten_changes()))
     return false;
-  if (no_winner.type() != other_no_winner.type()) return false;
   if (state_.terminal().is_game_over() !=
       other.state_.terminal().is_game_over())
     return false;
