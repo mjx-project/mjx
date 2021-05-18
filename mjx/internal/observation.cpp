@@ -76,7 +76,7 @@ const mjxproto::Observation& Observation::proto() const { return proto_; }
 
 Hand Observation::initial_hand() const {
   std::vector<Tile> tiles;
-  for (auto tile_id : proto_.private_observation().init_hand())
+  for (auto tile_id : proto_.private_observation().init_hand().closed_tiles())
     tiles.emplace_back(tile_id);
   return Hand(tiles);
 }
@@ -84,7 +84,7 @@ Hand Observation::initial_hand() const {
 Hand Observation::current_hand() const {
   // TODO: just use stored info in protocol buffer
   std::vector<Tile> tiles;
-  for (auto tile_id : proto_.private_observation().init_hand())
+  for (auto tile_id : proto_.private_observation().init_hand().closed_tiles())
     tiles.emplace_back(tile_id);
   Hand hand = Hand(tiles);
   int draw_ix = 0;

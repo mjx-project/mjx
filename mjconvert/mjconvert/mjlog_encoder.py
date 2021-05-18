@@ -58,8 +58,8 @@ class MjlogEncoder:
         ret += f'seed="{state.public_observation.init_score.round},{state.public_observation.init_score.honba},{state.public_observation.init_score.riichi},,,{state.public_observation.doras[0]}" '
         ret += f'ten="{state.public_observation.init_score.tens[0] // 100},{state.public_observation.init_score.tens[1] // 100},{state.public_observation.init_score.tens[2] // 100},{state.public_observation.init_score.tens[3] // 100}" oya="{state.public_observation.init_score.round % 4}" '
         hai = [
-            ",".join([str(t) for t in hand])
-            for hand in [y.init_hand for y in state.private_observations]
+            ",".join([str(t) for t in tiles])
+            for tiles in [y.init_hand.closed_tiles for y in state.private_observations]
         ]
         ret += f'hai0="{hai[0]}" '
         ret += f'hai1="{hai[1]}" '
