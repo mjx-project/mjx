@@ -134,8 +134,8 @@ class MjlogDecoder:
         self.state.terminal.final_score.riichi = riichi
         self.state.terminal.final_score.tens[:] = [int(x) * 100 for x in val["ten"].split(",")]
         self.state.hidden_state.wall[:] = wall
-        self.state.public_observation.doras.append(dora)
-        self.state.hidden_state.ura_doras.append(wall[131])
+        self.state.public_observation.dora_indicators.append(dora)
+        self.state.hidden_state.ura_dora_indicators.append(wall[131])
         assert dora == wall[130]
         for i in range(4):
             self.state.private_observations.append(
@@ -164,6 +164,7 @@ class MjlogDecoder:
         self.last_drawer = None
         self.last_draw = None
         reach_terminal = False
+        is_under_riichi = [False, False, False, False]
         for key, val in kv[1:]:
             if key != "UN" and key[0] in ["T", "U", "V", "W"]:  # draw
                 who, draw = MjlogDecoder.parse_draw(key)
@@ -201,13 +202,14 @@ class MjlogDecoder:
                     )
                     self.state.terminal.final_score.riichi += 1
                     self.state.terminal.final_score.tens[who] -= 1000
+                    is_under_riichi[who] = True
             elif key == "DORA":
                 dora = wall[128 - 2 * num_kan_dora]
                 assert dora == int(val["hai"])
                 ura_dora = wall[129 - 2 * num_kan_dora]
                 num_kan_dora += 1
-                self.state.public_observation.doras.append(dora)
-                self.state.hidden_state.ura_doras.append(ura_dora)
+                self.state.public_observation.dora_indicators.append(dora)
+                self.state.hidden_state.ura_dora_indicators.append(ura_dora)
                 event = mjxproto.Event(type=mjxproto.EVENT_TYPE_NEW_DORA, tile=dora)
             elif key == "RYUUKYOKU":
                 reach_terminal = True
@@ -231,12 +233,20 @@ class MjlogDecoder:
                     type=mjxproto.EVENT_TYPE_TSUMO if who == from_who else mjxproto.EVENT_TYPE_RON,
                     tile=win_tile,
                 )
-                win = MjlogDecoder.make_win(val, who, from_who, modify)
-                assert self.state.public_observation.doras == [
+                win = MjlogDecoder.make_win(
+                    val,
+                    who,
+                    from_who,
+                    self.state.hidden_state.ura_dora_indicators[:]
+                    if is_under_riichi[who]
+                    else None,
+                    modify,
+                )
+                assert self.state.public_observation.dora_indicators == [
                     int(x) for x in val["doraHai"].split(",")
                 ]
                 if "doraHaiUra" in val:
-                    assert self.state.hidden_state.ura_doras == [
+                    assert self.state.hidden_state.ura_dora_indicators == [
                         int(x) for x in val["doraHaiUra"].split(",")
                     ]
                 self.state.terminal.CopyFrom(
@@ -374,6 +384,7 @@ class MjlogDecoder:
         val: Dict[str, str],
         who: int,
         from_who: int,
+        ura_dora_indicators: Optional[List[int]],
         modify: bool,
     ) -> mjxproto.Win:
         # set win info
@@ -385,6 +396,9 @@ class MjlogDecoder:
             closed_tiles=[int(x) for x in val["hai"].split(",")],
             win_tile=int(val["machi"]),
         )
+        if ura_dora_indicators is not None:
+            win.ura_dora_indicators[:] = ura_dora_indicators
+
         win.ten_changes[:] = [
             int(x) * 100 for i, x in enumerate(val["sc"].split(",")) if i % 2 == 1
         ]

@@ -41,9 +41,9 @@ State::State(std::vector<PlayerId> player_ids, std::uint64_t game_seed,
   for (auto t : wall_.tiles())
     state_.mutable_hidden_state()->mutable_wall()->Add(t.Id());
   // doras, ura_doras
-  state_.mutable_public_observation()->add_doras(
+  state_.mutable_public_observation()->add_dora_indicators(
       wall_.dora_indicators().front().Id());
-  state_.mutable_hidden_state()->add_ura_doras(
+  state_.mutable_hidden_state()->add_ura_dora_indicators(
       wall_.ura_dora_indicators().front().Id());
   // private info
   for (int i = 0; i < 4; ++i) {
@@ -253,9 +253,9 @@ State::State(const mjxproto::State &state) {
   state_.mutable_hidden_state()->set_game_seed(
       state.hidden_state().game_seed());
   // Set dora
-  state_.mutable_public_observation()->add_doras(
+  state_.mutable_public_observation()->add_dora_indicators(
       wall_.dora_indicators().front().Id());
-  state_.mutable_hidden_state()->add_ura_doras(
+  state_.mutable_hidden_state()->add_ura_dora_indicators(
       wall_.ura_dora_indicators().front().Id());
   // Set init hands
   for (int i = 0; i < 4; ++i) {
@@ -427,8 +427,8 @@ void State::AddNewDora() {
 
   state_.mutable_public_observation()->mutable_events()->Add(
       Event::CreateNewDora(new_dora_ind));
-  state_.mutable_public_observation()->add_doras(new_dora_ind.Id());
-  state_.mutable_hidden_state()->add_ura_doras(new_ura_dora_ind.Id());
+  state_.mutable_public_observation()->add_dora_indicators(new_dora_ind.Id());
+  state_.mutable_hidden_state()->add_ura_dora_indicators(new_ura_dora_ind.Id());
 }
 
 void State::RiichiScoreChange() {
@@ -513,6 +513,11 @@ void State::Tsumo(AbsolutePos winner) {
   for (const auto &[who, ten_move] : ten_moves) {
     win.set_ten_changes(ToUType(who), ten_move);
     curr_score_.set_tens(ToUType(who), ten(who) + ten_move);
+  }
+  // set ura_doras if winner is under riichi
+  if (hand(winner).IsUnderRiichi()) {
+    win.mutable_ura_dora_indicators()->CopyFrom(
+        state_.hidden_state().ura_dora_indicators());
   }
 
   // set terminal
@@ -616,6 +621,11 @@ void State::Ron(AbsolutePos winner) {
   for (const auto &[who, ten_move] : ten_moves) {
     win.set_ten_changes(ToUType(who), ten_move);
     curr_score_.set_tens(ToUType(who), ten(who) + ten_move);
+  }
+  // set ura_doras if winner is under riichi
+  if (hand(winner).IsUnderRiichi()) {
+    win.mutable_ura_dora_indicators()->CopyFrom(
+        state_.hidden_state().ura_dora_indicators());
   }
 
   // set win to terminal
@@ -1452,11 +1462,11 @@ bool State::Equals(const State &other) const noexcept {
   if (!tiles_eq(state_.hidden_state().wall(),
                 other.state_.hidden_state().wall()))
     return false;
-  if (!tiles_eq(state_.public_observation().doras(),
-                other.state_.public_observation().doras()))
+  if (!tiles_eq(state_.public_observation().dora_indicators(),
+                other.state_.public_observation().dora_indicators()))
     return false;
-  if (!tiles_eq(state_.hidden_state().ura_doras(),
-                other.state_.hidden_state().ura_doras()))
+  if (!tiles_eq(state_.hidden_state().ura_dora_indicators(),
+                other.state_.hidden_state().ura_dora_indicators()))
     return false;
   for (int i = 0; i < 4; ++i)
     if (!tiles_eq(
