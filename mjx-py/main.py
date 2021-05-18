@@ -121,21 +121,12 @@ class GameBoard:
         self.layout = Layout()
         self.layout.split_column(
             Layout(name="info"),
-            Layout(name="players_info"),
             Layout(" ", name="space"),
             Layout(name="table"),
         )
         self.layout["info"].size = 3
-        self.layout["players_info"].size = 4
         self.layout["space"].size = 1
         self.layout["table"].size = 35
-
-        self.layout["players_info"].split_row(
-            Layout(name="player1"),
-            Layout(name="player2"),
-            Layout(name="player3"),
-            Layout(name="player4"),
-        )
 
         self.layout["table"].split_column(
             Layout(name="upper1"),
@@ -590,8 +581,7 @@ class GameBoard:
 
         table.players.sort(key=lambda x: (x.player_idx - self.my_idx) % 4)
 
-        players_info1 = ["player1", "player2", "player3", "player4"]
-        players_info2 = [
+        players_info = [
             "player1_center_info",
             "player2_center_info",
             "player3_center_info",
@@ -622,8 +612,7 @@ class GameBoard:
 
             player_info = player_info + score + riichi
 
-            self.layout[players_info1[i]].update(Panel(player_info, style="bold green"))
-            self.layout[players_info2[i]].update(player_info)
+            self.layout[players_info[i]].update(player_info)
 
             hand = self.get_modified_tiles(i, TileUnitType.HAND)
             chi = self.get_modified_tiles(i, TileUnitType.CHI)
