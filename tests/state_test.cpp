@@ -118,13 +118,14 @@ std::string SwapTiles(const std::string &json_str, Tile a, Tile b) {
   }
   // init hand, draw_history
   for (int j = 0; j < 4; ++j) {
-    auto mpinfo = state.mutable_private_observations(j);
-    for (int i = 0; i < mpinfo->init_hand_size(); ++i) {
-      if (mpinfo->init_hand(i) == a.Id())
-        mpinfo->set_init_hand(i, b.Id());
-      else if (mpinfo->init_hand(i) == b.Id())
-        mpinfo->set_init_hand(i, a.Id());
+    auto init_hand = state.mutable_private_observations(j)->mutable_init_hand();
+    for (int i = 0; i < init_hand->closed_tiles_size(); ++i) {
+      if (init_hand->closed_tiles(i) == a.Id())
+        init_hand->set_closed_tiles(i, b.Id());
+      else if (init_hand->closed_tiles(i) == b.Id())
+        init_hand->set_closed_tiles(i, a.Id());
     }
+    auto mpinfo = state.mutable_private_observations(j);
     for (int i = 0; i < mpinfo->draw_history_size(); ++i) {
       if (mpinfo->draw_history(i) == a.Id())
         mpinfo->set_draw_history(i, b.Id());

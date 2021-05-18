@@ -49,7 +49,7 @@ State::State(std::vector<PlayerId> player_ids, std::uint64_t game_seed,
   for (int i = 0; i < 4; ++i) {
     state_.add_private_observations()->set_who(i);
     for (const auto tile : wall_.initial_hand_tiles(AbsolutePos(i)))
-      state_.mutable_private_observations(i)->mutable_init_hand()->Add(
+      state_.mutable_private_observations(i)->mutable_init_hand()->mutable_closed_tiles()->Add(
           tile.Id());
   }
 
@@ -263,7 +263,7 @@ State::State(const mjxproto::State &state) {
     state_.mutable_private_observations()->Add();
     state_.mutable_private_observations(i)->set_who(i);
     for (auto t : wall_.initial_hand_tiles(AbsolutePos(i))) {
-      state_.mutable_private_observations(i)->add_init_hand(t.Id());
+      state_.mutable_private_observations(i)->mutable_init_hand()->mutable_closed_tiles()->Add(t.Id());
     }
   }
 
@@ -1454,8 +1454,8 @@ bool State::Equals(const State &other) const noexcept {
                 other.state_.hidden_state().ura_doras()))
     return false;
   for (int i = 0; i < 4; ++i)
-    if (!tiles_eq(state_.private_observations(i).init_hand(),
-                  other.state_.private_observations(i).init_hand()))
+    if (!tiles_eq(state_.private_observations(i).init_hand().closed_tiles(),
+                  other.state_.private_observations(i).init_hand().closed_tiles()))
       return false;
   for (int i = 0; i < 4; ++i)
     if (!tiles_eq(state_.private_observations(i).draw_history(),
