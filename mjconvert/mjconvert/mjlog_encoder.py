@@ -55,7 +55,7 @@ class MjlogEncoder:
             == 100000
         )
         ret = "<INIT "
-        ret += f'seed="{state.public_observation.init_score.round},{state.public_observation.init_score.honba},{state.public_observation.init_score.riichi},,,{state.public_observation.doras[0]}" '
+        ret += f'seed="{state.public_observation.init_score.round},{state.public_observation.init_score.honba},{state.public_observation.init_score.riichi},,,{state.public_observation.dora_indicators[0]}" '
         ret += f'ten="{state.public_observation.init_score.tens[0] // 100},{state.public_observation.init_score.tens[1] // 100},{state.public_observation.init_score.tens[2] // 100},{state.public_observation.init_score.tens[3] // 100}" oya="{state.public_observation.init_score.round % 4}" '
         hai = [
             ",".join([str(t) for t in tiles])
@@ -258,10 +258,10 @@ class MjlogEncoder:
             ret += f'yakuman="{yakuman}" '
         else:
             is_pao = False
-        doras = ",".join([str(x) for x in state.public_observation.doras])
+        doras = ",".join([str(x) for x in state.public_observation.dora_indicators])
         ret += f'doraHai="{doras}" '
         if under_riichi[win.who]:  # if under riichi (or double riichi)
-            ura_doras = ",".join([str(x) for x in state.hidden_state.ura_doras])
+            ura_doras = ",".join([str(x) for x in state.hidden_state.ura_dora_indicators])
             ret += f'doraHaiUra="{ura_doras}" '
         ret += f'who="{win.who}" fromWho="{win.from_who}" '
         sc = []
