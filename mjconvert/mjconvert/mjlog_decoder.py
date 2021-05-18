@@ -143,13 +143,18 @@ class MjlogDecoder:
                     who=i,
                     init_hand=mjxproto.Hand(
                         closed_tiles=[int(x) for x in val["hai" + str(i)].split(",")]
-                    )
+                    ),
                 )
             )
         for i in range(4 * 12):
-            assert wall[i] in self.state.private_observations[((i // 4) + round_) % 4].init_hand.closed_tiles
+            assert (
+                wall[i]
+                in self.state.private_observations[((i // 4) + round_) % 4].init_hand.closed_tiles
+            )
         for i in range(4 * 12, 4 * 13):
-            assert wall[i] in self.state.private_observations[(i + round_) % 4].init_hand.closed_tiles
+            assert (
+                wall[i] in self.state.private_observations[(i + round_) % 4].init_hand.closed_tiles
+            )
 
         curr_hands = []
         for i in range(4):
