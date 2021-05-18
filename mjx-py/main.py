@@ -364,7 +364,7 @@ class GameBoard:
                     [
                         Tile(124, True, self.is_using_unicode),
                         Tile(40, True, self.is_using_unicode, True),
-                        Tile(132, True, self.is_using_unicode),
+                        Tile(128, True, self.is_using_unicode),
                         Tile(108, True, self.is_using_unicode, True),
                         Tile(112, True, self.is_using_unicode),
                         Tile(116, True, self.is_using_unicode),
@@ -522,6 +522,11 @@ class GameBoard:
         for i, p in enumerate(table.players):
             player_info = []
 
+            if p.player_idx == 0:
+                player_info.append(
+                    [["[E]", "[東]]"], ["[S]", "南"]][table.round // 4][self.language]
+                )
+
             player_info.append(
                 get_wind_char(p.wind, self.language)
                 + " [ "
@@ -588,7 +593,9 @@ class GameBoard:
         for i, p in enumerate(table.players):
             player_info = Text(justify="center")
             if p.player_idx == 0:
-                player_info += "*"
+                player_info += [["[E]", "[東]]"], ["[S]", "南"]][table.round // 4][
+                    self.language
+                ]
             player_info += get_wind_char(p.wind, self.language)
             if self.show_name:
                 player_info += " " + p.name
@@ -596,9 +603,9 @@ class GameBoard:
 
             score = Text(str(p.score), justify="center", style="bold magenta")
 
-            riichi = ""
+            riichi = Text()
             if p.is_declared_riichi:
-                riichi = [", riichi", ", リーチ"][self.language]
+                riichi = [Text(", riichi"), Text(", リーチ")][self.language]
 
             player_info = player_info + score + riichi
 
@@ -632,11 +639,11 @@ def main():
     >>> print(game_board.show_by_text(game_board.load_data()))  # doctest: +NORMALIZE_WHITESPACE
     round:6 honba:1 riichi:1
     <BLANKLINE>
-    EAST [ 25000 ] 太郎
+    [S]EAST [ 25000 ] 太郎
     <BLANKLINE>
     nw wd gd rd m1 m2 m3 m4      p4p5p6L p7p8p9L
     <BLANKLINE>
-    wd  p2* rd  ew* sw  ww
+    wd  p2* gd  ew* sw  ww
     nw* p1
     <BLANKLINE>
     <BLANKLINE>
@@ -644,7 +651,7 @@ def main():
     <BLANKLINE>
     # # # # # # # #      s1s1s1M s2s2s2R
     <BLANKLINE>
-    wd  p2* rd  ew* sw  ww
+    wd  p2* gd  ew* sw  ww
     nw* p1
     <BLANKLINE>
     <BLANKLINE>
@@ -652,7 +659,7 @@ def main():
     <BLANKLINE>
     # # # # # # # #      s3s3s3s3R s4s4s4s4R
     <BLANKLINE>
-    wd  p2* rd  ew* sw  ww
+    wd  p2* gd  ew* sw  ww
     nw* p1
     <BLANKLINE>
     <BLANKLINE>
@@ -660,7 +667,7 @@ def main():
     <BLANKLINE>
     # # # # # # # #      s7s7s7s7R s8s8s8s8L(Add)
     <BLANKLINE>
-    wd  p2* rd  ew* sw  ww
+    wd  p2* gd  ew* sw  ww
     nw* p1
     <BLANKLINE>
     <BLANKLINE>
