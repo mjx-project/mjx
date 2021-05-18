@@ -146,7 +146,7 @@ message TenpaiHand {
   repeated uint32 closed_tiles = 2;
 }
 
-message Terminal {
+message RoundTerminal {
   Score final_score = 1;
   repeated Win wins = 2;   // Empty if no one wins
   NoWinner no_winner = 3;  // Empty if a winner exists
@@ -157,7 +157,7 @@ message State {
   HiddenState hidden_state = 1;
   PublicObservation public_observation = 2;
   repeated PrivateObservation private_observations = 3;
-  Terminal terminal = 4;
+  RoundTerminal round_terminal = 4;
 }
 
 message HiddenState {
