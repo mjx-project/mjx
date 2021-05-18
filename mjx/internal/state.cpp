@@ -1513,7 +1513,8 @@ bool State::Equals(const State &other) const noexcept {
     const auto &tenpai = no_winner.tenpais(i);
     const auto &other_tenpai = other_no_winner.tenpais(i);
     if (tenpai.who() != other_tenpai.who()) return false;
-    if (!tiles_eq(tenpai.hand().closed_tiles(), other_tenpai.hand().closed_tiles()))
+    if (!tiles_eq(tenpai.hand().closed_tiles(),
+                  other_tenpai.hand().closed_tiles()))
       return false;
   }
   if (!seq_eq(no_winner.ten_changes(), other_no_winner.ten_changes()))
