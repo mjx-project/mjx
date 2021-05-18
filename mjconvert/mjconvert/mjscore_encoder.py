@@ -442,7 +442,7 @@ def mjxproto_to_mjscore(state: mjxproto.State) -> str:
     ]
     for abs_pos in absolute_pos:
         log.append(
-            sort_init_hand(_change_tiles_fmt(state.private_observations[abs_pos].init_hand))
+            sort_init_hand(_change_tiles_fmt(state.private_observations[abs_pos].init_hand.closed_tiles))
         )
         log.append(
             parse_draw_history(
