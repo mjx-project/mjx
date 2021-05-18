@@ -305,7 +305,9 @@ class MjlogDecoder:
             terminal.no_winner.tenpais.append(
                 mjxproto.TenpaiHand(
                     who=i,
-                    closed_tiles=[int(x) for x in val[hai_key].split(",")],
+                    hand=mjxproto.Hand(
+                        closed_tiles=[int(x) for x in val[hai_key].split(",")],
+                    )
                 )
             )
         if "owari" in val:
