@@ -212,7 +212,7 @@ class MjlogDecoder:
             elif key == "RYUUKYOKU":
                 reach_terminal = True
                 self.state.terminal.CopyFrom(
-                    MjlogDecoder.update_terminal_by_no_winner(self.state.terminal, val)
+                    MjlogDecoder.update_terminal_by_no_winner(self.state.terminal, val, curr_hands)
                 )
                 nowinner_type = MjlogDecoder.parse_no_winner_type(val)
                 if nowinner_type == mjxproto.EVENT_TYPE_ABORTIVE_DRAW_NINE_TERMINALS:
@@ -290,7 +290,7 @@ class MjlogDecoder:
 
     @staticmethod
     def update_terminal_by_no_winner(
-        terminal: mjxproto.Terminal, val: Dict[str, str]
+        terminal: mjxproto.Terminal, val: Dict[str, str], hands: List[Hand]
     ) -> mjxproto.Terminal:
         ba, riichi = [int(x) for x in val["ba"].split(",")]
         terminal.no_winner.ten_changes[:] = [
@@ -307,6 +307,7 @@ class MjlogDecoder:
                     who=i,
                     hand=mjxproto.Hand(
                         closed_tiles=[int(x) for x in val[hai_key].split(",")],
+                        opens=hands[i].opens,
                     ),
                 )
             )
