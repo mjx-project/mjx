@@ -5,6 +5,7 @@ from converter import get_modifier, get_tile_char, get_wind_char
 from rich import print
 from rich.layout import Layout
 from rich.panel import Panel
+from rich.console import Console
 from rich.text import Text
 
 
@@ -450,7 +451,13 @@ class GameBoard:
             for tile_unit in self.table.players[player_idx].tile_units:
                 if tile_unit.tile_unit_type == tile_unit_type:
                     if tile_unit.tile_unit_type == TileUnitType.HAND:
-                        tiles += " ".join([tile.char for tile in tile_unit.tiles])
+                        tiles += "".join(
+                            [
+                                tile.char
+                                + ("" if tile.char == "\U0001F004\uFE0E" else " ")
+                                for tile in tile_unit.tiles
+                            ]
+                        )
                         break
                     if tile_unit.tile_unit_type == TileUnitType.DISCARD:
                         discards = [
@@ -602,6 +609,8 @@ class GameBoard:
             player_info += "\n"
 
             score = Text(str(p.score), justify="center", style="bold magenta")
+            console = Console()
+            console.print(score)
 
             riichi = Text()
             if p.is_declared_riichi:
@@ -631,9 +640,6 @@ class GameBoard:
 
 
 def main():
-    # 将来的に引数として設定すべきなのは、
-    # ファイルpath, State/Observation, rich(w or w/o), unicode(w or w/o), 名前表示, 言語
-
     """
     >>> game_board = GameBoard("hogepath", "Observation", False, False, 0 , True)
     >>> print(game_board.show_by_text(game_board.load_data()))  # doctest: +NORMALIZE_WHITESPACE
