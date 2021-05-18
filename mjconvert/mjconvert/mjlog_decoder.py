@@ -305,12 +305,12 @@ class MjlogDecoder:
             terminal.no_winner.tenpais.append(
                 mjxproto.TenpaiHand(
                     who=i,
-                    hand=mjxproto.Hand(
-                        closed_tiles=[int(x) for x in val[hai_key].split(",")],
-                        opens=hands[i].opens,
-                    ),
+                    hand=mjxproto.Hand(closed_tiles=hands[i].closed_tiles, opens=hands[i].opens),
                 )
             )
+            assert [int(x) for x in hands[i].closed_tiles] == [
+                int(x) for x in val[hai_key].split(",")
+            ]
         if "owari" in val:
             # オーラス流局時のリーチ棒はトップ総取り
             # TODO: 同着トップ時には上家が総取りしてるが正しい？
