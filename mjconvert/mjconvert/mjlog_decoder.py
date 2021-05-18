@@ -395,7 +395,6 @@ class MjlogDecoder:
             from_who=from_who,
             closed_tiles=[int(x) for x in val["hai"].split(",")],
             win_tile=int(val["machi"]),
-            ura_dora_indicators=copy.deepcopy(ura_dora_indicators),
         )
         if ura_dora_indicators is not None:
             win.ura_dora_indicators[:] = ura_dora_indicators
