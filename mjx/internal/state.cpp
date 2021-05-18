@@ -514,6 +514,13 @@ void State::Tsumo(AbsolutePos winner) {
     win.set_ten_changes(ToUType(who), ten_move);
     curr_score_.set_tens(ToUType(who), ten(who) + ten_move);
   }
+  // set ura_doras if winner is under riichi
+  if (hand(winner).IsUnderRiichi()) {
+    win.mutable_ura_dora_indicators()->CopyFrom(state_.hidden_state().ura_dora_indicators());
+  }
+  for (int i = 0; i < win.ura_dora_indicators_size(); ++i) {
+    assert(win.ura_dora_indicators(i) == state_.hidden_state().ura_dora_indicators(i));
+  }
 
   // set terminal
   if (IsGameOver()) {
@@ -616,6 +623,13 @@ void State::Ron(AbsolutePos winner) {
   for (const auto &[who, ten_move] : ten_moves) {
     win.set_ten_changes(ToUType(who), ten_move);
     curr_score_.set_tens(ToUType(who), ten(who) + ten_move);
+  }
+  // set ura_doras if winner is under riichi
+  if (hand(winner).IsUnderRiichi()) {
+    win.mutable_ura_dora_indicators()->CopyFrom(state_.hidden_state().ura_dora_indicators());
+  }
+  for (int i = 0; i < win.ura_dora_indicators_size(); ++i) {
+    assert(win.ura_dora_indicators(i) == state_.hidden_state().ura_dora_indicators(i));
   }
 
   // set win to terminal

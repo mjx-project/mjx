@@ -133,6 +133,7 @@ message Win {
   repeated uint32 yakus = 9;
   repeated uint32 fans = 10;
   repeated uint32 yakumans = 11;
+  repeated uint32 ura_dora_indicators = 12;  // set if this player is under riichi
 }
 
 message NoWinner {
