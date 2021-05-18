@@ -604,12 +604,12 @@ class GameBoard:
         for i, p in enumerate(table.players):
             player_info = Text(justify="center", style="bold green")
             if p.player_idx == 0:
-                player_info += [["[E]", "[東]]"], ["[S]", "南"]][table.round // 4][
+                player_info += [["[E]", "[東]]"], ["[S]", "[南]"]][table.round // 4][
                     self.language
                 ]
             player_info += get_wind_char(p.wind, self.language)
             if self.show_name:
-                player_info += " " + p.name
+                player_info += Text(" " + p.name, style="white")
             player_info += "\n"
 
             score = Text(str(p.score), justify="center", style="yellow")
