@@ -307,7 +307,7 @@ class MjlogDecoder:
                     who=i,
                     hand=mjxproto.Hand(
                         closed_tiles=[int(x) for x in val[hai_key].split(",")],
-                    )
+                    ),
                 )
             )
         if "owari" in val:
