@@ -164,6 +164,7 @@ class MjlogDecoder:
         self.last_drawer = None
         self.last_draw = None
         reach_terminal = False
+        is_under_riichi = [False, False, False, False]
         for key, val in kv[1:]:
             if key != "UN" and key[0] in ["T", "U", "V", "W"]:  # draw
                 who, draw = MjlogDecoder.parse_draw(key)
@@ -201,6 +202,7 @@ class MjlogDecoder:
                     )
                     self.state.terminal.final_score.riichi += 1
                     self.state.terminal.final_score.tens[who] -= 1000
+                    is_under_riichi[who] = True
             elif key == "DORA":
                 dora = wall[128 - 2 * num_kan_dora]
                 assert dora == int(val["hai"])
@@ -231,7 +233,15 @@ class MjlogDecoder:
                     type=mjxproto.EVENT_TYPE_TSUMO if who == from_who else mjxproto.EVENT_TYPE_RON,
                     tile=win_tile,
                 )
-                win = MjlogDecoder.make_win(val, who, from_who, modify)
+                win = MjlogDecoder.make_win(
+                    val,
+                    who,
+                    from_who,
+                    self.state.hidden_state.ura_dora_indicators[:]
+                    if is_under_riichi[who]
+                    else None,
+                    modify,
+                )
                 assert self.state.public_observation.dora_indicators == [
                     int(x) for x in val["doraHai"].split(",")
                 ]
@@ -374,6 +384,7 @@ class MjlogDecoder:
         val: Dict[str, str],
         who: int,
         from_who: int,
+        ura_dora_indicators: Optional[List[int]],
         modify: bool,
     ) -> mjxproto.Win:
         # set win info
@@ -384,7 +395,11 @@ class MjlogDecoder:
             from_who=from_who,
             closed_tiles=[int(x) for x in val["hai"].split(",")],
             win_tile=int(val["machi"]),
+            ura_dora_indicators=copy.deepcopy(ura_dora_indicators),
         )
+        if ura_dora_indicators is not None:
+            win.ura_dora_indicators[:] = ura_dora_indicators
+
         win.ten_changes[:] = [
             int(x) * 100 for i, x in enumerate(val["sc"].split(",")) if i % 2 == 1
         ]
