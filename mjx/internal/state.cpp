@@ -641,7 +641,8 @@ void State::NoWinner(mjxproto::EventType nowinner_type) {
              LastEvent().type() == mjxproto::EVENT_TYPE_DRAW);
       mjxproto::TenpaiHand tenpai;
       tenpai.set_who(LastEvent().who());
-      tenpai.mutable_hand()->CopyFrom(hand(AbsolutePos(LastEvent().who())).ToProto());
+      tenpai.mutable_hand()->CopyFrom(
+          hand(AbsolutePos(LastEvent().who())).ToProto());
       state_.mutable_terminal()->mutable_no_winner()->mutable_tenpais()->Add(
           std::move(tenpai));
       state_.mutable_terminal()->mutable_final_score()->CopyFrom(curr_score_);
