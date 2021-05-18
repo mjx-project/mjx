@@ -644,6 +644,9 @@ void State::NoWinner(mjxproto::EventType nowinner_type) {
       for (auto tile :
            hand(AbsolutePos(LastEvent().who())).ToVectorClosed(true))
         tenpai.mutable_hand()->mutable_closed_tiles()->Add(tile.Id());
+      for (auto open :
+          hand(AbsolutePos(LastEvent().who())).Opens())
+        tenpai.mutable_hand()->mutable_opens()->Add(open.GetBits());
       state_.mutable_terminal()->mutable_no_winner()->mutable_tenpais()->Add(
           std::move(tenpai));
       state_.mutable_terminal()->mutable_final_score()->CopyFrom(curr_score_);
@@ -728,6 +731,9 @@ void State::NoWinner(mjxproto::EventType nowinner_type) {
       for (auto tile : tenpai_hand.value().closed_tiles) {
         tenpai.mutable_hand()->mutable_closed_tiles()->Add(tile.Id());
       }
+      for (auto open :
+               tenpai_hand.value().opens)
+        tenpai.mutable_hand()->mutable_opens()->Add(open.GetBits());
       state_.mutable_terminal()->mutable_no_winner()->mutable_tenpais()->Add(
           std::move(tenpai));
     }
