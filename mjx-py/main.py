@@ -90,7 +90,7 @@ class MahjongTable:
 
             if num_of_tiles < 13 or 14 < num_of_tiles:
                 print("ERROR: The number of tiles is inaccurate.")
-                print("player:", p.player_idx, num_of_tiles)
+                print("player", p.player_idx, ":", num_of_tiles)
                 return False
         return True
 
@@ -181,8 +181,18 @@ class GameBoard:
 
         self.layout["middle3"].split_row(
             Layout(name="discard4"),
-            Layout(" "),
+            Layout(name="middle4"),
             Layout(name="discard2"),
+        )
+
+        self.layout["middle4"].split_column(
+            Layout(name="player3_center_info"),
+            Layout(name="middle5"),
+            Layout(name="player1_center_info"),
+        )
+        self.layout["middle5"].split_row(
+            Layout(name="player4_center_info"),
+            Layout(name="player2_center_info"),
         )
 
         self.layout["lower2"].split_row(
@@ -233,7 +243,7 @@ class GameBoard:
         p1_hands = TileUnit(
             TileUnitType.HAND,
             FromWho.NONE,
-            [Tile(i * 4, True, self.is_using_unicode) for i in range(8)],
+            [Tile((120 + i * 4) % 133, True, self.is_using_unicode) for i in range(8)],
         )
         player1.tile_units.append(p1_hands)
         p1_chi1 = TileUnit(
@@ -404,7 +414,13 @@ class GameBoard:
                         break
                     if player_idx % 2 == 0:
                         if tile_unit.tile_unit_type == TileUnitType.HAND:
-                            tiles += " ".join([tile.char for tile in tile_unit.tiles])
+                            tiles += "".join(
+                                [
+                                    tile.char
+                                    + ("" if tile.char == "\U0001F004\uFE0E" else " ")
+                                    for tile in tile_unit.tiles
+                                ]
+                            )
                             break
                         tiles += "".join(
                             [
@@ -531,7 +547,7 @@ class GameBoard:
             open_kan = self.get_modified_tiles(i, TileUnitType.OPEN_KAN)
             closed_kan = self.get_modified_tiles(i, TileUnitType.CLOSED_KAN)
             added_kan = self.get_modified_tiles(i, TileUnitType.ADDED_KAN)
-            hand_area = hand + "  " + chi + pon + open_kan + closed_kan + added_kan
+            hand_area = hand + "      " + chi + pon + open_kan + closed_kan + added_kan
             player_info.append(hand_area)
             player_info.append("\n\n")
 
@@ -559,27 +575,35 @@ class GameBoard:
 
         table.players.sort(key=lambda x: (x.player_idx - self.my_idx) % 4)
 
-        players_idx = ["player1", "player2", "player3", "player4"]
+        players_info1 = ["player1", "player2", "player3", "player4"]
+        players_info2 = [
+            "player1_center_info",
+            "player2_center_info",
+            "player3_center_info",
+            "player4_center_info",
+        ]
         hands_idx = ["hand1", "hand2", "hand3", "hand4"]
         discards_idx = ["discard1", "discard2", "discard3", "discard4"]
 
         for i, p in enumerate(table.players):
-            player_info = get_wind_char(p.wind, self.language)
+            player_info = Text(justify="center")
+            if p.player_idx == 0:
+                player_info += "*"
+            player_info += get_wind_char(p.wind, self.language)
             if self.show_name:
                 player_info += " " + p.name
-            player_info += "\n" + "".join(
-                [
-                    str(p.score)
-                    + (
-                        [", riichi", ", リーチ"][self.language]
-                        if p.is_declared_riichi
-                        else ""
-                    )
-                ]
-            )
-            self.layout[players_idx[i]].update(
-                Panel(Text(player_info, justify="center", no_wrap=True))
-            )
+            player_info += "\n"
+
+            score = Text(str(p.score), justify="center", style="bold magenta")
+
+            riichi = ""
+            if p.is_declared_riichi:
+                riichi = [", riichi", ", リーチ"][self.language]
+
+            player_info = player_info + score + riichi
+
+            self.layout[players_info1[i]].update(Panel(player_info))
+            self.layout[players_info2[i]].update(player_info)
 
             hand = self.get_modified_tiles(i, TileUnitType.HAND)
             chi = self.get_modified_tiles(i, TileUnitType.CHI)
@@ -587,7 +611,7 @@ class GameBoard:
             open_kan = self.get_modified_tiles(i, TileUnitType.OPEN_KAN)
             closed_kan = self.get_modified_tiles(i, TileUnitType.CLOSED_KAN)
             added_kan = self.get_modified_tiles(i, TileUnitType.ADDED_KAN)
-            hand_area = hand + "  " + chi + pon + open_kan + closed_kan + added_kan
+            hand_area = hand + "      " + chi + pon + open_kan + closed_kan + added_kan
             self.layout[hands_idx[i]].update(
                 Panel(Text(hand_area, justify="center", no_wrap=True))
             )
@@ -610,7 +634,7 @@ def main():
     <BLANKLINE>
     EAST [ 25000 ] 太郎
     <BLANKLINE>
-    m1 m2 m3 m4 m5 m6 m7 m8  p4p5p6L p7p8p9L
+    nw wd gd rd m1 m2 m3 m4      p4p5p6L p7p8p9L
     <BLANKLINE>
     wd  p2* rd  ew* sw  ww
     nw* p1
@@ -618,7 +642,7 @@ def main():
     <BLANKLINE>
     SOUTH [ 25000 ] 次郎
     <BLANKLINE>
-    # # # # # # # #  s1s1s1M s2s2s2R
+    # # # # # # # #      s1s1s1M s2s2s2R
     <BLANKLINE>
     wd  p2* rd  ew* sw  ww
     nw* p1
@@ -626,7 +650,7 @@ def main():
     <BLANKLINE>
     WEST [ 25000, riichi ] 三郎
     <BLANKLINE>
-    # # # # # # # #  s3s3s3s3R s4s4s4s4R
+    # # # # # # # #      s3s3s3s3R s4s4s4s4R
     <BLANKLINE>
     wd  p2* rd  ew* sw  ww
     nw* p1
@@ -634,7 +658,7 @@ def main():
     <BLANKLINE>
     NORTH [ 25000 ] 四郎
     <BLANKLINE>
-    # # # # # # # #  s7s7s7s7R s8s8s8s8L(Add)
+    # # # # # # # #      s7s7s7s7R s8s8s8s8L(Add)
     <BLANKLINE>
     wd  p2* rd  ew* sw  ww
     nw* p1
@@ -659,38 +683,6 @@ def main():
         game_board.show_by_rich(game_board.load_data())
     else:
         print(game_board.show_by_text(game_board.load_data()))
-    i = 0
-    while input() != "q":
-        if os.name == "nt":
-            os.system("cls")
-        else:
-            os.system("clear")
-        if i % 2 == 1:
-            game_board.table = game_board.load_data()
-        else:
-            hands = ""
-            for tiles in game_board.table.players[0].tile_units:
-                if tiles.tile_unit_type == TileUnitType.HAND:
-                    hands = tiles
-                    break
-            before_id = 0
-            after_id = 48
-            hands.tiles = [
-                Tile(after_id, True, args.uni) if t.id == before_id else t
-                for t in hands.tiles
-            ]
-
-            for tiles in game_board.table.players[0].tile_units:
-                if tiles.tile_unit_type == TileUnitType.DISCARD:
-                    tiles.tiles.append(Tile(before_id, True, args.uni))
-                    break
-
-        if args.rich:
-            game_board.show_by_rich(game_board.table)
-        else:
-            print(game_board.show_by_text(game_board.table))
-
-        i += 1
 
 
 if __name__ == "__main__":
