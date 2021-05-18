@@ -580,9 +580,13 @@ class GameBoard:
         return "".join([board_info, players_info, system_info])
 
     def show_by_rich(self, table: MahjongTable) -> None:
+
         self.my_idx = table.my_idx
         self.layout["info"].update(
-            Panel(Text(self.get_board_info(table), justify="center"))
+            Panel(
+                Text(self.get_board_info(table), justify="center", style="color(1)"),
+                style="bold green",
+            )
         )
 
         table.players.sort(key=lambda x: (x.player_idx - self.my_idx) % 4)
@@ -598,7 +602,7 @@ class GameBoard:
         discards_idx = ["discard1", "discard2", "discard3", "discard4"]
 
         for i, p in enumerate(table.players):
-            player_info = Text(justify="center")
+            player_info = Text(justify="center", style="bold green")
             if p.player_idx == 0:
                 player_info += [["[E]", "[東]]"], ["[S]", "南"]][table.round // 4][
                     self.language
@@ -608,17 +612,18 @@ class GameBoard:
                 player_info += " " + p.name
             player_info += "\n"
 
-            score = Text(str(p.score), justify="center", style="bold magenta")
-            console = Console()
-            console.print(score)
+            score = Text(str(p.score), justify="center", style="yellow")
 
             riichi = Text()
             if p.is_declared_riichi:
-                riichi = [Text(", riichi"), Text(", リーチ")][self.language]
+                riichi = [
+                    Text(" riichi", style="yellow"),
+                    Text(" リーチ", style="yellow"),
+                ][self.language]
 
             player_info = player_info + score + riichi
 
-            self.layout[players_info1[i]].update(Panel(player_info))
+            self.layout[players_info1[i]].update(Panel(player_info, style="bold green"))
             self.layout[players_info2[i]].update(player_info)
 
             hand = self.get_modified_tiles(i, TileUnitType.HAND)
@@ -629,14 +634,17 @@ class GameBoard:
             added_kan = self.get_modified_tiles(i, TileUnitType.ADDED_KAN)
             hand_area = hand + "      " + chi + pon + open_kan + closed_kan + added_kan
             self.layout[hands_idx[i]].update(
-                Panel(Text(hand_area, justify="center", no_wrap=True))
+                Panel(
+                    Text(hand_area, justify="center", no_wrap=True), style="bold green"
+                )
             )
             discards = self.get_modified_tiles(i, TileUnitType.DISCARD)
             self.layout[discards_idx[i]].update(
-                Panel(Text(discards, justify="left", no_wrap=True))
+                Panel(Text(discards, justify="left", no_wrap=True), style="bold green")
             )
 
-        print(self.layout)
+        console = Console()
+        console.print(self.layout)
 
 
 def main():
