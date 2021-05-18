@@ -1,5 +1,4 @@
 import argparse
-import os
 from converter import TileUnitType, FromWho
 from converter import get_modifier, get_tile_char, get_wind_char
 from rich import print
@@ -531,7 +530,7 @@ class GameBoard:
 
             if p.player_idx == 0:
                 player_info.append(
-                    [["[E]", "[東]]"], ["[S]", "南"]][table.round // 4][self.language]
+                    [["[E]", "[東]]"], ["[S]", "[南]"]][table.round // 4][self.language]
                 )
 
             player_info.append(
@@ -635,12 +634,16 @@ class GameBoard:
             hand_area = hand + "      " + chi + pon + open_kan + closed_kan + added_kan
             self.layout[hands_idx[i]].update(
                 Panel(
-                    Text(hand_area, justify="center", no_wrap=True), style="bold green"
+                    Text(hand_area, justify="center", no_wrap=True, style="white"),
+                    style="bold green",
                 )
             )
             discards = self.get_modified_tiles(i, TileUnitType.DISCARD)
             self.layout[discards_idx[i]].update(
-                Panel(Text(discards, justify="left", no_wrap=True), style="bold green")
+                Panel(
+                    Text(discards, justify="left", no_wrap=True, style="white"),
+                    style="bold green",
+                )
             )
 
         console = Console()
@@ -700,6 +703,7 @@ def main():
     game_board = GameBoard(
         args.path, args.mode, args.uni, args.rich, args.lang, args.show_name
     )
+
     if args.rich:
         game_board.show_by_rich(game_board.load_data())
     else:
