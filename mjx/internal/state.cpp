@@ -643,7 +643,7 @@ void State::NoWinner(mjxproto::EventType nowinner_type) {
       tenpai.set_who(LastEvent().who());
       for (auto tile :
            hand(AbsolutePos(LastEvent().who())).ToVectorClosed(true))
-        tenpai.mutable_closed_tiles()->Add(tile.Id());
+        tenpai.mutable_hand()->mutable_closed_tiles()->Add(tile.Id());
       state_.mutable_terminal()->mutable_no_winner()->mutable_tenpais()->Add(
           std::move(tenpai));
       state_.mutable_terminal()->mutable_final_score()->CopyFrom(curr_score_);
@@ -726,7 +726,7 @@ void State::NoWinner(mjxproto::EventType nowinner_type) {
       mjxproto::TenpaiHand tenpai;
       tenpai.set_who(ToUType(who));
       for (auto tile : tenpai_hand.value().closed_tiles) {
-        tenpai.mutable_closed_tiles()->Add(tile.Id());
+        tenpai.mutable_hand()->mutable_closed_tiles()->Add(tile.Id());
       }
       state_.mutable_terminal()->mutable_no_winner()->mutable_tenpais()->Add(
           std::move(tenpai));
@@ -1513,7 +1513,7 @@ bool State::Equals(const State &other) const noexcept {
     const auto &tenpai = no_winner.tenpais(i);
     const auto &other_tenpai = other_no_winner.tenpais(i);
     if (tenpai.who() != other_tenpai.who()) return false;
-    if (!tiles_eq(tenpai.closed_tiles(), other_tenpai.closed_tiles()))
+    if (!tiles_eq(tenpai.hand().closed_tiles(), other_tenpai.hand().closed_tiles()))
       return false;
   }
   if (!seq_eq(no_winner.ten_changes(), other_no_winner.ten_changes()))
