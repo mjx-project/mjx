@@ -62,10 +62,10 @@ bool ActionTypeCheck(const std::vector<mjxproto::ActionType> &action_types,
 bool YakuCheck(const State &state, AbsolutePos winner,
                std::vector<Yaku> &&yakus) {
   mjxproto::State state_proto = state.proto();
-  Assert(std::any_of(state_proto.round_terminal().wins().begin(),
-                     state_proto.round_terminal().wins().end(), [&](const auto &win) {
-                       return AbsolutePos(win.who()) == winner;
-                     }));
+  Assert(std::any_of(
+      state_proto.round_terminal().wins().begin(),
+      state_proto.round_terminal().wins().end(),
+      [&](const auto &win) { return AbsolutePos(win.who()) == winner; }));
   for (const auto &win : state_proto.round_terminal().wins()) {
     bool ok = true;
     if (AbsolutePos(win.who()) == winner) {
