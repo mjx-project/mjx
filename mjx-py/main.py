@@ -611,7 +611,7 @@ class GameBoard:
             player_info = player_info + score + riichi
 
             # self.layout[players_info_center[i]].update(player_info)
-            self.layout[players_info_corner[i]].update(player_info)
+            # self.layout[players_info_corner[i]].update(player_info)
 
             hand = self.get_modified_tiles(i, TileUnitType.HAND)
             chi = self.get_modified_tiles(i, TileUnitType.CHI)
@@ -627,9 +627,15 @@ class GameBoard:
                 )
             )
             discards = self.get_modified_tiles(i, TileUnitType.DISCARD)
+            player_info.justify = "left"
+            discards2 = (
+                player_info
+                + Text("\n\n")
+                + Text(discards, justify="left", style="white")
+            )
             self.layout[discards_idx[i]].update(
                 Panel(
-                    Text(discards, justify="left", no_wrap=True, style="white"),
+                    discards2,
                     style="bold green",
                 )
             )
