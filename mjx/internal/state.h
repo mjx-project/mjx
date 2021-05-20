@@ -158,9 +158,6 @@ class State {
   bool CanRiichi(AbsolutePos who) const;  // デフォルト25000点
   bool CanTsumo(AbsolutePos who) const;
 
-  [[nodiscard]] std::optional<HandInfo> EvalTenpai(
-      AbsolutePos who) const noexcept;
-
   static mjxproto::State LoadJson(const std::string& json_str);
 
   // protoのcurr_handを同期する。

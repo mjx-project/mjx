@@ -739,15 +739,11 @@ void State::NoWinner(mjxproto::EventType nowinner_type) {
     auto who = AbsolutePos(i);
     if (three_ronned_player and three_ronned_player.value() == who)
       continue;  // 三家和了でロンされた人の聴牌情報は入れない
-    if (auto tenpai_hand = EvalTenpai(who); tenpai_hand) {
+    if (hand(who).IsTenpai()) {
       is_tenpai[i] = 1;
       mjxproto::TenpaiHand tenpai;
       tenpai.set_who(ToUType(who));
-      for (auto tile : tenpai_hand.value().closed_tiles) {
-        tenpai.mutable_hand()->mutable_closed_tiles()->Add(tile.Id());
-      }
-      for (auto open : tenpai_hand.value().opens)
-        tenpai.mutable_hand()->mutable_opens()->Add(open.GetBits());
+      tenpai.mutable_hand()->CopyFrom(hand(who).ToProto());
       state_.mutable_round_terminal()
           ->mutable_no_winner()
           ->mutable_tenpais()
@@ -1628,13 +1624,6 @@ bool State::CanRiichi(AbsolutePos who) const {
 bool State::CanTsumo(AbsolutePos who) const {
   return YakuEvaluator::CanWin(
       WinInfo(std::move(win_state_info(who)), hand(who).win_info()));
-}
-
-std::optional<State::HandInfo> State::EvalTenpai(
-    AbsolutePos who) const noexcept {
-  if (!hand(who).IsTenpai()) return std::nullopt;
-  return HandInfo{hand(who).ToVectorClosed(true), hand(who).Opens(),
-                  hand(who).LastTileAdded()};
 }
 
 void State::SyncCurrHand(AbsolutePos who) {
