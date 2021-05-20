@@ -1518,7 +1518,8 @@ bool State::Equals(const State &other) const noexcept {
     const auto &other_win = other.state_.round_terminal().wins(i);
     if (win.who() != other_win.who()) return false;
     if (win.from_who() != other_win.from_who()) return false;
-    if (!tiles_eq(win.hand().closed_tiles(), other_win.hand().closed_tiles())) return false;
+    if (!tiles_eq(win.hand().closed_tiles(), other_win.hand().closed_tiles()))
+      return false;
     if (!opens_eq(win.hand().opens(), other_win.hand().opens())) return false;
     if (!Tile(win.win_tile()).Equals(Tile(other_win.win_tile()))) return false;
     if (win.fu() != other_win.fu()) return false;
