@@ -654,9 +654,12 @@ void State::NoWinner(mjxproto::EventType nowinner_type) {
       tenpai.set_who(LastEvent().who());
       tenpai.mutable_hand()->CopyFrom(
           hand(AbsolutePos(LastEvent().who())).ToProto());
-      state_.mutable_round_terminal()->mutable_no_winner()->mutable_tenpais()->Add(
-          std::move(tenpai));
-      state_.mutable_round_terminal()->mutable_final_score()->CopyFrom(curr_score_);
+      state_.mutable_round_terminal()
+          ->mutable_no_winner()
+          ->mutable_tenpais()
+          ->Add(std::move(tenpai));
+      state_.mutable_round_terminal()->mutable_final_score()->CopyFrom(
+          curr_score_);
       for (int i = 0; i < 4; ++i)
         state_.mutable_round_terminal()->mutable_no_winner()->add_ten_changes(
             0);
@@ -745,8 +748,10 @@ void State::NoWinner(mjxproto::EventType nowinner_type) {
       }
       for (auto open : tenpai_hand.value().opens)
         tenpai.mutable_hand()->mutable_opens()->Add(open.GetBits());
-      state_.mutable_round_terminal()->mutable_no_winner()->mutable_tenpais()->Add(
-          std::move(tenpai));
+      state_.mutable_round_terminal()
+          ->mutable_no_winner()
+          ->mutable_tenpais()
+          ->Add(std::move(tenpai));
     }
   }
 
