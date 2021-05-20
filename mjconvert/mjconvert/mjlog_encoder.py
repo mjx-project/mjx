@@ -234,9 +234,9 @@ class MjlogEncoder:
     ) -> str:
         ret = "<AGARI "
         ret += f'ba="{curr_score.honba},{curr_score.riichi}" '
-        ret += f'hai="{",".join([str(x) for x in win.closed_tiles])}" '
-        if len(win.opens) > 0:
-            m = ",".join([str(x) for x in win.opens])
+        ret += f'hai="{",".join([str(x) for x in win.hand.closed_tiles])}" '
+        if len(win.hand.opens) > 0:
+            m = ",".join([str(x) for x in win.hand.opens])
             ret += f'm="{m}" '
         ret += f'machi="{win.win_tile}" '
         win_rank = MjlogEncoder.get_win_rank(
