@@ -177,15 +177,13 @@ class GameBoard:
 
         self.layout["middle4"].split_column(
             Layout(" ", name="player3_info_center"),
-            # Layout(" ", name="middle5"),
+            Layout(" ", name="middle5"),
             Layout(" ", name="player1_info_center"),
         )
-        """
         self.layout["middle5"].split_row(
             Layout(" ", name="player4_info_center"),
             Layout(" ", name="player2_info_center"),
         )
-        """
         self.layout["lower2"].split_row(
             Layout(" ", name="player4_info_corner"),
             Layout(" ", name="discard1"),
@@ -612,17 +610,18 @@ class GameBoard:
                     Text(" リーチ", style="yellow"),
                 ][self.language]
 
-            player_info = wind + Text("  ") + score + riichi + Text("\n") + name
+            player_info = wind + Text("\n") + score + riichi + Text("\n")
 
-            # self.layout[players_info_center[i]].update(player_info)
+            self.layout[players_info_center[i]].update(player_info)
             # self.layout[players_info_corner[i]].update(player_info)
+            """
             if i % 2 == 0:
                 self.layout[players_info_center[i]].update(player_info)
             else:
                 player_info = Text("\n") + player_info
                 player_info.justify = "right" if i == 1 else "left"
                 self.layout[players_info_corner[i]].update(player_info)
-
+            """
             hand = self.get_modified_tiles(i, TileUnitType.HAND)
             chi = self.get_modified_tiles(i, TileUnitType.CHI)
             pon = self.get_modified_tiles(i, TileUnitType.PON)
@@ -641,10 +640,10 @@ class GameBoard:
                 justify="left",
                 style="white",
             )
-
+            name.justify = "left"
             self.layout[discards_idx[i]].update(
                 Panel(
-                    discards,
+                    name + Text("\n\n") + discards,
                     style="bold green",
                 )
             )
