@@ -1541,7 +1541,8 @@ bool State::Equals(const State &other) const noexcept {
     if (tenpai.hand().opens().size() != other_tenpai.hand().opens().size())
       return false;
     for (int j = 0; j < tenpai.hand().opens().size(); ++j)
-      if (!Open(tenpai.hand().opens(j)).Equals(Open(other_tenpai.hand().opens(j))))
+      if (!Open(tenpai.hand().opens(j))
+               .Equals(Open(other_tenpai.hand().opens(j))))
         return false;
   }
   if (!seq_eq(no_winner.ten_changes(), other_no_winner.ten_changes()))
