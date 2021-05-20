@@ -121,11 +121,21 @@ class GameBoard:
         self.layout = Layout()
         self.layout.split_column(
             Layout(name="info"),
+            Layout(name="players_info_top"),
             Layout(" ", name="space"),
             Layout(name="table"),
         )
         self.layout["info"].size = 3
+        self.layout["players_info_top"].size = 8
         self.layout["space"].size = 1
+        self.layout["table"].minimum_size = 20
+
+        self.layout["players_info_top"].split_row(
+            Layout(" ", name="player1_info_top"),
+            Layout(" ", name="player2_info_top"),
+            Layout(" ", name="player3_info_top"),
+            Layout(" ", name="player4_info_top"),
+        )
 
         self.layout["table"].split_column(
             Layout(name="upper1"),
@@ -574,6 +584,12 @@ class GameBoard:
 
         table.players.sort(key=lambda x: (x.player_idx - self.my_idx) % 4)
 
+        players_info_top = [
+            "player1_info_top",
+            "player2_info_top",
+            "player3_info_top",
+            "player4_info_top",
+        ]
         players_info_center = [
             "player1_info_center",
             "player2_info_center",
@@ -598,30 +614,25 @@ class GameBoard:
 
             score = Text(str(p.score), justify="center", style="yellow")
 
-            name = Text(justify="center", style="bold green")
-            if self.show_name:
-                name += Text(" " + p.name, style="white")
-
             riichi = Text()
-
             if p.is_declared_riichi:
                 riichi = [
                     Text(" riichi", style="yellow"),
                     Text(" リーチ", style="yellow"),
                 ][self.language]
 
-            player_info = wind + Text("\n") + score + riichi + Text("\n")
+            player_info = wind + Text("\n") + score + riichi
 
             self.layout[players_info_center[i]].update(player_info)
-            # self.layout[players_info_corner[i]].update(player_info)
-            """
-            if i % 2 == 0:
-                self.layout[players_info_center[i]].update(player_info)
-            else:
-                player_info = Text("\n") + player_info
-                player_info.justify = "right" if i == 1 else "left"
-                self.layout[players_info_corner[i]].update(player_info)
-            """
+
+            name = Text(justify="center", style="bold green")
+            if self.show_name:
+                name += Text(" " + p.name, style="white")
+
+            self.layout[players_info_top[i]].update(
+                Panel(player_info + Text("\n\n") + name, style="bold green")
+            )
+
             hand = self.get_modified_tiles(i, TileUnitType.HAND)
             chi = self.get_modified_tiles(i, TileUnitType.CHI)
             pon = self.get_modified_tiles(i, TileUnitType.PON)
@@ -640,12 +651,9 @@ class GameBoard:
                 justify="left",
                 style="white",
             )
-            name.justify = "left"
+
             self.layout[discards_idx[i]].update(
-                Panel(
-                    name + Text("\n\n") + discards,
-                    style="bold green",
-                )
+                Text("\n\n") + discards,
             )
 
         console = Console()
