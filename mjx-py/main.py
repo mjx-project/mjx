@@ -1,7 +1,7 @@
 import argparse
 from converter import TileUnitType, FromWho
 from converter import get_modifier, get_tile_char, get_wind_char
-from rich import print
+from rich import jupyter, print
 from rich.layout import Layout
 from rich.panel import Panel
 from rich.console import Console
@@ -126,7 +126,6 @@ class GameBoard:
         )
         self.layout["info"].size = 3
         self.layout["space"].size = 1
-        self.layout["table"].size = 35
 
         self.layout["table"].split_column(
             Layout(name="upper1"),
@@ -592,25 +591,29 @@ class GameBoard:
         discards_idx = ["discard1", "discard2", "discard3", "discard4"]
 
         for i, p in enumerate(table.players):
-            player_info = Text(justify="center", style="bold green")
-
-            player_info += get_wind_char(p.wind, self.language) + "\n"
-            if self.show_name:
-                player_info += Text(" " + p.name, style="white")
-            player_info += "\n"
+            wind = Text(
+                get_wind_char(p.wind, self.language),
+                justify="center",
+                style="bold green",
+            )
 
             score = Text(str(p.score), justify="center", style="yellow")
 
+            name = Text(justify="center", style="bold green")
+            if self.show_name:
+                name += Text(" " + p.name, style="white")
+
             riichi = Text()
+
             if p.is_declared_riichi:
                 riichi = [
                     Text(" riichi", style="yellow"),
                     Text(" リーチ", style="yellow"),
                 ][self.language]
 
-            player_info = player_info + score + riichi
+            player_info = wind + Text("  ") + score + riichi + Text("\n") + name
 
-            # self.layout[players_info_center[i]].update(player_info)
+            self.layout[players_info_center[i]].update(player_info)
             # self.layout[players_info_corner[i]].update(player_info)
 
             hand = self.get_modified_tiles(i, TileUnitType.HAND)
@@ -626,19 +629,39 @@ class GameBoard:
                     style="bold green",
                 )
             )
-            discards = self.get_modified_tiles(i, TileUnitType.DISCARD)
-            player_info.justify = "left"
-            discards2 = (
-                player_info
-                + Text("\n\n")
-                + Text(discards, justify="left", style="white")
+            discards = Text(
+                self.get_modified_tiles(i, TileUnitType.DISCARD),
+                justify="left",
+                style="white",
             )
+
             self.layout[discards_idx[i]].update(
                 Panel(
-                    discards2,
+                    discards,
                     style="bold green",
                 )
             )
+
+            if i % 2 == 0:
+                player_info.justify = "left"
+                player_info.append("\n\n")
+                player_info.append(discards)
+                self.layout[discards_idx[i]].update(
+                    Panel(
+                        player_info,
+                        style="bold green",
+                    )
+                )
+            else:
+                player_info = Text("\n") + player_info
+                player_info.justify = "right" if i == 1 else "left"
+                self.layout[players_info_corner[i]].update(player_info)
+                self.layout[discards_idx[i]].update(
+                    Panel(
+                        discards,
+                        style="bold green",
+                    )
+                )
 
         console = Console()
         console.print(self.layout)
