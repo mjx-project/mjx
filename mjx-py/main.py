@@ -139,21 +139,21 @@ class GameBoard:
 
         self.layout["upper1"].split_row(
             Layout(" "),
-            Layout(name="hand3"),
+            Layout(" ", name="hand3"),
             Layout(" "),
         )
         self.layout["hand3"].ratio = 6
 
         self.layout["middle1"].split_row(
-            Layout(name="hand4"),
+            Layout(" ", name="hand4"),
             Layout(name="middle2"),
-            Layout(name="hand2"),
+            Layout(" ", name="hand2"),
         )
         self.layout["middle2"].ratio = 6
 
         self.layout["lower1"].split_row(
             Layout(" "),
-            Layout(name="hand1"),
+            Layout(" ", name="hand1"),
             Layout(" "),
         )
         self.layout["hand1"].ratio = 6
@@ -165,31 +165,31 @@ class GameBoard:
         )
 
         self.layout["upper2"].split_row(
-            Layout(" "),
-            Layout(name="discard3"),
-            Layout(" "),
+            Layout(" ", name="player3_info_corner"),
+            Layout(" ", name="discard3"),
+            Layout(" ", name="player2_info_corner"),
         )
 
         self.layout["middle3"].split_row(
-            Layout(name="discard4"),
-            Layout(name="middle4"),
-            Layout(name="discard2"),
+            Layout(" ", name="discard4"),
+            Layout(" ", name="middle4"),
+            Layout(" ", name="discard2"),
         )
 
         self.layout["middle4"].split_column(
-            Layout(name="player3_center_info"),
-            Layout(name="middle5"),
-            Layout(name="player1_center_info"),
+            Layout(" ", name="player3_info_center"),
+            Layout(" ", name="middle5"),
+            Layout(" ", name="player1_info_center"),
         )
         self.layout["middle5"].split_row(
-            Layout(name="player4_center_info"),
-            Layout(name="player2_center_info"),
+            Layout(" ", name="player4_info_center"),
+            Layout(" ", name="player2_info_center"),
         )
 
         self.layout["lower2"].split_row(
-            Layout(" "),
-            Layout(name="discard1"),
-            Layout(" "),
+            Layout(" ", name="player4_info_corner"),
+            Layout(" ", name="discard1"),
+            Layout(" ", name="player1_info_corner"),
         )
 
     def load_data(self) -> MahjongTable:
@@ -576,11 +576,17 @@ class GameBoard:
 
         table.players.sort(key=lambda x: (x.player_idx - self.my_idx) % 4)
 
-        players_info = [
-            "player1_center_info",
-            "player2_center_info",
-            "player3_center_info",
-            "player4_center_info",
+        players_info_center = [
+            "player1_info_center",
+            "player2_info_center",
+            "player3_info_center",
+            "player4_info_center",
+        ]
+        players_info_corner = [
+            "player1_info_corner",
+            "player2_info_corner",
+            "player3_info_corner",
+            "player4_info_corner",
         ]
         hands_idx = ["hand1", "hand2", "hand3", "hand4"]
         discards_idx = ["discard1", "discard2", "discard3", "discard4"]
@@ -588,7 +594,7 @@ class GameBoard:
         for i, p in enumerate(table.players):
             player_info = Text(justify="center", style="bold green")
 
-            player_info += get_wind_char(p.wind, self.language)
+            player_info += get_wind_char(p.wind, self.language) + "\n"
             if self.show_name:
                 player_info += Text(" " + p.name, style="white")
             player_info += "\n"
@@ -604,7 +610,8 @@ class GameBoard:
 
             player_info = player_info + score + riichi
 
-            self.layout[players_info[i]].update(player_info)
+            # self.layout[players_info_center[i]].update(player_info)
+            self.layout[players_info_corner[i]].update(player_info)
 
             hand = self.get_modified_tiles(i, TileUnitType.HAND)
             chi = self.get_modified_tiles(i, TileUnitType.CHI)
