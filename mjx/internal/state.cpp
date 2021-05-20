@@ -527,18 +527,19 @@ void State::Tsumo(AbsolutePos winner) {
                          curr_score_.tens(ToUType(top)) + 1000 * riichi());
     curr_score_.set_riichi(0);
   }
-  state_.mutable_terminal()->mutable_wins()->Add(std::move(win));
-  state_.mutable_terminal()->set_is_game_over(IsGameOver());
-  state_.mutable_terminal()->mutable_final_score()->CopyFrom(curr_score_);
+  state_.mutable_round_terminal()->mutable_wins()->Add(std::move(win));
+  state_.mutable_round_terminal()->set_is_game_over(IsGameOver());
+  state_.mutable_round_terminal()->mutable_final_score()->CopyFrom(curr_score_);
 }
 
 void State::Ron(AbsolutePos winner) {
   Assert(Any(LastEvent().type(),
              {mjxproto::EVENT_TYPE_TSUMOGIRI, mjxproto::EVENT_TYPE_DISCARD,
               mjxproto::EVENT_TYPE_ADDED_KAN, mjxproto::EVENT_TYPE_RON}));
-  AbsolutePos loser = LastEvent().type() != mjxproto::EVENT_TYPE_RON
-                          ? AbsolutePos(LastEvent().who())
-                          : AbsolutePos(state_.terminal().wins(0).from_who());
+  AbsolutePos loser =
+      LastEvent().type() != mjxproto::EVENT_TYPE_RON
+          ? AbsolutePos(LastEvent().who())
+          : AbsolutePos(state_.round_terminal().wins(0).from_who());
   Tile tile = LastEvent().type() != mjxproto::EVENT_TYPE_ADDED_KAN
                   ? Tile(LastEvent().tile())
                   : Open(LastEvent().open()).LastTile();
@@ -635,9 +636,9 @@ void State::Ron(AbsolutePos winner) {
                          curr_score_.tens(ToUType(top)) + 1000 * riichi());
     curr_score_.set_riichi(0);
   }
-  state_.mutable_terminal()->mutable_wins()->Add(std::move(win));
-  state_.mutable_terminal()->set_is_game_over(IsGameOver());
-  state_.mutable_terminal()->mutable_final_score()->CopyFrom(curr_score_);
+  state_.mutable_round_terminal()->mutable_wins()->Add(std::move(win));
+  state_.mutable_round_terminal()->set_is_game_over(IsGameOver());
+  state_.mutable_round_terminal()->mutable_final_score()->CopyFrom(curr_score_);
 
   SyncCurrHand(winner);
 }
@@ -654,11 +655,15 @@ void State::NoWinner(mjxproto::EventType nowinner_type) {
       for (auto tile :
            hand(AbsolutePos(LastEvent().who())).ToVectorClosed(true))
         tenpai.mutable_closed_tiles()->Add(tile.Id());
-      state_.mutable_terminal()->mutable_no_winner()->mutable_tenpais()->Add(
-          std::move(tenpai));
-      state_.mutable_terminal()->mutable_final_score()->CopyFrom(curr_score_);
+      state_.mutable_round_terminal()
+          ->mutable_no_winner()
+          ->mutable_tenpais()
+          ->Add(std::move(tenpai));
+      state_.mutable_round_terminal()->mutable_final_score()->CopyFrom(
+          curr_score_);
       for (int i = 0; i < 4; ++i)
-        state_.mutable_terminal()->mutable_no_winner()->add_ten_changes(0);
+        state_.mutable_round_terminal()->mutable_no_winner()->add_ten_changes(
+            0);
       state_.mutable_public_observation()->mutable_events()->Add(
           Event::CreateAbortiveDrawNineTerminals(
               static_cast<AbsolutePos>(LastEvent().who())));
@@ -667,9 +672,11 @@ void State::NoWinner(mjxproto::EventType nowinner_type) {
     case mjxproto::EVENT_TYPE_ABORTIVE_DRAW_FOUR_WINDS: {
       // 四風子連打
       assert(IsFourWinds());
-      state_.mutable_terminal()->mutable_final_score()->CopyFrom(curr_score_);
+      state_.mutable_round_terminal()->mutable_final_score()->CopyFrom(
+          curr_score_);
       for (int i = 0; i < 4; ++i)
-        state_.mutable_terminal()->mutable_no_winner()->add_ten_changes(0);
+        state_.mutable_round_terminal()->mutable_no_winner()->add_ten_changes(
+            0);
       state_.mutable_public_observation()->mutable_events()->Add(
           Event::CreateAbortiveDrawFourWinds());
       return;
@@ -677,9 +684,11 @@ void State::NoWinner(mjxproto::EventType nowinner_type) {
     case mjxproto::EVENT_TYPE_ABORTIVE_DRAW_FOUR_KANS: {
       // 四槓散了
       assert(IsFourKanNoWinner());
-      state_.mutable_terminal()->mutable_final_score()->CopyFrom(curr_score_);
+      state_.mutable_round_terminal()->mutable_final_score()->CopyFrom(
+          curr_score_);
       for (int i = 0; i < 4; ++i)
-        state_.mutable_terminal()->mutable_no_winner()->add_ten_changes(0);
+        state_.mutable_round_terminal()->mutable_no_winner()->add_ten_changes(
+            0);
       state_.mutable_public_observation()->mutable_events()->Add(
           Event::CreateAbortiveDrawFourKans());
       return;
@@ -738,8 +747,10 @@ void State::NoWinner(mjxproto::EventType nowinner_type) {
       for (auto tile : tenpai_hand.value().closed_tiles) {
         tenpai.mutable_closed_tiles()->Add(tile.Id());
       }
-      state_.mutable_terminal()->mutable_no_winner()->mutable_tenpais()->Add(
-          std::move(tenpai));
+      state_.mutable_round_terminal()
+          ->mutable_no_winner()
+          ->mutable_tenpais()
+          ->Add(std::move(tenpai));
     }
   }
 
@@ -782,7 +793,7 @@ void State::NoWinner(mjxproto::EventType nowinner_type) {
 
   // apply ten moves
   for (int i = 0; i < 4; ++i) {
-    state_.mutable_terminal()->mutable_no_winner()->add_ten_changes(
+    state_.mutable_round_terminal()->mutable_no_winner()->add_ten_changes(
         ten_move[i]);
     curr_score_.set_tens(i, ten(AbsolutePos(i)) + ten_move[i]);
   }
@@ -794,8 +805,8 @@ void State::NoWinner(mjxproto::EventType nowinner_type) {
                          curr_score_.tens(ToUType(top)) + 1000 * riichi());
     curr_score_.set_riichi(0);
   }
-  state_.mutable_terminal()->set_is_game_over(IsGameOver());
-  state_.mutable_terminal()->mutable_final_score()->CopyFrom(curr_score_);
+  state_.mutable_round_terminal()->set_is_game_over(IsGameOver());
+  state_.mutable_round_terminal()->mutable_final_score()->CopyFrom(curr_score_);
 }
 
 bool State::IsGameOver() const {
@@ -810,7 +821,8 @@ bool State::IsGameOver() const {
       (Any(last_event_type,
            {mjxproto::EVENT_TYPE_RON, mjxproto::EVENT_TYPE_TSUMO}) &&
        std::any_of(
-           state_.terminal().wins().begin(), state_.terminal().wins().end(),
+           state_.round_terminal().wins().begin(),
+           state_.round_terminal().wins().end(),
            [&](const auto x) { return AbsolutePos(x.who()) == dealer(); })) ||
       (Any(last_event_type,
            {mjxproto::EVENT_TYPE_ABORTIVE_DRAW_NINE_TERMINALS,
@@ -820,8 +832,8 @@ bool State::IsGameOver() const {
             mjxproto::EVENT_TYPE_EXHAUSTIVE_DRAW_NORMAL,
             mjxproto::EVENT_TYPE_EXHAUSTIVE_DRAW_NAGASHI_MANGAN}) &&
        std::any_of(
-           state_.terminal().no_winner().tenpais().begin(),
-           state_.terminal().no_winner().tenpais().end(),
+           state_.round_terminal().no_winner().tenpais().begin(),
+           state_.round_terminal().no_winner().tenpais().end(),
            [&](const auto x) { return AbsolutePos(x.who()) == dealer(); }));
 
   std::optional<mjxproto::EventType> no_winner_type;
@@ -932,8 +944,8 @@ State::ScoreInfo State::Next() const {
            mjxproto::EVENT_TYPE_EXHAUSTIVE_DRAW_NAGASHI_MANGAN})) {
     // 途中流局や親テンパイで流局の場合は連荘
     bool is_dealer_tenpai = std::any_of(
-        state_.terminal().no_winner().tenpais().begin(),
-        state_.terminal().no_winner().tenpais().end(),
+        state_.round_terminal().no_winner().tenpais().begin(),
+        state_.round_terminal().no_winner().tenpais().end(),
         [&](const auto x) { return AbsolutePos(x.who()) == dealer(); });
     if (Any(LastEvent().type(),
             {mjxproto::EVENT_TYPE_ABORTIVE_DRAW_NINE_TERMINALS,
@@ -951,7 +963,8 @@ State::ScoreInfo State::Next() const {
     }
   } else {
     bool is_dealer_win = std::any_of(
-        state_.terminal().wins().begin(), state_.terminal().wins().end(),
+        state_.round_terminal().wins().begin(),
+        state_.round_terminal().wins().end(),
         [&](const auto x) { return AbsolutePos(x.who()) == dealer(); });
     if (is_dealer_win) {
       return ScoreInfo{player_ids,  game_seed(), round(),
@@ -1494,16 +1507,18 @@ bool State::Equals(const State &other) const noexcept {
       return false;
   }
   // Terminal
-  if (!state_.has_terminal() && !other.state_.has_terminal()) return true;
+  if (!state_.has_round_terminal() && !other.state_.has_round_terminal())
+    return true;
   if (!google::protobuf::util::MessageDifferencer::Equals(
-          state_.terminal().final_score(),
-          other.state_.terminal().final_score()))
+          state_.round_terminal().final_score(),
+          other.state_.round_terminal().final_score()))
     return false;
-  if (state_.terminal().wins_size() != other.state_.terminal().wins_size())
+  if (state_.round_terminal().wins_size() !=
+      other.state_.round_terminal().wins_size())
     return false;
-  for (int i = 0; i < state_.terminal().wins_size(); ++i) {
-    const auto &win = state_.terminal().wins(i);
-    const auto &other_win = other.state_.terminal().wins(i);
+  for (int i = 0; i < state_.round_terminal().wins_size(); ++i) {
+    const auto &win = state_.round_terminal().wins(i);
+    const auto &other_win = other.state_.round_terminal().wins(i);
     if (win.who() != other_win.who()) return false;
     if (win.from_who() != other_win.from_who()) return false;
     if (!tiles_eq(win.closed_tiles(), other_win.closed_tiles())) return false;
@@ -1516,8 +1531,8 @@ bool State::Equals(const State &other) const noexcept {
     if (!seq_eq(win.fans(), other_win.fans())) return false;
     if (!seq_eq(win.yakumans(), other_win.yakumans())) return false;
   }
-  const auto &no_winner = state_.terminal().no_winner();
-  const auto &other_no_winner = other.state_.terminal().no_winner();
+  const auto &no_winner = state_.round_terminal().no_winner();
+  const auto &other_no_winner = other.state_.round_terminal().no_winner();
   if (no_winner.tenpais_size() != other_no_winner.tenpais_size()) return false;
   for (int i = 0; i < no_winner.tenpais_size(); ++i) {
     const auto &tenpai = no_winner.tenpais(i);
@@ -1528,8 +1543,8 @@ bool State::Equals(const State &other) const noexcept {
   }
   if (!seq_eq(no_winner.ten_changes(), other_no_winner.ten_changes()))
     return false;
-  if (state_.terminal().is_game_over() !=
-      other.state_.terminal().is_game_over())
+  if (state_.round_terminal().is_game_over() !=
+      other.state_.round_terminal().is_game_over())
     return false;
   return true;
 }
