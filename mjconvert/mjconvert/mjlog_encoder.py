@@ -188,7 +188,7 @@ class MjlogEncoder:
             curr_score.tens[i] += change
         ret += f'sc="{",".join([str(x) for x in sc])}" '
         for tenpai in state.round_terminal.no_winner.tenpais:
-            closed_tiles = ",".join([str(x) for x in tenpai.closed_tiles])
+            closed_tiles = ",".join([str(x) for x in tenpai.hand.closed_tiles])
             ret += f'hai{tenpai.who}="{closed_tiles}" '
         if state.round_terminal.is_game_over:
             # オーラス流局時のリーチ棒はトップ総取り

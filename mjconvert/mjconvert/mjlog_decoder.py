@@ -216,7 +216,9 @@ class MjlogDecoder:
             elif key == "RYUUKYOKU":
                 reach_terminal = True
                 self.state.round_terminal.CopyFrom(
-                    MjlogDecoder.update_terminal_by_no_winner(self.state.round_terminal, val)
+                    MjlogDecoder.update_terminal_by_no_winner(
+                        self.state.round_terminal, val, curr_hands
+                    )
                 )
                 nowinner_type = MjlogDecoder.parse_no_winner_type(val)
                 if nowinner_type == mjxproto.EVENT_TYPE_ABORTIVE_DRAW_NINE_TERMINALS:
@@ -302,7 +304,7 @@ class MjlogDecoder:
 
     @staticmethod
     def update_terminal_by_no_winner(
-        terminal: mjxproto.RoundTerminal, val: Dict[str, str]
+        terminal: mjxproto.RoundTerminal, val: Dict[str, str], hands: List[Hand]
     ) -> mjxproto.RoundTerminal:
         ba, riichi = [int(x) for x in val["ba"].split(",")]
         terminal.no_winner.ten_changes[:] = [
@@ -317,9 +319,12 @@ class MjlogDecoder:
             terminal.no_winner.tenpais.append(
                 mjxproto.TenpaiHand(
                     who=i,
-                    closed_tiles=[int(x) for x in val[hai_key].split(",")],
+                    hand=mjxproto.Hand(closed_tiles=hands[i].closed_tiles, opens=hands[i].opens),
                 )
             )
+            assert [int(x) for x in hands[i].closed_tiles] == [
+                int(x) for x in val[hai_key].split(",")
+            ]
         if "owari" in val:
             # オーラス流局時のリーチ棒はトップ総取り
             # TODO: 同着トップ時には上家が総取りしてるが正しい？
