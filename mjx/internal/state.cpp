@@ -483,12 +483,12 @@ void State::Tsumo(AbsolutePos winner) {
   win.set_from_who(ToUType(winner));
   // winner closed tiles, opens and win tile
   for (auto t : hand_info.closed_tiles) {
-    win.add_closed_tiles(t.Id());
+    win.mutable_hand()->add_closed_tiles(t.Id());
   }
   std::reverse(hand_info.opens.begin(),
                hand_info.opens.end());  // To follow tenhou's format
   for (const auto &open : hand_info.opens) {
-    win.add_opens(open.GetBits());
+    win.mutable_hand()->add_opens(open.GetBits());
   }
   Assert(hand_info.win_tile);
   win.set_win_tile(hand_info.win_tile.value().Id());
@@ -593,12 +593,12 @@ void State::Ron(AbsolutePos winner) {
   win.set_from_who(ToUType(loser));
   // winner closed tiles, opens and win tile
   for (auto t : hand_info.closed_tiles) {
-    win.add_closed_tiles(t.Id());
+    win.mutable_hand()->add_closed_tiles(t.Id());
   }
   std::reverse(hand_info.opens.begin(),
                hand_info.opens.end());  // To follow tenhou's format
   for (const auto &open : hand_info.opens) {
-    win.add_opens(open.GetBits());
+    win.mutable_hand()->add_opens(open.GetBits());
   }
   win.set_win_tile(tile.Id());
   // fu
@@ -1518,8 +1518,8 @@ bool State::Equals(const State &other) const noexcept {
     const auto &other_win = other.state_.round_terminal().wins(i);
     if (win.who() != other_win.who()) return false;
     if (win.from_who() != other_win.from_who()) return false;
-    if (!tiles_eq(win.closed_tiles(), other_win.closed_tiles())) return false;
-    if (!opens_eq(win.opens(), other_win.opens())) return false;
+    if (!tiles_eq(win.hand().closed_tiles(), other_win.hand().closed_tiles())) return false;
+    if (!opens_eq(win.hand().opens(), other_win.hand().opens())) return false;
     if (!Tile(win.win_tile()).Equals(Tile(other_win.win_tile()))) return false;
     if (win.fu() != other_win.fu()) return false;
     if (win.ten() != other_win.ten()) return false;
