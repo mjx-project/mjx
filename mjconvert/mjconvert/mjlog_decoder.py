@@ -397,10 +397,13 @@ class MjlogDecoder:
         # set win info
         # TODO(sotetsuk): yakuman
         # TODO(sotetsuk): check double ron behavior
+        hand = mjxproto.Hand(closed_tiles=[int(x) for x in val["hai"].split(",")])
+        if "m" in val:
+            hand.opens[:] = [int(x) for x in val["m"].split(",")]
         win = mjxproto.Win(
             who=who,
             from_who=from_who,
-            closed_tiles=[int(x) for x in val["hai"].split(",")],
+            hand=hand,
             win_tile=int(val["machi"]),
         )
         if ura_dora_indicators is not None:
@@ -409,8 +412,6 @@ class MjlogDecoder:
         win.ten_changes[:] = [
             int(x) * 100 for i, x in enumerate(val["sc"].split(",")) if i % 2 == 1
         ]
-        if "m" in val:
-            win.opens[:] = [int(x) for x in val["m"].split(",")]
         win.fu, win.ten, _ = [int(x) for x in val["ten"].split(",")]
         if modify and "yakuman" in val:
             win.fu = 0
