@@ -215,7 +215,7 @@ class MjlogDecoder:
                 event = mjxproto.Event(type=mjxproto.EVENT_TYPE_NEW_DORA, tile=dora)
             elif key == "RYUUKYOKU":
                 reach_terminal = True
-                self.state.terminal.CopyFrom(
+                self.state.round_terminal.CopyFrom(
                     MjlogDecoder.update_terminal_by_no_winner(
                         self.state.round_terminal, val, curr_hands
                     )
