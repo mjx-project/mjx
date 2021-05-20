@@ -637,9 +637,9 @@ def main():
     >>> print(game_board.show_by_text(game_board.load_data()))  # doctest: +NORMALIZE_WHITESPACE
     round:6 honba:1 riichi:1
     <BLANKLINE>
-    [S]EAST [ 25000 ] 太郎
+    EAST [ 25000 ] 太郎
     <BLANKLINE>
-    nw wd gd rd m1 m2 m3 m4      p4p5p6L p7p8p9L
+    nw wd gd rd m1 m2 m3 m4       p4p5p6L p7p8p9L
     <BLANKLINE>
     wd  p2* gd  ew* sw  ww
     nw* p1
@@ -647,7 +647,7 @@ def main():
     <BLANKLINE>
     SOUTH [ 25000 ] 次郎
     <BLANKLINE>
-    # # # # # # # #      s1s1s1M s2s2s2R
+    # # # # # # # #       s1s1s1M s2s2s2R
     <BLANKLINE>
     wd  p2* gd  ew* sw  ww
     nw* p1
@@ -655,7 +655,7 @@ def main():
     <BLANKLINE>
     WEST [ 25000, riichi ] 三郎
     <BLANKLINE>
-    # # # # # # # #      s3s3s3s3R s4s4s4s4R
+    # # # # # # # #       s3s3s3s3R s4s4s4s4R
     <BLANKLINE>
     wd  p2* gd  ew* sw  ww
     nw* p1
@@ -663,7 +663,7 @@ def main():
     <BLANKLINE>
     NORTH [ 25000 ] 四郎
     <BLANKLINE>
-    # # # # # # # #      s7s7s7s7R s8s8s8s8L(Add)
+    # # # # # # # #       s7s7s7s7R s8s8s8s8L(Add)
     <BLANKLINE>
     wd  p2* gd  ew* sw  ww
     nw* p1
@@ -685,10 +685,14 @@ def main():
         args.path, args.mode, args.uni, args.rich, args.lang, args.show_name
     )
 
+    game_data = game_board.load_data()
+    for i in range(4):
+        game_data.players[i].name = "寿限無寿限無五劫の擦り切れ"
+
     if args.rich:
-        game_board.show_by_rich(game_board.load_data())
+        game_board.show_by_rich(game_data)
     else:
-        print(game_board.show_by_text(game_board.load_data()))
+        print(game_board.show_by_text(game_data))
 
 
 if __name__ == "__main__":
