@@ -376,13 +376,15 @@ def _winner_yakus(yakus: List[int], fans: List[int], yakumans: List[int]) -> Lis
 
 def _yaku_point_info(state: mjxproto.State, winner_num: int):
     round = state.public_observation.init_score.round
-    who = state.terminal.wins[winner_num].who
-    from_who = state.terminal.wins[winner_num].from_who
-    fans = [i for i in state.terminal.wins[winner_num].fans]  # [役での飜数, ドラの数]
-    yakumans = [i for i in state.terminal.wins[winner_num].yakumans]
-    yakus = _ditermin_yaku_list(fans, [i for i in state.terminal.wins[winner_num].yakus], yakumans)
-    fu = state.terminal.wins[winner_num].fu
-    ten = state.terminal.wins[winner_num].ten
+    who = state.round_terminal.wins[winner_num].who
+    from_who = state.round_terminal.wins[winner_num].from_who
+    fans = [i for i in state.round_terminal.wins[winner_num].fans]  # [役での飜数, ドラの数]
+    yakumans = [i for i in state.round_terminal.wins[winner_num].yakumans]
+    yakus = _ditermin_yaku_list(
+        fans, [i for i in state.round_terminal.wins[winner_num].yakus], yakumans
+    )
+    fu = state.round_terminal.wins[winner_num].fu
+    ten = state.round_terminal.wins[winner_num].ten
     # fnas:[役での飜数, ドラでの飜数]
     # yakus: [役とドラの種類]
     # ten: 純粋に上がり点が表示される。ツモ上がりの際の対応が必要
@@ -392,10 +394,10 @@ def _yaku_point_info(state: mjxproto.State, winner_num: int):
 
 
 def parse_terminal(state: mjxproto.State):
-    if len(state.terminal.wins) == 0:  # あがった人がいない場合,# state.terminal.winsの長さは0
-        ten_changes = [i for i in state.terminal.no_winner.ten_changes]
+    if len(state.round_terminal.wins) == 0:  # あがった人がいない場合,# state.terminal.winsの長さは0
+        ten_changes = [i for i in state.round_terminal.no_winner.ten_changes]
         if state.public_observation.events[-1].type == mjxproto.EVENT_TYPE_EXHAUSTIVE_DRAW_NORMAL:
-            if len(state.terminal.no_winner.tenpais) == 0:
+            if len(state.round_terminal.no_winner.tenpais) == 0:
                 return ["全員不聴"]
             else:
                 return ["流局", ten_changes]
@@ -408,8 +410,8 @@ def parse_terminal(state: mjxproto.State):
         return [no_winner_dict[state.public_observation.events[-1].type]]
     else:
         terminal_info: List = ["和了"]
-        for i in range(len(state.terminal.wins)):  # ダブロンに対応するために上がり者の数に応じてfor文を回すようにする。
-            ten_changes = [i for i in state.terminal.wins[i].ten_changes]
+        for i in range(len(state.round_terminal.wins)):  # ダブロンに対応するために上がり者の数に応じてfor文を回すようにする。
+            ten_changes = [i for i in state.round_terminal.wins[i].ten_changes]
             yaku_point_info = _yaku_point_info(state, i)
             terminal_info.append(ten_changes)
             terminal_info.append(yaku_point_info)
@@ -417,12 +419,15 @@ def parse_terminal(state: mjxproto.State):
 
 
 def determine_ura_doras_list(state: mjxproto.State) -> List:
-    if len(state.terminal.wins) == 0:  # あがり者の有無でウラどらが表示されるかどうかが決まる
+    if len(state.round_terminal.wins) == 0:  # あがり者の有無でウラどらが表示されるかどうかが決まる
         return []
-    has_riichi = 1 not in state.terminal.wins[0].yakus and 21 not in state.terminal.wins[0].yakus
+    has_riichi = (
+        1 not in state.round_terminal.wins[0].yakus
+        and 21 not in state.round_terminal.wins[0].yakus
+    )
     if has_riichi:  # リーチまたはダブリーがかかっていないと、上がって裏ドラが表示されない.
         return []
-    return [_change_tile_fmt(i) for i in state.hidden_state.ura_doras]
+    return [_change_tile_fmt(i) for i in state.hidden_state.ura_dora_indicators]
 
 
 # ここを実装
@@ -430,7 +435,7 @@ def mjxproto_to_mjscore(state: mjxproto.State) -> str:
     round: int = state.public_observation.init_score.round
     honba: int = state.public_observation.init_score.honba
     riichi: int = state.public_observation.init_score.riichi
-    doras: List[int] = [_change_tile_fmt(i) for i in state.public_observation.doras]
+    doras: List[int] = [_change_tile_fmt(i) for i in state.public_observation.dora_indicators]
     ura_doras = determine_ura_doras_list(state)
     init_score: List[int] = [i for i in state.public_observation.init_score.tens]
     log = [[round, honba, riichi], init_score, doras, ura_doras]

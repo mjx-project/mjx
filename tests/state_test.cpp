@@ -62,11 +62,11 @@ bool ActionTypeCheck(const std::vector<mjxproto::ActionType> &action_types,
 bool YakuCheck(const State &state, AbsolutePos winner,
                std::vector<Yaku> &&yakus) {
   mjxproto::State state_proto = state.proto();
-  Assert(std::any_of(state_proto.terminal().wins().begin(),
-                     state_proto.terminal().wins().end(), [&](const auto &win) {
-                       return AbsolutePos(win.who()) == winner;
-                     }));
-  for (const auto &win : state_proto.terminal().wins()) {
+  Assert(std::any_of(
+      state_proto.round_terminal().wins().begin(),
+      state_proto.round_terminal().wins().end(),
+      [&](const auto &win) { return AbsolutePos(win.who()) == winner; }));
+  for (const auto &win : state_proto.round_terminal().wins()) {
     bool ok = true;
     if (AbsolutePos(win.who()) == winner) {
       if (win.yakus().size() != yakus.size()) ok = false;
@@ -103,18 +103,18 @@ std::string SwapTiles(const std::string &json_str, Tile a, Tile b) {
       state.mutable_hidden_state()->set_wall(i, a.Id());
   }
   // dora
-  for (int i = 0; i < state.public_observation().doras_size(); ++i) {
-    if (state.public_observation().doras(i) == a.Id())
+  for (int i = 0; i < state.public_observation().dora_indicators_size(); ++i) {
+    if (state.public_observation().dora_indicators(i) == a.Id())
       state.mutable_hidden_state()->set_wall(i, b.Id());
-    else if (state.public_observation().doras(i) == b.Id())
+    else if (state.public_observation().dora_indicators(i) == b.Id())
       state.mutable_hidden_state()->set_wall(i, a.Id());
   }
   // ura dora
-  for (int i = 0; i < state.hidden_state().ura_doras_size(); ++i) {
-    if (state.hidden_state().ura_doras(i) == a.Id())
-      state.mutable_hidden_state()->set_ura_doras(i, b.Id());
-    else if (state.hidden_state().ura_doras(i) == b.Id())
-      state.mutable_hidden_state()->set_ura_doras(i, a.Id());
+  for (int i = 0; i < state.hidden_state().ura_dora_indicators_size(); ++i) {
+    if (state.hidden_state().ura_dora_indicators(i) == a.Id())
+      state.mutable_hidden_state()->set_ura_dora_indicators(i, b.Id());
+    else if (state.hidden_state().ura_dora_indicators(i) == b.Id())
+      state.mutable_hidden_state()->set_ura_dora_indicators(i, a.Id());
   }
   // init hand, draw_history
   for (int j = 0; j < 4; ++j) {
@@ -969,7 +969,7 @@ std::string TruncateAfterFirstDraw(const std::string &json) {
   Assert(status.ok());
   auto events = state.mutable_public_observation()->mutable_events();
   events->erase(events->begin() + 1, events->end());
-  state.clear_terminal();
+  state.clear_round_terminal();
   // drawについては消さなくても良い（wallから引いてsetされるので）
   std::string serialized;
   status = google::protobuf::util::MessageToJsonString(state, &serialized);
