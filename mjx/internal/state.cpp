@@ -71,7 +71,8 @@ bool State::IsRoundOver() const {
     case mjxproto::EVENT_TYPE_ABORTIVE_DRAW_FOUR_WINDS:
     case mjxproto::EVENT_TYPE_EXHAUSTIVE_DRAW_NORMAL:
     case mjxproto::EVENT_TYPE_EXHAUSTIVE_DRAW_NAGASHI_MANGAN:
-      Assert(state_.has_round_terminal(), "Round terminal should be set but not: \n" + ToJson());
+      Assert(state_.has_round_terminal(),
+             "Round terminal should be set but not: \n" + ToJson());
       return true;
     default:
       return false;
@@ -455,7 +456,8 @@ void State::RiichiScoreChange() {
 }
 
 void State::Tsumo(AbsolutePos winner) {
-  Assert(!state_.has_round_terminal(), "Round terminal should not be set before Tsumo");
+  Assert(!state_.has_round_terminal(),
+         "Round terminal should not be set before Tsumo");
   mutable_player(winner).hand.Tsumo();
   auto [hand_info, win_score] = EvalWinHand(winner);
   // calc ten moves
