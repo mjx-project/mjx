@@ -23,6 +23,10 @@ mjxproto::Action StrategyRuleBased::TakeAction(
   auto mt = std::mt19937_64(seed);
 
   auto possible_actions = observation.possible_actions();
+
+  // もし、取りうる行動が一種類ならそれをそのまま返す
+  if (possible_actions.size() == 1) return possible_actions[0];
+
   // この順番でソート
   std::unordered_map<mjxproto::ActionType, int> action_priority = {
       {mjxproto::ACTION_TYPE_TSUMO, 0},
