@@ -55,14 +55,12 @@ State::State(std::vector<PlayerId> player_ids, std::uint64_t game_seed,
           ->Add(tile.Id());
   }
 
-  // dealer draws the first tusmo
-  Draw(dealer());
-
   // sync curr_hand
   for (int i = 0; i < 4; ++i) SyncCurrHand(AbsolutePos(i));
 }
 
 bool State::IsRoundOver() const {
+  if (!HasLastEvent()) return false;
   switch (LastEvent().type()) {
     case mjxproto::EVENT_TYPE_TSUMO:
     case mjxproto::EVENT_TYPE_RON:
@@ -1180,8 +1178,18 @@ WinStateInfo State::win_state_info(AbsolutePos who) const {
 }
 
 void State::Update(std::vector<mjxproto::Action> &&action_candidates) {
-  Assert(!action_candidates.empty() && action_candidates.size() <= 3);
+  Assert(!action_candidates.empty());
+  // At the beginning of the round
+  if (!HasLastEvent()) {
+    Assert(std::all_of(action_candidates.begin(), action_candidates.end(),
+                       [](const mjxproto::Action& a){ return a.type() == mjxproto::ACTION_TYPE_DUMMY; }),
+           "At the beginning of the round, each player should return Dummy action.");
+    // dealer draws the first tusmo
+    Draw(dealer());
+    return;
+  }
 
+  Assert(action_candidates.size() <= 3);
   if (action_candidates.size() == 1) {
     Update(std::move(action_candidates.front()));
     return;
