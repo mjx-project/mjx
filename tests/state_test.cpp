@@ -1091,10 +1091,14 @@ TEST(state, CheckGameOver) {
 
 TEST(state, GameId) {
   std::vector<PlayerId> player_ids{"p1", "p2", "p3", "p4"};
-  auto state = State(State::ScoreInfo{player_ids, 1});
-  EXPECT_NE(state.proto().public_observation().game_id(), 0);
+  auto state1 = State(State::ScoreInfo{player_ids, 1});
+  EXPECT_NE(state1.proto().public_observation().game_id(), 0);
 
-  auto state_ = State(State::ScoreInfo{player_ids, 1});
-  EXPECT_NE(state.proto().public_observation().game_id(),
-            state_.proto().public_observation().game_id());
+  auto state2 = State(State::ScoreInfo{player_ids, 1});
+  EXPECT_NE(state1.proto().public_observation().game_id(),
+            state2.proto().public_observation().game_id());
+
+  auto state3 = State(state1.proto());
+  EXPECT_EQ(state1.proto().public_observation().game_id(),
+            state3.proto().public_observation().game_id());
 }
