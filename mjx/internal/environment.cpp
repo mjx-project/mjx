@@ -87,6 +87,15 @@ void Environment::RunOneRound() {
     }
     state_.Update(std::move(actions));
   }
+
+  // Sync round terminal information to each agent
+  auto observations = state_.CreateObservations();
+  Assert(observations.size() == 4);
+  for (auto &[player_id, obs] : observations) {
+    auto action = agent(player_id)->TakeAction(std::move(obs));
+    Assert(action.type() == mjxproto::ACTION_TYPE_DUMMY,
+           "Action after the round end should be Dummy action");
+  }
 }
 
 std::shared_ptr<Agent> Environment::agent(AbsolutePos pos) const {
