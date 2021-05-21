@@ -4,8 +4,9 @@
 #include "utils.h"
 
 namespace mjx::internal {
-mjxproto::Action Action::CreateDiscard(AbsolutePos who, Tile discard) {
+mjxproto::Action Action::CreateDiscard(AbsolutePos who, Tile discard, int game_id) {
   mjxproto::Action proto;
+  proto.set_game_id(game_id);
   proto.set_type(mjxproto::ACTION_TYPE_DISCARD);
   proto.set_who(ToUType(who));
   proto.set_discard(discard.Id());
@@ -13,8 +14,9 @@ mjxproto::Action Action::CreateDiscard(AbsolutePos who, Tile discard) {
   return proto;
 }
 
-mjxproto::Action Action::CreateTsumogiri(AbsolutePos who, Tile discard) {
+mjxproto::Action Action::CreateTsumogiri(AbsolutePos who, Tile discard, int game_id) {
   mjxproto::Action proto;
+  proto.set_game_id(game_id);
   proto.set_type(mjxproto::ACTION_TYPE_TSUMOGIRI);
   proto.set_who(ToUType(who));
   proto.set_discard(discard.Id());
@@ -23,7 +25,7 @@ mjxproto::Action Action::CreateTsumogiri(AbsolutePos who, Tile discard) {
 }
 
 std::vector<mjxproto::Action> Action::CreateDiscardsAndTsumogiri(
-    AbsolutePos who, const std::vector<std::pair<Tile, bool>>& discards) {
+    AbsolutePos who, const std::vector<std::pair<Tile, bool>>& discards, int game_id) {
   Assert(std::count_if(discards.begin(), discards.end(),
                        [](const auto& x) { return x.second; }) <= 1,
          "# of Tsumogiri actions should be <= 1 but got " +
@@ -32,8 +34,8 @@ std::vector<mjxproto::Action> Action::CreateDiscardsAndTsumogiri(
                                [](const auto& x) { return x.second; })));
   std::vector<mjxproto::Action> ret;
   for (const auto& [tile, tsumogiri] : discards) {
-    ret.push_back(tsumogiri ? CreateTsumogiri(who, tile)
-                            : CreateDiscard(who, tile));
+    ret.push_back(tsumogiri ? CreateTsumogiri(who, tile, game_id)
+                            : CreateDiscard(who, tile, game_id));
   }
   Assert(std::count_if(ret.begin(), ret.end(),
                        [](const auto& x) {
@@ -47,32 +49,36 @@ std::vector<mjxproto::Action> Action::CreateDiscardsAndTsumogiri(
   return ret;
 }
 
-mjxproto::Action Action::CreateRiichi(AbsolutePos who) {
+mjxproto::Action Action::CreateRiichi(AbsolutePos who, int game_id) {
   mjxproto::Action proto;
+  proto.set_game_id(game_id);
   proto.set_type(mjxproto::ACTION_TYPE_RIICHI);
   proto.set_who(ToUType(who));
   Assert(IsValid(proto));
   return proto;
 }
 
-mjxproto::Action Action::CreateTsumo(AbsolutePos who) {
+mjxproto::Action Action::CreateTsumo(AbsolutePos who, int game_id) {
   mjxproto::Action proto;
+  proto.set_game_id(game_id);
   proto.set_type(mjxproto::ACTION_TYPE_TSUMO);
   proto.set_who(ToUType(who));
   Assert(IsValid(proto));
   return proto;
 }
 
-mjxproto::Action Action::CreateRon(AbsolutePos who) {
+mjxproto::Action Action::CreateRon(AbsolutePos who, int game_id) {
   mjxproto::Action proto;
+  proto.set_game_id(game_id);
   proto.set_type(mjxproto::ACTION_TYPE_RON);
   proto.set_who(ToUType(who));
   Assert(IsValid(proto));
   return proto;
 }
 
-mjxproto::Action Action::CreateOpen(AbsolutePos who, Open open) {
+mjxproto::Action Action::CreateOpen(AbsolutePos who, Open open, int game_id) {
   mjxproto::Action proto;
+  proto.set_game_id(game_id);
   proto.set_who(ToUType(who));
   proto.set_type(OpenTypeToActionType(open.Type()));
   proto.set_open(open.GetBits());
@@ -80,28 +86,31 @@ mjxproto::Action Action::CreateOpen(AbsolutePos who, Open open) {
   return proto;
 }
 
-mjxproto::Action Action::CreateNo(AbsolutePos who) {
+mjxproto::Action Action::CreateNo(AbsolutePos who, int game_id) {
   mjxproto::Action proto;
+  proto.set_game_id(game_id);
   proto.set_type(mjxproto::ACTION_TYPE_NO);
   proto.set_who(ToUType(who));
   Assert(IsValid(proto));
   return proto;
 }
 
-mjxproto::Action Action::CreateNineTiles(AbsolutePos who) {
+mjxproto::Action Action::CreateNineTiles(AbsolutePos who, int game_id) {
   mjxproto::Action proto;
+  proto.set_game_id(game_id);
   proto.set_type(mjxproto::ACTION_TYPE_ABORTIVE_DRAW_NINE_TERMINALS);
   proto.set_who(ToUType(who));
   Assert(IsValid(proto));
   return proto;
 }
 
-mjxproto::Action Action::CreateDummy(AbsolutePos who) {
-  mjxproto::Action action;
-  action.set_who(static_cast<int>(who));
-  action.set_type(mjxproto::ACTION_TYPE_DUMMY);
-  Assert(IsValid(action));
-  return action;
+mjxproto::Action Action::CreateDummy(AbsolutePos who, int game_id) {
+  mjxproto::Action proto;
+  proto.set_game_id(game_id);
+  proto.set_who(static_cast<int>(who));
+  proto.set_type(mjxproto::ACTION_TYPE_DUMMY);
+  Assert(IsValid(proto));
+  return proto;
 }
 
 bool Action::IsValid(const mjxproto::Action& action) {
