@@ -120,7 +120,8 @@ message Observation {
   int32 who = 1;
   PublicObservation public_observation = 2;
   PrivateObservation private_observation = 3;
-  repeated Action possible_actions = 4;
+  RoundTerminal round_terminal = 4;
+  repeated Action possible_actions = 5;
 }
 
 message Win {

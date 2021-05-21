@@ -71,6 +71,8 @@ bool State::IsRoundOver() const {
     case mjxproto::EVENT_TYPE_ABORTIVE_DRAW_FOUR_WINDS:
     case mjxproto::EVENT_TYPE_EXHAUSTIVE_DRAW_NORMAL:
     case mjxproto::EVENT_TYPE_EXHAUSTIVE_DRAW_NAGASHI_MANGAN:
+      Assert(state_.has_round_terminal(),
+             "Round terminal should be set but not: \n" + ToJson());
       return true;
     default:
       return false;
@@ -122,14 +124,18 @@ GameResult State::result() const {
 }
 
 std::unordered_map<PlayerId, Observation> State::CreateObservations() const {
-  // At the beginning of each round, send initial hand info and receive dummy
-  // action
-  if (!HasLastEvent()) {
+  // At the round beginning, sync initial hand info to each player, and
+  // at the round end, sync round terminal information to each player
+  bool is_round_beginning = !HasLastEvent();
+  bool is_round_end = IsRoundOver();
+  if (is_round_beginning || is_round_end) {
     std::unordered_map<PlayerId, Observation> observations;
     for (int i = 0; i < 4; ++i) {
       auto who = AbsolutePos(i);
       auto observation = Observation(who, state_);
       observation.add_possible_action(Action::CreateDummy(who));
+      Assert(!is_round_end || observation.proto().has_round_terminal(),
+             "If round is ended, round terminal info should be set");
       observations[player(who).player_id] = std::move(observation);
     }
     return observations;
@@ -454,6 +460,8 @@ void State::RiichiScoreChange() {
 }
 
 void State::Tsumo(AbsolutePos winner) {
+  Assert(!state_.has_round_terminal(),
+         "Round terminal should not be set before Tsumo");
   mutable_player(winner).hand.Tsumo();
   auto [hand_info, win_score] = EvalWinHand(winner);
   // calc ten moves
@@ -532,15 +540,15 @@ void State::Tsumo(AbsolutePos winner) {
   }
 
   // set terminal
+  state_.mutable_round_terminal()->mutable_wins()->Add(std::move(win));
+  state_.mutable_round_terminal()->set_is_game_over(IsGameOver());
+  state_.mutable_round_terminal()->mutable_final_score()->CopyFrom(curr_score_);
   if (IsGameOver()) {
     AbsolutePos top = top_player();
     curr_score_.set_tens(ToUType(top),
                          curr_score_.tens(ToUType(top)) + 1000 * riichi());
     curr_score_.set_riichi(0);
   }
-  state_.mutable_round_terminal()->mutable_wins()->Add(std::move(win));
-  state_.mutable_round_terminal()->set_is_game_over(IsGameOver());
-  state_.mutable_round_terminal()->mutable_final_score()->CopyFrom(curr_score_);
 }
 
 void State::Ron(AbsolutePos winner) {
@@ -641,20 +649,21 @@ void State::Ron(AbsolutePos winner) {
   }
 
   // set win to terminal
+  state_.mutable_round_terminal()->mutable_wins()->Add(std::move(win));
+  state_.mutable_round_terminal()->set_is_game_over(IsGameOver());
+  state_.mutable_round_terminal()->mutable_final_score()->CopyFrom(curr_score_);
   if (IsGameOver()) {
     AbsolutePos top = top_player();
     curr_score_.set_tens(ToUType(top),
                          curr_score_.tens(ToUType(top)) + 1000 * riichi());
     curr_score_.set_riichi(0);
   }
-  state_.mutable_round_terminal()->mutable_wins()->Add(std::move(win));
-  state_.mutable_round_terminal()->set_is_game_over(IsGameOver());
-  state_.mutable_round_terminal()->mutable_final_score()->CopyFrom(curr_score_);
 
   SyncCurrHand(winner);
 }
 
 void State::NoWinner(mjxproto::EventType nowinner_type) {
+  Assert(!state_.has_round_terminal(), "Round terminal should not be set");
   std::optional<AbsolutePos> three_ronned_player = std::nullopt;
   switch (nowinner_type) {
     case mjxproto::EVENT_TYPE_ABORTIVE_DRAW_NINE_TERMINALS: {
@@ -1179,6 +1188,7 @@ WinStateInfo State::win_state_info(AbsolutePos who) const {
 }
 
 void State::Update(std::vector<mjxproto::Action> &&action_candidates) {
+  Assert(!IsRoundOver(), "Update is called after round end: \n" + ToJson());
   Assert(!action_candidates.empty());
   // At the beginning of the round
   if (!HasLastEvent()) {

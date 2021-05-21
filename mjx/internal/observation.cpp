@@ -58,6 +58,8 @@ Observation::Observation(AbsolutePos who, const mjxproto::State& state) {
   proto_.set_who(ToUType(who));
   proto_.mutable_private_observation()->CopyFrom(
       state.private_observations(ToUType(who)));
+  if (state.has_round_terminal())
+    proto_.mutable_round_terminal()->CopyFrom(state.round_terminal());
 }
 
 bool Observation::has_possible_action() const {
