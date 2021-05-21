@@ -99,6 +99,7 @@ mjxproto::Action Action::CreateNineTiles(AbsolutePos who) {
 mjxproto::Action Action::CreateDummy(AbsolutePos who) {
   mjxproto::Action action;
   action.set_who(static_cast<int>(who));
+  action.set_type(mjxproto::ACTION_TYPE_DUMMY);
   Assert(IsValid(action));
   return action;
 }
