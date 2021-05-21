@@ -60,7 +60,6 @@ State::State(std::vector<PlayerId> player_ids, std::uint64_t game_seed,
 }
 
 bool State::IsRoundOver() const {
-  Assert(state_.has_round_terminal(), "Round terminal should be set");
   if (!HasLastEvent()) return false;
   switch (LastEvent().type()) {
     case mjxproto::EVENT_TYPE_TSUMO:
@@ -72,6 +71,7 @@ bool State::IsRoundOver() const {
     case mjxproto::EVENT_TYPE_ABORTIVE_DRAW_FOUR_WINDS:
     case mjxproto::EVENT_TYPE_EXHAUSTIVE_DRAW_NORMAL:
     case mjxproto::EVENT_TYPE_EXHAUSTIVE_DRAW_NAGASHI_MANGAN:
+      Assert(state_.has_round_terminal(), "Round terminal should be set but not: \n" + ToJson());
       return true;
     default:
       return false;
@@ -534,15 +534,15 @@ void State::Tsumo(AbsolutePos winner) {
   }
 
   // set terminal
+  state_.mutable_round_terminal()->mutable_wins()->Add(std::move(win));
+  state_.mutable_round_terminal()->set_is_game_over(IsGameOver());
+  state_.mutable_round_terminal()->mutable_final_score()->CopyFrom(curr_score_);
   if (IsGameOver()) {
     AbsolutePos top = top_player();
     curr_score_.set_tens(ToUType(top),
                          curr_score_.tens(ToUType(top)) + 1000 * riichi());
     curr_score_.set_riichi(0);
   }
-  state_.mutable_round_terminal()->mutable_wins()->Add(std::move(win));
-  state_.mutable_round_terminal()->set_is_game_over(IsGameOver());
-  state_.mutable_round_terminal()->mutable_final_score()->CopyFrom(curr_score_);
 }
 
 void State::Ron(AbsolutePos winner) {
@@ -643,15 +643,15 @@ void State::Ron(AbsolutePos winner) {
   }
 
   // set win to terminal
+  state_.mutable_round_terminal()->mutable_wins()->Add(std::move(win));
+  state_.mutable_round_terminal()->set_is_game_over(IsGameOver());
+  state_.mutable_round_terminal()->mutable_final_score()->CopyFrom(curr_score_);
   if (IsGameOver()) {
     AbsolutePos top = top_player();
     curr_score_.set_tens(ToUType(top),
                          curr_score_.tens(ToUType(top)) + 1000 * riichi());
     curr_score_.set_riichi(0);
   }
-  state_.mutable_round_terminal()->mutable_wins()->Add(std::move(win));
-  state_.mutable_round_terminal()->set_is_game_over(IsGameOver());
-  state_.mutable_round_terminal()->mutable_final_score()->CopyFrom(curr_score_);
 
   SyncCurrHand(winner);
 }
@@ -1182,6 +1182,7 @@ WinStateInfo State::win_state_info(AbsolutePos who) const {
 }
 
 void State::Update(std::vector<mjxproto::Action> &&action_candidates) {
+  Assert(!IsRoundOver(), "Update is called after round end: \n" + ToJson());
   Assert(!action_candidates.empty());
   // At the beginning of the round
   if (!HasLastEvent()) {
