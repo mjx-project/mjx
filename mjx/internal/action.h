@@ -14,17 +14,21 @@ class Action {
  public:
   Action() = delete;
   static bool IsValid(const mjxproto::Action& action);
-  static mjxproto::Action CreateDiscard(AbsolutePos who, Tile discard);
-  static mjxproto::Action CreateTsumogiri(AbsolutePos who, Tile discard);
+  static mjxproto::Action CreateDiscard(AbsolutePos who, Tile discard,
+                                        int game_id = 0);
+  static mjxproto::Action CreateTsumogiri(AbsolutePos who, Tile discard,
+                                          int game_id = 0);
   static std::vector<mjxproto::Action> CreateDiscardsAndTsumogiri(
-      AbsolutePos who, const std::vector<std::pair<Tile, bool>>& discards);
-  static mjxproto::Action CreateRiichi(AbsolutePos who);
-  static mjxproto::Action CreateTsumo(AbsolutePos who);
-  static mjxproto::Action CreateRon(AbsolutePos who);
-  static mjxproto::Action CreateOpen(AbsolutePos who, Open open);
-  static mjxproto::Action CreateNo(AbsolutePos who);
-  static mjxproto::Action CreateNineTiles(AbsolutePos who);
-  static mjxproto::Action CreateDummy(AbsolutePos who);
+      AbsolutePos who, const std::vector<std::pair<Tile, bool>>& discards,
+      int game_id = 0);
+  static mjxproto::Action CreateRiichi(AbsolutePos who, int game_id = 0);
+  static mjxproto::Action CreateTsumo(AbsolutePos who, int game_id = 0);
+  static mjxproto::Action CreateRon(AbsolutePos who, int game_id = 0);
+  static mjxproto::Action CreateOpen(AbsolutePos who, Open open,
+                                     int game_id = 0);
+  static mjxproto::Action CreateNo(AbsolutePos who, int game_id = 0);
+  static mjxproto::Action CreateNineTiles(AbsolutePos who, int game_id = 0);
+  static mjxproto::Action CreateDummy(AbsolutePos who, int game_id = 0);
   static bool Equal(const mjxproto::Action& lhs, const mjxproto::Action& rhs);
   static std::uint8_t Encode(const mjxproto::Action& action);
   static mjxproto::Action Decode(
