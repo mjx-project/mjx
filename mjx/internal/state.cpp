@@ -297,7 +297,8 @@ State::State(const mjxproto::State &state) {
           ->Add(t.Id());
     }
     // set game_id
-    state_.mutable_public_observation()->set_game_id(state.public_observation().game_id());
+    state_.mutable_public_observation()->set_game_id(
+        state.public_observation().game_id());
   }
 
   for (const auto &event : state.public_observation().events()) {
