@@ -4,7 +4,8 @@
 #include "utils.h"
 
 namespace mjx::internal {
-mjxproto::Action Action::CreateDiscard(AbsolutePos who, Tile discard, int game_id) {
+mjxproto::Action Action::CreateDiscard(AbsolutePos who, Tile discard,
+                                       int game_id) {
   mjxproto::Action proto;
   proto.set_game_id(game_id);
   proto.set_type(mjxproto::ACTION_TYPE_DISCARD);
@@ -14,7 +15,8 @@ mjxproto::Action Action::CreateDiscard(AbsolutePos who, Tile discard, int game_i
   return proto;
 }
 
-mjxproto::Action Action::CreateTsumogiri(AbsolutePos who, Tile discard, int game_id) {
+mjxproto::Action Action::CreateTsumogiri(AbsolutePos who, Tile discard,
+                                         int game_id) {
   mjxproto::Action proto;
   proto.set_game_id(game_id);
   proto.set_type(mjxproto::ACTION_TYPE_TSUMOGIRI);
@@ -25,7 +27,8 @@ mjxproto::Action Action::CreateTsumogiri(AbsolutePos who, Tile discard, int game
 }
 
 std::vector<mjxproto::Action> Action::CreateDiscardsAndTsumogiri(
-    AbsolutePos who, const std::vector<std::pair<Tile, bool>>& discards, int game_id) {
+    AbsolutePos who, const std::vector<std::pair<Tile, bool>>& discards,
+    int game_id) {
   Assert(std::count_if(discards.begin(), discards.end(),
                        [](const auto& x) { return x.second; }) <= 1,
          "# of Tsumogiri actions should be <= 1 but got " +

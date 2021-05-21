@@ -133,7 +133,8 @@ std::unordered_map<PlayerId, Observation> State::CreateObservations() const {
     for (int i = 0; i < 4; ++i) {
       auto who = AbsolutePos(i);
       auto observation = Observation(who, state_);
-      observation.add_possible_action(Action::CreateDummy(who, state_.public_observation().game_id()));
+      observation.add_possible_action(
+          Action::CreateDummy(who, state_.public_observation().game_id()));
       Assert(!is_round_end || observation.proto().has_round_terminal(),
              "If round is ended, round terminal info should be set");
       observations[player(who).player_id] = std::move(observation);
@@ -151,12 +152,14 @@ std::unordered_map<PlayerId, Observation> State::CreateObservations() const {
 
       // => NineTiles
       if (IsFirstTurnWithoutOpen() && hand(who).CanNineTiles()) {
-        observation.add_possible_action(Action::CreateNineTiles(who, state_.public_observation().game_id()));
+        observation.add_possible_action(Action::CreateNineTiles(
+            who, state_.public_observation().game_id()));
       }
 
       // => Tsumo (1)
       if (hand(who).IsCompleted() && CanTsumo(who))
-        observation.add_possible_action(Action::CreateTsumo(who, state_.public_observation().game_id()));
+        observation.add_possible_action(
+            Action::CreateTsumo(who, state_.public_observation().game_id()));
 
       // => Kan (2)
       if (auto possible_kans = hand(who).PossibleOpensAfterDraw();
@@ -165,18 +168,20 @@ std::unordered_map<PlayerId, Observation> State::CreateObservations() const {
                                    // 四槓散了かのチェックは5回目のカンをできないようにするためだが、正しいのか確認
                                    // #701
         for (const auto possible_kan : possible_kans) {
-          observation.add_possible_action(
-              Action::CreateOpen(who, possible_kan, state_.public_observation().game_id()));
+          observation.add_possible_action(Action::CreateOpen(
+              who, possible_kan, state_.public_observation().game_id()));
         }
       }
 
       // => Riichi (3)
       if (CanRiichi(who))
-        observation.add_possible_action(Action::CreateRiichi(who, state_.public_observation().game_id()));
+        observation.add_possible_action(
+            Action::CreateRiichi(who, state_.public_observation().game_id()));
 
       // => Discard (4)
       observation.add_possible_actions(Action::CreateDiscardsAndTsumogiri(
-          who, hand(who).PossibleDiscards(), state_.public_observation().game_id()));
+          who, hand(who).PossibleDiscards(),
+          state_.public_observation().game_id()));
       const auto &possible_actions = observation.possible_actions();
       Assert(std::count_if(possible_actions.begin(), possible_actions.end(),
                            [](const auto &x) {
@@ -190,7 +195,8 @@ std::unordered_map<PlayerId, Observation> State::CreateObservations() const {
       auto who = AbsolutePos(LastEvent().who());
       auto observation = Observation(who, state_);
       observation.add_possible_actions(Action::CreateDiscardsAndTsumogiri(
-          who, hand(who).PossibleDiscardsJustAfterRiichi(), state_.public_observation().game_id()));
+          who, hand(who).PossibleDiscardsJustAfterRiichi(),
+          state_.public_observation().game_id()));
       return {{player(who).player_id, std::move(observation)}};
     }
     case mjxproto::EVENT_TYPE_CHI:
@@ -199,7 +205,8 @@ std::unordered_map<PlayerId, Observation> State::CreateObservations() const {
       auto who = AbsolutePos(LastEvent().who());
       auto observation = Observation(who, state_);
       observation.add_possible_actions(Action::CreateDiscardsAndTsumogiri(
-          who, hand(who).PossibleDiscards(), state_.public_observation().game_id()));
+          who, hand(who).PossibleDiscards(),
+          state_.public_observation().game_id()));
       Assert(!Any(observation.possible_actions(),
                   [](const auto &x) {
                     return x.type() == mjxproto::ACTION_TYPE_TSUMOGIRI;
@@ -1151,7 +1158,8 @@ std::unordered_map<PlayerId, Observation> State::CreateStealAndRonObservation()
 
     // check ron
     if (hand(stealer).IsCompleted(tile) && CanRon(stealer, tile)) {
-      observation.add_possible_action(Action::CreateRon(stealer, state_.public_observation().game_id()));
+      observation.add_possible_action(
+          Action::CreateRon(stealer, state_.public_observation().game_id()));
     }
 
     // check chi, pon and kan_opened
@@ -1161,12 +1169,13 @@ std::unordered_map<PlayerId, Observation> State::CreateStealAndRonObservation()
       auto possible_opens =
           hand(stealer).PossibleOpensAfterOthersDiscard(tile, relative_pos);
       for (const auto &possible_open : possible_opens)
-        observation.add_possible_action(
-            Action::CreateOpen(stealer, possible_open, state_.public_observation().game_id()));
+        observation.add_possible_action(Action::CreateOpen(
+            stealer, possible_open, state_.public_observation().game_id()));
     }
 
     if (!observation.has_possible_action()) continue;
-    observation.add_possible_action(Action::CreateNo(stealer, state_.public_observation().game_id()));
+    observation.add_possible_action(
+        Action::CreateNo(stealer, state_.public_observation().game_id()));
 
     observations[player(stealer).player_id] = std::move(observation);
   }
