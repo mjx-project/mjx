@@ -124,6 +124,18 @@ GameResult State::result() const {
 }
 
 std::unordered_map<PlayerId, Observation> State::CreateObservations() const {
+  // At the beginning of each round, send initial hand info and receive dummy action
+  if (!HasLastEvent()) {
+    std::unordered_map<PlayerId, Observation> observations;
+    for (int i = 0; i < 4; ++i) {
+      auto who = AbsolutePos(i);
+      auto observation = Observation(who, state_);
+      observation.add_possible_action(Action::CreateDummy(who));
+      observations[player(who).player_id] = std::move(observation);
+    }
+    return observations;
+  }
+
   switch (LastEvent().type()) {
     case mjxproto::EVENT_TYPE_DRAW: {
       auto who = AbsolutePos(LastEvent().who());
