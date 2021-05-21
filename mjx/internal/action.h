@@ -24,6 +24,7 @@ class Action {
   static mjxproto::Action CreateOpen(AbsolutePos who, Open open);
   static mjxproto::Action CreateNo(AbsolutePos who);
   static mjxproto::Action CreateNineTiles(AbsolutePos who);
+  static mjxproto::Action CreateDummy(AbsolutePos who);
   static bool Equal(const mjxproto::Action& lhs, const mjxproto::Action& rhs);
   static std::uint8_t Encode(const mjxproto::Action& action);
   static mjxproto::Action Decode(
