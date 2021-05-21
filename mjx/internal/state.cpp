@@ -60,6 +60,7 @@ State::State(std::vector<PlayerId> player_ids, std::uint64_t game_seed,
 }
 
 bool State::IsRoundOver() const {
+  Assert(state_.has_round_terminal(), "Round terminal should be set");
   if (!HasLastEvent()) return false;
   switch (LastEvent().type()) {
     case mjxproto::EVENT_TYPE_TSUMO:
@@ -454,6 +455,7 @@ void State::RiichiScoreChange() {
 }
 
 void State::Tsumo(AbsolutePos winner) {
+  Assert(!state_.has_round_terminal(), "Round terminal should not be set before Tsumo");
   mutable_player(winner).hand.Tsumo();
   auto [hand_info, win_score] = EvalWinHand(winner);
   // calc ten moves
@@ -655,6 +657,7 @@ void State::Ron(AbsolutePos winner) {
 }
 
 void State::NoWinner(mjxproto::EventType nowinner_type) {
+  Assert(!state_.has_round_terminal(), "Round terminal should not be set");
   std::optional<AbsolutePos> three_ronned_player = std::nullopt;
   switch (nowinner_type) {
     case mjxproto::EVENT_TYPE_ABORTIVE_DRAW_NINE_TERMINALS: {
