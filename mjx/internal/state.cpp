@@ -122,7 +122,8 @@ GameResult State::result() const {
 }
 
 std::unordered_map<PlayerId, Observation> State::CreateObservations() const {
-  // At the beginning of each round, send initial hand info and receive dummy action
+  // At the beginning of each round, send initial hand info and receive dummy
+  // action
   if (!HasLastEvent()) {
     std::unordered_map<PlayerId, Observation> observations;
     for (int i = 0; i < 4; ++i) {
@@ -1182,8 +1183,11 @@ void State::Update(std::vector<mjxproto::Action> &&action_candidates) {
   // At the beginning of the round
   if (!HasLastEvent()) {
     Assert(std::all_of(action_candidates.begin(), action_candidates.end(),
-                       [](const mjxproto::Action& a){ return a.type() == mjxproto::ACTION_TYPE_DUMMY; }),
-           "At the beginning of the round, each player should return Dummy action.");
+                       [](const mjxproto::Action &a) {
+                         return a.type() == mjxproto::ACTION_TYPE_DUMMY;
+                       }),
+           "At the beginning of the round, each player should return Dummy "
+           "action.");
     // dealer draws the first tusmo
     Draw(dealer());
     return;
