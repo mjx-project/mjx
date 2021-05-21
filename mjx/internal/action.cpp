@@ -96,6 +96,13 @@ mjxproto::Action Action::CreateNineTiles(AbsolutePos who) {
   return proto;
 }
 
+mjxproto::Action Action::CreateDummy(AbsolutePos who) {
+  mjxproto::Action action;
+  action.set_who(static_cast<int>(who));
+  Assert(IsValid(action));
+  return action;
+}
+
 bool Action::IsValid(const mjxproto::Action& action) {
   auto type = action.type();
   auto who = action.who();
@@ -117,6 +124,7 @@ bool Action::IsValid(const mjxproto::Action& action) {
     case mjxproto::ACTION_TYPE_ABORTIVE_DRAW_NINE_TERMINALS:
     case mjxproto::ACTION_TYPE_NO:
     case mjxproto::ACTION_TYPE_RON:
+    case mjxproto::ACTION_TYPE_DUMMY:
       if (action.discard() != 0) return false;
       if (action.open() != 0) return false;
       break;
