@@ -126,9 +126,6 @@ class State {
   Wall wall_;
   std::array<Player, 4> players_;
 
-  // initial setting
-  std::string game_id_;
-
   // accessors
   [[nodiscard]] const Player& player(AbsolutePos pos) const;
   [[nodiscard]] Player& mutable_player(AbsolutePos pos);
