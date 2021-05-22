@@ -98,7 +98,7 @@ message Event {
 }
 
 message PublicObservation {
-  uint32 game_id = 1;
+  string game_id = 1;
   repeated string player_ids = 2;
   Score init_score = 3;  // public info
   repeated uint32 dora_indicators = 4;
@@ -182,7 +182,7 @@ message Action {
   //  PON                No    Yes
   //  OPEN_KAN           No    Yes
   //  RON                No     No
-  uint32 game_id = 1;
+  string game_id = 1;
   int32 who = 2;
   ActionType type = 3;
   uint32 discard = 4;
