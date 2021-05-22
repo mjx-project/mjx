@@ -79,7 +79,8 @@ mjxproto::Action Action::CreateRon(AbsolutePos who, std::string game_id) {
   return proto;
 }
 
-mjxproto::Action Action::CreateOpen(AbsolutePos who, Open open, std::string game_id) {
+mjxproto::Action Action::CreateOpen(AbsolutePos who, Open open,
+                                    std::string game_id) {
   mjxproto::Action proto;
   proto.set_game_id(game_id);
   proto.set_who(ToUType(who));
