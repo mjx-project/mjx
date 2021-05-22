@@ -21,14 +21,18 @@ class Action {
   static std::vector<mjxproto::Action> CreateDiscardsAndTsumogiri(
       AbsolutePos who, const std::vector<std::pair<Tile, bool>>& discards,
       std::string game_id = "");
-  static mjxproto::Action CreateRiichi(AbsolutePos who, std::string game_id = "");
-  static mjxproto::Action CreateTsumo(AbsolutePos who, std::string game_id = "");
+  static mjxproto::Action CreateRiichi(AbsolutePos who,
+                                       std::string game_id = "");
+  static mjxproto::Action CreateTsumo(AbsolutePos who,
+                                      std::string game_id = "");
   static mjxproto::Action CreateRon(AbsolutePos who, std::string game_id = "");
   static mjxproto::Action CreateOpen(AbsolutePos who, Open open,
                                      std::string game_id = "");
   static mjxproto::Action CreateNo(AbsolutePos who, std::string game_id = "");
-  static mjxproto::Action CreateNineTiles(AbsolutePos who, std::string game_id = "");
-  static mjxproto::Action CreateDummy(AbsolutePos who, std::string game_id = "");
+  static mjxproto::Action CreateNineTiles(AbsolutePos who,
+                                          std::string game_id = "");
+  static mjxproto::Action CreateDummy(AbsolutePos who,
+                                      std::string game_id = "");
   static bool Equal(const mjxproto::Action& lhs, const mjxproto::Action& rhs);
   static std::uint8_t Encode(const mjxproto::Action& action);
   static mjxproto::Action Decode(
