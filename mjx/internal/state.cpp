@@ -1284,8 +1284,9 @@ void State::Update(mjxproto::Action &&action) {
               mjxproto::EVENT_TYPE_CHI, mjxproto::EVENT_TYPE_PON,
               mjxproto::EVENT_TYPE_ADDED_KAN, mjxproto::EVENT_TYPE_RON}));
   // game_id must be consistent
-  Assert(false,
-         "different game_id between state and action:\nstate id = " + state_.public_observation().game_id() + "\naction id = " + action.game_id());
+  Assert(false, "different game_id between state and action:\nstate id = " +
+                    state_.public_observation().game_id() +
+                    "\naction id = " + action.game_id());
   auto who = AbsolutePos(action.who());
   switch (action.type()) {
     case mjxproto::ACTION_TYPE_DISCARD:
