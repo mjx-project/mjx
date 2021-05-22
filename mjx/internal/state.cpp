@@ -29,7 +29,7 @@ State::State(std::vector<PlayerId> player_ids, std::uint64_t game_seed,
   state_.mutable_public_observation()->set_game_id(
       boost::uuids::to_string(boost::uuids::random_generator()()));
   // also set private game_id_
-  game_id_ =  state_.public_observation().game_id();
+  game_id_ = state_.public_observation().game_id();
   // player_ids
   for (int i = 0; i < 4; ++i)
     state_.mutable_public_observation()->add_player_ids(player_ids[i]);
@@ -302,7 +302,7 @@ State::State(const mjxproto::State &state) {
     state_.mutable_public_observation()->set_game_id(
         state.public_observation().game_id());
     // also set private game_id_
-    game_id_ =  state_.public_observation().game_id();
+    game_id_ = state_.public_observation().game_id();
   }
 
   for (const auto &event : state.public_observation().events()) {
