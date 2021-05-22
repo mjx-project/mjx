@@ -1088,3 +1088,17 @@ TEST(state, CheckGameOver) {
                                  AbsolutePos::kInitNorth, true),
             true);
 }
+
+TEST(state, GameId) {
+  std::vector<PlayerId> player_ids{"p1", "p2", "p3", "p4"};
+  auto state1 = State(State::ScoreInfo{player_ids, 1});
+  EXPECT_NE(state1.proto().public_observation().game_id(), 0);
+
+  auto state2 = State(State::ScoreInfo{player_ids, 1});
+  EXPECT_NE(state1.proto().public_observation().game_id(),
+            state2.proto().public_observation().game_id());
+
+  auto state3 = State(state1.proto());
+  EXPECT_EQ(state1.proto().public_observation().game_id(),
+            state3.proto().public_observation().game_id());
+}
