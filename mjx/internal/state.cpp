@@ -27,7 +27,7 @@ State::State(std::vector<PlayerId> player_ids, std::uint64_t game_seed,
   state_.mutable_hidden_state()->set_game_seed(game_seed);
   // set protos
   state_.mutable_public_observation()->set_game_id(
-      boost::lexical_cast<std::string>(boost::uuids::random_generator()()));
+      boost::uuids::to_string(boost::uuids::random_generator()()));
   // player_ids
   for (int i = 0; i < 4; ++i)
     state_.mutable_public_observation()->add_player_ids(player_ids[i]);
