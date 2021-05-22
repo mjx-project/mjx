@@ -2,6 +2,9 @@
 #define MAHJONG_STATE_H
 
 #include <array>
+#include <boost/uuid/uuid.hpp>
+#include <boost/uuid/uuid_generators.hpp>
+#include <boost/uuid/uuid_io.hpp>
 #include <random>
 #include <string>
 #include <utility>

@@ -15,20 +15,24 @@ class Action {
   Action() = delete;
   static bool IsValid(const mjxproto::Action& action);
   static mjxproto::Action CreateDiscard(AbsolutePos who, Tile discard,
-                                        int game_id = 0);
+                                        std::string game_id = "");
   static mjxproto::Action CreateTsumogiri(AbsolutePos who, Tile discard,
-                                          int game_id = 0);
+                                          std::string game_id = "");
   static std::vector<mjxproto::Action> CreateDiscardsAndTsumogiri(
       AbsolutePos who, const std::vector<std::pair<Tile, bool>>& discards,
-      int game_id = 0);
-  static mjxproto::Action CreateRiichi(AbsolutePos who, int game_id = 0);
-  static mjxproto::Action CreateTsumo(AbsolutePos who, int game_id = 0);
-  static mjxproto::Action CreateRon(AbsolutePos who, int game_id = 0);
+      std::string game_id = "");
+  static mjxproto::Action CreateRiichi(AbsolutePos who,
+                                       std::string game_id = "");
+  static mjxproto::Action CreateTsumo(AbsolutePos who,
+                                      std::string game_id = "");
+  static mjxproto::Action CreateRon(AbsolutePos who, std::string game_id = "");
   static mjxproto::Action CreateOpen(AbsolutePos who, Open open,
-                                     int game_id = 0);
-  static mjxproto::Action CreateNo(AbsolutePos who, int game_id = 0);
-  static mjxproto::Action CreateNineTiles(AbsolutePos who, int game_id = 0);
-  static mjxproto::Action CreateDummy(AbsolutePos who, int game_id = 0);
+                                     std::string game_id = "");
+  static mjxproto::Action CreateNo(AbsolutePos who, std::string game_id = "");
+  static mjxproto::Action CreateNineTiles(AbsolutePos who,
+                                          std::string game_id = "");
+  static mjxproto::Action CreateDummy(AbsolutePos who,
+                                      std::string game_id = "");
   static bool Equal(const mjxproto::Action& lhs, const mjxproto::Action& rhs);
   static std::uint8_t Encode(const mjxproto::Action& action);
   static mjxproto::Action Decode(

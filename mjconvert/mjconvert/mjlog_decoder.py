@@ -59,7 +59,7 @@ class MjlogDecoder:
         # set seed
         state_.hidden_state.game_seed = 0
         # set game id
-        state_.public_observation.game_id = 0
+        state_.public_observation.game_id = ""
 
         assert root.tag == "mjloggm"
         assert root.attrib["ver"] == "2.3"
