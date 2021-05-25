@@ -1,6 +1,6 @@
+#include <mjx/internal/agent_local.h>
 #include <mjx/internal/observation.h>
 #include <mjx/internal/state.h>
-#include <mjx/internal/agent_local.h>
 #include <mjx/internal/strategy_rule_based.h>
 
 #include <fstream>
@@ -32,7 +32,7 @@ TEST(observation, hand) {
             "m5,m6,m7,p9,p9,s1,s2,s3,s4,s5,s6,[ww,ww,ww]");
 }
 
-TEST(observation, current_hand){
+TEST(observation, current_hand) {
   const std::vector<std::shared_ptr<Agent>> agents = {
       std::make_shared<AgentLocal>("agent01",
                                    std::make_unique<StrategyRuleBased>()),
@@ -51,7 +51,7 @@ TEST(observation, current_hand){
   // number of games
   int num_games = 10;
   auto gen = GameSeed::CreateRandomGameSeedGenerator();
-  for(int i = 0; i < num_games; i++){
+  for (int i = 0; i < num_games; i++) {
     // RunOneGame
     auto state = State(State::ScoreInfo{player_ids, gen()});
     while (true) {
@@ -62,7 +62,8 @@ TEST(observation, current_hand){
         std::vector<mjxproto::Action> actions;
         actions.reserve(observations.size());
         for (auto &[player_id, obs] : observations) {
-          actions.emplace_back(map_agents[player_id]->TakeAction(std::move(obs)));
+          actions.emplace_back(
+              map_agents[player_id]->TakeAction(std::move(obs)));
         }
         if (state.IsRoundOver()) break;
         state.Update(std::move(actions));
