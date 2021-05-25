@@ -171,22 +171,22 @@ std::uint8_t Action::Encode(const mjxproto::Action& action) {
       }
     }
     case mjxproto::ACTION_TYPE_TSUMOGIRI: {
-        // 37~70: Tsumogiri m1~rd
-        // 71,72,73: Tsumogiri m5(red), p5(red), s5(red)
-        auto discard = Tile(action.discard());
-        if (!discard.IsRedFive()) {
-          return ToUType(discard.Type()) + 37;
-        }
-        switch (discard.Type()) {
-          case TileType::kM5:
-            return 71;
-          case TileType::kP5:
-            return 72;
-          case TileType::kS5:
-            return 73;
-          default:
-            assert(false);
-        }
+      // 37~70: Tsumogiri m1~rd
+      // 71,72,73: Tsumogiri m5(red), p5(red), s5(red)
+      auto discard = Tile(action.discard());
+      if (!discard.IsRedFive()) {
+        return ToUType(discard.Type()) + 37;
+      }
+      switch (discard.Type()) {
+        case TileType::kM5:
+          return 71;
+        case TileType::kP5:
+          return 72;
+        case TileType::kS5:
+          return 73;
+        default:
+          assert(false);
+      }
     }
     case mjxproto::ACTION_TYPE_CHI: {
       // 74~94: Chi m1m2m3 ~ s7s8s9
