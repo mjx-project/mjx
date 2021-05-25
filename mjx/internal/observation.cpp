@@ -101,9 +101,10 @@ Hand Observation::current_hand() const {
     } else if (Any(event.type(), {mjxproto::EVENT_TYPE_TSUMOGIRI,
                                   mjxproto::EVENT_TYPE_DISCARD})) {
       hand.Discard(Tile(event.tile()));
-      if (ToSeatWind(static_cast<AbsolutePos>(event.who()),
-                     AbsolutePos(proto_.public_observation().init_score().round() % 4)) ==
-          Wind::kNorth) {
+      if (ToSeatWind(
+              static_cast<AbsolutePos>(event.who()),
+              AbsolutePos(proto_.public_observation().init_score().round() %
+                          4)) == Wind::kNorth) {
         double_riichi = false;
       }
     } else if (Any(event.type(),
