@@ -1,3 +1,24 @@
+from enum import Enum
+
+
+class TileUnitType(Enum):
+    HAND = 0
+    CHI = 1
+    PON = 2
+    CLOSED_KAN = 3
+    OPEN_KAN = 4
+    ADDED_KAN = 5
+    DISCARD = 6
+
+
+class FromWho(Enum):
+    NONE = 0
+    RIGHT = 1
+    MID = 2
+    LEFT = 3
+    SELF = 4
+
+
 to_char = {
     0: "m1",
     1: "m2",
@@ -81,15 +102,16 @@ to_wind_char = {
     7: "北",
 }
 to_modifier = {
-    0: "",
-    1: "_R",  # Right
-    2: "_M",  # Mid
-    3: "_L",  # Left
-    4: "_S",  # Self(kan closed)
-    5: "_R(Add)",  # Right(kan added)
-    6: "_M(Add)",  # Mid(kan added)
-    7: "_L(Add)",  # Left(kan added)
-    8: "*",  # TSUMOGIRI
+    FromWho.NONE: "",
+    FromWho.RIGHT: "R ",  # Right
+    FromWho.MID: "M ",  # Mid
+    FromWho.LEFT: "L ",  # Left
+    FromWho.SELF: "S ",  # Self(kan closed)
+}
+to_modifier_add_kan = {
+    FromWho.RIGHT: "R(Add) ",  # Right(kan added)
+    FromWho.MID: "M(Add) ",  # Mid(kan added)
+    FromWho.LEFT: "L(Add) ",  # Left(kan added)
 }
 
 
@@ -111,8 +133,8 @@ def get_wind_char(wind: int, lang: int = 0) -> str:
         return " "
 
 
-def get_modifier(modifier_id: int) -> str:
-    if 0 <= modifier_id < 9:
-        return to_modifier[modifier_id]
+def get_modifier(from_who: FromWho, tile_unit_type: TileUnitType) -> str:
+    if tile_unit_type == TileUnitType.ADDED_KAN:
+        return to_modifier_add_kan[from_who]
     else:
-        return " "
+        return to_modifier[from_who]
