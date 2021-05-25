@@ -107,7 +107,7 @@ message PublicObservation {
 
 message Hand {
   repeated uint32 closed_tiles = 1;
-  repeated uint32 opens = 2;
+  repeated uint32 opens = 2;  // [1st open, 2nd open, ...]
 }
 
 message PrivateObservation {
