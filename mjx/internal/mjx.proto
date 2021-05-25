@@ -101,7 +101,7 @@ message PublicObservation {
   string game_id = 1;
   repeated string player_ids = 2;
   Score init_score = 3;  // public info
-  repeated uint32 dora_indicators = 4;
+  repeated uint32 dora_indicators = 4;  // len(dora_indicators) = 1 + # of Kan
   repeated Event events = 5;
 }
 
@@ -166,7 +166,7 @@ message State {
 message HiddenState {
   uint64 game_seed = 1;
   repeated uint32 wall = 2;
-  repeated uint32 ura_dora_indicators = 3;
+  repeated uint32 ura_dora_indicators = 3;  // len(ura_dora_indicators) = 1 + # of Kan
 }
 
 message Action {
