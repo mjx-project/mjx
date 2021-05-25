@@ -516,8 +516,6 @@ void State::Tsumo(AbsolutePos winner) {
   for (auto t : hand_info.closed_tiles) {
     win.mutable_hand()->add_closed_tiles(t.Id());
   }
-  std::reverse(hand_info.opens.begin(),
-               hand_info.opens.end());  // To follow tenhou's format
   for (const auto &open : hand_info.opens) {
     win.mutable_hand()->add_opens(open.GetBits());
   }
@@ -626,8 +624,6 @@ void State::Ron(AbsolutePos winner) {
   for (auto t : hand_info.closed_tiles) {
     win.mutable_hand()->add_closed_tiles(t.Id());
   }
-  std::reverse(hand_info.opens.begin(),
-               hand_info.opens.end());  // To follow tenhou's format
   for (const auto &open : hand_info.opens) {
     win.mutable_hand()->add_opens(open.GetBits());
   }
