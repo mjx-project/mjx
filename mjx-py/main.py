@@ -1,7 +1,8 @@
 import argparse
+import mjxproto
 from converter import TileUnitType, FromWho
 from converter import get_modifier, get_tile_char, get_wind_char
-from rich import jupyter, print
+from rich import print
 from rich.layout import Layout
 from rich.panel import Panel
 from rich.console import Console
@@ -42,22 +43,13 @@ class TileUnit:
 
 
 class Player:
-    def __init__(
-        self,
-        player_idx: int,
-        wind: int,
-        score: int,
-        name: str,
-    ):
-        self.player_idx = player_idx
-        self.wind = wind
-        self.score = score
+    def __init__(self):
+        self.player_idx: int
+        self.wind: int
+        self.score: int
         self.tile_units = []
         self.is_declared_riichi = False
-        self.name = name
-
-    def add_status():
-        pass
+        self.name: str
 
 
 class MahjongTable:
@@ -203,204 +195,75 @@ class GameBoard:
             Layout(" ", name="discard1"),
             Layout(" ", name="player1_info_corner"),
         )
-        """
-        self.layout["discard1"].split_column(
-            Layout(" ", name="name1"),
-            Layout(" ", name="player1_discard"),
-        )
-        self.layout["name1"].size = 3
-        self.layout["discard2"].split_column(
-            Layout(" ", name="name2"),
-            Layout(" ", name="player2_discard"),
-        )
-        self.layout["name2"].size = 3
-        self.layout["discard3"].split_column(
-            Layout(" ", name="name3"),
-            Layout(" ", name="player3_discard"),
-        )
-        self.layout["name3"].size = 3
-        self.layout["discard4"].split_column(
-            Layout(" ", name="name4"),
-            Layout(" ", name="player4_discard"),
-        )
-        self.layout["name4"].size = 3"""
 
     def load_data(self) -> MahjongTable:
-        """
-        ここでEventHistoryから現在の状態を読み取る予定です。
-
         with open(self.path, "r", errors="ignore") as f:
             for line in f:
                 gamedata = mjxproto.Observation()
                 gamedata.from_json(line)
 
-                # 入力作業
+                gamedata.private_observation.init_hand
 
-        今はテスト用に、直に打ち込んでいます。
-        """
-        player1 = Player(
-            0,
-            0,
-            25000,
-            "太郎",
-        )
-        player2 = Player(
-            1,
-            1,
-            25000,
-            "次郎",
-        )
-        player3 = Player(
-            2,
-            2,
-            25000,
-            "三郎",
-        )
-        player4 = Player(
-            3,
-            3,
-            25000,
-            "四郎",
-        )
+                players = [Player(), Player(), Player(), Player()]
 
-        # player1
-        p1_hands = TileUnit(
-            TileUnitType.HAND,
-            FromWho.NONE,
-            [Tile((120 + i * 4) % 133, True, self.is_using_unicode) for i in range(8)],
-        )
-        player1.tile_units.append(p1_hands)
-        p1_chi1 = TileUnit(
-            TileUnitType.CHI,
-            FromWho.LEFT,
-            [
-                Tile(48, True, self.is_using_unicode),
-                Tile(52, True, self.is_using_unicode),
-                Tile(56, True, self.is_using_unicode),
-            ],
-        )
-        player1.tile_units.append(p1_chi1)
-        p1_chi2 = TileUnit(
-            TileUnitType.CHI,
-            FromWho.LEFT,
-            [
-                Tile(60, True, self.is_using_unicode),
-                Tile(64, True, self.is_using_unicode),
-                Tile(68, True, self.is_using_unicode),
-            ],
-        )
-        player1.tile_units.append(p1_chi2)
+                for i in range(4):
+                    players[i].name = gamedata.public_observation.player_ids[i]
+                    players[i].score = gamedata.public_observation.init_score.tens[i]
+                    players[i].player_idx = i
+                    players[i].wind = i
 
-        # player2
-        p2_hands = TileUnit(
-            TileUnitType.HAND,
-            FromWho.NONE,
-            [Tile(i * 4, False, self.is_using_unicode) for i in range(8)],
-        )
-        player2.tile_units.append(p2_hands)
-        p2_pon1 = TileUnit(
-            TileUnitType.PON,
-            FromWho.MID,
-            [
-                Tile(72, True, self.is_using_unicode),
-                Tile(73, True, self.is_using_unicode),
-                Tile(74, True, self.is_using_unicode),
-            ],
-        )
-        player2.tile_units.append(p2_pon1)
-        p2_pon2 = TileUnit(
-            TileUnitType.PON,
-            FromWho.RIGHT,
-            [
-                Tile(76, True, self.is_using_unicode),
-                Tile(77, True, self.is_using_unicode),
-                Tile(78, True, self.is_using_unicode),
-            ],
-        )
-        player2.tile_units.append(p2_pon2)
+                    p1_hands = TileUnit(
+                        TileUnitType.HAND,
+                        FromWho.NONE,
+                        [
+                            Tile((120 + i * 4) % 133, True, self.is_using_unicode)
+                            for i in range(8)
+                        ],
+                    )
+                    players[i].tile_units.append(p1_hands)
+                    p1_chi1 = TileUnit(
+                        TileUnitType.CHI,
+                        FromWho.LEFT,
+                        [
+                            Tile(48, True, self.is_using_unicode),
+                            Tile(52, True, self.is_using_unicode),
+                            Tile(56, True, self.is_using_unicode),
+                        ],
+                    )
+                    players[i].tile_units.append(p1_chi1)
+                    p1_chi2 = TileUnit(
+                        TileUnitType.CHI,
+                        FromWho.LEFT,
+                        [
+                            Tile(60, True, self.is_using_unicode),
+                            Tile(64, True, self.is_using_unicode),
+                            Tile(68, True, self.is_using_unicode),
+                        ],
+                    )
+                    players[i].tile_units.append(p1_chi2)
 
-        # player3
-        p3_hands = TileUnit(
-            TileUnitType.HAND,
-            FromWho.NONE,
-            [Tile(i * 4, False, self.is_using_unicode) for i in range(8)],
-        )
-        player3.tile_units.append(p3_hands)
-        p3_kan1 = TileUnit(
-            TileUnitType.OPEN_KAN,
-            FromWho.RIGHT,
-            [
-                Tile(80, True, self.is_using_unicode),
-                Tile(81, True, self.is_using_unicode),
-                Tile(82, True, self.is_using_unicode),
-                Tile(83, True, self.is_using_unicode),
-            ],
-        )
-        player3.tile_units.append(p3_kan1)
-        p3_kan2 = TileUnit(
-            TileUnitType.OPEN_KAN,
-            FromWho.RIGHT,
-            [
-                Tile(84, True, self.is_using_unicode),
-                Tile(85, True, self.is_using_unicode),
-                Tile(86, True, self.is_using_unicode),
-                Tile(87, True, self.is_using_unicode),
-            ],
-        )
-        player3.tile_units.append(p3_kan2)
-        player3.is_declared_riichi = True
+                for p in [players[0], players[1], players[2], players[3]]:
+                    p.tile_units.append(
+                        TileUnit(
+                            TileUnitType.DISCARD,
+                            FromWho.NONE,
+                            [
+                                Tile(124, True, self.is_using_unicode),
+                                Tile(40, True, self.is_using_unicode, True),
+                                Tile(128, True, self.is_using_unicode),
+                                Tile(108, True, self.is_using_unicode, True),
+                                Tile(112, True, self.is_using_unicode),
+                                Tile(116, True, self.is_using_unicode),
+                                Tile(120, True, self.is_using_unicode, True),
+                                Tile(36, True, self.is_using_unicode),
+                            ],
+                        )
+                    )
+                break
 
-        # player4
-        p4_hands = TileUnit(
-            TileUnitType.HAND,
-            FromWho.NONE,
-            [Tile(i * 4, False, self.is_using_unicode) for i in range(8)],
-        )
-        player4.tile_units.append(p4_hands)
-        p4_kan1 = TileUnit(
-            TileUnitType.CLOSED_KAN,
-            FromWho.RIGHT,
-            [
-                Tile(96, True, self.is_using_unicode),
-                Tile(97, True, self.is_using_unicode),
-                Tile(98, True, self.is_using_unicode),
-                Tile(99, True, self.is_using_unicode),
-            ],
-        )
-        player4.tile_units.append(p4_kan1)
-        p4_kan2 = TileUnit(
-            TileUnitType.ADDED_KAN,
-            FromWho.LEFT,
-            [
-                Tile(100, True, self.is_using_unicode),
-                Tile(101, True, self.is_using_unicode),
-                Tile(102, True, self.is_using_unicode),
-                Tile(103, True, self.is_using_unicode),
-            ],
-        )
-        player4.tile_units.append(p4_kan2)
-
-        for p in [player1, player2, player3, player4]:
-            p.tile_units.append(
-                TileUnit(
-                    TileUnitType.DISCARD,
-                    FromWho.NONE,
-                    [
-                        Tile(124, True, self.is_using_unicode),
-                        Tile(40, True, self.is_using_unicode, True),
-                        Tile(128, True, self.is_using_unicode),
-                        Tile(108, True, self.is_using_unicode, True),
-                        Tile(112, True, self.is_using_unicode),
-                        Tile(116, True, self.is_using_unicode),
-                        Tile(120, True, self.is_using_unicode, True),
-                        Tile(36, True, self.is_using_unicode),
-                    ],
-                )
-            )
-
-        table = MahjongTable(player1, player2, player3, player4)
-        table.round = 6  # 南2局
-        table.honba = 1
+        table = MahjongTable(players[0], players[1], players[2], players[3])
+        table.round = gamedata.public_observation.init_score.round + 1
+        table.honba = gamedata.public_observation.init_score.honba
         table.riichi = 1
         table.last_player = 3
         table.last_action = 1
@@ -703,11 +566,11 @@ class GameBoard:
 
 def main():
     """
-    >>> game_board = GameBoard("hogepath", "Observation", False, False, 0 , True)
+    >>> game_board = GameBoard("2010091009gm-00a9-0000-83af2648&tw=2.json", "Observation", False, False, 0 , True)
     >>> print(game_board.show_by_text(game_board.load_data()))  # doctest: +NORMALIZE_WHITESPACE
-    round:6 honba:1 riichi:1    wall:36
+    round:1 riichi:1 wall:36
     <BLANKLINE>
-    EAST [ 25000 ] 太郎
+    EAST [ 25000 ] ワイルド
     <BLANKLINE>
     nw wd gd rd m1 m2 m3 m4       p4p5p6L p7p8p9L
     <BLANKLINE>
@@ -715,25 +578,25 @@ def main():
     nw* p1
     <BLANKLINE>
     <BLANKLINE>
-    SOUTH [ 25000 ] 次郎
+    SOUTH [ 25000 ] ミラクルおじさん
     <BLANKLINE>
-    # # # # # # # #       s1s1s1M s2s2s2R
-    <BLANKLINE>
-    wd  p2* gd  ew* sw  ww
-    nw* p1
-    <BLANKLINE>
-    <BLANKLINE>
-    WEST [ 25000, riichi ] 三郎
-    <BLANKLINE>
-    # # # # # # # #       s3s3s3s3R s4s4s4s4R
+    nw wd gd rd m1 m2 m3 m4       p4p5p6L p7p8p9L
     <BLANKLINE>
     wd  p2* gd  ew* sw  ww
     nw* p1
     <BLANKLINE>
     <BLANKLINE>
-    NORTH [ 25000 ] 四郎
+    WEST [ 25000 ] ASAPIN
     <BLANKLINE>
-    # # # # # # # #       s7s7s7s7R s8s8s8s8L(Add)
+    nw wd gd rd m1 m2 m3 m4       p4p5p6L p7p8p9L
+    <BLANKLINE>
+    wd  p2* gd  ew* sw  ww
+    nw* p1
+    <BLANKLINE>
+    <BLANKLINE>
+    NORTH [ 25000 ] ＼(＾o＾)／★
+    <BLANKLINE>
+    nw wd gd rd m1 m2 m3 m4       p4p5p6L p7p8p9L
     <BLANKLINE>
     wd  p2* gd  ew* sw  ww
     nw* p1
@@ -756,8 +619,6 @@ def main():
     )
 
     game_data = game_board.load_data()
-    for i in range(4):
-        game_data.players[i].name = "寿限無寿限無五劫の擦り切れ"
 
     if args.rich:
         game_board.show_by_rich(game_data)
