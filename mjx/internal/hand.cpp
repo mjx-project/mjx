@@ -727,7 +727,8 @@ mjxproto::Hand Hand::ToProto() const noexcept {
 bool Hand::operator==(const Hand &right) const noexcept {
   if (closed_tiles_.size() != right.closed_tiles_.size()) return false;
   if (opens_.size() != right.opens_.size()) return false;
-  if (undiscardable_tiles_.size() != right.undiscardable_tiles_.size()) return false;
+  if (undiscardable_tiles_.size() != right.undiscardable_tiles_.size())
+    return false;
   for (const auto &tile : closed_tiles_) {
     if (right.closed_tiles_.count(tile) == 0) return false;
   }
@@ -737,10 +738,10 @@ bool Hand::operator==(const Hand &right) const noexcept {
   for (const auto &tile : undiscardable_tiles_) {
     if (right.undiscardable_tiles_.count(tile) == 0) return false;
   }
-  if(last_tile_added_ != last_tile_added_) return false;
-  if(stage_ != right.stage_) return false;
-  if(under_riichi_ != right.under_riichi_) return false;
-  if(double_riichi_ != right.double_riichi_) return false;
+  if (last_tile_added_ != last_tile_added_) return false;
+  if (stage_ != right.stage_) return false;
+  if (under_riichi_ != right.under_riichi_) return false;
+  if (double_riichi_ != right.double_riichi_) return false;
   return true;
 }
 
