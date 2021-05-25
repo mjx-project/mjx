@@ -90,22 +90,29 @@ Hand Observation::current_hand() const {
     tiles.emplace_back(tile_id);
   Hand hand = Hand(tiles);
   int draw_ix = 0;
+  bool double_riichi = true;
   for (const auto& event : proto_.public_observation().events()) {
     if (event.who() != proto_.who()) continue;
     if (event.type() == mjxproto::EVENT_TYPE_DRAW) {
       hand.Draw(Tile(proto_.private_observation().draw_history(draw_ix)));
       draw_ix++;
     } else if (event.type() == mjxproto::EVENT_TYPE_RIICHI) {
-      hand.Riichi();  // TODO: double riichi
+      hand.Riichi(double_riichi);
     } else if (Any(event.type(), {mjxproto::EVENT_TYPE_TSUMOGIRI,
                                   mjxproto::EVENT_TYPE_DISCARD})) {
       hand.Discard(Tile(event.tile()));
+      if (ToSeatWind(static_cast<AbsolutePos>(event.who()),
+                     AbsolutePos(proto_.public_observation().init_score().round() % 4)) ==
+          Wind::kNorth) {
+        double_riichi = false;
+      }
     } else if (Any(event.type(),
                    {mjxproto::EVENT_TYPE_CHI, mjxproto::EVENT_TYPE_PON,
                     mjxproto::EVENT_TYPE_ADDED_KAN,
                     mjxproto::EVENT_TYPE_OPEN_KAN,
                     mjxproto::EVENT_TYPE_CLOSED_KAN})) {
       hand.ApplyOpen(Open(event.open()));
+      double_riichi = false;
     } else if (event.type() == mjxproto::EVENT_TYPE_RON) {
       hand.Ron(Tile(event.tile()));
     } else if (event.type() == mjxproto::EVENT_TYPE_TSUMO) {
