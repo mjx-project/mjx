@@ -98,6 +98,9 @@ class Hand {
 
   mjxproto::Hand ToProto() const noexcept;
 
+  // operators
+  bool operator==(const Hand &right) const noexcept;
+
  private:
   std::unordered_set<Tile, HashTile> closed_tiles_;
   std::vector<Open> opens_;  // Though open only uses 16 bits, to handle

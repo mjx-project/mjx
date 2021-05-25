@@ -724,6 +724,18 @@ mjxproto::Hand Hand::ToProto() const noexcept {
   return hand;
 }
 
+bool Hand::operator==(const Hand &right) const noexcept {
+  if(closed_tiles_.size()!=right.closed_tiles_.size()) return false;
+  if(opens_.size()!=right.opens_.size()) return false;
+  for (const auto &tile : closed_tiles_) {
+    if(right.closed_tiles_.count(tile) == 0) return false;
+  }
+  for(int i = 0; i < opens_.size(); i++){
+    if(opens_[i] != right.opens_[i]) return false;
+  }
+  return true;
+}
+
 bool Hand::IsTenpai() const {
   Assert(stage_ == HandStage::kAfterDiscards);
   Assert(SizeClosed() == 1 || SizeClosed() == 4 || SizeClosed() == 7 ||
