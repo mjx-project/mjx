@@ -79,6 +79,7 @@ class MahjongTable:
         self.last_action = 0  # 0-10
         self.last_player = 0  # 0-3
         self.my_idx = 0  # 0-3; The player you want to show.
+        self.wall_num = 134
 
     def check_num_tiles(self) -> bool:
         for p in self.players:
@@ -186,10 +187,13 @@ class GameBoard:
         )
 
         self.layout["middle4"].split_column(
+            Layout(" ", name="space_for_info_center"),
             Layout(" ", name="player3_info_center"),
             Layout(" ", name="middle5"),
             Layout(" ", name="player1_info_center"),
         )
+        self.layout["space_for_info_center"].size = 1
+
         self.layout["middle5"].split_row(
             Layout(" ", name="player4_info_center"),
             Layout(" ", name="player2_info_center"),
@@ -199,6 +203,27 @@ class GameBoard:
             Layout(" ", name="discard1"),
             Layout(" ", name="player1_info_corner"),
         )
+        """
+        self.layout["discard1"].split_column(
+            Layout(" ", name="name1"),
+            Layout(" ", name="player1_discard"),
+        )
+        self.layout["name1"].size = 3
+        self.layout["discard2"].split_column(
+            Layout(" ", name="name2"),
+            Layout(" ", name="player2_discard"),
+        )
+        self.layout["name2"].size = 3
+        self.layout["discard3"].split_column(
+            Layout(" ", name="name3"),
+            Layout(" ", name="player3_discard"),
+        )
+        self.layout["name3"].size = 3
+        self.layout["discard4"].split_column(
+            Layout(" ", name="name4"),
+            Layout(" ", name="player4_discard"),
+        )
+        self.layout["name4"].size = 3"""
 
     def load_data(self) -> MahjongTable:
         """
@@ -379,6 +404,7 @@ class GameBoard:
         table.riichi = 1
         table.last_player = 3
         table.last_action = 1
+        table.wall_num = 36
 
         if not table.check_num_tiles():
             exit(1)
@@ -514,6 +540,12 @@ class GameBoard:
             board_info.append(
                 " " + ["riichi:", "供託"][self.language] + str(table.riichi)
             )
+        board_info.append(
+            " "
+            + ["wall:" + str(table.wall_num), "残り:" + str(table.wall_num) + "枚"][
+                self.language
+            ]
+        )
         board_info.append("\n\n")
         board_info = "".join(board_info)
         return board_info
@@ -603,7 +635,18 @@ class GameBoard:
             "player4_info_corner",
         ]
         hands_idx = ["hand1", "hand2", "hand3", "hand4"]
-        discards_idx = ["discard1", "discard2", "discard3", "discard4"]
+        discards_idx = [
+            "player1_discard",
+            "player2_discard",
+            "player3_discard",
+            "player4_discard",
+        ]
+        discards_idx = [
+            "discard1",
+            "discard2",
+            "discard3",
+            "discard4",
+        ]
 
         for i, p in enumerate(table.players):
             wind = Text(
@@ -652,9 +695,7 @@ class GameBoard:
                 style="white",
             )
 
-            self.layout[discards_idx[i]].update(
-                Text("\n\n") + discards,
-            )
+            self.layout[discards_idx[i]].update(Panel(discards, style="bold green"))
 
         console = Console()
         console.print(self.layout)
@@ -664,7 +705,7 @@ def main():
     """
     >>> game_board = GameBoard("hogepath", "Observation", False, False, 0 , True)
     >>> print(game_board.show_by_text(game_board.load_data()))  # doctest: +NORMALIZE_WHITESPACE
-    round:6 honba:1 riichi:1
+    round:6 honba:1 riichi:1    wall:36
     <BLANKLINE>
     EAST [ 25000 ] 太郎
     <BLANKLINE>
