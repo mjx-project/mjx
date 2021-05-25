@@ -401,7 +401,7 @@ class MjlogDecoder:
         # TODO(sotetsuk): check double ron behavior
         hand = mjxproto.Hand(closed_tiles=[int(x) for x in val["hai"].split(",")])
         if "m" in val:
-            hand.opens[:] = [int(x) for x in val["m"].split(",")]
+            hand.opens[:] = list(reversed([int(x) for x in val["m"].split(",")]))
         win = mjxproto.Win(
             who=who,
             from_who=from_who,
