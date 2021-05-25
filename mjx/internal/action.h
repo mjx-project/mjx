@@ -39,18 +39,20 @@ class Action {
       std::uint8_t code, const std::vector<mjxproto::Action>& possible_action);
   // 0~33: Discard m1~rd
   // 34,35,36: Discard m5(red), p5(red), s5(red)
-  // 37~57: Chi m1m2m3 ~ s7s8s9
-  // 58,59,60: Chi m3m4m5(red), m4m5(red)m6, m5(red)m6m7
-  // 61,62,63: Chi p3p4p5(red), p4p5(red)p6, p5(red)p6p7
-  // 64,65,66: Chi s3s4s5(red), s4s5(red)s6, s5(red)s6s7
-  // 67~100: Pon m1~rd
-  // 101,102,103: Pon m5(w/ red), s5(w/ red), p5(w/ red)
-  // 104~137: Kan m1~rd
-  // 138: Tsumo
-  // 139: Ron
-  // 140: Riichi
-  // 141: Kyuushu
-  // 142: No
+  // 37~70: Tsumogiri m1~rd
+  // 71,72,73: Tsumogiri m5(red), p5(red), s5(red)
+  // 74~94: Chi m1m2m3 ~ s7s8s9
+  // 95,96,97: Chi m3m4m5(red), m4m5(red)m6, m5(red)m6m7
+  // 98,99,100: Chi p3p4p5(red), p4p5(red)p6, p5(red)p6p7
+  // 101,102,103: Chi s3s4s5(red), s4s5(red)s6, s5(red)s6s7
+  // 104~137: Pon m1~rd
+  // 138,139,140: Pon m5(w/ red), s5(w/ red), p5(w/ red)
+  // 141~174: Kan m1~rd
+  // 175: Tsumo
+  // 176: Ron
+  // 177: Riichi
+  // 178: Kyuushu
+  // 179: No
 };
 }  // namespace mjx::internal
 
