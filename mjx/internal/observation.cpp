@@ -92,6 +92,23 @@ Hand Observation::current_hand() const {
   int draw_ix = 0;
   bool double_riichi = true;
   for (const auto& event : proto_.public_observation().events()) {
+    // check double_riichi
+    if (double_riichi) {
+      if (Any(event.type(),
+              {mjxproto::EVENT_TYPE_CHI, mjxproto::EVENT_TYPE_PON,
+               mjxproto::EVENT_TYPE_ADDED_KAN, mjxproto::EVENT_TYPE_OPEN_KAN,
+               mjxproto::EVENT_TYPE_CLOSED_KAN})) {
+        double_riichi = false;
+      }
+      if (Any(event.type(),
+              {mjxproto::EVENT_TYPE_TSUMOGIRI, mjxproto::EVENT_TYPE_DISCARD}) &&
+          ToSeatWind(
+              static_cast<AbsolutePos>(event.who()),
+              AbsolutePos(proto_.public_observation().init_score().round() %
+                          4)) == Wind::kNorth) {
+        double_riichi = false;
+      }
+    }
     if (event.who() != proto_.who()) continue;
     if (event.type() == mjxproto::EVENT_TYPE_DRAW) {
       hand.Draw(Tile(proto_.private_observation().draw_history(draw_ix)));
@@ -101,19 +118,13 @@ Hand Observation::current_hand() const {
     } else if (Any(event.type(), {mjxproto::EVENT_TYPE_TSUMOGIRI,
                                   mjxproto::EVENT_TYPE_DISCARD})) {
       hand.Discard(Tile(event.tile()));
-      if (ToSeatWind(
-              static_cast<AbsolutePos>(event.who()),
-              AbsolutePos(proto_.public_observation().init_score().round() %
-                          4)) == Wind::kNorth) {
-        double_riichi = false;
-      }
+
     } else if (Any(event.type(),
                    {mjxproto::EVENT_TYPE_CHI, mjxproto::EVENT_TYPE_PON,
                     mjxproto::EVENT_TYPE_ADDED_KAN,
                     mjxproto::EVENT_TYPE_OPEN_KAN,
                     mjxproto::EVENT_TYPE_CLOSED_KAN})) {
       hand.ApplyOpen(Open(event.open()));
-      double_riichi = false;
     } else if (event.type() == mjxproto::EVENT_TYPE_RON) {
       hand.Ron(Tile(event.tile()));
     } else if (event.type() == mjxproto::EVENT_TYPE_TSUMO) {
