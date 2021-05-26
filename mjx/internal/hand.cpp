@@ -909,6 +909,7 @@ std::vector<Open> Hand::SelectDiscardableOpens(
   }
   return filtered;
 }
+bool Hand::operator!=(const Hand &right) const noexcept { return !(*this == right); }
 
 HandParams::HandParams(const std::string &closed) {
   Assert(closed.size() % 3 == 2);

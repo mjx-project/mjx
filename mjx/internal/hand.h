@@ -100,6 +100,7 @@ class Hand {
 
   // operators
   bool operator==(const Hand &right) const noexcept;
+  bool operator!=(const Hand &right) const noexcept;
 
  private:
   std::unordered_set<Tile, HashTile> closed_tiles_;
