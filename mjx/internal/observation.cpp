@@ -125,7 +125,6 @@ Hand Observation::current_hand() const {
                     mjxproto::EVENT_TYPE_OPEN_KAN,
                     mjxproto::EVENT_TYPE_CLOSED_KAN})) {
       hand.ApplyOpen(Open(event.open()));
-      double_riichi = false;
     } else if (event.type() == mjxproto::EVENT_TYPE_RON) {
       hand.Ron(Tile(event.tile()));
     } else if (event.type() == mjxproto::EVENT_TYPE_TSUMO) {
