@@ -1,4 +1,5 @@
 import argparse
+import enum
 import mjxproto
 from converter import TileUnitType, FromWho
 from converter import get_modifier, get_tile_char, get_wind_char
@@ -84,7 +85,7 @@ class MahjongTable:
             if num_of_tiles < 13 or 14 < num_of_tiles:
                 print("ERROR: The number of tiles is inaccurate.")
                 print("player", p.player_idx, ":", num_of_tiles)
-                return False
+                # return False
         return True
 
 
@@ -119,7 +120,7 @@ class GameBoard:
             Layout(name="table"),
         )
         self.layout["info"].size = 3
-        self.layout["players_info_top"].size = 8
+        self.layout["players_info_top"].size = 7 if show_name else 4
         self.layout["space"].size = 1
         self.layout["table"].minimum_size = 20
 
@@ -198,7 +199,9 @@ class GameBoard:
 
     def load_data(self) -> MahjongTable:
         with open(self.path, "r", errors="ignore") as f:
-            for line in f:
+            for i, line in enumerate(f):
+                if i < 10:
+                    continue
                 gamedata = mjxproto.Observation()
                 gamedata.from_json(line)
 
@@ -212,35 +215,47 @@ class GameBoard:
                     players[i].player_idx = i
                     players[i].wind = i
 
-                    p1_hands = TileUnit(
-                        TileUnitType.HAND,
-                        FromWho.NONE,
-                        [
-                            Tile((120 + i * 4) % 133, True, self.is_using_unicode)
-                            for i in range(8)
-                        ],
-                    )
-                    players[i].tile_units.append(p1_hands)
-                    p1_chi1 = TileUnit(
-                        TileUnitType.CHI,
-                        FromWho.LEFT,
-                        [
-                            Tile(48, True, self.is_using_unicode),
-                            Tile(52, True, self.is_using_unicode),
-                            Tile(56, True, self.is_using_unicode),
-                        ],
-                    )
-                    players[i].tile_units.append(p1_chi1)
-                    p1_chi2 = TileUnit(
-                        TileUnitType.CHI,
-                        FromWho.LEFT,
-                        [
-                            Tile(60, True, self.is_using_unicode),
-                            Tile(64, True, self.is_using_unicode),
-                            Tile(68, True, self.is_using_unicode),
-                        ],
-                    )
-                    players[i].tile_units.append(p1_chi2)
+                    if i == gamedata.who:
+                        p1_hands = TileUnit(
+                            TileUnitType.HAND,
+                            FromWho.NONE,
+                            [
+                                Tile(i, True, self.is_using_unicode)
+                                for i in gamedata.private_observation.curr_hand.closed_tiles
+                            ],
+                        )
+                        players[i].tile_units.append(p1_hands)
+                    else:
+
+                        p1_hands = TileUnit(
+                            TileUnitType.HAND,
+                            FromWho.NONE,
+                            [
+                                Tile((120 + i * 4) % 133, False, self.is_using_unicode)
+                                for i in range(8)
+                            ],
+                        )
+                        players[i].tile_units.append(p1_hands)
+                        p1_chi1 = TileUnit(
+                            TileUnitType.CHI,
+                            FromWho.LEFT,
+                            [
+                                Tile(48, True, self.is_using_unicode),
+                                Tile(52, True, self.is_using_unicode),
+                                Tile(56, True, self.is_using_unicode),
+                            ],
+                        )
+                        players[i].tile_units.append(p1_chi1)
+                        p1_chi2 = TileUnit(
+                            TileUnitType.CHI,
+                            FromWho.LEFT,
+                            [
+                                Tile(60, True, self.is_using_unicode),
+                                Tile(64, True, self.is_using_unicode),
+                                Tile(68, True, self.is_using_unicode),
+                            ],
+                        )
+                        players[i].tile_units.append(p1_chi2)
 
                 for p in [players[0], players[1], players[2], players[3]]:
                     p.tile_units.append(
@@ -491,12 +506,6 @@ class GameBoard:
             "player2_info_center",
             "player3_info_center",
             "player4_info_center",
-        ]
-        players_info_corner = [
-            "player1_info_corner",
-            "player2_info_corner",
-            "player3_info_corner",
-            "player4_info_corner",
         ]
         hands_idx = ["hand1", "hand2", "hand3", "hand4"]
         discards_idx = [
