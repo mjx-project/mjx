@@ -1,5 +1,6 @@
 import argparse
 import os
+import re
 import mjxproto
 import open_utils
 from converter import TileUnitType, FromWho
@@ -59,19 +60,12 @@ class MahjongTable:
     MahjongTableクラスは場の情報（プレイヤーの手牌や河など）を保持します。
     """
 
-    def __init__(
-        self,
-        player1: Player,
-        player2: Player,
-        player3: Player,
-        player4: Player,
-    ):
-        self.players = [player1, player2, player3, player4]
+    def __init__(self):
+        self.players = [Player() for _ in range(4)]
         self.riichi = 0
         self.round = 0
         self.honba = 0
         self.last_action = 0  # 0-10
-        self.last_player = 0  # 0-3
         self.my_idx = 0  # 0-3; The player you want to show.
         self.wall_num = 134
 
@@ -205,86 +199,92 @@ class GameBoard:
             Layout(" ", name="player1_info_corner"),
         )
 
-    def load_data(self):
-        with open(self.path, "r", errors="ignore") as f:
-            for i, line in enumerate(f):
-                gamedata = mjxproto.Observation()
-                gamedata.from_json(line)
+    def decode_private_observation(self, table: MahjongTable, gamedata):
+        """
+        MahjongTableのデータに、
+        - 手牌
+        - 鳴き牌
+        - 捨て牌
+        の情報を読み込ませる関数
+        """
+        for i, p in enumerate(table.players):
+            if i == gamedata.who:
+                p.tile_units.append(
+                    TileUnit(
+                        TileUnitType.HAND,
+                        FromWho.NONE,
+                        [
+                            Tile(i, True, self.is_using_unicode)
+                            for i in gamedata.private_observation.curr_hand.closed_tiles
+                        ],
+                    )
+                )
 
-                gamedata.private_observation.init_hand
-
-                players = [Player(), Player(), Player(), Player()]
-
-                for i in range(4):
-                    players[i].name = gamedata.public_observation.player_ids[i]
-                    players[i].score = gamedata.public_observation.init_score.tens[i]
-                    players[i].player_idx = i
-                    players[i].wind = i
-
-                    if i == gamedata.who:
-                        p1_hands = TileUnit(
-                            TileUnitType.HAND,
-                            FromWho.NONE,
-                            [
-                                Tile(i, True, self.is_using_unicode)
-                                for i in gamedata.private_observation.curr_hand.closed_tiles
-                            ],
-                        )
-                        players[i].tile_units.append(p1_hands)
-
-                        for open_info in gamedata.private_observation.curr_hand.opens:
-                            open_tile = TileUnit(
-                                open_utils.open_event_type(open_info),
-                                open_utils.open_from(open_info),
-                                [
-                                    Tile(i, True, self.is_using_unicode)
-                                    for i in open_utils.open_tile_ids(open_info)
-                                ],
-                            )
-                            players[i].tile_units.append(open_tile)
-
-                    else:
-
-                        p1_hands = TileUnit(
-                            TileUnitType.HAND,
-                            FromWho.NONE,
-                            [
-                                Tile((120 + i * 4) % 133, False, self.is_using_unicode)
-                                for i in range(13)
-                            ],
-                        )
-                        players[i].tile_units.append(p1_hands)
-
-                for p in [players[0], players[1], players[2], players[3]]:
+                for open_info in gamedata.private_observation.curr_hand.opens:
                     p.tile_units.append(
                         TileUnit(
-                            TileUnitType.DISCARD,
-                            FromWho.NONE,
+                            open_utils.open_event_type(open_info),
+                            open_utils.open_from(open_info),
                             [
-                                Tile(124, True, self.is_using_unicode),
-                                Tile(40, True, self.is_using_unicode, True),
-                                Tile(128, True, self.is_using_unicode),
-                                Tile(108, True, self.is_using_unicode, True),
-                                Tile(112, True, self.is_using_unicode),
-                                Tile(116, True, self.is_using_unicode),
-                                Tile(120, True, self.is_using_unicode, True),
-                                Tile(36, True, self.is_using_unicode),
+                                Tile(i, True, self.is_using_unicode)
+                                for i in open_utils.open_tile_ids(open_info)
                             ],
                         )
                     )
 
-                table = MahjongTable(players[0], players[1], players[2], players[3])
-                table.round = gamedata.public_observation.init_score.round + 1
-                table.honba = gamedata.public_observation.init_score.honba
-                table.riichi = 1
-                table.last_player = 3
-                table.last_action = 1
-                table.wall_num = 36
-                table.my_idx = gamedata.who
+            else:
+                p.tile_units.append(
+                    TileUnit(
+                        TileUnitType.HAND,
+                        FromWho.NONE,
+                        [
+                            Tile((120 + i * 4) % 133, False, self.is_using_unicode)
+                            for i in range(13)
+                        ],
+                    )
+                )
+        return table
 
-                if not table.check_num_tiles():
-                    exit(1)
+    def decode_public_observation(self, table: MahjongTable, gamedata):
+        """
+        MahjongTableのデータに、
+        - 手牌
+        - 鳴き牌
+        - 捨て牌
+        **以外**の情報を読み込ませる関数
+        """
+        for i, p in enumerate(table.players):
+            p.name = gamedata.public_observation.player_ids[i]
+            p.score = gamedata.public_observation.init_score.tens[i]
+            p.player_idx = i
+            p.wind = i
 
+        table.round = gamedata.public_observation.init_score.round + 1
+        table.honba = gamedata.public_observation.init_score.honba
+        table.riichi = gamedata.public_observation.init_score.riichi
+        table.last_action = 1
+        table.wall_num = 36
+        table.my_idx = gamedata.who
+
+        return table
+
+    def decode_observation(self, jsondata):
+        gamedata = mjxproto.Observation()
+        gamedata.from_json(jsondata)
+
+        table = MahjongTable()
+        table = self.decode_private_observation(table, gamedata)
+        table = self.decode_public_observation(table, gamedata)
+
+        if not table.check_num_tiles():
+            exit(1)
+
+        return table
+
+    def load_data(self):
+        with open(self.path, "r", errors="ignore") as f:
+            for line in f:
+                table = self.decode_observation(line)
                 self.tables.append(table)
 
         return self.tables
@@ -475,7 +475,7 @@ class GameBoard:
 
         system_info = []
         system_info.append(
-            get_wind_char(table.last_player, self.language)
+            get_wind_char(table.my_idx, self.language)
             + ["'s turn now.\n", "の番です\n"][self.language]
         )
         system_info.append("ActionType:" + str(table.last_action))
@@ -577,41 +577,37 @@ def main():
     """
     >>> game_board = GameBoard("observations.json", "Observation", False, False, 0 , True)
     >>> print(game_board.show_by_text(game_board.load_data()[0]))  # doctest: +NORMALIZE_WHITESPACE
-    round:1 riichi:1 wall:36
+    round:1 wall:36
     <BLANKLINE>
     SOUTH [ 25000 ] target-player
     <BLANKLINE>
     m2 m7 m8 p3 p5 p6 p9 s3 s3 s8 ew wd gd
     <BLANKLINE>
-    wd  p2* gd  ew* sw  ww
-    nw* p1
+    <BLANKLINE>
     <BLANKLINE>
     <BLANKLINE>
     WEST [ 25000 ] rule-based-2
     <BLANKLINE>
     # # # # # # # # # # # # #
     <BLANKLINE>
-    wd  p2* gd  ew* sw  ww
-    nw* p1
+    <BLANKLINE>
     <BLANKLINE>
     <BLANKLINE>
     NORTH [ 25000 ] rule-based-3
     <BLANKLINE>
     # # # # # # # # # # # # #
     <BLANKLINE>
-    wd  p2* gd  ew* sw  ww
-    nw* p1
+    <BLANKLINE>
     <BLANKLINE>
     <BLANKLINE>
     EAST [ 25000 ] rule-based-0
     <BLANKLINE>
     # # # # # # # # # # # # #
     <BLANKLINE>
-    wd  p2* gd  ew* sw  ww
-    nw* p1
     <BLANKLINE>
     <BLANKLINE>
-    NORTH's turn now.
+    <BLANKLINE>
+    SOUTH's turn now.
     ActionType:1
     """
     parser = argparse.ArgumentParser()
