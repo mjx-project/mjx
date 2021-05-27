@@ -1,5 +1,5 @@
 import argparse
-import enum
+import os
 import mjxproto
 from converter import TileUnitType, FromWho
 from converter import get_modifier, get_tile_char, get_wind_char
@@ -111,6 +111,7 @@ class GameBoard:
         self.language = language
         self.show_name = show_name
         self.my_idx = 0
+        self.tables = []
 
         self.layout = Layout()
         self.layout.split_column(
@@ -274,27 +275,29 @@ class GameBoard:
                             ],
                         )
                     )
-                break
 
-        table = MahjongTable(players[0], players[1], players[2], players[3])
-        table.round = gamedata.public_observation.init_score.round + 1
-        table.honba = gamedata.public_observation.init_score.honba
-        table.riichi = 1
-        table.last_player = 3
-        table.last_action = 1
-        table.wall_num = 36
-        table.my_idx = gamedata.who
+                table = MahjongTable(players[0], players[1], players[2], players[3])
+                table.round = gamedata.public_observation.init_score.round + 1
+                table.honba = gamedata.public_observation.init_score.honba
+                table.riichi = 1
+                table.last_player = 3
+                table.last_action = 1
+                table.wall_num = 36
+                table.my_idx = gamedata.who
 
-        if not table.check_num_tiles():
-            exit(1)
+                if not table.check_num_tiles():
+                    exit(1)
 
-        self.table = table
-        return table
+                self.tables.append(table)
 
-    def get_modified_tiles(self, player_idx: int, tile_unit_type: TileUnitType):
+        return self.tables
+
+    def get_modified_tiles(
+        self, table: MahjongTable, player_idx: int, tile_unit_type: TileUnitType
+    ):
         if self.is_using_rich:
             tiles = ""
-            for tile_unit in self.table.players[player_idx].tile_units:
+            for tile_unit in table.players[player_idx].tile_units:
                 if tile_unit.tile_unit_type == tile_unit_type:
                     if tile_unit.tile_unit_type == TileUnitType.DISCARD:
                         discards = [
@@ -351,7 +354,7 @@ class GameBoard:
             return tiles
         else:
             tiles = ""
-            for tile_unit in self.table.players[player_idx].tile_units:
+            for tile_unit in table.players[player_idx].tile_units:
                 if tile_unit.tile_unit_type == tile_unit_type:
                     if tile_unit.tile_unit_type == TileUnitType.HAND:
                         tiles += "".join(
@@ -457,17 +460,17 @@ class GameBoard:
                 player_info.append(" " + p.name)
             player_info.append("\n\n")
 
-            hand = self.get_modified_tiles(i, TileUnitType.HAND)
-            chi = self.get_modified_tiles(i, TileUnitType.CHI)
-            pon = self.get_modified_tiles(i, TileUnitType.PON)
-            open_kan = self.get_modified_tiles(i, TileUnitType.OPEN_KAN)
-            closed_kan = self.get_modified_tiles(i, TileUnitType.CLOSED_KAN)
-            added_kan = self.get_modified_tiles(i, TileUnitType.ADDED_KAN)
+            hand = self.get_modified_tiles(table, i, TileUnitType.HAND)
+            chi = self.get_modified_tiles(table, i, TileUnitType.CHI)
+            pon = self.get_modified_tiles(table, i, TileUnitType.PON)
+            open_kan = self.get_modified_tiles(table, i, TileUnitType.OPEN_KAN)
+            closed_kan = self.get_modified_tiles(table, i, TileUnitType.CLOSED_KAN)
+            added_kan = self.get_modified_tiles(table, i, TileUnitType.ADDED_KAN)
             hand_area = hand + "      " + chi + pon + open_kan + closed_kan + added_kan
             player_info.append(hand_area)
             player_info.append("\n\n")
 
-            discards = self.get_modified_tiles(i, TileUnitType.DISCARD)
+            discards = self.get_modified_tiles(table, i, TileUnitType.DISCARD)
             player_info.append(discards)
             player_info.append("\n\n\n")
             players_info.append("".join(player_info))
@@ -549,12 +552,12 @@ class GameBoard:
                 Panel(player_info + Text("\n\n") + name, style="bold green")
             )
 
-            hand = self.get_modified_tiles(i, TileUnitType.HAND)
-            chi = self.get_modified_tiles(i, TileUnitType.CHI)
-            pon = self.get_modified_tiles(i, TileUnitType.PON)
-            open_kan = self.get_modified_tiles(i, TileUnitType.OPEN_KAN)
-            closed_kan = self.get_modified_tiles(i, TileUnitType.CLOSED_KAN)
-            added_kan = self.get_modified_tiles(i, TileUnitType.ADDED_KAN)
+            hand = self.get_modified_tiles(table, i, TileUnitType.HAND)
+            chi = self.get_modified_tiles(table, i, TileUnitType.CHI)
+            pon = self.get_modified_tiles(table, i, TileUnitType.PON)
+            open_kan = self.get_modified_tiles(table, i, TileUnitType.OPEN_KAN)
+            closed_kan = self.get_modified_tiles(table, i, TileUnitType.CLOSED_KAN)
+            added_kan = self.get_modified_tiles(table, i, TileUnitType.ADDED_KAN)
             hand_area = hand + "      " + chi + pon + open_kan + closed_kan + added_kan
             self.layout[hands_idx[i]].update(
                 Panel(
@@ -563,7 +566,7 @@ class GameBoard:
                 )
             )
             discards = Text(
-                self.get_modified_tiles(i, TileUnitType.DISCARD),
+                self.get_modified_tiles(table, i, TileUnitType.DISCARD),
                 justify="left",
                 style="white",
             )
@@ -630,10 +633,31 @@ def main():
 
     game_data = game_board.load_data()
 
+    turns = len(game_data)
+    i = 0
+
     if args.rich:
-        game_board.show_by_rich(game_data)
+        game_board.show_by_rich(game_data[i])
     else:
-        print(game_board.show_by_text(game_data))
+        print(game_board.show_by_text(game_data[i]))
+    command = input()
+
+    while command != "q":
+        if command == "z":
+            i = (i + turns - 1) % turns
+        if command == "x":
+            i = (i + 1) % turns
+
+        if os.name == "nt":
+            os.system("cls")
+        else:
+            os.system("clear")
+
+        if args.rich:
+            game_board.show_by_rich(game_data[i])
+        else:
+            print(game_board.show_by_text(game_data[i]))
+        command = input()
 
 
 if __name__ == "__main__":
