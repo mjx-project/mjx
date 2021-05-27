@@ -50,7 +50,13 @@ class Player:
         self.player_idx: int
         self.wind: int
         self.score: int
-        self.tile_units = []
+        self.tile_units = [
+            TileUnit(
+                TileUnitType.DISCARD,
+                FromWho.NONE,
+                [],
+            )
+        ]
         self.is_declared_riichi = False
         self.name: str
 
@@ -260,16 +266,9 @@ class GameBoard:
                 if eve.who != i:
                     continue
 
-                if eve.type == 0:
-                    p.tile_units.append(
-                        TileUnit(
-                            TileUnitType.DISCARD,
-                            FromWho.NONE,
-                            [
-                                Tile(eve.tile, True, self.is_using_unicode),
-                            ],
-                        )
-                    )
+                for t_u in p.tile_units:
+                    if t_u.tile_unit_type == TileUnitType.DISCARD and eve.type == 0:
+                        t_u.tiles.append(Tile(eve.tile, True, self.is_using_unicode))
 
         table.round = gamedata.public_observation.init_score.round + 1
         table.honba = gamedata.public_observation.init_score.honba
