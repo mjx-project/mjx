@@ -268,6 +268,7 @@ class GameBoard:
         table.last_player = 3
         table.last_action = 1
         table.wall_num = 36
+        table.my_idx = gamedata.who
 
         if not table.check_num_tiles():
             exit(1)
@@ -418,7 +419,7 @@ class GameBoard:
         board_info = self.get_board_info(table)
 
         players_info = []
-        table.players.sort(key=lambda x: x.player_idx)
+        table.players.sort(key=lambda x: (x.player_idx - self.my_idx) % 4)
         for i, p in enumerate(table.players):
             player_info = []
 
@@ -566,7 +567,7 @@ class GameBoard:
 
 def main():
     """
-    >>> game_board = GameBoard("2010091009gm-00a9-0000-83af2648&tw=2.json", "Observation", False, False, 0 , True)
+    >>> game_board = GameBoard("observations.json", "Observation", False, False, 0 , True)
     >>> print(game_board.show_by_text(game_board.load_data()))  # doctest: +NORMALIZE_WHITESPACE
     round:1 riichi:1 wall:36
     <BLANKLINE>
@@ -606,8 +607,8 @@ def main():
     ActionType:1
     """
     parser = argparse.ArgumentParser()
-    parser.add_argument("--path", default="2010091009gm-00a9-0000-83af2648&tw=2.json")
-    parser.add_argument("--mode", default="Obs")
+    parser.add_argument("--path", default="observations.json")
+    parser.add_argument("--mode", default="Observation")
     parser.add_argument("--uni", action="store_true")
     parser.add_argument("--rich", action="store_true")
     parser.add_argument("--show_name", action="store_true")
