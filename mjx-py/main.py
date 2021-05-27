@@ -1,6 +1,8 @@
 import argparse
 import os
+from re import X
 import mjxproto
+import open_utils
 from converter import TileUnitType, FromWho
 from converter import get_modifier, get_tile_char, get_wind_char
 from rich import print
@@ -198,7 +200,7 @@ class GameBoard:
             Layout(" ", name="player1_info_corner"),
         )
 
-    def load_data(self) -> MahjongTable:
+    def load_data(self):
         with open(self.path, "r", errors="ignore") as f:
             for i, line in enumerate(f):
                 if i < 10:
@@ -226,6 +228,18 @@ class GameBoard:
                             ],
                         )
                         players[i].tile_units.append(p1_hands)
+
+                        for open_info in gamedata.private_observation.curr_hand.opens:
+                            open_tile = TileUnit(
+                                open_utils.open_event_type(open_info),
+                                open_utils.open_from(open_info),
+                                [
+                                    Tile(i, True, self.is_using_unicode)
+                                    for i in open_utils.open_tile_ids(open_info)
+                                ],
+                            )
+                            players[i].tile_units.append(open_tile)
+
                     else:
 
                         p1_hands = TileUnit(
@@ -233,30 +247,10 @@ class GameBoard:
                             FromWho.NONE,
                             [
                                 Tile((120 + i * 4) % 133, False, self.is_using_unicode)
-                                for i in range(8)
+                                for i in range(13)
                             ],
                         )
                         players[i].tile_units.append(p1_hands)
-                        p1_chi1 = TileUnit(
-                            TileUnitType.CHI,
-                            FromWho.LEFT,
-                            [
-                                Tile(48, True, self.is_using_unicode),
-                                Tile(52, True, self.is_using_unicode),
-                                Tile(56, True, self.is_using_unicode),
-                            ],
-                        )
-                        players[i].tile_units.append(p1_chi1)
-                        p1_chi2 = TileUnit(
-                            TileUnitType.CHI,
-                            FromWho.LEFT,
-                            [
-                                Tile(60, True, self.is_using_unicode),
-                                Tile(64, True, self.is_using_unicode),
-                                Tile(68, True, self.is_using_unicode),
-                            ],
-                        )
-                        players[i].tile_units.append(p1_chi2)
 
                 for p in [players[0], players[1], players[2], players[3]]:
                     p.tile_units.append(
@@ -580,36 +574,36 @@ class GameBoard:
 def main():
     """
     >>> game_board = GameBoard("observations.json", "Observation", False, False, 0 , True)
-    >>> print(game_board.show_by_text(game_board.load_data()))  # doctest: +NORMALIZE_WHITESPACE
+    >>> print(game_board.show_by_text(game_board.load_data()[0]))  # doctest: +NORMALIZE_WHITESPACE
     round:1 riichi:1 wall:36
     <BLANKLINE>
-    EAST [ 25000 ] ワイルド
+    SOUTH [ 25000 ] target-player
     <BLANKLINE>
-    nw wd gd rd m1 m2 m3 m4       p4p5p6L p7p8p9L
-    <BLANKLINE>
-    wd  p2* gd  ew* sw  ww
-    nw* p1
-    <BLANKLINE>
-    <BLANKLINE>
-    SOUTH [ 25000 ] ミラクルおじさん
-    <BLANKLINE>
-    nw wd gd rd m1 m2 m3 m4       p4p5p6L p7p8p9L
+    m4 m5 p2 p3 p5 p6 p6 p8 s3 s3       m7m8m9L
     <BLANKLINE>
     wd  p2* gd  ew* sw  ww
     nw* p1
     <BLANKLINE>
     <BLANKLINE>
-    WEST [ 25000 ] ASAPIN
+    WEST [ 25000 ] rule-based-2
     <BLANKLINE>
-    nw wd gd rd m1 m2 m3 m4       p4p5p6L p7p8p9L
+    # # # # # # # # # # # # #
     <BLANKLINE>
     wd  p2* gd  ew* sw  ww
     nw* p1
     <BLANKLINE>
     <BLANKLINE>
-    NORTH [ 25000 ] ＼(＾o＾)／★
+    NORTH [ 25000 ] rule-based-3
     <BLANKLINE>
-    nw wd gd rd m1 m2 m3 m4       p4p5p6L p7p8p9L
+    # # # # # # # # # # # # #
+    <BLANKLINE>
+    wd  p2* gd  ew* sw  ww
+    nw* p1
+    <BLANKLINE>
+    <BLANKLINE>
+    EAST [ 25000 ] rule-based-0
+    <BLANKLINE>
+    # # # # # # # # # # # # #
     <BLANKLINE>
     wd  p2* gd  ew* sw  ww
     nw* p1

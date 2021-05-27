@@ -1,34 +1,35 @@
 from __future__ import annotations
 from typing import List
 import mjxproto
+from converter import TileUnitType, FromWho
 
 MASK_CHI_OFFSET = [0b0000000000011000, 0b0000000001100000, 0b0000000110000000]
 MASK_PON_UNUSED_OFFSET = 0b0000000001100000
 
 
-def open_event_type(bits: int) -> mjxproto.EventTypeValue:
+def open_event_type(bits: int) -> TileUnitType:
     """
-    >>> open_event_type(47723) == mjxproto.EVENT_TYPE_PON
+    >>> open_event_type(47723) == TileUnitType.PON
     True
-    >>> open_event_type(49495) == mjxproto.EVENT_TYPE_CHI
+    >>> open_event_type(49495) == TileUnitType.CHI
     True
-    >>> open_event_type(28722) == mjxproto.EVENT_TYPE_ADDED_KAN
+    >>> open_event_type(28722) == TileUnitType.ADDED_KAN
     True
     """
     if 1 << 2 & bits:
-        return mjxproto.EVENT_TYPE_CHI
+        return TileUnitType.CHI
     elif 1 << 3 & bits:
-        return mjxproto.EVENT_TYPE_PON
+        return TileUnitType.PON
     elif 1 << 4 & bits:
-        return mjxproto.EVENT_TYPE_ADDED_KAN
+        return TileUnitType.ADDED_KAN
     else:
-        if RelativePos.SELF == bits & 3:
-            return mjxproto.EVENT_TYPE_CLOSED_KAN
+        if 0 == bits & 3:
+            return TileUnitType.CLOSED_KAN
         else:
-            return mjxproto.EVENT_TYPE_OPEN_KAN
+            return TileUnitType.OPEN_KAN
 
 
-def open_from(bits: int) -> RelativePos:
+def open_from(bits: int) -> FromWho:
     """
     >>> open_from(51306) == RelativePos.MID  # 対面
     True
@@ -39,16 +40,16 @@ def open_from(bits: int) -> RelativePos:
     """
 
     event_type = open_event_type(bits)
-    if event_type == mjxproto.EVENT_TYPE_CHI:
-        return 3
+    if event_type == TileUnitType.CHI:
+        return FromWho.LEFT
     elif (
-        event_type == mjxproto.EVENT_TYPE_PON
-        or event_type == mjxproto.EVENT_TYPE_OPEN_KAN
-        or event_type == mjxproto.EVENT_TYPE_ADDED_KAN
+        event_type == TileUnitType.PON
+        or event_type == TileUnitType.KAN
+        or event_type == TileUnitType.KAN
     ):
         return bits & 3
     else:
-        return 0
+        return FromWho.SELF
 
 
 def chi_ids_(bits: int) -> List[int]:
@@ -114,13 +115,13 @@ def open_tile_ids(bits: int) -> List[int]:
     [0, 1, 2, 3]
     """
     event_type = open_event_type(bits)
-    if event_type == mjxproto.EVENT_TYPE_CHI:
+    if event_type == TileUnitType.CHI:
         return chi_ids_(bits)
-    elif event_type == mjxproto.EVENT_TYPE_PON:
+    elif event_type == TileUnitType.PON:
         return pon_ids_(bits)
-    elif event_type == mjxproto.EVENT_TYPE_OPEN_KAN:
+    elif event_type == TileUnitType.OPEN_KAN:
         return oepn_kan_ids_(bits)
-    elif event_type == mjxproto.EVENT_TYPE_CLOSED_KAN:
+    elif event_type == TileUnitType.CLOSED_KAN:
         return closed_kan_ids_(bits)
     else:
         return added_kan_ids_(bits)
