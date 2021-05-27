@@ -124,16 +124,20 @@ class GameBoard:
         )
         self.layout["space_top"].size = 2
         self.layout["info"].size = 3
-        self.layout["players_info_top"].size = 7 if show_name else 4
         self.layout["space"].size = 1
         self.layout["table"].minimum_size = 20
 
-        self.layout["players_info_top"].split_row(
-            Layout(" ", name="player1_info_top"),
-            Layout(" ", name="player2_info_top"),
-            Layout(" ", name="player3_info_top"),
-            Layout(" ", name="player4_info_top"),
-        )
+        if show_name:
+            self.layout["players_info_top"].size = 7
+            self.layout["players_info_top"].split_row(
+                Layout(" ", name="player1_info_top"),
+                Layout(" ", name="player2_info_top"),
+                Layout(" ", name="player3_info_top"),
+                Layout(" ", name="player4_info_top"),
+            )
+        else:
+            self.layout["players_info_top"].size = 1
+            self.layout["players_info_top"].update(" ")
 
         self.layout["table"].split_column(
             Layout(name="upper1"),
@@ -540,10 +544,9 @@ class GameBoard:
             name = Text(justify="center", style="bold green")
             if self.show_name:
                 name += Text(" " + p.name, style="white")
-
-            self.layout[players_info_top[i]].update(
-                Panel(player_info + Text("\n\n") + name, style="bold green")
-            )
+                self.layout[players_info_top[i]].update(
+                    Panel(player_info + Text("\n\n") + name, style="bold green")
+                )
 
             hand = self.get_modified_tiles(table, i, TileUnitType.HAND)
             chi = self.get_modified_tiles(table, i, TileUnitType.CHI)
