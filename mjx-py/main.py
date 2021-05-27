@@ -1,6 +1,5 @@
 import argparse
 import os
-from re import X
 import mjxproto
 import open_utils
 from converter import TileUnitType, FromWho
@@ -117,11 +116,13 @@ class GameBoard:
 
         self.layout = Layout()
         self.layout.split_column(
+            Layout(" ", name="space_top"),
             Layout(name="info"),
             Layout(name="players_info_top"),
             Layout(" ", name="space"),
             Layout(name="table"),
         )
+        self.layout["space_top"].size = 2
         self.layout["info"].size = 3
         self.layout["players_info_top"].size = 7 if show_name else 4
         self.layout["space"].size = 1
@@ -203,8 +204,6 @@ class GameBoard:
     def load_data(self):
         with open(self.path, "r", errors="ignore") as f:
             for i, line in enumerate(f):
-                if i < 10:
-                    continue
                 gamedata = mjxproto.Observation()
                 gamedata.from_json(line)
 
@@ -579,7 +578,7 @@ def main():
     <BLANKLINE>
     SOUTH [ 25000 ] target-player
     <BLANKLINE>
-    m4 m5 p2 p3 p5 p6 p6 p8 s3 s3       m7m8m9L
+    m2 m7 m8 p3 p5 p6 p9 s3 s3 s8 ew wd gd
     <BLANKLINE>
     wd  p2* gd  ew* sw  ww
     nw* p1
@@ -651,6 +650,8 @@ def main():
             game_board.show_by_rich(game_data[i])
         else:
             print(game_board.show_by_text(game_data[i]))
+
+        print("turn:", i)
         command = input()
 
 

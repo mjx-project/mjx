@@ -47,7 +47,12 @@ def open_from(bits: int) -> FromWho:
         or event_type == TileUnitType.KAN
         or event_type == TileUnitType.KAN
     ):
-        return bits & 3
+        if bits & 3 == 1:
+            return FromWho.RIGHT
+        if bits & 3 == 2:
+            return FromWho.MID
+        if bits & 3 == 3:
+            return FromWho.LEFT
     else:
         return FromWho.SELF
 
