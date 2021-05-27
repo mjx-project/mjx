@@ -204,7 +204,6 @@ class GameBoard:
         MahjongTableのデータに、
         - 手牌
         - 鳴き牌
-        - 捨て牌
         の情報を読み込ませる関数
         """
         for i, p in enumerate(table.players):
@@ -250,7 +249,6 @@ class GameBoard:
         MahjongTableのデータに、
         - 手牌
         - 鳴き牌
-        - 捨て牌
         **以外**の情報を読み込ませる関数
         """
         for i, p in enumerate(table.players):
@@ -258,6 +256,20 @@ class GameBoard:
             p.score = gamedata.public_observation.init_score.tens[i]
             p.player_idx = i
             p.wind = i
+            for eve in gamedata.public_observation.events:
+                if eve.who != i:
+                    continue
+
+                if eve.type == 0:
+                    p.tile_units.append(
+                        TileUnit(
+                            TileUnitType.DISCARD,
+                            FromWho.NONE,
+                            [
+                                Tile(eve.tile, True, self.is_using_unicode),
+                            ],
+                        )
+                    )
 
         table.round = gamedata.public_observation.init_score.round + 1
         table.honba = gamedata.public_observation.init_score.honba
