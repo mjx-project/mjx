@@ -1,7 +1,7 @@
 .PHONY: proto requirements install uninstall clean pytest test-cli
 
 clean:
-	rm ./mjxproto/*pb2* || echo "Already deleted"
+	rm -rf ./mjxproto/*pb2*
 	rm -rf build
 	rm -rf dist
 	rm -rf *.egg-info

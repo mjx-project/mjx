@@ -1,53 +1,49 @@
 from __future__ import annotations  # postpone type hint evaluation or doctest fails
 
-import argparse
 import json
 import os
 import sys
-from argparse import RawTextHelpFormatter
 from typing import List, Optional
 
+import click
 from google.protobuf import json_format
 
 import mjxproto
 from mjx.mjlog_decoder import MjlogDecoder
 from mjx.mjlog_encoder import MjlogEncoder
 
-parser = argparse.ArgumentParser(
-    description="""Convert Mahjong log into another format.
+# parser = argparse.ArgumentParser(
+#     description="""Convert Mahjong log into another format.
+#
+# Example (using stdin)
+#
+#   $ cat test.mjlog | mjx --to-mjxproto
+#   $ cat test.mjlog | mjx --to-mjxproto-raw
+#   $ cat test.json  | mjx --to-mjlog
+#
+# Example (using file inputs)
+#
+# [NOTE] File inputs assume that each file corresponds to each game in any format.
+#
+#   $ mjx ./mjlog_dir ./mjxproto_dir --to-mjxproto
+#   $ mjx ./mjlog_dir ./mjxproto_dir --to-mjxproto-raw
+#   $ mjx ./mjxproto_dir ./mjlog_dir --to-mjlog
+#
+# Difference between mjxproto and mjxproto-raw:
+#
+#   1. Yaku is sorted in yaku number
+#   2. Yakuman's fu is set to 0
+#     """,
+#     formatter_class=RawTextHelpFormatter,
+# )
 
-Example (using stdin)
+# assert (args.dir_from and args.dir_to) or (not args.dir_from and not args.dir_to)
+# assert args.to_mjxproto or args.to_mjxproto_raw or args.to_mjlog
 
-  $ cat test.mjlog | mjx --to-mjxproto
-  $ cat test.mjlog | mjx --to-mjxproto-raw
-  $ cat test.json  | mjx --to-mjlog
 
-Example (using file inputs)
-
-[NOTE] File inputs assume that each file corresponds to each game in any format.
-
-  $ mjx ./mjlog_dir ./mjxproto_dir --to-mjxproto
-  $ mjx ./mjlog_dir ./mjxproto_dir --to-mjxproto-raw
-  $ mjx ./mjxproto_dir ./mjlog_dir --to-mjlog
-
-Difference between mjxproto and mjxproto-raw:
-
-  1. Yaku is sorted in yaku number
-  2. Yakuman's fu is set to 0
-    """,
-    formatter_class=RawTextHelpFormatter,
-)
-parser.add_argument("dir_from", nargs="?", default="", help="")
-parser.add_argument("dir_to", nargs="?", default="", help="")
-parser.add_argument("--to-mjxproto", action="store_true", help="")
-parser.add_argument("--to-mjxproto-raw", action="store_true", help="")
-parser.add_argument("--to-mjlog", action="store_true", help="")
-parser.add_argument("--compress", action="store_true", help="")
-parser.add_argument("--verbose", action="store_true", help="")
-
-args = parser.parse_args()
-assert (args.dir_from and args.dir_to) or (not args.dir_from and not args.dir_to)
-assert args.to_mjxproto or args.to_mjxproto_raw or args.to_mjlog
+@click.group(help="A CLI tool of mjx")
+def cli():
+    pass
 
 
 class LineBuffer:
@@ -111,11 +107,12 @@ def detect_format(line: str) -> str:
 
 
 class Converter:
-    def __init__(self, fmt_from: str, fmt_to: str):
+    def __init__(self, fmt_from: str, fmt_to: str, compress: bool):
         self.fmt_from: str = fmt_from
         self.fmt_to: str = fmt_to
         self.mjlog2mjxproto = None
         self.mjxproto2mjlog = None
+        self.compress = compress
 
         if self.fmt_from == "mjxproto" and self.fmt_to == "mjlog":
             self.mjxproto2mjlog = MjlogEncoder()
@@ -142,27 +139,13 @@ class Converter:
         if self.fmt_from == "mjlog" and self.fmt_to == "mjxproto":
             assert self.mjlog2mjxproto is not None
             assert len(lines) == 1  # each line has each game
-            return self.mjlog2mjxproto.decode(lines[0], compress=args.compress)
+            return self.mjlog2mjxproto.decode(lines[0], compress=self.compress)
         if self.fmt_from == "mjlog" and self.fmt_to == "mjxproto_raw":
             assert self.mjlog2mjxproto is not None
             assert len(lines) == 1  # each line has each game
-            return self.mjlog2mjxproto.decode(lines[0], compress=args.compress)
+            return self.mjlog2mjxproto.decode(lines[0], compress=self.compress)
         else:
             raise NotImplementedError
-
-
-def to(args) -> str:
-    if args.to_mjxproto:
-        assert not (args.to_mjxproto_raw or args.to_mjlog)
-        return "mjxproto"
-    elif args.to_mjxproto_raw:
-        assert not (args.to_mjxproto or args.to_mjlog)
-        return "mjxproto_raw"
-    elif args.to_mjlog:
-        assert not (args.to_mjxproto or args.to_mjxproto_raw)
-        return "mjlog"
-    else:
-        raise ValueError()
 
 
 class StdinIterator(object):
@@ -176,14 +159,46 @@ class StdinIterator(object):
             return
 
 
-def main():
+@cli.command()
+@click.argument("dir_from", type=str, default="")
+@click.argument("dir_to", type=str, default="")
+@click.option("--to-mjxproto", is_flag=True)
+@click.option("--to-mjxproto-raw", is_flag=True)
+@click.option("--to-mjlog", is_flag=True)
+@click.option("--compress", is_flag=True)
+@click.option("--verbose", is_flag=True)
+def convert(
+    dir_from: str,
+    dir_to: str,
+    to_mjxproto: bool,
+    to_mjxproto_raw: bool,
+    to_mjlog: bool,
+    compress: bool,
+    verbose: bool,
+):
+    def to() -> str:
+        assert (dir_from and dir_to) or (not dir_from and not dir_to)
+        assert to_mjxproto or to_mjxproto_raw or to_mjlog
+
+        if to_mjxproto:
+            assert not (to_mjxproto_raw or to_mjlog)
+            return "mjxproto"
+        elif to_mjxproto_raw:
+            assert not (to_mjxproto or to_mjlog)
+            return "mjxproto_raw"
+        elif to_mjlog:
+            assert not (to_mjxproto or to_mjxproto_raw)
+            return "mjlog"
+        else:
+            raise ValueError()
+
     fmt_from: str = ""
     converter: Optional[Converter] = None
     buffer: Optional[LineBuffer] = None
 
-    if not args.dir_from and not args.dir_to:  # From stdin
-        if args.verbose:
-            sys.stderr.write(f"Converting to {to(args)}. stdin => stdout\n")
+    if not dir_from and not dir_to:  # From stdin
+        if verbose:
+            sys.stderr.write(f"Converting to {to()}. stdin => stdout\n")
 
         itr = StdinIterator()
         for line in itr:
@@ -194,7 +209,7 @@ def main():
             if buffer is None or converter is None:
                 assert buffer is None and converter is None
                 fmt_from = detect_format(line)
-                converter = Converter(fmt_from, to(args))
+                converter = Converter(fmt_from, to(), compress)
                 buffer = LineBuffer(fmt_from)
 
             buffer.put(line)
@@ -203,39 +218,41 @@ def main():
                     sys.stdout.write(transformed_line)
 
         # 終局で終わっていないときのため
+        assert buffer is not None
         for lines in buffer.get(get_all=True):
+            assert converter is not None
             for transformed_line in converter.convert(lines):
                 sys.stdout.write(transformed_line)
 
     else:  # From files
-        if args.verbose:
-            sys.stderr.write(f"Converting to {to(args)}. {args.dir_from} => {args.dir_to}\n")
+        if verbose:
+            sys.stderr.write(f"Converting to {to()}. {dir_from} => {dir_to}\n")
 
-        to_type = to(args)
+        to_type = to()
         to_ext = "mjlog" if to_type == "mjlog" else "json"
-        num_mjlog = sum([1 for x in os.listdir(args.dir_from) if x.endswith("mjlog")])
-        num_mjxproto = sum([1 for x in os.listdir(args.dir_from) if x.endswith("json")])
+        num_mjlog = sum([1 for x in os.listdir(dir_from) if x.endswith("mjlog")])
+        num_mjxproto = sum([1 for x in os.listdir(dir_from) if x.endswith("json")])
         assert not (
             num_mjlog > 0 and num_mjxproto > 0
         ), "There are two different formats in source directory."
         assert (
             num_mjlog > 0 or num_mjxproto > 0
         ), "There are no valid file formats in the source directory."
-        for file_from in os.listdir(args.dir_from):
+        for file_from in os.listdir(dir_from):
             if not file_from.endswith("json") and not file_from.endswith("mjlog"):
                 continue
 
-            path_from = os.path.join(args.dir_from, file_from)
+            path_from = os.path.join(dir_from, file_from)
             path_to = os.path.join(
-                args.dir_to,
+                dir_to,
                 os.path.splitext(os.path.basename(path_from))[0] + "." + to_ext,
             )
 
-            if args.verbose:
+            if verbose:
                 sys.stderr.write(f"Converting {path_from} to {path_to}\n")
 
             # 読み込み（全てのフォーマットで、１ファイル１半荘を想定）
-            transformed_lines = []
+            transformed_lines: List[str] = []
             with open(path_from, "r") as f:
                 for line in f:
                     line = line.strip().strip("\n")
@@ -245,14 +262,16 @@ def main():
                     if buffer is None or converter is None:
                         assert buffer is None and converter is None
                         fmt_from = detect_format(line)
-                        converter = Converter(fmt_from, to(args))
+                        converter = Converter(fmt_from, to(), compress)
                         buffer = LineBuffer(fmt_from)
 
                     buffer.put(line)
 
             # 変換
+            assert buffer is not None
             list_lines: List[List[str]] = buffer.get(get_all=True)
             assert len(list_lines) == 1, "Each file should have one game"
+            assert converter is not None
             transformed_lines += converter.convert(list_lines[0])
 
             # 書き込み
@@ -262,4 +281,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    cli()
