@@ -1,4 +1,4 @@
-# mjconvert
+# mjx
 
 ## インストール
 
@@ -12,13 +12,13 @@ $ make install
 mjxproto側でのテストをしやすくするめに、細かい点が修正される。
 
 ```sh
-$ mjconvert resources/mjlog resources/json --to-mjxproto
+$ mjx resources/mjlog resources/json --to-mjxproto
 ```
 
 また、protobufで読み込めるjsonから天鳳のmjlogへの変換は次のようにできる。
 
 ```sh
-$ mjconvert resources/json resources/restored_mjlog --to-mjlog
+$ mjx resources/json resources/restored_mjlog --to-mjlog
 ```
 
 天鳳のmjlogは、windows版の天鳳アプリを使って可視化することができる。
@@ -30,8 +30,8 @@ $ mjconvert resources/json resources/restored_mjlog --to-mjlog
 seedやdice等の情報は失われる。
 
 ```sh
-$ mjconvert resources/mjlog resources/json --to-mjxproto-raw
-$ mjconvert resources/json resources/restored_mjlog --to-mjlog
+$ mjx resources/mjlog resources/json --to-mjxproto-raw
+$ mjx resources/json resources/restored_mjlog --to-mjlog
 $ python diff.py resources/mjlog resources/restored_mjlog
 ```
 

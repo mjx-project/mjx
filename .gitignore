@@ -12,9 +12,9 @@ pymjx/mjxproto/*pb2*
 pymjx/mjxproto/__pycache__/*
 pymjx/build
 pymjx/dist
-pymjx/mjconvert.egg-info
-pymjx/mjconvert/__pycache__
-pymjx/mjconvert/tests/__pycache__/
+pymjx/mjx.egg-info
+pymjx/mjx/__pycache__
+pymjx/mjx/tests/__pycache__/
 test/resources/*
 !test/resources/.gitkeep
 *.pb.cc

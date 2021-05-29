@@ -14,7 +14,7 @@
         },
     },
     "python.testing.pytestArgs": [
-        "mjconvert",
+        "mjx",
         "--doctest-modules",
     ],
     "python.testing.unittestEnabled": false,

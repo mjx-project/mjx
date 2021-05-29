@@ -4,7 +4,7 @@ from __future__ import annotations
 from typing import List
 
 import mjxproto
-from mjconvert.const import RelativePos
+from mjx.const import RelativePos
 
 
 def open_event_type(bits: int) -> mjxproto.EventTypeValue:

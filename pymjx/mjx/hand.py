@@ -1,8 +1,8 @@
 from typing import List
 
 import mjxproto
-from mjconvert.open_converter import open_event_type
-from mjconvert.open_tile_ids_converter import open_tile_ids
+from mjx.open_converter import open_event_type
+from mjx.open_tile_ids_converter import open_tile_ids
 
 
 class Hand:

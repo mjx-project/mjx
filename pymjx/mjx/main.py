@@ -10,25 +10,25 @@ from typing import List, Optional
 from google.protobuf import json_format
 
 import mjxproto
-from mjconvert.mjlog_decoder import MjlogDecoder
-from mjconvert.mjlog_encoder import MjlogEncoder
+from mjx.mjlog_decoder import MjlogDecoder
+from mjx.mjlog_encoder import MjlogEncoder
 
 parser = argparse.ArgumentParser(
     description="""Convert Mahjong log into another format.
 
 Example (using stdin)
 
-  $ cat test.mjlog | mjconvert --to-mjxproto
-  $ cat test.mjlog | mjconvert --to-mjxproto-raw
-  $ cat test.json  | mjconvert --to-mjlog
+  $ cat test.mjlog | mjx --to-mjxproto
+  $ cat test.mjlog | mjx --to-mjxproto-raw
+  $ cat test.json  | mjx --to-mjlog
 
 Example (using file inputs)
 
 [NOTE] File inputs assume that each file corresponds to each game in any format.
 
-  $ mjconvert ./mjlog_dir ./mjxproto_dir --to-mjxproto
-  $ mjconvert ./mjlog_dir ./mjxproto_dir --to-mjxproto-raw
-  $ mjconvert ./mjxproto_dir ./mjlog_dir --to-mjlog
+  $ mjx ./mjlog_dir ./mjxproto_dir --to-mjxproto
+  $ mjx ./mjlog_dir ./mjxproto_dir --to-mjxproto-raw
+  $ mjx ./mjxproto_dir ./mjlog_dir --to-mjlog
 
 Difference between mjxproto and mjxproto-raw:
 
