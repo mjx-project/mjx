@@ -1,5 +1,5 @@
 clean:
-	cd mjconvert && make clean
+	cd mjx && make clean
 	rm -rf cmake-build-debug
 	rm -rf build
 	rm -rf docker-build
