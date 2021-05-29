@@ -13,13 +13,13 @@ jobs:
         python-version: 3.9
 
     - name: Install mjconvert CLI
-      run: cd mjconvert && make install
+      run: cd pymjx && make install
 
     - name: Run mjconvert pytest
-      run: cd mjconvert && make pytest
+      run: cd pymjx && make pytest
 
     - name: Run mjconvert checks
-      run: cd mjconvert && make checks
+      run: cd pymjx && make checks
 
     - name: Test mjconvert CLI (mjlog => mjproto, mjproto => mjlog)
-      run: cd mjconvert && make test-cli
+      run: cd pymjx && make test-cli
