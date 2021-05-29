@@ -12,8 +12,8 @@ import tenhou_wall_reproducer
 from google.protobuf import json_format
 
 import mjxproto
-from mjconvert.const import AbsolutePos, RelativePos
-from mjconvert.hand import Hand
+from mjx.const import AbsolutePos, RelativePos
+from mjx.hand import Hand
 
 
 class MjlogDecoder:

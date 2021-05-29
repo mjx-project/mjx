@@ -5,8 +5,8 @@ import json
 from typing import Dict, List
 
 import mjxproto
-from mjconvert import open_converter
-from mjconvert.const import AbsolutePos, RelativePos
+from mjx import open_converter
+from mjx.const import AbsolutePos, RelativePos
 
 
 def _change_tile_fmt(tile_id: int) -> int:

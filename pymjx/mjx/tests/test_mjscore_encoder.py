@@ -3,8 +3,8 @@ import os
 from typing import List
 
 import mjxproto
-from mjconvert.mjlog_decoder import MjlogDecoder
-from mjconvert.mjscore_encoder import mjxproto_to_mjscore
+from mjx.mjlog_decoder import MjlogDecoder
+from mjx.mjscore_encoder import mjxproto_to_mjscore
 
 
 def mjscore_log_equal(mjscore_original_dict, mjscore_converted_dict, proto) -> bool:
