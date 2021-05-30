@@ -12,34 +12,6 @@ import mjxproto
 from mjx.mjlog_decoder import MjlogDecoder
 from mjx.mjlog_encoder import MjlogEncoder
 
-# parser = argparse.ArgumentParser(
-#     description="""Convert Mahjong log into another format.
-#
-# Example (using stdin)
-#
-#   $ cat test.mjlog | mjx --to-mjxproto
-#   $ cat test.mjlog | mjx --to-mjxproto-raw
-#   $ cat test.json  | mjx --to-mjlog
-#
-# Example (using file inputs)
-#
-# [NOTE] File inputs assume that each file corresponds to each game in any format.
-#
-#   $ mjx ./mjlog_dir ./mjxproto_dir --to-mjxproto
-#   $ mjx ./mjlog_dir ./mjxproto_dir --to-mjxproto-raw
-#   $ mjx ./mjxproto_dir ./mjlog_dir --to-mjlog
-#
-# Difference between mjxproto and mjxproto-raw:
-#
-#   1. Yaku is sorted in yaku number
-#   2. Yakuman's fu is set to 0
-#     """,
-#     formatter_class=RawTextHelpFormatter,
-# )
-
-# assert (args.dir_from and args.dir_to) or (not args.dir_from and not args.dir_to)
-# assert args.to_mjxproto or args.to_mjxproto_raw or args.to_mjlog
-
 
 @click.group(help="A CLI tool of mjx")
 def cli():
@@ -176,6 +148,28 @@ def convert(
     compress: bool,
     verbose: bool,
 ):
+    """Convert Mahjong log into another format.
+
+    Example (using stdin)
+
+      $ cat test.mjlog | mjx convert --to-mjxproto
+      $ cat test.mjlog | mjx convert --to-mjxproto-raw
+      $ cat test.json  | mjx convert --to-mjlog
+
+    Example (using file inputs)
+
+    [NOTE] File inputs assume that each file corresponds to each game in any format.
+
+      $ mjx convert ./mjlog_dir ./mjxproto_dir --to-mjxproto
+      $ mjx convert ./mjlog_dir ./mjxproto_dir --to-mjxproto-raw
+      $ mjx convert ./mjxproto_dir ./mjlog_dir --to-mjlog
+
+    Difference between mjxproto and mjxproto-raw:
+
+      1. Yaku is sorted in yaku number
+      2. Yakuman's fu is set to 0
+    """
+
     def to() -> str:
         assert (dir_from and dir_to) or (not dir_from and not dir_to)
         assert to_mjxproto or to_mjxproto_raw or to_mjlog
