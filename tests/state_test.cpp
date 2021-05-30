@@ -459,7 +459,8 @@ TEST(state, Update) {
   json_after = GetLastJsonLine("upd-aft-draw-ron-ron.json");
   state_before = State(json_before);
   state_after = State(json_after);
-  actions = {Action::CreateRon(AbsolutePos::kInitWest, Tile(44), std::string())};
+  actions = {
+      Action::CreateRon(AbsolutePos::kInitWest, Tile(44), std::string())};
   state_before.Update(std::move(actions));
   EXPECT_EQ(state_before.ToJson(), state_after.ToJson());
 
@@ -558,7 +559,8 @@ TEST(state, Update) {
   json_after = GetLastJsonLine("upd-aft-riichi+discard-ron-ron.json");
   state_before = State(json_before);
   state_after = State(json_after);
-  actions = {Action::CreateRon(AbsolutePos::kInitEast, Tile(52), std::string())};
+  actions = {
+      Action::CreateRon(AbsolutePos::kInitEast, Tile(52), std::string())};
   state_before.Update(std::move(actions));
   EXPECT_EQ(state_before.ToJson(), state_after.ToJson());
 
@@ -641,7 +643,8 @@ TEST(state, Update) {
   json_after = GetLastJsonLine("upd-aft-draw+kanadded-ron-ron.json");
   state_before = State(json_before);
   state_after = State(json_after);
-  actions = {Action::CreateRon(AbsolutePos::kInitWest, Tile(45), std::string())};
+  actions = {
+      Action::CreateRon(AbsolutePos::kInitWest, Tile(45), std::string())};
   state_before.Update(std::move(actions));
   EXPECT_EQ(state_before.ToJson(), state_after.ToJson());
 
@@ -688,9 +691,10 @@ TEST(state, Update) {
   json_after = GetLastJsonLine("upd-aft-ron3.json");
   state_before = State(json_before);
   state_after = State(json_after);
-  actions = {Action::CreateRon(AbsolutePos::kInitEast, Tile(61), std::string()),
-             Action::CreateRon(AbsolutePos::kInitSouth, Tile(61), std::string()),
-             Action::CreateRon(AbsolutePos::kInitWest, Tile(61), std::string())};
+  actions = {
+      Action::CreateRon(AbsolutePos::kInitEast, Tile(61), std::string()),
+      Action::CreateRon(AbsolutePos::kInitSouth, Tile(61), std::string()),
+      Action::CreateRon(AbsolutePos::kInitWest, Tile(61), std::string())};
   state_before.Update(std::move(actions));
   EXPECT_EQ(state_before.ToJson(), state_after.ToJson());
 
@@ -921,12 +925,12 @@ std::vector<std::vector<mjxproto::Action>> ListUpAllActionCombinations(
               Action::CreateTsumogiri(who, Tile(possible_action.tile())));
           break;
         case mjxproto::ACTION_TYPE_TSUMO:
-          actions_per_player.push_back(
-              Action::CreateTsumo(who, Tile(possible_action.tile()), std::string()));
+          actions_per_player.push_back(Action::CreateTsumo(
+              who, Tile(possible_action.tile()), std::string()));
           break;
         case mjxproto::ACTION_TYPE_RON:
-          actions_per_player.push_back(
-              Action::CreateRon(who, Tile(possible_action.tile()), std::string()));
+          actions_per_player.push_back(Action::CreateRon(
+              who, Tile(possible_action.tile()), std::string()));
           break;
         case mjxproto::ACTION_TYPE_RIICHI:
           actions_per_player.push_back(Action::CreateRiichi(who));
