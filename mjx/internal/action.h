@@ -23,9 +23,10 @@ class Action {
       std::string game_id = "");
   static mjxproto::Action CreateRiichi(AbsolutePos who,
                                        std::string game_id = "");
-  static mjxproto::Action CreateTsumo(AbsolutePos who,
+  static mjxproto::Action CreateTsumo(AbsolutePos who, Tile tile,
                                       std::string game_id = "");
-  static mjxproto::Action CreateRon(AbsolutePos who, std::string game_id = "");
+  static mjxproto::Action CreateRon(AbsolutePos who, Tile tile,
+                                    std::string game_id = "");
   static mjxproto::Action CreateOpen(AbsolutePos who, Open open,
                                      std::string game_id = "");
   static mjxproto::Action CreateNo(AbsolutePos who, std::string game_id = "");

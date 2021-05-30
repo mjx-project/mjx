@@ -449,7 +449,8 @@ TEST(state, Update) {
   json_after = GetLastJsonLine("upd-aft-draw-tsumo-tsumo.json");
   state_before = State(json_before);
   state_after = State(json_after);
-  actions = {Action::CreateTsumo(AbsolutePos::kInitSouth)};
+  actions = {
+      Action::CreateTsumo(AbsolutePos::kInitSouth, Tile(91), std::string())};
   state_before.Update(std::move(actions));
   EXPECT_EQ(state_before.ToJson(), state_after.ToJson());
 
@@ -458,7 +459,7 @@ TEST(state, Update) {
   json_after = GetLastJsonLine("upd-aft-draw-ron-ron.json");
   state_before = State(json_before);
   state_after = State(json_after);
-  actions = {Action::CreateRon(AbsolutePos::kInitWest)};
+  actions = {Action::CreateRon(AbsolutePos::kInitWest, Tile(44), std::string())};
   state_before.Update(std::move(actions));
   EXPECT_EQ(state_before.ToJson(), state_after.ToJson());
 
@@ -557,7 +558,7 @@ TEST(state, Update) {
   json_after = GetLastJsonLine("upd-aft-riichi+discard-ron-ron.json");
   state_before = State(json_before);
   state_after = State(json_after);
-  actions = {Action::CreateRon(AbsolutePos::kInitEast)};
+  actions = {Action::CreateRon(AbsolutePos::kInitEast, Tile(52), std::string())};
   state_before.Update(std::move(actions));
   EXPECT_EQ(state_before.ToJson(), state_after.ToJson());
 
@@ -640,7 +641,7 @@ TEST(state, Update) {
   json_after = GetLastJsonLine("upd-aft-draw+kanadded-ron-ron.json");
   state_before = State(json_before);
   state_after = State(json_after);
-  actions = {Action::CreateRon(AbsolutePos::kInitWest)};
+  actions = {Action::CreateRon(AbsolutePos::kInitWest, Tile(45), std::string())};
   state_before.Update(std::move(actions));
   EXPECT_EQ(state_before.ToJson(), state_after.ToJson());
 
@@ -687,9 +688,9 @@ TEST(state, Update) {
   json_after = GetLastJsonLine("upd-aft-ron3.json");
   state_before = State(json_before);
   state_after = State(json_after);
-  actions = {Action::CreateRon(AbsolutePos::kInitEast),
-             Action::CreateRon(AbsolutePos::kInitSouth),
-             Action::CreateRon(AbsolutePos::kInitWest)};
+  actions = {Action::CreateRon(AbsolutePos::kInitEast, Tile(61), std::string()),
+             Action::CreateRon(AbsolutePos::kInitSouth, Tile(61), std::string()),
+             Action::CreateRon(AbsolutePos::kInitWest, Tile(61), std::string())};
   state_before.Update(std::move(actions));
   EXPECT_EQ(state_before.ToJson(), state_after.ToJson());
 
@@ -806,7 +807,7 @@ TEST(state, Update) {
   EXPECT_TRUE(ActionTypeCheck(
       {mjxproto::ACTION_TYPE_TSUMOGIRI, mjxproto::ACTION_TYPE_TSUMO},
       observation));
-  actions = {Action::CreateTsumo(observation.who())};
+  actions = {Action::CreateTsumo(observation.who(), Tile(91), std::string())};
   state_before.Update(std::move(actions));
   EXPECT_TRUE(YakuCheck(state_before, AbsolutePos::kInitEast,
                         {Yaku::kFullyConcealedHand, Yaku::kRiichi, Yaku::kPinfu,
@@ -849,7 +850,7 @@ TEST(state, Update) {
   observations = state_before.CreateObservations();
   EXPECT_EQ(observations.size(), 1);
   observation = observations.begin()->second;
-  actions = {Action::CreateRon(observation.who())};
+  actions = {Action::CreateRon(observation.who(), Tile(103), std::string())};
   state_before.Update(std::move(actions));
   EXPECT_TRUE(YakuCheck(state_before, AbsolutePos::kInitEast,
                         {Yaku::kRiichi, Yaku::kPinfu, Yaku::kRedDora,
@@ -920,10 +921,12 @@ std::vector<std::vector<mjxproto::Action>> ListUpAllActionCombinations(
               Action::CreateTsumogiri(who, Tile(possible_action.tile())));
           break;
         case mjxproto::ACTION_TYPE_TSUMO:
-          actions_per_player.push_back(Action::CreateTsumo(who));
+          actions_per_player.push_back(
+              Action::CreateTsumo(who, Tile(possible_action.tile()), std::string()));
           break;
         case mjxproto::ACTION_TYPE_RON:
-          actions_per_player.push_back(Action::CreateRon(who));
+          actions_per_player.push_back(
+              Action::CreateRon(who, Tile(possible_action.tile()), std::string()));
           break;
         case mjxproto::ACTION_TYPE_RIICHI:
           actions_per_player.push_back(Action::CreateRiichi(who));

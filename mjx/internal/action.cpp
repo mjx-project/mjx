@@ -61,20 +61,24 @@ mjxproto::Action Action::CreateRiichi(AbsolutePos who, std::string game_id) {
   return proto;
 }
 
-mjxproto::Action Action::CreateTsumo(AbsolutePos who, std::string game_id) {
+mjxproto::Action Action::CreateTsumo(AbsolutePos who, Tile tile,
+                                     std::string game_id) {
   mjxproto::Action proto;
   proto.set_game_id(game_id);
   proto.set_type(mjxproto::ACTION_TYPE_TSUMO);
   proto.set_who(ToUType(who));
+  proto.set_tile((tile.Id()));
   Assert(IsValid(proto));
   return proto;
 }
 
-mjxproto::Action Action::CreateRon(AbsolutePos who, std::string game_id) {
+mjxproto::Action Action::CreateRon(AbsolutePos who, Tile tile,
+                                   std::string game_id) {
   mjxproto::Action proto;
   proto.set_game_id(game_id);
   proto.set_type(mjxproto::ACTION_TYPE_RON);
   proto.set_who(ToUType(who));
+  proto.set_tile((tile.Id()));
   Assert(IsValid(proto));
   return proto;
 }
@@ -123,6 +127,8 @@ bool Action::IsValid(const mjxproto::Action& action) {
   if (who < 0 or 3 < who) return false;
   switch (type) {
     case mjxproto::ACTION_TYPE_DISCARD:
+    case mjxproto::ACTION_TYPE_TSUMO:
+    case mjxproto::ACTION_TYPE_RON:
       if (!(0 <= action.tile() && action.tile() < 136)) return false;
       if (action.open() != 0) return false;
       break;
@@ -134,10 +140,8 @@ bool Action::IsValid(const mjxproto::Action& action) {
       if (action.tile() != 0) return false;
       break;
     case mjxproto::ACTION_TYPE_RIICHI:
-    case mjxproto::ACTION_TYPE_TSUMO:
     case mjxproto::ACTION_TYPE_ABORTIVE_DRAW_NINE_TERMINALS:
     case mjxproto::ACTION_TYPE_NO:
-    case mjxproto::ACTION_TYPE_RON:
     case mjxproto::ACTION_TYPE_DUMMY:
       if (action.tile() != 0) return false;
       if (action.open() != 0) return false;

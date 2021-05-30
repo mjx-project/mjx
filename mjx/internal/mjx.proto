@@ -173,7 +173,7 @@ message Action {
   //                   tile   open
   //  DISCARD           Yes     No
   //  RIICHI             No     No
-  //  TSUMO              No     No
+  //  TSUMO             Yes     No
   //  CLOSED_KAN         No    Yes
   //  ADDED_KAN          No    Yes
   //  KYUSYU             No     No
@@ -181,7 +181,7 @@ message Action {
   //  CHI                No    Yes
   //  PON                No    Yes
   //  OPEN_KAN           No    Yes
-  //  RON                No     No
+  //  RON                Yes    No
   string game_id = 1;
   int32 who = 2;
   ActionType type = 3;

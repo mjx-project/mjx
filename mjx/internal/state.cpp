@@ -159,9 +159,10 @@ std::unordered_map<PlayerId, Observation> State::CreateObservations() const {
       }
 
       // => Tsumo (1)
+      Tile drawn_tile = Tile(LastEvent().tile());
       if (hand(who).IsCompleted() && CanTsumo(who))
-        observation.add_possible_action(
-            Action::CreateTsumo(who, state_.public_observation().game_id()));
+        observation.add_possible_action(Action::CreateTsumo(
+            who, drawn_tile, state_.public_observation().game_id()));
 
       // => Kan (2)
       if (auto possible_kans = hand(who).PossibleOpensAfterDraw();
@@ -1159,8 +1160,8 @@ std::unordered_map<PlayerId, Observation> State::CreateStealAndRonObservation()
 
     // check ron
     if (hand(stealer).IsCompleted(tile) && CanRon(stealer, tile)) {
-      observation.add_possible_action(
-          Action::CreateRon(stealer, state_.public_observation().game_id()));
+      observation.add_possible_action(Action::CreateRon(
+          stealer, tile, state_.public_observation().game_id()));
     }
 
     // check chi, pon and kan_opened
