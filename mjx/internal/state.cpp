@@ -1300,16 +1300,14 @@ void State::Update(mjxproto::Action &&action) {
           LastEvent().type() == mjxproto::EVENT_TYPE_RIICHI ||
               Any(hand(who).PossibleDiscards(),
                   [&action](const auto &possible_discard) {
-                    return possible_discard.first.Equals(
-                        Tile(action.tile()));
+                    return possible_discard.first.Equals(Tile(action.tile()));
                   }),
           "State = " + ToJson() + "\n" + "Hand = " + hand(who).ToString(true));
       Assert(
           LastEvent().type() != mjxproto::EVENT_TYPE_RIICHI ||
               Any(hand(who).PossibleDiscardsJustAfterRiichi(),
                   [&action](const auto &possible_discard) {
-                    return possible_discard.first.Equals(
-                        Tile(action.tile()));
+                    return possible_discard.first.Equals(Tile(action.tile()));
                   }),
           "State = " + ToJson() + "\n" + "Hand = " + hand(who).ToString(true));
       Assert(action.type() != mjxproto::ACTION_TYPE_TSUMOGIRI ||
