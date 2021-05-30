@@ -1364,20 +1364,32 @@ void State::Update(mjxproto::Action &&action) {
     case mjxproto::ACTION_TYPE_TSUMO:
       Assert(Any(LastEvent().type(), {mjxproto::EVENT_TYPE_DRAW}));
       Tsumo(who);
-      Assert(action.tile() == state_.round_terminal().wins(state_.round_terminal().wins_size()-1).win_tile(),
-             "Tsumo winning tile in action should equal to win_tile in terminal.\naction.tile(): "
-             + std::to_string(action.tile()) + "\nwin_tile(): "
-             + std::to_string(state_.round_terminal().wins(state_.round_terminal().wins_size()-1).win_tile()));
+      Assert(
+          action.tile() == state_.round_terminal()
+                               .wins(state_.round_terminal().wins_size() - 1)
+                               .win_tile(),
+          "Tsumo winning tile in action should equal to win_tile in "
+          "terminal.\naction.tile(): " +
+              std::to_string(action.tile()) + "\nwin_tile(): " +
+              std::to_string(state_.round_terminal()
+                                 .wins(state_.round_terminal().wins_size() - 1)
+                                 .win_tile()));
       return;
     case mjxproto::ACTION_TYPE_RON:
       Assert(Any(LastEvent().type(),
                  {mjxproto::EVENT_TYPE_DISCARD, mjxproto::EVENT_TYPE_TSUMOGIRI,
                   mjxproto::EVENT_TYPE_ADDED_KAN, mjxproto::EVENT_TYPE_RON}));
       Ron(who);
-      Assert(action.tile() == state_.round_terminal().wins(state_.round_terminal().wins_size()-1).win_tile(),
-             "Ron target tile in action should equal to win_tile in terminal.\naction.tile(): "
-             + std::to_string(action.tile()) + "\nwin_tile(): "
-             + std::to_string(state_.round_terminal().wins(state_.round_terminal().wins_size()-1).win_tile()));
+      Assert(
+          action.tile() == state_.round_terminal()
+                               .wins(state_.round_terminal().wins_size() - 1)
+                               .win_tile(),
+          "Ron target tile in action should equal to win_tile in "
+          "terminal.\naction.tile(): " +
+              std::to_string(action.tile()) + "\nwin_tile(): " +
+              std::to_string(state_.round_terminal()
+                                 .wins(state_.round_terminal().wins_size() - 1)
+                                 .win_tile()));
       return;
     case mjxproto::ACTION_TYPE_CHI:
     case mjxproto::ACTION_TYPE_PON:
