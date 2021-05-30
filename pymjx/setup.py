@@ -10,7 +10,7 @@ setup(
     install_requires=[],
     packages=find_packages(),
     include_package_data=True,
-    entry_points={"console_scripts": "mjx = mjx.main:cli"},
+    entry_points={"console_scripts": "mjx = mjx.main:main"},
     classifiers=[
         "Programming Language :: Python :: 3.8",
         "License :: OSI Approved :: MIT License",

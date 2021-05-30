@@ -280,5 +280,9 @@ def convert(
                     f.write(line)
 
 
-if __name__ == "__main__":
+def main():
     cli()
+
+
+if __name__ == "__main__":
+    main()
