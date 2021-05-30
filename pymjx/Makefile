@@ -1,7 +1,7 @@
 .PHONY: proto requirements install uninstall clean pytest test-cli
 
 clean:
-	rm ./mjxproto/*pb2* || echo "Already deleted"
+	rm -rf ./mjxproto/*pb2*
 	rm -rf build
 	rm -rf dist
 	rm -rf *.egg-info
@@ -36,17 +36,17 @@ pytest: proto
 
 test-cli: uninstall clean install
 	echo "From mjlog => mjxproto"
-	cat mjx/tests/resources/mjlog/*.mjlog | mjx --to-mjxproto --verbose | wc -l
-	cat mjx/tests/resources/mjlog/*.mjlog | mjx --to-mjxproto --compress --verbose | wc -l
-	cat mjx/tests/resources/mjlog/*.mjlog | mjx --to-mjxproto-raw --verbose | wc -l
-	mjx mjx/tests/resources/mjlog mjx/tests/resources/mjxproto --to-mjxproto --verbose && cat mjx/tests/resources/mjxproto/* | wc -l
+	cat mjx/tests/resources/mjlog/*.mjlog | mjx convert --to-mjxproto --verbose | wc -l
+	cat mjx/tests/resources/mjlog/*.mjlog | mjx convert --to-mjxproto --compress --verbose | wc -l
+	cat mjx/tests/resources/mjlog/*.mjlog | mjx convert --to-mjxproto-raw --verbose | wc -l
+	mjx convert mjx/tests/resources/mjlog mjx/tests/resources/mjxproto --to-mjxproto --verbose && cat mjx/tests/resources/mjxproto/* | wc -l
 	rm mjx/tests/resources/mjxproto/*.json
-	mjx mjx/tests/resources/mjlog mjx/tests/resources/mjxproto --to-mjxproto --compress --verbose && cat mjx/tests/resources/mjxproto/* | wc -l
+	mjx convert mjx/tests/resources/mjlog mjx/tests/resources/mjxproto --to-mjxproto --compress --verbose && cat mjx/tests/resources/mjxproto/* | wc -l
 	rm mjx/tests/resources/mjxproto/*.json
-	mjx mjx/tests/resources/mjlog mjx/tests/resources/mjxproto --to-mjxproto-raw --verbose && cat mjx/tests/resources/mjxproto/* | wc -l
+	mjx convert mjx/tests/resources/mjlog mjx/tests/resources/mjxproto --to-mjxproto-raw --verbose && cat mjx/tests/resources/mjxproto/* | wc -l
 	echo "From mjxproto => mjlog_recovered"
-	cat mjx/tests/resources/mjxproto/*.json | mjx --to-mjlog --verbose | wc -l
-	mjx mjx/tests/resources/mjxproto mjx/tests/resources/mjlog_recovered --to-mjlog --verbose && cat mjx/tests/resources/mjlog_recovered/* | wc -l
+	cat mjx/tests/resources/mjxproto/*.json | mjx convert --to-mjlog --verbose | wc -l
+	mjx convert mjx/tests/resources/mjxproto mjx/tests/resources/mjlog_recovered --to-mjlog --verbose && cat mjx/tests/resources/mjlog_recovered/* | wc -l
 	echo "Check diff"
 	python3 mjx/diff.py mjx/tests/resources/mjlog mjx/tests/resources/mjlog_recovered
 	echo "Clean up"
