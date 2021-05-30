@@ -913,11 +913,11 @@ std::vector<std::vector<mjxproto::Action>> ListUpAllActionCombinations(
       switch (possible_action.type()) {
         case mjxproto::ACTION_TYPE_DISCARD:
           actions_per_player.push_back(
-              Action::CreateDiscard(who, Tile(possible_action.discard())));
+              Action::CreateDiscard(who, Tile(possible_action.tile())));
           break;
         case mjxproto::ACTION_TYPE_TSUMOGIRI:
           actions_per_player.push_back(
-              Action::CreateTsumogiri(who, Tile(possible_action.discard())));
+              Action::CreateTsumogiri(who, Tile(possible_action.tile())));
           break;
         case mjxproto::ACTION_TYPE_TSUMO:
           actions_per_player.push_back(Action::CreateTsumo(who));

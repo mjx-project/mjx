@@ -21,7 +21,7 @@ std::vector<std::pair<Tile, bool>> Observation::possible_discards() const {
              {mjxproto::ActionType::ACTION_TYPE_DISCARD,
               mjxproto::ActionType::ACTION_TYPE_TSUMOGIRI}))
       continue;
-    ret.emplace_back(possible_action.discard(),
+    ret.emplace_back(possible_action.tile(),
                      possible_action.type() == mjxproto::ACTION_TYPE_TSUMOGIRI);
   }
   Assert(std::count_if(ret.begin(), ret.end(),

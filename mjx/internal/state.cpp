@@ -1301,7 +1301,7 @@ void State::Update(mjxproto::Action &&action) {
               Any(hand(who).PossibleDiscards(),
                   [&action](const auto &possible_discard) {
                     return possible_discard.first.Equals(
-                        Tile(action.discard()));
+                        Tile(action.tile()));
                   }),
           "State = " + ToJson() + "\n" + "Hand = " + hand(who).ToString(true));
       Assert(
@@ -1309,12 +1309,12 @@ void State::Update(mjxproto::Action &&action) {
               Any(hand(who).PossibleDiscardsJustAfterRiichi(),
                   [&action](const auto &possible_discard) {
                     return possible_discard.first.Equals(
-                        Tile(action.discard()));
+                        Tile(action.tile()));
                   }),
           "State = " + ToJson() + "\n" + "Hand = " + hand(who).ToString(true));
       Assert(action.type() != mjxproto::ACTION_TYPE_TSUMOGIRI ||
                  hand(AbsolutePos(action.who())).LastTileAdded().value().Id() ==
-                     action.discard(),
+                     action.tile(),
              "If action is tsumogiri, the discarded tile should be equal to "
              "the last drawn tile.");
       {
@@ -1322,7 +1322,7 @@ void State::Update(mjxproto::Action &&action) {
         Assert(require_kan_dora <= 1);
         if (require_kan_dora) AddNewDora();
       }
-      Discard(who, Tile(action.discard()));
+      Discard(who, Tile(action.tile()));
       if (IsFourWinds()) {  // 四風子連打
         NoWinner(mjxproto::EVENT_TYPE_ABORTIVE_DRAW_FOUR_WINDS);
         return;

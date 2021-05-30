@@ -104,7 +104,7 @@ mjxproto::Action StrategyRuleBased::TakeAction(
     if (!Any(possible_action.type(),
              {mjxproto::ACTION_TYPE_DISCARD, mjxproto::ACTION_TYPE_TSUMOGIRI}))
       continue;
-    if (possible_action.discard() == selected_discard.Id())
+    if (possible_action.tile() == selected_discard.Id())
       return possible_action;
   }
   assert(false);
