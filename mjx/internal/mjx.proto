@@ -170,7 +170,7 @@ message HiddenState {
 }
 
 message Action {
-  //                discard   open
+  //                   tile   open
   //  DISCARD           Yes     No
   //  RIICHI             No     No
   //  TSUMO              No     No
@@ -185,6 +185,6 @@ message Action {
   string game_id = 1;
   int32 who = 2;
   ActionType type = 3;
-  uint32 discard = 4;
+  uint32 tile = 4;
   uint32 open = 5;
 }
