@@ -9,8 +9,8 @@ import click
 from google.protobuf import json_format
 
 import mjxproto
-from mjx.mjlog_decoder import MjlogDecoder
-from mjx.mjlog_encoder import MjlogEncoder
+from mjx.converter.mjlog_decoder import MjlogDecoder
+from mjx.converter.mjlog_encoder import MjlogEncoder
 
 
 @click.group(help="A CLI tool of mjx")

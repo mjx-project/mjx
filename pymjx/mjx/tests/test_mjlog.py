@@ -1,7 +1,8 @@
 import os
 from typing import List
 
-from mjx import check_equality, mjlog_decoder, mjlog_encoder
+from mjx import check_equality
+from mjx.converter import mjlog_decoder, mjlog_encoder
 
 
 def test_encode_decode():
