@@ -159,7 +159,8 @@ std::unordered_map<PlayerId, Observation> State::CreateObservations() const {
       }
 
       // => Tsumo (1)
-      Tile drawn_tile = Tile(LastEvent().tile());
+      Assert(hand(who).LastTileAdded().has_value(), "Last drawn tile should be set");
+      Tile drawn_tile = Tile(hand(who).LastTileAdded().value());
       if (hand(who).IsCompleted() && CanTsumo(who))
         observation.add_possible_action(Action::CreateTsumo(
             who, drawn_tile, state_.public_observation().game_id()));
