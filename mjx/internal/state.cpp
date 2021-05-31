@@ -159,7 +159,8 @@ std::unordered_map<PlayerId, Observation> State::CreateObservations() const {
       }
 
       // => Tsumo (1)
-      Assert(hand(who).LastTileAdded().has_value(), "Last drawn tile should be set");
+      Assert(hand(who).LastTileAdded().has_value(),
+             "Last drawn tile should be set");
       Tile drawn_tile = Tile(hand(who).LastTileAdded().value());
       if (hand(who).IsCompleted() && CanTsumo(who))
         observation.add_possible_action(Action::CreateTsumo(
@@ -1365,14 +1366,18 @@ void State::Update(mjxproto::Action &&action) {
     case mjxproto::ACTION_TYPE_TSUMO:
       Assert(Any(LastEvent().type(), {mjxproto::EVENT_TYPE_DRAW}));
       Tsumo(who);
-      Assert(
-          action.tile() == state_.round_terminal().wins().rbegin()->win_tile() &&
-          action.tile() == *state_.private_observations(static_cast<int>(who)).draw_history().rbegin(),
-          "Tsumo winning tile in action should equal to win_tile in "
-          "terminal.\naction.tile(): " +
-              std::to_string(action.tile()) + "\nwin_tile(): " +
-              std::to_string(state_.round_terminal().wins().rbegin()->win_tile()) +
-          "\nState: \n" + ToJson());
+      Assert(action.tile() ==
+                     state_.round_terminal().wins().rbegin()->win_tile() &&
+                 action.tile() ==
+                     *state_.private_observations(static_cast<int>(who))
+                          .draw_history()
+                          .rbegin(),
+             "Tsumo winning tile in action should equal to win_tile in "
+             "terminal.\naction.tile(): " +
+                 std::to_string(action.tile()) + "\nwin_tile(): " +
+                 std::to_string(
+                     state_.round_terminal().wins().rbegin()->win_tile()) +
+                 "\nState: \n" + ToJson());
       return;
     case mjxproto::ACTION_TYPE_RON:
       Assert(Any(LastEvent().type(),
@@ -1384,8 +1389,9 @@ void State::Update(mjxproto::Action &&action) {
           "Ron target tile in action should equal to win_tile in "
           "terminal.\naction.tile(): " +
               std::to_string(action.tile()) + "\nwin_tile(): " +
-              std::to_string(state_.round_terminal().wins().rbegin()->win_tile()) +
-          "\nState: \n" + ToJson());
+              std::to_string(
+                  state_.round_terminal().wins().rbegin()->win_tile()) +
+              "\nState: \n" + ToJson());
       return;
     case mjxproto::ACTION_TYPE_CHI:
     case mjxproto::ACTION_TYPE_PON:
