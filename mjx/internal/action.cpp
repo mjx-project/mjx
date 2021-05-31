@@ -10,7 +10,7 @@ mjxproto::Action Action::CreateDiscard(AbsolutePos who, Tile discard,
   proto.set_game_id(game_id);
   proto.set_type(mjxproto::ACTION_TYPE_DISCARD);
   proto.set_who(ToUType(who));
-  proto.set_discard(discard.Id());
+  proto.set_tile(discard.Id());
   Assert(IsValid(proto));
   return proto;
 }
@@ -21,7 +21,7 @@ mjxproto::Action Action::CreateTsumogiri(AbsolutePos who, Tile discard,
   proto.set_game_id(game_id);
   proto.set_type(mjxproto::ACTION_TYPE_TSUMOGIRI);
   proto.set_who(ToUType(who));
-  proto.set_discard(discard.Id());
+  proto.set_tile(discard.Id());
   Assert(IsValid(proto));
   return proto;
 }
@@ -61,20 +61,24 @@ mjxproto::Action Action::CreateRiichi(AbsolutePos who, std::string game_id) {
   return proto;
 }
 
-mjxproto::Action Action::CreateTsumo(AbsolutePos who, std::string game_id) {
+mjxproto::Action Action::CreateTsumo(AbsolutePos who, Tile tile,
+                                     std::string game_id) {
   mjxproto::Action proto;
   proto.set_game_id(game_id);
   proto.set_type(mjxproto::ACTION_TYPE_TSUMO);
   proto.set_who(ToUType(who));
+  proto.set_tile((tile.Id()));
   Assert(IsValid(proto));
   return proto;
 }
 
-mjxproto::Action Action::CreateRon(AbsolutePos who, std::string game_id) {
+mjxproto::Action Action::CreateRon(AbsolutePos who, Tile tile,
+                                   std::string game_id) {
   mjxproto::Action proto;
   proto.set_game_id(game_id);
   proto.set_type(mjxproto::ACTION_TYPE_RON);
   proto.set_who(ToUType(who));
+  proto.set_tile((tile.Id()));
   Assert(IsValid(proto));
   return proto;
 }
@@ -123,7 +127,9 @@ bool Action::IsValid(const mjxproto::Action& action) {
   if (who < 0 or 3 < who) return false;
   switch (type) {
     case mjxproto::ACTION_TYPE_DISCARD:
-      if (!(0 <= action.discard() && action.discard() < 136)) return false;
+    case mjxproto::ACTION_TYPE_TSUMO:
+    case mjxproto::ACTION_TYPE_RON:
+      if (!(0 <= action.tile() && action.tile() < 136)) return false;
       if (action.open() != 0) return false;
       break;
     case mjxproto::ACTION_TYPE_CHI:
@@ -131,15 +137,13 @@ bool Action::IsValid(const mjxproto::Action& action) {
     case mjxproto::ACTION_TYPE_CLOSED_KAN:
     case mjxproto::ACTION_TYPE_ADDED_KAN:
     case mjxproto::ACTION_TYPE_OPEN_KAN:
-      if (action.discard() != 0) return false;
+      if (action.tile() != 0) return false;
       break;
     case mjxproto::ACTION_TYPE_RIICHI:
-    case mjxproto::ACTION_TYPE_TSUMO:
     case mjxproto::ACTION_TYPE_ABORTIVE_DRAW_NINE_TERMINALS:
     case mjxproto::ACTION_TYPE_NO:
-    case mjxproto::ACTION_TYPE_RON:
     case mjxproto::ACTION_TYPE_DUMMY:
-      if (action.discard() != 0) return false;
+      if (action.tile() != 0) return false;
       if (action.open() != 0) return false;
       break;
   }
@@ -147,7 +151,7 @@ bool Action::IsValid(const mjxproto::Action& action) {
 }
 bool Action::Equal(const mjxproto::Action& lhs, const mjxproto::Action& rhs) {
   return lhs.game_id() == rhs.game_id() and lhs.who() == rhs.who() and
-         lhs.type() == rhs.type() and lhs.discard() == rhs.discard() and
+         lhs.type() == rhs.type() and lhs.tile() == rhs.tile() and
          lhs.open() == rhs.open();
 }
 std::uint8_t Action::Encode(const mjxproto::Action& action) {
@@ -155,7 +159,7 @@ std::uint8_t Action::Encode(const mjxproto::Action& action) {
     case mjxproto::ACTION_TYPE_DISCARD: {
       // 0~33: Discard m1~rd
       // 34,35,36: Discard m5(red), p5(red), s5(red)
-      auto discard = Tile(action.discard());
+      auto discard = Tile(action.tile());
       if (!discard.IsRedFive()) {
         return ToUType(discard.Type());
       }
@@ -173,7 +177,7 @@ std::uint8_t Action::Encode(const mjxproto::Action& action) {
     case mjxproto::ACTION_TYPE_TSUMOGIRI: {
       // 37~70: Tsumogiri m1~rd
       // 71,72,73: Tsumogiri m5(red), p5(red), s5(red)
-      auto discard = Tile(action.discard());
+      auto discard = Tile(action.tile());
       if (!discard.IsRedFive()) {
         return ToUType(discard.Type()) + 37;
       }

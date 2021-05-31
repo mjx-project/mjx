@@ -59,9 +59,13 @@ TEST(action, Encode) {
                     Pon::Create(Tile(17), Tile(16), RelativePos::kLeft)))),
             145);
   // Tsumo
-  EXPECT_EQ(Action::Encode(Action::CreateTsumo(AbsolutePos::kInitEast)), 175);
+  EXPECT_EQ(Action::Encode(Action::CreateTsumo(AbsolutePos::kInitEast, Tile(3),
+                                               std::string())),
+            175);
   // Ron
-  EXPECT_EQ(Action::Encode(Action::CreateRon(AbsolutePos::kInitEast)), 176);
+  EXPECT_EQ(Action::Encode(Action::CreateRon(AbsolutePos::kInitEast, Tile(5),
+                                             std::string())),
+            176);
   // Riichi
   EXPECT_EQ(Action::Encode(Action::CreateRiichi(AbsolutePos::kInitEast)), 177);
   // Kyusyu

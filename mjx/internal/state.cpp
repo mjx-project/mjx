@@ -159,9 +159,12 @@ std::unordered_map<PlayerId, Observation> State::CreateObservations() const {
       }
 
       // => Tsumo (1)
+      Assert(hand(who).LastTileAdded().has_value(),
+             "Last drawn tile should be set");
+      Tile drawn_tile = Tile(hand(who).LastTileAdded().value());
       if (hand(who).IsCompleted() && CanTsumo(who))
-        observation.add_possible_action(
-            Action::CreateTsumo(who, state_.public_observation().game_id()));
+        observation.add_possible_action(Action::CreateTsumo(
+            who, drawn_tile, state_.public_observation().game_id()));
 
       // => Kan (2)
       if (auto possible_kans = hand(who).PossibleOpensAfterDraw();
@@ -1159,8 +1162,8 @@ std::unordered_map<PlayerId, Observation> State::CreateStealAndRonObservation()
 
     // check ron
     if (hand(stealer).IsCompleted(tile) && CanRon(stealer, tile)) {
-      observation.add_possible_action(
-          Action::CreateRon(stealer, state_.public_observation().game_id()));
+      observation.add_possible_action(Action::CreateRon(
+          stealer, tile, state_.public_observation().game_id()));
     }
 
     // check chi, pon and kan_opened
@@ -1300,21 +1303,19 @@ void State::Update(mjxproto::Action &&action) {
           LastEvent().type() == mjxproto::EVENT_TYPE_RIICHI ||
               Any(hand(who).PossibleDiscards(),
                   [&action](const auto &possible_discard) {
-                    return possible_discard.first.Equals(
-                        Tile(action.discard()));
+                    return possible_discard.first.Equals(Tile(action.tile()));
                   }),
           "State = " + ToJson() + "\n" + "Hand = " + hand(who).ToString(true));
       Assert(
           LastEvent().type() != mjxproto::EVENT_TYPE_RIICHI ||
               Any(hand(who).PossibleDiscardsJustAfterRiichi(),
                   [&action](const auto &possible_discard) {
-                    return possible_discard.first.Equals(
-                        Tile(action.discard()));
+                    return possible_discard.first.Equals(Tile(action.tile()));
                   }),
           "State = " + ToJson() + "\n" + "Hand = " + hand(who).ToString(true));
       Assert(action.type() != mjxproto::ACTION_TYPE_TSUMOGIRI ||
                  hand(AbsolutePos(action.who())).LastTileAdded().value().Id() ==
-                     action.discard(),
+                     action.tile(),
              "If action is tsumogiri, the discarded tile should be equal to "
              "the last drawn tile.");
       {
@@ -1322,7 +1323,7 @@ void State::Update(mjxproto::Action &&action) {
         Assert(require_kan_dora <= 1);
         if (require_kan_dora) AddNewDora();
       }
-      Discard(who, Tile(action.discard()));
+      Discard(who, Tile(action.tile()));
       if (IsFourWinds()) {  // 四風子連打
         NoWinner(mjxproto::EVENT_TYPE_ABORTIVE_DRAW_FOUR_WINDS);
         return;
@@ -1365,12 +1366,32 @@ void State::Update(mjxproto::Action &&action) {
     case mjxproto::ACTION_TYPE_TSUMO:
       Assert(Any(LastEvent().type(), {mjxproto::EVENT_TYPE_DRAW}));
       Tsumo(who);
+      Assert(action.tile() ==
+                     state_.round_terminal().wins().rbegin()->win_tile() &&
+                 action.tile() ==
+                     *state_.private_observations(static_cast<int>(who))
+                          .draw_history()
+                          .rbegin(),
+             "Tsumo winning tile in action should equal to win_tile in "
+             "terminal.\naction.tile(): " +
+                 std::to_string(action.tile()) + "\nwin_tile(): " +
+                 std::to_string(
+                     state_.round_terminal().wins().rbegin()->win_tile()) +
+                 "\nState: \n" + ToJson());
       return;
     case mjxproto::ACTION_TYPE_RON:
       Assert(Any(LastEvent().type(),
                  {mjxproto::EVENT_TYPE_DISCARD, mjxproto::EVENT_TYPE_TSUMOGIRI,
                   mjxproto::EVENT_TYPE_ADDED_KAN, mjxproto::EVENT_TYPE_RON}));
       Ron(who);
+      Assert(
+          action.tile() == state_.round_terminal().wins().rbegin()->win_tile(),
+          "Ron target tile in action should equal to win_tile in "
+          "terminal.\naction.tile(): " +
+              std::to_string(action.tile()) + "\nwin_tile(): " +
+              std::to_string(
+                  state_.round_terminal().wins().rbegin()->win_tile()) +
+              "\nState: \n" + ToJson());
       return;
     case mjxproto::ACTION_TYPE_CHI:
     case mjxproto::ACTION_TYPE_PON:
