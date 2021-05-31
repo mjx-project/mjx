@@ -1365,15 +1365,13 @@ void State::Update(mjxproto::Action &&action) {
       Assert(Any(LastEvent().type(), {mjxproto::EVENT_TYPE_DRAW}));
       Tsumo(who);
       Assert(
-          action.tile() == state_.round_terminal()
-                               .wins(state_.round_terminal().wins_size() - 1)
-                               .win_tile(),
+          action.tile() == state_.round_terminal().wins().rbegin()->win_tile() &&
+          action.tile() == *state_.private_observations(static_cast<int>(who)).draw_history().rbegin(),
           "Tsumo winning tile in action should equal to win_tile in "
           "terminal.\naction.tile(): " +
               std::to_string(action.tile()) + "\nwin_tile(): " +
-              std::to_string(state_.round_terminal()
-                                 .wins(state_.round_terminal().wins_size() - 1)
-                                 .win_tile()));
+              std::to_string(state_.round_terminal().wins().rbegin()->win_tile()) +
+          "\nState: \n" + ToJson());
       return;
     case mjxproto::ACTION_TYPE_RON:
       Assert(Any(LastEvent().type(),
@@ -1381,15 +1379,12 @@ void State::Update(mjxproto::Action &&action) {
                   mjxproto::EVENT_TYPE_ADDED_KAN, mjxproto::EVENT_TYPE_RON}));
       Ron(who);
       Assert(
-          action.tile() == state_.round_terminal()
-                               .wins(state_.round_terminal().wins_size() - 1)
-                               .win_tile(),
+          action.tile() == state_.round_terminal().wins().rbegin()->win_tile(),
           "Ron target tile in action should equal to win_tile in "
           "terminal.\naction.tile(): " +
               std::to_string(action.tile()) + "\nwin_tile(): " +
-              std::to_string(state_.round_terminal()
-                                 .wins(state_.round_terminal().wins_size() - 1)
-                                 .win_tile()));
+              std::to_string(state_.round_terminal().wins().rbegin()->win_tile()) +
+          "\nState: \n" + ToJson());
       return;
     case mjxproto::ACTION_TYPE_CHI:
     case mjxproto::ACTION_TYPE_PON:
