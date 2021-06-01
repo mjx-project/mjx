@@ -177,15 +177,15 @@ class HiddenState(betterproto.Message):
 
 @dataclass
 class Action(betterproto.Message):
-    # discard   open  DISCARD           Yes     No  RIICHI             No     No
-    # TSUMO              No     No  CLOSED_KAN         No    Yes  ADDED_KAN
+    # tile   open  DISCARD           Yes     No  RIICHI             No     No
+    # TSUMO             Yes     No  CLOSED_KAN         No    Yes  ADDED_KAN
     # No    Yes  KYUSYU             No     No  NO                 No     No  CHI
     # No    Yes  PON                No    Yes  OPEN_KAN           No    Yes  RON
-    # No     No
+    # Yes    No
     game_id: str = betterproto.string_field(1)
     who: int = betterproto.int32_field(2)
     type: "ActionType" = betterproto.enum_field(3)
-    discard: int = betterproto.uint32_field(4)
+    tile: int = betterproto.uint32_field(4)
     open: int = betterproto.uint32_field(5)
 
 
