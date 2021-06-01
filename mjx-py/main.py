@@ -107,7 +107,7 @@ class GameBoard:
         show_name: bool,
     ):
         self.path = path
-        self.name = mode
+        self.mode = mode
         self.is_using_unicode = is_using_unicode
         self.is_using_rich = is_using_rich
         self.language = language
@@ -295,9 +295,32 @@ class GameBoard:
                                 ):
                                     p_from_t_u.tiles.pop(-1)
 
+        table.round = public_observation.init_score.round + 1
+        table.honba = public_observation.init_score.honba
+        table.riichi = public_observation.init_score.riichi
+        table.last_action = 1
+        table.wall_num = 36
+
+        return table
+
+    def decode_observation(self, jsondata):
+        gamedata = mjxproto.Observation()
+        gamedata.from_json(jsondata)
+
+        table = MahjongTable()
+
+        table.my_idx = gamedata.who
+        for i, p in enumerate(table.players):
+            p.player_idx = i
+            p.wind = i
+
+        table = self.decode_public_observation(table, gamedata.public_observation)
+        table = self.decode_private_observation(
+            table, gamedata.private_observation, gamedata.who
+        )
         for p in table.players:
             if p.player_idx != table.my_idx:
-                hands_num = 14
+                hands_num = 13
                 for t_u in p.tile_units:
                     if t_u.tile_unit_type not in [
                         TileUnitType.DISCARD,
@@ -316,43 +339,35 @@ class GameBoard:
                     )
                 )
 
-        table.round = public_observation.init_score.round + 1
-        table.honba = public_observation.init_score.honba
-        table.riichi = public_observation.init_score.riichi
-        table.last_action = 1
-        table.wall_num = 36
-
         return table
 
-    def decode_observation(self, jsondata):
-        gamedata = mjxproto.Observation()
+    def decode_state(self, jsondata):
+        gamedata = mjxproto.State()
         gamedata.from_json(jsondata)
 
         table = MahjongTable()
         for i, p in enumerate(table.players):
             p.player_idx = i
             p.wind = i
-        table.my_idx = gamedata.who
+        table.my_idx = 0
         table = self.decode_public_observation(table, gamedata.public_observation)
-        table = self.decode_private_observation(
-            table, gamedata.private_observation, gamedata.who
-        )
-
-        # if not table.check_num_tiles():
-        #    exit(1)
+        for p in table.players:
+            table = self.decode_private_observation(
+                table, gamedata.private_observations[p.player_idx], p.player_idx
+            )
 
         return table
 
     def load_data(self):
         with open(self.path, "r", errors="ignore") as f:
-            i = 0
+            self.tables = []
             for line in f:
-                table = self.decode_observation(line)
-                self.tables.append(table)
-                i += 1
-                if i == 20:
-                    break
-
+                if self.mode == "obs":
+                    table = self.decode_observation(line)
+                    self.tables.append(table)
+                elif self.mode == "sta":
+                    table = self.decode_state(line)
+                    self.tables.append(table)
         return self.tables
 
     def get_modified_tiles(
@@ -641,7 +656,7 @@ class GameBoard:
 
 def main():
     """
-    >>> game_board = GameBoard("observations.json", "Observation", False, False, 0 , True)
+    >>> game_board = GameBoard("observations.json", "obs", False, False, 0 , True)
     >>> print(game_board.show_by_text(game_board.load_data()[0]))  # doctest: +NORMALIZE_WHITESPACE
     round:1 wall:36
     <BLANKLINE>
@@ -654,21 +669,21 @@ def main():
     <BLANKLINE>
     WEST [ 25000 ] rule-based-2
     <BLANKLINE>
-    # # # # # # # # # # # # # #
+    # # # # # # # # # # # # #
     <BLANKLINE>
     <BLANKLINE>
     <BLANKLINE>
     <BLANKLINE>
     NORTH [ 25000 ] rule-based-3
     <BLANKLINE>
-    # # # # # # # # # # # # # #
+    # # # # # # # # # # # # #
     <BLANKLINE>
     <BLANKLINE>
     <BLANKLINE>
     <BLANKLINE>
     EAST [ 25000 ] rule-based-0
     <BLANKLINE>
-    # # # # # # # # # # # # # #
+    # # # # # # # # # # # # #
     <BLANKLINE>
     <BLANKLINE>
     <BLANKLINE>
@@ -678,7 +693,7 @@ def main():
     """
     parser = argparse.ArgumentParser()
     parser.add_argument("--path", default="observations.json")
-    parser.add_argument("--mode", default="Observation")
+    parser.add_argument("--mode", default="obs")
     parser.add_argument("--uni", action="store_true")
     parser.add_argument("--rich", action="store_true")
     parser.add_argument("--show_name", action="store_true")
