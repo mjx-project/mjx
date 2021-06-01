@@ -161,7 +161,7 @@ class GameBoard:
             Layout(name="middle2"),
             Layout(" ", name="hand2"),
         )
-        self.layout["middle2"].ratio = 6
+        self.layout["middle2"].ratio = 10
 
         self.layout["lower1"].split_row(
             Layout(" "),
@@ -277,7 +277,7 @@ class GameBoard:
                             )
                         )
 
-                        idx_from = 100
+                        idx_from = -1
                         if open_utils.open_from(eve.open) == FromWho.LEFT:
                             idx_from = (p.player_idx + 3) % 4
                         elif open_utils.open_from(eve.open) == FromWho.MID:
@@ -291,7 +291,6 @@ class GameBoard:
                                     p_from.player_idx == idx_from
                                     and p_from_t_u.tile_unit_type
                                     == TileUnitType.DISCARD
-                                    and p_from_t_u.tiles != []
                                 ):
                                     p_from_t_u.tiles.pop(-1)
 
@@ -318,7 +317,8 @@ class GameBoard:
         table = self.decode_private_observation(
             table, gamedata.private_observation, gamedata.who
         )
-        for p in table.players:
+
+        for i, p in enumerate(table.players):
             if p.player_idx != table.my_idx:
                 hands_num = 13
                 for t_u in p.tile_units:
@@ -333,11 +333,13 @@ class GameBoard:
                         TileUnitType.HAND,
                         FromWho.NONE,
                         [
-                            Tile((120 + i * 4) % 133, False, self.is_using_unicode)
+                            Tile(i, False, self.is_using_unicode)
                             for i in range(hands_num)
                         ],
                     )
                 )
+
+            p.wind = (-table.round + 1 + i) % 4
 
         return table
 
@@ -348,13 +350,15 @@ class GameBoard:
         table = MahjongTable()
         for i, p in enumerate(table.players):
             p.player_idx = i
-            p.wind = i
         table.my_idx = 0
         table = self.decode_public_observation(table, gamedata.public_observation)
         for p in table.players:
             table = self.decode_private_observation(
                 table, gamedata.private_observations[p.player_idx], p.player_idx
             )
+
+        for i, p in enumerate(table.players):
+            p.wind = (table.round - 1 + i) % 4
 
         return table
 
