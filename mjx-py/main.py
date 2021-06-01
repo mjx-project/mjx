@@ -212,7 +212,6 @@ class GameBoard:
         """
         MahjongTableのデータに、
         - 手牌
-        - 鳴き牌
         の情報を読み込ませる関数
         """
         for p in table.players:
@@ -228,29 +227,6 @@ class GameBoard:
                     )
                 )
 
-                for open_info in private_observation.curr_hand.opens:
-                    p.tile_units.append(
-                        TileUnit(
-                            open_utils.open_event_type(open_info),
-                            open_utils.open_from(open_info),
-                            [
-                                Tile(i, True, self.is_using_unicode)
-                                for i in open_utils.open_tile_ids(open_info)
-                            ],
-                        )
-                    )
-
-            else:
-                p.tile_units.append(
-                    TileUnit(
-                        TileUnitType.HAND,
-                        FromWho.NONE,
-                        [
-                            Tile((120 + i * 4) % 133, False, self.is_using_unicode)
-                            for i in range(13)
-                        ],
-                    )
-                )
         return table
 
     def decode_public_observation(self, table: MahjongTable, public_observation):
@@ -263,31 +239,82 @@ class GameBoard:
         for i, p in enumerate(table.players):
             p.name = public_observation.player_ids[i]
             p.score = public_observation.init_score.tens[i]
-            for eve in public_observation.events:
-                if eve.who != i:
-                    continue
 
+        for eve in public_observation.events:
+            if eve.type == 0:
+                for p in table.players:
+                    for t_u in p.tile_units:
+                        if (
+                            eve.who == p.player_idx
+                            and t_u.tile_unit_type == TileUnitType.DISCARD
+                        ):
+                            t_u.tiles.append(
+                                Tile(eve.tile, True, self.is_using_unicode)
+                            )
+
+            if eve.type == 1:
+                for p in table.players:
+                    for t_u in p.tile_units:
+                        if (
+                            eve.who == p.player_idx
+                            and t_u.tile_unit_type == TileUnitType.DISCARD
+                        ):
+                            t_u.tiles.append(
+                                Tile(eve.tile, True, self.is_using_unicode, True)
+                            )
+
+            if eve.type in [3, 4, 7, 8, 9]:
+                for p in table.players:
+                    if eve.who == p.player_idx:
+                        p.tile_units.append(
+                            TileUnit(
+                                open_utils.open_event_type(eve.open),
+                                open_utils.open_from(eve.open),
+                                [
+                                    Tile(i, True, self.is_using_unicode)
+                                    for i in open_utils.open_tile_ids(eve.open)
+                                ],
+                            )
+                        )
+
+                        idx_from = 100
+                        if open_utils.open_from(eve.open) == FromWho.LEFT:
+                            idx_from = (p.player_idx + 3) % 4
+                        elif open_utils.open_from(eve.open) == FromWho.MID:
+                            idx_from = (p.player_idx + 2) % 4
+                        elif open_utils.open_from(eve.open) == FromWho.RIGHT:
+                            idx_from = (p.player_idx + 1) % 4
+
+                        for p_from in table.players:
+                            for p_from_t_u in p_from.tile_units:
+                                if (
+                                    p_from.player_idx == idx_from
+                                    and p_from_t_u.tile_unit_type
+                                    == TileUnitType.DISCARD
+                                    and p_from_t_u.tiles != []
+                                ):
+                                    p_from_t_u.tiles.pop(-1)
+
+        for p in table.players:
+            if p.player_idx != table.my_idx:
+                hands_num = 14
                 for t_u in p.tile_units:
-                    if t_u.tile_unit_type == TileUnitType.DISCARD and eve.type == 0:
-                        t_u.tiles.append(Tile(eve.tile, True, self.is_using_unicode))
-                    if (
-                        t_u.tile_unit_type == TileUnitType.DISCARD and eve.type == 1
-                    ):  # TSUMOGIRI
-                        t_u.tiles.append(
-                            Tile(eve.tile, True, self.is_using_unicode, True)
-                        )
+                    if t_u.tile_unit_type not in [
+                        TileUnitType.DISCARD,
+                        TileUnitType.HAND,
+                    ]:
+                        hands_num -= 3
 
-                if eve.type in [3, 4, 7, 8, 9]:
-                    p.tile_units.append(
-                        TileUnit(
-                            open_utils.open_event_type(eve.open),
-                            open_utils.open_from(eve.open),
-                            [
-                                Tile(i, True, self.is_using_unicode)
-                                for i in open_utils.open_tile_ids(eve.open)
-                            ],
-                        )
+                p.tile_units.append(
+                    TileUnit(
+                        TileUnitType.HAND,
+                        FromWho.NONE,
+                        [
+                            Tile((120 + i * 4) % 133, False, self.is_using_unicode)
+                            for i in range(hands_num)
+                        ],
                     )
+                )
 
         table.round = public_observation.init_score.round + 1
         table.honba = public_observation.init_score.honba
@@ -311,16 +338,20 @@ class GameBoard:
             table, gamedata.private_observation, gamedata.who
         )
 
-        if not table.check_num_tiles():
-            exit(1)
+        # if not table.check_num_tiles():
+        #    exit(1)
 
         return table
 
     def load_data(self):
         with open(self.path, "r", errors="ignore") as f:
+            i = 0
             for line in f:
                 table = self.decode_observation(line)
                 self.tables.append(table)
+                i += 1
+                if i == 20:
+                    break
 
         return self.tables
 
@@ -616,28 +647,28 @@ def main():
     <BLANKLINE>
     SOUTH [ 25000 ] target-player
     <BLANKLINE>
-    m2 m7 m8 p3 p5 p6 p9 s3 s3 s8 ew wd gd
+    m2 m6 p1 p5 p7 p8 s4 s7 ew ww ww nw nw
     <BLANKLINE>
     <BLANKLINE>
     <BLANKLINE>
     <BLANKLINE>
     WEST [ 25000 ] rule-based-2
     <BLANKLINE>
-    # # # # # # # # # # # # #
+    # # # # # # # # # # # # # #
     <BLANKLINE>
     <BLANKLINE>
     <BLANKLINE>
     <BLANKLINE>
     NORTH [ 25000 ] rule-based-3
     <BLANKLINE>
-    # # # # # # # # # # # # #
+    # # # # # # # # # # # # # #
     <BLANKLINE>
     <BLANKLINE>
     <BLANKLINE>
     <BLANKLINE>
     EAST [ 25000 ] rule-based-0
     <BLANKLINE>
-    # # # # # # # # # # # # #
+    # # # # # # # # # # # # # #
     <BLANKLINE>
     <BLANKLINE>
     <BLANKLINE>
@@ -667,6 +698,7 @@ def main():
         game_board.show_by_rich(game_data[i])
     else:
         print(game_board.show_by_text(game_data[i]))
+    print("turn:", i)
     command = input()
 
     while command != "q":
@@ -674,18 +706,22 @@ def main():
             i = (i + turns - 1) % turns
         if command == "x":
             i = (i + 1) % turns
+        if command == "a":
+            i = 0
 
         if os.name == "nt":
             os.system("cls")
         else:
             os.system("clear")
 
+        game_data[i].check_num_tiles()
+
         if args.rich:
             game_board.show_by_rich(game_data[i])
         else:
             print(game_board.show_by_text(game_data[i]))
-
         print("turn:", i)
+
         command = input()
 
 
