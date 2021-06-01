@@ -263,6 +263,11 @@ class GameBoard:
                                 Tile(eve.tile, True, self.is_using_unicode, True)
                             )
 
+            if eve.type == 2:
+                for p in table.players:
+                    if eve.who == p.player_idx:
+                        p.is_declared_riichi = True
+
             if eve.type in [3, 4, 7, 8, 9]:
                 for p in table.players:
                     if eve.who == p.player_idx:
@@ -297,8 +302,6 @@ class GameBoard:
         table.round = public_observation.init_score.round + 1
         table.honba = public_observation.init_score.honba
         table.riichi = public_observation.init_score.riichi
-        table.last_action = 1
-        table.wall_num = 36
 
         return table
 
@@ -341,6 +344,8 @@ class GameBoard:
 
             p.wind = (-table.round + 1 + i) % 4
 
+        table.wall_num = self.get_wall_num(table)
+
         return table
 
     def decode_state(self, jsondata):
@@ -360,7 +365,17 @@ class GameBoard:
         for i, p in enumerate(table.players):
             p.wind = (table.round - 1 + i) % 4
 
+        table.wall_num = self.get_wall_num(table)
+
         return table
+
+    def get_wall_num(self, table: MahjongTable) -> int:
+        all = 136
+        for p in table.players:
+            for t_u in p.tile_units:
+                all -= len(t_u.tiles)
+
+        return all
 
     def load_data(self):
         with open(self.path, "r", errors="ignore") as f:
@@ -560,10 +575,9 @@ class GameBoard:
 
         system_info = []
         system_info.append(
-            get_wind_char(table.my_idx, self.language)
+            get_wind_char(table.players[0].wind, self.language)
             + ["'s turn now.\n", "の番です\n"][self.language]
         )
-        system_info.append("ActionType:" + str(table.last_action))
         system_info = "".join(system_info)
 
         return "".join([board_info, players_info, system_info])
@@ -722,9 +736,13 @@ def main():
 
     while command != "q":
         if command == "z":
-            i = (i + turns - 1) % turns
+            i = (i - 20) % turns
         if command == "x":
+            i = (i - 1) % turns
+        if command == "c":
             i = (i + 1) % turns
+        if command == "v":
+            i = (i + 20) % turns
         if command == "a":
             i = 0
 
