@@ -126,6 +126,7 @@ add_library(mjx STATIC
         internal/win_info.h
         internal/win_score.h
         internal/yaku_evaluator.h
+        env.h
         internal/abstruct_hand.cpp
         internal/action.cpp
         internal/agent.cpp
@@ -154,6 +155,7 @@ add_library(mjx STATIC
         internal/win_info.cpp
         internal/win_score.cpp
         internal/yaku_evaluator.cpp
+        env.cpp
         ${mjx_proto_srcs} ${mjx_grpc_srcs} ${mjx_proto_hdrs} ${mjx_grpc_hdrs})
 target_include_directories(mjx PUBLIC ${Boost_INCLUDE_DIRS})
 target_link_libraries(mjx PUBLIC ${_REFLECTION} ${_GRPC_GRPCPP} ${_PROTOBUF_LIBPROTOBUF})
