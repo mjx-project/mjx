@@ -77,9 +77,10 @@ class MahjongTable:
 
     def check_num_tiles(self) -> bool:
         for p in self.players:
+            num_of_tiles = 0
             for tile_unit in p.tile_units:
                 if tile_unit.tile_unit_type == TileUnitType.HAND:
-                    num_of_tiles = len(tile_unit.tiles)
+                    num_of_tiles += len(tile_unit.tiles)
                 elif tile_unit.tile_unit_type != TileUnitType.DISCARD:
                     num_of_tiles += 3
 
@@ -205,27 +206,29 @@ class GameBoard:
             Layout(" ", name="player1_info_corner"),
         )
 
-    def decode_private_observation(self, table: MahjongTable, gamedata):
+    def decode_private_observation(
+        self, table: MahjongTable, private_observation, who: int
+    ):
         """
         MahjongTableのデータに、
         - 手牌
         - 鳴き牌
         の情報を読み込ませる関数
         """
-        for i, p in enumerate(table.players):
-            if i == gamedata.who:
+        for p in table.players:
+            if p.player_idx == who:
                 p.tile_units.append(
                     TileUnit(
                         TileUnitType.HAND,
                         FromWho.NONE,
                         [
                             Tile(i, True, self.is_using_unicode)
-                            for i in gamedata.private_observation.curr_hand.closed_tiles
+                            for i in private_observation.curr_hand.closed_tiles
                         ],
                     )
                 )
 
-                for open_info in gamedata.private_observation.curr_hand.opens:
+                for open_info in private_observation.curr_hand.opens:
                     p.tile_units.append(
                         TileUnit(
                             open_utils.open_event_type(open_info),
@@ -250,7 +253,7 @@ class GameBoard:
                 )
         return table
 
-    def decode_public_observation(self, table: MahjongTable, gamedata):
+    def decode_public_observation(self, table: MahjongTable, public_observation):
         """
         MahjongTableのデータに、
         - 手牌
@@ -258,24 +261,39 @@ class GameBoard:
         **以外**の情報を読み込ませる関数
         """
         for i, p in enumerate(table.players):
-            p.name = gamedata.public_observation.player_ids[i]
-            p.score = gamedata.public_observation.init_score.tens[i]
-            p.player_idx = i
-            p.wind = i
-            for eve in gamedata.public_observation.events:
+            p.name = public_observation.player_ids[i]
+            p.score = public_observation.init_score.tens[i]
+            for eve in public_observation.events:
                 if eve.who != i:
                     continue
 
                 for t_u in p.tile_units:
                     if t_u.tile_unit_type == TileUnitType.DISCARD and eve.type == 0:
                         t_u.tiles.append(Tile(eve.tile, True, self.is_using_unicode))
+                    if (
+                        t_u.tile_unit_type == TileUnitType.DISCARD and eve.type == 1
+                    ):  # TSUMOGIRI
+                        t_u.tiles.append(
+                            Tile(eve.tile, True, self.is_using_unicode, True)
+                        )
 
-        table.round = gamedata.public_observation.init_score.round + 1
-        table.honba = gamedata.public_observation.init_score.honba
-        table.riichi = gamedata.public_observation.init_score.riichi
+                if eve.type in [3, 4, 7, 8, 9]:
+                    p.tile_units.append(
+                        TileUnit(
+                            open_utils.open_event_type(eve.open),
+                            open_utils.open_from(eve.open),
+                            [
+                                Tile(i, True, self.is_using_unicode)
+                                for i in open_utils.open_tile_ids(eve.open)
+                            ],
+                        )
+                    )
+
+        table.round = public_observation.init_score.round + 1
+        table.honba = public_observation.init_score.honba
+        table.riichi = public_observation.init_score.riichi
         table.last_action = 1
         table.wall_num = 36
-        table.my_idx = gamedata.who
 
         return table
 
@@ -284,8 +302,14 @@ class GameBoard:
         gamedata.from_json(jsondata)
 
         table = MahjongTable()
-        table = self.decode_private_observation(table, gamedata)
-        table = self.decode_public_observation(table, gamedata)
+        for i, p in enumerate(table.players):
+            p.player_idx = i
+            p.wind = i
+        table.my_idx = gamedata.who
+        table = self.decode_public_observation(table, gamedata.public_observation)
+        table = self.decode_private_observation(
+            table, gamedata.private_observation, gamedata.who
+        )
 
         if not table.check_num_tiles():
             exit(1)

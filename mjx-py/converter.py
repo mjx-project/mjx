@@ -116,7 +116,7 @@ to_modifier_add_kan = {
 
 
 def get_tile_char(tile_id: int, is_using_unicode: bool) -> str:
-    if tile_id < 0 or 132 < tile_id:
+    if tile_id < 0 or 136 < tile_id:
         return " "
     if is_using_unicode:
         return to_unicode[tile_id // 4]
