@@ -365,14 +365,14 @@ class GameBoard:
             )
 
         for i, p in enumerate(table.players):
-            p.wind = (table.round - 1 + i) % 4
+            p.wind = (-table.round + 1 + i) % 4
 
         table.wall_num = self.get_wall_num(table)
 
         return table
 
     def get_wall_num(self, table: MahjongTable) -> int:
-        all = 136
+        all = 136 - 14
         for p in table.players:
             for t_u in p.tile_units:
                 all -= len(t_u.tiles)
