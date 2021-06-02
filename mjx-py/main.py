@@ -87,7 +87,7 @@ class MahjongTable:
             if num_of_tiles < 13 or 14 < num_of_tiles:
                 print("ERROR: The number of tiles is inaccurate.")
                 print("player", p.player_idx, ":", num_of_tiles)
-                # return False
+                return False
         return True
 
 
@@ -116,19 +116,14 @@ class GameBoard:
         self.tables = []
 
         self.layout = Layout()
-        self.layout.split_column(
-            Layout(" ", name="space_top"),
-            Layout(name="info"),
-            Layout(name="players_info_top"),
-            Layout(" ", name="space"),
-            Layout(name="table"),
-        )
-        self.layout["space_top"].size = 2
-        self.layout["info"].size = 3
-        self.layout["space"].size = 1
-        self.layout["table"].minimum_size = 20
 
         if show_name:
+            self.layout.split_column(
+                Layout(" ", name="space_top"),
+                Layout(name="info"),
+                Layout(name="players_info_top"),
+                Layout(name="table"),
+            )
             self.layout["players_info_top"].size = 7
             self.layout["players_info_top"].split_row(
                 Layout(" ", name="player1_info_top"),
@@ -137,8 +132,15 @@ class GameBoard:
                 Layout(" ", name="player4_info_top"),
             )
         else:
-            self.layout["players_info_top"].size = 1
-            self.layout["players_info_top"].update(" ")
+            self.layout.split_column(
+                Layout(" ", name="space_top"),
+                Layout(name="info"),
+                Layout(name="table"),
+            )
+
+        self.layout["space_top"].size = 2
+        self.layout["info"].size = 3
+        self.layout["table"].minimum_size = 20
 
         self.layout["table"].split_column(
             Layout(name="upper1"),
@@ -676,7 +678,7 @@ def main():
     """
     >>> game_board = GameBoard("observations.json", "obs", False, False, 0 , True)
     >>> print(game_board.show_by_text(game_board.load_data()[0]))  # doctest: +NORMALIZE_WHITESPACE
-    round:1 wall:36
+    round:1 wall:84
     <BLANKLINE>
     SOUTH [ 25000 ] target-player
     <BLANKLINE>
@@ -707,11 +709,11 @@ def main():
     <BLANKLINE>
     <BLANKLINE>
     SOUTH's turn now.
-    ActionType:1
+    <BLANKLINE>
     """
     parser = argparse.ArgumentParser()
     parser.add_argument("--path", default="observations.json")
-    parser.add_argument("--mode", default="obs")
+    parser.add_argument("--mode", choices=["obs", "sta"], default="obs")
     parser.add_argument("--uni", action="store_true")
     parser.add_argument("--rich", action="store_true")
     parser.add_argument("--show_name", action="store_true")
