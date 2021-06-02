@@ -269,6 +269,14 @@ class GameBoard:
                 for p in table.players:
                     if eve.who == p.player_idx:
                         p.is_declared_riichi = True
+                        p.score -= 1000
+
+            if eve.type == 10:
+                for p in table.players:
+                    if (eve.who - 1) % 4 == p.player_idx:
+                        for t_u in p.tile_units:
+                            if t_u.tile_unit_type == TileUnitType.DISCARD:
+                                t_u.tiles.pop(-1)
 
             if eve.type in [3, 4, 7, 8, 9]:
                 for p in table.players:
@@ -678,7 +686,7 @@ def main():
     """
     >>> game_board = GameBoard("observations.json", "obs", False, False, 0 , True)
     >>> print(game_board.show_by_text(game_board.load_data()[0]))  # doctest: +NORMALIZE_WHITESPACE
-    round:1 wall:84
+    round:1 wall:70
     <BLANKLINE>
     SOUTH [ 25000 ] target-player
     <BLANKLINE>
