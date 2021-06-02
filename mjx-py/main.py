@@ -656,26 +656,32 @@ class GameBoard:
                 self.layout[players_info_top[i]].update(
                     Panel(player_info + Text("\n\n") + name, style="bold green")
                 )
-
             hand = self.get_modified_tiles(table, i, TileUnitType.HAND)
             chi = self.get_modified_tiles(table, i, TileUnitType.CHI)
             pon = self.get_modified_tiles(table, i, TileUnitType.PON)
             open_kan = self.get_modified_tiles(table, i, TileUnitType.OPEN_KAN)
             closed_kan = self.get_modified_tiles(table, i, TileUnitType.CLOSED_KAN)
             added_kan = self.get_modified_tiles(table, i, TileUnitType.ADDED_KAN)
-            hand_area = hand + "      " + chi + pon + open_kan + closed_kan + added_kan
+            if p.player_idx in [(table.my_idx + 1) % 4, (table.my_idx + 2) % 4]:
+                hand_area = (
+                    chi + pon + open_kan + closed_kan + added_kan + "      " + hand
+                )
+            else:
+                hand_area = (
+                    hand + "      " + chi + pon + open_kan + closed_kan + added_kan
+                )
             self.layout[hands_idx[i]].update(
                 Panel(
                     Text(hand_area, justify="center", no_wrap=True, style="white"),
                     style="bold green",
                 )
             )
+
             discards = Text(
                 self.get_modified_tiles(table, i, TileUnitType.DISCARD),
                 justify="left",
                 style="white",
             )
-
             self.layout[discards_idx[i]].update(Panel(discards, style="bold green"))
 
         console = Console()
@@ -741,8 +747,7 @@ def main():
         game_board.show_by_rich(game_data[i])
     else:
         print(game_board.show_by_text(game_data[i]))
-    print("turn:", i)
-    command = input()
+    command = input("z:-20, x:-1, c:+1, v:+20 :")
 
     while command != "q":
         if command == "z":
@@ -767,9 +772,8 @@ def main():
             game_board.show_by_rich(game_data[i])
         else:
             print(game_board.show_by_text(game_data[i]))
-        print("turn:", i)
 
-        command = input()
+        command = input("z:-20, x:-1, c:+1, v:+20 :")
 
 
 if __name__ == "__main__":
