@@ -447,6 +447,36 @@ class GameBoard:
                             )
                             + "\n"
                         )
+                    elif player_idx == 2:
+                        if tile_unit.tile_unit_type == TileUnitType.HAND:
+                            tiles += "".join(
+                                [
+                                    tile.char
+                                    + ("" if tile.char == "\U0001F004\uFE0E" else " ")
+                                    for tile in tile_unit.tiles
+                                ]
+                            )
+                            break
+                        tiles += get_modifier(
+                            tile_unit.from_who, tile_unit.tile_unit_type
+                        ) + "".join(
+                            [
+                                tile.char
+                                + (
+                                    ""
+                                    if (
+                                        not self.is_using_unicode
+                                        or tile.char == "\U0001F004\uFE0E"
+                                    )
+                                    else " "
+                                )
+                                for tile in sorted(
+                                    tile_unit.tiles,
+                                    key=lambda x: x.id,
+                                    reverse=True,
+                                )
+                            ]
+                        )
                     elif player_idx == 3:
                         tiles += (
                             "\n"
@@ -455,6 +485,7 @@ class GameBoard:
                             + get_modifier(tile_unit.from_who, tile_unit.tile_unit_type)
                             + "\n"
                         )
+
                     else:
                         if tile_unit.tile_unit_type == TileUnitType.HAND:
                             tiles += "".join(
