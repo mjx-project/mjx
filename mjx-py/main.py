@@ -1,7 +1,11 @@
 import argparse
+import os
+import re
+import mjxproto
+import open_utils
 from converter import TileUnitType, FromWho
 from converter import get_modifier, get_tile_char, get_wind_char
-from rich import jupyter, print
+from rich import print
 from rich.layout import Layout
 from rich.panel import Panel
 from rich.console import Console
@@ -42,22 +46,19 @@ class TileUnit:
 
 
 class Player:
-    def __init__(
-        self,
-        player_idx: int,
-        wind: int,
-        score: int,
-        name: str,
-    ):
-        self.player_idx = player_idx
-        self.wind = wind
-        self.score = score
-        self.tile_units = []
+    def __init__(self):
+        self.player_idx: int
+        self.wind: int
+        self.score: int
+        self.tile_units = [
+            TileUnit(
+                TileUnitType.DISCARD,
+                FromWho.NONE,
+                [],
+            )
+        ]
         self.is_declared_riichi = False
-        self.name = name
-
-    def add_status():
-        pass
+        self.name: str
 
 
 class MahjongTable:
@@ -65,27 +66,21 @@ class MahjongTable:
     MahjongTableクラスは場の情報（プレイヤーの手牌や河など）を保持します。
     """
 
-    def __init__(
-        self,
-        player1: Player,
-        player2: Player,
-        player3: Player,
-        player4: Player,
-    ):
-        self.players = [player1, player2, player3, player4]
+    def __init__(self):
+        self.players = [Player() for _ in range(4)]
         self.riichi = 0
         self.round = 0
         self.honba = 0
         self.last_action = 0  # 0-10
-        self.last_player = 0  # 0-3
         self.my_idx = 0  # 0-3; The player you want to show.
         self.wall_num = 134
 
     def check_num_tiles(self) -> bool:
         for p in self.players:
+            num_of_tiles = 0
             for tile_unit in p.tile_units:
                 if tile_unit.tile_unit_type == TileUnitType.HAND:
-                    num_of_tiles = len(tile_unit.tiles)
+                    num_of_tiles += len(tile_unit.tiles)
                 elif tile_unit.tile_unit_type != TileUnitType.DISCARD:
                     num_of_tiles += 3
 
@@ -112,31 +107,40 @@ class GameBoard:
         show_name: bool,
     ):
         self.path = path
-        self.name = mode
+        self.mode = mode
         self.is_using_unicode = is_using_unicode
         self.is_using_rich = is_using_rich
         self.language = language
         self.show_name = show_name
         self.my_idx = 0
+        self.tables = []
 
         self.layout = Layout()
-        self.layout.split_column(
-            Layout(name="info"),
-            Layout(name="players_info_top"),
-            Layout(" ", name="space"),
-            Layout(name="table"),
-        )
-        self.layout["info"].size = 3
-        self.layout["players_info_top"].size = 8
-        self.layout["space"].size = 1
-        self.layout["table"].minimum_size = 20
 
-        self.layout["players_info_top"].split_row(
-            Layout(" ", name="player1_info_top"),
-            Layout(" ", name="player2_info_top"),
-            Layout(" ", name="player3_info_top"),
-            Layout(" ", name="player4_info_top"),
-        )
+        if show_name:
+            self.layout.split_column(
+                Layout(" ", name="space_top"),
+                Layout(name="info"),
+                Layout(name="players_info_top"),
+                Layout(name="table"),
+            )
+            self.layout["players_info_top"].size = 7
+            self.layout["players_info_top"].split_row(
+                Layout(" ", name="player1_info_top"),
+                Layout(" ", name="player2_info_top"),
+                Layout(" ", name="player3_info_top"),
+                Layout(" ", name="player4_info_top"),
+            )
+        else:
+            self.layout.split_column(
+                Layout(" ", name="space_top"),
+                Layout(name="info"),
+                Layout(name="table"),
+            )
+
+        self.layout["space_top"].size = 2
+        self.layout["info"].size = 3
+        self.layout["table"].minimum_size = 20
 
         self.layout["table"].split_column(
             Layout(name="upper1"),
@@ -159,7 +163,7 @@ class GameBoard:
             Layout(name="middle2"),
             Layout(" ", name="hand2"),
         )
-        self.layout["middle2"].ratio = 6
+        self.layout["middle2"].ratio = 10
 
         self.layout["lower1"].split_row(
             Layout(" "),
@@ -203,219 +207,204 @@ class GameBoard:
             Layout(" ", name="discard1"),
             Layout(" ", name="player1_info_corner"),
         )
+
+    def decode_private_observation(
+        self, table: MahjongTable, private_observation, who: int
+    ):
         """
-        self.layout["discard1"].split_column(
-            Layout(" ", name="name1"),
-            Layout(" ", name="player1_discard"),
-        )
-        self.layout["name1"].size = 3
-        self.layout["discard2"].split_column(
-            Layout(" ", name="name2"),
-            Layout(" ", name="player2_discard"),
-        )
-        self.layout["name2"].size = 3
-        self.layout["discard3"].split_column(
-            Layout(" ", name="name3"),
-            Layout(" ", name="player3_discard"),
-        )
-        self.layout["name3"].size = 3
-        self.layout["discard4"].split_column(
-            Layout(" ", name="name4"),
-            Layout(" ", name="player4_discard"),
-        )
-        self.layout["name4"].size = 3"""
-
-    def load_data(self) -> MahjongTable:
+        MahjongTableのデータに、
+        - 手牌
+        の情報を読み込ませる関数
         """
-        ここでEventHistoryから現在の状態を読み取る予定です。
-
-        with open(self.path, "r", errors="ignore") as f:
-            for line in f:
-                gamedata = mjxproto.Observation()
-                gamedata.from_json(line)
-
-                # 入力作業
-
-        今はテスト用に、直に打ち込んでいます。
-        """
-        player1 = Player(
-            0,
-            0,
-            25000,
-            "太郎",
-        )
-        player2 = Player(
-            1,
-            1,
-            25000,
-            "次郎",
-        )
-        player3 = Player(
-            2,
-            2,
-            25000,
-            "三郎",
-        )
-        player4 = Player(
-            3,
-            3,
-            25000,
-            "四郎",
-        )
-
-        # player1
-        p1_hands = TileUnit(
-            TileUnitType.HAND,
-            FromWho.NONE,
-            [Tile((120 + i * 4) % 133, True, self.is_using_unicode) for i in range(8)],
-        )
-        player1.tile_units.append(p1_hands)
-        p1_chi1 = TileUnit(
-            TileUnitType.CHI,
-            FromWho.LEFT,
-            [
-                Tile(48, True, self.is_using_unicode),
-                Tile(52, True, self.is_using_unicode),
-                Tile(56, True, self.is_using_unicode),
-            ],
-        )
-        player1.tile_units.append(p1_chi1)
-        p1_chi2 = TileUnit(
-            TileUnitType.CHI,
-            FromWho.LEFT,
-            [
-                Tile(60, True, self.is_using_unicode),
-                Tile(64, True, self.is_using_unicode),
-                Tile(68, True, self.is_using_unicode),
-            ],
-        )
-        player1.tile_units.append(p1_chi2)
-
-        # player2
-        p2_hands = TileUnit(
-            TileUnitType.HAND,
-            FromWho.NONE,
-            [Tile(i * 4, False, self.is_using_unicode) for i in range(8)],
-        )
-        player2.tile_units.append(p2_hands)
-        p2_pon1 = TileUnit(
-            TileUnitType.PON,
-            FromWho.MID,
-            [
-                Tile(72, True, self.is_using_unicode),
-                Tile(73, True, self.is_using_unicode),
-                Tile(74, True, self.is_using_unicode),
-            ],
-        )
-        player2.tile_units.append(p2_pon1)
-        p2_pon2 = TileUnit(
-            TileUnitType.PON,
-            FromWho.RIGHT,
-            [
-                Tile(76, True, self.is_using_unicode),
-                Tile(77, True, self.is_using_unicode),
-                Tile(78, True, self.is_using_unicode),
-            ],
-        )
-        player2.tile_units.append(p2_pon2)
-
-        # player3
-        p3_hands = TileUnit(
-            TileUnitType.HAND,
-            FromWho.NONE,
-            [Tile(i * 4, False, self.is_using_unicode) for i in range(8)],
-        )
-        player3.tile_units.append(p3_hands)
-        p3_kan1 = TileUnit(
-            TileUnitType.OPEN_KAN,
-            FromWho.RIGHT,
-            [
-                Tile(80, True, self.is_using_unicode),
-                Tile(81, True, self.is_using_unicode),
-                Tile(82, True, self.is_using_unicode),
-                Tile(83, True, self.is_using_unicode),
-            ],
-        )
-        player3.tile_units.append(p3_kan1)
-        p3_kan2 = TileUnit(
-            TileUnitType.OPEN_KAN,
-            FromWho.RIGHT,
-            [
-                Tile(84, True, self.is_using_unicode),
-                Tile(85, True, self.is_using_unicode),
-                Tile(86, True, self.is_using_unicode),
-                Tile(87, True, self.is_using_unicode),
-            ],
-        )
-        player3.tile_units.append(p3_kan2)
-        player3.is_declared_riichi = True
-
-        # player4
-        p4_hands = TileUnit(
-            TileUnitType.HAND,
-            FromWho.NONE,
-            [Tile(i * 4, False, self.is_using_unicode) for i in range(8)],
-        )
-        player4.tile_units.append(p4_hands)
-        p4_kan1 = TileUnit(
-            TileUnitType.CLOSED_KAN,
-            FromWho.RIGHT,
-            [
-                Tile(96, True, self.is_using_unicode),
-                Tile(97, True, self.is_using_unicode),
-                Tile(98, True, self.is_using_unicode),
-                Tile(99, True, self.is_using_unicode),
-            ],
-        )
-        player4.tile_units.append(p4_kan1)
-        p4_kan2 = TileUnit(
-            TileUnitType.ADDED_KAN,
-            FromWho.LEFT,
-            [
-                Tile(100, True, self.is_using_unicode),
-                Tile(101, True, self.is_using_unicode),
-                Tile(102, True, self.is_using_unicode),
-                Tile(103, True, self.is_using_unicode),
-            ],
-        )
-        player4.tile_units.append(p4_kan2)
-
-        for p in [player1, player2, player3, player4]:
-            p.tile_units.append(
-                TileUnit(
-                    TileUnitType.DISCARD,
-                    FromWho.NONE,
-                    [
-                        Tile(124, True, self.is_using_unicode),
-                        Tile(40, True, self.is_using_unicode, True),
-                        Tile(128, True, self.is_using_unicode),
-                        Tile(108, True, self.is_using_unicode, True),
-                        Tile(112, True, self.is_using_unicode),
-                        Tile(116, True, self.is_using_unicode),
-                        Tile(120, True, self.is_using_unicode, True),
-                        Tile(36, True, self.is_using_unicode),
-                    ],
+        for p in table.players:
+            if p.player_idx == who:
+                p.tile_units.append(
+                    TileUnit(
+                        TileUnitType.HAND,
+                        FromWho.NONE,
+                        [
+                            Tile(i, True, self.is_using_unicode)
+                            for i in private_observation.curr_hand.closed_tiles
+                        ],
+                    )
                 )
-            )
 
-        table = MahjongTable(player1, player2, player3, player4)
-        table.round = 6  # 南2局
-        table.honba = 1
-        table.riichi = 1
-        table.last_player = 3
-        table.last_action = 1
-        table.wall_num = 36
-
-        if not table.check_num_tiles():
-            exit(1)
-
-        self.table = table
         return table
 
-    def get_modified_tiles(self, player_idx: int, tile_unit_type: TileUnitType):
+    def decode_public_observation(self, table: MahjongTable, public_observation):
+        """
+        MahjongTableのデータに、
+        - 手牌
+        - 鳴き牌
+        **以外**の情報を読み込ませる関数
+        """
+        for i, p in enumerate(table.players):
+            p.name = public_observation.player_ids[i]
+            p.score = public_observation.init_score.tens[i]
+
+        for eve in public_observation.events:
+            if eve.type == 0:
+                for p in table.players:
+                    for t_u in p.tile_units:
+                        if (
+                            eve.who == p.player_idx
+                            and t_u.tile_unit_type == TileUnitType.DISCARD
+                        ):
+                            t_u.tiles.append(
+                                Tile(eve.tile, True, self.is_using_unicode)
+                            )
+
+            if eve.type == 1:
+                for p in table.players:
+                    for t_u in p.tile_units:
+                        if (
+                            eve.who == p.player_idx
+                            and t_u.tile_unit_type == TileUnitType.DISCARD
+                        ):
+                            t_u.tiles.append(
+                                Tile(eve.tile, True, self.is_using_unicode, True)
+                            )
+
+            if eve.type == 2:
+                for p in table.players:
+                    if eve.who == p.player_idx:
+                        p.is_declared_riichi = True
+                        p.score -= 1000
+
+            if eve.type == 10:
+                for p in table.players:
+                    if (eve.who - 1) % 4 == p.player_idx:
+                        for t_u in p.tile_units:
+                            if t_u.tile_unit_type == TileUnitType.DISCARD:
+                                t_u.tiles.pop(-1)
+
+            if eve.type in [3, 4, 7, 8, 9]:
+                for p in table.players:
+                    if eve.who == p.player_idx:
+                        p.tile_units.append(
+                            TileUnit(
+                                open_utils.open_event_type(eve.open),
+                                open_utils.open_from(eve.open),
+                                [
+                                    Tile(i, True, self.is_using_unicode)
+                                    for i in open_utils.open_tile_ids(eve.open)
+                                ],
+                            )
+                        )
+
+                        idx_from = -1
+                        if open_utils.open_from(eve.open) == FromWho.LEFT:
+                            idx_from = (p.player_idx + 3) % 4
+                        elif open_utils.open_from(eve.open) == FromWho.MID:
+                            idx_from = (p.player_idx + 2) % 4
+                        elif open_utils.open_from(eve.open) == FromWho.RIGHT:
+                            idx_from = (p.player_idx + 1) % 4
+
+                        for p_from in table.players:
+                            for p_from_t_u in p_from.tile_units:
+                                if (
+                                    p_from.player_idx == idx_from
+                                    and p_from_t_u.tile_unit_type
+                                    == TileUnitType.DISCARD
+                                ):
+                                    p_from_t_u.tiles.pop(-1)
+
+        table.round = public_observation.init_score.round + 1
+        table.honba = public_observation.init_score.honba
+        table.riichi = public_observation.init_score.riichi
+
+        return table
+
+    def decode_observation(self, jsondata):
+        gamedata = mjxproto.Observation()
+        gamedata.from_json(jsondata)
+
+        table = MahjongTable()
+
+        table.my_idx = gamedata.who
+        for i, p in enumerate(table.players):
+            p.player_idx = i
+            p.wind = i
+
+        table = self.decode_public_observation(table, gamedata.public_observation)
+        table = self.decode_private_observation(
+            table, gamedata.private_observation, gamedata.who
+        )
+
+        for i, p in enumerate(table.players):
+            if p.player_idx != table.my_idx:
+                hands_num = 13
+                for t_u in p.tile_units:
+                    if t_u.tile_unit_type not in [
+                        TileUnitType.DISCARD,
+                        TileUnitType.HAND,
+                    ]:
+                        hands_num -= 3
+
+                p.tile_units.append(
+                    TileUnit(
+                        TileUnitType.HAND,
+                        FromWho.NONE,
+                        [
+                            Tile(i, False, self.is_using_unicode)
+                            for i in range(hands_num)
+                        ],
+                    )
+                )
+
+            p.wind = (-table.round + 1 + i) % 4
+
+        table.wall_num = self.get_wall_num(table)
+
+        return table
+
+    def decode_state(self, jsondata):
+        gamedata = mjxproto.State()
+        gamedata.from_json(jsondata)
+
+        table = MahjongTable()
+        for i, p in enumerate(table.players):
+            p.player_idx = i
+        table.my_idx = 0
+        table = self.decode_public_observation(table, gamedata.public_observation)
+        for p in table.players:
+            table = self.decode_private_observation(
+                table, gamedata.private_observations[p.player_idx], p.player_idx
+            )
+
+        for i, p in enumerate(table.players):
+            p.wind = (-table.round + 1 + i) % 4
+
+        table.wall_num = self.get_wall_num(table)
+
+        return table
+
+    def get_wall_num(self, table: MahjongTable) -> int:
+        all = 136 - 14
+        for p in table.players:
+            for t_u in p.tile_units:
+                all -= len(t_u.tiles)
+
+        return all
+
+    def load_data(self):
+        with open(self.path, "r", errors="ignore") as f:
+            self.tables = []
+            for line in f:
+                if self.mode == "obs":
+                    table = self.decode_observation(line)
+                    self.tables.append(table)
+                elif self.mode == "sta":
+                    table = self.decode_state(line)
+                    self.tables.append(table)
+        return self.tables
+
+    def get_modified_tiles(
+        self, table: MahjongTable, player_idx: int, tile_unit_type: TileUnitType
+    ):
         if self.is_using_rich:
             tiles = ""
-            for tile_unit in self.table.players[player_idx].tile_units:
+            for tile_unit in table.players[player_idx].tile_units:
                 if tile_unit.tile_unit_type == tile_unit_type:
                     if tile_unit.tile_unit_type == TileUnitType.DISCARD:
                         discards = [
@@ -437,7 +426,28 @@ class GameBoard:
                             ]
                         )
                         break
-                    if player_idx % 2 == 0:
+                    if player_idx == 1:
+                        tiles += (
+                            "\n"
+                            + get_modifier(tile_unit.from_who, tile_unit.tile_unit_type)
+                            + "\n "
+                            + (
+                                "\n "
+                                if tile_unit.tiles[0].char == "\U0001F004\uFE0E"
+                                else "\n"
+                            ).join(
+                                [
+                                    tile.char
+                                    for tile in sorted(
+                                        tile_unit.tiles,
+                                        key=lambda x: x.id,
+                                        reverse=True,
+                                    )
+                                ]
+                            )
+                            + "\n"
+                        )
+                    elif player_idx == 2:
                         if tile_unit.tile_unit_type == TileUnitType.HAND:
                             tiles += "".join(
                                 [
@@ -447,7 +457,9 @@ class GameBoard:
                                 ]
                             )
                             break
-                        tiles += "".join(
+                        tiles += get_modifier(
+                            tile_unit.from_who, tile_unit.tile_unit_type
+                        ) + "".join(
                             [
                                 tile.char
                                 + (
@@ -458,21 +470,55 @@ class GameBoard:
                                     )
                                     else " "
                                 )
-                                for tile in tile_unit.tiles
+                                for tile in sorted(
+                                    tile_unit.tiles,
+                                    key=lambda x: x.id,
+                                    reverse=True,
+                                )
                             ]
-                        ) + get_modifier(tile_unit.from_who, tile_unit.tile_unit_type)
-                    else:
+                        )
+                    elif player_idx == 3:
                         tiles += (
                             "\n"
                             + "\n".join([tile.char for tile in tile_unit.tiles])
-                            + "\n"
+                            + "\n "
                             + get_modifier(tile_unit.from_who, tile_unit.tile_unit_type)
                             + "\n"
                         )
+
+                    else:
+                        if tile_unit.tile_unit_type == TileUnitType.HAND:
+                            tiles += "".join(
+                                [
+                                    tile.char
+                                    + ("" if tile.char == "\U0001F004\uFE0E" else " ")
+                                    for tile in tile_unit.tiles
+                                ]
+                            )
+                            break
+                        tiles += (
+                            "".join(
+                                [
+                                    tile.char
+                                    + (
+                                        ""
+                                        if (
+                                            not self.is_using_unicode
+                                            or tile.char == "\U0001F004\uFE0E"
+                                        )
+                                        else " "
+                                    )
+                                    for tile in tile_unit.tiles
+                                ]
+                            )
+                            + get_modifier(tile_unit.from_who, tile_unit.tile_unit_type)
+                            + " "
+                        )
+
             return tiles
         else:
             tiles = ""
-            for tile_unit in self.table.players[player_idx].tile_units:
+            for tile_unit in table.players[player_idx].tile_units:
                 if tile_unit.tile_unit_type == tile_unit_type:
                     if tile_unit.tile_unit_type == TileUnitType.HAND:
                         tiles += "".join(
@@ -555,7 +601,7 @@ class GameBoard:
         board_info = self.get_board_info(table)
 
         players_info = []
-        table.players.sort(key=lambda x: x.player_idx)
+        table.players.sort(key=lambda x: (x.player_idx - self.my_idx) % 4)
         for i, p in enumerate(table.players):
             player_info = []
 
@@ -578,17 +624,17 @@ class GameBoard:
                 player_info.append(" " + p.name)
             player_info.append("\n\n")
 
-            hand = self.get_modified_tiles(i, TileUnitType.HAND)
-            chi = self.get_modified_tiles(i, TileUnitType.CHI)
-            pon = self.get_modified_tiles(i, TileUnitType.PON)
-            open_kan = self.get_modified_tiles(i, TileUnitType.OPEN_KAN)
-            closed_kan = self.get_modified_tiles(i, TileUnitType.CLOSED_KAN)
-            added_kan = self.get_modified_tiles(i, TileUnitType.ADDED_KAN)
+            hand = self.get_modified_tiles(table, i, TileUnitType.HAND)
+            chi = self.get_modified_tiles(table, i, TileUnitType.CHI)
+            pon = self.get_modified_tiles(table, i, TileUnitType.PON)
+            open_kan = self.get_modified_tiles(table, i, TileUnitType.OPEN_KAN)
+            closed_kan = self.get_modified_tiles(table, i, TileUnitType.CLOSED_KAN)
+            added_kan = self.get_modified_tiles(table, i, TileUnitType.ADDED_KAN)
             hand_area = hand + "      " + chi + pon + open_kan + closed_kan + added_kan
             player_info.append(hand_area)
             player_info.append("\n\n")
 
-            discards = self.get_modified_tiles(i, TileUnitType.DISCARD)
+            discards = self.get_modified_tiles(table, i, TileUnitType.DISCARD)
             player_info.append(discards)
             player_info.append("\n\n\n")
             players_info.append("".join(player_info))
@@ -596,10 +642,9 @@ class GameBoard:
 
         system_info = []
         system_info.append(
-            get_wind_char(table.last_player, self.language)
+            get_wind_char(table.players[0].wind, self.language)
             + ["'s turn now.\n", "の番です\n"][self.language]
         )
-        system_info.append("ActionType:" + str(table.last_action))
         system_info = "".join(system_info)
 
         return "".join([board_info, players_info, system_info])
@@ -627,12 +672,6 @@ class GameBoard:
             "player2_info_center",
             "player3_info_center",
             "player4_info_center",
-        ]
-        players_info_corner = [
-            "player1_info_corner",
-            "player2_info_corner",
-            "player3_info_corner",
-            "player4_info_corner",
         ]
         hands_idx = ["hand1", "hand2", "hand3", "hand4"]
         discards_idx = [
@@ -671,30 +710,35 @@ class GameBoard:
             name = Text(justify="center", style="bold green")
             if self.show_name:
                 name += Text(" " + p.name, style="white")
-
-            self.layout[players_info_top[i]].update(
-                Panel(player_info + Text("\n\n") + name, style="bold green")
-            )
-
-            hand = self.get_modified_tiles(i, TileUnitType.HAND)
-            chi = self.get_modified_tiles(i, TileUnitType.CHI)
-            pon = self.get_modified_tiles(i, TileUnitType.PON)
-            open_kan = self.get_modified_tiles(i, TileUnitType.OPEN_KAN)
-            closed_kan = self.get_modified_tiles(i, TileUnitType.CLOSED_KAN)
-            added_kan = self.get_modified_tiles(i, TileUnitType.ADDED_KAN)
-            hand_area = hand + "      " + chi + pon + open_kan + closed_kan + added_kan
+                self.layout[players_info_top[i]].update(
+                    Panel(player_info + Text("\n\n") + name, style="bold green")
+                )
+            hand = self.get_modified_tiles(table, i, TileUnitType.HAND)
+            chi = self.get_modified_tiles(table, i, TileUnitType.CHI)
+            pon = self.get_modified_tiles(table, i, TileUnitType.PON)
+            open_kan = self.get_modified_tiles(table, i, TileUnitType.OPEN_KAN)
+            closed_kan = self.get_modified_tiles(table, i, TileUnitType.CLOSED_KAN)
+            added_kan = self.get_modified_tiles(table, i, TileUnitType.ADDED_KAN)
+            if p.player_idx in [(table.my_idx + 1) % 4, (table.my_idx + 2) % 4]:
+                hand_area = (
+                    chi + pon + open_kan + closed_kan + added_kan + "      " + hand
+                )
+            else:
+                hand_area = (
+                    hand + "      " + chi + pon + open_kan + closed_kan + added_kan
+                )
             self.layout[hands_idx[i]].update(
                 Panel(
                     Text(hand_area, justify="center", no_wrap=True, style="white"),
                     style="bold green",
                 )
             )
+
             discards = Text(
-                self.get_modified_tiles(i, TileUnitType.DISCARD),
+                self.get_modified_tiles(table, i, TileUnitType.DISCARD),
                 justify="left",
                 style="white",
             )
-
             self.layout[discards_idx[i]].update(Panel(discards, style="bold green"))
 
         console = Console()
@@ -703,48 +747,44 @@ class GameBoard:
 
 def main():
     """
-    >>> game_board = GameBoard("hogepath", "Observation", False, False, 0 , True)
-    >>> print(game_board.show_by_text(game_board.load_data()))  # doctest: +NORMALIZE_WHITESPACE
-    round:6 honba:1 riichi:1    wall:36
+    >>> game_board = GameBoard("observations.json", "obs", False, False, 0 , True)
+    >>> print(game_board.show_by_text(game_board.load_data()[0]))  # doctest: +NORMALIZE_WHITESPACE
+    round:1 wall:70
     <BLANKLINE>
-    EAST [ 25000 ] 太郎
+    SOUTH [ 25000 ] target-player
     <BLANKLINE>
-    nw wd gd rd m1 m2 m3 m4       p4p5p6L p7p8p9L
-    <BLANKLINE>
-    wd  p2* gd  ew* sw  ww
-    nw* p1
+    m2 m6 p1 p5 p7 p8 s4 s7 ew ww ww nw nw
     <BLANKLINE>
     <BLANKLINE>
-    SOUTH [ 25000 ] 次郎
-    <BLANKLINE>
-    # # # # # # # #       s1s1s1M s2s2s2R
-    <BLANKLINE>
-    wd  p2* gd  ew* sw  ww
-    nw* p1
     <BLANKLINE>
     <BLANKLINE>
-    WEST [ 25000, riichi ] 三郎
+    WEST [ 25000 ] rule-based-2
     <BLANKLINE>
-    # # # # # # # #       s3s3s3s3R s4s4s4s4R
-    <BLANKLINE>
-    wd  p2* gd  ew* sw  ww
-    nw* p1
+    # # # # # # # # # # # # #
     <BLANKLINE>
     <BLANKLINE>
-    NORTH [ 25000 ] 四郎
-    <BLANKLINE>
-    # # # # # # # #       s7s7s7s7R s8s8s8s8L(Add)
-    <BLANKLINE>
-    wd  p2* gd  ew* sw  ww
-    nw* p1
     <BLANKLINE>
     <BLANKLINE>
-    NORTH's turn now.
-    ActionType:1
+    NORTH [ 25000 ] rule-based-3
+    <BLANKLINE>
+    # # # # # # # # # # # # #
+    <BLANKLINE>
+    <BLANKLINE>
+    <BLANKLINE>
+    <BLANKLINE>
+    EAST [ 25000 ] rule-based-0
+    <BLANKLINE>
+    # # # # # # # # # # # # #
+    <BLANKLINE>
+    <BLANKLINE>
+    <BLANKLINE>
+    <BLANKLINE>
+    SOUTH's turn now.
+    <BLANKLINE>
     """
     parser = argparse.ArgumentParser()
-    parser.add_argument("--path", default="2010091009gm-00a9-0000-83af2648&tw=2.json")
-    parser.add_argument("--mode", default="Obs")
+    parser.add_argument("--path", default="observations.json")
+    parser.add_argument("--mode", choices=["obs", "sta"], default="obs")
     parser.add_argument("--uni", action="store_true")
     parser.add_argument("--rich", action="store_true")
     parser.add_argument("--show_name", action="store_true")
@@ -756,13 +796,41 @@ def main():
     )
 
     game_data = game_board.load_data()
-    for i in range(4):
-        game_data.players[i].name = "寿限無寿限無五劫の擦り切れ"
+
+    turns = len(game_data)
+    i = 0
 
     if args.rich:
-        game_board.show_by_rich(game_data)
+        game_board.show_by_rich(game_data[i])
     else:
-        print(game_board.show_by_text(game_data))
+        print(game_board.show_by_text(game_data[i]))
+    command = input("z:-20 x:-1 c:+1 v:+20 :")
+
+    while command != "q":
+        if command == "z":
+            i = (i - 20) % turns
+        if command == "x":
+            i = (i - 1) % turns
+        if command == "c":
+            i = (i + 1) % turns
+        if command == "v":
+            i = (i + 20) % turns
+        if command == "a":
+            i = 0
+
+        if os.name == "nt":
+            os.system("cls")
+        else:
+            os.system("clear")
+
+        game_data[i].check_num_tiles()
+
+        if args.rich:
+            game_board.show_by_rich(game_data[i])
+        else:
+            print(game_board.show_by_text(game_data[i]))
+
+        command = input("z:-20 x:-1 c:+1 v:+20 :")
 
 
 if __name__ == "__main__":

@@ -103,20 +103,20 @@ to_wind_char = {
 }
 to_modifier = {
     FromWho.NONE: "",
-    FromWho.RIGHT: "R ",  # Right
-    FromWho.MID: "M ",  # Mid
-    FromWho.LEFT: "L ",  # Left
-    FromWho.SELF: "S ",  # Self(kan closed)
+    FromWho.RIGHT: "R",  # Right
+    FromWho.MID: "M",  # Mid
+    FromWho.LEFT: "L",  # Left
+    FromWho.SELF: "S",  # Self(kan closed)
 }
 to_modifier_add_kan = {
-    FromWho.RIGHT: "R(Add) ",  # Right(kan added)
-    FromWho.MID: "M(Add) ",  # Mid(kan added)
-    FromWho.LEFT: "L(Add) ",  # Left(kan added)
+    FromWho.RIGHT: "R(Add)",  # Right(kan added)
+    FromWho.MID: "M(Add)",  # Mid(kan added)
+    FromWho.LEFT: "L(Add)",  # Left(kan added)
 }
 
 
 def get_tile_char(tile_id: int, is_using_unicode: bool) -> str:
-    if tile_id < 0 or 132 < tile_id:
+    if tile_id < 0 or 136 < tile_id:
         return " "
     if is_using_unicode:
         return to_unicode[tile_id // 4]
