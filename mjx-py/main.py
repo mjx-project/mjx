@@ -1,6 +1,5 @@
 import argparse
 import os
-import re
 import mjxproto
 import open_utils
 from converter import TileUnitType, FromWho
@@ -19,18 +18,31 @@ class Tile:
         is_open: bool = False,
         is_using_unicode: bool = False,
         is_tsumogiri: bool = False,
+        with_riichi: bool = False,
     ):
         self.id = tile_id
         self.is_tsumogiri = is_tsumogiri
+        self.with_riichi = with_riichi
         if not is_open:
             self.char = "\U0001F02B" if is_using_unicode else "#"
         else:
             self.char = get_tile_char(tile_id, is_using_unicode)
         if is_tsumogiri:
-            if is_using_unicode and self.char != "\U0001F004\uFE0E":
-                self.char += " *"
+            if with_riichi:
+                if is_using_unicode and self.char != "\U0001F004\uFE0E":
+                    self.char += " *r"
+                else:
+                    self.char += "*r"
             else:
-                self.char += "*"
+                if is_using_unicode and self.char != "\U0001F004\uFE0E":
+                    self.char += " *"
+                else:
+                    self.char += "*"
+        elif with_riichi:
+            if is_using_unicode and self.char != "\U0001F004\uFE0E":
+                self.char += " r"
+            else:
+                self.char += "r"
 
 
 class TileUnit:
@@ -57,6 +69,7 @@ class Player:
                 [],
             )
         ]
+        self.riichi_now = False
         self.is_declared_riichi = False
         self.name: str
 
@@ -250,9 +263,20 @@ class GameBoard:
                             eve.who == p.player_idx
                             and t_u.tile_unit_type == TileUnitType.DISCARD
                         ):
-                            t_u.tiles.append(
-                                Tile(eve.tile, True, self.is_using_unicode)
-                            )
+                            if p.riichi_now:
+                                t_u.tiles.append(
+                                    Tile(
+                                        eve.tile,
+                                        True,
+                                        self.is_using_unicode,
+                                        with_riichi=True,
+                                    )
+                                )
+                                p.riichi_now = False
+                            else:
+                                t_u.tiles.append(
+                                    Tile(eve.tile, True, self.is_using_unicode)
+                                )
 
             if eve.type == 1:
                 for p in table.players:
@@ -261,14 +285,27 @@ class GameBoard:
                             eve.who == p.player_idx
                             and t_u.tile_unit_type == TileUnitType.DISCARD
                         ):
-                            t_u.tiles.append(
-                                Tile(eve.tile, True, self.is_using_unicode, True)
-                            )
+                            if p.riichi_now:
+                                t_u.tiles.append(
+                                    Tile(
+                                        eve.tile,
+                                        True,
+                                        self.is_using_unicode,
+                                        True,
+                                        True,
+                                    )
+                                )
+                                p.riichi_now = False
+                            else:
+                                t_u.tiles.append(
+                                    Tile(eve.tile, True, self.is_using_unicode, True)
+                                )
 
             if eve.type == 2:
                 for p in table.players:
                     if eve.who == p.player_idx:
                         p.is_declared_riichi = True
+                        p.riichi_now = True
                         p.score -= 1000
 
             if eve.type == 10:
@@ -409,10 +446,17 @@ class GameBoard:
                     if tile_unit.tile_unit_type == TileUnitType.DISCARD:
                         discards = [
                             tile.char
-                            + ("" if tile.char == "\U0001F004\uFE0E" else " ")
                             + (
                                 ""
-                                if tile.is_tsumogiri
+                                if (
+                                    tile.char == "\U0001F004\uFE0E"
+                                    or (tile.is_tsumogiri and tile.with_riichi)
+                                )
+                                else " "
+                            )
+                            + (
+                                ""
+                                if (tile.is_tsumogiri or tile.with_riichi)
                                 else "  "
                                 if self.is_using_unicode
                                 else " "
@@ -532,10 +576,17 @@ class GameBoard:
                     if tile_unit.tile_unit_type == TileUnitType.DISCARD:
                         discards = [
                             tile.char
-                            + ("" if tile.char == "\U0001F004\uFE0E" else " ")
                             + (
                                 ""
-                                if tile.is_tsumogiri
+                                if (
+                                    tile.char == "\U0001F004\uFE0E"
+                                    or (tile.is_tsumogiri and tile.with_riichi)
+                                )
+                                else " "
+                            )
+                            + (
+                                ""
+                                if (tile.is_tsumogiri or tile.with_riichi)
                                 else "  "
                                 if self.is_using_unicode
                                 else " "
