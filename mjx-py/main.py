@@ -426,7 +426,36 @@ class GameBoard:
                             ]
                         )
                         break
-                    if player_idx % 2 == 0:
+                    if player_idx == 1:
+                        tiles += (
+                            "\n"
+                            + get_modifier(tile_unit.from_who, tile_unit.tile_unit_type)
+                            + "\n "
+                            + (
+                                "\n "
+                                if tile_unit.tiles[0].char == "\U0001F004\uFE0E"
+                                else "\n"
+                            ).join(
+                                [
+                                    tile.char
+                                    for tile in sorted(
+                                        tile_unit.tiles,
+                                        key=lambda x: x.id,
+                                        reverse=True,
+                                    )
+                                ]
+                            )
+                            + "\n"
+                        )
+                    elif player_idx == 3:
+                        tiles += (
+                            "\n"
+                            + "\n".join([tile.char for tile in tile_unit.tiles])
+                            + "\n "
+                            + get_modifier(tile_unit.from_who, tile_unit.tile_unit_type)
+                            + "\n"
+                        )
+                    else:
                         if tile_unit.tile_unit_type == TileUnitType.HAND:
                             tiles += "".join(
                                 [
@@ -436,28 +465,25 @@ class GameBoard:
                                 ]
                             )
                             break
-                        tiles += "".join(
-                            [
-                                tile.char
-                                + (
-                                    ""
-                                    if (
-                                        not self.is_using_unicode
-                                        or tile.char == "\U0001F004\uFE0E"
-                                    )
-                                    else " "
-                                )
-                                for tile in tile_unit.tiles
-                            ]
-                        ) + get_modifier(tile_unit.from_who, tile_unit.tile_unit_type)
-                    else:
                         tiles += (
-                            "\n"
-                            + "\n".join([tile.char for tile in tile_unit.tiles])
-                            + "\n"
+                            "".join(
+                                [
+                                    tile.char
+                                    + (
+                                        ""
+                                        if (
+                                            not self.is_using_unicode
+                                            or tile.char == "\U0001F004\uFE0E"
+                                        )
+                                        else " "
+                                    )
+                                    for tile in tile_unit.tiles
+                                ]
+                            )
                             + get_modifier(tile_unit.from_who, tile_unit.tile_unit_type)
-                            + "\n"
+                            + " "
                         )
+
             return tiles
         else:
             tiles = ""
@@ -747,7 +773,7 @@ def main():
         game_board.show_by_rich(game_data[i])
     else:
         print(game_board.show_by_text(game_data[i]))
-    command = input("z:-20, x:-1, c:+1, v:+20 :")
+    command = input("z:-20 x:-1 c:+1 v:+20 :")
 
     while command != "q":
         if command == "z":
@@ -773,7 +799,7 @@ def main():
         else:
             print(game_board.show_by_text(game_data[i]))
 
-        command = input("z:-20, x:-1, c:+1, v:+20 :")
+        command = input("z:-20 x:-1 c:+1 v:+20 :")
 
 
 if __name__ == "__main__":

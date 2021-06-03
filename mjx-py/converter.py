@@ -103,15 +103,15 @@ to_wind_char = {
 }
 to_modifier = {
     FromWho.NONE: "",
-    FromWho.RIGHT: "R ",  # Right
-    FromWho.MID: "M ",  # Mid
-    FromWho.LEFT: "L ",  # Left
-    FromWho.SELF: "S ",  # Self(kan closed)
+    FromWho.RIGHT: "R",  # Right
+    FromWho.MID: "M",  # Mid
+    FromWho.LEFT: "L",  # Left
+    FromWho.SELF: "S",  # Self(kan closed)
 }
 to_modifier_add_kan = {
-    FromWho.RIGHT: "R(Add) ",  # Right(kan added)
-    FromWho.MID: "M(Add) ",  # Mid(kan added)
-    FromWho.LEFT: "L(Add) ",  # Left(kan added)
+    FromWho.RIGHT: "R(Add)",  # Right(kan added)
+    FromWho.MID: "M(Add)",  # Mid(kan added)
+    FromWho.LEFT: "L(Add)",  # Left(kan added)
 }
 
 
