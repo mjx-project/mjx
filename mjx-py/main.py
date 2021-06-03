@@ -1,6 +1,5 @@
 import argparse
 import os
-import re
 import mjxproto
 import open_utils
 from converter import TileUnitType, FromWho
@@ -29,11 +28,17 @@ class Tile:
         else:
             self.char = get_tile_char(tile_id, is_using_unicode)
         if is_tsumogiri:
-            if is_using_unicode and self.char != "\U0001F004\uFE0E":
-                self.char += " *"
+            if with_riichi:
+                if is_using_unicode and self.char != "\U0001F004\uFE0E":
+                    self.char += " *r"
+                else:
+                    self.char += "*r"
             else:
-                self.char += "*"
-        if with_riichi:
+                if is_using_unicode and self.char != "\U0001F004\uFE0E":
+                    self.char += " *"
+                else:
+                    self.char += "*"
+        elif with_riichi:
             if is_using_unicode and self.char != "\U0001F004\uFE0E":
                 self.char += " r"
             else:
@@ -280,9 +285,21 @@ class GameBoard:
                             eve.who == p.player_idx
                             and t_u.tile_unit_type == TileUnitType.DISCARD
                         ):
-                            t_u.tiles.append(
-                                Tile(eve.tile, True, self.is_using_unicode, True)
-                            )
+                            if p.riichi_now:
+                                t_u.tiles.append(
+                                    Tile(
+                                        eve.tile,
+                                        True,
+                                        self.is_using_unicode,
+                                        True,
+                                        True,
+                                    )
+                                )
+                                p.riichi_now = False
+                            else:
+                                t_u.tiles.append(
+                                    Tile(eve.tile, True, self.is_using_unicode, True)
+                                )
 
             if eve.type == 2:
                 for p in table.players:
@@ -429,7 +446,14 @@ class GameBoard:
                     if tile_unit.tile_unit_type == TileUnitType.DISCARD:
                         discards = [
                             tile.char
-                            + ("" if tile.char == "\U0001F004\uFE0E" else " ")
+                            + (
+                                ""
+                                if (
+                                    tile.char == "\U0001F004\uFE0E"
+                                    or (tile.is_tsumogiri and tile.with_riichi)
+                                )
+                                else " "
+                            )
                             + (
                                 ""
                                 if (tile.is_tsumogiri or tile.with_riichi)
@@ -552,7 +576,14 @@ class GameBoard:
                     if tile_unit.tile_unit_type == TileUnitType.DISCARD:
                         discards = [
                             tile.char
-                            + ("" if tile.char == "\U0001F004\uFE0E" else " ")
+                            + (
+                                ""
+                                if (
+                                    tile.char == "\U0001F004\uFE0E"
+                                    or (tile.is_tsumogiri and tile.with_riichi)
+                                )
+                                else " "
+                            )
                             + (
                                 ""
                                 if (tile.is_tsumogiri or tile.with_riichi)
