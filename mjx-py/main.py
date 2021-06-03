@@ -87,6 +87,7 @@ class MahjongTable:
         self.last_action = 0  # 0-10
         self.my_idx = 0  # 0-3; The player you want to show.
         self.wall_num = 134
+        self.final_info = ""
 
     def check_num_tiles(self) -> bool:
         for p in self.players:
@@ -352,6 +353,20 @@ class GameBoard:
 
         return table
 
+    def decode_round_terminal(self,table: MahjongTable, round_terminal):
+        hand = " ".join([get_tile_char(i,self.is_using_unicode) for i in round_terminal.wins[0].hand.closed_tiles])
+        opens_char=[]
+        opens_id = [open_utils.open_tile_ids(opens) for opens in round_terminal.wins[0].hand.opens]#[[1,2,3],[4,5,6]]
+        for tiles in opens_id:
+            opens_char.append("".join([get_tile_char(t,self.is_using_unicode) for t in tiles]))
+        opens_char=" ".join(opens_char)
+        yakus = " ".join([str(i) for i in round_terminal.wins[0].yakus])
+        ten = str(round_terminal.wins[0].ten)
+        uradora= " ".join([str(i) for i in round_terminal.wins[0].ura_dora_indicators])
+        table.final_info+=("\n\n"+hand+opens_char+"\n"+yakus+"\n"+ten+"\n"+uradora)
+
+        return table
+
     def decode_observation(self, jsondata):
         gamedata = mjxproto.Observation()
         gamedata.from_json(jsondata)
@@ -362,11 +377,12 @@ class GameBoard:
         for i, p in enumerate(table.players):
             p.player_idx = i
             p.wind = i
-
         table = self.decode_public_observation(table, gamedata.public_observation)
         table = self.decode_private_observation(
             table, gamedata.private_observation, gamedata.who
         )
+        if gamedata.round_terminal.is_game_over:
+            table = self.decode_round_terminal(table, gamedata.round_terminal)
 
         for i, p in enumerate(table.players):
             if p.player_idx != table.my_idx:
@@ -698,7 +714,7 @@ class GameBoard:
         )
         system_info = "".join(system_info)
 
-        return "".join([board_info, players_info, system_info])
+        return "".join([board_info, players_info, system_info, table.final_info])
 
     def show_by_rich(self, table: MahjongTable) -> None:
 
@@ -794,6 +810,7 @@ class GameBoard:
 
         console = Console()
         console.print(self.layout)
+        console.print(table.final_info)
 
 
 def main():
