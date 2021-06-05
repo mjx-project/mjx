@@ -12,13 +12,15 @@ class Env {
   Env();
   std::unordered_map<internal::PlayerId, std::string> reset();
   std::tuple<std::unordered_map<internal::PlayerId, std::string>,
-      std::unordered_map<internal::PlayerId, int>,
-      std::unordered_map<internal::PlayerId, bool>,
-      std::unordered_map<internal::PlayerId, std::string>> step(std::unordered_map<internal::PlayerId, std::string>&& act_dict);
+             std::unordered_map<internal::PlayerId, int>,
+             std::unordered_map<internal::PlayerId, bool>,
+             std::unordered_map<internal::PlayerId, std::string>>
+  step(std::unordered_map<internal::PlayerId, std::string>&& act_dict);
   [[nodiscard]] std::tuple<std::unordered_map<internal::PlayerId, std::string>,
-      std::unordered_map<internal::PlayerId, int>,
-      std::unordered_map<internal::PlayerId, bool>,
-      std::unordered_map<internal::PlayerId, std::string>> last();
+                           std::unordered_map<internal::PlayerId, int>,
+                           std::unordered_map<internal::PlayerId, bool>,
+                           std::unordered_map<internal::PlayerId, std::string>>
+  last();
   [[nodiscard]] const std::vector<internal::PlayerId> Agents() const;
   const bool IsGameOver() const;
 
@@ -36,9 +38,9 @@ class Env {
   std::unordered_map<internal::PlayerId, int> rewards_;
   std::unordered_map<internal::PlayerId, bool> dones_;
 
-//  methods and members for usual environment (one agent per step)
-//  void set_next_idx();
-//  int current_agent_idx_;
+  //  methods and members for usual environment (one agent per step)
+  //  void set_next_idx();
+  //  int current_agent_idx_;
 };
 }  // namespace mjx
 
