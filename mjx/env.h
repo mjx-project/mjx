@@ -2,10 +2,11 @@
 #define MJX_PROJECT_ENV_H
 
 #include <utility>
+
 #include "internal/state.h"
 #include "internal/utils.h"
 
-namespace mjx{
+namespace mjx {
 class Env {
  public:
   Env();
@@ -39,6 +40,6 @@ class Env {
 //  void set_next_idx();
 //  int current_agent_idx_;
 };
-}
+}  // namespace mjx
 
 #endif  // MJX_PROJECT_ENV_H

@@ -78,9 +78,9 @@ std::unordered_map<internal::PlayerId, std::string> Env::ObservationsJson(){
   return agents_;
 }
 
-const bool Env::IsGameOver() const{
+const bool Env::IsGameOver() const {
   bool res = true;
-  for(const auto &agent : agents_){
+  for (const auto& agent : agents_) {
     res &= dones_.at(agent);
   }
   return res;
@@ -99,4 +99,4 @@ const bool Env::IsGameOver() const{
 //    // Nobody can take action ?
 //  }
 //}
-}
+}  // namespace mjx
