@@ -24,6 +24,7 @@ FetchContent_MakeAvailable(googletest)
 add_executable(mjx_test
         action_test.cpp
         environment_test.cpp
+        env_test.cpp
         game_seed_test.cpp
         game_summarizer_test.cpp
         hand_test.cpp
