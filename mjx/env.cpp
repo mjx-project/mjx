@@ -2,70 +2,101 @@
 
 namespace mjx{
 Env::Env()
-    : player_ids_(std::vector<internal::PlayerId>(4))
+    : agents_(std::vector<internal::PlayerId>(4))
 {
   for (int i = 0; i < 4; ++i){
-    // TODO: PlayerIds Argument
-    internal::PlayerId player_id = "RuleBased" + std::to_string(i);
-    player_ids_[i] = player_id;
+    internal::PlayerId player_id = "player_" + std::to_string(i);
+    agents_[i] = player_id;
     map_idxs_[player_id] = i;
   }
   // TODO: GameSeed Argument?
 //  auto gen = internal::GameSeed::CreateRandomGameSeedGenerator();
-//  state_ = internal::State(internal::State::ScoreInfo{player_ids_, gen()});
+//  state_ = internal::State(internal::State::ScoreInfo{agents_, gen()});
     state_ = internal::State();
 }
 
-void Env::reset() {
-  for(auto id: player_ids_){
-    rewards_[player_ids_] = 0;
-    dones_[player_ids_] = 0;
+std::unordered_map<internal::PlayerId, std::string> Env::reset() {
+  for(const auto &agent: agents_){
+    rewards_[agent] = 0;
+    dones_[agent] = false;
   }
   auto gen = internal::GameSeed::CreateRandomGameSeedGenerator();
-  state_ = internal::State(internal::State::ScoreInfo{player_ids_, gen()});
+  state_ = internal::State(internal::State::ScoreInfo{agents_, gen()});
   observations_ = state_.CreateObservations();
-  set_next_idx();
+  return ObservationsJson();
 }
 
-void Env::step(std::string json) {
-  mjxproto::Action action;
-  google::protobuf::util::JsonStringToMessage(json, &action);
-  assert(current_palyer_idx_ == action.who());
-  assert(observations_.count(player_ids_[current_palyer_idx_]) > 0);
-  actions_.emplace_back(action);
-  if(current_palyer_idx_ == player_num_){
-    assert(actions_.size() == observations_.size());
-    if(state_.IsRoundOver()){
-      if(state_.IsGameOver()){
-        for(auto [id, score]: state_.result().rankings){
-          rewards_[id] =
-        }
+std::tuple<std::unordered_map<internal::PlayerId, std::string>,
+    std::unordered_map<internal::PlayerId, int>,
+    std::unordered_map<internal::PlayerId, bool>,
+    std::unordered_map<internal::PlayerId, std::string>> Env::step(std::unordered_map<internal::PlayerId, std::string>&& act_dict) {
+  actions_.clear();
+  for(const auto& [agent, json] : act_dict){
+    mjxproto::Action action;
+    google::protobuf::util::JsonStringToMessage(json, &action);
+    actions_.emplace_back(action);
+  }
+  assert(actions_.size() == observations_.size());
+  if(state_.IsRoundOver()){
+    if(state_.IsGameOver()){
+      for(const auto &agent : agents_){
+        assert(state_.result().rankings[agent] >= 1  && state_.result().rankings[agent] <= 4);
+        rewards_[agent] = reward_vals[state_.result().rankings[agent] - 1];
+        dones_[agent] = true;
       }
     }
     else{
-      state_.Update(std::move(actions_));
-      observations_ = state_.CreateObservations();
-      actions_.clear();
+      state_ = internal::State(state_.Next());
     }
   }
-  set_next_idx();
-}
-
-std::tuple<std::string, int, bool, std::string> Env::last(){
-  std::string json;
-  google::protobuf::util::MessageToJsonString(observations_[player_ids_[current_palyer_idx_]].proto(), &json);
-  return {json, rewards_[current_palyer_idx_], dones_[current_palyer_idx_], ""};
-}
-
-void Env::set_next_idx(){
-  while (observations_.count(player_ids_[++current_palyer_idx_]) == 0
-         && current_palyer_idx_ < player_num_){}
-  if(current_palyer_idx_ < player_num_) return;
-  current_palyer_idx_ = 0;
-  while (observations_.count(player_ids_[++current_palyer_idx_]) == 0
-         && current_palyer_idx_ < player_num_){}
-  if(current_palyer_idx_ < player_num_){
-    // Nobody can take action ?
+  else{
+    state_.Update(std::move(actions_));
+    observations_ = state_.CreateObservations();
   }
+  return last();
 }
+
+std::tuple<std::unordered_map<internal::PlayerId, std::string>,
+    std::unordered_map<internal::PlayerId, int>,
+    std::unordered_map<internal::PlayerId, bool>,
+    std::unordered_map<internal::PlayerId, std::string>> Env::last(){
+  return {ObservationsJson(), rewards_, dones_, {}};
+}
+
+std::unordered_map<internal::PlayerId, std::string> Env::ObservationsJson(){
+  std::unordered_map<internal::PlayerId, std::string> observations;
+  for(const auto& [agent, obs] : observations_) {
+    std::string json;
+    google::protobuf::util::MessageToJsonString(
+        obs.proto(), &json);
+    observations[agent] = json;
+  }
+  return observations;
+}
+
+[[nodiscard]] const std::vector<internal::PlayerId> Env::Agents() const {
+  return agents_;
+}
+
+const bool Env::IsGameOver() const{
+  bool res = true;
+  for(const auto &agent : agents_){
+    res &= dones_.at(agent);
+  }
+  return res;
+}
+
+//void Env::set_next_idx(){
+//  while (observations_.count(agents_[++current_agent_idx_]) == 0
+//         &&
+//         current_agent_idx_ < num_players_){}
+//  if(current_agent_idx_ < num_players_) return;
+//  current_agent_idx_ = 0;
+//  while (observations_.count(agents_[++current_agent_idx_]) == 0
+//         &&
+//         current_agent_idx_ < num_players_){}
+//  if(current_agent_idx_ < num_players_){
+//    // Nobody can take action ?
+//  }
+//}
 }
