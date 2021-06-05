@@ -9,9 +9,9 @@ Env::Env()
     agents_[i] = player_id;
     map_idxs_[player_id] = i;
   }
-  // TODO: GameSeed Argument?
-//  auto gen = internal::GameSeed::CreateRandomGameSeedGenerator();
-//  state_ = internal::State(internal::State::ScoreInfo{agents_, gen()});
+  // TODO: game seed argument?
+  // auto gen = internal::GameSeed::CreateRandomGameSeedGenerator();
+  // state_ = internal::State(internal::State::ScoreInfo{agents_, gen()});
     state_ = internal::State();
 }
 

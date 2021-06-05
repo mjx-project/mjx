@@ -22,7 +22,6 @@ class Env {
   const bool IsGameOver() const;
 
  private:
-//  void set_next_idx();
   std::unordered_map<internal::PlayerId, std::string> ObservationsJson();
 
   const int num_players_ = 4;
@@ -35,6 +34,9 @@ class Env {
   std::vector<mjxproto::Action> actions_;
   std::unordered_map<internal::PlayerId, int> rewards_;
   std::unordered_map<internal::PlayerId, bool> dones_;
+
+//  methods and members for usual environment (one agent per step)
+//  void set_next_idx();
 //  int current_agent_idx_;
 };
 }
