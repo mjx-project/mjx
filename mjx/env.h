@@ -27,7 +27,8 @@ class RLlibMahjongEnv {
   // extra methods
   void seed(std::uint64_t game_seed) noexcept;  // TODO: make it compatible
  private:
-  std::mt19937_64 seed_gen_ = internal::GameSeed::CreateRandomGameSeedGenerator();
+  std::mt19937_64 seed_gen_ =
+      internal::GameSeed::CreateRandomGameSeedGenerator();
   std::optional<std::uint64_t> game_seed_ = std::nullopt;
   internal::State state_{};
   const std::map<int, int> rewards_ = {{1, 90}, {2, 45}, {3, 0}, {4, -135}};

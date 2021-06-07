@@ -8,14 +8,16 @@ mjx::env::RLlibMahjongEnv::RLlibMahjongEnv() {}
 std::unordered_map<mjx::internal::PlayerId, mjxproto::Observation>
 mjx::env::RLlibMahjongEnv::reset() noexcept {
   if (!game_seed_) game_seed_ = seed_gen_();
-  std::vector<mjx::internal::PlayerId> player_ids{"player_0", "player_1", "player_2", "player_3"};
-  state_ = internal::State(mjx::internal::State::ScoreInfo{player_ids, game_seed_.value()});
+  std::vector<mjx::internal::PlayerId> player_ids{"player_0", "player_1",
+                                                  "player_2", "player_3"};
+  state_ = internal::State(
+      mjx::internal::State::ScoreInfo{player_ids, game_seed_.value()});
   game_seed_ = std::nullopt;
 
   // All players receives initial observations and return dummy actions
   auto observations = state_.CreateObservations();
   std::vector<mjxproto::Action> actions;
-  for (const auto& [player_id, obs]: observations) {
+  for (const auto& [player_id, obs] : observations) {
     assert(obs.possible_actions().size() == 1);  // dummy
     actions.push_back(obs.possible_actions()[0]);
   }
@@ -39,16 +41,17 @@ mjx::env::RLlibMahjongEnv::step(
   std::unordered_map<mjx::internal::PlayerId, mjxproto::Observation>
       proto_observations;
   std::unordered_map<mjx::internal::PlayerId, int> rewards = {
-      {"player_0", 0}, {"player_1", 0}, {"player_2", 0}, {"player_3", 0}
-  };
+      {"player_0", 0}, {"player_1", 0}, {"player_2", 0}, {"player_3", 0}};
   std::unordered_map<mjx::internal::PlayerId, bool> dones = {
-      {"player_0", false}, {"player_1", false}, {"player_2", false}, {"player_3", false}, {"__all__", false}
-  };
+      {"player_0", false},
+      {"player_1", false},
+      {"player_2", false},
+      {"player_3", false},
+      {"__all__", false}};
   std::unordered_map<mjx::internal::PlayerId, std::string> infos = {
-      {"player_0", ""}, {"player_1", ""}, {"player_2", ""}, {"player_3", ""}
-  };
+      {"player_0", ""}, {"player_1", ""}, {"player_2", ""}, {"player_3", ""}};
 
-  assert (! (state_.IsRoundOver() && state_.IsGameOver()) );
+  assert(!(state_.IsRoundOver() && state_.IsGameOver()));
 
   if (state_.IsRoundOver()) {
     auto next_state_info = state_.Next();
@@ -57,15 +60,17 @@ mjx::env::RLlibMahjongEnv::step(
 
   // update states based on actions
   std::vector<mjxproto::Action> actions;
-  for (const auto &[player_id, action]: action_dict) actions.push_back(action);
+  for (const auto& [player_id, action] : action_dict) actions.push_back(action);
   state_.Update(std::move(actions));
 
   // receive new observations
-  // TODO: CreateObservationsの返り値もprotoにする（Observationクラスをstaticメソッドだけにする）
+  // TODO:
+  // CreateObservationsの返り値もprotoにする（Observationクラスをstaticメソッドだけにする）
   auto observations = state_.CreateObservations();
 
   // prepare observations
-  for (const auto& [player_id, obs]: observations) proto_observations[player_id] = obs.proto();
+  for (const auto& [player_id, obs] : observations)
+    proto_observations[player_id] = obs.proto();
 
   // prepare rewards and dones
   if (state_.IsRoundOver() && state_.IsGameOver()) {

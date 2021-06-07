@@ -24,8 +24,12 @@ TEST(env, RLLibMahjongEnv) {
     std::tie(observations, rewards, dones, infos) = env.step(action_dict);
   }
   EXPECT_TRUE(dones.at("__all__"));
-  EXPECT_EQ(observations["player_0"].round_terminal().final_score().tens()[0], 16800);
-  EXPECT_EQ(observations["player_1"].round_terminal().final_score().tens()[1], 25600);
-  EXPECT_EQ(observations["player_2"].round_terminal().final_score().tens()[2], 26600);
-  EXPECT_EQ(observations["player_3"].round_terminal().final_score().tens()[3], 31000);
+  EXPECT_EQ(observations["player_0"].round_terminal().final_score().tens()[0],
+            16800);
+  EXPECT_EQ(observations["player_1"].round_terminal().final_score().tens()[1],
+            25600);
+  EXPECT_EQ(observations["player_2"].round_terminal().final_score().tens()[2],
+            26600);
+  EXPECT_EQ(observations["player_3"].round_terminal().final_score().tens()[3],
+            31000);
 }
