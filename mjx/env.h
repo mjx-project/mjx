@@ -20,6 +20,9 @@ class RLlibMahjongEnv
   std::unordered_map<internal::PlayerId, bool>,  // dones
   std::unordered_map<internal::PlayerId, std::string>>  // infos
   step(const std::unordered_map<internal::PlayerId, std::string>& action_dict) noexcept;
+
+  // extra methods
+  void seed(std::uint64_t game_seed) noexcept;
 };
 }  // namespace mjx::env
 

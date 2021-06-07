@@ -19,3 +19,5 @@ mjx::env::RLlibMahjongEnv::step(
         action_dict) noexcept {
   return {};
 }
+
+void mjx::env::RLlibMahjongEnv::seed(std::uint64_t game_seed) noexcept {}
