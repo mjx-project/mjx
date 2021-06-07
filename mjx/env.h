@@ -25,7 +25,7 @@ class RLlibMahjongEnv {
            action_dict) noexcept;
 
   // extra methods
-  void seed(std::uint64_t game_seed) noexcept;
+  void seed(std::uint64_t game_seed) noexcept;  // TODO: make it compatible
 };
 }  // namespace mjx::env
 

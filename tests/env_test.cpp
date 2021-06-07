@@ -13,6 +13,7 @@ TEST(env, RLLibMahjongEnv) {
   std::unordered_map<mjx::internal::PlayerId, bool> dones;
   std::unordered_map<mjx::internal::PlayerId, std::string> infos;
 
+  env.seed(1234);
   observations = env.reset();
   dones["__all__"] = false;
   auto strategy = mjx::internal::StrategyRuleBased();
@@ -26,4 +27,8 @@ TEST(env, RLLibMahjongEnv) {
     if (dones.at("__all__")) break;
   }
   EXPECT_TRUE(dones.at("__all__"));
+  EXPECT_EQ(observations["player_0"].round_terminal().final_score().tens()[0], 16800);
+  EXPECT_EQ(observations["player_1"].round_terminal().final_score().tens()[1], 25600);
+  EXPECT_EQ(observations["player_2"].round_terminal().final_score().tens()[2], 26600);
+  EXPECT_EQ(observations["player_3"].round_terminal().final_score().tens()[3], 31000);
 }
