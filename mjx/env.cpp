@@ -17,9 +17,11 @@ std::tuple<std::unordered_map<mjx::internal::PlayerId, mjxproto::Observation>,
 mjx::env::RLlibMahjongEnv::step(
     const std::unordered_map<internal::PlayerId, mjxproto::Action>&
         action_dict) noexcept {
-  std::unordered_map<mjx::internal::PlayerId, mjxproto::Observation> observations;
+  std::unordered_map<mjx::internal::PlayerId, mjxproto::Observation>
+      observations;
   std::unordered_map<mjx::internal::PlayerId, int> rewards;
-  std::unordered_map<mjx::internal::PlayerId, bool> dones = {{"__all__", false}};
+  std::unordered_map<mjx::internal::PlayerId, bool> dones = {
+      {"__all__", false}};
   std::unordered_map<mjx::internal::PlayerId, std::string> infos;
   return std::make_tuple(observations, rewards, dones, infos);
 }

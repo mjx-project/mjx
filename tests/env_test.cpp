@@ -7,7 +7,8 @@ TEST(env, RLLibMahjongEnv) {
   int max_cycles = 10000;
 
   auto env = mjx::env::RLlibMahjongEnv();
-  std::unordered_map<mjx::internal::PlayerId, mjxproto::Observation> observations;
+  std::unordered_map<mjx::internal::PlayerId, mjxproto::Observation>
+      observations;
   std::unordered_map<mjx::internal::PlayerId, int> rewards;
   std::unordered_map<mjx::internal::PlayerId, bool> dones;
   std::unordered_map<mjx::internal::PlayerId, std::string> infos;
