@@ -80,6 +80,13 @@ mjx::env::RLlibMahjongEnv::step(
     dones["__all__"] = true;
   }
 
+  assert(!(state_.IsRoundOver() && state_.IsGameOver()) ||
+         std::all_of(observations.begin(), observations.end(),
+                     [](const auto& elm){
+                       const mjx::internal::Observation& obs = elm.second;
+                       auto possible_actions = obs.possible_actions();
+                       return std::all_of(possible_actions.begin(), possible_actions.end(),
+                                   [](const mjxproto::Action& a){ return a.type() != mjxproto::ACTION_TYPE_DUMMY; }) ;}));
   return std::make_tuple(proto_observations, rewards, dones, infos);
 }
 
