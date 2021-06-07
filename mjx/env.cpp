@@ -1,6 +1,3 @@
-//
-// Created by Sotetsu KOYAMADA on 2021/06/07.
-//
 #include "env.h"
 
 mjx::env::RLlibMahjongEnv::RLlibMahjongEnv() {}
@@ -14,7 +11,7 @@ mjx::env::RLlibMahjongEnv::reset() noexcept {
       mjx::internal::State::ScoreInfo{player_ids, game_seed_.value()});
   game_seed_ = std::nullopt;
 
-  // All players receives initial observations and return dummy actions
+  // All players receive initial observations and return dummy actions
   auto observations = state_.CreateObservations();
   std::vector<mjxproto::Action> actions;
   for (const auto& [player_id, obs] : observations) {
@@ -37,7 +34,7 @@ std::tuple<std::unordered_map<mjx::internal::PlayerId, mjxproto::Observation>,
 mjx::env::RLlibMahjongEnv::step(
     const std::unordered_map<internal::PlayerId, mjxproto::Action>&
         action_dict) noexcept {
-  // initialize returned objects
+  // Initialize returned objects
   std::unordered_map<mjx::internal::PlayerId, mjxproto::Observation>
       proto_observations;
   std::unordered_map<mjx::internal::PlayerId, int> rewards = {
@@ -58,21 +55,21 @@ mjx::env::RLlibMahjongEnv::step(
     state_ = mjx::internal::State(next_state_info);
   }
 
-  // update states based on actions
+  // Update states based on actions
   std::vector<mjxproto::Action> actions;
   for (const auto& [player_id, action] : action_dict) actions.push_back(action);
   state_.Update(std::move(actions));
 
-  // receive new observations
+  // Receive new observations
   // TODO:
   // CreateObservationsの返り値もprotoにする（Observationクラスをstaticメソッドだけにする）
   auto observations = state_.CreateObservations();
 
-  // prepare observations
+  // Prepare observations
   for (const auto& [player_id, obs] : observations)
     proto_observations[player_id] = obs.proto();
 
-  // prepare rewards and dones
+  // Prepare rewards and dones
   if (state_.IsRoundOver() && state_.IsGameOver()) {
     auto results = state_.result();
     for (int i = 0; i < 4; ++i) {

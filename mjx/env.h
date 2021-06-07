@@ -1,7 +1,3 @@
-//
-// Created by Sotetsu KOYAMADA on 2021/06/07.
-//
-
 #include "internal/state.h"
 
 #ifndef MJX_PROJECT_ENV_H
