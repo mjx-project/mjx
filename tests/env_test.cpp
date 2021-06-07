@@ -3,7 +3,7 @@
 
 #include "gtest/gtest.h"
 
-TEST(env, RLLibMahjongEnv) {
+TEST(env, RLlibMahjongEnv) {
   auto env = mjx::env::RLlibMahjongEnv();
   std::unordered_map<mjx::internal::PlayerId, mjxproto::Observation>
       observations;
