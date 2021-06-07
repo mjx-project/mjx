@@ -11,15 +11,15 @@ namespace mjx::env
 {
 class RLlibMahjongEnv
 {
+  public:
   RLlibMahjongEnv();
-
   std::unordered_map<mjx::internal::PlayerId, mjxproto::Observation> reset() noexcept;
 
   std::tuple<std::unordered_map<mjx::internal::PlayerId, mjxproto::Observation>,  // observations
   std::unordered_map<internal::PlayerId, int>,  // rewards
   std::unordered_map<internal::PlayerId, bool>,  // dones
   std::unordered_map<internal::PlayerId, std::string>>  // infos
-  step(const std::unordered_map<internal::PlayerId, std::string>& action_dict) noexcept;
+  step(const std::unordered_map<internal::PlayerId, mjxproto::Action>& action_dict) noexcept;
 
   // extra methods
   void seed(std::uint64_t game_seed) noexcept;
