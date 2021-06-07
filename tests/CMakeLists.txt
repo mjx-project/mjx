@@ -29,6 +29,7 @@ add_executable(mjx_test
         hand_test.cpp
         observation_test.cpp
         open_test.cpp
+        environment_test.cpp
         shanten_calculator_test.cpp
         state_test.cpp
         strategy_rule_based_test.cpp
