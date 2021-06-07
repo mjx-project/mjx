@@ -4,8 +4,6 @@
 #include "gtest/gtest.h"
 
 TEST(env, RLLibMahjongEnv) {
-  int max_cycles = 10000;
-
   auto env = mjx::env::RLlibMahjongEnv();
   std::unordered_map<mjx::internal::PlayerId, mjxproto::Observation>
       observations;
@@ -17,14 +15,13 @@ TEST(env, RLLibMahjongEnv) {
   observations = env.reset();
   dones["__all__"] = false;
   auto strategy = mjx::internal::StrategyRuleBased();
-  for (int i = 0; i < max_cycles; i++) {
+  while (!dones.at("__all__")) {
     std::unordered_map<mjx::internal::PlayerId, mjxproto::Action> action_dict;
     for (const auto &[agent, observation] : observations) {
       auto action = strategy.TakeAction(observation);
       action_dict[agent] = action;
     }
     std::tie(observations, rewards, dones, infos) = env.step(action_dict);
-    if (dones.at("__all__")) break;
   }
   EXPECT_TRUE(dones.at("__all__"));
   EXPECT_EQ(observations["player_0"].round_terminal().final_score().tens()[0], 16800);
