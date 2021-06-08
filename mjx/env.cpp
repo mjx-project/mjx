@@ -7,6 +7,7 @@ mjx::env::RLlibMahjongEnv::reset() noexcept {
   if (!game_seed_) game_seed_ = seed_gen_();
   std::vector<mjx::internal::PlayerId> player_ids{"player_0", "player_1",
                                                   "player_2", "player_3"};
+  player_ids = internal::State::ShufflePlayerIds(game_seed_.value(), player_ids);
   state_ = internal::State(
       mjx::internal::State::ScoreInfo{player_ids, game_seed_.value()});
   game_seed_ = std::nullopt;
