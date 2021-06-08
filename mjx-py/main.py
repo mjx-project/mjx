@@ -3,7 +3,7 @@ import os
 import mjxproto
 import open_utils
 from converter import TileUnitType, FromWho
-from converter import get_modifier, get_tile_char, get_wind_char
+from converter import get_modifier, get_tile_char, get_wind_char, get_yaku
 from rich import print
 from rich.layout import Layout
 from rich.panel import Panel
@@ -353,17 +353,56 @@ class GameBoard:
 
         return table
 
-    def decode_round_terminal(self,table: MahjongTable, round_terminal):
-        hand = " ".join([get_tile_char(i,self.is_using_unicode) for i in round_terminal.wins[0].hand.closed_tiles])
-        opens_char=[]
-        opens_id = [open_utils.open_tile_ids(opens) for opens in round_terminal.wins[0].hand.opens]#[[1,2,3],[4,5,6]]
+    def decode_round_terminal(self, table: MahjongTable, round_terminal):
+        hand = "".join(
+            [
+                get_tile_char(i, self.is_using_unicode)
+                + (
+                    ""
+                    if get_tile_char(i, self.is_using_unicode) == "\U0001F004\uFE0E"
+                    else " "
+                )
+                for i in round_terminal.wins[0].hand.closed_tiles
+            ]
+        )
+        opens_char = []
+        opens_id = [
+            open_utils.open_tile_ids(opens)
+            for opens in round_terminal.wins[0].hand.opens
+        ]
         for tiles in opens_id:
-            opens_char.append("".join([get_tile_char(t,self.is_using_unicode) for t in tiles]))
-        opens_char=" ".join(opens_char)
-        yakus = " ".join([str(i) for i in round_terminal.wins[0].yakus])
+            opens_char.append(
+                "".join(
+                    [
+                        get_tile_char(t, self.is_using_unicode)
+                        + (
+                            ""
+                            if get_tile_char(t, self.is_using_unicode)
+                            == "\U0001F004\uFE0E"
+                            else " "
+                        )
+                        for t in tiles
+                    ]
+                )
+            )
+        opens_char = "".join(opens_char)
+        yakus = ", ".join([get_yaku(i) for i in round_terminal.wins[0].yakus])
+        fu = str(round_terminal.wins[0].fu)
         ten = str(round_terminal.wins[0].ten)
-        uradora= " ".join([str(i) for i in round_terminal.wins[0].ura_dora_indicators])
-        table.final_info+=("\n\n"+hand+opens_char+"\n"+yakus+"\n"+ten+"\n"+uradora)
+        uradora = " ".join([str(i) for i in round_terminal.wins[0].ura_dora_indicators])
+        table.final_info += (
+            "\n\n"
+            + hand
+            + opens_char
+            + ["\nYaku: ", "\n役: "][self.language]
+            + yakus
+            + "\n"
+            + fu
+            + [" fu\n", " 符\n"][self.language]
+            + ten
+            + [" Points\nUradora: ", " 点\n裏ドラ: "][self.language]
+            + (["None", "なし"][self.language] if uradora == "" else uradora)
+        )
 
         return table
 
@@ -381,9 +420,13 @@ class GameBoard:
         table = self.decode_private_observation(
             table, gamedata.private_observation, gamedata.who
         )
-        if gamedata.round_terminal.is_game_over:
+        if (
+            gamedata.public_observation.events != []
+            and gamedata.public_observation.events[-1].type in [5, 10]
+        ):
             table = self.decode_round_terminal(table, gamedata.round_terminal)
 
+        # Obsevationの場合,適切な数の裏向きの手牌を用意する
         for i, p in enumerate(table.players):
             if p.player_idx != table.my_idx:
                 hands_num = 13
@@ -404,7 +447,6 @@ class GameBoard:
                         ],
                     )
                 )
-
             p.wind = (-table.round + 1 + i) % 4
 
         table.wall_num = self.get_wall_num(table)

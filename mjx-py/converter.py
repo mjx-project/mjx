@@ -113,6 +113,63 @@ to_modifier_add_kan = {
     FromWho.MID: "M(Add)",  # Mid(kan added)
     FromWho.LEFT: "L(Add)",  # Left(kan added)
 }
+yaku_list = [
+    "門前清自摸和",
+    "立直",
+    "一発",
+    "槍槓",
+    "嶺上開花",
+    "海底摸月",
+    "河底撈魚",
+    "平和",
+    "断幺九",
+    "一盃口",
+    "自風 東",
+    "自風 南",
+    "自風 西",
+    "自風 北",
+    "場風 東",
+    "場風 南",
+    "場風 西",
+    "場風 北",
+    "役牌 白",
+    "役牌 發",
+    "役牌 中",
+    "両立直",
+    "七対子",
+    "混全帯幺九",
+    "一気通貫",
+    "三色同順",
+    "三色同刻",
+    "三槓子",
+    "対々和",
+    "三暗刻",
+    "小三元",
+    "混老頭",
+    "二盃口",
+    "純全帯幺九",
+    "混一色",
+    "清一色",
+    "人和",  # 天鳳は人和なし
+    "天和(役満)",
+    "地和(役満)",
+    "大三元(役満)",
+    "四暗刻(役満)",
+    "四暗刻単騎(役満)",
+    "字一色(役満)",
+    "緑一色(役満)",
+    "清老頭(役満)",
+    "九蓮宝燈(役満)",
+    "純正九蓮宝燈(役満)",
+    "国士無双(役満)",
+    "国士無双１３面(役満)",
+    "大四喜(役満)",
+    "小四喜(役満)",
+    "四槓子(役満)",
+    "ドラ",
+    "裏ドラ",
+    "赤ドラ",
+]
 
 
 def get_tile_char(tile_id: int, is_using_unicode: bool) -> str:
@@ -138,3 +195,7 @@ def get_modifier(from_who: FromWho, tile_unit_type: TileUnitType) -> str:
         return to_modifier_add_kan[from_who]
     else:
         return to_modifier[from_who]
+
+
+def get_yaku(yaku: int) -> str:
+    return yaku_list[yaku]
