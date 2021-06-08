@@ -1709,7 +1709,7 @@ void State::SyncCurrHand(AbsolutePos who) {
       ->CopyFrom(mutable_hand(who).ToProto());
 }
 std::vector<PlayerId> State::ShufflePlayerIds(
-    std::uint32_t game_seed, const std::vector<PlayerId> &player_ids) {
+    std::uint64_t game_seed, const std::vector<PlayerId> &player_ids) {
   std::vector<PlayerId> ret(player_ids.begin(), player_ids.end());
   Shuffle(ret.begin(), ret.end(), std::mt19937_64(game_seed));
   return ret;
