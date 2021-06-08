@@ -84,9 +84,9 @@ class MahjongTable:
         self.riichi = 0
         self.round = 0
         self.honba = 0
-        self.last_action = 0  # 0-10
         self.my_idx = 0  # 0-3; The player you want to show.
         self.wall_num = 134
+        self.doras = []
         self.final_info = ""
 
     def check_num_tiles(self) -> bool:
@@ -350,6 +350,7 @@ class GameBoard:
         table.round = public_observation.init_score.round + 1
         table.honba = public_observation.init_score.honba
         table.riichi = public_observation.init_score.riichi
+        table.doras = public_observation.dora_indicators
 
         return table
 
@@ -389,7 +390,27 @@ class GameBoard:
         yakus = ", ".join([get_yaku(i) for i in round_terminal.wins[0].yakus])
         fu = str(round_terminal.wins[0].fu)
         ten = str(round_terminal.wins[0].ten)
+        dora = "".join(
+            [
+                get_tile_char(i, self.is_using_unicode)
+                + (
+                    ""
+                    if get_tile_char(i, self.is_using_unicode) == "\U0001F004\uFE0E"
+                    else " "
+                )
+                for i in table.doras
+            ]
+        )
         uradora = " ".join([str(i) for i in round_terminal.wins[0].ura_dora_indicators])
+        ten_changes = [
+            ("" if self.is_using_rich else "     ")
+            + str(round_terminal.wins[0].ten_changes[(2 + self.my_idx) % 4]),
+            str(round_terminal.wins[0].ten_changes[(3 + self.my_idx) % 4])
+            + "      "
+            + str(round_terminal.wins[0].ten_changes[(1 + self.my_idx) % 4]),
+            ("" if self.is_using_rich else "     ")
+            + str(round_terminal.wins[0].ten_changes[self.my_idx % 4]),
+        ]
         table.final_info += (
             "\n\n"
             + hand
@@ -400,8 +421,12 @@ class GameBoard:
             + fu
             + [" fu\n", " 符\n"][self.language]
             + ten
-            + [" Points\nUradora: ", " 点\n裏ドラ: "][self.language]
+            + ["\nDora: ", "\nドラ: "][self.language]
+            + dora
+            + ["\nUraDora: ", "\n裏ドラ: "][self.language]
             + (["None", "なし"][self.language] if uradora == "" else uradora)
+            + "\n"
+            + "\n".join(ten_changes)
         )
 
         return table
@@ -420,11 +445,6 @@ class GameBoard:
         table = self.decode_private_observation(
             table, gamedata.private_observation, gamedata.who
         )
-        if (
-            gamedata.public_observation.events != []
-            and gamedata.public_observation.events[-1].type in [5, 10]
-        ):
-            table = self.decode_round_terminal(table, gamedata.round_terminal)
 
         # Obsevationの場合,適切な数の裏向きの手牌を用意する
         for i, p in enumerate(table.players):
@@ -450,6 +470,14 @@ class GameBoard:
             p.wind = (-table.round + 1 + i) % 4
 
         table.wall_num = self.get_wall_num(table)
+
+        if (
+            gamedata.public_observation.events != []
+            and gamedata.public_observation.events[-1].type in [5, 10]
+        ):
+            table = self.decode_round_terminal(table, gamedata.round_terminal)
+        elif table.wall_num == 0:
+            table.final_info = ["RYUKYOKU", "流局"][self.language]
 
         return table
 
@@ -532,7 +560,7 @@ class GameBoard:
                         tiles += (
                             "\n"
                             + get_modifier(tile_unit.from_who, tile_unit.tile_unit_type)
-                            + "\n "
+                            + "\n"
                             + (
                                 "\n "
                                 if tile_unit.tiles[0].char == "\U0001F004\uFE0E"
@@ -852,7 +880,7 @@ class GameBoard:
 
         console = Console()
         console.print(self.layout)
-        console.print(table.final_info)
+        console.print(Text(table.final_info), justify="center")
 
 
 def main():
