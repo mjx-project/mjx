@@ -52,13 +52,6 @@ class Wall {
   int num_kan_dora_ = 0;
 
   static TileType IndicatorToDora(Tile dora_indicator);
-
-  // This implementation is from
-  // https://en.cppreference.com/w/cpp/algorithm/random_shuffle#Possible_implementation
-  // As the std::shuffle implementation is not specified in the standard, we
-  // cannot reproduce the results with std::shuffle.
-  template <class RandomIt, class URBG>
-  static void shuffle(RandomIt first, RandomIt last, URBG&& g);
 };
 }  // namespace mjx::internal
 
