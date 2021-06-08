@@ -403,13 +403,13 @@ class GameBoard:
         )
         uradora = " ".join([str(i) for i in round_terminal.wins[0].ura_dora_indicators])
         ten_changes = [
-            ("" if self.is_using_rich else "     ")
-            + str(round_terminal.wins[0].ten_changes[(2 + self.my_idx) % 4]),
-            str(round_terminal.wins[0].ten_changes[(3 + self.my_idx) % 4])
-            + "      "
-            + str(round_terminal.wins[0].ten_changes[(1 + self.my_idx) % 4]),
-            ("" if self.is_using_rich else "     ")
-            + str(round_terminal.wins[0].ten_changes[self.my_idx % 4]),
+            ("" if self.is_using_rich else "\t")
+            + str(round_terminal.wins[0].ten_changes[(2 + table.my_idx) % 4]),
+            str(round_terminal.wins[0].ten_changes[(3 + table.my_idx) % 4])
+            + "\t\t"
+            + str(round_terminal.wins[0].ten_changes[(1 + table.my_idx) % 4]),
+            ("" if self.is_using_rich else "\t")
+            + str(round_terminal.wins[0].ten_changes[table.my_idx % 4]),
         ]
         table.final_info += (
             "\n\n"
