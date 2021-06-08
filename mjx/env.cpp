@@ -50,15 +50,26 @@ mjx::env::RLlibMahjongEnv::step(
 
   assert(!(state_.IsRoundOver() && state_.IsGameOver()));
 
-  if (state_.IsRoundOver()) {
-    auto next_state_info = state_.Next();
-    state_ = mjx::internal::State(next_state_info);
-  }
-
   // Update states based on actions
   std::vector<mjxproto::Action> actions;
   for (const auto& [player_id, action] : action_dict) actions.push_back(action);
   state_.Update(std::move(actions));
+
+
+  // Skip sharing round terminal information
+  if (state_.IsRoundOver() && !state_.IsGameOver()) {
+    auto next_state_info = state_.Next();
+    state_ = mjx::internal::State(next_state_info);
+
+    // All players receive initial observations and return dummy actions
+    auto observations = state_.CreateObservations();
+    std::vector<mjxproto::Action> actions;
+    for (const auto& [player_id, obs] : observations) {
+      assert(obs.possible_actions().size() == 1);  // dummy
+      actions.push_back(obs.possible_actions()[0]);
+    }
+    state_.Update(std::move(actions));
+  }
 
   // Receive new observations
   // TODO:
@@ -80,13 +91,14 @@ mjx::env::RLlibMahjongEnv::step(
     dones["__all__"] = true;
   }
 
-  assert(!(state_.IsRoundOver() && state_.IsGameOver()) ||
+  // dummy actions are allowed only at the end of game
+  assert(dones.at("__all__") ||
          std::all_of(observations.begin(), observations.end(),
                      [](const auto& elm){
                        const mjx::internal::Observation& obs = elm.second;
                        auto possible_actions = obs.possible_actions();
-                       return std::all_of(possible_actions.begin(), possible_actions.end(),
-                                   [](const mjxproto::Action& a){ return a.type() != mjxproto::ACTION_TYPE_DUMMY; }) ;}));
+                       return !std::any_of(possible_actions.begin(), possible_actions.end(),
+                                   [](const mjxproto::Action& a){ return a.type() == mjxproto::ACTION_TYPE_DUMMY; }) ;}));
   return std::make_tuple(proto_observations, rewards, dones, infos);
 }
 
