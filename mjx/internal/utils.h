@@ -71,7 +71,7 @@ constexpr auto ToUType(E enumerator) noexcept {
 // As the std::shuffle implementation is not specified in the standard, we
 // cannot reproduce the results with std::shuffle.
 template <class RandomIt, class URBG>
-void Shuffle(RandomIt first, RandomIt last, URBG &&g) {
+void Shuffle(RandomIt first, RandomIt last, URBG&& g) {
   typedef typename std::iterator_traits<RandomIt>::difference_type diff_t;
   typedef boost::random::uniform_int_distribution<diff_t>
       distr_t;  // use boost ver instead of std to avoid implementation
@@ -85,7 +85,6 @@ void Shuffle(RandomIt first, RandomIt last, URBG &&g) {
     swap(first[i], first[D(g, param_t(0, i))]);
   }
 }
-
 
 // A fork from https://github.com/PacktPublishing/The-Modern-Cpp-Challenge
 template <typename RandomAccessIterator, typename F>
