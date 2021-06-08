@@ -55,7 +55,6 @@ mjx::env::RLlibMahjongEnv::step(
   for (const auto& [player_id, action] : action_dict) actions.push_back(action);
   state_.Update(std::move(actions));
 
-
   // Skip sharing round terminal information
   if (state_.IsRoundOver() && !state_.IsGameOver()) {
     auto next_state_info = state_.Next();
@@ -94,11 +93,15 @@ mjx::env::RLlibMahjongEnv::step(
   // dummy actions are allowed only at the end of game
   assert(dones.at("__all__") ||
          std::all_of(observations.begin(), observations.end(),
-                     [](const auto& elm){
+                     [](const auto& elm) {
                        const mjx::internal::Observation& obs = elm.second;
                        auto possible_actions = obs.possible_actions();
-                       return !std::any_of(possible_actions.begin(), possible_actions.end(),
-                                   [](const mjxproto::Action& a){ return a.type() == mjxproto::ACTION_TYPE_DUMMY; }) ;}));
+                       return !std::any_of(
+                           possible_actions.begin(), possible_actions.end(),
+                           [](const mjxproto::Action& a) {
+                             return a.type() == mjxproto::ACTION_TYPE_DUMMY;
+                           });
+                     }));
   return std::make_tuple(proto_observations, rewards, dones, infos);
 }
 

@@ -17,7 +17,7 @@ TEST(env, RLlibMahjongEnv) {
   auto strategy = mjx::internal::StrategyRuleBased();
   while (!dones.at("__all__")) {
     std::unordered_map<mjx::internal::PlayerId, mjxproto::Action> action_dict;
-    for (const auto &[agent, observation] : observations) {
+    for (const auto& [agent, observation] : observations) {
       auto action = strategy.TakeAction(observation);
       action_dict[agent] = action;
       EXPECT_NE(action.type(), mjxproto::ACTION_TYPE_DUMMY);
@@ -33,7 +33,7 @@ TEST(env, RLlibMahjongEnv) {
             26600);
   EXPECT_EQ(observations["player_3"].round_terminal().final_score().tens()[3],
             31000);
-  for (const auto& [player_id, obs]: observations) {
+  for (const auto& [player_id, obs] : observations) {
     EXPECT_EQ(obs.possible_actions().size(), 1);
     EXPECT_EQ(obs.possible_actions(0).type(), mjxproto::ACTION_TYPE_DUMMY);
   }
