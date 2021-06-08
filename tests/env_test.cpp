@@ -26,11 +26,11 @@ TEST(env, RLlibMahjongEnv) {
   }
   EXPECT_TRUE(dones.at("__all__"));
   EXPECT_EQ(observations["player_0"].round_terminal().final_score().tens()[0],
-            16800);
+            26600);
   EXPECT_EQ(observations["player_1"].round_terminal().final_score().tens()[1],
             25600);
   EXPECT_EQ(observations["player_2"].round_terminal().final_score().tens()[2],
-            26600);
+            16800);
   EXPECT_EQ(observations["player_3"].round_terminal().final_score().tens()[3],
             31000);
   for (const auto& [player_id, obs] : observations) {
