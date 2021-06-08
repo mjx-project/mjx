@@ -25,14 +25,16 @@ TEST(env, RLlibMahjongEnv) {
     std::tie(observations, rewards, dones, infos) = env.step(action_dict);
   }
   EXPECT_TRUE(dones.at("__all__"));
-  EXPECT_EQ(observations["player_0"].round_terminal().final_score().tens()[0],
-            26600);
-  EXPECT_EQ(observations["player_1"].round_terminal().final_score().tens()[1],
-            25600);
-  EXPECT_EQ(observations["player_2"].round_terminal().final_score().tens()[2],
-            16800);
-  EXPECT_EQ(observations["player_3"].round_terminal().final_score().tens()[3],
-            31000);
+  auto player_ids = observations["player_0"].public_observation().player_ids();
+  std::unordered_map<mjx::internal::PlayerId , int> expected_tens = {
+      {"player_0", 26600},
+      {"player_1", 25600},
+      {"player_2", 16800},
+      {"player_3", 31000}
+  };
+  for (int i = 0; i < 4; ++i) {
+    EXPECT_EQ(observations["player_0"].round_terminal().final_score().tens(i), expected_tens[player_ids[i]]);
+  }
   for (const auto& [player_id, obs] : observations) {
     EXPECT_EQ(obs.possible_actions().size(), 1);
     EXPECT_EQ(obs.possible_actions(0).type(), mjxproto::ACTION_TYPE_DUMMY);
