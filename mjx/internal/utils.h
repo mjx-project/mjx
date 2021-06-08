@@ -66,6 +66,26 @@ constexpr auto ToUType(E enumerator) noexcept {
   return static_cast<std::underlying_type_t<E>>(enumerator);
 }
 
+// This implementation is from
+// https://en.cppreference.com/w/cpp/algorithm/random_shuffle#Possible_implementation
+// As the std::shuffle implementation is not specified in the standard, we
+// cannot reproduce the results with std::shuffle.
+template <class RandomIt, class URBG>
+void Shuffle(RandomIt first, RandomIt last, URBG&& g) {
+  typedef typename std::iterator_traits<RandomIt>::difference_type diff_t;
+  typedef boost::random::uniform_int_distribution<diff_t>
+      distr_t;  // use boost ver instead of std to avoid implementation
+  // dependency
+  typedef typename distr_t::param_type param_t;
+
+  distr_t D;
+  diff_t n = last - first;
+  for (diff_t i = n - 1; i > 0; --i) {
+    using std::swap;
+    swap(first[i], first[D(g, param_t(0, i))]);
+  }
+}
+
 // A fork from https://github.com/PacktPublishing/The-Modern-Cpp-Challenge
 template <typename RandomAccessIterator, typename F>
 void ptransform(RandomAccessIterator begin, RandomAccessIterator end, F&& f) {

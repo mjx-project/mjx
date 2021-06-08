@@ -13,7 +13,7 @@ Wall::Wall(std::uint64_t round, std::uint64_t honba, std::uint64_t game_seed)
   // std::cout << "round: " << std::to_string(round) << ", honba: " <<
   // std::to_string(honba) << ", game_seed: " << std::to_string(seed) << ",
   // wall_seed: " << std::to_string(wall_seed) << std::endl;
-  Wall::shuffle(tiles_.begin(), tiles_.end(), std::mt19937_64(wall_seed));
+  Shuffle(tiles_.begin(), tiles_.end(), std::mt19937_64(wall_seed));
 }
 
 Wall::Wall(std::uint32_t round, std::vector<Tile> tiles)
@@ -117,22 +117,6 @@ TileTypeCount Wall::ura_dora_count() const {
 }
 
 std::uint64_t Wall::game_seed() const { return game_seed_.game_seed(); }
-
-template <class RandomIt, class URBG>
-void Wall::shuffle(RandomIt first, RandomIt last, URBG &&g) {
-  typedef typename std::iterator_traits<RandomIt>::difference_type diff_t;
-  typedef boost::random::uniform_int_distribution<diff_t>
-      distr_t;  // use boost ver instead of std to avoid implementation
-                // dependency
-  typedef typename distr_t::param_type param_t;
-
-  distr_t D;
-  diff_t n = last - first;
-  for (diff_t i = n - 1; i > 0; --i) {
-    using std::swap;
-    swap(first[i], first[D(g, param_t(0, i))]);
-  }
-}
 
 int Wall::num_kan_draw() const { return num_kan_draw_; }
 int Wall::num_kan_dora() const { return num_kan_dora_; }
