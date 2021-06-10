@@ -122,7 +122,7 @@ message Observation {
   PublicObservation public_observation = 2;
   PrivateObservation private_observation = 3;
   RoundTerminal round_terminal = 4;
-  repeated Action possible_actions = 5;
+  repeated Action legal_actions = 5;
 }
 
 message Win {
