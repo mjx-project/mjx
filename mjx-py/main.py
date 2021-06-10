@@ -3,7 +3,7 @@ import os
 import mjxproto
 import open_utils
 from converter import TileUnitType, FromWho
-from converter import get_modifier, get_tile_char, get_wind_char, get_yaku
+from converter import get_modifier, get_tile_char, get_wind_char, get_yaku, get_end_type
 from rich import print
 from rich.layout import Layout
 from rich.panel import Panel
@@ -88,6 +88,8 @@ class MahjongTable:
         self.wall_num = 134
         self.doras = []
         self.uradoras = []
+        self.result = ""
+        self.end_info = "\n"
 
     def check_num_tiles(self) -> bool:
         for p in self.players:
@@ -335,6 +337,23 @@ class GameBoard:
         table.riichi = public_observation.init_score.riichi
         table.doras = public_observation.dora_indicators
 
+        if public_observation.events == []:
+            return table
+
+        if public_observation.events[-1].type in [5, 10]:
+            table.result = "win"
+        elif public_observation.events[-1].type in [
+            6,
+            15,
+            16,
+            17,
+            18,
+            19,
+            20,
+        ]:
+            table.result = "nowinner"
+            table.end_info = get_end_type(public_observation.events[-1].type)
+
         return table
 
     def decode_round_terminal(self, table: MahjongTable, round_terminal, win: bool):
@@ -455,18 +474,10 @@ class GameBoard:
         table.wall_num = self.get_wall_num(table)
 
         if gamedata.public_observation.events != []:
-            if gamedata.public_observation.events[-1].type in [5, 10]:
+            if table.result == "win":
                 table = self.decode_round_terminal(table, gamedata.round_terminal, True)
 
-            elif gamedata.public_observation.events[-1].type in [
-                6,
-                15,
-                16,
-                17,
-                18,
-                19,
-                20,
-            ]:
+            elif table.result == "nowinner":
                 table = self.decode_round_terminal(
                     table, gamedata.round_terminal, False
                 )
@@ -788,7 +799,7 @@ class GameBoard:
         )
         system_info = "".join(system_info)
 
-        return "".join([board_info, players_info, system_info])
+        return "".join([board_info, players_info, system_info, table.end_info])
 
     def show_by_rich(self, table: MahjongTable) -> None:
 
@@ -884,6 +895,7 @@ class GameBoard:
 
         console = Console()
         console.print(self.layout)
+        console.print(Text(table.end_info, justify="center"))
 
 
 def main():
