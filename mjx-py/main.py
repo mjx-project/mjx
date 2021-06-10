@@ -61,7 +61,7 @@ class Player:
     def __init__(self):
         self.player_idx: int
         self.wind: int
-        self.score: int
+        self.score: str
         self.tile_units = [
             TileUnit(
                 TileUnitType.DISCARD,
@@ -87,6 +87,7 @@ class MahjongTable:
         self.my_idx = 0  # 0-3; The player you want to show.
         self.wall_num = 134
         self.doras = []
+        self.uradoras = []
         self.final_info = ""
 
     def check_num_tiles(self) -> bool:
@@ -254,7 +255,7 @@ class GameBoard:
         """
         for i, p in enumerate(table.players):
             p.name = public_observation.player_ids[i]
-            p.score = public_observation.init_score.tens[i]
+            p.score = str(public_observation.init_score.tens[i])
 
         for eve in public_observation.events:
             if eve.type == 0:
@@ -307,7 +308,7 @@ class GameBoard:
                     if eve.who == p.player_idx:
                         p.is_declared_riichi = True
                         p.riichi_now = True
-                        p.score -= 1000
+                        p.score = str(int(p.score) - 1000)
 
             if eve.type == 10:
                 for p in table.players:
@@ -355,79 +356,37 @@ class GameBoard:
         return table
 
     def decode_round_terminal(self, table: MahjongTable, round_terminal):
-        hand = "".join(
-            [
-                get_tile_char(i, self.is_using_unicode)
-                + (
-                    ""
-                    if get_tile_char(i, self.is_using_unicode) == "\U0001F004\uFE0E"
-                    else " "
+        for i, p in enumerate(table.players):
+            if p.player_idx == round_terminal.wins[0].who:
+                p.tile_units=[i for i in p.tile_units if i.tile_unit_type == TileUnitType.DISCARD]
+                p.tile_units.append(
+                    TileUnit(
+                        TileUnitType.HAND,
+                        FromWho.NONE,
+                        [
+                            Tile(i, True, self.is_using_unicode)
+                            for i in round_terminal.wins[0].hand.closed_tiles
+                        ],
+                    )
                 )
-                for i in round_terminal.wins[0].hand.closed_tiles
-            ]
-        )
-        opens_char = []
-        opens_id = [
-            open_utils.open_tile_ids(opens)
-            for opens in round_terminal.wins[0].hand.opens
-        ]
-        for tiles in opens_id:
-            opens_char.append(
-                "".join(
-                    [
-                        get_tile_char(t, self.is_using_unicode)
-                        + (
-                            ""
-                            if get_tile_char(t, self.is_using_unicode)
-                            == "\U0001F004\uFE0E"
-                            else " "
+                for opens in round_terminal.wins[0].hand.opens:
+                    p.tile_units.append(
+                        TileUnit(
+                            open_utils.open_event_type(opens),
+                            open_utils.open_from(opens),
+                            [
+                                Tile(i, True, self.is_using_unicode)
+                                for i in open_utils.open_tile_ids(opens)
+                            ],
                         )
-                        for t in tiles
-                    ]
-                )
+                    )
+            delta = round_terminal.wins[0].ten_changes[i]
+            p.score = (
+                str(int(p.score) + delta)
+                + ("(+" if delta > 0 else "(")
+                + str(delta)
+                + ")"
             )
-        opens_char = "".join(opens_char)
-        yakus = ", ".join([get_yaku(i) for i in round_terminal.wins[0].yakus])
-        fu = str(round_terminal.wins[0].fu)
-        ten = str(round_terminal.wins[0].ten)
-        dora = "".join(
-            [
-                get_tile_char(i, self.is_using_unicode)
-                + (
-                    ""
-                    if get_tile_char(i, self.is_using_unicode) == "\U0001F004\uFE0E"
-                    else " "
-                )
-                for i in table.doras
-            ]
-        )
-        uradora = " ".join([str(i) for i in round_terminal.wins[0].ura_dora_indicators])
-        ten_changes = [
-            ("" if self.is_using_rich else "\t")
-            + str(round_terminal.wins[0].ten_changes[(2 + table.my_idx) % 4]),
-            str(round_terminal.wins[0].ten_changes[(3 + table.my_idx) % 4])
-            + "\t\t"
-            + str(round_terminal.wins[0].ten_changes[(1 + table.my_idx) % 4]),
-            ("" if self.is_using_rich else "\t")
-            + str(round_terminal.wins[0].ten_changes[table.my_idx % 4]),
-        ]
-        table.final_info += (
-            "\n\n"
-            + hand
-            + opens_char
-            + ["\nYaku: ", "\n役: "][self.language]
-            + yakus
-            + "\n"
-            + fu
-            + [" fu\n", " 符\n"][self.language]
-            + ten
-            + ["\nDora: ", "\nドラ: "][self.language]
-            + dora
-            + ["\nUraDora: ", "\n裏ドラ: "][self.language]
-            + (["None", "なし"][self.language] if uradora == "" else uradora)
-            + "\n"
-            + "\n".join(ten_changes)
-        )
 
         return table
 
@@ -729,6 +688,18 @@ class GameBoard:
                 self.language
             ]
         )
+        dora = "".join(
+            [
+                get_tile_char(d, self.is_using_unicode)
+                + (
+                    ""
+                    if get_tile_char(d, self.is_using_unicode) == "\U0001F004\uFE0E"
+                    else " "
+                )
+                for d in table.doras
+            ]
+        )
+        board_info.append(" " + ["Dora:", "ドラ:"][self.language] + dora)
         board_info.append("\n\n")
         board_info = "".join(board_info)
         return board_info
@@ -747,7 +718,7 @@ class GameBoard:
                 + " [ "
                 + "".join(
                     [
-                        str(p.score)
+                        p.score
                         + (
                             [", riichi", ", リーチ"][self.language]
                             if p.is_declared_riichi
@@ -831,7 +802,7 @@ class GameBoard:
                 style="bold green",
             )
 
-            score = Text(str(p.score), justify="center", style="yellow")
+            score = Text(p.score, justify="center", style="yellow")
 
             riichi = Text()
             if p.is_declared_riichi:
