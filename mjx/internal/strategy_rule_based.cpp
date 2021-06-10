@@ -18,14 +18,13 @@ mjxproto::Action StrategyRuleBased::TakeAction(
   // Prepare some seed and MT engine for reproducibility
   const std::uint64_t seed =
       12345 + 4096 * observation.proto().public_observation().events_size() +
-      16 * observation.possible_actions().size() +
-      1 * observation.proto().who();
+      16 * observation.legal_actions().size() + 1 * observation.proto().who();
   auto mt = std::mt19937_64(seed);
 
-  auto possible_actions = observation.possible_actions();
+  auto legal_actions = observation.legal_actions();
 
   // もし、取りうる行動が一種類ならそれをそのまま返す
-  if (possible_actions.size() == 1) return possible_actions[0];
+  if (legal_actions.size() == 1) return legal_actions[0];
 
   // この順番でソート
   std::unordered_map<mjxproto::ActionType, int> action_priority = {
@@ -43,7 +42,7 @@ mjxproto::Action StrategyRuleBased::TakeAction(
       {mjxproto::ACTION_TYPE_NO, 11},
   };
   std::sort(
-      possible_actions.begin(), possible_actions.end(),
+      legal_actions.begin(), legal_actions.end(),
       [&action_priority](const mjxproto::Action &x, const mjxproto::Action &y) {
         if (x.type() != y.type())
           return action_priority.at(x.type()) < action_priority.at(y.type());
@@ -53,7 +52,7 @@ mjxproto::Action StrategyRuleBased::TakeAction(
 
   const Hand curr_hand = observation.current_hand();
 
-  auto &selected = possible_actions.front();
+  auto &selected = legal_actions.front();
 
   // 和了れるときは全て和了る。リーチできるときは全てリーチする。九種九牌も全て流す。
   if (Any(selected.type(),
@@ -68,7 +67,7 @@ mjxproto::Action StrategyRuleBased::TakeAction(
           {mjxproto::ACTION_TYPE_OPEN_KAN, mjxproto::ACTION_TYPE_PON,
            mjxproto::ACTION_TYPE_CHI})) {
     if (curr_hand.IsTenpai()) {
-      selected = *possible_actions.rbegin();
+      selected = *legal_actions.rbegin();
       Assert(selected.type() == mjxproto::ActionType::ACTION_TYPE_NO);
       return selected;
     }
@@ -78,8 +77,7 @@ mjxproto::Action StrategyRuleBased::TakeAction(
   if (Any(selected.type(),
           {mjxproto::ACTION_TYPE_OPEN_KAN, mjxproto::ACTION_TYPE_PON,
            mjxproto::ACTION_TYPE_CHI})) {
-    selected =
-        *SelectRandomly(possible_actions.begin(), possible_actions.end(), mt);
+    selected = *SelectRandomly(legal_actions.begin(), legal_actions.end(), mt);
     Assert(Any(selected.type(),
                {mjxproto::ACTION_TYPE_OPEN_KAN, mjxproto::ACTION_TYPE_PON,
                 mjxproto::ACTION_TYPE_CHI, mjxproto::ACTION_TYPE_NO}));
@@ -100,11 +98,11 @@ mjxproto::Action StrategyRuleBased::TakeAction(
   for (const auto &[tile, tsumogiri] : possible_discards)
     discard_candidates.emplace_back(tile);
   Tile selected_discard = SelectDiscard(discard_candidates, curr_hand, mt);
-  for (const auto &possible_action : possible_actions) {
-    if (!Any(possible_action.type(),
+  for (const auto &legal_action : legal_actions) {
+    if (!Any(legal_action.type(),
              {mjxproto::ACTION_TYPE_DISCARD, mjxproto::ACTION_TYPE_TSUMOGIRI}))
       continue;
-    if (possible_action.tile() == selected_discard.Id()) return possible_action;
+    if (legal_action.tile() == selected_discard.Id()) return legal_action;
   }
   assert(false);
 }

@@ -122,7 +122,7 @@ class Observation(betterproto.Message):
     public_observation: "PublicObservation" = betterproto.message_field(2)
     private_observation: "PrivateObservation" = betterproto.message_field(3)
     round_terminal: "RoundTerminal" = betterproto.message_field(4)
-    possible_actions: List["Action"] = betterproto.message_field(5)
+    legal_actions: List["Action"] = betterproto.message_field(5)
 
 
 @dataclass
@@ -197,7 +197,7 @@ class AgentStub(betterproto.ServiceStub):
         public_observation: Optional["PublicObservation"] = None,
         private_observation: Optional["PrivateObservation"] = None,
         round_terminal: Optional["RoundTerminal"] = None,
-        possible_actions: List["Action"] = [],
+        legal_actions: List["Action"] = [],
     ) -> Action:
         request = Observation()
         request.who = who
@@ -207,8 +207,8 @@ class AgentStub(betterproto.ServiceStub):
             request.private_observation = private_observation
         if round_terminal is not None:
             request.round_terminal = round_terminal
-        if possible_actions is not None:
-            request.possible_actions = possible_actions
+        if legal_actions is not None:
+            request.legal_actions = legal_actions
 
         return await self._unary_unary(
             "/mjxproto.Agent/TakeAction",

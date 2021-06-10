@@ -23,8 +23,8 @@ TEST(environment, RunOneGame) {
   }
 
   // Rule based agents have no randomness. Results should be reproducible.
-  ASSERT_EQ(result.tens["agent01"], 16800);
+  ASSERT_EQ(result.tens["agent01"], 26600);
   ASSERT_EQ(result.tens["agent02"], 25600);
-  ASSERT_EQ(result.tens["agent03"], 26600);
+  ASSERT_EQ(result.tens["agent03"], 16800);
   ASSERT_EQ(result.tens["agent04"], 31000);
 }

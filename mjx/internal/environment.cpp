@@ -10,8 +10,6 @@ namespace mjx::internal {
 Environment::Environment(std::vector<std::shared_ptr<Agent>> agents)
     : agents_(std::move(agents)) {
   for (const auto &agent : agents_) map_agents_[agent->player_id()] = agent;
-  std::vector<PlayerId> player_ids(4);
-  for (int i = 0; i < 4; ++i) player_ids[i] = agents_.at(i)->player_id();
   state_ = State();
 }
 
@@ -60,6 +58,7 @@ GameResult Environment::RunOneGame(std::uint64_t game_seed) {
   // spdlog::info("Game Seed: {}", game_seed);
   std::vector<PlayerId> player_ids(4);
   for (int i = 0; i < 4; ++i) player_ids[i] = agents_.at(i)->player_id();
+  player_ids = State::ShufflePlayerIds(game_seed, player_ids);
   state_ = State(State::ScoreInfo{player_ids, game_seed});
   while (true) {
     RunOneRound();

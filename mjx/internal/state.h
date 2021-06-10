@@ -53,7 +53,7 @@ class State {
   State::ScoreInfo Next() const;
 
   static std::vector<PlayerId> ShufflePlayerIds(
-      std::uint32_t game_seed, std::vector<PlayerId> player_ids);
+      std::uint64_t game_seed, const std::vector<PlayerId>& player_ids);
 
   // accessors
   [[nodiscard]] AbsolutePos dealer() const;
