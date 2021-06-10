@@ -301,7 +301,7 @@ class GameBoard:
                                 Tile(eve.tile, True, self.is_using_unicode, True)
                             )
 
-            if eve.type == 2:
+            if eve.type == 13:
                 table.riichi += 1
                 p.is_declared_riichi = True
                 p.riichi_now = True
