@@ -94,16 +94,16 @@ mjx::env::RLlibMahjongEnv::step(
 
   // dummy actions are allowed only at the end of game
   assert(dones.at("__all__") ||
-         std::all_of(observations.begin(), observations.end(),
-                     [](const auto& elm) {
-                       const mjx::internal::Observation& obs = elm.second;
-                       auto legal_actions = obs.legal_actions();
-                       return !std::any_of(
-                           legal_actions.begin(), legal_actions.end(),
-                           [](const mjxproto::Action& a) {
-                             return a.type() == mjxproto::ACTION_TYPE_DUMMY;
-                           });
-                     }));
+         std::all_of(
+             observations.begin(), observations.end(), [](const auto& elm) {
+               const mjx::internal::Observation& obs = elm.second;
+               auto legal_actions = obs.legal_actions();
+               return !std::any_of(legal_actions.begin(), legal_actions.end(),
+                                   [](const mjxproto::Action& a) {
+                                     return a.type() ==
+                                            mjxproto::ACTION_TYPE_DUMMY;
+                                   });
+             }));
   return std::make_tuple(proto_observations, rewards, dones, infos);
 }
 

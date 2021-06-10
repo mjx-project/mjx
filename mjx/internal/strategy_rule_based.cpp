@@ -18,8 +18,7 @@ mjxproto::Action StrategyRuleBased::TakeAction(
   // Prepare some seed and MT engine for reproducibility
   const std::uint64_t seed =
       12345 + 4096 * observation.proto().public_observation().events_size() +
-      16 * observation.legal_actions().size() +
-      1 * observation.proto().who();
+      16 * observation.legal_actions().size() + 1 * observation.proto().who();
   auto mt = std::mt19937_64(seed);
 
   auto legal_actions = observation.legal_actions();
@@ -78,8 +77,7 @@ mjxproto::Action StrategyRuleBased::TakeAction(
   if (Any(selected.type(),
           {mjxproto::ACTION_TYPE_OPEN_KAN, mjxproto::ACTION_TYPE_PON,
            mjxproto::ACTION_TYPE_CHI})) {
-    selected =
-        *SelectRandomly(legal_actions.begin(), legal_actions.end(), mt);
+    selected = *SelectRandomly(legal_actions.begin(), legal_actions.end(), mt);
     Assert(Any(selected.type(),
                {mjxproto::ACTION_TYPE_OPEN_KAN, mjxproto::ACTION_TYPE_PON,
                 mjxproto::ACTION_TYPE_CHI, mjxproto::ACTION_TYPE_NO}));

@@ -783,8 +783,7 @@ TEST(state, Update) {
       observation));
   legal_action =
       FindPossibleAction(mjxproto::ACTION_TYPE_ADDED_KAN, observation);
-  actions = {
-      Action::CreateOpen(observation.who(), Open(legal_action.open()))};
+  actions = {Action::CreateOpen(observation.who(), Open(legal_action.open()))};
   state_before.Update(std::move(actions));
   // No
   observations = state_before.CreateObservations();
@@ -834,8 +833,7 @@ TEST(state, Update) {
       observation));
   legal_action =
       FindPossibleAction(mjxproto::ACTION_TYPE_ADDED_KAN, observation);
-  actions = {
-      Action::CreateOpen(observation.who(), Open(legal_action.open()))};
+  actions = {Action::CreateOpen(observation.who(), Open(legal_action.open()))};
   state_before.Update(std::move(actions));
   // KanAdded p8
   observations = state_before.CreateObservations();
@@ -847,8 +845,7 @@ TEST(state, Update) {
       observation));
   legal_action =
       FindPossibleAction(mjxproto::ACTION_TYPE_ADDED_KAN, observation);
-  actions = {
-      Action::CreateOpen(observation.who(), Open(legal_action.open()))};
+  actions = {Action::CreateOpen(observation.who(), Open(legal_action.open()))};
   state_before.Update(std::move(actions));
   // 槍槓（一発なし）
   observations = state_before.CreateObservations();
@@ -929,8 +926,8 @@ std::vector<std::vector<mjxproto::Action>> ListUpAllActionCombinations(
               who, Tile(legal_action.tile()), std::string()));
           break;
         case mjxproto::ACTION_TYPE_RON:
-          actions_per_player.push_back(Action::CreateRon(
-              who, Tile(legal_action.tile()), std::string()));
+          actions_per_player.push_back(
+              Action::CreateRon(who, Tile(legal_action.tile()), std::string()));
           break;
         case mjxproto::ACTION_TYPE_RIICHI:
           actions_per_player.push_back(Action::CreateRiichi(who));

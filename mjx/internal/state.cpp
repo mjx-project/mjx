@@ -149,8 +149,7 @@ std::unordered_map<PlayerId, Observation> State::CreateObservations() const {
       auto who = AbsolutePos(LastEvent().who());
       auto player_id = player(who).player_id;
       auto observation = Observation(who, state_);
-      Assert(!observation.has_legal_action(),
-             "legal_actions should be empty.");
+      Assert(!observation.has_legal_action(), "legal_actions should be empty.");
 
       // => NineTiles
       if (IsFirstTurnWithoutOpen() && hand(who).CanNineTiles()) {

@@ -26,8 +26,7 @@ class Observation {
   [[nodiscard]] std::vector<mjxproto::Event> EventHistory() const;
 
   void add_legal_action(mjxproto::Action&& legal_action);
-  void add_legal_actions(
-      const std::vector<mjxproto::Action>& legal_actions);
+  void add_legal_actions(const std::vector<mjxproto::Action>& legal_actions);
 
  private:
   // TODO: remove friends and use proto()
