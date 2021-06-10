@@ -282,8 +282,8 @@ std::uint8_t Action::Encode(const mjxproto::Action& action) {
   }
 }
 mjxproto::Action Action::Decode(
-    std::uint8_t code, const std::vector<mjxproto::Action>& possible_action) {
-  for (auto action : possible_action) {
+    std::uint8_t code, const std::vector<mjxproto::Action>& legal_action) {
+  for (auto action : legal_action) {
     if (Action::Encode(action) == code) {
       return action;
     }

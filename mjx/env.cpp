@@ -17,8 +17,8 @@ mjx::env::RLlibMahjongEnv::reset() noexcept {
   auto observations = state_.CreateObservations();
   std::vector<mjxproto::Action> actions;
   for (const auto& [player_id, obs] : observations) {
-    assert(obs.possible_actions().size() == 1);  // dummy
-    actions.push_back(obs.possible_actions()[0]);
+    assert(obs.legal_actions().size() == 1);  // dummy
+    actions.push_back(obs.legal_actions()[0]);
   }
   state_.Update(std::move(actions));
 
@@ -66,8 +66,8 @@ mjx::env::RLlibMahjongEnv::step(
     auto observations = state_.CreateObservations();
     std::vector<mjxproto::Action> actions;
     for (const auto& [player_id, obs] : observations) {
-      assert(obs.possible_actions().size() == 1);  // dummy
-      actions.push_back(obs.possible_actions()[0]);
+      assert(obs.legal_actions().size() == 1);  // dummy
+      actions.push_back(obs.legal_actions()[0]);
     }
     state_.Update(std::move(actions));
   }
@@ -97,9 +97,9 @@ mjx::env::RLlibMahjongEnv::step(
          std::all_of(observations.begin(), observations.end(),
                      [](const auto& elm) {
                        const mjx::internal::Observation& obs = elm.second;
-                       auto possible_actions = obs.possible_actions();
+                       auto legal_actions = obs.legal_actions();
                        return !std::any_of(
-                           possible_actions.begin(), possible_actions.end(),
+                           legal_actions.begin(), legal_actions.end(),
                            [](const mjxproto::Action& a) {
                              return a.type() == mjxproto::ACTION_TYPE_DUMMY;
                            });

@@ -42,8 +42,8 @@ std::string GetLastJsonLine(const std::string &filename) {
 bool ActionTypeCheck(const std::vector<mjxproto::ActionType> &action_types,
                      const Observation &observation) {
   std::unordered_set<mjxproto::ActionType> observation_action_types;
-  for (const auto &possible_action : observation.possible_actions()) {
-    observation_action_types.insert(possible_action.type());
+  for (const auto &legal_action : observation.legal_actions()) {
+    observation_action_types.insert(legal_action.type());
   }
   bool ok =
       observation_action_types == std::unordered_set<mjxproto::ActionType>{
@@ -155,8 +155,8 @@ std::string SwapTiles(const std::string &json_str, Tile a, Tile b) {
 
 mjxproto::Action FindPossibleAction(mjxproto::ActionType action_type,
                                     const Observation &observation) {
-  for (const auto &possible_action : observation.possible_actions())
-    if (possible_action.type() == action_type) return possible_action;
+  for (const auto &legal_action : observation.legal_actions())
+    if (legal_action.type() == action_type) return legal_action;
   std::cerr << "Cannot find the specified action type" << std::endl;
   Assert(false);
 }
@@ -378,7 +378,7 @@ TEST(state, CreateObservation) {
   observation = observations["超ヒモリロ"];
   EXPECT_TRUE(ActionTypeCheck(
       {mjxproto::ACTION_TYPE_CHI, mjxproto::ACTION_TYPE_NO}, observation));
-  EXPECT_EQ(observation.possible_actions().front().open(), 42031);
+  EXPECT_EQ(observation.legal_actions().front().open(), 42031);
 
   // 14. Discardした後、ロン可能なプレイヤーがいる場合にはロンが入る
   json = GetLastJsonLine("obs-discard-ron.json");
@@ -415,7 +415,7 @@ TEST(state, Update) {
   std::vector<mjxproto::Action> actions;
   std::unordered_map<PlayerId, Observation> observations;
   Observation observation;
-  mjxproto::Action possible_action;
+  mjxproto::Action legal_action;
 
   // Draw後にDiscardでUpdate。これを誰も鳴けない場合は次のDrawまで進む
   json_before = GetLastJsonLine("upd-bef-draw-discard-draw.json");
@@ -781,10 +781,10 @@ TEST(state, Update) {
       {mjxproto::ACTION_TYPE_DISCARD, mjxproto::ACTION_TYPE_TSUMOGIRI,
        mjxproto::ACTION_TYPE_ADDED_KAN},
       observation));
-  possible_action =
+  legal_action =
       FindPossibleAction(mjxproto::ACTION_TYPE_ADDED_KAN, observation);
   actions = {
-      Action::CreateOpen(observation.who(), Open(possible_action.open()))};
+      Action::CreateOpen(observation.who(), Open(legal_action.open()))};
   state_before.Update(std::move(actions));
   // No
   observations = state_before.CreateObservations();
@@ -832,10 +832,10 @@ TEST(state, Update) {
       {mjxproto::ACTION_TYPE_DISCARD, mjxproto::ACTION_TYPE_TSUMOGIRI,
        mjxproto::ACTION_TYPE_ADDED_KAN},
       observation));
-  possible_action =
+  legal_action =
       FindPossibleAction(mjxproto::ACTION_TYPE_ADDED_KAN, observation);
   actions = {
-      Action::CreateOpen(observation.who(), Open(possible_action.open()))};
+      Action::CreateOpen(observation.who(), Open(legal_action.open()))};
   state_before.Update(std::move(actions));
   // KanAdded p8
   observations = state_before.CreateObservations();
@@ -845,10 +845,10 @@ TEST(state, Update) {
       {mjxproto::ACTION_TYPE_DISCARD, mjxproto::ACTION_TYPE_TSUMOGIRI,
        mjxproto::ACTION_TYPE_ADDED_KAN},
       observation));
-  possible_action =
+  legal_action =
       FindPossibleAction(mjxproto::ACTION_TYPE_ADDED_KAN, observation);
   actions = {
-      Action::CreateOpen(observation.who(), Open(possible_action.open()))};
+      Action::CreateOpen(observation.who(), Open(legal_action.open()))};
   state_before.Update(std::move(actions));
   // 槍槓（一発なし）
   observations = state_before.CreateObservations();
@@ -914,23 +914,23 @@ std::vector<std::vector<mjxproto::Action>> ListUpAllActionCombinations(
   for (const auto &[player_id, observation] : observations) {
     auto who = observation.who();
     std::vector<mjxproto::Action> actions_per_player;
-    for (const auto &possible_action : observation.possible_actions()) {
-      switch (possible_action.type()) {
+    for (const auto &legal_action : observation.legal_actions()) {
+      switch (legal_action.type()) {
         case mjxproto::ACTION_TYPE_DISCARD:
           actions_per_player.push_back(
-              Action::CreateDiscard(who, Tile(possible_action.tile())));
+              Action::CreateDiscard(who, Tile(legal_action.tile())));
           break;
         case mjxproto::ACTION_TYPE_TSUMOGIRI:
           actions_per_player.push_back(
-              Action::CreateTsumogiri(who, Tile(possible_action.tile())));
+              Action::CreateTsumogiri(who, Tile(legal_action.tile())));
           break;
         case mjxproto::ACTION_TYPE_TSUMO:
           actions_per_player.push_back(Action::CreateTsumo(
-              who, Tile(possible_action.tile()), std::string()));
+              who, Tile(legal_action.tile()), std::string()));
           break;
         case mjxproto::ACTION_TYPE_RON:
           actions_per_player.push_back(Action::CreateRon(
-              who, Tile(possible_action.tile()), std::string()));
+              who, Tile(legal_action.tile()), std::string()));
           break;
         case mjxproto::ACTION_TYPE_RIICHI:
           actions_per_player.push_back(Action::CreateRiichi(who));
@@ -947,7 +947,7 @@ std::vector<std::vector<mjxproto::Action>> ListUpAllActionCombinations(
         case mjxproto::ACTION_TYPE_CLOSED_KAN:
         case mjxproto::ACTION_TYPE_ADDED_KAN:
           actions_per_player.push_back(
-              Action::CreateOpen(who, Open(possible_action.open())));
+              Action::CreateOpen(who, Open(legal_action.open())));
           break;
         default:
           break;

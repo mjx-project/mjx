@@ -36,7 +36,7 @@ TEST(env, RLlibMahjongEnv) {
               expected_tens[player_ids[i]]);
   }
   for (const auto& [player_id, obs] : observations) {
-    EXPECT_EQ(obs.possible_actions().size(), 1);
-    EXPECT_EQ(obs.possible_actions(0).type(), mjxproto::ACTION_TYPE_DUMMY);
+    EXPECT_EQ(obs.legal_actions().size(), 1);
+    EXPECT_EQ(obs.legal_actions(0).type(), mjxproto::ACTION_TYPE_DUMMY);
   }
 }
