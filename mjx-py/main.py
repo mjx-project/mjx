@@ -358,7 +358,9 @@ class GameBoard:
     def decode_round_terminal(self, table: MahjongTable, round_terminal):
         for i, p in enumerate(table.players):
             if p.player_idx == round_terminal.wins[0].who:
-                p.tile_units=[i for i in p.tile_units if i.tile_unit_type == TileUnitType.DISCARD]
+                p.tile_units = [
+                    i for i in p.tile_units if i.tile_unit_type == TileUnitType.DISCARD
+                ]
                 p.tile_units.append(
                     TileUnit(
                         TileUnitType.HAND,
