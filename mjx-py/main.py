@@ -87,7 +87,7 @@ class MahjongTable:
         self.my_idx = 0  # 0-3; The player you want to show.
         self.wall_num = 134
         self.doras = []
-        self.uradoras = []    
+        self.uradoras = []
         self.result = ""
         self.end_info = "\n"
 
@@ -358,7 +358,7 @@ class GameBoard:
 
     def decode_round_terminal(self, table: MahjongTable, round_terminal, win: bool):
         if win:
-            table.uradoras=round_terminal.wins[0].ura_dora_indicators
+            table.uradoras = round_terminal.wins[0].ura_dora_indicators
             winner = table.players[round_terminal.wins[0].who]
             winner.tile_units = [
                 i for i in winner.tile_units if i.tile_unit_type == TileUnitType.DISCARD
