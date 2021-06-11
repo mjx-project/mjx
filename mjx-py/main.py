@@ -154,7 +154,7 @@ class GameBoard:
                 Layout(name="table"),
             )
 
-        self.layout["space_top"].size = 2
+        self.layout["space_top"].size = 3
         self.layout["info"].size = 3
         self.layout["table"].minimum_size = 20
 
@@ -252,6 +252,11 @@ class GameBoard:
         - 鳴き牌
         **以外**の情報を読み込ませる関数
         """
+        table.round = public_observation.init_score.round + 1
+        table.honba = public_observation.init_score.honba
+        table.riichi = public_observation.init_score.riichi
+        table.doras = public_observation.dora_indicators
+
         for i, p in enumerate(table.players):
             p.name = public_observation.player_ids[i]
             p.score = str(public_observation.init_score.tens[i])
@@ -296,7 +301,8 @@ class GameBoard:
                                 Tile(eve.tile, True, self.is_using_unicode, True)
                             )
 
-            if eve.type == 2:
+            if eve.type == 13:
+                table.riichi += 1
                 p.is_declared_riichi = True
                 p.riichi_now = True
                 p.score = str(int(p.score) - 1000)
@@ -331,11 +337,6 @@ class GameBoard:
                 for p_from_t_u in p_from.tile_units:
                     if p_from_t_u.tile_unit_type == TileUnitType.DISCARD:
                         p_from_t_u.tiles.pop(-1)
-
-        table.round = public_observation.init_score.round + 1
-        table.honba = public_observation.init_score.honba
-        table.riichi = public_observation.init_score.riichi
-        table.doras = public_observation.dora_indicators
 
         if public_observation.events == []:
             return table
