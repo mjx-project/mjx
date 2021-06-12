@@ -8,7 +8,8 @@ mjx::env::RLlibMahjongPyEnv::reset() noexcept {
   std::unordered_map<mjx::internal::PlayerId, std::string> json_obs_dict;
   for (const auto &[id, obs] : proto_obs_dict) {
     std::string json;
-    google::protobuf::util::MessageToJsonString(obs, &json);
+    auto status = google::protobuf::util::MessageToJsonString(obs, &json);
+    assert(status.ok());
     json_obs_dict[id] = json;
   }
   return json_obs_dict;
@@ -24,7 +25,8 @@ mjx::env::RLlibMahjongPyEnv::step(
   std::unordered_map<internal::PlayerId, mjxproto::Action> proto_action_dict;
   for (const auto &[id, action] : json_action_dict) {
     mjxproto::Action proto_action;
-    google::protobuf::util::JsonStringToMessage(action, &proto_action);
+    auto status = google::protobuf::util::JsonStringToMessage(action, &proto_action);
+    assert(status.ok());
     proto_action_dict[id] = proto_action;
   }
   auto step_tpl = env_.step(proto_action_dict);
@@ -32,7 +34,8 @@ mjx::env::RLlibMahjongPyEnv::step(
   std::unordered_map<mjx::internal::PlayerId, std::string> json_obs_dict;
   for (const auto &[id, obs] : proto_obs_dict) {
     std::string json;
-    google::protobuf::util::MessageToJsonString(obs, &json);
+    auto status = google::protobuf::util::MessageToJsonString(obs, &json);
+    assert(status.ok());
     json_obs_dict[id] = json;
   }
   return std::make_tuple(json_obs_dict, std::get<1>(step_tpl),
