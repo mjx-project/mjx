@@ -1,7 +1,7 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 
-#include "mjx/pyenv.h"
+#include <mjx/pyenv.h>
 
 namespace py = pybind11;
 

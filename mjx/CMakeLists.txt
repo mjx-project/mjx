@@ -12,8 +12,6 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 option(MJX_USE_SYSTEM_BOOST "Use Boost previously installed." ON)
 option(MJX_USE_SYSTEM_GRPC "Use gRPC previously installed." ON)
 
-set(MJX_EXTERNALDIR ${CMAKE_CURRENT_SOURCE_DIR}/external)
-
 ####################################################################################
 # For Boost
 ####################################################################################
