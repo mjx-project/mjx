@@ -19,10 +19,9 @@ std::tuple<std::unordered_map<mjx::internal::PlayerId, std::string>,
     std::unordered_map<mjx::internal::PlayerId, bool>,
     std::unordered_map<mjx::internal::PlayerId, std::string>>
 mjx::env::RLlibMahjongPyEnv::step(
-    const std::unordered_map<internal::PlayerId, std::string>&
-    action_dict) noexcept {
+    const std::unordered_map<internal::PlayerId, std::string>&json_action_dict) noexcept {
   std::unordered_map<internal::PlayerId, mjxproto::Action> proto_action_dict;
-  for(const auto &[id, action] : action_dict){
+  for(const auto &[id, action] : json_action_dict){
     mjxproto::Action proto_action;
     google::protobuf::util::JsonStringToMessage(action, &proto_action);
     proto_action_dict[id] = proto_action;
@@ -39,5 +38,5 @@ mjx::env::RLlibMahjongPyEnv::step(
 }
 
 void mjx::env::RLlibMahjongPyEnv::seed(std::uint64_t game_seed) noexcept {
-  env_.seed(game_seed)
+  env_.seed(game_seed);
 }
