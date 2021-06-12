@@ -10,10 +10,9 @@ add_subdirectory(mjx)
 add_subdirectory(scripts)
 add_subdirectory(tests)
 
-
 # pybind 11
 include(FetchContent)
-set(FETCHCONTENT_BASE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/external)
+set(FETCHCONTENT_BASE_DIR ${MJX_EXTERNALDIR})
 set(FETCHCONTENT_QUIET OFF)
 set(FETCHCONTENT_UPDATES_DISCONNECTED ON)
 fetchcontent_declare(
