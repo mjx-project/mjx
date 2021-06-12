@@ -10,13 +10,12 @@ class RLlibMahjongPyEnv {
 
   // RLlib MultiAgentEnv requires step and reset as public API
   // https://github.com/ray-project/ray/blob/master/rllib/env/multi_agent_env.py
-  std::unordered_map<mjx::internal::PlayerId, std::string>
-  reset() noexcept;
+  std::unordered_map<mjx::internal::PlayerId, std::string> reset() noexcept;
   std::tuple<std::unordered_map<mjx::internal::PlayerId,
-      std::string>,     // observations
-  std::unordered_map<internal::PlayerId, int>,   // rewards
-  std::unordered_map<internal::PlayerId, bool>,  // dones
-  std::unordered_map<internal::PlayerId, std::string>>  // infos
+                                std::string>,               // observations
+             std::unordered_map<internal::PlayerId, int>,   // rewards
+             std::unordered_map<internal::PlayerId, bool>,  // dones
+             std::unordered_map<internal::PlayerId, std::string>>  // infos
   step(const std::unordered_map<internal::PlayerId, std::string>&
            json_action_dict) noexcept;
 
