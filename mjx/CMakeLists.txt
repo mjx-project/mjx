@@ -96,6 +96,8 @@ include_directories("${CMAKE_CURRENT_SOURCE_DIR}")
 add_library(mjx STATIC
         env.h
         env.cpp
+        pyenv.h
+        pyenv.cpp
         internal/abstruct_hand.h
         internal/action.h
         internal/agent.h
