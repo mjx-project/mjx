@@ -23,5 +23,5 @@ fetchcontent_declare(
 )
 fetchcontent_makeavailable(pybind11)
 
-pybind11_add_module(pyenv entry_point.cpp)
-target_link_libraries(pyenv PRIVATE mjx)
+pybind11_add_module(mjxpy entry_point.cpp)
+target_link_libraries(mjxpy PRIVATE mjx)

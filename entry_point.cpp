@@ -5,11 +5,11 @@
 
 namespace py = pybind11;
 
-PYBIND11_MODULE(pyenv, m) {
+PYBIND11_MODULE(mjxpy, m) {
   m.doc() = "mahjong environment for python";
 
   // クラス定義
-  py::class_<mjx::env::RLlibMahjongPyEnv>(m, "pyenv")
+  py::class_<mjx::env::RLlibMahjongPyEnv>(m, "RLlibMahjongEnv")
       .def(py::init<>())
       .def("reset", &mjx::env::RLlibMahjongPyEnv::reset)
       .def("step", &mjx::env::RLlibMahjongPyEnv::step)
