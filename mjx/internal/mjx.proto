@@ -21,8 +21,6 @@ enum ActionType {
   ACTION_TYPE_OPEN_KAN = 9;
   ACTION_TYPE_RON = 10;
   ACTION_TYPE_NO = 11;
-  // Dummy used only to check connection and share round terminal information
-  ACTION_TYPE_DUMMY = 99;
 }
 
 enum EventType {

@@ -112,15 +112,6 @@ mjxproto::Action Action::CreateNineTiles(AbsolutePos who, std::string game_id) {
   return proto;
 }
 
-mjxproto::Action Action::CreateDummy(AbsolutePos who, std::string game_id) {
-  mjxproto::Action proto;
-  proto.set_game_id(game_id);
-  proto.set_who(static_cast<int>(who));
-  proto.set_type(mjxproto::ACTION_TYPE_DUMMY);
-  Assert(IsValid(proto));
-  return proto;
-}
-
 bool Action::IsValid(const mjxproto::Action& action) {
   auto type = action.type();
   auto who = action.who();
