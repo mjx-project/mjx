@@ -20,10 +20,12 @@ TEST(env, RLlibMahjongEnv) {
     for (const auto& [agent, observation] : observations) {
       auto action = strategy.TakeAction(observation);
       action_dict[agent] = action;
-      EXPECT_NE(action.type(), mjxproto::ACTION_TYPE_DUMMY);
+      EXPECT_TRUE(mjx::internal::Action::IsValid(action));
     }
     std::tie(observations, rewards, dones, infos) = env.step(action_dict);
   }
+
+  // At the end of game
   EXPECT_TRUE(dones.at("__all__"));
   auto player_ids = observations["player_0"].public_observation().player_ids();
   std::unordered_map<mjx::internal::PlayerId, int> expected_tens = {
@@ -36,7 +38,6 @@ TEST(env, RLlibMahjongEnv) {
               expected_tens[player_ids[i]]);
   }
   for (const auto& [player_id, obs] : observations) {
-    EXPECT_EQ(obs.legal_actions().size(), 1);
-    EXPECT_EQ(obs.legal_actions(0).type(), mjxproto::ACTION_TYPE_DUMMY);
+    EXPECT_EQ(obs.legal_actions().size(), 0);
   }
 }
