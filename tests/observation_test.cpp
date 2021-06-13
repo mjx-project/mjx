@@ -56,7 +56,7 @@ TEST(observation, current_hand) {
     auto state = State(State::ScoreInfo{player_ids, gen()});
     while (true) {
       // RunOneRound
-      while (true) {
+      while (!state.IsRoundOver()) {
         auto observations = state.CreateObservations();
         Assert(!observations.empty());
         std::vector<mjxproto::Action> actions;
@@ -65,7 +65,7 @@ TEST(observation, current_hand) {
           actions.emplace_back(
               map_agents[player_id]->TakeAction(std::move(obs)));
         }
-        if (state.IsRoundOver()) break;
+
         state.Update(std::move(actions));
 
         // check current_hands are the same
