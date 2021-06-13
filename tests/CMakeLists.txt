@@ -41,6 +41,6 @@ add_executable(mjx_test
         win_score_test.cpp
         yaku_evaluator_test.cpp
         test_cases.cpp)
-target_include_directories(mjx_test PRIVATE ..)
+target_include_directories(mjx_test PRIVATE ${MJX_INCLUDE_DIR})
 target_link_libraries(mjx_test PRIVATE gtest gtest_main mjx)
 target_compile_definitions(mjx_test PRIVATE TEST_RESOURCES_DIR="${CMAKE_CURRENT_SOURCE_DIR}/resources")
