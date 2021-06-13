@@ -133,7 +133,6 @@ bool Action::IsValid(const mjxproto::Action& action) {
     case mjxproto::ACTION_TYPE_RIICHI:
     case mjxproto::ACTION_TYPE_ABORTIVE_DRAW_NINE_TERMINALS:
     case mjxproto::ACTION_TYPE_NO:
-    case mjxproto::ACTION_TYPE_DUMMY:
       if (action.tile() != 0) return false;
       if (action.open() != 0) return false;
       break;
