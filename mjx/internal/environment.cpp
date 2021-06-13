@@ -77,7 +77,7 @@ void Environment::RunOneRound() {
          "Seed cannot be zero. round = " + std::to_string(state_.round()) +
              ", honba = " + std::to_string(state_.honba()));
 
-  while (true) {
+  while (!state_.IsRoundOver()) {
     auto observations = state_.CreateObservations();
     Assert(!observations.empty());
     std::vector<mjxproto::Action> actions;
@@ -85,9 +85,9 @@ void Environment::RunOneRound() {
     for (auto &[player_id, obs] : observations) {
       actions.emplace_back(agent(player_id)->TakeAction(std::move(obs)));
     }
-    if (state_.IsRoundOver()) break;
     state_.Update(std::move(actions));
   }
+  // TODO: sync round terminal info
 }
 
 std::shared_ptr<Agent> Environment::agent(AbsolutePos pos) const {
