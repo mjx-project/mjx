@@ -129,6 +129,15 @@ GameResult State::result() const {
 }
 
 std::unordered_map<PlayerId, Observation> State::CreateObservations() const {
+  if (IsRoundOver()) {
+    std::unordered_map<PlayerId, Observation> observations;
+    for (int i = 0; i < 4; ++i) {
+      auto who = AbsolutePos(i);
+      observations[player(who).player_id] = Observation(who, state_);
+    }
+    return observations;
+  }
+
   switch (LastEvent().type()) {
     case mjxproto::EVENT_TYPE_DRAW: {
       auto who = AbsolutePos(LastEvent().who());
@@ -230,7 +239,7 @@ std::unordered_map<PlayerId, Observation> State::CreateObservations() const {
     case mjxproto::EVENT_TYPE_EXHAUSTIVE_DRAW_NAGASHI_MANGAN:
     case mjxproto::EVENT_TYPE_NEW_DORA:
     case mjxproto::EVENT_TYPE_RIICHI_SCORE_CHANGE:
-      Assert(false);  // Impossible state
+      Assert(false, "LastEvent.type(): " + std::to_string(LastEvent().type()));  // Impossible state
   }
 }
 
