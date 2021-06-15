@@ -87,7 +87,8 @@ void Environment::RunOneRound() {
     }
     if (state_.IsRoundOver()) {
       Assert(actions.size() == 4);
-      Assert(std::all_of(actions.begin(), actions.end(), [](const auto& x){ return Action::IsEmpty(x); }));
+      Assert(std::all_of(actions.begin(), actions.end(),
+                         [](const auto &x) { return Action::IsEmpty(x); }));
       break;
     }
     state_.Update(std::move(actions));
