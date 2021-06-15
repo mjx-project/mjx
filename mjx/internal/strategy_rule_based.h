@@ -8,9 +8,9 @@ namespace mjx::internal {
 class StrategyRuleBased final : public Strategy {
  public:
   ~StrategyRuleBased() final = default;
-  [[nodiscard]] std::vector<std::optional<mjxproto::Action>> TakeActions(
+  [[nodiscard]] std::vector<mjxproto::Action> TakeActions(
       std::vector<Observation> &&observations) const final;
-  [[nodiscard]] std::optional<mjxproto::Action> TakeAction(
+  [[nodiscard]] mjxproto::Action TakeAction(
       Observation &&observation) const final;
 
  private:
