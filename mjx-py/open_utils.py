@@ -44,8 +44,8 @@ def open_from(bits: int) -> FromWho:
         return FromWho.LEFT
     elif (
         event_type == TileUnitType.PON
-        or event_type == TileUnitType.KAN
-        or event_type == TileUnitType.KAN
+        or event_type == TileUnitType.OPEN_KAN
+        or event_type == TileUnitType.ADDED_KAN
     ):
         if bits & 3 == 1:
             return FromWho.RIGHT
