@@ -1,5 +1,6 @@
-import environment
 import random
+
+from mjx import environment
 
 
 def main():
@@ -19,5 +20,5 @@ def main():
         obs_dict, rewards, dones, info = env.step(act_dict)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
