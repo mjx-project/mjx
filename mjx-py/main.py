@@ -90,7 +90,7 @@ class MahjongTable:
         self.doras = []
         self.uradoras = []
         self.result = ""
-        self.end_info = "\n"
+        self.event_info = "\n"
 
     def check_num_tiles(self) -> bool:
         for p in self.players:
@@ -354,6 +354,7 @@ class GameBoard:
             EventType.EVENT_TYPE_RON,
         ]:
             table.result = "win"
+            table.event_info = str(public_observation.events[-1].type)[21:]
         elif public_observation.events[-1].type in [
             EventType.EVENT_TYPE_ABORTIVE_DRAW_NINE_TERMINALS,
             EventType.EVENT_TYPE_ABORTIVE_DRAW_FOUR_RIICHIS,
@@ -364,7 +365,7 @@ class GameBoard:
             EventType.EVENT_TYPE_EXHAUSTIVE_DRAW_NAGASHI_MANGAN,
         ]:
             table.result = "nowinner"
-            table.end_info = get_end_type(public_observation.events[-1].type)
+            table.event_info = str(public_observation.events[-1].type)[21:]
 
         return table
 
@@ -853,7 +854,7 @@ class GameBoard:
         )
         system_info = "".join(system_info)
 
-        return "".join([board_info, players_info, system_info, table.end_info])
+        return "".join([board_info, players_info, system_info, table.event_info])
 
     def show_by_rich(self, table: MahjongTable) -> None:
 
@@ -949,7 +950,7 @@ class GameBoard:
 
         console = Console()
         console.print(self.layout)
-        console.print(Text(table.end_info, justify="center"))
+        console.print(Text(table.event_info, justify="center"))
 
 
 def main():
