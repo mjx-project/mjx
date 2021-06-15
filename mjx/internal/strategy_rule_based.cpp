@@ -3,17 +3,17 @@
 #include "utils.h"
 
 namespace mjx::internal {
-std::vector<mjxproto::Action> StrategyRuleBased::TakeActions(
+std::vector<std::optional<mjxproto::Action>> StrategyRuleBased::TakeActions(
     std::vector<Observation> &&observations) const {
   int N = observations.size();
-  std::vector<mjxproto::Action> actions(N);
+  std::vector<std::optional<mjxproto::Action>> actions(N);
   for (int i = 0; i < N; ++i) {
     actions[i] = TakeAction(std::move(observations[i]));
   }
   return actions;
 }
 
-mjxproto::Action StrategyRuleBased::TakeAction(
+std::optional<mjxproto::Action> StrategyRuleBased::TakeAction(
     Observation &&observation) const {
   // Prepare some seed and MT engine for reproducibility
   const std::uint64_t seed =
@@ -24,6 +24,7 @@ mjxproto::Action StrategyRuleBased::TakeAction(
   auto legal_actions = observation.legal_actions();
 
   // もし、取りうる行動が一種類ならそれをそのまま返す
+  if (legal_actions.empty()) return std::nullopt;
   if (legal_actions.size() == 1) return legal_actions[0];
 
   // この順番でソート
