@@ -1,4 +1,5 @@
 from enum import Enum
+from mjxproto import EventType
 
 
 class TileUnitType(Enum):
@@ -170,19 +171,50 @@ yaku_list = [
     "裏ドラ",
     "赤ドラ",
 ]
-end_type = {
-    6: "ABORTIVE_DRAW_NINE_TERMINALS",
-    12: "DRAW",
-    13: "RIICHI_SCORE_CHANGE",
-    14: "NEW_DORA",
-    15: "ABORTIVE_DRAW_FOUR_RIICHIS",
-    16: "ABORTIVE_DRAW_THREE_RONS",
-    17: "ABORTIVE_DRAW_FOUR_KANS",
-    18: "ABORTIVE_DRAW_FOUR_WINDS",
-    19: "EXHAUSTIVE_DRAW_NORMAL",
-    20: "EXHAUSTIVE_DRAW_NAGASHI_MANGAN",
+event_type_en = {
+    EventType.EVENT_TYPE_DISCARD :"DISCARD",
+    EventType.EVENT_TYPE_TSUMOGIRI : "TSUMOGIRI",
+    EventType.EVENT_TYPE_RIICHI : "RIICHI",
+    EventType.EVENT_TYPE_CLOSED_KAN : "CLOSED_KAN",
+    EventType.EVENT_TYPE_ADDED_KAN : "ADDED_KAN",
+    EventType.EVENT_TYPE_TSUMO : "TSUMO",
+    EventType.EVENT_TYPE_ABORTIVE_DRAW_NINE_TERMINALS : "ABORTIVE_DRAW_NINE_TERMINALS",
+    EventType.EVENT_TYPE_CHI : "CHI",
+    EventType.EVENT_TYPE_PON : "PON",
+    EventType.EVENT_TYPE_OPEN_KAN :"OPEN_KAN",
+    EventType.EVENT_TYPE_RON : "RON",
+    EventType.EVENT_TYPE_DRAW : "DRAW",
+    EventType.EVENT_TYPE_RIICHI_SCORE_CHANGE : "RIICHI_SCORE_CHANGE",
+    EventType.EVENT_TYPE_NEW_DORA : "NEW_DORA",
+    EventType.EVENT_TYPE_ABORTIVE_DRAW_FOUR_RIICHIS : "ABORTIVE_DRAW_FOUR_RIICHIS",
+    EventType.EVENT_TYPE_ABORTIVE_DRAW_THREE_RONS : "ABORTIVE_DRAW_THREE_RONS",
+    EventType.EVENT_TYPE_ABORTIVE_DRAW_FOUR_KANS : "ABORTIVE_DRAW_FOUR_KANS",
+    EventType.EVENT_TYPE_ABORTIVE_DRAW_FOUR_WINDS : "ABORTIVE_DRAW_FOUR_WINDS",
+    EventType.EVENT_TYPE_EXHAUSTIVE_DRAW_NORMAL : "EXHAUSTIVE_DRAW_NORMAL",
+    EventType.EVENT_TYPE_EXHAUSTIVE_DRAW_NAGASHI_MANGAN : "EXHAUSTIVE_DRAW_NAGASHI_MANGAN",
 }
-
+event_type_ja = {
+    EventType.EVENT_TYPE_DISCARD :"DISCARD",
+    EventType.EVENT_TYPE_TSUMOGIRI : "TSUMOGIRI",
+    EventType.EVENT_TYPE_RIICHI : "RIICHI",
+    EventType.EVENT_TYPE_CLOSED_KAN : "CLOSED_KAN",
+    EventType.EVENT_TYPE_ADDED_KAN : "ADDED_KAN",
+    EventType.EVENT_TYPE_TSUMO : "ツモ",
+    EventType.EVENT_TYPE_ABORTIVE_DRAW_NINE_TERMINALS : "九種九牌",
+    EventType.EVENT_TYPE_CHI : "CHI",
+    EventType.EVENT_TYPE_PON : "PON",
+    EventType.EVENT_TYPE_OPEN_KAN :"OPEN_KAN",
+    EventType.EVENT_TYPE_RON : "ロン",
+    EventType.EVENT_TYPE_DRAW : "DRAW",
+    EventType.EVENT_TYPE_RIICHI_SCORE_CHANGE : "RIICHI_SCORE_CHANGE",
+    EventType.EVENT_TYPE_NEW_DORA : "NEW_DORA",
+    EventType.EVENT_TYPE_ABORTIVE_DRAW_FOUR_RIICHIS : "四家立直",
+    EventType.EVENT_TYPE_ABORTIVE_DRAW_THREE_RONS : "三人あがり",
+    EventType.EVENT_TYPE_ABORTIVE_DRAW_FOUR_KANS : "四カン流れ",
+    EventType.EVENT_TYPE_ABORTIVE_DRAW_FOUR_WINDS : "四風連打",
+    EventType.EVENT_TYPE_EXHAUSTIVE_DRAW_NORMAL : "流局",
+    EventType.EVENT_TYPE_EXHAUSTIVE_DRAW_NAGASHI_MANGAN : "流し満貫",
+}
 
 def get_tile_char(tile_id: int, is_using_unicode: bool) -> str:
     if tile_id < 0 or 136 < tile_id:
@@ -213,5 +245,8 @@ def get_yaku(yaku: int) -> str:
     return yaku_list[yaku]
 
 
-def get_end_type(last_event: int) -> str:
-    return end_type[last_event]
+def get_event_type(last_event: EventType, lang:int) -> str:
+    if lang==0:
+        return event_type_en[last_event]
+    else:
+        return event_type_ja[last_event]

@@ -4,7 +4,7 @@ import mjxproto
 from mjxproto import EventType
 import open_utils
 from converter import TileUnitType, FromWho
-from converter import get_modifier, get_tile_char, get_wind_char, get_yaku, get_end_type
+from converter import get_modifier, get_tile_char, get_wind_char, get_event_type
 from rich import print
 from rich.layout import Layout
 from rich.panel import Panel
@@ -59,8 +59,8 @@ class TileUnit:
 
 
 class Player:
-    def __init__(self):
-        self.player_idx: int
+    def __init__(self, idx: int):
+        self.player_idx = idx
         self.wind: int
         self.score: str
         self.tile_units = [
@@ -81,7 +81,7 @@ class MahjongTable:
     """
 
     def __init__(self):
-        self.players = [Player() for _ in range(4)]
+        self.players = [Player(i) for i in range(4)]
         self.riichi = 0
         self.round = 0
         self.honba = 0
@@ -354,7 +354,9 @@ class GameBoard:
             EventType.EVENT_TYPE_RON,
         ]:
             table.result = "win"
-            table.event_info = str(public_observation.events[-1].type)[21:]
+            table.event_info = get_event_type(
+                public_observation.events[-1].type, self.language
+            )
         elif public_observation.events[-1].type in [
             EventType.EVENT_TYPE_ABORTIVE_DRAW_NINE_TERMINALS,
             EventType.EVENT_TYPE_ABORTIVE_DRAW_FOUR_RIICHIS,
@@ -365,7 +367,9 @@ class GameBoard:
             EventType.EVENT_TYPE_EXHAUSTIVE_DRAW_NAGASHI_MANGAN,
         ]:
             table.result = "nowinner"
-            table.event_info = str(public_observation.events[-1].type)[21:]
+            table.event_info = get_event_type(
+                public_observation.events[-1].type, self.language
+            )
 
         return table
 
@@ -460,9 +464,6 @@ class GameBoard:
         table = MahjongTable()
 
         table.my_idx = gamedata.who
-        for i, p in enumerate(table.players):
-            p.player_idx = i
-            p.wind = i
         table = self.decode_public_observation(table, gamedata.public_observation)
         table = self.decode_private_observation(
             table, gamedata.private_observation, gamedata.who
@@ -510,17 +511,14 @@ class GameBoard:
 
         table = MahjongTable()
 
-        table.my_idx = 0
-
-        for i, p in enumerate(table.players):
-            p.player_idx = i
-            p.wind = i
-
         table = self.decode_public_observation(table, gamedata.public_observation)
         for i in range(4):
             table = self.decode_private_observation(
                 table, gamedata.private_observations[i], i
             )
+
+        for i, p in enumerate(table.players):
+            p.wind = (-table.round + 1 + i) % 4
 
         table.wall_num = self.get_wall_num(table)
 
@@ -651,11 +649,13 @@ class GameBoard:
                                 if tile_unit.tiles[0].char == "\U0001F004\uFE0E"
                                 else "\n"
                             )
-                            + (
-                                "\n "
-                                if tile_unit.tiles[0].char == "\U0001F004\uFE0E"
-                                else "\n"
-                            ).join([tile.char for tile in tile_unit.tiles])
+                            + "\n".join(
+                                [
+                                    (" " if tile.char == "\U0001F004\uFE0E" else "")
+                                    + tile.char
+                                    for tile in tile_unit.tiles
+                                ]
+                            )
                             + "\n "
                             + get_modifier(tile_unit.from_who, tile_unit.tile_unit_type)
                             + "\n"
