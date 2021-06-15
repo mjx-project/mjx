@@ -592,7 +592,11 @@ class GameBoard:
                         tiles += (
                             "\n"
                             + get_modifier(tile_unit.from_who, tile_unit.tile_unit_type)
-                            + "\n"
+                            + (
+                                "\n "
+                                if tile_unit.tiles[0].char == "\U0001F004\uFE0E"
+                                else "\n"
+                            )
                             + (
                                 "\n "
                                 if tile_unit.tiles[0].char == "\U0001F004\uFE0E"
@@ -641,8 +645,16 @@ class GameBoard:
                         )
                     elif player_idx == 3:
                         tiles += (
-                            "\n"
-                            + "\n".join([tile.char for tile in tile_unit.tiles])
+                            (
+                                "\n "
+                                if tile_unit.tiles[0].char == "\U0001F004\uFE0E"
+                                else "\n"
+                            )
+                            + (
+                                "\n "
+                                if tile_unit.tiles[0].char == "\U0001F004\uFE0E"
+                                else "\n"
+                            ).join([tile.char for tile in tile_unit.tiles])
                             + "\n "
                             + get_modifier(tile_unit.from_who, tile_unit.tile_unit_type)
                             + "\n"
