@@ -1,6 +1,7 @@
 import argparse
 import os
 import mjxproto
+from mjxproto import EventType
 import open_utils
 from converter import TileUnitType, FromWho
 from converter import get_modifier, get_tile_char, get_wind_char, get_yaku, get_end_type
@@ -264,7 +265,7 @@ class GameBoard:
         for eve in public_observation.events:
             p = table.players[eve.who]
 
-            if eve.type == 0:
+            if eve.type == EventType.EVENT_TYPE_DISCARD:
                 for t_u in p.tile_units:
                     if t_u.tile_unit_type == TileUnitType.DISCARD:
                         if p.riichi_now:
@@ -282,7 +283,7 @@ class GameBoard:
                                 Tile(eve.tile, True, self.is_using_unicode)
                             )
 
-            if eve.type == 1:
+            if eve.type == EventType.EVENT_TYPE_TSUMOGIRI:
                 for t_u in p.tile_units:
                     if t_u.tile_unit_type == TileUnitType.DISCARD:
                         if p.riichi_now:
@@ -301,19 +302,25 @@ class GameBoard:
                                 Tile(eve.tile, True, self.is_using_unicode, True)
                             )
 
-            if eve.type == 13:
+            if eve.type == EventType.EVENT_TYPE_RIICHI_SCORE_CHANGE:
                 table.riichi += 1
                 p.is_declared_riichi = True
                 p.riichi_now = True
                 p.score = str(int(p.score) - 1000)
 
-            if eve.type == 10:
+            if eve.type == EventType.EVENT_TYPE_RON:
                 p = table.players[(eve.who - 1) % 4]
                 for t_u in p.tile_units:
                     if t_u.tile_unit_type == TileUnitType.DISCARD:
                         t_u.tiles.pop(-1)
 
-            if eve.type in [3, 4, 7, 8, 9]:
+            if eve.type in [
+                EventType.EVENT_TYPE_CHI,
+                EventType.EVENT_TYPE_PON,
+                EventType.EVENT_TYPE_CLOSED_KAN,
+                EventType.EVENT_TYPE_ADDED_KAN,
+                EventType.EVENT_TYPE_OPEN_KAN,
+            ]:
                 p.tile_units.append(
                     TileUnit(
                         open_utils.open_event_type(eve.open),
@@ -341,16 +348,19 @@ class GameBoard:
         if public_observation.events == []:
             return table
 
-        if public_observation.events[-1].type in [5, 10]:
+        if public_observation.events[-1].type in [
+            EventType.EVENT_TYPE_TSUMO,
+            EventType.EVENT_TYPE_RON,
+        ]:
             table.result = "win"
         elif public_observation.events[-1].type in [
-            6,
-            15,
-            16,
-            17,
-            18,
-            19,
-            20,
+            EventType.EVENT_TYPE_ABORTIVE_DRAW_NINE_TERMINALS,
+            EventType.EVENT_TYPE_ABORTIVE_DRAW_FOUR_RIICHIS,
+            EventType.EVENT_TYPE_ABORTIVE_DRAW_THREE_RONS,
+            EventType.EVENT_TYPE_ABORTIVE_DRAW_FOUR_KANS,
+            EventType.EVENT_TYPE_ABORTIVE_DRAW_FOUR_WINDS,
+            EventType.EVENT_TYPE_EXHAUSTIVE_DRAW_NORMAL,
+            EventType.EVENT_TYPE_EXHAUSTIVE_DRAW_NAGASHI_MANGAN,
         ]:
             table.result = "nowinner"
             table.end_info = get_end_type(public_observation.events[-1].type)
