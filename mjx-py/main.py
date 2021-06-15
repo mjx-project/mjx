@@ -301,11 +301,12 @@ class GameBoard:
                             t_u.tiles.append(
                                 Tile(eve.tile, True, self.is_using_unicode, True)
                             )
+            if eve.type == EventType.EVENT_TYPE_RIICHI:
+                p.riichi_now = True
 
             if eve.type == EventType.EVENT_TYPE_RIICHI_SCORE_CHANGE:
                 table.riichi += 1
                 p.is_declared_riichi = True
-                p.riichi_now = True
                 p.score = str(int(p.score) - 1000)
 
             if eve.type == EventType.EVENT_TYPE_RON:
@@ -368,36 +369,42 @@ class GameBoard:
         return table
 
     def decode_round_terminal(self, table: MahjongTable, round_terminal, win: bool):
+        final_ten_changes = [0, 0, 0, 0]
         if win:
-            table.uradoras = round_terminal.wins[0].ura_dora_indicators
-            winner = table.players[round_terminal.wins[0].who]
-            winner.tile_units = [
-                i for i in winner.tile_units if i.tile_unit_type == TileUnitType.DISCARD
-            ]
-            winner.tile_units.append(
-                TileUnit(
-                    TileUnitType.HAND,
-                    FromWho.NONE,
-                    [
-                        Tile(i, True, self.is_using_unicode)
-                        for i in round_terminal.wins[0].hand.closed_tiles
-                    ],
-                )
-            )
-            for opens in round_terminal.wins[0].hand.opens:
+            for win_data in round_terminal.wins:
+                table.uradoras = win_data.ura_dora_indicators
+                for i in range(4):
+                    final_ten_changes[i] += win_data.ten_changes[i]
+                winner = table.players[win_data.who]
+                winner.tile_units = [
+                    i
+                    for i in winner.tile_units
+                    if i.tile_unit_type == TileUnitType.DISCARD
+                ]
                 winner.tile_units.append(
                     TileUnit(
-                        open_utils.open_event_type(opens),
-                        open_utils.open_from(opens),
+                        TileUnitType.HAND,
+                        FromWho.NONE,
                         [
                             Tile(i, True, self.is_using_unicode)
-                            for i in open_utils.open_tile_ids(opens)
+                            for i in win_data.hand.closed_tiles
                         ],
                     )
                 )
+                for opens in win_data.hand.opens:
+                    winner.tile_units.append(
+                        TileUnit(
+                            open_utils.open_event_type(opens),
+                            open_utils.open_from(opens),
+                            [
+                                Tile(i, True, self.is_using_unicode)
+                                for i in open_utils.open_tile_ids(opens)
+                            ],
+                        )
+                    )
 
             for i, p in enumerate(table.players):
-                delta = round_terminal.wins[0].ten_changes[i]
+                delta = final_ten_changes[i]
                 p.score = (
                     str(int(p.score) + delta)
                     + ("(+" if delta > 0 else "(")
@@ -501,19 +508,29 @@ class GameBoard:
         gamedata.from_json(jsondata)
 
         table = MahjongTable()
+
+        table.my_idx = 0
+
         for i, p in enumerate(table.players):
             p.player_idx = i
-        table.my_idx = 0
+            p.wind = i
+
         table = self.decode_public_observation(table, gamedata.public_observation)
         for i in range(4):
             table = self.decode_private_observation(
                 table, gamedata.private_observations[i], i
             )
 
-        for i, p in enumerate(table.players):
-            p.wind = (-table.round + 1 + i) % 4
-
         table.wall_num = self.get_wall_num(table)
+
+        if gamedata.public_observation.events != []:
+            if table.result == "win":
+                table = self.decode_round_terminal(table, gamedata.round_terminal, True)
+
+            elif table.result == "nowinner":
+                table = self.decode_round_terminal(
+                    table, gamedata.round_terminal, False
+                )
 
         return table
 
