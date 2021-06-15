@@ -4,6 +4,15 @@
 
 using namespace mjx::internal;
 
+TEST(action, IsEmpty) {
+  auto a = mjxproto::Action();
+  EXPECT_TRUE(Action::IsEmpty(a));
+  EXPECT_TRUE(Action::IsValid(a));  // TAKE CARE
+  a = Action::CreateDiscard(AbsolutePos::kInitEast, Tile(17));
+  EXPECT_FALSE(Action::IsEmpty(a));
+  EXPECT_TRUE(Action::IsValid(a));
+}
+
 TEST(action, Encode) {
   // Discard
   EXPECT_EQ(

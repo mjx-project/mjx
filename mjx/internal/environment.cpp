@@ -77,13 +77,18 @@ void Environment::RunOneRound() {
          "Seed cannot be zero. round = " + std::to_string(state_.round()) +
              ", honba = " + std::to_string(state_.honba()));
 
-  while (!state_.IsRoundOver()) {
+  while (true) {
     auto observations = state_.CreateObservations();
     Assert(!observations.empty());
     std::vector<mjxproto::Action> actions;
     actions.reserve(observations.size());
     for (auto &[player_id, obs] : observations) {
       actions.emplace_back(agent(player_id)->TakeAction(std::move(obs)));
+    }
+    if (state_.IsRoundOver()) {
+      Assert(actions.size() == 4);
+      Assert(std::all_of(actions.begin(), actions.end(), [](const auto& x){ return Action::IsEmpty(x); }));
+      break;
     }
     state_.Update(std::move(actions));
   }

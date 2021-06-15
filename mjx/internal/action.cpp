@@ -280,4 +280,13 @@ mjxproto::Action Action::Decode(
   }
   assert(false);  // selected action is not found in possible action
 }
+
+bool Action::IsEmpty(const mjxproto::Action& action) {
+  if (!action.game_id().empty()) return false;
+  if (action.who() != 0) return false;
+  if (action.type() != mjxproto::ActionType(0)) return false;
+  if (action.tile() != 0) return false;
+  if (action.open() != 0) return false;
+  return true;
+}
 }  // namespace mjx::internal

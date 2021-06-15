@@ -23,6 +23,8 @@ mjxproto::Action StrategyRuleBased::TakeAction(
 
   auto legal_actions = observation.legal_actions();
 
+  if (legal_actions.empty()) return mjxproto::Action();
+
   // もし、取りうる行動が一種類ならそれをそのまま返す
   if (legal_actions.size() == 1) return legal_actions[0];
 

@@ -14,6 +14,7 @@ class Action {
  public:
   Action() = delete;
   static bool IsValid(const mjxproto::Action& action);
+  static bool IsEmpty(const mjxproto::Action& action);
   static mjxproto::Action CreateDiscard(AbsolutePos who, Tile discard,
                                         std::string game_id = "");
   static mjxproto::Action CreateTsumogiri(AbsolutePos who, Tile discard,
