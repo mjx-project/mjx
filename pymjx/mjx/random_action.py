@@ -1,6 +1,6 @@
 import random
 
-from mjx.environment import MahjongEnv
+from mjx.env import MahjongEnv
 
 
 def main():
