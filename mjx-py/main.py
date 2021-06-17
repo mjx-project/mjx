@@ -797,6 +797,8 @@ class GameBoard:
         )
         if uradora != "":
             board_info.append(" " + ["UraDora:", "裏ドラ:"][self.language] + uradora)
+
+        board_info.append("    " + table.event_info)
         board_info.append("\n\n")
         board_info = "".join(board_info)
         return board_info
@@ -852,7 +854,7 @@ class GameBoard:
         )
         system_info = "".join(system_info)
 
-        return "".join([board_info, players_info, system_info, table.event_info])
+        return "".join([board_info, players_info, system_info])
 
     def show_by_rich(self, table: MahjongTable) -> None:
 
@@ -948,7 +950,6 @@ class GameBoard:
 
         console = Console()
         console.print(self.layout)
-        console.print(Text(table.event_info, justify="center"))
 
 
 def main():
