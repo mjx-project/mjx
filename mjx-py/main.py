@@ -602,12 +602,9 @@ class GameBoard:
                                 else "\n"
                             ).join(
                                 [
-                                    tile.char
-                                    for tile in sorted(
-                                        tile_unit.tiles,
-                                        key=lambda x: x.id,
-                                        reverse=True,
-                                    )
+                                    (" " if tile.char == "\U0001F004\uFE0E" else "")
+                                    + tile.char
+                                    for tile in tile_unit.tiles
                                 ]
                             )
                             + "\n"
