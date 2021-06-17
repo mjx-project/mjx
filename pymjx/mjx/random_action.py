@@ -1,22 +1,16 @@
 import random
 
-from mjx import environment
+from mjx.environment import MahjongEnv
 
 
 def main():
     random.seed(2)
-
-    env = environment.MahjongEnv()
+    env = MahjongEnv()
     env.seed(2)
     obs_dict = env.reset()
-
-    for step in range(100):
-        print(step)
-        print(obs_dict)
-        act_dict = {}
-        for id, obs in obs_dict.items():
-            act_dict[id] = random.choice(obs.legal_actions)
-            print(act_dict[id])
+    dones = {"__all__": False}
+    while not dones["__all__"]:
+        act_dict = {id: random.choice(obs.legal_actions) for id, obs in obs_dict.items()}
         obs_dict, rewards, dones, info = env.step(act_dict)
 
 
