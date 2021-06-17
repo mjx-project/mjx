@@ -6,7 +6,7 @@ import _mjx
 import mjxproto
 
 
-class MahjongEnv:
+class RLlibMahjongEnv:
     def __init__(self):
         self.json_env = _mjx.RLlibMahjongEnv()
 
