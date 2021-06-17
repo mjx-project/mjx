@@ -310,10 +310,11 @@ class GameBoard:
                 p.score = str(int(p.score) - 1000)
 
             if eve.type == EventType.EVENT_TYPE_RON:
-                p = table.players[public_observation.events[i - 1].who]
-                for t_u in p.tile_units:
-                    if t_u.tile_unit_type == TileUnitType.DISCARD:
-                        t_u.tiles.pop(-1)
+                if public_observation.events[i - 1].type != EventType.EVENT_TYPE_RON:
+                    p = table.players[public_observation.events[i - 1].who]
+                    for t_u in p.tile_units:
+                        if t_u.tile_unit_type == TileUnitType.DISCARD:
+                            t_u.tiles.pop(-1)
 
             if eve.type in [
                 EventType.EVENT_TYPE_CHI,
