@@ -262,7 +262,7 @@ class GameBoard:
             p.name = public_observation.player_ids[i]
             p.score = str(public_observation.init_score.tens[i])
 
-        for eve in public_observation.events:
+        for i, eve in enumerate(public_observation.events):
             p = table.players[eve.who]
 
             if eve.type == EventType.EVENT_TYPE_DISCARD:
@@ -310,10 +310,11 @@ class GameBoard:
                 p.score = str(int(p.score) - 1000)
 
             if eve.type == EventType.EVENT_TYPE_RON:
-                p = table.players[(eve.who - 1) % 4]
-                for t_u in p.tile_units:
-                    if t_u.tile_unit_type == TileUnitType.DISCARD:
-                        t_u.tiles.pop(-1)
+                if public_observation.events[i - 1].type != EventType.EVENT_TYPE_RON:
+                    p = table.players[public_observation.events[i - 1].who]
+                    for t_u in p.tile_units:
+                        if t_u.tile_unit_type == TileUnitType.DISCARD:
+                            t_u.tiles.pop(-1)
 
             if eve.type in [
                 EventType.EVENT_TYPE_CHI,
@@ -602,12 +603,9 @@ class GameBoard:
                                 else "\n"
                             ).join(
                                 [
-                                    tile.char
-                                    for tile in sorted(
-                                        tile_unit.tiles,
-                                        key=lambda x: x.id,
-                                        reverse=True,
-                                    )
+                                    (" " if tile.char == "\U0001F004\uFE0E" else "")
+                                    + tile.char
+                                    for tile in tile_unit.tiles
                                 ]
                             )
                             + "\n"
