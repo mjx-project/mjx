@@ -243,9 +243,8 @@ std::unordered_map<PlayerId, Observation> State::CreateObservations() const {
     case mjxproto::EVENT_TYPE_EXHAUSTIVE_DRAW_NAGASHI_MANGAN:
     case mjxproto::EVENT_TYPE_NEW_DORA:
     case mjxproto::EVENT_TYPE_RIICHI_SCORE_CHANGE:
-      Assert(false,
-             "Got an unexpected last event type: " +
-             std::to_string(LastEvent().type()));
+      Assert(false, "Got an unexpected last event type: " +
+                        std::to_string(LastEvent().type()));
   }
 }
 

@@ -87,8 +87,9 @@ void Environment::RunOneRound() {
     }
     if (state_.IsRoundOver()) {
       Assert(actions.size() == 4);
-      Assert(std::all_of(actions.begin(), actions.end(),
-                         [](const auto &x) { return x.type() == mjxproto::ACTION_TYPE_DUMMY; }));
+      Assert(std::all_of(actions.begin(), actions.end(), [](const auto &x) {
+        return x.type() == mjxproto::ACTION_TYPE_DUMMY;
+      }));
       break;
     }
     state_.Update(std::move(actions));
