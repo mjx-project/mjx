@@ -247,6 +247,8 @@ def get_yaku(yaku: int) -> str:
 
 
 def get_event_type(last_event: EventType, lang: int) -> str:
+    if last_event == "":
+        return ""
     if lang == 0:
         return event_type_en[last_event]
     else:
