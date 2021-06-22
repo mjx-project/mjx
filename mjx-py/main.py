@@ -456,7 +456,6 @@ class GameBoardVisualizer:
         self.language = setting["lang"]
         self.show_name = setting["show_name"]
         self.my_idx = 0
-        self.tables = []
 
         self.layout = Layout()
 
