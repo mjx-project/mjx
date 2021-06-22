@@ -14,13 +14,13 @@ from rich.text import Text
 
 
 @dataclass
-class Config:
-    path: str
-    mode: str
-    uni: bool
-    rich: bool
-    lang: int
-    show_name: bool
+class GameVisualConfig:
+    path: str = "observations.json"
+    mode: str = "obs"
+    uni: bool = False
+    rich: bool = False
+    lang: int = 0
+    show_name: bool = True
 
 
 class Tile:
@@ -421,7 +421,7 @@ class GameBoardVisualizer:
     EventHistoryからの現在の状態の読み取りや、その表示などを行います。
     """
 
-    def __init__(self, config: Config):
+    def __init__(self, config: GameVisualConfig):
         self.config = config
         self.my_idx = 0
 
@@ -949,14 +949,7 @@ class GameBoardVisualizer:
 
 def main():
     """
-    >>> config = Config(
-    ... "observations.json",
-    ... "obs",
-    ... False,
-    ... False,
-    ... 0,
-    ... True
-    ... )
+    >>> config = GameVisualConfig()
     >>> game_board = GameBoardVisualizer(config)
     >>> print(game_board.show_by_text(MahjongTable.load_data("observations.json","obs")[0])) # doctest: +NORMALIZE_WHITESPACE
     round:1 wall:70 Dora:sw
@@ -1001,7 +994,7 @@ def main():
     parser.add_argument("--lang", type=int, choices=[0, 1], default=0)
     args = parser.parse_args()
 
-    config = Config(
+    config = GameVisualConfig(
         args.path,
         args.mode,
         args.uni,
