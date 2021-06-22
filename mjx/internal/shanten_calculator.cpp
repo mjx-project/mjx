@@ -73,7 +73,8 @@ int ShantenCalculator::ShantenSevenPairs(const std::array<uint8_t, 34>& count) {
   return 14 - std::min(n, 7) - m - 1;
 }
 
-std::bitset<34> ShantenCalculator::ProceedingTileTypes(const std::array<uint8_t, 34>& hand) {
+std::bitset<34> ShantenCalculator::ProceedingTileTypes(
+    const std::array<uint8_t, 34>& hand) {
   std::bitset<34> proceeding;
   return proceeding;
 }
