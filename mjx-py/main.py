@@ -61,8 +61,8 @@ class TileUnit:
 class Player:
     def __init__(self, idx: int):
         self.player_idx = idx
-        self.wind: int
-        self.score: str
+        self.wind = 0
+        self.score = ""
         self.tile_units = [
             TileUnit(
                 TileUnitType.DISCARD,
@@ -72,7 +72,7 @@ class Player:
         ]
         self.riichi_now = False
         self.is_declared_riichi = False
-        self.name: str
+        self.name = ""
 
 
 class MahjongTable:
@@ -951,8 +951,16 @@ class GameBoardVisualizer:
 
 def main():
     """
-    >>> game_board = GameBoardVisualizer("observations.json", "obs", False, False, 0 , True)
-    >>> print(game_board.show_by_text(game_board.load_data()[0]))  # doctest: +NORMALIZE_WHITESPACE
+    >>> setting = {
+    ...     "path": "observations.json",
+    ...     "mode": "obs",
+    ...     "uni": False,
+    ...     "rich": False,
+    ...     "lang": 0,
+    ...     "show_name": True,
+    ... }
+    >>> game_board = GameBoardVisualizer(setting)
+    >>> print(game_board.show_by_text(MahjongTable.load_data(setting)[0])) # doctest: +NORMALIZE_WHITESPACE
     round:1 wall:70 Dora:sw
     <BLANKLINE>
     SOUTH [ 25000 ] target-player
