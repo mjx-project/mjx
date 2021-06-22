@@ -92,6 +92,13 @@ class MahjongTable:
         self.result = ""
         self.event_info = "\n"
 
+    def get_wall_num(self) -> int:
+        all = 136 - 14
+        for p in self.players:
+            for t_u in p.tile_units:
+                all -= len(t_u.tiles)
+        return all
+
     def check_num_tiles(self) -> bool:
         for p in self.players:
             num_of_tiles = 0
@@ -107,34 +114,353 @@ class MahjongTable:
                 return False
         return True
 
+    @classmethod
+    def load_data(cls, setting: dict) -> list:
+        with open(setting["path"], "r", errors="ignore") as f:
+            tables = []
+            for line in f:
+                if setting["mode"] == "obs":
+                    table = cls.decode_observation(line, setting)
+                    tables.append(table)
+                elif setting["mode"] == "sta":
+                    table = cls.decode_state(line, setting)
+                    tables.append(table)
+        return tables
 
-class GameBoard:
+    @classmethod
+    def decode_private_observation(
+        cls, table, private_observation, who: int, setting: dict
+    ):
+        """
+        MahjongTableのデータに、
+        - 手牌
+        の情報を読み込ませる関数
+        """
+        table.players[who].tile_units.append(
+            TileUnit(
+                TileUnitType.HAND,
+                FromWho.NONE,
+                [
+                    Tile(i, True, setting["uni"])
+                    for i in private_observation.curr_hand.closed_tiles
+                ],
+            )
+        )
+
+        return table
+
+    @classmethod
+    def decode_public_observation(cls, table, public_observation, setting: dict):
+        """
+        MahjongTableのデータに、
+        - 手牌
+        - 鳴き牌
+        **以外**の情報を読み込ませる関数
+        """
+        table.round = public_observation.init_score.round + 1
+        table.honba = public_observation.init_score.honba
+        table.riichi = public_observation.init_score.riichi
+        table.doras = public_observation.dora_indicators
+
+        for i, p in enumerate(table.players):
+            p.name = public_observation.player_ids[i]
+            p.score = str(public_observation.init_score.tens[i])
+
+        for i, eve in enumerate(public_observation.events):
+            p = table.players[eve.who]
+
+            if eve.type == EventType.EVENT_TYPE_DISCARD:
+                for t_u in p.tile_units:
+                    if t_u.tile_unit_type == TileUnitType.DISCARD:
+                        if p.riichi_now:
+                            t_u.tiles.append(
+                                Tile(
+                                    eve.tile,
+                                    True,
+                                    setting["uni"],
+                                    with_riichi=True,
+                                )
+                            )
+                            p.riichi_now = False
+                        else:
+                            t_u.tiles.append(Tile(eve.tile, True, setting["uni"]))
+
+            if eve.type == EventType.EVENT_TYPE_TSUMOGIRI:
+                for t_u in p.tile_units:
+                    if t_u.tile_unit_type == TileUnitType.DISCARD:
+                        if p.riichi_now:
+                            t_u.tiles.append(
+                                Tile(
+                                    eve.tile,
+                                    True,
+                                    setting["uni"],
+                                    True,
+                                    True,
+                                )
+                            )
+                            p.riichi_now = False
+                        else:
+                            t_u.tiles.append(Tile(eve.tile, True, setting["uni"], True))
+            if eve.type == EventType.EVENT_TYPE_RIICHI:
+                p.riichi_now = True
+
+            if eve.type == EventType.EVENT_TYPE_RIICHI_SCORE_CHANGE:
+                table.riichi += 1
+                p.is_declared_riichi = True
+                p.score = str(int(p.score) - 1000)
+
+            if eve.type == EventType.EVENT_TYPE_RON:
+                if public_observation.events[i - 1].type != EventType.EVENT_TYPE_RON:
+                    p = table.players[public_observation.events[i - 1].who]
+                    for t_u in p.tile_units:
+                        if t_u.tile_unit_type == TileUnitType.DISCARD:
+                            t_u.tiles.pop(-1)
+
+            if eve.type in [
+                EventType.EVENT_TYPE_CHI,
+                EventType.EVENT_TYPE_PON,
+                EventType.EVENT_TYPE_CLOSED_KAN,
+                EventType.EVENT_TYPE_ADDED_KAN,
+                EventType.EVENT_TYPE_OPEN_KAN,
+            ]:
+                p.tile_units.append(
+                    TileUnit(
+                        open_utils.open_event_type(eve.open),
+                        open_utils.open_from(eve.open),
+                        [
+                            Tile(i, True, setting["uni"])
+                            for i in open_utils.open_tile_ids(eve.open)
+                        ],
+                    )
+                )
+
+                idx_from = -1
+                if open_utils.open_from(eve.open) == FromWho.LEFT:
+                    idx_from = (p.player_idx + 3) % 4
+                elif open_utils.open_from(eve.open) == FromWho.MID:
+                    idx_from = (p.player_idx + 2) % 4
+                elif open_utils.open_from(eve.open) == FromWho.RIGHT:
+                    idx_from = (p.player_idx + 1) % 4
+
+                p_from = table.players[idx_from]
+                for p_from_t_u in p_from.tile_units:
+                    if p_from_t_u.tile_unit_type == TileUnitType.DISCARD:
+                        p_from_t_u.tiles.pop(-1)
+
+        if public_observation.events == []:
+            return table
+
+        if public_observation.events[-1].type in [
+            EventType.EVENT_TYPE_TSUMO,
+            EventType.EVENT_TYPE_RON,
+        ]:
+            table.result = "win"
+            table.event_info = get_event_type(
+                public_observation.events[-1].type, setting["lang"]
+            )
+        elif public_observation.events[-1].type in [
+            EventType.EVENT_TYPE_ABORTIVE_DRAW_NINE_TERMINALS,
+            EventType.EVENT_TYPE_ABORTIVE_DRAW_FOUR_RIICHIS,
+            EventType.EVENT_TYPE_ABORTIVE_DRAW_THREE_RONS,
+            EventType.EVENT_TYPE_ABORTIVE_DRAW_FOUR_KANS,
+            EventType.EVENT_TYPE_ABORTIVE_DRAW_FOUR_WINDS,
+            EventType.EVENT_TYPE_EXHAUSTIVE_DRAW_NORMAL,
+            EventType.EVENT_TYPE_EXHAUSTIVE_DRAW_NAGASHI_MANGAN,
+        ]:
+            table.result = "nowinner"
+            table.event_info = get_event_type(
+                public_observation.events[-1].type, setting["lang"]
+            )
+
+        return table
+
+    @classmethod
+    def decode_round_terminal(cls, table, round_terminal, setting: dict, win: bool):
+        final_ten_changes = [0, 0, 0, 0]
+        if win:
+            for win_data in round_terminal.wins:
+                table.uradoras = win_data.ura_dora_indicators
+                for i in range(4):
+                    final_ten_changes[i] += win_data.ten_changes[i]
+                winner = table.players[win_data.who]
+                winner.tile_units = [
+                    i
+                    for i in winner.tile_units
+                    if i.tile_unit_type == TileUnitType.DISCARD
+                ]
+                winner.tile_units.append(
+                    TileUnit(
+                        TileUnitType.HAND,
+                        FromWho.NONE,
+                        [
+                            Tile(i, True, setting["uni"])
+                            for i in win_data.hand.closed_tiles
+                        ],
+                    )
+                )
+                for opens in win_data.hand.opens:
+                    winner.tile_units.append(
+                        TileUnit(
+                            open_utils.open_event_type(opens),
+                            open_utils.open_from(opens),
+                            [
+                                Tile(i, True, setting["uni"])
+                                for i in open_utils.open_tile_ids(opens)
+                            ],
+                        )
+                    )
+
+            for i, p in enumerate(table.players):
+                delta = final_ten_changes[i]
+                p.score = (
+                    str(int(p.score) + delta)
+                    + ("(+" if delta > 0 else "(")
+                    + str(delta)
+                    + ")"
+                )
+        else:
+            for tenpai in round_terminal.no_winner.tenpais:
+                tenpai_p = table.players[tenpai.who]
+                tenpai_p.tile_units = [
+                    i
+                    for i in tenpai_p.tile_units
+                    if i.tile_unit_type == TileUnitType.DISCARD
+                ]
+                tenpai_p.tile_units.append(
+                    TileUnit(
+                        TileUnitType.HAND,
+                        FromWho.NONE,
+                        [
+                            Tile(i, True, setting["uni"])
+                            for i in tenpai.hand.closed_tiles
+                        ],
+                    )
+                )
+                for opens in tenpai.hand.opens:
+                    tenpai_p.tile_units.append(
+                        TileUnit(
+                            open_utils.open_event_type(opens),
+                            open_utils.open_from(opens),
+                            [
+                                Tile(i, True, setting["uni"])
+                                for i in open_utils.open_tile_ids(opens)
+                            ],
+                        )
+                    )
+
+            for i, p in enumerate(table.players):
+                delta = round_terminal.no_winner.ten_changes[i]
+                p.score = (
+                    str(int(p.score) + delta)
+                    + ("(+" if delta > 0 else "(")
+                    + str(delta)
+                    + ")"
+                )
+
+        return table
+
+    @classmethod
+    def decode_observation(cls, jsondata, setting):
+        gamedata = mjxproto.Observation()
+        gamedata.from_json(jsondata)
+
+        table = MahjongTable()
+
+        table.my_idx = gamedata.who
+        table = cls.decode_public_observation(
+            table, gamedata.public_observation, setting
+        )
+        table = cls.decode_private_observation(
+            table, gamedata.private_observation, gamedata.who, setting
+        )
+
+        # Obsevationの場合,適切な数の裏向きの手牌を用意する
+        for i, p in enumerate(table.players):
+            if p.player_idx != table.my_idx:
+                hands_num = 13
+                for t_u in p.tile_units:
+                    if t_u.tile_unit_type not in [
+                        TileUnitType.DISCARD,
+                        TileUnitType.HAND,
+                    ]:
+                        hands_num -= 3
+
+                p.tile_units.append(
+                    TileUnit(
+                        TileUnitType.HAND,
+                        FromWho.NONE,
+                        [Tile(i, False, setting["uni"]) for i in range(hands_num)],
+                    )
+                )
+            p.wind = (-table.round + 1 + i) % 4
+
+        table.wall_num = cls.get_wall_num(table)
+
+        if gamedata.public_observation.events != []:
+            if table.result == "win":
+                table = cls.decode_round_terminal(
+                    table, gamedata.round_terminal, setting, True
+                )
+
+            elif table.result == "nowinner":
+                table = cls.decode_round_terminal(
+                    table, gamedata.round_terminal, setting, False
+                )
+
+        return table
+
+    @classmethod
+    def decode_state(cls, jsondata, setting):
+        gamedata = mjxproto.State()
+        gamedata.from_json(jsondata)
+
+        table = MahjongTable()
+
+        table = cls.decode_public_observation(
+            table, gamedata.public_observation, setting
+        )
+        for i in range(4):
+            table = cls.decode_private_observation(
+                table, gamedata.private_observations[i], i, setting
+            )
+
+        for i, p in enumerate(table.players):
+            p.wind = (-table.round + 1 + i) % 4
+
+        table.wall_num = cls.get_wall_num(table)
+
+        if gamedata.public_observation.events != []:
+            if table.result == "win":
+                table = cls.decode_round_terminal(
+                    table, gamedata.round_terminal, setting, True
+                )
+
+            elif table.result == "nowinner":
+                table = cls.decode_round_terminal(
+                    table, gamedata.round_terminal, setting, False
+                )
+
+        return table
+
+
+class GameBoardVisualizer:
     """
-    GameBoardクラスは内部にMahjongTableクラスのオブジェクトを持ち、
+    GameBoardVisualizer クラスは内部にMahjongTableクラスのオブジェクトを持ち、
     EventHistoryからの現在の状態の読み取りや、その表示などを行います。
     """
 
-    def __init__(
-        self,
-        path: str,
-        mode: str,
-        is_using_unicode: bool,
-        is_using_rich: bool,
-        language: int,
-        show_name: bool,
-    ):
-        self.path = path
-        self.mode = mode
-        self.is_using_unicode = is_using_unicode
-        self.is_using_rich = is_using_rich
-        self.language = language
-        self.show_name = show_name
+    def __init__(self, setting: dict):
+        self.mode = setting["mode"]
+        self.is_using_unicode = setting["uni"]
+        self.is_using_rich = setting["rich"]
+        self.language = setting["lang"]
+        self.show_name = setting["show_name"]
         self.my_idx = 0
         self.tables = []
 
         self.layout = Layout()
 
-        if show_name:
+        if self.show_name:
             self.layout.split_column(
                 Layout(" ", name="space_top"),
                 Layout(name="info"),
@@ -224,335 +550,6 @@ class GameBoard:
             Layout(" ", name="discard1"),
             Layout(" ", name="player1_info_corner"),
         )
-
-    def decode_private_observation(
-        self, table: MahjongTable, private_observation, who: int
-    ):
-        """
-        MahjongTableのデータに、
-        - 手牌
-        の情報を読み込ませる関数
-        """
-        table.players[who].tile_units.append(
-            TileUnit(
-                TileUnitType.HAND,
-                FromWho.NONE,
-                [
-                    Tile(i, True, self.is_using_unicode)
-                    for i in private_observation.curr_hand.closed_tiles
-                ],
-            )
-        )
-
-        return table
-
-    def decode_public_observation(self, table: MahjongTable, public_observation):
-        """
-        MahjongTableのデータに、
-        - 手牌
-        - 鳴き牌
-        **以外**の情報を読み込ませる関数
-        """
-        table.round = public_observation.init_score.round + 1
-        table.honba = public_observation.init_score.honba
-        table.riichi = public_observation.init_score.riichi
-        table.doras = public_observation.dora_indicators
-
-        for i, p in enumerate(table.players):
-            p.name = public_observation.player_ids[i]
-            p.score = str(public_observation.init_score.tens[i])
-
-        for i, eve in enumerate(public_observation.events):
-            p = table.players[eve.who]
-
-            if eve.type == EventType.EVENT_TYPE_DISCARD:
-                for t_u in p.tile_units:
-                    if t_u.tile_unit_type == TileUnitType.DISCARD:
-                        if p.riichi_now:
-                            t_u.tiles.append(
-                                Tile(
-                                    eve.tile,
-                                    True,
-                                    self.is_using_unicode,
-                                    with_riichi=True,
-                                )
-                            )
-                            p.riichi_now = False
-                        else:
-                            t_u.tiles.append(
-                                Tile(eve.tile, True, self.is_using_unicode)
-                            )
-
-            if eve.type == EventType.EVENT_TYPE_TSUMOGIRI:
-                for t_u in p.tile_units:
-                    if t_u.tile_unit_type == TileUnitType.DISCARD:
-                        if p.riichi_now:
-                            t_u.tiles.append(
-                                Tile(
-                                    eve.tile,
-                                    True,
-                                    self.is_using_unicode,
-                                    True,
-                                    True,
-                                )
-                            )
-                            p.riichi_now = False
-                        else:
-                            t_u.tiles.append(
-                                Tile(eve.tile, True, self.is_using_unicode, True)
-                            )
-            if eve.type == EventType.EVENT_TYPE_RIICHI:
-                p.riichi_now = True
-
-            if eve.type == EventType.EVENT_TYPE_RIICHI_SCORE_CHANGE:
-                table.riichi += 1
-                p.is_declared_riichi = True
-                p.score = str(int(p.score) - 1000)
-
-            if eve.type == EventType.EVENT_TYPE_RON:
-                if public_observation.events[i - 1].type != EventType.EVENT_TYPE_RON:
-                    p = table.players[public_observation.events[i - 1].who]
-                    for t_u in p.tile_units:
-                        if t_u.tile_unit_type == TileUnitType.DISCARD:
-                            t_u.tiles.pop(-1)
-
-            if eve.type in [
-                EventType.EVENT_TYPE_CHI,
-                EventType.EVENT_TYPE_PON,
-                EventType.EVENT_TYPE_CLOSED_KAN,
-                EventType.EVENT_TYPE_ADDED_KAN,
-                EventType.EVENT_TYPE_OPEN_KAN,
-            ]:
-                p.tile_units.append(
-                    TileUnit(
-                        open_utils.open_event_type(eve.open),
-                        open_utils.open_from(eve.open),
-                        [
-                            Tile(i, True, self.is_using_unicode)
-                            for i in open_utils.open_tile_ids(eve.open)
-                        ],
-                    )
-                )
-
-                idx_from = -1
-                if open_utils.open_from(eve.open) == FromWho.LEFT:
-                    idx_from = (p.player_idx + 3) % 4
-                elif open_utils.open_from(eve.open) == FromWho.MID:
-                    idx_from = (p.player_idx + 2) % 4
-                elif open_utils.open_from(eve.open) == FromWho.RIGHT:
-                    idx_from = (p.player_idx + 1) % 4
-
-                p_from = table.players[idx_from]
-                for p_from_t_u in p_from.tile_units:
-                    if p_from_t_u.tile_unit_type == TileUnitType.DISCARD:
-                        p_from_t_u.tiles.pop(-1)
-
-        if public_observation.events == []:
-            return table
-
-        if public_observation.events[-1].type in [
-            EventType.EVENT_TYPE_TSUMO,
-            EventType.EVENT_TYPE_RON,
-        ]:
-            table.result = "win"
-            table.event_info = get_event_type(
-                public_observation.events[-1].type, self.language
-            )
-        elif public_observation.events[-1].type in [
-            EventType.EVENT_TYPE_ABORTIVE_DRAW_NINE_TERMINALS,
-            EventType.EVENT_TYPE_ABORTIVE_DRAW_FOUR_RIICHIS,
-            EventType.EVENT_TYPE_ABORTIVE_DRAW_THREE_RONS,
-            EventType.EVENT_TYPE_ABORTIVE_DRAW_FOUR_KANS,
-            EventType.EVENT_TYPE_ABORTIVE_DRAW_FOUR_WINDS,
-            EventType.EVENT_TYPE_EXHAUSTIVE_DRAW_NORMAL,
-            EventType.EVENT_TYPE_EXHAUSTIVE_DRAW_NAGASHI_MANGAN,
-        ]:
-            table.result = "nowinner"
-            table.event_info = get_event_type(
-                public_observation.events[-1].type, self.language
-            )
-
-        return table
-
-    def decode_round_terminal(self, table: MahjongTable, round_terminal, win: bool):
-        final_ten_changes = [0, 0, 0, 0]
-        if win:
-            for win_data in round_terminal.wins:
-                table.uradoras = win_data.ura_dora_indicators
-                for i in range(4):
-                    final_ten_changes[i] += win_data.ten_changes[i]
-                winner = table.players[win_data.who]
-                winner.tile_units = [
-                    i
-                    for i in winner.tile_units
-                    if i.tile_unit_type == TileUnitType.DISCARD
-                ]
-                winner.tile_units.append(
-                    TileUnit(
-                        TileUnitType.HAND,
-                        FromWho.NONE,
-                        [
-                            Tile(i, True, self.is_using_unicode)
-                            for i in win_data.hand.closed_tiles
-                        ],
-                    )
-                )
-                for opens in win_data.hand.opens:
-                    winner.tile_units.append(
-                        TileUnit(
-                            open_utils.open_event_type(opens),
-                            open_utils.open_from(opens),
-                            [
-                                Tile(i, True, self.is_using_unicode)
-                                for i in open_utils.open_tile_ids(opens)
-                            ],
-                        )
-                    )
-
-            for i, p in enumerate(table.players):
-                delta = final_ten_changes[i]
-                p.score = (
-                    str(int(p.score) + delta)
-                    + ("(+" if delta > 0 else "(")
-                    + str(delta)
-                    + ")"
-                )
-        else:
-            for tenpai in round_terminal.no_winner.tenpais:
-                tenpai_p = table.players[tenpai.who]
-                tenpai_p.tile_units = [
-                    i
-                    for i in tenpai_p.tile_units
-                    if i.tile_unit_type == TileUnitType.DISCARD
-                ]
-                tenpai_p.tile_units.append(
-                    TileUnit(
-                        TileUnitType.HAND,
-                        FromWho.NONE,
-                        [
-                            Tile(i, True, self.is_using_unicode)
-                            for i in tenpai.hand.closed_tiles
-                        ],
-                    )
-                )
-                for opens in tenpai.hand.opens:
-                    tenpai_p.tile_units.append(
-                        TileUnit(
-                            open_utils.open_event_type(opens),
-                            open_utils.open_from(opens),
-                            [
-                                Tile(i, True, self.is_using_unicode)
-                                for i in open_utils.open_tile_ids(opens)
-                            ],
-                        )
-                    )
-
-            for i, p in enumerate(table.players):
-                delta = round_terminal.no_winner.ten_changes[i]
-                p.score = (
-                    str(int(p.score) + delta)
-                    + ("(+" if delta > 0 else "(")
-                    + str(delta)
-                    + ")"
-                )
-
-        return table
-
-    def decode_observation(self, jsondata):
-        gamedata = mjxproto.Observation()
-        gamedata.from_json(jsondata)
-
-        table = MahjongTable()
-
-        table.my_idx = gamedata.who
-        table = self.decode_public_observation(table, gamedata.public_observation)
-        table = self.decode_private_observation(
-            table, gamedata.private_observation, gamedata.who
-        )
-
-        # Obsevationの場合,適切な数の裏向きの手牌を用意する
-        for i, p in enumerate(table.players):
-            if p.player_idx != table.my_idx:
-                hands_num = 13
-                for t_u in p.tile_units:
-                    if t_u.tile_unit_type not in [
-                        TileUnitType.DISCARD,
-                        TileUnitType.HAND,
-                    ]:
-                        hands_num -= 3
-
-                p.tile_units.append(
-                    TileUnit(
-                        TileUnitType.HAND,
-                        FromWho.NONE,
-                        [
-                            Tile(i, False, self.is_using_unicode)
-                            for i in range(hands_num)
-                        ],
-                    )
-                )
-            p.wind = (-table.round + 1 + i) % 4
-
-        table.wall_num = self.get_wall_num(table)
-
-        if gamedata.public_observation.events != []:
-            if table.result == "win":
-                table = self.decode_round_terminal(table, gamedata.round_terminal, True)
-
-            elif table.result == "nowinner":
-                table = self.decode_round_terminal(
-                    table, gamedata.round_terminal, False
-                )
-
-        return table
-
-    def decode_state(self, jsondata):
-        gamedata = mjxproto.State()
-        gamedata.from_json(jsondata)
-
-        table = MahjongTable()
-
-        table = self.decode_public_observation(table, gamedata.public_observation)
-        for i in range(4):
-            table = self.decode_private_observation(
-                table, gamedata.private_observations[i], i
-            )
-
-        for i, p in enumerate(table.players):
-            p.wind = (-table.round + 1 + i) % 4
-
-        table.wall_num = self.get_wall_num(table)
-
-        if gamedata.public_observation.events != []:
-            if table.result == "win":
-                table = self.decode_round_terminal(table, gamedata.round_terminal, True)
-
-            elif table.result == "nowinner":
-                table = self.decode_round_terminal(
-                    table, gamedata.round_terminal, False
-                )
-
-        return table
-
-    def get_wall_num(self, table: MahjongTable) -> int:
-        all = 136 - 14
-        for p in table.players:
-            for t_u in p.tile_units:
-                all -= len(t_u.tiles)
-
-        return all
-
-    def load_data(self):
-        with open(self.path, "r", errors="ignore") as f:
-            self.tables = []
-            for line in f:
-                if self.mode == "obs":
-                    table = self.decode_observation(line)
-                    self.tables.append(table)
-                elif self.mode == "sta":
-                    table = self.decode_state(line)
-                    self.tables.append(table)
-        return self.tables
 
     def get_modified_tiles(
         self, table: MahjongTable, player_idx: int, tile_unit_type: TileUnitType
@@ -954,9 +951,9 @@ class GameBoard:
 
 def main():
     """
-    >>> game_board = GameBoard("observations.json", "obs", False, False, 0 , True)
+    >>> game_board = GameBoardVisualizer("observations.json", "obs", False, False, 0 , True)
     >>> print(game_board.show_by_text(game_board.load_data()[0]))  # doctest: +NORMALIZE_WHITESPACE
-        round:1 wall:70 Dora:sw
+    round:1 wall:70 Dora:sw
     <BLANKLINE>
     SOUTH [ 25000 ] target-player
     <BLANKLINE>
@@ -998,11 +995,18 @@ def main():
     parser.add_argument("--lang", type=int, choices=[0, 1], default=0)
     args = parser.parse_args()
 
-    game_board = GameBoard(
-        args.path, args.mode, args.uni, args.rich, args.lang, args.show_name
-    )
+    setting = {
+        "path": args.path,
+        "mode": args.mode,
+        "uni": args.uni,
+        "rich": args.rich,
+        "lang": args.lang,
+        "show_name": args.show_name,
+    }
 
-    game_data = game_board.load_data()
+    game_board = GameBoardVisualizer(setting)
+
+    game_data = MahjongTable.load_data(setting)
 
     turns = len(game_data)
     i = 0
