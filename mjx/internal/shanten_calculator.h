@@ -17,6 +17,7 @@ class ShantenCalculator {
       const std::array<uint8_t, 34>& count);
   [[nodiscard]] static int ShantenSevenPairs(
       const std::array<uint8_t, 34>& count);
+  [[nodiscard]] static std::bitset<34> ProceedingTileTypes(const std::array<uint8_t, 34>& hand);
 };
 }  // namespace mjx::internal
 
