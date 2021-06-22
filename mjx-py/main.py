@@ -938,6 +938,19 @@ class GameBoardVisualizer:
         console = Console()
         console.print(self.layout)
 
+    @classmethod
+    def get_config(
+        cls, path, mode, is_using_unicode, is_using_rich, language, show_name
+    ):
+        return {
+            "path": path,
+            "mode": mode,
+            "uni": is_using_unicode,
+            "rich": is_using_rich,
+            "lang": language,
+            "show_name": show_name,
+        }
+
 
 def main():
     """
