@@ -57,6 +57,9 @@ State::State(std::vector<PlayerId> player_ids, std::uint64_t game_seed,
           ->Add(tile.Id());
   }
 
+  // dealer draws the first tusmo
+  Draw(dealer());
+
   // sync curr_hand
   for (int i = 0; i < 4; ++i) SyncCurrHand(AbsolutePos(i));
 }
@@ -126,19 +129,14 @@ GameResult State::result() const {
 }
 
 std::unordered_map<PlayerId, Observation> State::CreateObservations() const {
-  // At the round beginning, sync initial hand info to each player, and
-  // at the round end, sync round terminal information to each player
-  bool is_round_beginning = !HasLastEvent();
-  bool is_round_end = IsRoundOver();
-  if (is_round_beginning || is_round_end) {
+  // At the round end, sync round terminal information to each player
+  if (IsRoundOver()) {
     std::unordered_map<PlayerId, Observation> observations;
     for (int i = 0; i < 4; ++i) {
       auto who = AbsolutePos(i);
       auto observation = Observation(who, state_);
       observation.add_legal_action(
           Action::CreateDummy(who, state_.public_observation().game_id()));
-      Assert(!is_round_end || observation.proto().has_round_terminal(),
-             "If round is ended, round terminal info should be set");
       observations[player(who).player_id] = std::move(observation);
     }
     return observations;
@@ -245,7 +243,8 @@ std::unordered_map<PlayerId, Observation> State::CreateObservations() const {
     case mjxproto::EVENT_TYPE_EXHAUSTIVE_DRAW_NAGASHI_MANGAN:
     case mjxproto::EVENT_TYPE_NEW_DORA:
     case mjxproto::EVENT_TYPE_RIICHI_SCORE_CHANGE:
-      Assert(false);  // Impossible state
+      Assert(false, "Got an unexpected last event type: " +
+                        std::to_string(LastEvent().type()));
   }
 }
 
@@ -1202,18 +1201,6 @@ WinStateInfo State::win_state_info(AbsolutePos who) const {
 void State::Update(std::vector<mjxproto::Action> &&action_candidates) {
   Assert(!IsRoundOver(), "Update is called after round end: \n" + ToJson());
   Assert(!action_candidates.empty());
-  // At the beginning of the round
-  if (!HasLastEvent()) {
-    Assert(std::all_of(action_candidates.begin(), action_candidates.end(),
-                       [](const mjxproto::Action &a) {
-                         return a.type() == mjxproto::ACTION_TYPE_DUMMY;
-                       }),
-           "At the beginning of the round, each player should return Dummy "
-           "action.");
-    // dealer draws the first tusmo
-    Draw(dealer());
-    return;
-  }
 
   Assert(action_candidates.size() <= 3);
   if (action_candidates.size() == 1) {

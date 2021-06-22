@@ -13,18 +13,8 @@ mjx::env::RLlibMahjongEnv::reset() noexcept {
       mjx::internal::State::ScoreInfo{player_ids, game_seed_.value()});
   game_seed_ = std::nullopt;
 
-  // All players receive initial observations and return dummy actions
   auto observations = state_.CreateObservations();
-  std::vector<mjxproto::Action> actions;
-  for (const auto& [player_id, obs] : observations) {
-    assert(obs.legal_actions().size() == 1);  // dummy
-    actions.push_back(obs.legal_actions()[0]);
-  }
-  state_.Update(std::move(actions));
-
-  // First draw by dealer
-  observations = state_.CreateObservations();
-  assert(observations.size() == 1);
+  assert(observations.size() == 1);  // first draw by the dealer
   auto& [who, obs] = *observations.begin();
   return {{who, obs.proto()}};
 }
@@ -61,15 +51,6 @@ mjx::env::RLlibMahjongEnv::step(
   if (state_.IsRoundOver() && !state_.IsGameOver()) {
     auto next_state_info = state_.Next();
     state_ = mjx::internal::State(next_state_info);
-
-    // All players receive initial observations and return dummy actions
-    auto observations = state_.CreateObservations();
-    std::vector<mjxproto::Action> actions;
-    for (const auto& [player_id, obs] : observations) {
-      assert(obs.legal_actions().size() == 1);  // dummy
-      actions.push_back(obs.legal_actions()[0]);
-    }
-    state_.Update(std::move(actions));
   }
 
   // Receive new observations

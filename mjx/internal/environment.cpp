@@ -85,7 +85,13 @@ void Environment::RunOneRound() {
     for (auto &[player_id, obs] : observations) {
       actions.emplace_back(agent(player_id)->TakeAction(std::move(obs)));
     }
-    if (state_.IsRoundOver()) break;
+    if (state_.IsRoundOver()) {
+      Assert(actions.size() == 4);
+      Assert(std::all_of(actions.begin(), actions.end(), [](const auto &x) {
+        return x.type() == mjxproto::ACTION_TYPE_DUMMY;
+      }));
+      break;
+    }
     state_.Update(std::move(actions));
   }
 }
