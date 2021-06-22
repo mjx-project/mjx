@@ -1,6 +1,6 @@
 import argparse
+from dataclasses import dataclass
 import os
-from re import T
 import mjxproto
 from mjxproto import EventType
 import open_utils
@@ -11,6 +11,16 @@ from rich.layout import Layout
 from rich.panel import Panel
 from rich.console import Console
 from rich.text import Text
+
+
+@dataclass
+class Config:
+    path: str
+    mode: str
+    uni: bool
+    rich: bool
+    lang: int
+    show_name: bool
 
 
 class Tile:
@@ -411,13 +421,13 @@ class GameBoardVisualizer:
     EventHistoryからの現在の状態の読み取りや、その表示などを行います。
     """
 
-    def __init__(self, setting: dict):
-        self.setting = setting
+    def __init__(self, config: Config):
+        self.config = config
         self.my_idx = 0
 
         self.layout = Layout()
 
-        if self.setting["show_name"]:
+        if self.config.show_name:
             self.layout.split_column(
                 Layout(" ", name="space_top"),
                 Layout(name="info"),
@@ -513,25 +523,25 @@ class GameBoardVisualizer:
             for t_u in p.tile_units:
                 for tile in t_u.tiles:
                     if not tile.is_open:
-                        tile.char = "\U0001F02B" if self.setting["uni"] else "#"
+                        tile.char = "\U0001F02B" if self.config.uni else "#"
                     else:
-                        tile.char = get_tile_char(tile.id, self.setting["uni"])
+                        tile.char = get_tile_char(tile.id, self.config.uni)
                     if tile.is_tsumogiri:
                         if tile.with_riichi:
-                            if self.setting["uni"] and self.char != "\U0001F004\uFE0E":
-                                self.char += " *r"
+                            if self.config.uni and tile.char != "\U0001F004\uFE0E":
+                                tile.char += " *r"
                             else:
-                                self.char += "*r"
+                                tile.char += "*r"
                         else:
-                            if self.setting["uni"] and self.char != "\U0001F004\uFE0E":
-                                self.char += " *"
+                            if self.config.uni and tile.char != "\U0001F004\uFE0E":
+                                tile.char += " *"
                             else:
-                                self.char += "*"
+                                tile.char += "*"
                     elif tile.with_riichi:
-                        if self.setting["uni"] and self.char != "\U0001F004\uFE0E":
-                            self.char += " r"
+                        if self.config.uni and tile.char != "\U0001F004\uFE0E":
+                            tile.char += " r"
                         else:
-                            self.char += "r"
+                            tile.char += "r"
         return table
 
     def get_modified_tiles(
@@ -539,7 +549,7 @@ class GameBoardVisualizer:
     ):
         table = self.decode_tiles(table)
 
-        if self.setting["rich"]:
+        if self.config.rich:
             tiles = ""
             for tile_unit in table.players[player_idx].tile_units:
                 if tile_unit.tile_unit_type == tile_unit_type:
@@ -558,7 +568,7 @@ class GameBoardVisualizer:
                                 ""
                                 if (tile.is_tsumogiri or tile.with_riichi)
                                 else "  "
-                                if self.setting["uni"]
+                                if self.config.uni
                                 else " "
                             )
                             for tile in tile_unit.tiles
@@ -610,7 +620,7 @@ class GameBoardVisualizer:
                                 + (
                                     ""
                                     if (
-                                        not self.setting["uni"]
+                                        not self.config.uni
                                         or tile.char == "\U0001F004\uFE0E"
                                     )
                                     else " "
@@ -658,7 +668,7 @@ class GameBoardVisualizer:
                                     + (
                                         ""
                                         if (
-                                            not self.setting["uni"]
+                                            not self.config.uni
                                             or tile.char == "\U0001F004\uFE0E"
                                         )
                                         else " "
@@ -699,7 +709,7 @@ class GameBoardVisualizer:
                                 ""
                                 if (tile.is_tsumogiri or tile.with_riichi)
                                 else "  "
-                                if self.setting["uni"]
+                                if self.config.uni
                                 else " "
                             )
                             for tile in tile_unit.tiles
@@ -718,7 +728,7 @@ class GameBoardVisualizer:
                             + (
                                 ""
                                 if (
-                                    not self.setting["uni"]
+                                    not self.config.uni
                                     or tile.char == "\U0001F004\uFE0E"
                                 )
                                 else " "
@@ -734,57 +744,55 @@ class GameBoardVisualizer:
         board_info.append(
             [
                 f"round:{table.round}",
-                get_wind_char((table.round - 1) // 4, self.setting["lang"])
+                get_wind_char((table.round - 1) // 4, self.config.lang)
                 + str((table.round - 1) % 4 + 1)
                 + "局",
-            ][self.setting["lang"]]
+            ][self.config.lang]
         )
         if table.honba > 0:
             board_info.append(
                 " "
                 + ["honba:" + str(table.honba), str(table.honba) + "本場"][
-                    self.setting["lang"]
+                    self.config.lang
                 ]
             )
         if table.riichi > 0:
             board_info.append(
-                " " + ["riichi:", "供託"][self.setting["lang"]] + str(table.riichi)
+                " " + ["riichi:", "供託"][self.config.lang] + str(table.riichi)
             )
         board_info.append(
             " "
             + ["wall:" + str(table.wall_num), "残り:" + str(table.wall_num) + "枚"][
-                self.setting["lang"]
+                self.config.lang
             ]
         )
         dora = "".join(
             [
-                get_tile_char(d, self.setting["uni"])
+                get_tile_char(d, self.config.uni)
                 + (
                     ""
-                    if get_tile_char(d, self.setting["uni"]) == "\U0001F004\uFE0E"
+                    if get_tile_char(d, self.config.uni) == "\U0001F004\uFE0E"
                     else " "
                 )
                 for d in table.doras
             ]
         )
-        board_info.append(" " + ["Dora:", "ドラ:"][self.setting["lang"]] + dora)
+        board_info.append(" " + ["Dora:", "ドラ:"][self.config.lang] + dora)
         uradora = "".join(
             [
-                get_tile_char(d, self.setting["uni"])
+                get_tile_char(d, self.config.uni)
                 + (
                     ""
-                    if get_tile_char(d, self.setting["uni"]) == "\U0001F004\uFE0E"
+                    if get_tile_char(d, self.config.uni) == "\U0001F004\uFE0E"
                     else " "
                 )
                 for d in table.uradoras
             ]
         )
         if uradora != "":
-            board_info.append(
-                " " + ["UraDora:", "裏ドラ:"][self.setting["lang"]] + uradora
-            )
+            board_info.append(" " + ["UraDora:", "裏ドラ:"][self.config.lang] + uradora)
 
-        event_info = get_event_type(table.event_info, self.setting["lang"])
+        event_info = get_event_type(table.event_info, self.config.lang)
         board_info.append("    " + event_info)
         board_info.append("\n\n")
         board_info = "".join(board_info)
@@ -800,13 +808,13 @@ class GameBoardVisualizer:
             player_info = []
 
             player_info.append(
-                get_wind_char(p.wind, self.setting["lang"])
+                get_wind_char(p.wind, self.config.lang)
                 + " [ "
                 + "".join(
                     [
                         p.score
                         + (
-                            [", riichi", ", リーチ"][self.setting["lang"]]
+                            [", riichi", ", リーチ"][self.config.lang]
                             if p.is_declared_riichi
                             else ""
                         )
@@ -814,7 +822,7 @@ class GameBoardVisualizer:
                 )
                 + " ]",
             )
-            if self.setting["show_name"]:
+            if self.config.show_name:
                 player_info.append(" " + p.name)
             player_info.append("\n\n")
 
@@ -836,8 +844,8 @@ class GameBoardVisualizer:
 
         system_info = []
         system_info.append(
-            get_wind_char(table.players[0].wind, self.setting["lang"])
-            + ["'s turn now.\n", "の番です\n"][self.setting["lang"]]
+            get_wind_char(table.players[0].wind, self.config.lang)
+            + ["'s turn now.\n", "の番です\n"][self.config.lang]
         )
         system_info = "".join(system_info)
 
@@ -883,7 +891,7 @@ class GameBoardVisualizer:
 
         for i, p in enumerate(table.players):
             wind = Text(
-                get_wind_char(p.wind, self.setting["lang"]),
+                get_wind_char(p.wind, self.config.lang),
                 justify="center",
                 style="bold green",
             )
@@ -895,14 +903,14 @@ class GameBoardVisualizer:
                 riichi = [
                     Text(" riichi", style="yellow"),
                     Text(" リーチ", style="yellow"),
-                ][self.setting["lang"]]
+                ][self.config.lang]
 
             player_info = wind + Text("\n") + score + riichi
 
             self.layout[players_info_center[i]].update(player_info)
 
             name = Text(justify="center", style="bold green")
-            if self.setting["show_name"]:
+            if self.config.show_name:
                 name += Text(" " + p.name, style="white")
                 self.layout[players_info_top[i]].update(
                     Panel(player_info + Text("\n\n") + name, style="bold green")
@@ -938,31 +946,18 @@ class GameBoardVisualizer:
         console = Console()
         console.print(self.layout)
 
-    @classmethod
-    def get_config(
-        cls, path, mode, is_using_unicode, is_using_rich, language, show_name
-    ):
-        return {
-            "path": path,
-            "mode": mode,
-            "uni": is_using_unicode,
-            "rich": is_using_rich,
-            "lang": language,
-            "show_name": show_name,
-        }
-
 
 def main():
     """
-    >>> setting = {
-    ...     "path": "observations.json",
-    ...     "mode": "obs",
-    ...     "uni": False,
-    ...     "rich": False,
-    ...     "lang": 0,
-    ...     "show_name": True,
-    ... }
-    >>> game_board = GameBoardVisualizer(setting)
+    >>> config = Config(
+    ... "observations.json",
+    ... "obs",
+    ... False,
+    ... False,
+    ... 0,
+    ... True
+    ... )
+    >>> game_board = GameBoardVisualizer(config)
     >>> print(game_board.show_by_text(MahjongTable.load_data("observations.json","obs")[0])) # doctest: +NORMALIZE_WHITESPACE
     round:1 wall:70 Dora:sw
     <BLANKLINE>
@@ -1006,16 +1001,16 @@ def main():
     parser.add_argument("--lang", type=int, choices=[0, 1], default=0)
     args = parser.parse_args()
 
-    setting = {
-        "path": args.path,
-        "mode": args.mode,
-        "uni": args.uni,
-        "rich": args.rich,
-        "lang": args.lang,
-        "show_name": args.show_name,
-    }
+    config = Config(
+        args.path,
+        args.mode,
+        args.uni,
+        args.rich,
+        args.lang,
+        args.show_name,
+    )
 
-    game_board = GameBoardVisualizer(setting)
+    game_board = GameBoardVisualizer(config)
 
     game_data = MahjongTable.load_data(args.path, args.mode)
 
