@@ -145,8 +145,9 @@ std::unordered_map<PlayerId, Observation> State::CreateObservations() const {
   std::unordered_map<PlayerId, Observation> observations;
   for (int i = 0; i < 4; ++i) {
     auto who = AbsolutePos(i);
-    const auto& legal_actions = player(who).legal_actions;
-    bool has_legal_actions = legal_actions.front().type() != mjxproto::ACTION_TYPE_DUMMY;
+    const auto &legal_actions = player(who).legal_actions;
+    bool has_legal_actions =
+        legal_actions.front().type() != mjxproto::ACTION_TYPE_DUMMY;
     if (!has_legal_actions) continue;
     observations[player(who).player_id] = Observation(who, state_);
     observations[player(who).player_id].add_legal_actions(legal_actions);
@@ -1627,10 +1628,8 @@ void State::UpdateLegalActions() {
 
       // => NineTiles
       if (IsFirstTurnWithoutOpen() && hand(who).CanNineTiles()) {
-        mutable_player(who).legal_actions.push_back(
-            Action::CreateNineTiles(
-                who, state_.public_observation().game_id())
-        );
+        mutable_player(who).legal_actions.push_back(Action::CreateNineTiles(
+            who, state_.public_observation().game_id()));
       }
 
       // => Tsumo (1)
@@ -1638,19 +1637,16 @@ void State::UpdateLegalActions() {
              "Last drawn tile should be set");
       Tile drawn_tile = Tile(hand(who).LastTileAdded().value());
       if (hand(who).IsCompleted() && CanTsumo(who))
-        mutable_player(who).legal_actions.push_back(
-        Action::CreateTsumo(
+        mutable_player(who).legal_actions.push_back(Action::CreateTsumo(
             who, drawn_tile, state_.public_observation().game_id()));
 
       // => Kan (2)
       if (auto possible_kans = hand(who).PossibleOpensAfterDraw();
-          !possible_kans.empty() &&
-          !IsFourKanNoWinner()) {  // TODO:
+          !possible_kans.empty() && !IsFourKanNoWinner()) {  // TODO:
         // 四槓散了かのチェックは5回目のカンをできないようにするためだが、正しいのか確認
         // #701
         for (const auto possible_kan : possible_kans) {
-          mutable_player(who).legal_actions.push_back(
-          Action::CreateOpen(
+          mutable_player(who).legal_actions.push_back(Action::CreateOpen(
               who, possible_kan, state_.public_observation().game_id()));
         }
       }
@@ -1664,8 +1660,10 @@ void State::UpdateLegalActions() {
       auto discards = Action::CreateDiscardsAndTsumogiri(
           who, hand(who).PossibleDiscards(),
           state_.public_observation().game_id());
-      for (const auto& d: discards) mutable_player(who).legal_actions.push_back(d);
-      Assert(std::count_if(player(who).legal_actions.begin(), player(who).legal_actions.end(),
+      for (const auto &d : discards)
+        mutable_player(who).legal_actions.push_back(d);
+      Assert(std::count_if(player(who).legal_actions.begin(),
+                           player(who).legal_actions.end(),
                            [](const auto &x) {
                              return x.type() == mjxproto::ACTION_TYPE_TSUMOGIRI;
                            }) == 1,
@@ -1678,17 +1676,19 @@ void State::UpdateLegalActions() {
       auto discards = Action::CreateDiscardsAndTsumogiri(
           who, hand(who).PossibleDiscardsJustAfterRiichi(),
           state_.public_observation().game_id());
-      for (const auto& d: discards) mutable_player(who).legal_actions.push_back(d);
+      for (const auto &d : discards)
+        mutable_player(who).legal_actions.push_back(d);
       return;
     }
     case mjxproto::EVENT_TYPE_CHI:
     case mjxproto::EVENT_TYPE_PON: {
       // => Discard (6)
       auto who = AbsolutePos(LastEvent().who());
-      auto discards =Action::CreateDiscardsAndTsumogiri(
+      auto discards = Action::CreateDiscardsAndTsumogiri(
           who, hand(who).PossibleDiscards(),
           state_.public_observation().game_id());
-      for (const auto& d: discards) mutable_player(who).legal_actions.push_back(d);
+      for (const auto &d : discards)
+        mutable_player(who).legal_actions.push_back(d);
       Assert(!Any(player(who).legal_actions,
                   [](const auto &x) {
                     return x.type() == mjxproto::ACTION_TYPE_TSUMOGIRI;
@@ -1700,7 +1700,7 @@ void State::UpdateLegalActions() {
     case mjxproto::EVENT_TYPE_TSUMOGIRI:
       // => Ron (7)
       // => Chi, Pon and KanOpened (8)
-    { return CreateStealAndRonObservation(); }
+      { return CreateStealAndRonObservation(); }
     case mjxproto::EVENT_TYPE_ADDED_KAN: {
       auto observations = CreateStealAndRonObservation();
       Assert(!observations.empty());
@@ -1724,7 +1724,7 @@ void State::UpdateLegalActions() {
     case mjxproto::EVENT_TYPE_NEW_DORA:
     case mjxproto::EVENT_TYPE_RIICHI_SCORE_CHANGE:
       Assert(false, "Got an unexpected last event type: " +
-                    std::to_string(LastEvent().type()));
+                        std::to_string(LastEvent().type()));
   }
 }
 }  // namespace mjx::internal
