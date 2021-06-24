@@ -104,6 +104,7 @@ class State {
     AbsolutePos position;
     Hand hand;
     // temporal memory
+    std::vector<mjxproto::Action> legal_actions;
     std::bitset<34> machi;  // 上がりの形になるための待ち(役の有無を考慮しない).
                             // bitsetで管理する
     std::bitset<34> discards;  // 今までに捨てた牌のset. bitsetで管理する
@@ -136,6 +137,7 @@ class State {
 
   // update
   void Update(mjxproto::Action&& action);
+  void UpdateLegalActions();
 
   // event operations
   Tile Draw(AbsolutePos who);
