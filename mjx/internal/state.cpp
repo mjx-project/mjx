@@ -1204,7 +1204,9 @@ void State::Update(std::vector<mjxproto::Action> &&action_candidates) {
 
   // filter all dummy actions
   auto it = std::remove_if(action_candidates.begin(), action_candidates.end(),
-                           [](mjxproto::Action& x){ return x.type() == mjxproto::ACTION_TYPE_DUMMY; });
+                           [](mjxproto::Action &x) {
+                             return x.type() == mjxproto::ACTION_TYPE_DUMMY;
+                           });
   action_candidates.erase(it, action_candidates.end());
   Assert(action_candidates.size() <= 3);
 
