@@ -142,110 +142,16 @@ std::unordered_map<PlayerId, Observation> State::CreateObservations() const {
     return observations;
   }
 
-  switch (LastEvent().type()) {
-    case mjxproto::EVENT_TYPE_DRAW: {
-      auto who = AbsolutePos(LastEvent().who());
-      auto player_id = player(who).player_id;
-      auto observation = Observation(who, state_);
-      Assert(!observation.has_legal_action(), "legal_actions should be empty.");
-
-      // => NineTiles
-      if (IsFirstTurnWithoutOpen() && hand(who).CanNineTiles()) {
-        observation.add_legal_action(Action::CreateNineTiles(
-            who, state_.public_observation().game_id()));
-      }
-
-      // => Tsumo (1)
-      Assert(hand(who).LastTileAdded().has_value(),
-             "Last drawn tile should be set");
-      Tile drawn_tile = Tile(hand(who).LastTileAdded().value());
-      if (hand(who).IsCompleted() && CanTsumo(who))
-        observation.add_legal_action(Action::CreateTsumo(
-            who, drawn_tile, state_.public_observation().game_id()));
-
-      // => Kan (2)
-      if (auto possible_kans = hand(who).PossibleOpensAfterDraw();
-          !possible_kans.empty() &&
-          !IsFourKanNoWinner()) {  // TODO:
-                                   // 四槓散了かのチェックは5回目のカンをできないようにするためだが、正しいのか確認
-                                   // #701
-        for (const auto possible_kan : possible_kans) {
-          observation.add_legal_action(Action::CreateOpen(
-              who, possible_kan, state_.public_observation().game_id()));
-        }
-      }
-
-      // => Riichi (3)
-      if (CanRiichi(who))
-        observation.add_legal_action(
-            Action::CreateRiichi(who, state_.public_observation().game_id()));
-
-      // => Discard (4)
-      observation.add_legal_actions(Action::CreateDiscardsAndTsumogiri(
-          who, hand(who).PossibleDiscards(),
-          state_.public_observation().game_id()));
-      const auto &legal_actions = observation.legal_actions();
-      Assert(std::count_if(legal_actions.begin(), legal_actions.end(),
-                           [](const auto &x) {
-                             return x.type() == mjxproto::ACTION_TYPE_TSUMOGIRI;
-                           }) == 1,
-             "There should be exactly one tsumogiri action");
-      return {{player_id, std::move(observation)}};
-    }
-    case mjxproto::EVENT_TYPE_RIICHI: {
-      // => Discard (5)
-      auto who = AbsolutePos(LastEvent().who());
-      auto observation = Observation(who, state_);
-      observation.add_legal_actions(Action::CreateDiscardsAndTsumogiri(
-          who, hand(who).PossibleDiscardsJustAfterRiichi(),
-          state_.public_observation().game_id()));
-      return {{player(who).player_id, std::move(observation)}};
-    }
-    case mjxproto::EVENT_TYPE_CHI:
-    case mjxproto::EVENT_TYPE_PON: {
-      // => Discard (6)
-      auto who = AbsolutePos(LastEvent().who());
-      auto observation = Observation(who, state_);
-      observation.add_legal_actions(Action::CreateDiscardsAndTsumogiri(
-          who, hand(who).PossibleDiscards(),
-          state_.public_observation().game_id()));
-      Assert(!Any(observation.legal_actions(),
-                  [](const auto &x) {
-                    return x.type() == mjxproto::ACTION_TYPE_TSUMOGIRI;
-                  }),
-             "After chi/pon, there should be no legal tsumogiri action");
-      return {{player(who).player_id, std::move(observation)}};
-    }
-    case mjxproto::EVENT_TYPE_DISCARD:
-    case mjxproto::EVENT_TYPE_TSUMOGIRI:
-      // => Ron (7)
-      // => Chi, Pon and KanOpened (8)
-      { return CreateStealAndRonObservation(); }
-    case mjxproto::EVENT_TYPE_ADDED_KAN: {
-      auto observations = CreateStealAndRonObservation();
-      Assert(!observations.empty());
-      for (const auto &[player_id, observation] : observations)
-        for (const auto &legal_action : observation.legal_actions())
-          Assert(Any(legal_action.type(),
-                     {mjxproto::ACTION_TYPE_RON, mjxproto::ACTION_TYPE_NO}));
-      return observations;
-    }
-    case mjxproto::EVENT_TYPE_TSUMO:
-    case mjxproto::EVENT_TYPE_RON:
-    case mjxproto::EVENT_TYPE_CLOSED_KAN:
-    case mjxproto::EVENT_TYPE_OPEN_KAN:
-    case mjxproto::EVENT_TYPE_ABORTIVE_DRAW_NINE_TERMINALS:
-    case mjxproto::EVENT_TYPE_ABORTIVE_DRAW_FOUR_RIICHIS:
-    case mjxproto::EVENT_TYPE_ABORTIVE_DRAW_THREE_RONS:
-    case mjxproto::EVENT_TYPE_ABORTIVE_DRAW_FOUR_KANS:
-    case mjxproto::EVENT_TYPE_ABORTIVE_DRAW_FOUR_WINDS:
-    case mjxproto::EVENT_TYPE_EXHAUSTIVE_DRAW_NORMAL:
-    case mjxproto::EVENT_TYPE_EXHAUSTIVE_DRAW_NAGASHI_MANGAN:
-    case mjxproto::EVENT_TYPE_NEW_DORA:
-    case mjxproto::EVENT_TYPE_RIICHI_SCORE_CHANGE:
-      Assert(false, "Got an unexpected last event type: " +
-                        std::to_string(LastEvent().type()));
+  std::unordered_map<PlayerId, Observation> observations;
+  for (int i = 0; i < 4; ++i) {
+    auto who = AbsolutePos(i);
+    const auto& legal_actions = player(who).legal_actions;
+    bool has_legal_actions = legal_actions.front().type() != mjxproto::ACTION_TYPE_DUMMY;
+    if (!has_legal_actions) continue;
+    observations[player(who).player_id] = Observation(who, state_);
+    observations[player(who).player_id].add_legal_actions(legal_actions);
   }
+  return observations;
 }
 
 mjxproto::State State::LoadJson(const std::string &json_str) {
@@ -1708,5 +1614,112 @@ std::vector<PlayerId> State::ShufflePlayerIds(
   std::vector<PlayerId> ret(player_ids.begin(), player_ids.end());
   Shuffle(ret.begin(), ret.end(), std::mt19937_64(game_seed));
   return ret;
+}
+
+void State::UpdateLegalActions() {
+  switch (LastEvent().type()) {
+    case mjxproto::EVENT_TYPE_DRAW: {
+      auto who = AbsolutePos(LastEvent().who());
+      auto player_id = player(who).player_id;
+      auto observation = Observation(who, state_);
+      Assert(!observation.has_legal_action(), "legal_actions should be empty.");
+
+      // => NineTiles
+      if (IsFirstTurnWithoutOpen() && hand(who).CanNineTiles()) {
+        observation.add_legal_action(Action::CreateNineTiles(
+            who, state_.public_observation().game_id()));
+      }
+
+      // => Tsumo (1)
+      Assert(hand(who).LastTileAdded().has_value(),
+             "Last drawn tile should be set");
+      Tile drawn_tile = Tile(hand(who).LastTileAdded().value());
+      if (hand(who).IsCompleted() && CanTsumo(who))
+        observation.add_legal_action(Action::CreateTsumo(
+            who, drawn_tile, state_.public_observation().game_id()));
+
+      // => Kan (2)
+      if (auto possible_kans = hand(who).PossibleOpensAfterDraw();
+          !possible_kans.empty() &&
+          !IsFourKanNoWinner()) {  // TODO:
+        // 四槓散了かのチェックは5回目のカンをできないようにするためだが、正しいのか確認
+        // #701
+        for (const auto possible_kan : possible_kans) {
+          observation.add_legal_action(Action::CreateOpen(
+              who, possible_kan, state_.public_observation().game_id()));
+        }
+      }
+
+      // => Riichi (3)
+      if (CanRiichi(who))
+        observation.add_legal_action(
+            Action::CreateRiichi(who, state_.public_observation().game_id()));
+
+      // => Discard (4)
+      observation.add_legal_actions(Action::CreateDiscardsAndTsumogiri(
+          who, hand(who).PossibleDiscards(),
+          state_.public_observation().game_id()));
+      const auto &legal_actions = observation.legal_actions();
+      Assert(std::count_if(legal_actions.begin(), legal_actions.end(),
+                           [](const auto &x) {
+                             return x.type() == mjxproto::ACTION_TYPE_TSUMOGIRI;
+                           }) == 1,
+             "There should be exactly one tsumogiri action");
+      return {{player_id, std::move(observation)}};
+    }
+    case mjxproto::EVENT_TYPE_RIICHI: {
+      // => Discard (5)
+      auto who = AbsolutePos(LastEvent().who());
+      auto observation = Observation(who, state_);
+      observation.add_legal_actions(Action::CreateDiscardsAndTsumogiri(
+          who, hand(who).PossibleDiscardsJustAfterRiichi(),
+          state_.public_observation().game_id()));
+      return {{player(who).player_id, std::move(observation)}};
+    }
+    case mjxproto::EVENT_TYPE_CHI:
+    case mjxproto::EVENT_TYPE_PON: {
+      // => Discard (6)
+      auto who = AbsolutePos(LastEvent().who());
+      auto observation = Observation(who, state_);
+      observation.add_legal_actions(Action::CreateDiscardsAndTsumogiri(
+          who, hand(who).PossibleDiscards(),
+          state_.public_observation().game_id()));
+      Assert(!Any(observation.legal_actions(),
+                  [](const auto &x) {
+                    return x.type() == mjxproto::ACTION_TYPE_TSUMOGIRI;
+                  }),
+             "After chi/pon, there should be no legal tsumogiri action");
+      return {{player(who).player_id, std::move(observation)}};
+    }
+    case mjxproto::EVENT_TYPE_DISCARD:
+    case mjxproto::EVENT_TYPE_TSUMOGIRI:
+      // => Ron (7)
+      // => Chi, Pon and KanOpened (8)
+    { return CreateStealAndRonObservation(); }
+    case mjxproto::EVENT_TYPE_ADDED_KAN: {
+      auto observations = CreateStealAndRonObservation();
+      Assert(!observations.empty());
+      for (const auto &[player_id, observation] : observations)
+        for (const auto &legal_action : observation.legal_actions())
+          Assert(Any(legal_action.type(),
+                     {mjxproto::ACTION_TYPE_RON, mjxproto::ACTION_TYPE_NO}));
+      return observations;
+    }
+    case mjxproto::EVENT_TYPE_TSUMO:
+    case mjxproto::EVENT_TYPE_RON:
+    case mjxproto::EVENT_TYPE_CLOSED_KAN:
+    case mjxproto::EVENT_TYPE_OPEN_KAN:
+    case mjxproto::EVENT_TYPE_ABORTIVE_DRAW_NINE_TERMINALS:
+    case mjxproto::EVENT_TYPE_ABORTIVE_DRAW_FOUR_RIICHIS:
+    case mjxproto::EVENT_TYPE_ABORTIVE_DRAW_THREE_RONS:
+    case mjxproto::EVENT_TYPE_ABORTIVE_DRAW_FOUR_KANS:
+    case mjxproto::EVENT_TYPE_ABORTIVE_DRAW_FOUR_WINDS:
+    case mjxproto::EVENT_TYPE_EXHAUSTIVE_DRAW_NORMAL:
+    case mjxproto::EVENT_TYPE_EXHAUSTIVE_DRAW_NAGASHI_MANGAN:
+    case mjxproto::EVENT_TYPE_NEW_DORA:
+    case mjxproto::EVENT_TYPE_RIICHI_SCORE_CHANGE:
+      Assert(false, "Got an unexpected last event type: " +
+                    std::to_string(LastEvent().type()));
+  }
 }
 }  // namespace mjx::internal
