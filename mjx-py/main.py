@@ -112,10 +112,10 @@ class MahjongTable:
             for line in f:
                 if mode == "obs":
                     table = cls.decode_observation(line)
-                    tables.append(table)
-                elif mode == "sta":
+                else:
                     table = cls.decode_state(line)
-                    tables.append(table)
+                table.check_num_tiles()
+                tables.append(table)
         return tables
 
     @classmethod
@@ -936,12 +936,18 @@ class GameBoardVisualizer:
         console = Console()
         console.print(layout)
 
+    def print(self, data: MahjongTable):
+        if self.config.rich:
+            self.show_by_rich(data)
+        else:
+            print(self.show_by_text(data))
+
 
 def main():
     """
     >>> config = GameVisualConfig()
-    >>> game_board = GameBoardVisualizer(config)
-    >>> print(game_board.show_by_text(MahjongTable.load_data("observations.json","obs")[0])) # doctest: +NORMALIZE_WHITESPACE
+    >>> board_visualizer = GameBoardVisualizer(config)
+    >>> print(board_visualizer.show_by_text(MahjongTable.load_data("observations.json","obs")[0])) # doctest: +NORMALIZE_WHITESPACE
     round:1 wall:70 Dora:sw
     <BLANKLINE>
     SOUTH [ 25000 ] target-player
@@ -993,20 +999,18 @@ def main():
         args.show_name,
     )
 
-    game_board = GameBoardVisualizer(config)
+    board_visualizer = GameBoardVisualizer(config)
 
     game_data = MahjongTable.load_data(args.path, args.mode)
 
     turns = len(game_data)
     i = 0
-
-    if args.rich:
-        game_board.show_by_rich(game_data[i])
-    else:
-        print(game_board.show_by_text(game_data[i]))
-    command = input("z:-20 x:-1 c:+1 v:+20 :")
+    command = ""
 
     while command != "q":
+        board_visualizer.print(game_data[i])
+        command = input("z:-20 x:-1 c:+1 v:+20 :")
+
         if command == "z":
             i = (i - 20) % turns
         if command == "x":
@@ -1022,15 +1026,6 @@ def main():
             os.system("cls")
         else:
             os.system("clear")
-
-        game_data[i].check_num_tiles()
-
-        if args.rich:
-            game_board.show_by_rich(game_data[i])
-        else:
-            print(game_board.show_by_text(game_data[i]))
-
-        command = input("z:-20 x:-1 c:+1 v:+20 :")
 
 
 if __name__ == "__main__":
