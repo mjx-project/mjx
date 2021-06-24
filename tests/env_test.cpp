@@ -21,7 +21,6 @@ TEST(env, RLlibMahjongEnv) {
       auto is_round_over = observation.has_round_terminal();
       auto action = strategy.TakeAction(observation);
       action_dict[agent] = action;
-      // EXPECT_NE(action.type(), mjxproto::ACTION_TYPE_DUMMY);
       if (!is_round_over) EXPECT_NE(action.type(), mjxproto::ACTION_TYPE_DUMMY);
       if (is_round_over) EXPECT_EQ(action.type(), mjxproto::ACTION_TYPE_DUMMY);
     }
