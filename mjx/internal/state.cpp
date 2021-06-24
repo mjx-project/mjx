@@ -1202,7 +1202,16 @@ void State::Update(std::vector<mjxproto::Action> &&action_candidates) {
   Assert(!IsRoundOver(), "Update is called after round end: \n" + ToJson());
   Assert(!action_candidates.empty());
 
+  // filter all dummy actions
+  auto it = std::remove_if(action_candidates.begin(), action_candidates.end(),
+                           [](mjxproto::Action &x) {
+                             return x.type() == mjxproto::ACTION_TYPE_DUMMY;
+                           });
+  action_candidates.erase(it, action_candidates.end());
   Assert(action_candidates.size() <= 3);
+
+  if (action_candidates.empty()) return;
+
   if (action_candidates.size() == 1) {
     Update(std::move(action_candidates.front()));
     return;
