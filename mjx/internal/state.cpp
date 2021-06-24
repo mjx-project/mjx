@@ -1617,17 +1617,20 @@ std::vector<PlayerId> State::ShufflePlayerIds(
 }
 
 void State::UpdateLegalActions() {
+  for (int i = 0; i < 4; ++i)
+    mutable_player(AbsolutePos(i)).legal_actions.clear();
+
   switch (LastEvent().type()) {
     case mjxproto::EVENT_TYPE_DRAW: {
       auto who = AbsolutePos(LastEvent().who());
       auto player_id = player(who).player_id;
-      auto observation = Observation(who, state_);
-      Assert(!observation.has_legal_action(), "legal_actions should be empty.");
 
       // => NineTiles
       if (IsFirstTurnWithoutOpen() && hand(who).CanNineTiles()) {
-        observation.add_legal_action(Action::CreateNineTiles(
-            who, state_.public_observation().game_id()));
+        mutable_player(who).legal_actions.push_back(
+            Action::CreateNineTiles(
+                who, state_.public_observation().game_id())
+        );
       }
 
       // => Tsumo (1)
@@ -1635,7 +1638,8 @@ void State::UpdateLegalActions() {
              "Last drawn tile should be set");
       Tile drawn_tile = Tile(hand(who).LastTileAdded().value());
       if (hand(who).IsCompleted() && CanTsumo(who))
-        observation.add_legal_action(Action::CreateTsumo(
+        mutable_player(who).legal_actions.push_back(
+        Action::CreateTsumo(
             who, drawn_tile, state_.public_observation().game_id()));
 
       // => Kan (2)
@@ -1645,51 +1649,52 @@ void State::UpdateLegalActions() {
         // 四槓散了かのチェックは5回目のカンをできないようにするためだが、正しいのか確認
         // #701
         for (const auto possible_kan : possible_kans) {
-          observation.add_legal_action(Action::CreateOpen(
+          mutable_player(who).legal_actions.push_back(
+          Action::CreateOpen(
               who, possible_kan, state_.public_observation().game_id()));
         }
       }
 
       // => Riichi (3)
       if (CanRiichi(who))
-        observation.add_legal_action(
+        mutable_player(who).legal_actions.push_back(
             Action::CreateRiichi(who, state_.public_observation().game_id()));
 
       // => Discard (4)
-      observation.add_legal_actions(Action::CreateDiscardsAndTsumogiri(
+      auto discards = Action::CreateDiscardsAndTsumogiri(
           who, hand(who).PossibleDiscards(),
-          state_.public_observation().game_id()));
-      const auto &legal_actions = observation.legal_actions();
-      Assert(std::count_if(legal_actions.begin(), legal_actions.end(),
+          state_.public_observation().game_id());
+      for (const auto& d: discards) mutable_player(who).legal_actions.push_back(d);
+      Assert(std::count_if(player(who).legal_actions.begin(), player(who).legal_actions.end(),
                            [](const auto &x) {
                              return x.type() == mjxproto::ACTION_TYPE_TSUMOGIRI;
                            }) == 1,
              "There should be exactly one tsumogiri action");
-      return {{player_id, std::move(observation)}};
+      return;
     }
     case mjxproto::EVENT_TYPE_RIICHI: {
       // => Discard (5)
       auto who = AbsolutePos(LastEvent().who());
-      auto observation = Observation(who, state_);
-      observation.add_legal_actions(Action::CreateDiscardsAndTsumogiri(
+      auto discards = Action::CreateDiscardsAndTsumogiri(
           who, hand(who).PossibleDiscardsJustAfterRiichi(),
-          state_.public_observation().game_id()));
-      return {{player(who).player_id, std::move(observation)}};
+          state_.public_observation().game_id());
+      for (const auto& d: discards) mutable_player(who).legal_actions.push_back(d);
+      return;
     }
     case mjxproto::EVENT_TYPE_CHI:
     case mjxproto::EVENT_TYPE_PON: {
       // => Discard (6)
       auto who = AbsolutePos(LastEvent().who());
-      auto observation = Observation(who, state_);
-      observation.add_legal_actions(Action::CreateDiscardsAndTsumogiri(
+      auto discards =Action::CreateDiscardsAndTsumogiri(
           who, hand(who).PossibleDiscards(),
-          state_.public_observation().game_id()));
-      Assert(!Any(observation.legal_actions(),
+          state_.public_observation().game_id());
+      for (const auto& d: discards) mutable_player(who).legal_actions.push_back(d);
+      Assert(!Any(player(who).legal_actions,
                   [](const auto &x) {
                     return x.type() == mjxproto::ACTION_TYPE_TSUMOGIRI;
                   }),
              "After chi/pon, there should be no legal tsumogiri action");
-      return {{player(who).player_id, std::move(observation)}};
+      return;
     }
     case mjxproto::EVENT_TYPE_DISCARD:
     case mjxproto::EVENT_TYPE_TSUMOGIRI:
