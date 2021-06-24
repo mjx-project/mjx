@@ -418,105 +418,106 @@ class MahjongTable:
 class GameBoardVisualizer:
     """
     GameBoardVisualizer クラスは内部にMahjongTableクラスのオブジェクトを持ち、
-    EventHistoryからの現在の状態の読み取りや、その表示などを行います。
+    その表示などを行います。
     """
 
     def __init__(self, config: GameVisualConfig):
         self.config = config
-        self.my_idx = 0
 
-        self.layout = Layout()
-
+    def get_layout(self):
+        layout = Layout()
         if self.config.show_name:
-            self.layout.split_column(
+            layout.split_column(
                 Layout(" ", name="space_top"),
                 Layout(name="info"),
                 Layout(name="players_info_top"),
                 Layout(name="table"),
             )
-            self.layout["players_info_top"].size = 7
-            self.layout["players_info_top"].split_row(
+            layout["players_info_top"].size = 7
+            layout["players_info_top"].split_row(
                 Layout(" ", name="player1_info_top"),
                 Layout(" ", name="player2_info_top"),
                 Layout(" ", name="player3_info_top"),
                 Layout(" ", name="player4_info_top"),
             )
         else:
-            self.layout.split_column(
+            layout.split_column(
                 Layout(" ", name="space_top"),
                 Layout(name="info"),
                 Layout(name="table"),
             )
 
-        self.layout["space_top"].size = 3
-        self.layout["info"].size = 3
-        self.layout["table"].minimum_size = 20
+        layout["space_top"].size = 3
+        layout["info"].size = 3
+        layout["table"].minimum_size = 20
 
-        self.layout["table"].split_column(
+        layout["table"].split_column(
             Layout(name="upper1"),
             Layout(name="middle1"),
             Layout(name="lower1"),
         )
 
-        self.layout["upper1"].size = 3
-        self.layout["lower1"].size = 3
+        layout["upper1"].size = 3
+        layout["lower1"].size = 3
 
-        self.layout["upper1"].split_row(
+        layout["upper1"].split_row(
             Layout(" "),
             Layout(" ", name="hand3"),
             Layout(" "),
         )
-        self.layout["hand3"].ratio = 6
+        layout["hand3"].ratio = 6
 
-        self.layout["middle1"].split_row(
+        layout["middle1"].split_row(
             Layout(" ", name="hand4"),
             Layout(name="middle2"),
             Layout(" ", name="hand2"),
         )
-        self.layout["middle2"].ratio = 10
+        layout["middle2"].ratio = 10
 
-        self.layout["lower1"].split_row(
+        layout["lower1"].split_row(
             Layout(" "),
             Layout(" ", name="hand1"),
             Layout(" "),
         )
-        self.layout["hand1"].ratio = 6
+        layout["hand1"].ratio = 6
 
-        self.layout["middle2"].split_column(
+        layout["middle2"].split_column(
             Layout(name="upper2"),
             Layout(name="middle3"),
             Layout(name="lower2"),
         )
 
-        self.layout["upper2"].split_row(
+        layout["upper2"].split_row(
             Layout(" ", name="player3_info_corner"),
             Layout(" ", name="discard3"),
             Layout(" ", name="player2_info_corner"),
         )
 
-        self.layout["middle3"].split_row(
+        layout["middle3"].split_row(
             Layout(" ", name="discard4"),
             Layout(" ", name="middle4"),
             Layout(" ", name="discard2"),
         )
 
-        self.layout["middle4"].split_column(
+        layout["middle4"].split_column(
             Layout(" ", name="space_for_info_center"),
             Layout(" ", name="player3_info_center"),
             Layout(" ", name="middle5"),
             Layout(" ", name="player1_info_center"),
         )
-        self.layout["space_for_info_center"].size = 1
+        layout["space_for_info_center"].size = 1
 
-        self.layout["middle5"].split_row(
+        layout["middle5"].split_row(
             Layout(" ", name="player4_info_center"),
             Layout(" ", name="player2_info_center"),
         )
-        self.layout["lower2"].split_row(
+        layout["lower2"].split_row(
             Layout(" ", name="player4_info_corner"),
             Layout(" ", name="discard1"),
             Layout(" ", name="player1_info_corner"),
         )
+
+        return layout
 
     def decode_tiles(self, table: MahjongTable):
         for p in table.players:
@@ -584,16 +585,8 @@ class GameBoardVisualizer:
                         tiles += (
                             "\n"
                             + get_modifier(tile_unit.from_who, tile_unit.tile_unit_type)
-                            + (
-                                "\n "
-                                if tile_unit.tiles[0].char == "\U0001F004\uFE0E"
-                                else "\n"
-                            )
-                            + (
-                                "\n "
-                                if tile_unit.tiles[0].char == "\U0001F004\uFE0E"
-                                else "\n"
-                            ).join(
+                            + "\n"
+                            + "\n".join(
                                 [
                                     (" " if tile.char == "\U0001F004\uFE0E" else "")
                                     + tile.char
@@ -634,11 +627,7 @@ class GameBoardVisualizer:
                         )
                     elif player_idx == 3:
                         tiles += (
-                            (
-                                "\n "
-                                if tile_unit.tiles[0].char == "\U0001F004\uFE0E"
-                                else "\n"
-                            )
+                            "\n"
                             + "\n".join(
                                 [
                                     (" " if tile.char == "\U0001F004\uFE0E" else "")
@@ -799,11 +788,11 @@ class GameBoardVisualizer:
         return board_info
 
     def show_by_text(self, table: MahjongTable) -> str:
-        self.my_idx = table.my_idx
+        my_idx = table.my_idx
         board_info = self.get_board_info(table)
 
         players_info = []
-        table.players.sort(key=lambda x: (x.player_idx - self.my_idx) % 4)
+        table.players.sort(key=lambda x: (x.player_idx - my_idx) % 4)
         for i, p in enumerate(table.players):
             player_info = []
 
@@ -852,16 +841,17 @@ class GameBoardVisualizer:
         return "".join([board_info, players_info, system_info])
 
     def show_by_rich(self, table: MahjongTable) -> None:
+        layout = self.get_layout()
 
-        self.my_idx = table.my_idx
-        self.layout["info"].update(
+        my_idx = table.my_idx
+        layout["info"].update(
             Panel(
                 Text(self.get_board_info(table), justify="center", style="color(1)"),
                 style="bold green",
             )
         )
 
-        table.players.sort(key=lambda x: (x.player_idx - self.my_idx) % 4)
+        table.players.sort(key=lambda x: (x.player_idx - my_idx) % 4)
 
         players_info_top = [
             "player1_info_top",
@@ -907,12 +897,12 @@ class GameBoardVisualizer:
 
             player_info = wind + Text("\n") + score + riichi
 
-            self.layout[players_info_center[i]].update(player_info)
+            layout[players_info_center[i]].update(player_info)
 
             name = Text(justify="center", style="bold green")
             if self.config.show_name:
                 name += Text(" " + p.name, style="white")
-                self.layout[players_info_top[i]].update(
+                layout[players_info_top[i]].update(
                     Panel(player_info + Text("\n\n") + name, style="bold green")
                 )
             hand = self.get_modified_tiles(table, i, TileUnitType.HAND)
@@ -929,7 +919,7 @@ class GameBoardVisualizer:
                 hand_area = (
                     hand + "      " + chi + pon + open_kan + closed_kan + added_kan
                 )
-            self.layout[hands_idx[i]].update(
+            layout[hands_idx[i]].update(
                 Panel(
                     Text(hand_area, justify="center", no_wrap=True, style="white"),
                     style="bold green",
@@ -941,10 +931,10 @@ class GameBoardVisualizer:
                 justify="left",
                 style="white",
             )
-            self.layout[discards_idx[i]].update(Panel(discards, style="bold green"))
+            layout[discards_idx[i]].update(Panel(discards, style="bold green"))
 
         console = Console()
-        console.print(self.layout)
+        console.print(layout)
 
 
 def main():
