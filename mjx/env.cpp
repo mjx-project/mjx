@@ -40,18 +40,20 @@ mjx::env::RLlibMahjongEnv::step(
   std::unordered_map<mjx::internal::PlayerId, std::string> infos = {
       {"player_0", ""}, {"player_1", ""}, {"player_2", ""}, {"player_3", ""}};
 
-  assert(!(state_.IsRoundOver() && state_.IsGameOver()));
+  if (state_.IsRoundOver() && !state_.IsGameOver()) {
+    auto next_state_info = state_.Next();
+    state_ = mjx::internal::State(next_state_info);
+    auto observations = state_.CreateObservations();
+    // Prepare observations
+    for (const auto& [player_id, obs] : observations)
+      proto_observations[player_id] = obs.proto();
+    return std::make_tuple(proto_observations, rewards, dones, infos);
+  }
 
   // Update states based on actions
   std::vector<mjxproto::Action> actions;
   for (const auto& [player_id, action] : action_dict) actions.push_back(action);
   state_.Update(std::move(actions));
-
-  // Skip sharing round terminal information
-  if (state_.IsRoundOver() && !state_.IsGameOver()) {
-    auto next_state_info = state_.Next();
-    state_ = mjx::internal::State(next_state_info);
-  }
 
   // Receive new observations
   // TODO:
@@ -73,18 +75,6 @@ mjx::env::RLlibMahjongEnv::step(
     dones["__all__"] = true;
   }
 
-  // dummy actions are allowed only at the end of game
-  assert(dones.at("__all__") ||
-         std::all_of(
-             observations.begin(), observations.end(), [](const auto& elm) {
-               const mjx::internal::Observation& obs = elm.second;
-               auto legal_actions = obs.legal_actions();
-               return !std::any_of(legal_actions.begin(), legal_actions.end(),
-                                   [](const mjxproto::Action& a) {
-                                     return a.type() ==
-                                            mjxproto::ACTION_TYPE_DUMMY;
-                                   });
-             }));
   return std::make_tuple(proto_observations, rewards, dones, infos);
 }
 
