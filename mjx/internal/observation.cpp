@@ -142,7 +142,8 @@ std::vector<mjxproto::Event> Observation::EventHistory() const {
   return events;
 }
 
-std::vector<float> Observation::ToFeature(std::string mode, std::string version) const {
+std::vector<float> Observation::ToFeature(std::string mode,
+                                          std::string version) const {
   if (mode == "small" and version == "0") {
     return small_v0();
   }
