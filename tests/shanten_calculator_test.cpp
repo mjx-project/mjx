@@ -53,7 +53,7 @@ TEST(shanten, proceeding) {
   std::bitset<34> proceeding;
   tiles = Hand(Tile::Create({"m3", "m4", "m7", "m8", "s2", "s3", "p1", "p2",
                              "p3", "p4", "p4", "ew", "sw"}))
-      .ToArray();
+              .ToArray();
   for (auto t : Tile::Create({"m2", "m5", "m6", "m9", "s1", "s4"})) {
     proceeding.set(t.TypeUint());
   }
