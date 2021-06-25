@@ -28,8 +28,7 @@ class Observation {
   void add_legal_action(mjxproto::Action&& legal_action);
   void add_legal_actions(const std::vector<mjxproto::Action>& legal_actions);
 
-  [[nodiscard]] std::vector<float> ToFeature(std::string mode,
-                                             std::string version) const;
+  [[nodiscard]] std::vector<float> ToFeature(std::string version) const;
 
  private:
   // TODO: remove friends and use proto()
