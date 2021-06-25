@@ -151,7 +151,7 @@ std::vector<float> Observation::ToFeature(std::string version) const {
 
 std::vector<float> Observation::small_v0() const {
   // closed hand
-  std::vector<float> feature(4*34);
+  std::vector<float> feature(4 * 34);
   std::vector<int> hand(34);
   for (auto t : proto_.private_observation().curr_hand().closed_tiles()) {
     ++hand[Tile(t).TypeUint()];
