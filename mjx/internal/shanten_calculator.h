@@ -3,6 +3,7 @@
 
 #include <array>
 #include <vector>
+#include <bitset>
 
 #include "shanten_cache.h"
 #include "types.h"
