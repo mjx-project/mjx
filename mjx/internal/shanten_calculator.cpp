@@ -78,7 +78,7 @@ std::bitset<34> ShantenCalculator::ProceedingTileTypes(
   int shanten = ShantenNumber(hand);
   std::bitset<34> proceeding;
   for (int i = 0; i < 34; ++i) {
-    //if (hand[i] == 4) continue;
+    if (hand[i] == 4) continue;
     ++hand[i];
     if (shanten > ShantenNumber(hand)) {
       proceeding.set(i);
