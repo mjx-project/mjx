@@ -30,12 +30,10 @@ TEST(observation, hand) {
             "m4,m5,m6,p1,p5,p9,p9,s1,s2,s3,s4,ww,wd");
   EXPECT_EQ(observation.current_hand().ToString(),
             "m5,m6,m7,p9,p9,s1,s2,s3,s4,s5,s6,[ww,ww,ww]");
-  EXPECT_EQ(observation.ToFeature("small", "0"),
-            std::vector<float>({0,0,0,0,1,1,1,0,0,
-              0,0,0,0,0,0,0,0,2,
-              1,1,1,1,1,1,0,0,0,
-              0,0,0,0,0,0,0
-            }));
+  EXPECT_EQ(
+      observation.ToFeature("small", "0"),
+      std::vector<float>({0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                          2, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}));
 }
 
 TEST(observation, current_hand) {
