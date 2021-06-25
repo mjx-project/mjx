@@ -2,8 +2,8 @@
 #define MAHJONG_SHANTEN_CALCULATOR_H
 
 #include <array>
-#include <vector>
 #include <bitset>
+#include <vector>
 
 #include "shanten_cache.h"
 #include "types.h"
