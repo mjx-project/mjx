@@ -72,4 +72,19 @@ int ShantenCalculator::ShantenSevenPairs(const std::array<uint8_t, 34>& count) {
   }
   return 14 - std::min(n, 7) - m - 1;
 }
+
+std::bitset<34> ShantenCalculator::ProceedingTileTypes(
+    std::array<uint8_t, 34> hand) {
+  int shanten = ShantenNumber(hand);
+  std::bitset<34> proceeding;
+  for (int i = 0; i < 34; ++i) {
+    if (hand[i] == 4) continue;
+    ++hand[i];
+    if (shanten > ShantenNumber(hand)) {
+      proceeding.set(i);
+    }
+    --hand[i];
+  }
+  return proceeding;
+}
 }  // namespace mjx::internal

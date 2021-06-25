@@ -48,6 +48,27 @@ TEST(shanten, seven_pairs) {
   EXPECT_EQ(ShantenCalculator::ShantenSevenPairs(tiles), 2);
 }
 
+TEST(shanten, proceeding) {
+  std::array<uint8_t, 34> tiles;
+  std::bitset<34> proceeding;
+  tiles = Hand(Tile::Create({"m3", "m4", "m7", "m8", "s2", "s3", "p1", "p2",
+                             "p3", "p4", "p4", "ew", "sw"}))
+              .ToArray();
+  for (auto t : Tile::Create({"m2", "m5", "m6", "m9", "s1", "s4"})) {
+    proceeding.set(t.TypeUint());
+  }
+  EXPECT_EQ(ShantenCalculator::ProceedingTileTypes(tiles), proceeding);
+
+  tiles = Hand(Tile::Create({"m1", "m1", "m1", "m1", "m2", "m3", "m4", "m5",
+                             "m6", "m7", "m8", "m9", "m9"}))
+              .ToArray();
+  proceeding.reset();
+  for (auto t : Tile::Create(std::vector<std::string>{"m3", "m6", "m9"})) {
+    proceeding.set(t.TypeUint());
+  }
+  EXPECT_EQ(ShantenCalculator::ProceedingTileTypes(tiles), proceeding);
+}
+
 TEST(shanten, many_cases) {
   // 事前にロードする
   {
