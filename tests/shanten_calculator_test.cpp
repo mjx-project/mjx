@@ -58,6 +58,14 @@ TEST(shanten, proceeding) {
     proceeding.set(t.TypeUint());
   }
   EXPECT_EQ(ShantenCalculator::ProceedingTileTypes(tiles), proceeding);
+
+  tiles = Hand(Tile::Create({"m1", "m1", "m1", "m1", "m2", "m3", "m4", "m5",
+                             "m6", "m7", "m8", "m9", "m9"}))
+      .ToArray();
+  for (auto t : Tile::Create(std::vector<std::string>{"m6", "m9"})) {
+    proceeding.set(t.TypeUint());
+  }
+  EXPECT_EQ(ShantenCalculator::ProceedingTileTypes(tiles), proceeding);
 }
 
 TEST(shanten, many_cases) {
