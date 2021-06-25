@@ -141,4 +141,19 @@ std::vector<mjxproto::Event> Observation::EventHistory() const {
   }
   return events;
 }
+
+std::vector<float> Observation::ToFeature(std::string mode, std::string version) const {
+  if (mode == "small" and version == "0") {
+    return small_v0();
+  }
+}
+
+std::vector<float> Observation::small_v0() const {
+  // closed hand
+  std::vector<float> feature(34);
+  for (auto t : proto_.private_observation().curr_hand().closed_tiles()) {
+    ++feature[Tile(t).TypeUint()];
+  }
+  return feature;
+}
 }  // namespace mjx::internal

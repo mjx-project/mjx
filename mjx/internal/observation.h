@@ -28,10 +28,14 @@ class Observation {
   void add_legal_action(mjxproto::Action&& legal_action);
   void add_legal_actions(const std::vector<mjxproto::Action>& legal_actions);
 
+  [[nodiscard]] std::vector<float> ToFeature(std::string mode, std::string version) const;
+
  private:
   // TODO: remove friends and use proto()
   friend class State;
   mjxproto::Observation proto_ = mjxproto::Observation{};
+
+  [[nodiscard]] std::vector<float> small_v0() const;
 };
 }  // namespace mjx::internal
 
