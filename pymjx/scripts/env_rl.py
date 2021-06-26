@@ -91,21 +91,52 @@ for i in range(1):
 #        print("checkpoint saved at", checkpoint)
 
 
-# sample code
+
+# # existing MultiAgentEnv code
+# config = {
+#     "env": RockPaperScissors,
+#     "gamma": 0.9,
+#     # Use GPUs iff `RLLIB_NUM_GPUS` env var set to > 0.
+#     "num_gpus": 0,
+#     "num_workers": 0,
+#     "num_envs_per_worker": 4,
+#     "train_batch_size": 200,
+#     "multiagent": {
+#         "policies_to_train": ["learned"],
+#         "policies": {
+#             "always_same": (AlwaysSameHeuristic, Discrete(3), Discrete(3),
+#                             {}),
+#             "learned": (None, Discrete(3), Discrete(3), {
+#                 "framework": "torch",
+#             }),
+#         },
+#         "policy_mapping_fn":
+#              lambda agent_id: "learned" if agent_id == "player1" else "always_same",
+#     },
+#     "framework": "torch",
+# }
+# trainer_obj = ppo.PPOTrainer(config=config)
+# for _ in range(100):
+#     results = trainer_obj.train()
+#     print(pretty_print(result))
+
+
+
+# # existing gym.Env code
 # config = ppo.DEFAULT_CONFIG.copy()
 # config["num_gpus"] = 0
 # config["num_workers"] = 1
 # trainer = ppo.PPOTrainer(config=config, env="CartPole-v0")
 #
-# for i in range(1):
+# for i in range(100):
 #    # Perform one iteration of training the policy with PPO
 #    result = trainer.train()
 #    print(pretty_print(result))
 #
-#    if i % 1 == 0:
+#    if i % 10 == 0:
 #        checkpoint = trainer.save()
 #        print("checkpoint saved at", checkpoint)
-#
+
 # env = gym.make("CartPole-v0")
 # observation = env.reset()
 #
