@@ -22,7 +22,7 @@ class ShantenCache {
   ~ShantenCache() = default;
   void LoadCache();
   std::vector<std::vector<int>> cache_;
-  //std::unordered_map<std::string, int> cache_;
+  // std::unordered_map<std::string, int> cache_;
 };
 }  // namespace mjx::internal
 

@@ -3,8 +3,8 @@
 #include <boost/property_tree/json_parser.hpp>
 #include <boost/property_tree/ptree.hpp>
 #include <iostream>
-#include <sstream>
 #include <numeric>
+#include <sstream>
 
 namespace mjx::internal {
 ShantenCache::ShantenCache() { LoadCache(); }
@@ -28,7 +28,8 @@ int ShantenCache::Require(const std::vector<uint8_t>& count, int sets,
 void ShantenCache::LoadCache() {
   std::cerr << "ShantenCache::LoadCache: start" << std::endl;
 
-  std::ifstream ifs(std::string(WIN_CACHE_DIR) + "/shanten-rs.txt", std::ios::in);
+  std::ifstream ifs(std::string(WIN_CACHE_DIR) + "/shanten-rs.txt",
+                    std::ios::in);
   std::string line;
   while (!ifs.eof()) {
     std::getline(ifs, line);
