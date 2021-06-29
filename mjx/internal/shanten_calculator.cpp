@@ -26,8 +26,8 @@ int ShantenCalculator::ShantenNormal(const std::array<uint8_t, 34>& count) {
         for (int x = 0; i - x >= 0; ++x) {
           for (int y = 0; j - y >= 0; ++y) {
             // tiles からx面子y雀頭を作るときの最小追加枚数を取得
-            int required = shanten_cache().Require(tiles, x, y);
             if (cost[i - x][j - y] == INT_MAX) continue;
+            int required = shanten_cache().Require(tiles, x, y);
             cost[i][j] = std::min(cost[i][j], cost[i - x][j - y] + required);
           }
         }
