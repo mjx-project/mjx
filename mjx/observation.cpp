@@ -1,7 +1,7 @@
 #include "observation.h"
 
-#include "mjx.grpc.pb.h"
-#include "utils.h"
+#include "internal/mjx.grpc.pb.h"
+#include "internal/utils.h"
 
 namespace mjx::internal {
 Observation::Observation(const mjxproto::Observation& proto) : proto_(proto) {}

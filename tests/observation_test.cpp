@@ -1,7 +1,7 @@
-#include <mjx/internal/agent_local.h>
-#include <mjx/internal/observation.h>
+#include <mjx/agent_local.h>
 #include <mjx/internal/state.h>
-#include <mjx/internal/strategy_rule_based.h>
+#include <mjx/observation.h>
+#include <mjx/strategy_rule_based.h>
 
 #include <fstream>
 

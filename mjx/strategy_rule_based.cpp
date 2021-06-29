@@ -1,6 +1,6 @@
 #include "strategy_rule_based.h"
 
-#include "utils.h"
+#include "internal/utils.h"
 
 namespace mjx::internal {
 std::vector<mjxproto::Action> StrategyRuleBased::TakeActions(

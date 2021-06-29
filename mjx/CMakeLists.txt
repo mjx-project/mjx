@@ -97,28 +97,28 @@ add_library(mjx STATIC
         pyenv.h
         pyenv.cpp
         internal/abstruct_hand.h
-        internal/action.h
-        internal/agent.h
-        internal/agent_batch_grpc_server.h
-        internal/agent_batch_local.h
-        internal/agent_grpc_client.h
-        internal/agent_grpc_server.h
-        internal/agent_local.h
+        action.h
+        agent.h
+        agent_batch_grpc_server.h
+        agent_batch_local.h
+        agent_grpc_client.h
+        agent_grpc_server.h
+        agent_local.h
         internal/consts.h
-        internal/environment.h
+        environment.h
         internal/event.h
         internal/game_result_summarizer.h
         internal/game_seed.h
         internal/hand.h
         internal/mjx.h
-        internal/observation.h
+        observation.h
         internal/open.h
         internal/shanten_cache.h
         internal/shanten_cache_generator.h
         internal/shanten_calculator.h
         internal/state.h
-        internal/strategy.h
-        internal/strategy_rule_based.h
+        strategy.h
+        strategy_rule_based.h
         internal/tile.h
         internal/types.h
         internal/utils.h
@@ -129,25 +129,25 @@ add_library(mjx STATIC
         internal/win_score.h
         internal/yaku_evaluator.h
         internal/abstruct_hand.cpp
-        internal/action.cpp
-        internal/agent.cpp
-        internal/agent_batch_grpc_server.cpp
-        internal/agent_batch_local.cpp
-        internal/agent_grpc_client.cpp
-        internal/agent_grpc_server.cpp
-        internal/agent_local.cpp
-        internal/environment.cpp
+        action.cpp
+        agent.cpp
+        agent_batch_grpc_server.cpp
+        agent_batch_local.cpp
+        agent_grpc_client.cpp
+        agent_grpc_server.cpp
+        agent_local.cpp
+        environment.cpp
         internal/event.cpp
         internal/game_result_summarizer.cpp
         internal/game_seed.cpp
         internal/hand.cpp
-        internal/observation.cpp
+        observation.cpp
         internal/open.cpp
         internal/shanten_cache.cpp
         internal/shanten_cache_generator.cpp
         internal/shanten_calculator.cpp
         internal/state.cpp
-        internal/strategy_rule_based.cpp
+        strategy_rule_based.cpp
         internal/tile.cpp
         internal/types.cpp
         internal/wall.cpp

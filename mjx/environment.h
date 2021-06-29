@@ -2,8 +2,8 @@
 #define MAHJONG_ENVIRONMENT_H
 
 #include "agent.h"
-#include "game_result_summarizer.h"
-#include "state.h"
+#include "internal/game_result_summarizer.h"
+#include "internal/state.h"
 
 namespace mjx::internal {
 class Environment {

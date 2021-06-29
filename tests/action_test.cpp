@@ -1,4 +1,4 @@
-#include <mjx/internal/action.h>
+#include <mjx/action.h>
 
 #include "gtest/gtest.h"
 

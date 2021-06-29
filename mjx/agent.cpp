@@ -2,7 +2,7 @@
 
 #include <utility>
 
-#include "utils.h"
+#include "internal/utils.h"
 
 namespace mjx::internal {
 Agent::Agent(PlayerId player_id) : player_id_(std::move(player_id)) {}

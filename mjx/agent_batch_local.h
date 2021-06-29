@@ -9,7 +9,7 @@
 #include <thread>
 
 #include "agent.h"
-#include "mjx.grpc.pb.h"
+#include "internal/mjx.grpc.pb.h"
 #include "observation.h"
 #include "strategy_rule_based.h"
 

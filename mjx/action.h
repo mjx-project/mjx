@@ -4,10 +4,10 @@
 #include <memory>
 #include <utility>
 
-#include "mjx.pb.h"
-#include "open.h"
-#include "tile.h"
-#include "types.h"
+#include "internal/mjx.pb.h"
+#include "internal/open.h"
+#include "internal/tile.h"
+#include "internal/types.h"
 
 namespace mjx::internal {
 class Action {

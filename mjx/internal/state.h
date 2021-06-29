@@ -10,12 +10,12 @@
 #include <utility>
 #include <vector>
 
-#include "action.h"
+#include "../action.h"
 #include "consts.h"
 #include "event.h"
 #include "hand.h"
 #include "mjx.grpc.pb.h"
-#include "observation.h"
+#include "../observation.h"
 #include "tile.h"
 #include "utils.h"
 #include "wall.h"

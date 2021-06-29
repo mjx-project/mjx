@@ -6,7 +6,7 @@
 #include <grpcpp/server.h>
 #include <grpcpp/server_builder.h>
 
-#include "utils.h"
+#include "internal/utils.h"
 
 namespace mjx::internal {
 AgentGrpcServerImpl::AgentGrpcServerImpl(std::unique_ptr<Strategy> strategy)

@@ -1,7 +1,7 @@
 #include "action.h"
 
-#include "mjx.grpc.pb.h"
-#include "utils.h"
+#include "internal/mjx.grpc.pb.h"
+#include "internal/utils.h"
 
 namespace mjx::internal {
 mjxproto::Action Action::CreateDiscard(AbsolutePos who, Tile discard,

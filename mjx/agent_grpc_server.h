@@ -1,7 +1,7 @@
 #ifndef MAHJONG_AGENT_GRPC_SERVER_H
 #define MAHJONG_AGENT_GRPC_SERVER_H
 
-#include "mjx.grpc.pb.h"
+#include "internal/mjx.grpc.pb.h"
 #include "observation.h"
 #include "strategy_rule_based.h"
 

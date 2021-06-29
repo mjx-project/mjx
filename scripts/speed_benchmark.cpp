@@ -3,12 +3,12 @@
 #include <algorithm>
 #include <iostream>
 
-#include "mjx/internal/agent_batch_grpc_server.h"
-#include "mjx/internal/agent_batch_local.h"
-#include "mjx/internal/agent_grpc_client.h"
-#include "mjx/internal/agent_grpc_server.h"
-#include "mjx/internal/agent_local.h"
-#include "mjx/internal/strategy_rule_based.h"
+#include "mjx/agent_batch_grpc_server.h"
+#include "mjx/agent_batch_local.h"
+#include "mjx/agent_grpc_client.h"
+#include "mjx/agent_grpc_server.h"
+#include "mjx/agent_local.h"
+#include "mjx/strategy_rule_based.h"
 
 using namespace mjx::internal;
 

@@ -5,8 +5,8 @@
 #include <utility>
 
 #include "action.h"
-#include "hand.h"
-#include "mjx.pb.h"
+#include "internal/hand.h"
+#include "internal/mjx.pb.h"
 
 namespace mjx::internal {
 class Observation {

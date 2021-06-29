@@ -1,4 +1,4 @@
-#include <mjx/internal/agent.h>
+#include <mjx/agent.h>
 #include <mjx/internal/mjx.h>
 
 #include "gtest/gtest.h"

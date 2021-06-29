@@ -1,5 +1,5 @@
 #include <mjx/env.h>
-#include <mjx/internal/strategy_rule_based.h>
+#include <mjx/strategy_rule_based.h>
 
 #include "gtest/gtest.h"
 
