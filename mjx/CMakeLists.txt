@@ -114,7 +114,6 @@ add_library(mjx STATIC
         internal/observation.h
         internal/open.h
         internal/shanten_cache.h
-        internal/shanten_cache_generator.h
         internal/shanten_calculator.h
         internal/state.h
         internal/strategy.h
@@ -144,7 +143,6 @@ add_library(mjx STATIC
         internal/observation.cpp
         internal/open.cpp
         internal/shanten_cache.cpp
-        internal/shanten_cache_generator.cpp
         internal/shanten_calculator.cpp
         internal/state.cpp
         internal/strategy_rule_based.cpp
