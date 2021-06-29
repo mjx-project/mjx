@@ -166,6 +166,3 @@ target_compile_definitions(mjx PUBLIC WIN_CACHE_DIR="${CMAKE_CURRENT_SOURCE_DIR}
 # Generate cache file
 add_executable(win_cache_generator internal/win_cache_generator.cpp)
 target_link_libraries(win_cache_generator ${PROJECT_NAME})
-
-#add_executable(shanten_cache_generator internal/shanten_cache_generator.cpp)
-#target_link_libraries(shanten_cache_generator ${PROJECT_NAME})
