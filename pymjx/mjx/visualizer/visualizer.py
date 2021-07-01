@@ -918,7 +918,7 @@ def main():
     """
     >>> config = GameVisualConfig()
     >>> board_visualizer = GameBoardVisualizer(config)
-    >>> game_data = visualizer.MahjongTable.load_data("observations.json", "obs") 
+    >>> game_data = MahjongTable.load_data("observations.json", "obs") 
     >>> board_visualizer.print(game_data) # doctest: +NORMALIZE_WHITESPACE
     round:1 wall:70 Dora:sw
     <BLANKLINE>
