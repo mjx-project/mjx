@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import List
 
-from .converter import FromWho, TileUnitType
+from mjx.visualizer.converter import FromWho, TileUnitType
 
 MASK_CHI_OFFSET = [0b0000000000011000, 0b0000000001100000, 0b0000000110000000]
 MASK_PON_UNUSED_OFFSET = 0b0000000001100000

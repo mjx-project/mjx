@@ -10,9 +10,7 @@ from rich.panel import Panel
 from rich.text import Text
 
 import mjxproto
-from mjxproto import EventType
-
-from .converter import (
+from mjx.visualizer.converter import (
     FromWho,
     TileUnitType,
     get_event_type,
@@ -20,6 +18,8 @@ from .converter import (
     get_tile_char,
     get_wind_char,
 )
+from mjxproto import EventType
+
 from .open_utils import open_event_type, open_from, open_tile_ids
 
 
