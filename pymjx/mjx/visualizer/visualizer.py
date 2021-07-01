@@ -912,34 +912,3 @@ class GameBoardVisualizer:
                     os.system("cls")
                 else:
                     os.system("clear")
-
-
-def main():
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--path", default="observations.json")
-    parser.add_argument("--mode", choices=["obs", "sta"], default="obs")
-    parser.add_argument("--uni", action="store_true")
-    parser.add_argument("--rich", action="store_true")
-    parser.add_argument("--show_name", action="store_true")
-    parser.add_argument("--lang", type=int, choices=[0, 1], default=0)
-    args = parser.parse_args()
-
-    config = GameVisualConfig(
-        args.path,
-        args.mode,
-        args.uni,
-        args.rich,
-        args.lang,
-        args.show_name,
-    )
-    board_visualizer = GameBoardVisualizer(config)
-    game_data = MahjongTable.load_data(args.path, args.mode)
-    board_visualizer.print(game_data)
-
-
-if __name__ == "__main__":
-    import doctest
-
-    doctest.testmod()
-
-    main()
