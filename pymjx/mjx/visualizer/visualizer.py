@@ -915,44 +915,6 @@ class GameBoardVisualizer:
 
 
 def main():
-    """
-    >>> config = GameVisualConfig()
-    >>> board_visualizer = GameBoardVisualizer(config)
-    >>> game_data = MahjongTable.load_data("observations.json", "obs") 
-    >>> board_visualizer.print(game_data) # doctest: +NORMALIZE_WHITESPACE
-    round:1 wall:70 Dora:sw
-    <BLANKLINE>
-    SOUTH [ 25000 ] target-player
-    <BLANKLINE>
-    m2 m6 p1 p5 p7 p8 s4 s7 ew ww ww nw nw
-    <BLANKLINE>
-    <BLANKLINE>
-    <BLANKLINE>
-    <BLANKLINE>
-    WEST [ 25000 ] rule-based-2
-    <BLANKLINE>
-    # # # # # # # # # # # # #
-    <BLANKLINE>
-    <BLANKLINE>
-    <BLANKLINE>
-    <BLANKLINE>
-    NORTH [ 25000 ] rule-based-3
-    <BLANKLINE>
-    # # # # # # # # # # # # #
-    <BLANKLINE>
-    <BLANKLINE>
-    <BLANKLINE>
-    <BLANKLINE>
-    EAST [ 25000 ] rule-based-0
-    <BLANKLINE>
-    # # # # # # # # # # # # #
-    <BLANKLINE>
-    <BLANKLINE>
-    <BLANKLINE>
-    <BLANKLINE>
-    SOUTH's turn now.
-    <BLANKLINE>
-    """
     parser = argparse.ArgumentParser()
     parser.add_argument("--path", default="observations.json")
     parser.add_argument("--mode", choices=["obs", "sta"], default="obs")
