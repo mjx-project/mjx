@@ -362,8 +362,7 @@ class MahjongTable:
             p.wind = (-table.round + 1 + i) % 4
 
         table.wall_num = cls.get_wall_num(table)
-
-        if gamedata.public_observation.events != []:
+        if len(gamedata.public_observation.events) != 0:
             if table.result == "win":
                 table = cls.decode_round_terminal(table, gamedata.round_terminal, True)
 
@@ -388,7 +387,7 @@ class MahjongTable:
 
         table.wall_num = cls.get_wall_num(table)
 
-        if gamedata.public_observation.events != []:
+        if len(gamedata.public_observation.events) != 0:
             if table.result == "win":
                 table = cls.decode_round_terminal(table, gamedata.round_terminal, True)
 
@@ -882,18 +881,45 @@ class GameBoardVisualizer:
         console = Console()
         console.print(layout)
 
-    def print(self, data: MahjongTable):
-        if self.config.rich:
-            self.show_by_rich(data)
-        else:
-            print(self.show_by_text(data))
+    def print(self, data):
+        if type(data) == MahjongTable:
+            if self.config.rich:
+                self.show_by_rich(data)
+            else:
+                print(self.show_by_text(data))
+
+        elif type(data) == list and type(data[0]) == MahjongTable:
+            turns = len(data)
+            i = 0
+            command = ""
+
+            while command != "q":
+                self.print(data[i])
+                command = input("z:-20 x:-1 c:+1 v:+20 :")
+
+                if command == "z":
+                    i = (i - 20) % turns
+                if command == "x":
+                    i = (i - 1) % turns
+                if command == "c":
+                    i = (i + 1) % turns
+                if command == "v":
+                    i = (i + 20) % turns
+                if command == "a":
+                    i = 0
+
+                if os.name == "nt":
+                    os.system("cls")
+                else:
+                    os.system("clear")
 
 
 def main():
     """
     >>> config = GameVisualConfig()
     >>> board_visualizer = GameBoardVisualizer(config)
-    >>> board_visualizer.print(MahjongTable.load_data("observations.json","obs")[0]) # doctest: +NORMALIZE_WHITESPACE
+    >>> game_data = visualizer.MahjongTable.load_data("observations.json", "obs") 
+    >>> board_visualizer.print(game_data) # doctest: +NORMALIZE_WHITESPACE
     round:1 wall:70 Dora:sw
     <BLANKLINE>
     SOUTH [ 25000 ] target-player
@@ -944,34 +970,9 @@ def main():
         args.lang,
         args.show_name,
     )
-
     board_visualizer = GameBoardVisualizer(config)
-
     game_data = MahjongTable.load_data(args.path, args.mode)
-
-    turns = len(game_data)
-    i = 0
-    command = ""
-
-    while command != "q":
-        board_visualizer.print(game_data[i])
-        command = input("z:-20 x:-1 c:+1 v:+20 :")
-
-        if command == "z":
-            i = (i - 20) % turns
-        if command == "x":
-            i = (i - 1) % turns
-        if command == "c":
-            i = (i + 1) % turns
-        if command == "v":
-            i = (i + 20) % turns
-        if command == "a":
-            i = 0
-
-        if os.name == "nt":
-            os.system("cls")
-        else:
-            os.system("clear")
+    board_visualizer.print(game_data)
 
 
 if __name__ == "__main__":
