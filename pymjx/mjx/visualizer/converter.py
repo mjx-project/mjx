@@ -57,6 +57,7 @@ to_char = [
     "gd",
     "rd",
 ]
+
 to_unicode = [
     "\U0001F007",
     "\U0001F008",
@@ -93,6 +94,7 @@ to_unicode = [
     "\U0001F005",
     "\U0001F004\uFE0E",
 ]
+
 to_wind_char = [
     "EAST",
     "SOUTH",
@@ -103,6 +105,7 @@ to_wind_char = [
     "西",
     "北",
 ]
+
 to_modifier = {
     FromWho.NONE: "",
     FromWho.RIGHT: "R",  # Right
@@ -110,11 +113,13 @@ to_modifier = {
     FromWho.LEFT: "L",  # Left
     FromWho.SELF: "S",  # Self(kan closed)
 }
+
 to_modifier_add_kan = {
     FromWho.RIGHT: "R(Add)",  # Right(kan added)
     FromWho.MID: "M(Add)",  # Mid(kan added)
     FromWho.LEFT: "L(Add)",  # Left(kan added)
 }
+
 yaku_list = [
     "門前清自摸和",
     "立直",
@@ -172,6 +177,7 @@ yaku_list = [
     "裏ドラ",
     "赤ドラ",
 ]
+
 event_type_en = {
     EventType.EVENT_TYPE_DISCARD: "DISCARD",
     EventType.EVENT_TYPE_TSUMOGIRI: "TSUMOGIRI",
@@ -194,6 +200,7 @@ event_type_en = {
     EventType.EVENT_TYPE_EXHAUSTIVE_DRAW_NORMAL: "EXHAUSTIVE_DRAW_NORMAL",
     EventType.EVENT_TYPE_EXHAUSTIVE_DRAW_NAGASHI_MANGAN: "EXHAUSTIVE_DRAW_NAGASHI_MANGAN",
 }
+
 event_type_ja = {
     EventType.EVENT_TYPE_DISCARD: "DISCARD",
     EventType.EVENT_TYPE_TSUMOGIRI: "TSUMOGIRI",
