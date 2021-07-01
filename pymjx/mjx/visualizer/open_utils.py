@@ -1,7 +1,8 @@
 from __future__ import annotations
+
 from typing import List
-import mjxproto
-from converter import TileUnitType, FromWho
+
+from .converter import FromWho, TileUnitType
 
 MASK_CHI_OFFSET = [0b0000000000011000, 0b0000000001100000, 0b0000000110000000]
 MASK_PON_UNUSED_OFFSET = 0b0000000001100000
@@ -63,10 +64,7 @@ def chi_ids_(bits: int) -> List[int]:
     """
     min_type_base = (bits >> 10) // 3
     min_type = (min_type_base // 7) * 9 + min_type_base % 7
-    return [
-        (min_type + i) * 4 + ((bits & MASK_CHI_OFFSET[i]) >> (2 * i + 3))
-        for i in range(3)
-    ]
+    return [(min_type + i) * 4 + ((bits & MASK_CHI_OFFSET[i]) >> (2 * i + 3)) for i in range(3)]
 
 
 def pon_ids_(bits: int) -> List[int]:
