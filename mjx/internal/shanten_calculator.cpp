@@ -26,8 +26,8 @@ int ShantenCalculator::ShantenNormal(const std::array<uint8_t, 34>& count) {
         for (int x = 0; i - x >= 0; ++x) {
           for (int y = 0; j - y >= 0; ++y) {
             // tiles からx面子y雀頭を作るときの最小追加枚数を取得
-            int required = shanten_cache().Require(tiles, x, y);
             if (cost[i - x][j - y] == INT_MAX) continue;
+            int required = shanten_cache().Require(tiles, x, y);
             cost[i][j] = std::min(cost[i][j], cost[i - x][j - y] + required);
           }
         }
@@ -71,5 +71,20 @@ int ShantenCalculator::ShantenSevenPairs(const std::array<uint8_t, 34>& count) {
     if (count[i] >= 2) ++m;
   }
   return 14 - std::min(n, 7) - m - 1;
+}
+
+std::bitset<34> ShantenCalculator::ProceedingTileTypes(
+    std::array<uint8_t, 34> hand) {
+  int shanten = ShantenNumber(hand);
+  std::bitset<34> proceeding;
+  for (int i = 0; i < 34; ++i) {
+    if (hand[i] == 4) continue;
+    ++hand[i];
+    if (shanten > ShantenNumber(hand)) {
+      proceeding.set(i);
+    }
+    --hand[i];
+  }
+  return proceeding;
 }
 }  // namespace mjx::internal
