@@ -1,4 +1,5 @@
 from enum import Enum
+
 from mjxproto import EventType
 
 
