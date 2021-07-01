@@ -9,14 +9,6 @@ MASK_PON_UNUSED_OFFSET = 0b0000000001100000
 
 
 def open_event_type(bits: int) -> TileUnitType:
-    """
-    >>> open_event_type(47723) == TileUnitType.PON
-    True
-    >>> open_event_type(49495) == TileUnitType.CHI
-    True
-    >>> open_event_type(28722) == TileUnitType.ADDED_KAN
-    True
-    """
     if 1 << 2 & bits:
         return TileUnitType.CHI
     elif 1 << 3 & bits:
@@ -31,14 +23,6 @@ def open_event_type(bits: int) -> TileUnitType:
 
 
 def open_from(bits: int) -> FromWho:
-    """
-    >>> open_from(51306) == RelativePos.MID  # 対面
-    True
-    >>> open_from(49495) == RelativePos.LEFT  # 上家
-    True
-    >>> open_from(28722) == RelativePos.MID  # 加槓
-    True
-    """
 
     event_type = open_event_type(bits)
     if event_type == TileUnitType.CHI:
@@ -105,17 +89,6 @@ def added_kan_ids_(bits: int) -> List[int]:
 def open_tile_ids(bits: int) -> List[int]:
     """
     各鳴きで使われた牌のidを返す関数
-    以下、各鳴きに対するdoctest
-    >>> open_tile_ids(49495)  # chi
-    [82, 86, 90]
-    >>> open_tile_ids(47723)  # pon
-    [124, 125, 126]
-    >>> open_tile_ids(1793)  # open_kan
-    [4, 5, 6, 7]
-    >>> open_tile_ids(2048)  # closed_kan
-    [8, 9, 10, 11]
-    >>> open_tile_ids(530)  # added_kan
-    [0, 1, 2, 3]
     """
     event_type = open_event_type(bits)
     if event_type == TileUnitType.CHI:
