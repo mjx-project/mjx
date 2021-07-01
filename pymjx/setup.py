@@ -7,7 +7,10 @@ setup(
     author="Sotetsu KOYAMADA",
     author_email="koyamada-s@sys.i.kyoto-u.ac.jp",
     license="MIT",
-    install_requires=[],
+    install_requires=[
+        "betterproto",
+        "rich"
+    ],
     packages=find_packages(),
     include_package_data=True,
     entry_points={"console_scripts": "mjx = mjx.main:main"},
