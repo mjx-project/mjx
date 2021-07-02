@@ -24,7 +24,8 @@ std::string mjx::Action::ToJson() const noexcept {
 }
 
 bool Action::operator==(const Action& other) const noexcept {
-  return google::protobuf::util::MessageDifferencer::Equals(proto_, other.proto_);
+  return google::protobuf::util::MessageDifferencer::Equals(proto_,
+                                                            other.proto_);
 }
 
 bool Action::operator!=(const Action& other) const noexcept {

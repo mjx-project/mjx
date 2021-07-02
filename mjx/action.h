@@ -11,8 +11,9 @@ class Action {
   explicit Action(const std::string& json);
   const mjxproto::Action& ToProto() const noexcept;
   std::string ToJson() const noexcept;
-  bool operator==(const Action &other) const noexcept;
-  bool operator!=(const Action &other) const noexcept;
+  bool operator==(const Action& other) const noexcept;
+  bool operator!=(const Action& other) const noexcept;
+
  private:
   mjxproto::Action proto_{};
 };
