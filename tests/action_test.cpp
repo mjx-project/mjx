@@ -1,6 +1,5 @@
 #include <gtest/gtest.h>
 #include <mjx/action.h>
-#include <mjx/internal/action.h>
 
 const std::string sample_json = R"({"gameId":"xxx","type":"ACTION_TYPE_NO"})";
 
