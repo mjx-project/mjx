@@ -6,14 +6,17 @@
 #include <utility>
 
 namespace mjx {
-Observation::Observation(mjxproto::Observation proto) : proto_(std::move(proto)) {}
+Observation::Observation(mjxproto::Observation proto)
+    : proto_(std::move(proto)) {}
 
 Observation::Observation(const std::string& json) {
   auto status = google::protobuf::util::JsonStringToMessage(json, &proto_);
   assert(status.ok());
 }
 
-const mjxproto::Observation& mjx::Observation::ToProto() const noexcept { return proto_; }
+const mjxproto::Observation& mjx::Observation::ToProto() const noexcept {
+  return proto_;
+}
 
 std::string mjx::Observation::ToJson() const noexcept {
   std::string serialized;

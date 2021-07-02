@@ -2,7 +2,8 @@
 #include <mjx/hand.h>
 #include <mjx/internal/hand.h>
 
-const std::string sample_json = R"({"closedTiles":[0,1,2,3,4,5,6,7,8,9,10,11,12]})";
+const std::string sample_json =
+    R"({"closedTiles":[0,1,2,3,4,5,6,7,8,9,10,11,12]})";
 
 TEST(hand, Hand) {
   mjxproto::Hand proto;
