@@ -319,7 +319,8 @@ TEST(internal_hand, PossibleDiscardsToTakeTenpai) {
   EXPECT_EQ(possible_discards.front().first.Id(), Tile("m3", 1).Id());
 }
 
-TEST(internal_hand, PossibleOpensAfterOthersDiscard) {  // TODO: add more detailed test
+TEST(internal_hand,
+     PossibleOpensAfterOthersDiscard) {  // TODO: add more detailed test
   auto num_of_opens = [](const auto& opens, const auto& open_type) {
     return std::count_if(
         opens.begin(), opens.end(),

@@ -3,17 +3,16 @@
 
 #include "internal/mjx.grpc.pb.h"
 
-namespace mjx
-{
-class Action
-{
-public:
+namespace mjx {
+class Action {
+ public:
   Action() = default;
   explicit Action(mjxproto::Action proto);
   explicit Action(const std::string& json);
   const mjxproto::Action& ToProto() const;
   std::string ToJson() const;
-private:
+
+ private:
   mjxproto::Action proto_{};
 };
 }  // namespace mjx
