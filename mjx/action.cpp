@@ -6,7 +6,7 @@
 #include <utility>
 
 namespace mjx {
-mjx::Action::Action(mjxproto::Action proto) : proto_(std::move(proto)) {}
+Action::Action(mjxproto::Action proto) : proto_(std::move(proto)) {}
 
 Action::Action(const std::string& json) {
   auto status = google::protobuf::util::JsonStringToMessage(json, &proto_);
