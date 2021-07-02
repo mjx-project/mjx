@@ -1,39 +1,32 @@
-#include <google/protobuf/util/message_differencer.h>
 #include <gtest/gtest.h>
 #include <mjx/action.h>
 #include <mjx/internal/action.h>
 
-TEST(action, Action) {
-  mjxproto::Action proto = mjx::internal::Action::CreateNo(
-      mjx::internal::AbsolutePos::kInitEast, "xxx");
-  auto action1 = mjx::Action(proto);
+const std::string sample_json = R"({"gameId":"xxx","type":"ACTION_TYPE_NO"})";
 
-  std::string json;
-  auto status = google::protobuf::util::MessageToJsonString(proto, &json);
-  auto action2 = mjx::Action(json);
+TEST(action, Action) {
+  mjxproto::Action proto;
+  google::protobuf::util::JsonStringToMessage(sample_json, &proto);
+  auto action1 = mjx::Action(proto);
+  auto action2 = mjx::Action(sample_json);
 }
 
 TEST(action, ToProto) {
-  mjxproto::Action proto = mjx::internal::Action::CreateNo(
-      mjx::internal::AbsolutePos::kInitEast, "xxx");
-  auto action = mjx::Action(proto);
-  EXPECT_TRUE(google::protobuf::util::MessageDifferencer::Equals(
-      action.ToProto(), proto));
+  auto action = mjx::Action(sample_json);
+  const auto& proto = action.ToProto();
+  std::string json;
+  google::protobuf::util::MessageToJsonString(proto, &json);
+  EXPECT_EQ(json, sample_json);
 }
 
 TEST(action, ToJson) {
-  mjxproto::Action proto = mjx::internal::Action::CreateNo(
-      mjx::internal::AbsolutePos::kInitEast, "xxx");
-  auto action = mjx::Action(proto);
-  EXPECT_EQ(action.ToJson(),
-            "{\"gameId\":\"xxx\",\"type\":\"ACTION_TYPE_NO\"}");
+  auto action = mjx::Action(sample_json);
+  EXPECT_EQ(action.ToJson(), sample_json);
 }
 
 TEST(action, op) {
-  mjxproto::Action proto = mjx::internal::Action::CreateNo(
-      mjx::internal::AbsolutePos::kInitEast, "xxx");
-  auto action1 = mjx::Action(proto);
-  auto action2 = mjx::Action(proto);
+  auto action1 = mjx::Action(sample_json);
+  auto action2 = mjx::Action(sample_json);
   EXPECT_EQ(action1, action2);
   EXPECT_NE(action1, mjx::Action());
 }
