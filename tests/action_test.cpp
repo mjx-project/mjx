@@ -28,3 +28,12 @@ TEST(action, ToJson) {
   EXPECT_EQ(action.ToJson(),
             "{\"gameId\":\"xxx\",\"type\":\"ACTION_TYPE_NO\"}");
 }
+
+TEST(action, op) {
+  mjxproto::Action proto = mjx::internal::Action::CreateNo(
+      mjx::internal::AbsolutePos::kInitEast, "xxx");
+  auto action1 = mjx::Action(proto);
+  auto action2 = mjx::Action(proto);
+  EXPECT_EQ(action1, action2);
+  EXPECT_NE(action1, mjx::Action());
+}

@@ -9,9 +9,10 @@ class Action {
   Action() = default;
   explicit Action(mjxproto::Action proto);
   explicit Action(const std::string& json);
-  const mjxproto::Action& ToProto() const;
-  std::string ToJson() const;
-
+  const mjxproto::Action& ToProto() const noexcept;
+  std::string ToJson() const noexcept;
+  bool operator==(const Action &other) const noexcept;
+  bool operator!=(const Action &other) const noexcept;
  private:
   mjxproto::Action proto_{};
 };
