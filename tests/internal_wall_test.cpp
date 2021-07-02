@@ -4,7 +4,7 @@
 
 using namespace mjx::internal;
 
-TEST(wall, initial_hand) {
+TEST(internal_wall, initial_hand) {
   // From https://tenhou.net/0/?log=2011020417gm-00a9-0000-b67fcaa3&tw=1
   auto tiles = Tile::Create(
       {48,  16,  19,  34,  17,  62,  79, 52,  55,  30,  12,  26,  120, 130,
@@ -77,7 +77,7 @@ TEST(wall, initial_hand) {
       Tile::Create({61, 132, 36, 46, 129, 89, 14, 59, 101, 16, 127, 123, 47}));
 }
 
-TEST(wall, Draw) {
+TEST(internal_wall, Draw) {
   // カンなしで70回ツモが存在する
   auto wall = Wall(0, 0, 9999);
   for (int i = 0; i < 70; ++i) {
@@ -87,7 +87,7 @@ TEST(wall, Draw) {
   EXPECT_FALSE(wall.HasDrawLeft());
 }
 
-TEST(wall, KanDraw) {
+TEST(internal_wall, KanDraw) {
   // カンがあると、その分ツモ数が減る
   auto wall = Wall(0, 0, 9999);
   for (int i = 0; i < 35; ++i) {
@@ -122,7 +122,7 @@ TEST(wall, KanDraw) {
   // TODO(sotestuk): add cases for 4 KANs from Tenhou
 }
 
-TEST(wall, AddKanDra) {
+TEST(internal_wall, AddKanDra) {
   auto wall = Wall(0, 0, 9999);
   wall.KanDraw();
   auto [kan_dora_ind1, ura_kan_dora_ind1] = wall.AddKanDora();
@@ -133,7 +133,7 @@ TEST(wall, AddKanDra) {
   EXPECT_EQ(ura_kan_dora_ind2, wall.ura_dora_indicators().back());
 }
 
-TEST(wall, doras) {
+TEST(internal_wall, doras) {
   auto wall = Wall(0, 0, 9999);
   EXPECT_EQ(wall.dora_indicators().size(), 1);
   EXPECT_EQ(wall.ura_dora_indicators().size(), 1);
@@ -162,7 +162,7 @@ TEST(wall, doras) {
   EXPECT_EQ(wall.dora_indicators(), Tile::Create({76, 44}));
 }
 
-TEST(wall, ura_doras) {
+TEST(internal_wall, ura_doras) {
   // From https://tenhou.net/0/?log=2010112714gm-00a9-0000-d497e395
   auto tiles = Tile::Create(
       {24, 48,  11,  122, 135, 75,  128, 65,  111, 13, 46,  131, 120, 125,
@@ -181,7 +181,7 @@ TEST(wall, ura_doras) {
   EXPECT_EQ(wall.ura_dora_indicators(), Tile::Create({66, 77}));
 }
 
-TEST(wall, wall_seed_constructor) {
+TEST(internal_wall, wall_seed_constructor) {
   const int kROUND = 5, kHONBA = 5, kSEED = 1234;
   for (int r = 0; r < kROUND; ++r) {
     for (int h = 0; h < kHONBA; ++h) {
@@ -194,7 +194,7 @@ TEST(wall, wall_seed_constructor) {
   }
 }
 
-TEST(wall, WallEqualityOverDevices) {
+TEST(internal_wall, WallEqualityOverDevices) {
   auto wall = Wall(0, 0, 9999);
   auto tiles = wall.tiles();
   ASSERT_EQ(tiles.at(0), Tile(42));

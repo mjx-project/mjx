@@ -11,7 +11,7 @@ auto vec_type_eq = [](std::vector<Tile> v1, std::vector<tt> v2) {
   return true;
 };
 
-TEST(open, Chi) {
+TEST(internal_open, Chi) {
   // constructor
   std::vector<Tile> t = {Tile("p5", 2), Tile("p6", 1), Tile("p7", 0)};
   auto c = Chi::Create(t, Tile("p6", 1));
@@ -66,7 +66,7 @@ TEST(open, Chi) {
   EXPECT_EQ(c.UndiscardableTileTypes().at(0), TileType::kS5);
 }
 
-TEST(open, Pon) {
+TEST(internal_open, Pon) {
   // constructor
   auto p = Pon::Create(Tile("gd", 2), Tile("gd", 1), RelativePos::kMid);
   EXPECT_EQ(p.Type(), OpenType::kPon);
@@ -104,7 +104,7 @@ TEST(open, Pon) {
   EXPECT_EQ(p.ToString(true), "[wd(0),wd(1),wd(2)]");
 }
 
-TEST(open, KanOpened) {
+TEST(internal_open, KanOpened) {
   auto k = KanOpened::Create(Tile("m2", 3), RelativePos::kRight);
   EXPECT_EQ(k.Type(), OpenType::kKanOpened);
   EXPECT_EQ(k.From(), RelativePos::kRight);
@@ -130,7 +130,7 @@ TEST(open, KanOpened) {
   EXPECT_EQ(k.ToString(true), "[m2(0),m2(1),m2(2),m2(3)]o");
 }
 
-TEST(open, KanClosed) {
+TEST(internal_open, KanClosed) {
   auto k = KanClosed::Create(Tile("m3"));
   EXPECT_EQ(k.Type(), OpenType::kKanClosed);
   EXPECT_EQ(k.From(), RelativePos::kSelf);
@@ -157,7 +157,7 @@ TEST(open, KanClosed) {
   EXPECT_EQ(k.ToString(true), "[m3(0),m3(1),m3(2),m3(3)]c");
 }
 
-TEST(open, KanAdded) {
+TEST(internal_open, KanAdded) {
   auto p = Pon::Create(Tile("m1", 2), Tile("m1", 0), RelativePos::kMid);
   auto k = KanAdded::Create(p);
   EXPECT_EQ(k.Type(), OpenType::kKanAdded);
@@ -186,7 +186,7 @@ TEST(open, KanAdded) {
   EXPECT_EQ(k.ToString(true), "[m1(0),m1(1),m1(2),m1(3)]a");
 }
 
-TEST(open, OpenGenerator) {
+TEST(internal_open, OpenGenerator) {
   auto check = [](Open o, std::vector<tt> v, tt t, RelativePos f) {
     auto tiles = o.Tiles();
     for (int i = 0; i < v.size(); ++i)
@@ -350,7 +350,7 @@ TEST(open, OpenGenerator) {
   // TODO: add tests from tenhou log for kans
 }
 
-TEST(open, Equals) {
+TEST(internal_open, Equals) {
   // Chi
   std::vector<Tile> t1 = {Tile("p5", 2), Tile("p6", 1), Tile("p7", 0)};
   auto o1 = Chi::Create(t1, Tile("p6", 1));

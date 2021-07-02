@@ -5,7 +5,7 @@
 
 using namespace mjx::internal;
 
-TEST(utils, Any) {
+TEST(internal_utils, Any) {
   auto target = TileType::kRD;
 
   // initializer list

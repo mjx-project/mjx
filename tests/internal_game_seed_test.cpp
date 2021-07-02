@@ -4,7 +4,7 @@
 
 using namespace mjx::internal;
 
-TEST(WallSeedTest, constructor) {
+TEST(internal_game_seed, constructor) {
   auto seeds = GameSeed(9999);
   std::set<std::uint64_t> st;
   const int kROUND = 10, kHONBA = 10;
@@ -18,7 +18,7 @@ TEST(WallSeedTest, constructor) {
   EXPECT_EQ(st.size(), kROUND * kHONBA);
 }
 
-TEST(WallSeedTest, fixed_seed) {
+TEST(internal_game_seed, fixed_seed) {
   auto seeds1 = GameSeed(9999);
   auto seeds2 = GameSeed(9999);
   const int kROUND = 10, kHONBA = 10;
@@ -29,7 +29,7 @@ TEST(WallSeedTest, fixed_seed) {
   }
 }
 
-TEST(WallSeedTest, WallSeedEqualityOverDevice) {
+TEST(internal_game_seed, WallSeedEqualityOverDevice) {
   auto ws = GameSeed(9999);
   EXPECT_EQ(ws.GetWallSeed(0, 0), 7613689384667096742ULL);
   EXPECT_EQ(ws.GetWallSeed(1, 0), 18049619590696111298ULL);

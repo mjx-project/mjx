@@ -12,7 +12,7 @@ class YakuTest : public ::testing::Test {
   // virtual void TearDown() {}
 };
 
-TEST_F(YakuTest, RedDora) {
+TEST(internal_yaku_evaluator, RedDora) {
   auto yaku1 = YakuEvaluator::Eval(
       WinInfo(Hand(HandParams("m1,m2,m3,m4,m5,rd,rd,rd,p1,p1")
                        .Chi("s5,s6,s7")
@@ -28,7 +28,7 @@ TEST_F(YakuTest, RedDora) {
   EXPECT_EQ(yaku2.HasYaku(Yaku::kRedDora), std::nullopt);
 }
 
-TEST_F(YakuTest, Dora) {
+TEST(internal_yaku_evaluator, Dora) {
   auto yaku1 = YakuEvaluator::Eval(
       WinInfo(Hand(HandParams("m1,m2,m3,m4,m5,rd,rd,rd,p1,p1")
                        .Chi("s5,s6,s7")
@@ -46,7 +46,7 @@ TEST_F(YakuTest, Dora) {
   EXPECT_EQ(yaku2.HasYaku(Yaku::kDora), std::nullopt);
 }
 
-TEST_F(YakuTest, ReversedDora) {
+TEST(internal_yaku_evaluator, ReversedDora) {
   auto yaku1 = YakuEvaluator::Eval(
       WinInfo(Hand(HandParams("m1,m2,m3,m4,m5,s5,s6,s7,rd,rd,rd,p1,p1")
                        .Riichi()
@@ -75,7 +75,7 @@ TEST_F(YakuTest, ReversedDora) {
   EXPECT_EQ(yaku3.HasYaku(Yaku::kReversedDora), std::nullopt);
 }
 
-TEST_F(YakuTest, FullyConcealdHand) {
+TEST(internal_yaku_evaluator, FullyConcealdHand) {
   auto yaku1 = YakuEvaluator::Eval(WinInfo(
       Hand(HandParams("m1,m2,m3,m4,m5,rd,rd,m7,m8,m9,p1,p1,p1").Tsumo("m6"))
           .win_info()));
@@ -96,7 +96,7 @@ TEST_F(YakuTest, FullyConcealdHand) {
   EXPECT_EQ(yaku3.HasYaku(Yaku::kFullyConcealedHand), std::nullopt);
 }
 
-TEST_F(YakuTest, Riichi) {
+TEST(internal_yaku_evaluator, Riichi) {
   auto yaku1 = YakuEvaluator::Eval(
       WinInfo(Hand(HandParams("m1,m2,m3,m4,m5,rd,rd,m7,m8,m9,p1,p1,p1")
                        .Riichi()
@@ -118,7 +118,7 @@ TEST_F(YakuTest, Riichi) {
   EXPECT_EQ(yaku3.HasYaku(Yaku::kRiichi), std::nullopt);
 }
 
-TEST_F(YakuTest, DoubleRiichi) {
+TEST(internal_yaku_evaluator, DoubleRiichi) {
   auto win_info =
       WinInfo(Hand(HandParams("m1,m2,m3,m4,m5,m6,m7,m8,s1,s1,p1,p1,p1")
                        .Riichi()
@@ -135,7 +135,7 @@ TEST_F(YakuTest, DoubleRiichi) {
   EXPECT_EQ(yaku1.HasYaku(Yaku::kDoubleRiichi), std::nullopt);
 }
 
-TEST_F(YakuTest, AfterKan) {
+TEST(internal_yaku_evaluator, AfterKan) {
   auto yaku1 = YakuEvaluator::Eval(
       WinInfo(Hand(HandParams("m1,m2,m3,m4,m5,m6,m7,m8,s1,s1")
                        .KanClosed("p1,p1,p1,p1")
@@ -152,7 +152,7 @@ TEST_F(YakuTest, AfterKan) {
   EXPECT_EQ(yaku2.HasYaku(Yaku::kAfterKan), std::nullopt);
 }
 
-TEST_F(YakuTest, RobbingKan) {
+TEST(internal_yaku_evaluator, RobbingKan) {
   auto yaku1 = YakuEvaluator::Eval(
       WinInfo(
           Hand(HandParams("m1,m2,m3,m4,m5,m6,m7,m8,s1,s1,p1,p1,p1").Ron("m9"))
@@ -166,7 +166,7 @@ TEST_F(YakuTest, RobbingKan) {
   EXPECT_EQ(yaku2.HasYaku(Yaku::kRobbingKan), std::nullopt);
 }
 
-TEST_F(YakuTest, BottomOfTheSea) {
+TEST(internal_yaku_evaluator, BottomOfTheSea) {
   auto yaku1 = YakuEvaluator::Eval(
       WinInfo(
           Hand(HandParams("m1,m2,m3,m4,m5,m6,m7,m8,s1,s1,p1,p1,p1").Tsumo("m9"))
@@ -187,7 +187,7 @@ TEST_F(YakuTest, BottomOfTheSea) {
   EXPECT_EQ(yaku3.HasYaku(Yaku::kBottomOfTheSea), std::nullopt);
 }
 
-TEST_F(YakuTest, BottomOfTheRiver) {
+TEST(internal_yaku_evaluator, BottomOfTheRiver) {
   auto yaku1 = YakuEvaluator::Eval(
       WinInfo(
           Hand(HandParams("m1,m2,m3,m4,m5,m6,m7,m8,s1,s1,p1,p1,p1").Ron("m9"))
@@ -208,7 +208,7 @@ TEST_F(YakuTest, BottomOfTheRiver) {
   EXPECT_EQ(yaku3.HasYaku(Yaku::kBottomOfTheRiver), std::nullopt);
 }
 
-TEST_F(YakuTest, Ippatsu) {
+TEST(internal_yaku_evaluator, Ippatsu) {
   auto yaku1 = YakuEvaluator::Eval(
       WinInfo(Hand(HandParams("m1,m2,m3,m4,m5,m6,m7,m8,s1,s1,p1,p1,p1")
                        .Riichi()
@@ -233,7 +233,7 @@ TEST_F(YakuTest, Ippatsu) {
   EXPECT_EQ(yaku3.HasYaku(Yaku::kIppatsu), std::nullopt);
 }
 
-TEST_F(YakuTest, Pinfu) {
+TEST(internal_yaku_evaluator, Pinfu) {
   auto yaku1 = YakuEvaluator::Eval(WinInfo(
       Hand(HandParams("m1,m2,m3,m4,m5,m9,m9,s7,s8,s9,p1,p2,p3").Tsumo("m6"))
           .win_info()));
@@ -275,7 +275,7 @@ TEST_F(YakuTest, Pinfu) {
   EXPECT_EQ(yaku7.HasYaku(Yaku::kPinfu), std::nullopt);
 }
 
-TEST_F(YakuTest, AllSimples) {
+TEST(internal_yaku_evaluator, AllSimples) {
   auto yaku1 = YakuEvaluator::Eval(WinInfo(
       Hand(HandParams("m2,m3,m4,m5,m7,s2,s2,s6,s7,s8,p2,p3,p4").Tsumo("m6"))
           .win_info()));
@@ -287,7 +287,7 @@ TEST_F(YakuTest, AllSimples) {
   EXPECT_EQ(yaku2.HasYaku(Yaku::kAllSimples), std::nullopt);
 }
 
-TEST_F(YakuTest, Dragon) {
+TEST(internal_yaku_evaluator, Dragon) {
   auto yaku1 = YakuEvaluator::Eval(WinInfo(
       Hand(HandParams("m2,m3,m4,m5,m7,s2,s2,s6,s7,s8,wd,wd,wd").Tsumo("m6"))
           .win_info()));
@@ -311,7 +311,7 @@ TEST_F(YakuTest, Dragon) {
   EXPECT_EQ(yaku4.HasYaku(Yaku::kRedDragon), std::nullopt);
 }
 
-TEST_F(YakuTest, SeatWind) {
+TEST(internal_yaku_evaluator, SeatWind) {
   auto yaku1 = YakuEvaluator::Eval(
       WinInfo(
           Hand(HandParams("m1,m1,m2,m2,m3,m3,m4,m5,m6,m8,ew,ew,ew").Tsumo("m8"))
@@ -351,7 +351,7 @@ TEST_F(YakuTest, SeatWind) {
   EXPECT_EQ(yaku5.HasYaku(Yaku::kSeatWindNorth), std::nullopt);
 }
 
-TEST_F(YakuTest, PrevalentWind) {
+TEST(internal_yaku_evaluator, PrevalentWind) {
   auto yaku1 = YakuEvaluator::Eval(
       WinInfo(
           Hand(HandParams("m1,m1,m2,m2,m3,m3,m4,m5,m6,m8,ew,ew,ew").Tsumo("m8"))
@@ -391,7 +391,7 @@ TEST_F(YakuTest, PrevalentWind) {
   EXPECT_EQ(yaku5.HasYaku(Yaku::kPrevalentWindNorth), std::nullopt);
 }
 
-TEST_F(YakuTest, AllTermsAndHonours) {
+TEST(internal_yaku_evaluator, AllTermsAndHonours) {
   auto yaku1 = YakuEvaluator::Eval(
       WinInfo(Hand(HandParams("m1,m1,m1,m9,m9,s1,s1,ew,ew,ew")
                        .Pon("rd,rd,rd")
@@ -411,7 +411,7 @@ TEST_F(YakuTest, AllTermsAndHonours) {
   EXPECT_EQ(yaku3.HasYaku(Yaku::kAllTermsAndHonours), std::nullopt);
 }
 
-TEST_F(YakuTest, HalfFlush) {
+TEST(internal_yaku_evaluator, HalfFlush) {
   auto yaku1 = YakuEvaluator::Eval(WinInfo(
       Hand(HandParams("m1,m2,m3,m4,m5,m9,m9,m9,ew,ew,ew,rd,rd").Tsumo("m6"))
           .win_info()));
@@ -443,7 +443,7 @@ TEST_F(YakuTest, HalfFlush) {
   EXPECT_EQ(yaku5.HasYaku(Yaku::kHalfFlush), std::nullopt);
 }
 
-TEST_F(YakuTest, FullFlush) {
+TEST(internal_yaku_evaluator, FullFlush) {
   auto yaku1 = YakuEvaluator::Eval(WinInfo(
       Hand(HandParams("m1,m2,m3,m4,m5,m9,m9,m9,ew,ew,ew,rd,rd").Tsumo("m6"))
           .win_info()));
@@ -474,7 +474,7 @@ TEST_F(YakuTest, FullFlush) {
   EXPECT_EQ(yaku5.HasYaku(Yaku::kFullFlush), std::make_optional(5));
 }
 
-TEST_F(YakuTest, PureDoubleChis) {
+TEST(internal_yaku_evaluator, PureDoubleChis) {
   auto yaku1 = YakuEvaluator::Eval(WinInfo(
       Hand(HandParams("m1,m1,m2,m2,m3,m3,s4,s5,s6,p1,p1,p1,ew").Tsumo("ew"))
           .win_info()));
@@ -501,7 +501,7 @@ TEST_F(YakuTest, PureDoubleChis) {
   EXPECT_EQ(yaku4.HasYaku(Yaku::kPureDoubleChis), std::nullopt);
 }
 
-TEST_F(YakuTest, TwicePureDoubleChis) {
+TEST(internal_yaku_evaluator, TwicePureDoubleChis) {
   auto yaku1 = YakuEvaluator::Eval(WinInfo(
       Hand(HandParams("m1,m1,m2,m2,m3,m3,s4,s4,s5,s5,s6,s6,ew").Tsumo("ew"))
           .win_info()));
@@ -522,7 +522,7 @@ TEST_F(YakuTest, TwicePureDoubleChis) {
   EXPECT_EQ(yaku4.HasYaku(Yaku::kTwicePureDoubleChis), std::nullopt);
 }
 
-TEST_F(YakuTest, SevenPairs) {
+TEST(internal_yaku_evaluator, SevenPairs) {
   auto yaku1 = YakuEvaluator::Eval(WinInfo(
       Hand(HandParams("m1,m1,m3,m3,m6,m6,s4,s4,s8,s8,p1,p1,ew").Tsumo("ew"))
           .win_info()));
@@ -541,7 +541,7 @@ TEST_F(YakuTest, SevenPairs) {
   EXPECT_EQ(yaku4.HasYaku(Yaku::kSevenPairs), std::nullopt);
 }
 
-TEST_F(YakuTest, AllPons) {
+TEST(internal_yaku_evaluator, AllPons) {
   auto yaku1 = YakuEvaluator::Eval(
       WinInfo(Hand(HandParams("m1,m1,m1,m3,m3,m3,ew,ew,rd,rd")
                        .Pon("s4,s4,s4")
@@ -572,7 +572,7 @@ TEST_F(YakuTest, AllPons) {
   EXPECT_EQ(yaku4.HasYaku(Yaku::kAllPons), std::nullopt);
 }
 
-TEST_F(YakuTest, LittleThreeDragons) {
+TEST(internal_yaku_evaluator, LittleThreeDragons) {
   auto yaku1 =
       YakuEvaluator::Eval(WinInfo(Hand(HandParams("m1,m1,m5,m5,m5,wd,wd")
                                            .KanClosed("gd,gd,gd,gd")
@@ -588,7 +588,7 @@ TEST_F(YakuTest, LittleThreeDragons) {
   EXPECT_EQ(yaku2.HasYaku(Yaku::kLittleThreeDragons), std::nullopt);
 }
 
-TEST_F(YakuTest, PureStraight) {
+TEST(internal_yaku_evaluator, PureStraight) {
   auto yaku1 = YakuEvaluator::Eval(WinInfo(
       Hand(HandParams("m1,m2,m3,m4,m5,m6,m7,m8,m9,ew,ew,rd,rd").Tsumo("ew"))
           .win_info()));
@@ -609,7 +609,7 @@ TEST_F(YakuTest, PureStraight) {
   EXPECT_EQ(yaku3.HasYaku(Yaku::kPureStraight), std::nullopt);
 }
 
-TEST_F(YakuTest, MixedTripleChis) {
+TEST(internal_yaku_evaluator, MixedTripleChis) {
   auto yaku1 = YakuEvaluator::Eval(WinInfo(
       Hand(HandParams("m1,m2,m3,m4,m5,m6,s1,s2,s3,p1,p2,p3,ew").Tsumo("ew"))
           .win_info()));
@@ -630,7 +630,7 @@ TEST_F(YakuTest, MixedTripleChis) {
   EXPECT_EQ(yaku3.HasYaku(Yaku::kMixedTripleChis), std::nullopt);
 }
 
-TEST_F(YakuTest, TriplePons) {
+TEST(internal_yaku_evaluator, TriplePons) {
   auto yaku1 = YakuEvaluator::Eval(WinInfo(
       Hand(HandParams("m1,m1,m1,m4,m5,m6,s1,s1,s1,p1,p1,p1,ew").Tsumo("ew"))
           .win_info()));
@@ -651,7 +651,7 @@ TEST_F(YakuTest, TriplePons) {
   EXPECT_EQ(yaku3.HasYaku(Yaku::kTriplePons), std::nullopt);
 }
 
-TEST_F(YakuTest, OutsideHand) {
+TEST(internal_yaku_evaluator, OutsideHand) {
   auto yaku1 = YakuEvaluator::Eval(WinInfo(
       Hand(HandParams("m1,m2,m3,m9,m9,m9,s7,s8,s9,ew,ew,ew,rd").Tsumo("rd"))
           .win_info()));
@@ -691,7 +691,7 @@ TEST_F(YakuTest, OutsideHand) {
   EXPECT_EQ(yaku6.HasYaku(Yaku::kOutsideHand), std::make_optional(1));
 }
 
-TEST_F(YakuTest, TerminalsInAllSets) {
+TEST(internal_yaku_evaluator, TerminalsInAllSets) {
   auto yaku1 = YakuEvaluator::Eval(WinInfo(
       Hand(HandParams("m1,m2,m3,m9,m9,m9,s7,s8,s9,p1,p2,p3,p9").Tsumo("p9"))
           .win_info()));
@@ -712,7 +712,7 @@ TEST_F(YakuTest, TerminalsInAllSets) {
   EXPECT_EQ(yaku3.HasYaku(Yaku::kTerminalsInAllSets), std::nullopt);
 }
 
-TEST_F(YakuTest, ThreeConcealedPons) {
+TEST(internal_yaku_evaluator, ThreeConcealedPons) {
   // 三暗刻あり
   auto yaku1 = YakuEvaluator::Eval(WinInfo(
       Hand(HandParams("m1,m1,m1,m4,m4,m4,m5,m6,m7,p2,p2,ew,ew").Tsumo("ew"))
@@ -732,7 +732,7 @@ TEST_F(YakuTest, ThreeConcealedPons) {
   EXPECT_EQ(yaku3.HasYakuman(Yaku::kThreeConcealedPons), false);
 }
 
-TEST_F(YakuTest, ThreeKans) {
+TEST(internal_yaku_evaluator, ThreeKans) {
   auto yaku1 = YakuEvaluator::Eval(WinInfo(Hand(HandParams("m1,m1,m5,m5")
                                                     .KanClosed("s1,s1,s1,s1")
                                                     .KanOpened("p4,p4,p4,p4")
@@ -748,7 +748,7 @@ TEST_F(YakuTest, ThreeKans) {
   EXPECT_EQ(yaku2.HasYaku(Yaku::kThreeKans), std::nullopt);
 }
 
-TEST_F(YakuTest, BlessingOfHeaven) {
+TEST(internal_yaku_evaluator, BlessingOfHeaven) {
   auto yaku1 = YakuEvaluator::Eval(
       WinInfo(
           Hand(HandParams("m1,m2,m3,m4,m5,rd,rd,m7,m8,m9,p1,p1,p1").Tsumo("m6"))
@@ -772,7 +772,7 @@ TEST_F(YakuTest, BlessingOfHeaven) {
   EXPECT_EQ(yaku3.HasYakuman(Yaku::kBlessingOfHeaven), false);
 }
 
-TEST_F(YakuTest, BlessingOfEarth) {
+TEST(internal_yaku_evaluator, BlessingOfEarth) {
   auto yaku1 = YakuEvaluator::Eval(
       WinInfo(
           Hand(HandParams("m1,m2,m3,m4,m5,rd,rd,m7,m8,m9,p1,p1,p1").Tsumo("m6"))
@@ -794,7 +794,7 @@ TEST_F(YakuTest, BlessingOfEarth) {
   EXPECT_EQ(yaku3.HasYakuman(Yaku::kBlessingOfEarth), false);
 }
 
-TEST_F(YakuTest, BigThreeDragons) {
+TEST(internal_yaku_evaluator, BigThreeDragons) {
   auto yaku1 =
       YakuEvaluator::Eval(WinInfo(Hand(HandParams("m1,m1,m5,m5,wd,wd,wd")
                                            .KanClosed("gd,gd,gd,gd")
@@ -810,7 +810,7 @@ TEST_F(YakuTest, BigThreeDragons) {
   EXPECT_EQ(yaku2.HasYakuman(Yaku::kBigThreeDragons), false);
 }
 
-TEST_F(YakuTest, AllHonours) {
+TEST(internal_yaku_evaluator, AllHonours) {
   auto yaku1 =
       YakuEvaluator::Eval(WinInfo(Hand(HandParams("ew,ew,ew,sw,sw,sw,wd")
                                            .Pon("gd,gd,gd")
@@ -826,7 +826,7 @@ TEST_F(YakuTest, AllHonours) {
   EXPECT_EQ(yaku2.HasYakuman(Yaku::kAllHonours), false);
 }
 
-TEST_F(YakuTest, AllGreen) {
+TEST(internal_yaku_evaluator, AllGreen) {
   auto yaku1 =
       YakuEvaluator::Eval(WinInfo(Hand(HandParams("s2,s2,s3,s3,s4,s4,s6")
                                            .Pon("s8,s8,s8")
@@ -842,7 +842,7 @@ TEST_F(YakuTest, AllGreen) {
   EXPECT_EQ(yaku2.HasYakuman(Yaku::kAllGreen), false);
 }
 
-TEST_F(YakuTest, AllTerminals) {
+TEST(internal_yaku_evaluator, AllTerminals) {
   auto yaku1 =
       YakuEvaluator::Eval(WinInfo(Hand(HandParams("m1,m1,m1,m9,m9,m9,s1")
                                            .Pon("p1,p1,p1")
@@ -858,7 +858,7 @@ TEST_F(YakuTest, AllTerminals) {
   EXPECT_EQ(yaku2.HasYakuman(Yaku::kAllTerminals), false);
 }
 
-TEST_F(YakuTest, BigFourWinds) {
+TEST(internal_yaku_evaluator, BigFourWinds) {
   auto yaku1 =
       YakuEvaluator::Eval(WinInfo(Hand(HandParams("m1,m1,ew,ew,ew,sw,sw")
                                            .Pon("ww,ww,ww")
@@ -874,7 +874,7 @@ TEST_F(YakuTest, BigFourWinds) {
   EXPECT_EQ(yaku2.HasYakuman(Yaku::kBigFourWinds), false);
 }
 
-TEST_F(YakuTest, LittleFourWinds) {
+TEST(internal_yaku_evaluator, LittleFourWinds) {
   auto yaku1 =
       YakuEvaluator::Eval(WinInfo(Hand(HandParams("m1,m2,m3,ew,ew,ew,sw")
                                            .Pon("ww,ww,ww")
@@ -899,7 +899,7 @@ TEST_F(YakuTest, LittleFourWinds) {
   EXPECT_EQ(yaku3.HasYakuman(Yaku::kLittleFourWinds), false);
 }
 
-TEST_F(YakuTest, ThirteenOrphans) {
+TEST(internal_yaku_evaluator, ThirteenOrphans) {
   auto yaku1 = YakuEvaluator::Eval(WinInfo(
       Hand(HandParams("m1,m9,s1,s9,p1,p9,ew,sw,ww,nw,wd,gd,gd").Tsumo("rd"))
           .win_info()));
@@ -918,7 +918,7 @@ TEST_F(YakuTest, ThirteenOrphans) {
   EXPECT_EQ(yaku3.HasYakuman(Yaku::kThirteenOrphans), false);
 }
 
-TEST_F(YakuTest, CompletedThirteenOrphans) {
+TEST(internal_yaku_evaluator, CompletedThirteenOrphans) {
   auto yaku1 = YakuEvaluator::Eval(WinInfo(
       Hand(HandParams("m1,m9,s1,s9,p1,p9,ew,sw,ww,nw,wd,gd,rd").Tsumo("rd"))
           .win_info()));
@@ -936,7 +936,7 @@ TEST_F(YakuTest, CompletedThirteenOrphans) {
   EXPECT_EQ(yaku3.HasYakuman(Yaku::kCompletedThirteenOrphans), false);
 }
 
-TEST_F(YakuTest, NineGates) {
+TEST(internal_yaku_evaluator, NineGates) {
   auto yaku1 = YakuEvaluator::Eval(WinInfo(
       Hand(HandParams("m1,m1,m1,m2,m2,m3,m4,m5,m6,m7,m8,m9,m9").Tsumo("m9"))
           .win_info()));
@@ -961,7 +961,7 @@ TEST_F(YakuTest, NineGates) {
   EXPECT_EQ(yaku4.HasYakuman(Yaku::kNineGates), false);
 }
 
-TEST_F(YakuTest, PureNineGates) {
+TEST(internal_yaku_evaluator, PureNineGates) {
   auto yaku1 = YakuEvaluator::Eval(WinInfo(
       Hand(HandParams("m1,m1,m1,m2,m3,m4,m5,m6,m7,m8,m9,m9,m9").Tsumo("m9"))
           .win_info()));
@@ -980,7 +980,7 @@ TEST_F(YakuTest, PureNineGates) {
   EXPECT_EQ(yaku3.HasYakuman(Yaku::kPureNineGates), false);
 }
 
-TEST_F(YakuTest, FourKans) {
+TEST(internal_yaku_evaluator, FourKans) {
   auto yaku1 = YakuEvaluator::Eval(WinInfo(Hand(HandParams("m1")
                                                     .KanClosed("m4,m4,m4,m4")
                                                     .KanOpened("s2,s2,s2,s2")
@@ -997,7 +997,7 @@ TEST_F(YakuTest, FourKans) {
   EXPECT_EQ(yaku2.HasYakuman(Yaku::kFourKans), false);
 }
 
-TEST_F(YakuTest, FourConcealdPons) {
+TEST(internal_yaku_evaluator, FourConcealdPons) {
   auto yaku1 = YakuEvaluator::Eval(WinInfo(
       Hand(HandParams("m1,m1,m1,m4,m4,m4,m7,m7,m7,p2,p2,ew,ew").Tsumo("ew"))
           .win_info()));
@@ -1022,7 +1022,7 @@ TEST_F(YakuTest, FourConcealdPons) {
   EXPECT_EQ(yaku4.HasYakuman(Yaku::kFourConcealedPons), false);
 }
 
-TEST_F(YakuTest, CompletedFourConcealdPons) {
+TEST(internal_yaku_evaluator, CompletedFourConcealdPons) {
   auto yaku1 = YakuEvaluator::Eval(WinInfo(
       Hand(HandParams("m1,m1,m1,m4,m4,m4,m7,m7,m7,p2,p2,p2,ew").Tsumo("ew"))
           .win_info()));
@@ -1041,7 +1041,7 @@ TEST_F(YakuTest, CompletedFourConcealdPons) {
   EXPECT_EQ(yaku3.HasYakuman(Yaku::kCompletedFourConcealedPons), false);
 }
 
-TEST_F(YakuTest, CalculateFu) {
+TEST(internal_yaku_evaluator, CalculateFu) {
   // 七対子
   auto yaku1 = YakuEvaluator::Eval(WinInfo(
       Hand(HandParams("m1,m1,m3,m3,m5,m5,m7,m7,s1,s1,s3,s3,p1").Tsumo("p1"))

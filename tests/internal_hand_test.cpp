@@ -7,7 +7,7 @@
 
 using namespace mjx::internal;
 
-TEST(hand, Hand) {
+TEST(internal_hand, Hand) {
   EXPECT_NO_FATAL_FAILURE(
       Hand(Tile::Create({"m1", "m9", "p1", "p9", "s1", "s9", "ew", "sw", "ww",
                          "nw", "wd", "gd", "rd"})));
@@ -151,7 +151,7 @@ TEST(hand, Hand) {
   EXPECT_TRUE(hand.IsUnderRiichi());
 }
 
-TEST(hand, Draw) {
+TEST(internal_hand, Draw) {
   auto h = Hand(HandParams("m1,m9,p1,p9,s1,s9,ew,sw,ww,nw,wd,gd,rd"));
   EXPECT_EQ(h.Size(), 13);
   h.Draw(Tile(1));
@@ -159,7 +159,7 @@ TEST(hand, Draw) {
   EXPECT_EQ(h.Size(), 14);
 }
 
-TEST(hand, ApplyChi) {
+TEST(internal_hand, ApplyChi) {
   auto h = Hand(HandParams("m1,m1,m1,m2,m3,m4,m5,m6,m7,m8,m9,m9,m9"));
   std::vector<Tile> t = {Tile("m2"), Tile("m3"), Tile("m4", 3)};
   auto c = Chi::Create(t, Tile("m4", 3));
@@ -186,7 +186,7 @@ TEST(hand, ApplyChi) {
       possible_discards.end());
 }
 
-TEST(hand, ApplyPon) {
+TEST(internal_hand, ApplyPon) {
   auto h = Hand(HandParams("m1,m1,m1,m2,m3,m4,m5,m6,m7,m8,m9,m9,m9"));
   auto p = Pon::Create(Tile("m9", 3), Tile("m9", 0), RelativePos::kLeft);
   EXPECT_EQ(h.stage(), HandStage::kAfterDiscards);
@@ -208,7 +208,7 @@ TEST(hand, ApplyPon) {
       possible_discards.end());
 }
 
-TEST(hand, ApplyKanOpened) {
+TEST(internal_hand, ApplyKanOpened) {
   auto h = Hand(HandParams("m1,m1,m1,m2,m3,m4,m5,m6,m7,m8,m9,m9,m9"));
   auto k = KanOpened::Create(Tile("m9", 3), RelativePos::kMid);
   EXPECT_EQ(h.stage(), HandStage::kAfterDiscards);
@@ -224,7 +224,7 @@ TEST(hand, ApplyKanOpened) {
             9);  // m1, m2, m3, m3(draw), m4, m5, m6, m7, m8
 }
 
-TEST(hand, ApplyKanClosed) {
+TEST(internal_hand, ApplyKanClosed) {
   auto h = Hand(HandParams("m1,m1,m1,m2,m3,m4,m5,m6,m7,m8,m9,m9,m9"));
   h.Draw(Tile("m9", 3));
   auto k = KanClosed::Create(Tile("m9", 0));
@@ -241,7 +241,7 @@ TEST(hand, ApplyKanClosed) {
             9);  // m1, m2, m3, m3(draw), m4, m5, m6, m7, m8
 }
 
-TEST(hand, ApplyKanAdded) {
+TEST(internal_hand, ApplyKanAdded) {
   auto h = Hand(HandParams("m1,m1,m1,m2,m3,m4,m5,m6,m7,m8,m8,m9,m9"));
   auto p = Pon::Create(Tile("m9", 2), Tile("m9", 3), RelativePos::kLeft);
   auto k = KanAdded::Create(p);
@@ -265,7 +265,7 @@ TEST(hand, ApplyKanAdded) {
   EXPECT_EQ(h.stage(), HandStage::kAfterKanAdded);
 }
 
-TEST(hand, Discard) {
+TEST(internal_hand, Discard) {
   auto h = Hand(HandParams("m1,m1,p1,p2,p3,s9,ew,sw,ww,nw,wd,gd,rd"));
   EXPECT_EQ(h.Size(), 13);
   h.Draw(Tile("rd", 2));
@@ -288,7 +288,7 @@ TEST(hand, Discard) {
   EXPECT_FALSE(tsumogiri2);
 }
 
-TEST(hand, PossibleDiscards) {
+TEST(internal_hand, PossibleDiscards) {
   auto h = Hand(HandParams("m1,m2,m3,p9,s1,s9,ew,sw,ww,nw,wd,gd,rd"));
   auto t = Tile::Create({"m1", "m2", "m3"});
   auto c = Chi::Create(t, Tile("m3", 0));
@@ -301,7 +301,7 @@ TEST(hand, PossibleDiscards) {
       possible_discards.end());
 }
 
-TEST(hand, PossibleDiscardsToTakeTenpai) {
+TEST(internal_hand, PossibleDiscardsToTakeTenpai) {
   auto h = Hand(HandParams("m1,m2,m3,s1,s2,s3,s4,s5,s6,s1,s2,ew,nw"));
   h.Draw(Tile("ew", 2));
   auto possible_discards = h.PossibleDiscardsToTakeTenpai();
@@ -319,7 +319,7 @@ TEST(hand, PossibleDiscardsToTakeTenpai) {
   EXPECT_EQ(possible_discards.front().first.Id(), Tile("m3", 1).Id());
 }
 
-TEST(hand, PossibleOpensAfterOthersDiscard) {  // TODO: add more detailed test
+TEST(internal_hand, PossibleOpensAfterOthersDiscard) {  // TODO: add more detailed test
   auto num_of_opens = [](const auto& opens, const auto& open_type) {
     return std::count_if(
         opens.begin(), opens.end(),
@@ -460,7 +460,7 @@ TEST(hand, PossibleOpensAfterOthersDiscard) {  // TODO: add more detailed test
   EXPECT_EQ(possible_opens.at(6).Type(), OpenType::kKanOpened);
 }
 
-TEST(hand, PossibleOpensAfterDraw) {
+TEST(internal_hand, PossibleOpensAfterDraw) {
   // PossibleKanClosed
   auto h = Hand(HandParams("m1,m1,m1,m2,m2,m3,m4,m5,m6,m7,m9,m9,m9"));
   h.Draw(Tile("m9", 3));
@@ -512,7 +512,7 @@ TEST(hand, PossibleOpensAfterDraw) {
   EXPECT_EQ(possible_opens.size(), 0);
 }
 
-TEST(hand, Size) {
+TEST(internal_hand, Size) {
   auto h = Hand(HandParams("m1,m9,p1,p9,s1,s9,ew,sw,ww,nw,wd,gd,rd"));
   EXPECT_EQ(h.Size(), 13);
   EXPECT_EQ(h.SizeClosed(), 13);
@@ -520,7 +520,7 @@ TEST(hand, Size) {
   // TODO : add test cases with melds
 }
 
-TEST(hand, ToVector) {
+TEST(internal_hand, ToVector) {
   auto check_vec = [](const std::vector<Tile>& v1,
                       const std::vector<Tile>& v2) {
     for (std::size_t i = 0; i < v1.size(); ++i)
@@ -553,7 +553,7 @@ TEST(hand, ToVector) {
                         Tile::Create({"m1", "m1", "m1", "m2", "m3", "m4"})));
 }
 
-TEST(hand, ToArray) {
+TEST(internal_hand, ToArray) {
   auto check_arr = [](const std::array<std::uint8_t, 34>& a1,
                       const std::array<std::uint8_t, 34>& a2) {
     for (std::size_t i = 0; i < 34; ++i) {
@@ -583,7 +583,7 @@ TEST(hand, ToArray) {
   EXPECT_TRUE(check_arr(h.ToArrayOpened(), expected));
 }
 
-TEST(hand, IsMenzen) {
+TEST(internal_hand, IsMenzen) {
   // menzen
   auto h = Hand(HandParams("m1,m1,m1,m2,m3,m4,m5,m6,m7,m8,m9,m9,m9"));
   EXPECT_TRUE(h.IsMenzen());
@@ -599,7 +599,7 @@ TEST(hand, IsMenzen) {
   EXPECT_FALSE(h.IsMenzen());
 }
 
-// TEST(hand, CanRon) {
+// TEST(internal_hand, CanRon) {
 //     auto h = Hand(HandParams("m1,m1,m1,m2,m3,m4,m5,m6,m7,m8,m9,m9,m9"));
 //     EXPECT_TRUE(h.CanRon(Tile("m1", 3)));
 //     EXPECT_TRUE(h.CanRon(Tile("m5", 3)));
@@ -608,7 +608,7 @@ TEST(hand, IsMenzen) {
 //     EXPECT_FALSE(h.CanRon(Tile("m1", 3)));
 // }
 
-TEST(hand, IsCompleted) {
+TEST(internal_hand, IsCompleted) {
   auto h = Hand(HandParams("m1,m1,m1,m2,m3,m4,m5,m6,m7,m8,m9,m9,m9"));
   h.Draw(Tile("m1", 3));
   EXPECT_TRUE(h.IsCompleted());
@@ -623,7 +623,7 @@ TEST(hand, IsCompleted) {
   EXPECT_FALSE(h.IsCompleted(Tile("rd", 0)));
 }
 
-TEST(hand, CanRiichi) {
+TEST(internal_hand, CanRiichi) {
   auto h = Hand(HandParams("m1,m1,m1,m2,m3,m4,m5,m6,m7,m8,m9,m9,m9"));
   h.Draw(Tile("p1"));
   EXPECT_TRUE(h.CanRiichi());
@@ -648,7 +648,7 @@ TEST(hand, CanRiichi) {
   EXPECT_FALSE(h.CanRiichi());
 }
 
-TEST(hand, Opens) {
+TEST(internal_hand, Opens) {
   auto h = Hand(HandParams("m1,m1,m2,m3,m4,m5,m6,m7,m8,m9,m9,m9,m9"));
   auto chis =
       h.PossibleOpensAfterOthersDiscard(Tile("m1", 2), RelativePos::kLeft);
@@ -658,7 +658,7 @@ TEST(hand, Opens) {
   EXPECT_EQ(opens.front().Type(), OpenType::kChi);
 }
 
-TEST(hand, Riichi) {
+TEST(internal_hand, Riichi) {
   auto h = Hand(HandParams("m1,m1,m1,m2,m3,m4,m5,m6,m7,m8,m9,m9,m9"));
   h.Draw(Tile("rd"));
   EXPECT_FALSE(h.IsUnderRiichi());
@@ -666,7 +666,7 @@ TEST(hand, Riichi) {
   EXPECT_TRUE(h.IsUnderRiichi());
 }
 
-TEST(hand, PossibleDiscardsAfterRiichi) {
+TEST(internal_hand, PossibleDiscardsAfterRiichi) {
   auto h = Hand(HandParams("m1,m1,m1,m2,m3,m4,m5,m6,m7,m8,m9,m9,m9"));
   h.Draw(Tile("rd"));
   h.Riichi();
@@ -683,7 +683,7 @@ TEST(hand, PossibleDiscardsAfterRiichi) {
   EXPECT_TRUE(HasType(TileType::kM8));
 }
 
-TEST(hand, ToString) {
+TEST(internal_hand, ToString) {
   auto h = Hand(HandParams("m1,m1,m1,m2,m3,m4,m5,m6,m7,m8,m9,m9,m9"));
   EXPECT_EQ(h.ToString(), "m1,m1,m1,m2,m3,m4,m5,m6,m7,m8,m9,m9,m9");
   EXPECT_EQ(h.ToString(true),
@@ -706,7 +706,7 @@ TEST(hand, ToString) {
             "0),m9(1),m9(2),m9(3)]c");
 }
 
-TEST(hand, LastTileAdded) {
+TEST(internal_hand, LastTileAdded) {
   auto h = Hand(HandParams("m1,m1,m1,m2,m3,m4,m5,m6,m7,m8,m9,m9,m9"));
   EXPECT_TRUE(h.LastTileAdded() == std::nullopt);
   h.Draw(Tile("m1", 3));
@@ -721,14 +721,14 @@ TEST(hand, LastTileAdded) {
   EXPECT_TRUE(h.LastTileAdded() == std::nullopt);
 }
 
-TEST(hand, Ron) {
+TEST(internal_hand, Ron) {
   auto h = Hand(HandParams("m1,m1,m1,m2,m3,m4,m5,m6,m7,m8,m9,m9,m9"));
   h.Ron(Tile("m1", 3));
   EXPECT_EQ(h.stage(), HandStage::kAfterRon);
   EXPECT_EQ(h.LastTileAdded(), Tile("m1", 3));
 }
 
-TEST(hand, Tsumo) {
+TEST(internal_hand, Tsumo) {
   auto h = Hand(HandParams("m1,m1,m1,m2,m3,m4,m5,m6,m7,m8,m9,m9,m9"));
   h.Draw(Tile("m1", 3));
   h.Tsumo();
@@ -746,7 +746,7 @@ TEST(hand, Tsumo) {
   EXPECT_EQ(h.LastTileAdded(), Tile("m1", 3));
 }
 
-// TEST(hand, EvalScore) {
+// TEST(internal_hand, EvalScore) {
 //     auto h =
 //     Hand(HandParams("m1,m1,m1,m2,m3,m4,s3,s3,p2,p2,sw,sw,sw").Tsumo("p2"));
 //
@@ -760,7 +760,7 @@ TEST(hand, Tsumo) {
 //     std::make_optional(3));
 // }
 
-TEST(hand, IsTenpai) {
+TEST(internal_hand, IsTenpai) {
   // テンパイ
   auto h = Hand(HandParams("m1,m1,m1,m2,m3,m4,m5,m6,m7,m8,m9,m9,m9"));
   EXPECT_TRUE(h.IsTenpai());
@@ -794,7 +794,7 @@ TEST(hand, IsTenpai) {
   EXPECT_FALSE(h.IsTenpai());
 }
 
-TEST(hand, CanTakeTenpai) {
+TEST(internal_hand, CanTakeTenpai) {
   auto h =
       Hand(HandParams("m5,m6,s2,s3,s4,p9,p9").Pon("m8,m8,m8").Chi("s5,s6,s7"));
   auto t = Tile::Create({"s3", "s4", "s5"});

@@ -8,7 +8,7 @@
 
 using namespace mjx::internal;
 
-TEST(agent_client_mock, TakeAction) {
+TEST(internal_strategy_rule_based, TakeAction) {
   // Test utilities
   auto GetLastJsonLine = [](const std::string &filename) {
     auto json_path = std::string(TEST_RESOURCES_DIR) + "/json/" + filename;

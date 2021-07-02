@@ -9,7 +9,7 @@
 
 using namespace mjx::internal;
 
-TEST(observation, hand) {
+TEST(internal_observation, hand) {
   auto GetLastJsonLine = [](const std::string &filename) {
     auto json_path = std::string(TEST_RESOURCES_DIR) + "/json/" + filename;
     std::ifstream ifs(json_path, std::ios::in);
@@ -45,7 +45,7 @@ TEST(observation, hand) {
                           0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}));
 }
 
-TEST(observation, current_hand) {
+TEST(internal_observation, current_hand) {
   const std::vector<std::shared_ptr<Agent>> agents = {
       std::make_shared<AgentLocal>("agent01",
                                    std::make_unique<StrategyRuleBased>()),

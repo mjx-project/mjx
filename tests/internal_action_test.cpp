@@ -4,7 +4,7 @@
 
 using namespace mjx::internal;
 
-TEST(action, Encode) {
+TEST(internal_action, Encode) {
   // Discard
   EXPECT_EQ(
       Action::Encode(Action::CreateDiscard(AbsolutePos::kInitEast, Tile(17))),

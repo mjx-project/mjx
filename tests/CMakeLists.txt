@@ -25,7 +25,7 @@ add_executable(mjx_test
         internal_action_test.cpp
         internal_environment_test.cpp
         internal_game_seed_test.cpp
-        internal_game_summarizer_test.cpp
+        internal_game_result_summarizer_test.cpp
         internal_hand_test.cpp
         internal_observation_test.cpp
         internal_open_test.cpp

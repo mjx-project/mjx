@@ -5,7 +5,7 @@
 #include "gtest/gtest.h"
 using namespace mjx::internal;
 
-TEST(environment, RunOneGame) {
+TEST(internal_environment, RunOneGame) {
   const std::vector<std::shared_ptr<Agent>> agents = {
       std::make_shared<AgentLocal>("agent01",
                                    std::make_unique<StrategyRuleBased>()),

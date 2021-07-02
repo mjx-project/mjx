@@ -231,7 +231,7 @@ bool ParallelTest(F &&f) {
   return failure_cnt == 0;
 }
 
-TEST(state, ToJson) {
+TEST(internal_state, ToJson) {
   // From https://tenhou.net/0/?log=2011020417gm-00a9-0000-b67fcaa3&tw=1
   // w/o terminal state
   std::string original_json = GetLastJsonLine("encdec-wo-terminal-state.json");
@@ -245,7 +245,7 @@ TEST(state, ToJson) {
   }
 }
 
-TEST(state, Next) {
+TEST(internal_state, Next) {
   std::string json_path = std::string(TEST_RESOURCES_DIR) + "/json";
   if (json_path.empty()) return;
   for (const auto &filename : std::filesystem::directory_iterator(json_path)) {
@@ -262,7 +262,7 @@ TEST(state, Next) {
   }
 }
 
-TEST(state, CreateObservation) {
+TEST(internal_state, CreateObservation) {
   // ありうる遷移は次の16通り
   //  0. Draw => (0) Kyusyu
   //  1. Draw => (1) Tsumo
@@ -407,7 +407,7 @@ TEST(state, CreateObservation) {
       observation));
 }
 
-TEST(state, Update) {
+TEST(internal_state, Update) {
   // 特に記述がないテストケースは下記から
   // https://tenhou.net/0/?log=2011020417gm-00a9-0000-b67fcaa3&tw=1
   std::string json_before, json_after;
@@ -858,7 +858,7 @@ TEST(state, Update) {
                          Yaku::kReversedDora, Yaku::kRobbingKan}));
 }
 
-TEST(state, EncodeDecode) {
+TEST(internal_state, EncodeDecode) {
   const bool all_ok = ParallelTest([](const std::string &json) {
     mjxproto::State original_state;
     auto status =
@@ -876,7 +876,7 @@ TEST(state, EncodeDecode) {
   EXPECT_TRUE(all_ok);
 }
 
-TEST(state, Equals) {
+TEST(internal_state, Equals) {
   std::string json_before, json_after;
   State state_before, state_after;
   std::vector<mjxproto::Action> actions;
@@ -890,7 +890,7 @@ TEST(state, Equals) {
   EXPECT_TRUE(state_before.Equals(state_after));
 }
 
-TEST(state, CanReach) {
+TEST(internal_state, CanReach) {
   std::string json_before, json_after;
   State state_before, state_after;
   std::vector<Action> actions;
@@ -1024,7 +1024,7 @@ bool BFSCheck(const std::string &init_json, const std::string &target_json) {
   return false;
 };
 
-TEST(state, StateTrans) {
+TEST(internal_state, StateTrans) {
   // ListUpAllActionCombinationsの動作確認
   auto json_before = GetLastJsonLine("upd-bef-ron3.json");
   auto state_before = State(json_before);
@@ -1041,7 +1041,7 @@ TEST(state, StateTrans) {
   EXPECT_TRUE(all_ok);
 }
 
-TEST(state, game_seed) {
+TEST(internal_state, game_seed) {
   uint64_t game_seed = 1234;
   auto wall_origin = Wall(0, 0, game_seed).tiles();
   auto score_info = State::ScoreInfo{{"A", "B", "C", "D"}, game_seed};
@@ -1055,7 +1055,7 @@ TEST(state, game_seed) {
   }
 }
 
-TEST(state, CheckGameOver) {
+TEST(internal_state, CheckGameOver) {
   // 西場の挙動に関してはこちらを参照
   // https://hagurin-tenhou.com/article/475618521.html
 
@@ -1093,7 +1093,7 @@ TEST(state, CheckGameOver) {
             true);
 }
 
-TEST(state, GameId) {
+TEST(internal_state, GameId) {
   std::vector<PlayerId> player_ids{"p1", "p2", "p3", "p4"};
   auto state1 = State(State::ScoreInfo{player_ids, 1});
   EXPECT_NE(state1.proto().public_observation().game_id(), "");
