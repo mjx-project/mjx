@@ -92,6 +92,14 @@ include_directories("${CMAKE_CURRENT_SOURCE_DIR}")
 ####################################################################################
 
 add_library(mjx STATIC
+        action.h
+        action.cpp
+        observation.h
+        observation.cpp
+        state.h
+        state.cpp
+        hand.h
+        hand.cpp
         env.h
         env.cpp
         pyenv.h

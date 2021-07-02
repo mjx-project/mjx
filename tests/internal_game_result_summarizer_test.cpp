@@ -3,7 +3,7 @@
 #include "gtest/gtest.h"
 using namespace mjx::internal;
 
-TEST(GameResultSummarizer, Add) {
+TEST(internal_game_result_summarizer, Add) {
   GameResultSummarizer& summarizer = GameResultSummarizer::instance();
   summarizer.Initialize();
   EXPECT_EQ(summarizer.num_games(), 0);
@@ -37,7 +37,7 @@ TEST(GameResultSummarizer, Add) {
   }
 }
 
-TEST(GameResultSummarizer, player_performance) {
+TEST(internal_game_result_summarizer, player_performance) {
   // avg ranking, stable dan
   GameResultSummarizer& summarizer = GameResultSummarizer::instance();
   summarizer.Initialize();

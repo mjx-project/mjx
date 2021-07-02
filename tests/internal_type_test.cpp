@@ -4,7 +4,7 @@
 
 using namespace mjx::internal;
 
-TEST(types, ToRelativePos) {
+TEST(internal_types, ToRelativePos) {
   EXPECT_EQ(ToRelativePos(AbsolutePos::kInitEast, AbsolutePos::kInitEast),
             RelativePos::kSelf);
   EXPECT_EQ(ToRelativePos(AbsolutePos::kInitEast, AbsolutePos::kInitSouth),
@@ -39,7 +39,7 @@ TEST(types, ToRelativePos) {
             RelativePos::kSelf);
 }
 
-TEST(types, ToSeatWind) {
+TEST(internal_types, ToSeatWind) {
   EXPECT_EQ(ToSeatWind(AbsolutePos::kInitEast, AbsolutePos::kInitEast),
             Wind::kEast);
   EXPECT_EQ(ToSeatWind(AbsolutePos::kInitEast, AbsolutePos::kInitSouth),

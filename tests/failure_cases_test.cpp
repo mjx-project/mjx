@@ -5,7 +5,7 @@
 
 using namespace mjx::internal;
 
-TEST(state, ForbidFifthKan) {
+TEST(failure_cases, ForbidFifthKan) {
   // 5回目のカンが発生してしまうケース
   // https://github.com/mjx-project/mjx/pull/701
   const std::vector<std::shared_ptr<Agent>> agents = {
@@ -21,7 +21,7 @@ TEST(state, ForbidFifthKan) {
   env.RunOneGame(13762514072779568829);
 }
 
-TEST(state, NoNorthRound) {
+TEST(failure_cases, NoNorthRound) {
   // 北入なしなのにしてしまうケース
   // https://github.com/mjx-project/mjx/pull/714
   const std::vector<std::shared_ptr<Agent>> agents = {

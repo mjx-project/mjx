@@ -4,7 +4,7 @@
 
 using namespace mjx::internal;
 
-TEST(win_score, dealer_tsumo) {
+TEST(internal_win_score, dealer_tsumo) {
   WinScore score;
   score.AddYakuman(Yaku::kBigThreeDragons);
   score.AddYakuman(Yaku::kAllHonours);
@@ -21,7 +21,7 @@ TEST(win_score, dealer_tsumo) {
   EXPECT_EQ(ten_moves[AbsolutePos::kInitNorth], -48000 * 2 / 3);
 }
 
-TEST(win_score, dealer_ron) {
+TEST(internal_win_score, dealer_ron) {
   WinScore score;
   score.AddYaku(Yaku::kSevenPairs, 2);
   score.AddYaku(Yaku::kRiichi, 1);
@@ -39,7 +39,7 @@ TEST(win_score, dealer_ron) {
   EXPECT_EQ(ten_moves[AbsolutePos::kInitNorth], 0);
 }
 
-TEST(win_score, non_dealer_tsumo) {
+TEST(internal_win_score, non_dealer_tsumo) {
   WinScore score;
   score.AddYaku(Yaku::kRiichi, 1);
   score.AddYaku(Yaku::kIppatsu, 1);
@@ -59,7 +59,7 @@ TEST(win_score, non_dealer_tsumo) {
   EXPECT_EQ(ten_moves[AbsolutePos::kInitNorth], -1000);
 }
 
-TEST(win_score, non_dealer_ron) {
+TEST(internal_win_score, non_dealer_ron) {
   WinScore score;
   score.AddYaku(Yaku::kAllPons, 2);
   score.AddYaku(Yaku::kHalfFlush, 2);

@@ -4,7 +4,7 @@
 
 using namespace mjx::internal;
 
-TEST(tile, Tile) {
+TEST(internal_tile, Tile) {
   EXPECT_NO_FATAL_FAILURE(Tile(0));
   EXPECT_NO_FATAL_FAILURE(Tile(135));
   EXPECT_EQ(Tile(TileType::kM1).Id(), 0);
@@ -21,7 +21,7 @@ TEST(tile, Tile) {
   EXPECT_EQ(Tile("rd", 3).Id(), 135);
 }
 
-TEST(tile, Create) {
+TEST(internal_tile, Create) {
   auto tiles1 = Tile::Create(std::vector<TileId>{10, 20, 30});
   auto expected1 = std::vector<Tile>{Tile(10), Tile(20), Tile(30)};
   EXPECT_EQ(expected1, tiles1);
@@ -36,24 +36,24 @@ TEST(tile, Create) {
   EXPECT_EQ(Tile(135), tiles4.at(135));
 }
 
-TEST(tile, Id) {
+TEST(internal_tile, Id) {
   auto t = Tile(100);
   EXPECT_EQ(100, t.Id());
 }
 
-TEST(tile, Type) {
+TEST(internal_tile, Type) {
   auto t = Tile(0);
   EXPECT_EQ(TileType::kM1, t.Type());
 }
 
-TEST(tile, TypeUint) {
+TEST(internal_tile, TypeUint) {
   auto t = Tile(0);
   EXPECT_EQ(t.TypeUint(), 0);
   t = Tile(135);
   EXPECT_EQ(t.TypeUint(), 33);
 }
 
-TEST(tile, Offset) {
+TEST(internal_tile, Offset) {
   auto t = Tile(0);
   EXPECT_EQ(t.Offset(), 0);
   t = Tile(33);
@@ -62,7 +62,7 @@ TEST(tile, Offset) {
   EXPECT_EQ(t.Offset(), 3);
 }
 
-TEST(tile, Color) {
+TEST(internal_tile, Color) {
   auto m5 = Tile(16);
   EXPECT_EQ(TileSetType::kManzu, m5.Color());
   auto p5 = Tile(52);
@@ -71,7 +71,7 @@ TEST(tile, Color) {
   EXPECT_EQ(TileSetType::kSouzu, s5.Color());
 }
 
-TEST(tile, IsRedFive) {
+TEST(internal_tile, IsRedFive) {
   auto m5 = Tile(16);
   EXPECT_TRUE(m5.IsRedFive());
   auto p5 = Tile(52);
@@ -80,7 +80,7 @@ TEST(tile, IsRedFive) {
   EXPECT_TRUE(s5.IsRedFive());
 }
 
-TEST(tile, Num) {
+TEST(internal_tile, Num) {
   auto t = Tile("m1", 0);
   EXPECT_EQ(t.Num(), 1);
   t = Tile("m9", 3);
@@ -93,7 +93,7 @@ TEST(tile, Num) {
   EXPECT_EQ(t.Num(), 9);
 }
 
-TEST(tile, Is) {
+TEST(internal_tile, Is) {
   // num
   auto t = Tile("m1", 0);
   EXPECT_TRUE(t.Is(1));
@@ -203,7 +203,7 @@ TEST(tile, Is) {
   EXPECT_FALSE(m1.Is(TileSetType::kEmpty));
 }
 
-TEST(tile, ComparisonOperators) {
+TEST(internal_tile, ComparisonOperators) {
   auto t1 = Tile(0);
   auto t2 = Tile(0);
   auto t3 = Tile(50);
@@ -229,7 +229,7 @@ TEST(tile, ComparisonOperators) {
   EXPECT_FALSE(t1 >= t3);
 }
 
-TEST(tile, ToString) {
+TEST(internal_tile, ToString) {
   auto t1 = Tile(0);
   auto t2 = Tile(135);
   EXPECT_EQ("m1", t1.ToString());
@@ -238,7 +238,7 @@ TEST(tile, ToString) {
   EXPECT_EQ("rd(3)", t2.ToString(true));
 }
 
-TEST(tile, Equals) {
+TEST(internal_tile, Equals) {
   auto t1 = Tile("m5", 0);
   auto t2 = Tile("m5", 1);
   auto t3 = Tile("m5", 2);

@@ -8,7 +8,7 @@
 
 using namespace mjx::internal;
 
-TEST(shanten, normal) {
+TEST(internal_shanten_calculator, normal) {
   std::array<uint8_t, 34> tiles =
       Hand(Tile::Create({"m1", "m1", "m2", "m3", "m4", "m6", "m6", "m6", "p2",
                          "p2", "p2", "ww", "ww"}))
@@ -17,7 +17,7 @@ TEST(shanten, normal) {
   EXPECT_EQ(ShantenCalculator::ShantenNumber(tiles), 0);
 }
 
-TEST(shanten, thirteen_orphan) {
+TEST(internal_shanten_calculator, thirteen_orphan) {
   std::array<uint8_t, 34> tiles;
   tiles = Hand(Tile::Create({"m1", "m9", "p1", "p9", "s1", "s9", "ew", "sw",
                              "ww", "nw", "wd", "gd", "p4"}))
@@ -35,7 +35,7 @@ TEST(shanten, thirteen_orphan) {
   EXPECT_EQ(ShantenCalculator::ShantenThirteenOrphans(tiles), 2);
 }
 
-TEST(shanten, seven_pairs) {
+TEST(internal_shanten_calculator, seven_pairs) {
   std::array<uint8_t, 34> tiles;
   tiles = Hand(Tile::Create({"m1", "m1", "m2", "m2", "p3", "p3", "p7", "p7",
                              "ew", "ew", "sw", "rd", "wd"}))
@@ -48,7 +48,7 @@ TEST(shanten, seven_pairs) {
   EXPECT_EQ(ShantenCalculator::ShantenSevenPairs(tiles), 2);
 }
 
-TEST(shanten, proceeding) {
+TEST(internal_shanten_calculator, proceeding) {
   std::array<uint8_t, 34> tiles;
   std::bitset<34> proceeding;
   tiles = Hand(Tile::Create({"m3", "m4", "m7", "m8", "s2", "s3", "p1", "p2",
@@ -69,7 +69,7 @@ TEST(shanten, proceeding) {
   EXPECT_EQ(ShantenCalculator::ProceedingTileTypes(tiles), proceeding);
 }
 
-TEST(shanten, many_cases) {
+TEST(internal_shanten_calculator, many_cases) {
   // 事前にロードする
   {
     clock_t start = clock();
