@@ -1,4 +1,4 @@
-#include "shanten_calculator.h"
+#include "mjx/internal/shanten_calculator.h"
 
 namespace mjx::internal {
 int ShantenCalculator::ShantenNumber(const std::array<uint8_t, 34>& count) {

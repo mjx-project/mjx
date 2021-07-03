@@ -1,4 +1,4 @@
-#include "hand.h"
+#include "mjx/hand.h"
 
 #include <google/protobuf/util/json_util.h>
 #include <google/protobuf/util/message_differencer.h>

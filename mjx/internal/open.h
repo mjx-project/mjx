@@ -5,7 +5,7 @@
 #include <memory>
 #include <vector>
 
-#include "tile.h"
+#include "mjx/internal/tile.h"
 
 namespace mjx::internal {
 

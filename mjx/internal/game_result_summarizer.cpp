@@ -1,4 +1,4 @@
-#include "game_result_summarizer.h"
+#include "mjx/internal/game_result_summarizer.h"
 
 namespace mjx::internal {
 std::recursive_mutex GameResultSummarizer::mtx_;

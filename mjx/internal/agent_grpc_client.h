@@ -3,10 +3,10 @@
 
 #include <grpcpp/grpcpp.h>
 
-#include "action.h"
-#include "agent.h"
-#include "mjx.grpc.pb.h"
-#include "observation.h"
+#include "mjx/internal/action.h"
+#include "mjx/internal/agent.h"
+#include "mjx/internal/mjx.grpc.pb.h"
+#include "mjx/internal/observation.h"
 
 namespace mjx::internal {
 class AgentGrpcClient final : public Agent {

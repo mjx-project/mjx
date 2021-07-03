@@ -1,11 +1,11 @@
-#include "win_cache.h"
+#include "mjx/internal/win_cache.h"
 
 #include <boost/property_tree/json_parser.hpp>
 #include <boost/property_tree/ptree.hpp>
 #include <iostream>
 
-#include "abstruct_hand.h"
-#include "utils.h"
+#include "mjx/internal/abstruct_hand.h"
+#include "mjx/internal/utils.h"
 
 namespace mjx::internal {
 

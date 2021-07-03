@@ -1,6 +1,6 @@
-#include "action.h"
-#include "internal/state.h"
-#include "observation.h"
+#include "mjx/action.h"
+#include "mjx/internal/state.h"
+#include "mjx/observation.h"
 
 #ifndef MJX_PROJECT_ENV_H
 #define MJX_PROJECT_ENV_H

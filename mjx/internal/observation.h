@@ -4,9 +4,9 @@
 #include <array>
 #include <utility>
 
-#include "action.h"
-#include "hand.h"
-#include "mjx.pb.h"
+#include "mjx/internal/action.h"
+#include "mjx/internal/hand.h"
+#include "mjx/internal/mjx.pb.h"
 
 namespace mjx::internal {
 class Observation {

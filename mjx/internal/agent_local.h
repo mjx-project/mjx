@@ -1,10 +1,10 @@
 #ifndef MJX_REPO_AGENT_LOCAL_H
 #define MJX_REPO_AGENT_LOCAL_H
 
-#include "action.h"
-#include "agent.h"
-#include "observation.h"
-#include "strategy.h"
+#include "mjx/internal/action.h"
+#include "mjx/internal/agent.h"
+#include "mjx/internal/observation.h"
+#include "mjx/internal/strategy.h"
 
 namespace mjx::internal {
 class AgentLocal final : public Agent {

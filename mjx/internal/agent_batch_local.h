@@ -8,10 +8,10 @@
 #include <queue>
 #include <thread>
 
-#include "agent.h"
-#include "mjx.grpc.pb.h"
-#include "observation.h"
-#include "strategy_rule_based.h"
+#include "mjx/internal/agent.h"
+#include "mjx/internal/mjx.grpc.pb.h"
+#include "mjx/internal/observation.h"
+#include "mjx/internal/strategy_rule_based.h"
 
 namespace mjx::internal {
 class AgentBatchLocal final : public Agent {

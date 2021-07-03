@@ -1,4 +1,4 @@
-#include "agent_local.h"
+#include "mjx/internal/agent_local.h"
 
 #include <utility>
 

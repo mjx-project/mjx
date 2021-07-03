@@ -3,8 +3,8 @@
 
 #include <string>
 
-#include "types.h"
-#include "utils.h"
+#include "mjx/internal/types.h"
+#include "mjx/internal/utils.h"
 
 namespace mjx::internal {
 class Tile {

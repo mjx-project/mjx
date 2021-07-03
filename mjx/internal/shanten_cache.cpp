@@ -1,4 +1,4 @@
-#include "shanten_cache.h"
+#include "mjx/internal/shanten_cache.h"
 
 #include <boost/property_tree/json_parser.hpp>
 #include <boost/property_tree/ptree.hpp>

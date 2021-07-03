@@ -1,10 +1,10 @@
 #ifndef MAHJONG_EVENT_H
 #define MAHJONG_EVENT_H
 
-#include "mjx.pb.h"
-#include "open.h"
-#include "tile.h"
-#include "types.h"
+#include "mjx/internal/mjx.pb.h"
+#include "mjx/internal/open.h"
+#include "mjx/internal/tile.h"
+#include "mjx/internal/types.h"
 
 namespace mjx::internal {
 class Event {
