@@ -1,9 +1,9 @@
-#include <utility>
+#include "mjx/hand.h"
 
 #include <google/protobuf/util/json_util.h>
 #include <google/protobuf/util/message_differencer.h>
 
-#include "mjx/hand.h"
+#include <utility>
 
 namespace mjx {
 Hand::Hand(mjxproto::Hand proto) : proto_(std::move(proto)) {}

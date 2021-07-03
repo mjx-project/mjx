@@ -1,9 +1,9 @@
+#include "mjx/action.h"
+
 #include <google/protobuf/util/json_util.h>
 #include <google/protobuf/util/message_differencer.h>
 
 #include <utility>
-
-#include "mjx/action.h"
 
 namespace mjx {
 Action::Action(mjxproto::Action proto) : proto_(std::move(proto)) {}
