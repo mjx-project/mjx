@@ -1,3 +1,5 @@
+#include "mjx/internal/hand.h"
+
 #include <algorithm>
 #include <array>
 #include <cassert>
@@ -7,7 +9,6 @@
 #include <unordered_map>
 #include <utility>
 
-#include "mjx/internal/hand.h"
 #include "mjx/internal/open.h"
 #include "mjx/internal/utils.h"
 #include "mjx/internal/win_cache.h"

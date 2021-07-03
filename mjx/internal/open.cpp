@@ -1,8 +1,9 @@
+#include "mjx/internal/open.h"
+
 #include <algorithm>
 #include <bitset>
 #include <cassert>
 
-#include "mjx/internal/open.h"
 #include "mjx/internal/utils.h"
 
 namespace mjx::internal {

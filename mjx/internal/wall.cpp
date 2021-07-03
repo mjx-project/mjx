@@ -1,8 +1,9 @@
+#include "mjx/internal/wall.h"
+
 #include <array>
 #include <boost/random/uniform_int_distribution.hpp>
 #include <cassert>
 
-#include "mjx/internal/wall.h"
 #include "mjx/internal/utils.h"
 
 namespace mjx::internal {

@@ -1,4 +1,5 @@
 #include "mjx/internal/agent_batch_local.h"
+
 #include "mjx/internal/utils.h"
 
 namespace mjx::internal {

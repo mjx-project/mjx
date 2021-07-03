@@ -1,3 +1,5 @@
+#include "mjx/internal/tile.h"
+
 #include <algorithm>
 #include <cassert>
 #include <cstdint>
@@ -6,7 +8,6 @@
 #include <unordered_map>
 #include <vector>
 
-#include "mjx/internal/tile.h"
 #include "mjx/internal/utils.h"
 
 namespace mjx::internal {

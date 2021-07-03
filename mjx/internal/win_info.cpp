@@ -1,7 +1,8 @@
+#include "mjx/internal/win_info.h"
+
 #include <cassert>
 #include <utility>
 
-#include "mjx/internal/win_info.h"
 #include "mjx/internal/types.h"
 #include "mjx/internal/utils.h"
 

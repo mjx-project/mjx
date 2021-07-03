@@ -1,4 +1,5 @@
 #include "mjx/internal/agent_grpc_client.h"
+
 #include "mjx/internal/utils.h"
 
 namespace mjx::internal {

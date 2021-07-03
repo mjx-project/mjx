@@ -1,4 +1,5 @@
 #include "mjx/internal/event.h"
+
 #include "mjx/internal/utils.h"
 
 namespace mjx::internal {

@@ -1,6 +1,7 @@
+#include "mjx/internal/types.h"
+
 #include <cassert>
 
-#include "mjx/internal/types.h"
 #include "mjx/internal/utils.h"
 
 namespace mjx::internal {

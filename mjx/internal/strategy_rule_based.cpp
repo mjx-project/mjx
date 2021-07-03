@@ -1,4 +1,5 @@
 #include "mjx/internal/strategy_rule_based.h"
+
 #include "mjx/internal/utils.h"
 
 namespace mjx::internal {

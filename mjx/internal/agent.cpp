@@ -1,6 +1,7 @@
+#include "mjx/internal/agent.h"
+
 #include <utility>
 
-#include "mjx/internal/agent.h"
 #include "mjx/internal/utils.h"
 
 namespace mjx::internal {
