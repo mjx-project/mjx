@@ -53,7 +53,8 @@ mjx::env::RLlibMahjongEnv::step(
   // Update states based on actions
   std::vector<mjxproto::Action> actions;
   actions.reserve(action_dict.size());
-  for (const auto& [player_id, action] : action_dict) actions.push_back(action.ToProto());
+  for (const auto& [player_id, action] : action_dict)
+    actions.push_back(action.ToProto());
   state_.Update(std::move(actions));
 
   // Receive new observations

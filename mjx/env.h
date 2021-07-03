@@ -1,6 +1,6 @@
 #include "action.h"
-#include "observation.h"
 #include "internal/state.h"
+#include "observation.h"
 
 #ifndef MJX_PROJECT_ENV_H
 #define MJX_PROJECT_ENV_H
@@ -15,7 +15,7 @@ class RLlibMahjongEnv {
   std::unordered_map<mjx::internal::PlayerId, mjx::Observation>
   reset() noexcept;
   std::tuple<std::unordered_map<mjx::internal::PlayerId,
-                                mjx::Observation>,     // observations
+                                mjx::Observation>,          // observations
              std::unordered_map<internal::PlayerId, int>,   // rewards
              std::unordered_map<internal::PlayerId, bool>,  // dones
              std::unordered_map<internal::PlayerId, std::string>>  // infos
