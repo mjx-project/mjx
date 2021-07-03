@@ -1,6 +1,5 @@
-#include "agent_grpc_client.h"
-
-#include "utils.h"
+#include "mjx/internal/agent_grpc_client.h"
+#include "mjx/internal/utils.h"
 
 namespace mjx::internal {
 AgentGrpcClient::AgentGrpcClient(PlayerId player_id,

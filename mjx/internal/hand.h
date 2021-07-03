@@ -7,11 +7,11 @@
 #include <unordered_set>
 #include <vector>
 
-#include "open.h"
-#include "tile.h"
-#include "win_cache.h"
-#include "win_info.h"
-#include "win_score.h"
+#include "mjx/internal/open.h"
+#include "mjx/internal/tile.h"
+#include "mjx/internal/win_cache.h"
+#include "mjx/internal/win_info.h"
+#include "mjx/internal/win_score.h"
 
 namespace mjx::internal {
 class HandParams;

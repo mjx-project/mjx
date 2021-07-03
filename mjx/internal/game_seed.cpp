@@ -1,8 +1,7 @@
-#include "game_seed.h"
-
 #include <cstdint>
 
-#include "utils.h"
+#include "mjx/internal/game_seed.h"
+#include "mjx/internal/utils.h"
 
 namespace mjx::internal {
 

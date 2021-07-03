@@ -1,10 +1,9 @@
-#include "environment.h"
-
+#include <algorithm>
 #include <utility>
+// #include <spdlog/spdlog.h>
 
-#include "algorithm"
-// #include "spdlog/spdlog.h"
-#include "utils.h"
+#include "mjx/internal/environment.h"
+#include "mjx/internal/utils.h"
 
 namespace mjx::internal {
 Environment::Environment(std::vector<std::shared_ptr<Agent>> agents)

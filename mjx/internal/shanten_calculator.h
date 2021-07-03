@@ -5,8 +5,8 @@
 #include <bitset>
 #include <vector>
 
-#include "shanten_cache.h"
-#include "types.h"
+#include "mjx/internal/shanten_cache.h"
+#include "mjx/internal/types.h"
 
 namespace mjx::internal {
 class ShantenCalculator {

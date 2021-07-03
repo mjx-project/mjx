@@ -1,9 +1,10 @@
 #ifndef MAHJONG_WALL_H
 #define MAHJONG_WALL_H
 
-#include "game_seed.h"
-#include "tile.h"
-#include "vector"
+#include <vector>
+
+#include "mjx/internal/game_seed.h"
+#include "mjx/internal/tile.h"
 
 namespace mjx::internal {
 class Wall {

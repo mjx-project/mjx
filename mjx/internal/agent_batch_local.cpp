@@ -1,6 +1,5 @@
-#include "agent_batch_local.h"
-
-#include "utils.h"
+#include "mjx/internal/agent_batch_local.h"
+#include "mjx/internal/utils.h"
 
 namespace mjx::internal {
 AgentBatchLocal::AgentBatchLocal(PlayerId player_id,

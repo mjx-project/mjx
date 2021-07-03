@@ -1,9 +1,8 @@
-#include "abstruct_hand.h"
-
 #include <string>
 #include <utility>
 
-#include "types.h"
+#include "mjx/internal/abstruct_hand.h"
+#include "mjx/internal/types.h"
 
 namespace mjx::internal {
 

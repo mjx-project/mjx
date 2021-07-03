@@ -7,8 +7,8 @@
 #include <unordered_map>
 #include <vector>
 
-#include "types.h"
-#include "win_cache.h"
+#include "mjx/internal/types.h"
+#include "mjx/internal/win_cache.h"
 
 namespace mjx::internal {
 class WinHandCacheGenerator {

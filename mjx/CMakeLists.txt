@@ -161,7 +161,7 @@ add_library(mjx STATIC
         internal/win_score.cpp
         internal/yaku_evaluator.cpp
         ${mjx_proto_srcs} ${mjx_grpc_srcs} ${mjx_proto_hdrs} ${mjx_grpc_hdrs})
-target_include_directories(mjx PUBLIC ${Boost_INCLUDE_DIRS})
+target_include_directories(mjx PUBLIC ${Boost_INCLUDE_DIRS} ${MJX_INCLUDE_DIR})
 target_link_libraries(mjx PUBLIC ${_REFLECTION} ${_GRPC_GRPCPP} ${_PROTOBUF_LIBPROTOBUF})
 target_compile_definitions(mjx PUBLIC WIN_CACHE_DIR="${CMAKE_CURRENT_SOURCE_DIR}/cache")
 

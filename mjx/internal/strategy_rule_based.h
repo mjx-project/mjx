@@ -1,8 +1,8 @@
 #ifndef MAHJONG_STRATEGY_RULE_BASED_H
 #define MAHJONG_STRATEGY_RULE_BASED_H
 
-#include "observation.h"
-#include "strategy.h"
+#include "mjx/internal/observation.h"
+#include "mjx/internal/strategy.h"
 
 namespace mjx::internal {
 class StrategyRuleBased final : public Strategy {

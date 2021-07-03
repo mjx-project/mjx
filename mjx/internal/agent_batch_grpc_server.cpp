@@ -1,12 +1,11 @@
-#include "agent_batch_grpc_server.h"
-
 #include <grpcpp/ext/proto_server_reflection_plugin.h>
 #include <grpcpp/health_check_service_interface.h>
 #include <grpcpp/security/server_credentials.h>
 #include <grpcpp/server.h>
 #include <grpcpp/server_builder.h>
 
-#include "utils.h"
+#include "mjx/internal/agent_batch_grpc_server.h"
+#include "mjx/internal/utils.h"
 
 namespace mjx::internal {
 AgentBatchGrpcServerImpl::AgentBatchGrpcServerImpl(

@@ -10,16 +10,16 @@
 #include <utility>
 #include <vector>
 
-#include "action.h"
-#include "consts.h"
-#include "event.h"
-#include "hand.h"
-#include "mjx.grpc.pb.h"
-#include "observation.h"
-#include "tile.h"
-#include "utils.h"
-#include "wall.h"
-#include "yaku_evaluator.h"
+#include "mjx/internal/action.h"
+#include "mjx/internal/consts.h"
+#include "mjx/internal/event.h"
+#include "mjx/internal/hand.h"
+#include "mjx/internal/mjx.grpc.pb.h"
+#include "mjx/internal/observation.h"
+#include "mjx/internal/tile.h"
+#include "mjx/internal/utils.h"
+#include "mjx/internal/wall.h"
+#include "mjx/internal/yaku_evaluator.h"
 
 namespace mjx::internal {
 // 試合結果（半荘）

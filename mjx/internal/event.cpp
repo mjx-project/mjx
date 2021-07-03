@@ -1,6 +1,5 @@
-#include "event.h"
-
-#include "utils.h"
+#include "mjx/internal/event.h"
+#include "mjx/internal/utils.h"
 
 namespace mjx::internal {
 mjxproto::Event Event::CreateDraw(AbsolutePos who) {

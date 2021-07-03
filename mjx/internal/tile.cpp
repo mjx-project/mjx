@@ -1,5 +1,3 @@
-#include "tile.h"
-
 #include <algorithm>
 #include <cassert>
 #include <cstdint>
@@ -8,7 +6,8 @@
 #include <unordered_map>
 #include <vector>
 
-#include "utils.h"
+#include "mjx/internal/tile.h"
+#include "mjx/internal/utils.h"
 
 namespace mjx::internal {
 Tile::Tile(TileId tile_id) : tile_id_(tile_id) { Assert(IsValid()); }

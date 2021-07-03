@@ -1,10 +1,9 @@
-#include "win_info.h"
-
 #include <cassert>
 #include <utility>
 
-#include "types.h"
-#include "utils.h"
+#include "mjx/internal/win_info.h"
+#include "mjx/internal/types.h"
+#include "mjx/internal/utils.h"
 
 namespace mjx::internal {
 WinInfo& WinInfo::Ron(Tile tile) noexcept {

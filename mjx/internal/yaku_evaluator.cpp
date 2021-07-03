@@ -1,12 +1,11 @@
-#include "yaku_evaluator.h"
-
 #include <cassert>
 #include <tuple>
 #include <vector>
 
-#include "types.h"
-#include "utils.h"
-#include "win_score.h"
+#include "mjx/intenral/types.h"
+#include "mjx/intenral/utils.h"
+#include "mjx/intenral/win_score.h"
+#include "mjx/intenral/yaku_evaluator.h"
 
 namespace mjx::internal {
 const WinHandCache& YakuEvaluator::win_cache() {

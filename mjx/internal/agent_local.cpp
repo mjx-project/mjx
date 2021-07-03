@@ -1,6 +1,5 @@
-#include "agent_local.h"
-
 #include <utility>
+#include "mjx/internal/agent_local.h"
 
 namespace mjx::internal {
 AgentLocal::AgentLocal(PlayerId player_id, std::shared_ptr<Strategy> strategy)
