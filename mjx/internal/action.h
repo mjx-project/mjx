@@ -4,7 +4,7 @@
 #include <memory>
 #include <utility>
 
-#include "mjx.pb.h"
+#include "mjx/internal/mjx.pb.h"
 #include "mjx/internal/open.h"
 #include "mjx/internal/tile.h"
 #include "mjx/internal/types.h"

@@ -1,6 +1,6 @@
 #include "mjx/internal/observation.h"
 
-#include "mjx.grpc.pb.h"
+#include "mjx/internal/mjx.grpc.pb.h"
 #include "mjx/internal/utils.h"
 
 namespace mjx::internal {

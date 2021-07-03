@@ -1,7 +1,7 @@
 #ifndef MAHJONG_EVENT_H
 #define MAHJONG_EVENT_H
 
-#include "mjx.pb.h"
+#include "mjx/internal/mjx.pb.h"
 #include "mjx/internal/open.h"
 #include "mjx/internal/tile.h"
 #include "mjx/internal/types.h"

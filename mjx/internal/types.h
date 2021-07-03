@@ -7,7 +7,7 @@
 #include <unordered_map>
 #include <vector>
 
-#include "mjx.pb.h"
+#include "mjx/internal/mjx.pb.h"
 
 namespace mjx::internal {
 using TileId =
