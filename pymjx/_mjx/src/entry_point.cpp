@@ -7,9 +7,9 @@ namespace py = pybind11;
 PYBIND11_MODULE(_mjx, m) {
   m.doc() = "";
 
-  py::class_<mjx::env::RLlibMahjongEnv>(m, "RLlibMahjongEnv")
+  py::class_<mjx::RLlibMahjongEnv>(m, "RLlibMahjongEnv")
       .def(py::init<>())
-      .def("reset", &mjx::env::RLlibMahjongEnv::reset)
-      .def("step", &mjx::env::RLlibMahjongEnv::step)
-      .def("seed", &mjx::env::RLlibMahjongEnv::seed);
+      .def("reset", &mjx::RLlibMahjongEnv::reset)
+      .def("step", &mjx::RLlibMahjongEnv::step)
+      .def("seed", &mjx::RLlibMahjongEnv::seed);
 }
