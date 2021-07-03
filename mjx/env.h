@@ -31,6 +31,6 @@ class RLlibMahjongEnv {
   internal::State state_{};
   const std::map<int, int> rewards_ = {{1, 90}, {2, 45}, {3, 0}, {4, -135}};
 };
-}  // namespace mjx::env
+}  // namespace mjx
 
 #endif  // MJX_PROJECT_ENV_H

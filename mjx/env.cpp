@@ -2,7 +2,6 @@
 
 namespace mjx {
 
-
 mjx::RLlibMahjongEnv::RLlibMahjongEnv() {}
 
 std::unordered_map<mjx::internal::PlayerId, mjx::Observation>
@@ -26,9 +25,8 @@ std::tuple<std::unordered_map<mjx::internal::PlayerId, mjx::Observation>,
            std::unordered_map<mjx::internal::PlayerId, int>,
            std::unordered_map<mjx::internal::PlayerId, bool>,
            std::unordered_map<mjx::internal::PlayerId, std::string>>
-RLlibMahjongEnv::step(
-    const std::unordered_map<internal::PlayerId, mjx::Action>&
-        action_dict) noexcept {
+RLlibMahjongEnv::step(const std::unordered_map<internal::PlayerId, mjx::Action>&
+                          action_dict) noexcept {
   // Initialize returned objects
   std::unordered_map<mjx::internal::PlayerId, mjx::Observation>
       proto_observations;
