@@ -5,7 +5,7 @@
 
 TEST(env, RLlibMahjongEnv) {
   auto env = mjx::env::RLlibMahjongEnv();
-  std::unordered_map<mjx::internal::PlayerId, mjxproto::Observation>
+  std::unordered_map<mjx::internal::PlayerId, mjx::Observation>
       observations;
   std::unordered_map<mjx::internal::PlayerId, int> rewards;
   std::unordered_map<mjx::internal::PlayerId, bool> dones;
@@ -16,29 +16,29 @@ TEST(env, RLlibMahjongEnv) {
   dones["__all__"] = false;
   auto strategy = mjx::internal::StrategyRuleBased();
   while (!dones.at("__all__")) {
-    std::unordered_map<mjx::internal::PlayerId, mjxproto::Action> action_dict;
+    std::unordered_map<mjx::internal::PlayerId, mjx::Action> action_dict;
     for (const auto& [agent, observation] : observations) {
-      auto is_round_over = observation.has_round_terminal();
-      auto action = strategy.TakeAction(observation);
-      action_dict[agent] = action;
+      auto is_round_over = observation.ToProto().has_round_terminal();
+      auto action = strategy.TakeAction(observation.ToProto());
+      action_dict[agent] = mjx::Action(action);
       if (!is_round_over) EXPECT_NE(action.type(), mjxproto::ACTION_TYPE_DUMMY);
       if (is_round_over) EXPECT_EQ(action.type(), mjxproto::ACTION_TYPE_DUMMY);
     }
     std::tie(observations, rewards, dones, infos) = env.step(action_dict);
   }
   EXPECT_TRUE(dones.at("__all__"));
-  auto player_ids = observations["player_0"].public_observation().player_ids();
+  auto player_ids = observations["player_0"].ToProto().public_observation().player_ids();
   std::unordered_map<mjx::internal::PlayerId, int> expected_tens = {
       {"player_0", 26600},
       {"player_1", 25600},
       {"player_2", 16800},
       {"player_3", 31000}};
   for (int i = 0; i < 4; ++i) {
-    EXPECT_EQ(observations["player_0"].round_terminal().final_score().tens(i),
+    EXPECT_EQ(observations["player_0"].ToProto().round_terminal().final_score().tens(i),
               expected_tens[player_ids[i]]);
   }
   for (const auto& [player_id, obs] : observations) {
-    EXPECT_EQ(obs.legal_actions().size(), 1);
-    EXPECT_EQ(obs.legal_actions(0).type(), mjxproto::ACTION_TYPE_DUMMY);
+    EXPECT_EQ(obs.ToProto().legal_actions().size(), 1);
+    EXPECT_EQ(obs.ToProto().legal_actions(0).type(), mjxproto::ACTION_TYPE_DUMMY);
   }
 }

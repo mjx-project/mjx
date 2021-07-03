@@ -102,8 +102,6 @@ add_library(mjx STATIC
         hand.cpp
         env.h
         env.cpp
-        pyenv.h
-        pyenv.cpp
         internal/abstruct_hand.h
         internal/action.h
         internal/agent.h

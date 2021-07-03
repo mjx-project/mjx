@@ -2,7 +2,7 @@
 
 mjx::env::RLlibMahjongEnv::RLlibMahjongEnv() {}
 
-std::unordered_map<mjx::internal::PlayerId, mjxproto::Observation>
+std::unordered_map<mjx::internal::PlayerId, mjx::Observation>
 mjx::env::RLlibMahjongEnv::reset() noexcept {
   if (!game_seed_) game_seed_ = seed_gen_();
   std::vector<mjx::internal::PlayerId> player_ids{"player_0", "player_1",
@@ -16,18 +16,18 @@ mjx::env::RLlibMahjongEnv::reset() noexcept {
   auto observations = state_.CreateObservations();
   assert(observations.size() == 1);  // first draw by the dealer
   auto& [who, obs] = *observations.begin();
-  return {{who, obs.proto()}};
+  return {{who, mjx::Observation(obs.proto())}};
 }
 
-std::tuple<std::unordered_map<mjx::internal::PlayerId, mjxproto::Observation>,
+std::tuple<std::unordered_map<mjx::internal::PlayerId, mjx::Observation>,
            std::unordered_map<mjx::internal::PlayerId, int>,
            std::unordered_map<mjx::internal::PlayerId, bool>,
            std::unordered_map<mjx::internal::PlayerId, std::string>>
 mjx::env::RLlibMahjongEnv::step(
-    const std::unordered_map<internal::PlayerId, mjxproto::Action>&
+    const std::unordered_map<internal::PlayerId, mjx::Action>&
         action_dict) noexcept {
   // Initialize returned objects
-  std::unordered_map<mjx::internal::PlayerId, mjxproto::Observation>
+  std::unordered_map<mjx::internal::PlayerId, mjx::Observation>
       proto_observations;
   std::unordered_map<mjx::internal::PlayerId, int> rewards = {
       {"player_0", 0}, {"player_1", 0}, {"player_2", 0}, {"player_3", 0}};
@@ -43,16 +43,17 @@ mjx::env::RLlibMahjongEnv::step(
   if (state_.IsRoundOver() && !state_.IsGameOver()) {
     auto next_state_info = state_.Next();
     state_ = mjx::internal::State(next_state_info);
-    auto observations = state_.CreateObservations();
+    auto internal_observations = state_.CreateObservations();
     // Prepare observations
-    for (const auto& [player_id, obs] : observations)
-      proto_observations[player_id] = obs.proto();
+    for (const auto& [player_id, obs] : internal_observations)
+      proto_observations[player_id] = mjx::Observation(obs.proto());
     return std::make_tuple(proto_observations, rewards, dones, infos);
   }
 
   // Update states based on actions
   std::vector<mjxproto::Action> actions;
-  for (const auto& [player_id, action] : action_dict) actions.push_back(action);
+  actions.reserve(action_dict.size());
+  for (const auto& [player_id, action] : action_dict) actions.push_back(action.ToProto());
   state_.Update(std::move(actions));
 
   // Receive new observations
@@ -62,7 +63,7 @@ mjx::env::RLlibMahjongEnv::step(
 
   // Prepare observations
   for (const auto& [player_id, obs] : observations)
-    proto_observations[player_id] = obs.proto();
+    proto_observations[player_id] = mjx::Observation(obs.proto());
 
   // Prepare rewards and dones
   if (state_.IsRoundOver() && state_.IsGameOver()) {
