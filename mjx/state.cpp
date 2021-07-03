@@ -1,9 +1,9 @@
-#include "state.h"
+#include <utility>
 
 #include <google/protobuf/util/json_util.h>
 #include <google/protobuf/util/message_differencer.h>
 
-#include <utility>
+#include "mjx/state.h"
 
 namespace mjx {
 mjx::State::State(mjxproto::State proto) : proto_(std::move(proto)) {}

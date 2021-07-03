@@ -1,9 +1,9 @@
-#include "observation.h"
+#include <utility>
 
 #include <google/protobuf/util/json_util.h>
 #include <google/protobuf/util/message_differencer.h>
 
-#include <utility>
+#include "mjx/observation.h"
 
 namespace mjx {
 Observation::Observation(mjxproto::Observation proto)

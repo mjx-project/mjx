@@ -1,7 +1,7 @@
 #ifndef MJX_PROJECT_OBSERVATION_H
 #define MJX_PROJECT_OBSERVATION_H
 
-#include "internal/mjx.grpc.pb.h"
+#include "mjx/internal/mjx.grpc.pb.h"
 
 namespace mjx {
 class Observation {
