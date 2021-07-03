@@ -4,7 +4,7 @@
 #include "gtest/gtest.h"
 
 TEST(env, RLlibMahjongEnv) {
-  auto env = mjx::env::RLlibMahjongEnv();
+  auto env = mjx::RLlibMahjongEnv();
   std::unordered_map<mjx::internal::PlayerId, mjx::Observation> observations;
   std::unordered_map<mjx::internal::PlayerId, int> rewards;
   std::unordered_map<mjx::internal::PlayerId, bool> dones;

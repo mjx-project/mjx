@@ -5,7 +5,7 @@
 #ifndef MJX_PROJECT_ENV_H
 #define MJX_PROJECT_ENV_H
 
-namespace mjx::env {
+namespace mjx {
 class RLlibMahjongEnv {
  public:
   RLlibMahjongEnv();

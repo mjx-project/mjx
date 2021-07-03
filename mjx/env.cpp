@@ -1,9 +1,12 @@
 #include "env.h"
 
-mjx::env::RLlibMahjongEnv::RLlibMahjongEnv() {}
+namespace mjx {
+
+
+mjx::RLlibMahjongEnv::RLlibMahjongEnv() {}
 
 std::unordered_map<mjx::internal::PlayerId, mjx::Observation>
-mjx::env::RLlibMahjongEnv::reset() noexcept {
+RLlibMahjongEnv::reset() noexcept {
   if (!game_seed_) game_seed_ = seed_gen_();
   std::vector<mjx::internal::PlayerId> player_ids{"player_0", "player_1",
                                                   "player_2", "player_3"};
@@ -23,7 +26,7 @@ std::tuple<std::unordered_map<mjx::internal::PlayerId, mjx::Observation>,
            std::unordered_map<mjx::internal::PlayerId, int>,
            std::unordered_map<mjx::internal::PlayerId, bool>,
            std::unordered_map<mjx::internal::PlayerId, std::string>>
-mjx::env::RLlibMahjongEnv::step(
+RLlibMahjongEnv::step(
     const std::unordered_map<internal::PlayerId, mjx::Action>&
         action_dict) noexcept {
   // Initialize returned objects
@@ -80,6 +83,7 @@ mjx::env::RLlibMahjongEnv::step(
   return std::make_tuple(proto_observations, rewards, dones, infos);
 }
 
-void mjx::env::RLlibMahjongEnv::seed(std::uint64_t game_seed) noexcept {
+void RLlibMahjongEnv::seed(std::uint64_t game_seed) noexcept {
   game_seed_ = game_seed;
 }
+}  // namespace mjx
