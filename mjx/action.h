@@ -15,7 +15,7 @@ class Action {
   bool operator!=(const Action& other) const noexcept;
 
   Action(int action_idx, const std::vector<Action>& legal_actions);
-  int idx() const noexcept ;  // 0 ~ 180
+  int idx() const noexcept;  // 0 ~ 180
 
  private:
   mjxproto::Action proto_{};

@@ -37,14 +37,15 @@ bool Observation::operator!=(const Observation& other) const noexcept {
   return !(*this == other);
 }
 
-std::vector<float> Observation::feature(const std::string& version) const noexcept {
+std::vector<float> Observation::feature(
+    const std::string& version) const noexcept {
   auto obs = internal::Observation(proto_);
   return obs.ToFeature(version);
 }
 
 std::vector<Action> Observation::legal_actions() const noexcept {
   std::vector<Action> actions;
-  for (const auto& action_proto: proto_.legal_actions()) {
+  for (const auto& action_proto : proto_.legal_actions()) {
     actions.emplace_back(Action(action_proto));
   }
   return actions;
@@ -55,7 +56,7 @@ std::vector<int> Observation::action_mask() const noexcept {
   assert(!proto_legal_actions.empty());
   // TODO: remove magic number 181
   auto mask = std::vector<int>(181, 0);
-  for (const auto& proto_action: proto_legal_actions) {
+  for (const auto& proto_action : proto_legal_actions) {
     mask[internal::Action::Encode(proto_action)] = 1;
   }
   return mask;

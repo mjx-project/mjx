@@ -35,7 +35,7 @@ bool Action::operator!=(const Action& other) const noexcept {
 }
 
 Action::Action(int action_idx, const std::vector<Action>& legal_actions) {
-  for (const auto& legal_action: legal_actions) {
+  for (const auto& legal_action : legal_actions) {
     if (legal_action.idx() == action_idx) {
       proto_ = legal_action.proto_;
       return;
@@ -44,7 +44,5 @@ Action::Action(int action_idx, const std::vector<Action>& legal_actions) {
   assert(false);
 }
 
-int Action::idx() const noexcept {
-  return internal::Action::Encode(proto_);
-}
+int Action::idx() const noexcept { return internal::Action::Encode(proto_); }
 }  // namespace mjx
