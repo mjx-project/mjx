@@ -5,6 +5,8 @@
 
 #include <utility>
 
+#include "mjx/internal/observation.h"
+
 namespace mjx {
 Observation::Observation(mjxproto::Observation proto)
     : proto_(std::move(proto)) {}
@@ -33,5 +35,29 @@ bool Observation::operator==(const Observation& other) const noexcept {
 
 bool Observation::operator!=(const Observation& other) const noexcept {
   return !(*this == other);
+}
+
+std::vector<float> Observation::feature(const std::string& version) const noexcept {
+  auto obs = internal::Observation(proto_);
+  return obs.ToFeature(version);
+}
+
+std::vector<Action> Observation::legal_actions() const noexcept {
+  std::vector<Action> actions;
+  for (const auto& action_proto: proto_.legal_actions()) {
+    actions.emplace_back(Action(action_proto));
+  }
+  return actions;
+}
+
+std::vector<int> Observation::action_mask() const noexcept {
+  auto proto_legal_actions = proto_.legal_actions();
+  assert(!proto_legal_actions.empty());
+  // TODO: remove magic number 181
+  auto mask = std::vector<int>(181, 0);
+  for (const auto& proto_action: proto_legal_actions) {
+    mask[internal::Action::Encode(proto_action)] = 1;
+  }
+  return mask;
 }
 }  // namespace mjx

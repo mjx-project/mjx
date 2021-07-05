@@ -3,6 +3,8 @@
 
 #include "mjx/internal/mjx.grpc.pb.h"
 
+#include "mjx/action.h"
+
 namespace mjx {
 class Observation {
  public:
@@ -13,6 +15,10 @@ class Observation {
   std::string ToJson() const noexcept;
   bool operator==(const Observation& other) const noexcept;
   bool operator!=(const Observation& other) const noexcept;
+
+  std::vector<float> feature(const std::string& version) const noexcept;
+  std::vector<Action> legal_actions() const noexcept;
+  std::vector<int> action_mask() const noexcept;
 
  private:
   mjxproto::Observation proto_{};
