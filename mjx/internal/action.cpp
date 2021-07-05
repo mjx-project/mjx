@@ -277,6 +277,9 @@ std::uint8_t Action::Encode(const mjxproto::Action& action) {
     case mjxproto::ACTION_TYPE_NO:
       // 179: No
       return 179;
+    case mjxproto::ACTION_TYPE_DUMMY:
+      // 180: Dummy
+      return 180;
     default:
       assert(false);
   }

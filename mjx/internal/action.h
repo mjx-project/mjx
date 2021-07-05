@@ -54,6 +54,7 @@ class Action {
   // 177: Riichi
   // 178: Kyuushu
   // 179: No
+  // 180: Dummy
 };
 }  // namespace mjx::internal
 
