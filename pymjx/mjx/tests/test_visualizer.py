@@ -9,8 +9,8 @@ def test_visualizer():
     files = glob.glob("resources/observation/*.json")
     for file in files:
         game_data = MahjongTable.load_data(file, mode)
-        assert list == type(game_data)
-        assert MahjongTable == type(game_data[0])
+        assert isinstance(game_data,list)
+        assert isinstance(game_data[0],MahjongTable)
         assert 4 == len(game_data[0].players)
 
         if show:
