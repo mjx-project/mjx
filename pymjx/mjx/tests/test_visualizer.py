@@ -5,8 +5,8 @@ from mjx.visualizer.visualizer import GameBoardVisualizer, GameVisualConfig, Mah
 
 def test_visualizer():
     mode = "obs"
-    show = False
-    files = glob.glob("resources/observation/*.json")
+    show = True
+    files = glob.glob("resources/observation/*.json", recursive=True)
     for file in files:
         game_data = MahjongTable.load_data(file, mode)
         assert isinstance(game_data, list)
