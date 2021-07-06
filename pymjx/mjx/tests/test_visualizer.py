@@ -1,7 +1,7 @@
-import unittest
 import glob
+import unittest
 
-from mjx.visualizer.visualizer import GameVisualConfig, GameBoardVisualizer, MahjongTable
+from mjx.visualizer.visualizer import GameBoardVisualizer, GameVisualConfig, MahjongTable
 
 
 class VisualizerTest(unittest.TestCase):
