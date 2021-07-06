@@ -5,7 +5,7 @@ clean:
 	rm -rf docker-build
 	rm -rf mjx/internal/*pb*
 
-build: mjx tests
+build: mjx pymjx/_mjx/src tests
 	mkdir -p build && cd build && cmake .. && make -j
 
 test: build
