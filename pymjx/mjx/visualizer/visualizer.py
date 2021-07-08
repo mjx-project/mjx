@@ -9,7 +9,6 @@ from rich.panel import Panel
 from rich.text import Text
 
 import mjxproto
-from mjx.main import StdinIterator
 from mjx.visualizer.converter import (
     FromWho,
     TileUnitType,
@@ -18,8 +17,9 @@ from mjx.visualizer.converter import (
     get_tile_char,
     get_wind_char,
 )
-from mjx.visualizer.open_utils import open_event_type, open_from, open_tile_ids
 from mjxproto import EventType
+
+from .open_utils import open_event_type, open_from, open_tile_ids
 
 
 @dataclass
@@ -885,15 +885,3 @@ class GameBoardVisualizer:
             self.show_by_rich(data)
         else:
             print(self.show_by_text(data))
-
-
-board_visualizer = GameBoardVisualizer(GameVisualConfig())
-
-itr = StdinIterator()
-for line in itr:
-    s_line = line.strip().strip("\n").split()
-    if len(s_line) != 2:
-        continue
-
-    mahjong_tables = MahjongTable.load_data(s_line[0], "obs")
-    board_visualizer.print(mahjong_tables[int(s_line[1])])
