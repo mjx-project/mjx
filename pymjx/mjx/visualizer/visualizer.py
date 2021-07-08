@@ -1,5 +1,6 @@
 import json
 import sys
+import argparse
 from dataclasses import dataclass
 
 from google.protobuf import json_format
@@ -8,7 +9,6 @@ from rich.layout import Layout
 from rich.panel import Panel
 from rich.text import Text
 
-import mjxproto
 from mjx.visualizer.converter import (
     FromWho,
     TileUnitType,
@@ -17,9 +17,11 @@ from mjx.visualizer.converter import (
     get_tile_char,
     get_wind_char,
 )
+from mjx.main import StdinIterator
+import mjxproto
 from mjxproto import EventType
 
-from .open_utils import open_event_type, open_from, open_tile_ids
+from mjx.visualizer.open_utils import open_event_type, open_from, open_tile_ids
 
 
 @dataclass
@@ -885,3 +887,32 @@ class GameBoardVisualizer:
             self.show_by_rich(data)
         else:
             print(self.show_by_text(data))
+
+
+parser = argparse.ArgumentParser(description="MahjongTable Visualizer.")
+parser.add_argument(
+    "path",
+    type=str,
+    default=[],
+    nargs="*",
+    help="",
+)
+parser.add_argument(
+    "pages",
+    type=int,
+    default=0,
+    nargs="*",
+    help="",
+)
+args = parser.parse_args()
+
+board_visualizer = GameBoardVisualizer(GameVisualConfig())
+
+itr = StdinIterator()
+for line in itr:
+    s_line = line.strip().strip("\n").split()
+    if len(s_line) != 2:
+        continue
+
+    mahjong_tables = MahjongTable.load_data(s_line[0], "obs")
+    board_visualizer.print(mahjong_tables[int(s_line[1])])
