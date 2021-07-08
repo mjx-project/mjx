@@ -281,7 +281,7 @@ def convert(
 @click.option("--mode", type=str, default="obs")
 @click.option("--uni", is_flag=True)
 @click.option("--rich", is_flag=True)
-@click.option("--show_name", type=bool)
+@click.option("--show_name", is_flag=True)
 @click.option("--jp", is_flag=True)
 def visualize(path: str, page: str, mode: str, uni: bool, rich: bool, show_name: bool, jp: bool):
     """Visualize Mahjong json data.
