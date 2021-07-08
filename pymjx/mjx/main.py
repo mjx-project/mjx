@@ -289,8 +289,8 @@ def visualize(path: str, page: str, mode: str, uni: bool, rich: bool, show_name:
     Example (using stdin)
 
       $ cat test.json  | mjx visualize
-      $ head test.json --n 10  | mjx visualize --rich --uni
-      $ head test.json --n 10  | mjx visualize --rich --jp
+      $ head test.json -n 10  | mjx visualize --rich --uni
+      $ head test.json -n 10  | mjx visualize --rich --jp
 
     Example (using file inputs)
 
@@ -304,8 +304,11 @@ def visualize(path: str, page: str, mode: str, uni: bool, rich: bool, show_name:
         )
         return
 
+    board_visualizer = GameBoardVisualizer(
+        GameVisualConfig(rich=rich, uni=uni, show_name=show_name, lang=(1 if jp else 0))
+    )
+
     if path == "":  # From stdin
-        board_visualizer = GameBoardVisualizer(GameVisualConfig())
         itr = StdinIterator()
         for line in itr:
             s_line = line.strip().strip("\n")
@@ -314,12 +317,8 @@ def visualize(path: str, page: str, mode: str, uni: bool, rich: bool, show_name:
             else:
                 mahjong_table = MahjongTable.decode_state(s_line)
             board_visualizer.print(mahjong_table)
-        return
 
     else:  # From files
-        board_visualizer = GameBoardVisualizer(
-            GameVisualConfig(rich=rich, uni=uni, show_name=show_name, lang=(1 if jp else 0))
-        )
         mahjong_tables = MahjongTable.load_data(path, mode)
         board_visualizer.print(mahjong_tables[int(page)])
 
