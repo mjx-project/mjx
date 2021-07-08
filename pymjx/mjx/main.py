@@ -11,6 +11,7 @@ from google.protobuf import json_format
 import mjxproto
 from mjx.converter.mjlog_decoder import MjlogDecoder
 from mjx.converter.mjlog_encoder import MjlogEncoder
+from mjx.visualizer.visualizer import GameBoardVisualizer, GameVisualConfig, MahjongTable
 
 
 @click.group(help="A CLI tool of mjx")
@@ -272,6 +273,25 @@ def convert(
             with open(path_to, "w") as f:
                 for line in transformed_lines:
                     f.write(line)
+
+
+@cli.command()
+@click.argument("path", type=str, default="")
+@click.argument("page", type=str, default="")
+@click.option("--uni", is_flag=True)
+@click.option("--rich", is_flag=True)
+@click.option("--show_name", type=bool)
+@click.option("--jp", is_flag=True)
+def visualize(path: str, page: str, uni: bool, rich: bool, show_name: bool, jp: bool):
+    board_visualizer = GameBoardVisualizer(GameVisualConfig())
+    itr = StdinIterator()
+    for line in itr:
+        s_line = line.strip().strip("\n").split()
+        if len(s_line) != 2:
+            continue
+
+        mahjong_tables = MahjongTable.load_data(s_line[0], "obs")
+        board_visualizer.print(mahjong_tables[int(s_line[1])])
 
 
 def main():
