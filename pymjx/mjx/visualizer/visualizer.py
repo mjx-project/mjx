@@ -1,4 +1,3 @@
-import argparse
 import json
 import sys
 from dataclasses import dataclass
@@ -887,23 +886,6 @@ class GameBoardVisualizer:
         else:
             print(self.show_by_text(data))
 
-
-parser = argparse.ArgumentParser(description="MahjongTable Visualizer.")
-parser.add_argument(
-    "path",
-    type=str,
-    default=[],
-    nargs="*",
-    help="",
-)
-parser.add_argument(
-    "pages",
-    type=int,
-    default=0,
-    nargs="*",
-    help="",
-)
-args = parser.parse_args()
 
 board_visualizer = GameBoardVisualizer(GameVisualConfig())
 
