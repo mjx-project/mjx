@@ -277,21 +277,51 @@ def convert(
 
 @cli.command()
 @click.argument("path", type=str, default="")
-@click.argument("page", type=str, default="")
+@click.argument("page", type=str, default="0")
+@click.option("--mode", type=str, default="obs")
 @click.option("--uni", is_flag=True)
 @click.option("--rich", is_flag=True)
 @click.option("--show_name", type=bool)
 @click.option("--jp", is_flag=True)
-def visualize(path: str, page: str, uni: bool, rich: bool, show_name: bool, jp: bool):
-    board_visualizer = GameBoardVisualizer(GameVisualConfig())
-    itr = StdinIterator()
-    for line in itr:
-        s_line = line.strip().strip("\n").split()
-        if len(s_line) != 2:
-            continue
+def visualize(path: str, page: str, mode: str, uni: bool, rich: bool, show_name: bool, jp: bool):
+    """Visualize Mahjong json data.
 
-        mahjong_tables = MahjongTable.load_data(s_line[0], "obs")
-        board_visualizer.print(mahjong_tables[int(s_line[1])])
+    Example (using stdin)
+
+      $ cat test.json  | mjx visualize
+      $ head test.json --n 10  | mjx visualize --rich --uni
+      $ head test.json --n 10  | mjx visualize --rich --jp
+
+    Example (using file inputs)
+
+      $ mjx visualize test.json 0
+      $ mjx visualize test.json 0 --rich --uni --show_name False --jp
+
+    """
+    if mode not in ["obs", "sta"]:
+        sys.stderr.write(
+            f"Error: Invalid value for '--mode': {mode} is neither 'obs' nor 'sta'.\n"
+        )
+        return
+
+    if path == "":  # From stdin
+        board_visualizer = GameBoardVisualizer(GameVisualConfig())
+        itr = StdinIterator()
+        for line in itr:
+            s_line = line.strip().strip("\n")
+            if mode == "obs":
+                mahjong_table = MahjongTable.decode_observation(s_line)
+            else:
+                mahjong_table = MahjongTable.decode_state(s_line)
+            board_visualizer.print(mahjong_table)
+        return
+
+    else:  # From files
+        board_visualizer = GameBoardVisualizer(
+            GameVisualConfig(rich=rich, uni=uni, show_name=show_name, lang=(1 if jp else 0))
+        )
+        mahjong_tables = MahjongTable.load_data(path, mode)
+        board_visualizer.print(mahjong_tables[int(page)])
 
 
 def main():
