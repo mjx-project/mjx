@@ -1,6 +1,6 @@
+import argparse
 import json
 import sys
-import argparse
 from dataclasses import dataclass
 
 from google.protobuf import json_format
@@ -9,6 +9,8 @@ from rich.layout import Layout
 from rich.panel import Panel
 from rich.text import Text
 
+import mjxproto
+from mjx.main import StdinIterator
 from mjx.visualizer.converter import (
     FromWho,
     TileUnitType,
@@ -17,11 +19,8 @@ from mjx.visualizer.converter import (
     get_tile_char,
     get_wind_char,
 )
-from mjx.main import StdinIterator
-import mjxproto
-from mjxproto import EventType
-
 from mjx.visualizer.open_utils import open_event_type, open_from, open_tile_ids
+from mjxproto import EventType
 
 
 @dataclass
