@@ -295,7 +295,7 @@ def visualize(path: str, page: str, mode: str, uni: bool, rich: bool, show_name:
     Example (using file inputs)
 
       $ mjx visualize test.json 0
-      $ mjx visualize test.json 0 --rich --uni --show_name False --jp
+      $ mjx visualize test.json 0 --rich --uni --show_name --jp
 
     """
     if mode not in ["obs", "sta"]:
