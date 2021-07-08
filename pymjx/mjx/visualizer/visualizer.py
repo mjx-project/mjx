@@ -1,5 +1,4 @@
 import json
-import os
 from dataclasses import dataclass
 
 from google.protobuf import json_format
