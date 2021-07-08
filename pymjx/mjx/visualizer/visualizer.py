@@ -1,8 +1,8 @@
 import json
+import sys
 from dataclasses import dataclass
 
 from google.protobuf import json_format
-from rich import print
 from rich.console import Console
 from rich.layout import Layout
 from rich.panel import Panel
@@ -109,8 +109,9 @@ class MahjongTable:
                     num_of_tiles += 3
 
             if num_of_tiles < 13 or 14 < num_of_tiles:
-                print("ERROR: The number of tiles is inaccurate.")
-                print("player", p.player_idx, ":", num_of_tiles)
+                sys.stderr.write(
+                    f"ERROR: The number of tiles is inaccurate. Player: {p.player_idx}, {num_of_tiles}"
+                )
                 return False
         return True
 
@@ -123,7 +124,7 @@ class MahjongTable:
                     table = cls.decode_observation(line)
                 else:
                     table = cls.decode_state(line)
-                table.check_num_tiles()
+                assert table.check_num_tiles()
                 tables.append(table)
         return tables
 
