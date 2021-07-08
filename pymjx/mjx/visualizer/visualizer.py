@@ -1,5 +1,4 @@
 import json
-import os
 from dataclasses import dataclass
 
 from google.protobuf import json_format
@@ -880,34 +879,8 @@ class GameBoardVisualizer:
         console = Console()
         console.print(layout)
 
-    def print(self, data):
-        if type(data) == MahjongTable:
-            if self.config.rich:
-                self.show_by_rich(data)
-            else:
-                print(self.show_by_text(data))
-
-        elif type(data) == list and type(data[0]) == MahjongTable:
-            turns = len(data)
-            i = 0
-            command = ""
-
-            while command != "q":
-                self.print(data[i])
-                command = input("z:-20 x:-1 c:+1 v:+20 :")
-
-                if command == "z":
-                    i = (i - 20) % turns
-                if command == "x":
-                    i = (i - 1) % turns
-                if command == "c":
-                    i = (i + 1) % turns
-                if command == "v":
-                    i = (i + 20) % turns
-                if command == "a":
-                    i = 0
-
-                if os.name == "nt":
-                    os.system("cls")
-                else:
-                    os.system("clear")
+    def print(self, data: MahjongTable):
+        if self.config.rich:
+            self.show_by_rich(data)
+        else:
+            print(self.show_by_text(data))
