@@ -1,3 +1,4 @@
+import re
 import _mjx
 import ray
 import ray.rllib.agents.ppo as ppo
@@ -17,32 +18,42 @@ torch, nn = try_import_torch()
 
 
 class WrappedMahjongEnv(MultiAgentEnv):
+    PLAYER_IDS = ["player_0", "player_1", "player_2", "player_3"]
     NUM_ACTION = 181
     NUM_FEATURE = 34 * 4
-    ACTION_EMBED_SIZE = 2
+    ACTION_EMBED_SIZE = 1
     AGENT_OBS_SPACE = Dict({
         "action_mask": Box(0, 1, shape=(NUM_ACTION,)),
-        "avail_actions": Box(-10, 10, shape=(NUM_ACTION, 2)),
+        "avail_actions": Box(-10, 10, shape=(NUM_ACTION, ACTION_EMBED_SIZE)),
         "real_obs": Box(0, 1, shape=(NUM_FEATURE,)),
     })
     AGENT_ACTION_SPACE = Discrete(NUM_ACTION)
 
-    def __init__(self, env):
+    def __init__(self, env, seed=None):
         self.env = env
-        self.action_embeds = [np.random.randn(self.ACTION_EMBED_SIZE) for _ in range(self.AGENT_ACTION_SPACE.n)]
+        self.action_embeds = [np.random.randn(self.ACTION_EMBED_SIZE) for _ in range(self.NUM_ACTION)]
         self.legal_actions = {}
+        if seed is not None:
+            self.seed(seed)
 
     def _make_observation(self, orig_obs_dict):
         obs_dict = {}
-        for player_id, obs in orig_obs_dict.items():
+        self.legal_actions = {}
+        for player_id in self.PLAYER_IDS:
             obs_dict[player_id] = {}
-            mask = obs.action_mask()
-            obs_dict[player_id]["action_mask"] = mask
-            obs_dict[player_id]["avail_actions"] = [self.action_embeds[i]
-                                                    for i in range(self.AGENT_ACTION_SPACE.n)
-                                                    if mask[i]]
-            obs_dict[player_id]["real_obs"] = obs.feature("small_v0")
-            self.legal_actions[player_id] = obs.legal_actions()
+            if player_id in orig_obs_dict:
+                obs = orig_obs_dict[player_id]
+                mask = obs.action_mask()
+                obs_dict[player_id]["action_mask"] = np.array(mask)
+                obs_dict[player_id]["avail_actions"] = np.array([self.action_embeds[i] if mask[i]
+                                                                 else np.zeros((self.ACTION_EMBED_SIZE,))
+                                                                 for i in range(self.NUM_ACTION)])
+                obs_dict[player_id]["real_obs"] = np.array(obs.feature("small_v0"))
+                self.legal_actions[player_id] = obs.legal_actions()
+            else:
+                obs_dict[player_id]["action_mask"] = np.zeros((self.NUM_ACTION,))
+                obs_dict[player_id]["avail_actions"] = np.zeros((self.NUM_ACTION, self.ACTION_EMBED_SIZE))
+                obs_dict[player_id]["real_obs"] = np.zeros((self.NUM_FEATURE, ))
         return obs_dict
 
     def reset(self):
@@ -51,10 +62,14 @@ class WrappedMahjongEnv(MultiAgentEnv):
 
     def step(self, orig_act_dict):
         act_dict = {}
-        for player_id, act in orig_act_dict.items():
-            act_dict[player_id] = _mjx.Action(act, self.legal_actions[player_id])
+        for player_id in self.PLAYER_IDS:
+            if player_id in self.legal_actions:
+                act_dict[player_id] = _mjx.Action(orig_act_dict[player_id], self.legal_actions[player_id])
         orig_obs_dict, rew, done, info = self.env.step(act_dict)
         return self._make_observation(orig_obs_dict=orig_obs_dict), rew, done, info
+
+    def seed(self, game_seed):
+        self.env.seed(game_seed)
 
 
 class TorchRLlibMahjongEnvModel(DQNTorchModel):
@@ -89,9 +104,11 @@ class TorchRLlibMahjongEnvModel(DQNTorchModel):
         # Expand the model output to [BATCH, 1, EMBED_SIZE]. Note that the
         # avail actions tensor is of shape [BATCH, MAX_ACTIONS, EMBED_SIZE].
         intent_vector = torch.unsqueeze(action_embed, 1)
+        action_mask_plus = torch.unsqueeze(action_mask, 2)
 
         # Batch dot product => shape of logits is [BATCH, MAX_ACTIONS].
-        action_logits = torch.sum(avail_actions * intent_vector, dim=2)
+        action_logits = torch.sum(action_mask_plus * intent_vector, dim=2)
+        # action_logits = torch.sum(avail_actions * intent_vector, dim=2)
 
         # Mask out invalid actions (use -inf to tag invalid).
         # These are then recognized by the EpsilonGreedy exploration component
@@ -120,13 +137,13 @@ class RandomSelect(Policy):
                         info_batch=None,
                         episodes=None,
                         **kwargs):
-        print(obs_batch)
-        assert False
-        return (state_batches[0] + 1) % 3, state_batches, {}
+        legal_actions = [idx for idx in range(WrappedMahjongEnv.NUM_ACTION) if obs_batch[0][idx]]
+        action = np.random.choice(legal_actions) if legal_actions else 0
+        return np.array([action]), state_batches, {}
 
 
-def random_policy_raw():
-    env = WrappedMahjongEnv(env=_mjx.RLlibMahjongEnv())
+def random_policy():
+    env = WrappedMahjongEnv(env=_mjx.RLlibMahjongEnv(), seed=2)
     obs_dict = env.reset()
     dones = {"__all__": False}
     while not dones["__all__"]:
@@ -134,40 +151,17 @@ def random_policy_raw():
         for id, obs in obs_dict.items():
             action_mask = obs_dict[id]["action_mask"]
             legal_actions = [idx for idx in range(len(action_mask)) if action_mask[idx]]
-            act_dict[id] = np.random.choice(legal_actions)
+            act_dict[id] = np.random.choice(legal_actions) if legal_actions else 0
         obs_dict, rewards, dones, info = env.step(act_dict)
-        print(rewards)
 
 
-def random_policy_rllib():
-    register_env("rllibmahjong", lambda _: WrappedMahjongEnv(env=_mjx.RLlibMahjongEnv()))
-    config = dict(
-        {
-            "env": "rllibmahjong",
-            "model": {
-                "custom_model": TorchRLlibMahjongEnvModel,
-            },
-            # Use GPUs iff `RLLIB_NUM_GPUS` env var set to > 0.
-            "num_gpus": 0,
-            "num_workers": 0,
-            "multiagent": {
-                "policies": {
-                    "random": (RandomSelect, WrappedMahjongEnv.AGENT_OBS_SPACE, WrappedMahjongEnv.AGENT_ACTION_SPACE, {})
-                },
-                "policy_mapping_fn":
-                    lambda agent_id: "random"
-            },
-            "framework": "torch"
-        })
-    trainer_obj = ppo.PPOTrainer(config=config)
-    for _ in range(100):
-        results = trainer_obj.train()
-        print(pretty_print(results))
+def model_policy():
 
+    def select_policy(agent_id):
+        num = re.sub(r"\D", "", agent_id)
+        return f"random{num}" if num != "0" else "learned"
 
-
-def main():
-    register_env("rllibmahjong", lambda _: WrappedMahjongEnv(env=_mjx.RLlibMahjongEnv()))
+    register_env("rllibmahjong", lambda _: WrappedMahjongEnv(env=_mjx.RLlibMahjongEnv(), seed=3))
     config = dict(
         {
             "env": "rllibmahjong",
@@ -183,9 +177,20 @@ def main():
                     "learned": (None, WrappedMahjongEnv.AGENT_OBS_SPACE, WrappedMahjongEnv.AGENT_ACTION_SPACE, {
                         "framework": "torch",
                     }),
+                    "random1": (RandomSelect,
+                                WrappedMahjongEnv.AGENT_OBS_SPACE,
+                                WrappedMahjongEnv.AGENT_ACTION_SPACE,
+                                {}),
+                    "random2": (RandomSelect,
+                                WrappedMahjongEnv.AGENT_OBS_SPACE,
+                                WrappedMahjongEnv.AGENT_ACTION_SPACE,
+                                {}),
+                    "random3": (RandomSelect,
+                                WrappedMahjongEnv.AGENT_OBS_SPACE,
+                                WrappedMahjongEnv.AGENT_ACTION_SPACE,
+                                {})
                 },
-                "policy_mapping_fn":
-                    lambda agent_id: "learned"
+                "policy_mapping_fn": select_policy
             },
             "framework": "torch"
         })
@@ -196,8 +201,8 @@ def main():
 
 
 if __name__ == '__main__':
-    # random_policy_raw()
-    random_policy_rllib()
+    # random_policy()
+    model_policy()
     # ray.init()
     # main()
     # ray.shutdown()
