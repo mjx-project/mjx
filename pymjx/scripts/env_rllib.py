@@ -202,7 +202,6 @@ def model_policy():
 
 if __name__ == '__main__':
     # random_policy()
+    ray.init()
     model_policy()
-    # ray.init()
-    # main()
-    # ray.shutdown()
+    ray.shutdown()
