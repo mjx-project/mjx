@@ -76,6 +76,7 @@ RLlibMahjongEnv::step(const std::unordered_map<internal::PlayerId, mjx::Action>&
       dones[player_id] = true;
     }
     dones["__all__"] = true;
+    game_seed_ = std::nullopt;
   }
 
   return std::make_tuple(proto_observations, rewards, dones, infos);
