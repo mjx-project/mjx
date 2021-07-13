@@ -2,6 +2,8 @@ import re
 import _mjx
 import ray
 import ray.rllib.agents.ppo as ppo
+import ray.rllib.agents.dqn as dqn
+import ray.rllib.agents.pg as pg
 from ray.rllib.env.multi_agent_env import MultiAgentEnv
 import numpy as np
 from gym.spaces import Discrete, Box, Dict
@@ -12,6 +14,7 @@ from ray.rllib.utils.torch_ops import FLOAT_MIN, FLOAT_MAX
 from ray.tune.registry import register_env
 from ray.tune.logger import pretty_print
 from ray.rllib.policy.policy import Policy
+from ray import tune
 
 tf1, tf, tfv = try_import_tf()
 torch, nn = try_import_torch()
@@ -62,10 +65,14 @@ class WrappedMahjongEnv(MultiAgentEnv):
 
     def step(self, orig_act_dict):
         act_dict = {}
+        # print(orig_act_dict)
         for player_id in self.PLAYER_IDS:
             if player_id in self.legal_actions:
                 act_dict[player_id] = _mjx.Action(orig_act_dict[player_id], self.legal_actions[player_id])
+        # print(act_dict)
         orig_obs_dict, rew, done, info = self.env.step(act_dict)
+        # if done["__all__"]:
+        #     print(rew)
         return self._make_observation(orig_obs_dict=orig_obs_dict), rew, done, info
 
     def seed(self, game_seed):
@@ -114,6 +121,8 @@ class TorchRLlibMahjongEnvModel(DQNTorchModel):
         # These are then recognized by the EpsilonGreedy exploration component
         # as invalid actions that are not to be chosen.
         inf_mask = torch.clamp(torch.log(action_mask), FLOAT_MIN, FLOAT_MAX)
+        if not np.any(action_mask.to('cpu').detach().numpy().copy()):
+            inf_mask[0] = 0
 
         return action_logits + inf_mask, state
 
@@ -139,6 +148,7 @@ class RandomSelect(Policy):
                         **kwargs):
         legal_actions = [idx for idx in range(WrappedMahjongEnv.NUM_ACTION) if obs_batch[0][idx]]
         action = np.random.choice(legal_actions) if legal_actions else 0
+        # print(action)
         return np.array([action]), state_batches, {}
 
 
@@ -153,6 +163,53 @@ def random_policy():
             legal_actions = [idx for idx in range(len(action_mask)) if action_mask[idx]]
             act_dict[id] = np.random.choice(legal_actions) if legal_actions else 0
         obs_dict, rewards, dones, info = env.step(act_dict)
+
+
+def rllib_random_policy():
+
+    def select_policy(agent_id):
+        num = re.sub(r"\D", "", agent_id)
+        return f"random{num}"
+
+    register_env("rllibmahjong", lambda _: WrappedMahjongEnv(env=_mjx.RLlibMahjongEnv(), seed=3))
+    config = dict(
+        {
+            "env": "rllibmahjong",
+            # Use GPUs iff `RLLIB_NUM_GPUS` env var set to > 0.
+            "num_gpus": 0,
+            "num_workers": 0,
+            "multiagent": {
+                "policies_to_train": ["learned"],
+                "policies": {
+                    "random0": (RandomSelect,
+                                WrappedMahjongEnv.AGENT_OBS_SPACE,
+                                WrappedMahjongEnv.AGENT_ACTION_SPACE,
+                                {}),
+                    "random1": (RandomSelect,
+                                WrappedMahjongEnv.AGENT_OBS_SPACE,
+                                WrappedMahjongEnv.AGENT_ACTION_SPACE,
+                                {}),
+                    "random2": (RandomSelect,
+                                WrappedMahjongEnv.AGENT_OBS_SPACE,
+                                WrappedMahjongEnv.AGENT_ACTION_SPACE,
+                                {}),
+                    "random3": (RandomSelect,
+                                WrappedMahjongEnv.AGENT_OBS_SPACE,
+                                WrappedMahjongEnv.AGENT_ACTION_SPACE,
+                                {})
+                },
+                "policy_mapping_fn": select_policy
+            },
+            "framework": "torch"
+        })
+    stop = {
+        "training_iteration": 10000,
+        "timesteps_total": 100000,
+    }
+    trainer_obj = ppo.PPOTrainer(config=config)
+    for _ in range(100):
+        results = trainer_obj.train()
+        print(pretty_print(results))
 
 
 def model_policy():
@@ -201,7 +258,8 @@ def model_policy():
 
 
 if __name__ == '__main__':
-    # random_policy()
     ray.init()
-    model_policy()
+    # random_policy()
+    rllib_random_policy()
+    # model_policy()
     ray.shutdown()
