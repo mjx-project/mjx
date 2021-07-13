@@ -19,7 +19,7 @@ checks:
 	flake8 --config pyproject.toml --ignore E203,E501,W503 mjx
 	# mypy --config pyproject.toml mjx
 
-proto:
+proto: ../mjx/internal/mjx.proto
 	python3 -m grpc_tools.protoc -I ../mjx/internal --python_out=./mjxproto/ --grpc_python_out=./mjxproto/ --mypy_out=./mjxproto/ mjx.proto
 
 requirements:
