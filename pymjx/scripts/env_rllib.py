@@ -21,7 +21,7 @@ torch, nn = try_import_torch()
 
 
 class WrappedMahjongEnv(MultiAgentEnv):
-    PLAYER_IDS = ["player_0", "player_1", "player_2", "player_3"]
+    # PLAYER_IDS = ["player_0", "player_1", "player_2", "player_3"]
     NUM_ACTION = 181
     NUM_FEATURE = 34 * 4
     ACTION_EMBED_SIZE = 1
@@ -42,21 +42,16 @@ class WrappedMahjongEnv(MultiAgentEnv):
     def _make_observation(self, orig_obs_dict):
         obs_dict = {}
         self.legal_actions = {}
-        for player_id in self.PLAYER_IDS:
+        for player_id in orig_obs_dict:
             obs_dict[player_id] = {}
-            if player_id in orig_obs_dict:
-                obs = orig_obs_dict[player_id]
-                mask = obs.action_mask()
-                obs_dict[player_id]["action_mask"] = np.array(mask)
-                obs_dict[player_id]["avail_actions"] = np.array([self.action_embeds[i] if mask[i]
-                                                                 else np.zeros((self.ACTION_EMBED_SIZE,))
-                                                                 for i in range(self.NUM_ACTION)])
-                obs_dict[player_id]["real_obs"] = np.array(obs.feature("small_v0"))
-                self.legal_actions[player_id] = obs.legal_actions()
-            else:
-                obs_dict[player_id]["action_mask"] = np.zeros((self.NUM_ACTION,))
-                obs_dict[player_id]["avail_actions"] = np.zeros((self.NUM_ACTION, self.ACTION_EMBED_SIZE))
-                obs_dict[player_id]["real_obs"] = np.zeros((self.NUM_FEATURE, ))
+            obs = orig_obs_dict[player_id]
+            mask = obs.action_mask()
+            obs_dict[player_id]["action_mask"] = np.array(mask)
+            obs_dict[player_id]["avail_actions"] = np.array([self.action_embeds[i] if mask[i]
+                                                             else np.zeros((self.ACTION_EMBED_SIZE,))
+                                                             for i in range(self.NUM_ACTION)])
+            obs_dict[player_id]["real_obs"] = np.array(obs.feature("small_v0"))
+            self.legal_actions[player_id] = obs.legal_actions()
         return obs_dict
 
     def reset(self):
@@ -66,9 +61,8 @@ class WrappedMahjongEnv(MultiAgentEnv):
     def step(self, orig_act_dict):
         act_dict = {}
         # print(orig_act_dict)
-        for player_id in self.PLAYER_IDS:
-            if player_id in self.legal_actions:
-                act_dict[player_id] = _mjx.Action(orig_act_dict[player_id], self.legal_actions[player_id])
+        for player_id in orig_act_dict:
+            act_dict[player_id] = _mjx.Action(orig_act_dict[player_id], self.legal_actions[player_id])
         # print(act_dict)
         orig_obs_dict, rew, done, info = self.env.step(act_dict)
         # if done["__all__"]:
