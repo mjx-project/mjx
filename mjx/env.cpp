@@ -56,7 +56,7 @@ bool MjxEnv::Done() const noexcept {
 
 State MjxEnv::state() const noexcept { return State(state_.proto()); }
 
-std::vector<PlayerId> MjxEnv::player_ids() const noexcept {
+const std::vector<PlayerId>& MjxEnv::player_ids() const noexcept {
   return player_ids_;
 }
 
