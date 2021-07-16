@@ -42,7 +42,7 @@ std::unordered_map<PlayerId, int> State::ranking_dict() const noexcept {
     pos_ten.emplace_back(
         i,
         final_tens[i] +
-        (4 - i));  // 同点は起家から順に優先されるので +4, +3, +2, +1 する
+            (4 - i));  // 同点は起家から順に優先されるので +4, +3, +2, +1 する
   }
   std::sort(pos_ten.begin(), pos_ten.end(),
             [](auto x, auto y) { return x.second < y.second; });

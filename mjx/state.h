@@ -19,6 +19,7 @@ class State {
 
   // utility
   std::unordered_map<PlayerId, int> ranking_dict() const noexcept;
+
  private:
   mjxproto::State proto_{};
 };

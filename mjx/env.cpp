@@ -62,18 +62,19 @@ const std::vector<PlayerId>& MjxEnv::player_ids() const noexcept {
 
 mjx::RLlibMahjongEnv::RLlibMahjongEnv() {}
 
-std::unordered_map<PlayerId, Observation>
-RLlibMahjongEnv::reset() noexcept {
-  if (game_seed_) return env_.Reset(game_seed_.value());
-  else return env_.Reset();
+std::unordered_map<PlayerId, Observation> RLlibMahjongEnv::reset() noexcept {
+  if (game_seed_)
+    return env_.Reset(game_seed_.value());
+  else
+    return env_.Reset();
 }
 
 std::tuple<std::unordered_map<PlayerId, Observation>,
            std::unordered_map<PlayerId, int>,
            std::unordered_map<PlayerId, bool>,
            std::unordered_map<PlayerId, std::string>>
-RLlibMahjongEnv::step(const std::unordered_map<PlayerId, Action>&
-                          action_dict) noexcept {
+RLlibMahjongEnv::step(
+    const std::unordered_map<PlayerId, Action>& action_dict) noexcept {
   std::unordered_map<PlayerId, int> rewards;
   std::unordered_map<PlayerId, bool> dones = {{"__all__", false}};
   std::unordered_map<PlayerId, std::string> infos;
@@ -81,7 +82,7 @@ RLlibMahjongEnv::step(const std::unordered_map<PlayerId, Action>&
   auto observations = env_.Step(action_dict);
 
   if (!env_.Done()) {
-    for (const auto& [k, v]: observations) {
+    for (const auto& [k, v] : observations) {
       rewards[k] = 0;
       dones[k] = false;
       infos[k] = "";
@@ -90,7 +91,7 @@ RLlibMahjongEnv::step(const std::unordered_map<PlayerId, Action>&
   } else {
     auto state = env_.state();
     auto ranking_dict = state.ranking_dict();
-    for (const auto& [k, v]: observations) {
+    for (const auto& [k, v] : observations) {
       rewards[k] = ranking_dict[k];
       dones[k] = true;
       infos[k] = "";
