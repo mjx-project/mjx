@@ -1709,4 +1709,12 @@ std::vector<PlayerId> State::ShufflePlayerIds(
   Shuffle(ret.begin(), ret.end(), std::mt19937_64(game_seed));
   return ret;
 }
+std::unordered_map<PlayerId, std::int32_t> State::ten_dict() const {
+  std::unordered_map<PlayerId, int> m;
+  for (int i = 0; i < 4; ++i) {
+    auto who = AbsolutePos(i);
+    m[player(who).player_id] = ten(who);
+  }
+  return m;
+}
 }  // namespace mjx::internal

@@ -64,6 +64,7 @@ class State {
   [[nodiscard]] std::uint8_t riichi() const;              // リー棒
   [[nodiscard]] std::uint64_t game_seed() const;          // シード値
   [[nodiscard]] std::int32_t ten(AbsolutePos who) const;  // 点 25000点スタート
+  [[nodiscard]] std::unordered_map<PlayerId, std::int32_t> ten_dict() const;  // 点 25000点スタート
   [[nodiscard]] std::array<std::int32_t, 4> tens() const;
   [[nodiscard]] std::uint8_t init_riichi() const;
   [[nodiscard]] std::array<std::int32_t, 4> init_tens() const;
