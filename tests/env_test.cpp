@@ -3,6 +3,35 @@
 
 #include "gtest/gtest.h"
 
+TEST(env, MjxEnv) {
+  std::unordered_map<mjx::PlayerId, mjx::Observation> observations;
+  auto env = mjx::MjxEnv();
+  observations = env.Reset(1234);
+  auto strategy = mjx::internal::StrategyRuleBased();
+  while (!env.Done()) {
+    {
+      std::unordered_map<mjx::PlayerId, mjx::Action> action_dict;
+      for (const auto& [agent, observation] : observations) {
+        auto action = strategy.TakeAction(observation.ToProto());
+        action_dict[agent] = mjx::Action(action);
+      }
+      observations = env.Step(action_dict);
+    }
+  }
+  auto player_ids =
+      observations["player_0"].ToProto().public_observation().player_ids();
+  auto tens =
+      observations["player_0"].ToProto().round_terminal().final_score().tens();
+  std::unordered_map<mjx::internal::PlayerId, int> expected_tens = {
+      {"player_0", 26600},
+      {"player_1", 25600},
+      {"player_2", 16800},
+      {"player_3", 31000}};
+  for (int i = 0; i < 4; ++i) {
+    EXPECT_EQ(tens[i], expected_tens[player_ids[i]]);
+  }
+}
+
 TEST(env, RLlibMahjongEnv) {
   auto env = mjx::RLlibMahjongEnv();
   std::unordered_map<mjx::internal::PlayerId, mjx::Observation> observations;
