@@ -21,8 +21,6 @@ class MjxEnv {
   bool Done() const noexcept;
   State state() const noexcept;
   const std::vector<PlayerId>& player_ids() const noexcept;  // order does not change for each game
-  std::vector<PlayerId> shuffled_player_ids() const noexcept;
-  std::unordered_map<PlayerId, int> ten_dict() const noexcept;
 
  private:
   std::mt19937_64 seed_gen_ =

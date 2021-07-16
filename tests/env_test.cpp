@@ -18,9 +18,8 @@ TEST(env, MjxEnv) {
       observations = env.Step(action_dict);
     }
   }
-  auto player_ids = env.shuffled_player_ids();
-  auto tens =
-      observations["player_0"].ToProto().round_terminal().final_score().tens();
+  auto player_ids = observations["player_0"].ToProto().public_observation().player_ids();
+  auto tens = observations["player_0"].ToProto().round_terminal().final_score().tens();
   std::unordered_map<mjx::internal::PlayerId, int> expected_tens = {
       {"player_0", 26600},
       {"player_1", 25600},
@@ -28,11 +27,6 @@ TEST(env, MjxEnv) {
       {"player_3", 31000}};
   for (int i = 0; i < 4; ++i) {
     EXPECT_EQ(tens[i], expected_tens[player_ids[i]]);
-  }
-
-  auto ten_dict = env.ten_dict();
-  for (const auto& [k, v] : ten_dict) {
-    EXPECT_EQ(v, expected_tens[k]);
   }
 }
 

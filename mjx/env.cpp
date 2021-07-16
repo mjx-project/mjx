@@ -60,19 +60,6 @@ const std::vector<PlayerId>& MjxEnv::player_ids() const noexcept {
   return player_ids_;
 }
 
-std::vector<PlayerId> MjxEnv::shuffled_player_ids() const noexcept {
-  std::vector<PlayerId> shuffled_player_ids;
-  auto player_ids = state_.proto().public_observation().player_ids();
-  for (const auto& player_id : player_ids) {
-    shuffled_player_ids.emplace_back(player_id);
-  }
-  return shuffled_player_ids;
-}
-
-std::unordered_map<PlayerId, int> MjxEnv::ten_dict() const noexcept {
-  return state_.ten_dict();
-}
-
 mjx::RLlibMahjongEnv::RLlibMahjongEnv() {}
 
 std::unordered_map<mjx::internal::PlayerId, mjx::Observation>
