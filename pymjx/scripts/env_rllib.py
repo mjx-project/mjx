@@ -290,6 +290,53 @@ def rllib_rulebased():
         print(pretty_print(results))
 
 
+# 実際に環境と相互作用しながらモデル学習を行う
+def online_model_policy():
+
+    def select_policy(agent_id):
+        num = re.sub(r"\D", "", agent_id)
+        return f"random{num}" if num != "0" else "learned"
+
+    register_env("rllibmahjong", lambda _: WrappedMahjongEnv(env=_mjx.RLlibMahjongEnv(), seed=3))
+    config = dict(
+        {
+            "env": "rllibmahjong",
+            "model": {
+                "custom_model": TorchRLlibMahjongEnvModel,
+            },
+            # Use GPUs iff `RLLIB_NUM_GPUS` env var set to > 0.
+            "num_gpus": 0,
+            "num_workers": 0,
+            "output": "batch/onpolicy",
+            "multiagent": {
+                "policies_to_train": ["learned"],
+                "policies": {
+                    "learned": (None, WrappedMahjongEnv.AGENT_OBS_SPACE, WrappedMahjongEnv.AGENT_ACTION_SPACE, {
+                        "framework": "torch",
+                    }),
+                    "random1": (RandomSelect,
+                                WrappedMahjongEnv.AGENT_OBS_SPACE,
+                                WrappedMahjongEnv.AGENT_ACTION_SPACE,
+                                {}),
+                    "random2": (RandomSelect,
+                                WrappedMahjongEnv.AGENT_OBS_SPACE,
+                                WrappedMahjongEnv.AGENT_ACTION_SPACE,
+                                {}),
+                    "random3": (RandomSelect,
+                                WrappedMahjongEnv.AGENT_OBS_SPACE,
+                                WrappedMahjongEnv.AGENT_ACTION_SPACE,
+                                {})
+                },
+                "policy_mapping_fn": select_policy
+            },
+            "framework": "torch"
+        })
+    trainer_obj = ppo.PPOTrainer(config=config)
+    for _ in range(50):
+        results = trainer_obj.train()
+        print(pretty_print(results))
+
+
 # online_model_policyで集めた経験を使って学習を行う
 def offline_model_policy():
 
@@ -342,58 +389,11 @@ def offline_model_policy():
         print(pretty_print(results))
 
 
-# 実際に環境と相互作用しながらモデル学習を行う
-def online_model_policy():
-
-    def select_policy(agent_id):
-        num = re.sub(r"\D", "", agent_id)
-        return f"random{num}" if num != "0" else "learned"
-
-    register_env("rllibmahjong", lambda _: WrappedMahjongEnv(env=_mjx.RLlibMahjongEnv(), seed=3))
-    config = dict(
-        {
-            "env": "rllibmahjong",
-            "model": {
-                "custom_model": TorchRLlibMahjongEnvModel,
-            },
-            # Use GPUs iff `RLLIB_NUM_GPUS` env var set to > 0.
-            "num_gpus": 0,
-            "num_workers": 0,
-            "output": "batch/onpolicy",
-            "multiagent": {
-                "policies_to_train": ["learned"],
-                "policies": {
-                    "learned": (None, WrappedMahjongEnv.AGENT_OBS_SPACE, WrappedMahjongEnv.AGENT_ACTION_SPACE, {
-                        "framework": "torch",
-                    }),
-                    "random1": (RandomSelect,
-                                WrappedMahjongEnv.AGENT_OBS_SPACE,
-                                WrappedMahjongEnv.AGENT_ACTION_SPACE,
-                                {}),
-                    "random2": (RandomSelect,
-                                WrappedMahjongEnv.AGENT_OBS_SPACE,
-                                WrappedMahjongEnv.AGENT_ACTION_SPACE,
-                                {}),
-                    "random3": (RandomSelect,
-                                WrappedMahjongEnv.AGENT_OBS_SPACE,
-                                WrappedMahjongEnv.AGENT_ACTION_SPACE,
-                                {})
-                },
-                "policy_mapping_fn": select_policy
-            },
-            "framework": "torch"
-        })
-    trainer_obj = ppo.PPOTrainer(config=config)
-    for _ in range(50):
-        results = trainer_obj.train()
-        print(pretty_print(results))
-
-
 if __name__ == '__main__':
     ray.init()
     # random_policy()
     # rllib_random_policy()
     # rllib_rulebased()
-    # offline_model_policy()
     # online_model_policy()
+    # offline_model_policy()
     ray.shutdown()
