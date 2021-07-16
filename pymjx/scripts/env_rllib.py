@@ -146,6 +146,30 @@ class RandomSelect(Policy):
         return np.array([action]), state_batches, {}
 
 
+class RuleBased(Policy):
+    def get_initial_state(self):
+        return [
+            np.random.choice(
+                range(WrappedMahjongEnv.NUM_ACTION)
+            )
+        ]
+
+    def compute_actions(self,
+                        obs_batch,
+                        state_batches=None,
+                        prev_action_batch=None,
+                        prev_reward_batch=None,
+                        info_batch=None,
+                        episodes=None,
+                        **kwargs):
+        legal_actions = [idx for idx in range(WrappedMahjongEnv.NUM_ACTION) if obs_batch[0][idx]]
+        if 179 in legal_actions:
+            legal_actions.remove(179)
+        action = np.random.choice(legal_actions) if legal_actions else 0
+        # print(action)
+        return np.array([action]), state_batches, {}
+
+
 def random_policy():
     env = WrappedMahjongEnv(env=_mjx.RLlibMahjongEnv(), seed=2)
     obs_dict = env.reset()
@@ -188,6 +212,60 @@ def rllib_random_policy():
                                 WrappedMahjongEnv.AGENT_ACTION_SPACE,
                                 {}),
                     "random3": (RandomSelect,
+                                WrappedMahjongEnv.AGENT_OBS_SPACE,
+                                WrappedMahjongEnv.AGENT_ACTION_SPACE,
+                                {})
+                },
+                "policy_mapping_fn": select_policy
+            },
+            "framework": "torch"
+        })
+    stop = {
+        "training_iteration": 10000,
+        "timesteps_total": 100000,
+    }
+    trainer_obj = ppo.PPOTrainer(config=config)
+    for _ in range(100):
+        results = trainer_obj.train()
+        print(pretty_print(results))
+
+
+def rllib_rulebased():
+
+    def select_policy(agent_id):
+        num = int(re.sub(r"\D", "", agent_id))
+        if num == 0:
+            return "rulebased1"
+        elif num == 1:
+            return "rulebased2"
+        elif num == 2:
+            return "random1"
+        else:
+            return "random2"
+
+    register_env("rllibmahjong", lambda _: WrappedMahjongEnv(env=_mjx.RLlibMahjongEnv(), seed=3))
+    config = dict(
+        {
+            "env": "rllibmahjong",
+            # Use GPUs iff `RLLIB_NUM_GPUS` env var set to > 0.
+            "num_gpus": 0,
+            "num_workers": 0,
+            "multiagent": {
+                "policies_to_train": ["learned"],
+                "policies": {
+                    "rulebased1": (RuleBased,
+                                WrappedMahjongEnv.AGENT_OBS_SPACE,
+                                WrappedMahjongEnv.AGENT_ACTION_SPACE,
+                                {}),
+                    "rulebased2": (RuleBased,
+                                WrappedMahjongEnv.AGENT_OBS_SPACE,
+                                WrappedMahjongEnv.AGENT_ACTION_SPACE,
+                                {}),
+                    "random1": (RandomSelect,
+                                WrappedMahjongEnv.AGENT_OBS_SPACE,
+                                WrappedMahjongEnv.AGENT_ACTION_SPACE,
+                                {}),
+                    "random2": (RandomSelect,
                                 WrappedMahjongEnv.AGENT_OBS_SPACE,
                                 WrappedMahjongEnv.AGENT_ACTION_SPACE,
                                 {})
@@ -254,6 +332,7 @@ def model_policy():
 if __name__ == '__main__':
     ray.init()
     # random_policy()
-    rllib_random_policy()
-    # model_policy()
+    # rllib_random_policy()
+    # rllib_rulebased()
+    model_policy()
     ray.shutdown()
