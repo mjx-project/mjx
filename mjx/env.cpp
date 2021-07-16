@@ -2,10 +2,11 @@
 
 namespace mjx {
 
-MjxEnv::MjxEnv(bool observe_all): MjxEnv({"player_0", "player_1", "player_2", "player_3"}, observe_all) {}
+MjxEnv::MjxEnv(bool observe_all)
+    : MjxEnv({"player_0", "player_1", "player_2", "player_3"}, observe_all) {}
 
-MjxEnv::MjxEnv(std::vector<PlayerId> player_ids, bool observe_all):
-player_ids_(std::move(player_ids)), observe_all_(observe_all) {
+MjxEnv::MjxEnv(std::vector<PlayerId> player_ids, bool observe_all)
+    : player_ids_(std::move(player_ids)), observe_all_(observe_all) {
   assert(!observe_all);  // not implemented yet
 }
 
@@ -53,9 +54,7 @@ bool MjxEnv::Done() const noexcept {
   return state_.IsRoundOver() && state_.IsGameOver();
 }
 
-State MjxEnv::state() const noexcept {
-  return State(state_.proto());
-}
+State MjxEnv::state() const noexcept { return State(state_.proto()); }
 
 std::vector<PlayerId> MjxEnv::player_ids() const noexcept {
   return player_ids_;
@@ -64,7 +63,7 @@ std::vector<PlayerId> MjxEnv::player_ids() const noexcept {
 std::vector<PlayerId> MjxEnv::shuffled_player_ids() const noexcept {
   std::vector<PlayerId> shuffled_player_ids;
   auto player_ids = state_.proto().public_observation().player_ids();
-  for (const auto& player_id: player_ids) {
+  for (const auto& player_id : player_ids) {
     shuffled_player_ids.emplace_back(player_id);
   }
   return shuffled_player_ids;

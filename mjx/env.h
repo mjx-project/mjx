@@ -11,16 +11,19 @@ using PlayerId = std::string;  // identical over different games
 
 class MjxEnv {
  public:
-  MjxEnv(bool observe_all=false);
-  MjxEnv(std::vector<PlayerId> player_ids, bool observe_all=false);
-  std::unordered_map<PlayerId, Observation> Reset(std::uint64_t game_seed) noexcept;
+  MjxEnv(bool observe_all = false);
+  MjxEnv(std::vector<PlayerId> player_ids, bool observe_all = false);
+  std::unordered_map<PlayerId, Observation> Reset(
+      std::uint64_t game_seed) noexcept;
   std::unordered_map<PlayerId, Observation> Reset() noexcept;
-  std::unordered_map<PlayerId, Observation> Step(const std::unordered_map<PlayerId, mjx::Action>& action_dict) noexcept;
+  std::unordered_map<PlayerId, Observation> Step(
+      const std::unordered_map<PlayerId, mjx::Action>& action_dict) noexcept;
   bool Done() const noexcept;
   State state() const noexcept;
   std::vector<PlayerId> player_ids() const noexcept;
   std::vector<PlayerId> shuffled_player_ids() const noexcept;
   std::unordered_map<PlayerId, int> ten_dict() const noexcept;
+
  private:
   std::mt19937_64 seed_gen_ =
       internal::GameSeed::CreateRandomGameSeedGenerator();
