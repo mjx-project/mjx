@@ -4,6 +4,7 @@
 #include "mjx/internal/mjx.grpc.pb.h"
 
 namespace mjx {
+using PlayerId = std::string;  // identical over different games
 class State {
  public:
   State() = default;
@@ -14,6 +15,10 @@ class State {
   bool operator==(const State& other) const noexcept;
   bool operator!=(const State& other) const noexcept;
 
+  // accessors to protobuf members
+
+  // utility
+  std::unordered_map<PlayerId, int> ranking_dict() const noexcept;
  private:
   mjxproto::State proto_{};
 };
