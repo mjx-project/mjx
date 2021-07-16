@@ -122,8 +122,7 @@ class TorchRLlibMahjongEnvModel(DQNTorchModel):
         # These are then recognized by the EpsilonGreedy exploration component
         # as invalid actions that are not to be chosen.
         inf_mask = torch.clamp(torch.log(action_mask), FLOAT_MIN, FLOAT_MAX)
-        if not np.any(action_mask.to('cpu').detach().numpy().copy()):
-            inf_mask[0] = 0
+        # action_logits[:, 179] = FLOAT_MIN
 
         return action_logits + inf_mask, state
 
@@ -177,6 +176,7 @@ class RuleBased(Policy):
         return np.array([action]), state_batches, {}
 
 
+# 直接環境をstepさせ、ランダムポリシーでゲーム進行する
 def random_policy():
     env = WrappedMahjongEnv(env=_mjx.RLlibMahjongEnv(), seed=2)
     obs_dict = env.reset()
@@ -190,6 +190,7 @@ def random_policy():
         obs_dict, rewards, dones, info = env.step(act_dict)
 
 
+# RLlibの形式で環境を動かし、ランダムポリシーでゲーム進行する
 def rllib_random_policy():
 
     def select_policy(agent_id):
@@ -237,18 +238,19 @@ def rllib_random_policy():
         print(pretty_print(results))
 
 
+# RLlibの形式で環境を動かし、ルールベースドなポリシーでゲーム進行する
 def rllib_rulebased():
 
     def select_policy(agent_id):
         num = int(re.sub(r"\D", "", agent_id))
         if num == 0:
-            return "rulebased1"
+            return "learning"
         elif num == 1:
-            return "rulebased2"
-        elif num == 2:
             return "random1"
-        else:
+        elif num == 2:
             return "random2"
+        else:
+            return "random3"
 
     register_env("rllibmahjong", lambda _: WrappedMahjongEnv(env=_mjx.RLlibMahjongEnv(), seed=3))
     config = dict(
@@ -257,14 +259,11 @@ def rllib_rulebased():
             # Use GPUs iff `RLLIB_NUM_GPUS` env var set to > 0.
             "num_gpus": 0,
             "num_workers": 0,
+            "output": "batch/rulebased",
             "multiagent": {
-                "policies_to_train": ["learned"],
+                "policies_to_train": ["train"],
                 "policies": {
-                    "rulebased1": (RuleBased,
-                                WrappedMahjongEnv.AGENT_OBS_SPACE,
-                                WrappedMahjongEnv.AGENT_ACTION_SPACE,
-                                {}),
-                    "rulebased2": (RuleBased,
+                    "learned": (RuleBased,
                                 WrappedMahjongEnv.AGENT_OBS_SPACE,
                                 WrappedMahjongEnv.AGENT_ACTION_SPACE,
                                 {}),
@@ -275,23 +274,24 @@ def rllib_rulebased():
                     "random2": (RandomSelect,
                                 WrappedMahjongEnv.AGENT_OBS_SPACE,
                                 WrappedMahjongEnv.AGENT_ACTION_SPACE,
+                                {}),
+                    "random3": (RandomSelect,
+                                WrappedMahjongEnv.AGENT_OBS_SPACE,
+                                WrappedMahjongEnv.AGENT_ACTION_SPACE,
                                 {})
                 },
                 "policy_mapping_fn": select_policy
             },
             "framework": "torch"
         })
-    stop = {
-        "training_iteration": 10000,
-        "timesteps_total": 100000,
-    }
     trainer_obj = ppo.PPOTrainer(config=config)
-    for _ in range(100):
+    for _ in range(10):
         results = trainer_obj.train()
         print(pretty_print(results))
 
 
-def model_policy():
+# online_model_policyで集めた経験を使って学習を行う
+def offline_model_policy():
 
     def select_policy(agent_id):
         num = re.sub(r"\D", "", agent_id)
@@ -307,6 +307,12 @@ def model_policy():
             # Use GPUs iff `RLLIB_NUM_GPUS` env var set to > 0.
             "num_gpus": 0,
             "num_workers": 0,
+            # "input":{
+            #     "batch/onpolicy": 0.0,
+            #     "sampler": 1.0,
+            # },
+            # "input_evaluation": [],
+            "explore": False,
             "multiagent": {
                 "policies_to_train": ["learned"],
                 "policies": {
@@ -331,7 +337,54 @@ def model_policy():
             "framework": "torch"
         })
     trainer_obj = ppo.PPOTrainer(config=config)
-    for _ in range(100):
+    for _ in range(50):
+        results = trainer_obj.train()
+        print(pretty_print(results))
+
+
+# 実際に環境と相互作用しながらモデル学習を行う
+def online_model_policy():
+
+    def select_policy(agent_id):
+        num = re.sub(r"\D", "", agent_id)
+        return f"random{num}" if num != "0" else "learned"
+
+    register_env("rllibmahjong", lambda _: WrappedMahjongEnv(env=_mjx.RLlibMahjongEnv(), seed=3))
+    config = dict(
+        {
+            "env": "rllibmahjong",
+            "model": {
+                "custom_model": TorchRLlibMahjongEnvModel,
+            },
+            # Use GPUs iff `RLLIB_NUM_GPUS` env var set to > 0.
+            "num_gpus": 0,
+            "num_workers": 0,
+            "output": "batch/onpolicy",
+            "multiagent": {
+                "policies_to_train": ["learned"],
+                "policies": {
+                    "learned": (None, WrappedMahjongEnv.AGENT_OBS_SPACE, WrappedMahjongEnv.AGENT_ACTION_SPACE, {
+                        "framework": "torch",
+                    }),
+                    "random1": (RandomSelect,
+                                WrappedMahjongEnv.AGENT_OBS_SPACE,
+                                WrappedMahjongEnv.AGENT_ACTION_SPACE,
+                                {}),
+                    "random2": (RandomSelect,
+                                WrappedMahjongEnv.AGENT_OBS_SPACE,
+                                WrappedMahjongEnv.AGENT_ACTION_SPACE,
+                                {}),
+                    "random3": (RandomSelect,
+                                WrappedMahjongEnv.AGENT_OBS_SPACE,
+                                WrappedMahjongEnv.AGENT_ACTION_SPACE,
+                                {})
+                },
+                "policy_mapping_fn": select_policy
+            },
+            "framework": "torch"
+        })
+    trainer_obj = ppo.PPOTrainer(config=config)
+    for _ in range(50):
         results = trainer_obj.train()
         print(pretty_print(results))
 
@@ -340,6 +393,7 @@ if __name__ == '__main__':
     ray.init()
     # random_policy()
     # rllib_random_policy()
-    rllib_rulebased()
-    # model_policy()
+    # rllib_rulebased()
+    # offline_model_policy()
+    # online_model_policy()
     ray.shutdown()
