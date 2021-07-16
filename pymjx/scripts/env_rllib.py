@@ -21,7 +21,7 @@ torch, nn = try_import_torch()
 
 
 class WrappedMahjongEnv(MultiAgentEnv):
-    # PLAYER_IDS = ["player_0", "player_1", "player_2", "player_3"]
+    PLAYER_IDS = ["player_0", "player_1", "player_2", "player_3"]
     NUM_ACTION = 181
     NUM_FEATURE = 34 * 4
     ACTION_EMBED_SIZE = 1
@@ -61,10 +61,17 @@ class WrappedMahjongEnv(MultiAgentEnv):
     def step(self, orig_act_dict):
         act_dict = {}
         # print(orig_act_dict)
-        for player_id in orig_act_dict:
-            act_dict[player_id] = _mjx.Action(orig_act_dict[player_id], self.legal_actions[player_id])
+        for player_id in self.PLAYER_IDS:
+            if player_id in self.legal_actions:
+                act_dict[player_id] = _mjx.Action(orig_act_dict[player_id], self.legal_actions[player_id])
         # print(act_dict)
-        orig_obs_dict, rew, done, info = self.env.step(act_dict)
+        orig_obs_dict, orig_rew, orig_done, orig_info = self.env.step(act_dict)
+        rew, done, info = {}, {}, {}
+        for id in orig_obs_dict.keys():
+            rew[id] = orig_rew[id]
+            done[id] = orig_done[id]
+            info[id] = orig_info[id]
+        done["__all__"] = orig_done["__all__"]
         # if done["__all__"]:
         #     print(rew)
         return self._make_observation(orig_obs_dict=orig_obs_dict), rew, done, info
@@ -333,6 +340,6 @@ if __name__ == '__main__':
     ray.init()
     # random_policy()
     # rllib_random_policy()
-    # rllib_rulebased()
-    model_policy()
+    rllib_rulebased()
+    # model_policy()
     ray.shutdown()
