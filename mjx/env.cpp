@@ -2,6 +2,63 @@
 
 namespace mjx {
 
+MjxEnv::MjxEnv(bool observe_all): MjxEnv({"player_0", "player_1", "player_2", "player_3"}, observe_all) {}
+
+MjxEnv::MjxEnv(std::vector<PlayerId> player_ids, bool observe_all):
+player_ids_(std::move(player_ids)), observe_all_(observe_all) {
+  assert(!observe_all);  // not implemented yet
+}
+
+std::unordered_map<PlayerId, Observation> MjxEnv::Reset(
+    std::uint64_t game_seed) noexcept {
+  auto shuffled_player_ids =
+      internal::State::ShufflePlayerIds(game_seed, player_ids_);
+  state_ = internal::State(
+      mjx::internal::State::ScoreInfo{shuffled_player_ids, game_seed});
+  auto observations = state_.CreateObservations();
+  assert(observations.size() == 1);  // first draw by the dealer
+  auto& [who, obs] = *observations.begin();
+  return {{who, mjx::Observation(obs.proto())}};
+}
+
+std::unordered_map<PlayerId, Observation> MjxEnv::Reset() noexcept {
+  auto game_seed = seed_gen_();
+  return Reset(game_seed);
+}
+
+std::tuple<std::unordered_map<PlayerId, Observation>, bool> MjxEnv::Step(
+    const std::unordered_map<PlayerId, mjx::Action>& action_dict) noexcept {
+  std::unordered_map<PlayerId, Observation> observations;
+
+  if (state_.IsRoundOver() && !state_.IsGameOver()) {
+    auto next_state_info = state_.Next();
+    state_ = mjx::internal::State(next_state_info);
+    auto internal_observations = state_.CreateObservations();
+    // Prepare observations
+    for (const auto& [player_id, obs] : internal_observations)
+      observations[player_id] = mjx::Observation(obs.proto());
+    return {observations, false};
+  }
+
+  // Update states based on actions
+  std::vector<mjxproto::Action> actions;
+  actions.reserve(action_dict.size());
+  for (const auto& [player_id, action] : action_dict)
+    actions.push_back(action.ToProto());
+  state_.Update(std::move(actions));
+
+  // Prepare observations
+  auto internal_observations = state_.CreateObservations();
+  for (const auto& [player_id, obs] : internal_observations)
+    observations[player_id] = mjx::Observation(obs.proto());
+  bool done = state_.IsRoundOver() && state_.IsGameOver();
+  return {observations, done};
+}
+
+State MjxEnv::state() const noexcept {
+  return State(state_.proto());
+}
+
 mjx::RLlibMahjongEnv::RLlibMahjongEnv() {}
 
 std::unordered_map<mjx::internal::PlayerId, mjx::Observation>

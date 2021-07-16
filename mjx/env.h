@@ -1,11 +1,30 @@
 #include "mjx/action.h"
 #include "mjx/internal/state.h"
 #include "mjx/observation.h"
+#include "mjx/state.h"
 
 #ifndef MJX_PROJECT_ENV_H
 #define MJX_PROJECT_ENV_H
 
 namespace mjx {
+using PlayerId = std::string;  // identical over different games
+
+class MjxEnv {
+ public:
+  MjxEnv(bool observe_all=false);
+  MjxEnv(std::vector<PlayerId> player_ids, bool observe_all=false);
+  std::unordered_map<PlayerId, Observation> Reset(std::uint64_t game_seed) noexcept;
+  std::unordered_map<PlayerId, Observation> Reset() noexcept;
+  std::tuple<std::unordered_map<PlayerId, Observation>, bool> Step(const std::unordered_map<PlayerId, mjx::Action>& action_dict) noexcept;
+  State state() const noexcept;
+ private:
+  std::mt19937_64 seed_gen_ =
+      internal::GameSeed::CreateRandomGameSeedGenerator();
+  std::vector<PlayerId> player_ids_;
+  internal::State state_{};
+  bool observe_all_ = false;
+};
+
 class RLlibMahjongEnv {
  public:
   RLlibMahjongEnv();
