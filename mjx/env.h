@@ -20,7 +20,8 @@ class MjxEnv {
       const std::unordered_map<PlayerId, mjx::Action>& action_dict) noexcept;
   bool Done() const noexcept;
   State state() const noexcept;
-  const std::vector<PlayerId>& player_ids() const noexcept;  // order does not change for each game
+  const std::vector<PlayerId>& player_ids()
+      const noexcept;  // order does not change for each game
 
  private:
   std::mt19937_64 seed_gen_ =
