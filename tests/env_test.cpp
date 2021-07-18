@@ -5,9 +5,16 @@
 
 TEST(env, MjxEnv) {
   std::unordered_map<mjx::PlayerId, mjx::Observation> observations;
+  auto strategy = mjx::internal::StrategyRuleBased();
+  std::unordered_map<mjx::internal::PlayerId, int> expected_tens = {
+      {"player_0", 26600},
+      {"player_1", 25600},
+      {"player_2", 16800},
+      {"player_3", 31000}};
+
+  // observe_all=false
   auto env = mjx::MjxEnv();
   observations = env.Reset(1234);
-  auto strategy = mjx::internal::StrategyRuleBased();
   while (!env.Done()) {
     {
       std::unordered_map<mjx::PlayerId, mjx::Action> action_dict;
@@ -22,11 +29,30 @@ TEST(env, MjxEnv) {
       observations["player_0"].ToProto().public_observation().player_ids();
   auto tens =
       observations["player_0"].ToProto().round_terminal().final_score().tens();
-  std::unordered_map<mjx::internal::PlayerId, int> expected_tens = {
-      {"player_0", 26600},
-      {"player_1", 25600},
-      {"player_2", 16800},
-      {"player_3", 31000}};
+  for (int i = 0; i < 4; ++i) {
+    EXPECT_EQ(tens[i], expected_tens[player_ids[i]]);
+  }
+
+  // observe_all=true
+  auto env_all = mjx::MjxEnv(true);
+  observations = env_all.Reset(1234);
+  EXPECT_EQ(observations.size(), 4);
+  while (!env_all.Done()) {
+    {
+      std::unordered_map<mjx::PlayerId, mjx::Action> action_dict;
+      for (const auto& [agent, observation] : observations) {
+        if (observation.legal_actions().empty()) continue;
+        auto action = strategy.TakeAction(observation.ToProto());
+        action_dict[agent] = mjx::Action(action);
+      }
+      observations = env_all.Step(action_dict);
+      EXPECT_EQ(observations.size(), 4);
+    }
+  }
+  player_ids =
+      observations["player_0"].ToProto().public_observation().player_ids();
+  tens =
+      observations["player_0"].ToProto().round_terminal().final_score().tens();
   for (int i = 0; i < 4; ++i) {
     EXPECT_EQ(tens[i], expected_tens[player_ids[i]]);
   }

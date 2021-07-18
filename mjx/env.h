@@ -9,8 +9,8 @@
 namespace mjx {
 class MjxEnv {
  public:
-  MjxEnv(bool observe_all = false);
-  MjxEnv(std::vector<PlayerId> player_ids, bool observe_all = false);
+  explicit MjxEnv(bool observe_all = false);
+  explicit MjxEnv(std::vector<PlayerId> player_ids, bool observe_all = false);
   std::unordered_map<PlayerId, Observation> Reset(
       std::uint64_t game_seed) noexcept;
   std::unordered_map<PlayerId, Observation> Reset() noexcept;

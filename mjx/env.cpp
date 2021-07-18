@@ -6,9 +6,7 @@ MjxEnv::MjxEnv(bool observe_all)
     : MjxEnv({"player_0", "player_1", "player_2", "player_3"}, observe_all) {}
 
 MjxEnv::MjxEnv(std::vector<PlayerId> player_ids, bool observe_all)
-    : player_ids_(std::move(player_ids)), observe_all_(observe_all) {
-  assert(!observe_all);  // not implemented yet
-}
+    : player_ids_(std::move(player_ids)), observe_all_(observe_all) {}
 
 std::unordered_map<PlayerId, Observation> MjxEnv::Reset(
     std::uint64_t game_seed) noexcept {
@@ -26,7 +24,7 @@ std::unordered_map<PlayerId, Observation> MjxEnv::Reset() noexcept {
 
 std::unordered_map<PlayerId, Observation> MjxEnv::Observe() const noexcept {
   std::unordered_map<PlayerId, Observation> observations;
-  auto internal_observations = state_.CreateObservations();
+  auto internal_observations = state_.CreateObservations(observe_all_);
   for (const auto& [player_id, obs] : internal_observations)
     observations[player_id] = mjx::Observation(obs.proto());
   return observations;
