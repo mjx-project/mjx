@@ -128,8 +128,7 @@ GameResult State::result() const {
   return GameResult{game_seed(), rankings, tens_map};
 }
 
-std::unordered_map<PlayerId, Observation> State::InternalCreateObservations()
-    const {
+std::unordered_map<PlayerId, Observation> State::InternalCreateObservations() const {
   // At the round end, sync round terminal information to each player
   if (IsRoundOver()) {
     std::unordered_map<PlayerId, Observation> observations;
@@ -1722,6 +1721,8 @@ std::unordered_map<PlayerId, Observation> State::CreateObservations(
     if (!observations.count(player_id))
       observations[player_id] = Observation(seat, state_);
   }
+  Assert(observations.size() == 4,
+         "Size must be 4 but got " + std::to_string(observations.size()));
   return observations;
 }
 }  // namespace mjx::internal
