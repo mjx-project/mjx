@@ -128,7 +128,8 @@ GameResult State::result() const {
   return GameResult{game_seed(), rankings, tens_map};
 }
 
-std::unordered_map<PlayerId, Observation> State::InternalCreateObservations() const {
+std::unordered_map<PlayerId, Observation> State::InternalCreateObservations()
+    const {
   // At the round end, sync round terminal information to each player
   if (IsRoundOver()) {
     std::unordered_map<PlayerId, Observation> observations;
