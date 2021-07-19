@@ -1,8 +1,8 @@
 #ifndef MAHJONG_AGENT_H
 #define MAHJONG_AGENT_H
 
-#include "action.h"
-#include "observation.h"
+#include "mjx/internal/action.h"
+#include "mjx/internal/observation.h"
 
 namespace mjx::internal {
 class Agent {

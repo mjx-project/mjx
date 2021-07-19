@@ -4,7 +4,7 @@
 #include <string>
 #include <utility>
 
-#include "types.h"
+#include "mjx/internal/types.h"
 
 namespace mjx::internal {
 

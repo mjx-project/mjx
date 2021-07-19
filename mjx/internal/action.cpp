@@ -1,7 +1,7 @@
 #include "action.h"
 
-#include "mjx.grpc.pb.h"
-#include "utils.h"
+#include "mjx/internal/mjx.grpc.pb.h"
+#include "mjx/internal/utils.h"
 
 namespace mjx::internal {
 mjxproto::Action Action::CreateDiscard(AbsolutePos who, Tile discard,
@@ -277,13 +277,16 @@ std::uint8_t Action::Encode(const mjxproto::Action& action) {
     case mjxproto::ACTION_TYPE_NO:
       // 179: No
       return 179;
+    case mjxproto::ACTION_TYPE_DUMMY:
+      // 180: Dummy
+      return 180;
     default:
       assert(false);
   }
 }
 mjxproto::Action Action::Decode(
-    std::uint8_t code, const std::vector<mjxproto::Action>& possible_action) {
-  for (auto action : possible_action) {
+    std::uint8_t code, const std::vector<mjxproto::Action>& legal_action) {
+  for (auto action : legal_action) {
     if (Action::Encode(action) == code) {
       return action;
     }

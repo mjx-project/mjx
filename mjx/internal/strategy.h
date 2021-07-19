@@ -1,7 +1,7 @@
 #ifndef MAHJONG_STRATEGY_H
 #define MAHJONG_STRATEGY_H
 
-#include "observation.h"
+#include "mjx/internal/observation.h"
 
 namespace mjx::internal {
 class Strategy {

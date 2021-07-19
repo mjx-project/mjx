@@ -1,8 +1,8 @@
-#include "types.h"
+#include "mjx/internal/types.h"
 
 #include <cassert>
 
-#include "utils.h"
+#include "mjx/internal/utils.h"
 
 namespace mjx::internal {
 std::uint8_t Num(TileType type) noexcept {

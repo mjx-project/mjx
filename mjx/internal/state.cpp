@@ -1,9 +1,9 @@
-#include "state.h"
+#include "mjx/internal/state.h"
 
 #include <google/protobuf/util/json_util.h>
 #include <google/protobuf/util/message_differencer.h>
 
-#include "utils.h"
+#include "mjx/internal/utils.h"
 
 namespace mjx::internal {
 State::State(State::ScoreInfo score_info)
@@ -56,6 +56,9 @@ State::State(std::vector<PlayerId> player_ids, std::uint64_t game_seed,
           ->mutable_closed_tiles()
           ->Add(tile.Id());
   }
+
+  // dealer draws the first tusmo
+  Draw(dealer());
 
   // sync curr_hand
   for (int i = 0; i < 4; ++i) SyncCurrHand(AbsolutePos(i));
@@ -125,20 +128,16 @@ GameResult State::result() const {
   return GameResult{game_seed(), rankings, tens_map};
 }
 
-std::unordered_map<PlayerId, Observation> State::CreateObservations() const {
-  // At the round beginning, sync initial hand info to each player, and
-  // at the round end, sync round terminal information to each player
-  bool is_round_beginning = !HasLastEvent();
-  bool is_round_end = IsRoundOver();
-  if (is_round_beginning || is_round_end) {
+std::unordered_map<PlayerId, Observation> State::InternalCreateObservations()
+    const {
+  // At the round end, sync round terminal information to each player
+  if (IsRoundOver()) {
     std::unordered_map<PlayerId, Observation> observations;
     for (int i = 0; i < 4; ++i) {
       auto who = AbsolutePos(i);
       auto observation = Observation(who, state_);
-      observation.add_possible_action(
+      observation.add_legal_action(
           Action::CreateDummy(who, state_.public_observation().game_id()));
-      Assert(!is_round_end || observation.proto().has_round_terminal(),
-             "If round is ended, round terminal info should be set");
       observations[player(who).player_id] = std::move(observation);
     }
     return observations;
@@ -149,12 +148,11 @@ std::unordered_map<PlayerId, Observation> State::CreateObservations() const {
       auto who = AbsolutePos(LastEvent().who());
       auto player_id = player(who).player_id;
       auto observation = Observation(who, state_);
-      Assert(!observation.has_possible_action(),
-             "possible_actions should be empty.");
+      Assert(!observation.has_legal_action(), "legal_actions should be empty.");
 
       // => NineTiles
       if (IsFirstTurnWithoutOpen() && hand(who).CanNineTiles()) {
-        observation.add_possible_action(Action::CreateNineTiles(
+        observation.add_legal_action(Action::CreateNineTiles(
             who, state_.public_observation().game_id()));
       }
 
@@ -163,7 +161,7 @@ std::unordered_map<PlayerId, Observation> State::CreateObservations() const {
              "Last drawn tile should be set");
       Tile drawn_tile = Tile(hand(who).LastTileAdded().value());
       if (hand(who).IsCompleted() && CanTsumo(who))
-        observation.add_possible_action(Action::CreateTsumo(
+        observation.add_legal_action(Action::CreateTsumo(
             who, drawn_tile, state_.public_observation().game_id()));
 
       // => Kan (2)
@@ -173,22 +171,22 @@ std::unordered_map<PlayerId, Observation> State::CreateObservations() const {
                                    // 四槓散了かのチェックは5回目のカンをできないようにするためだが、正しいのか確認
                                    // #701
         for (const auto possible_kan : possible_kans) {
-          observation.add_possible_action(Action::CreateOpen(
+          observation.add_legal_action(Action::CreateOpen(
               who, possible_kan, state_.public_observation().game_id()));
         }
       }
 
       // => Riichi (3)
       if (CanRiichi(who))
-        observation.add_possible_action(
+        observation.add_legal_action(
             Action::CreateRiichi(who, state_.public_observation().game_id()));
 
       // => Discard (4)
-      observation.add_possible_actions(Action::CreateDiscardsAndTsumogiri(
+      observation.add_legal_actions(Action::CreateDiscardsAndTsumogiri(
           who, hand(who).PossibleDiscards(),
           state_.public_observation().game_id()));
-      const auto &possible_actions = observation.possible_actions();
-      Assert(std::count_if(possible_actions.begin(), possible_actions.end(),
+      const auto &legal_actions = observation.legal_actions();
+      Assert(std::count_if(legal_actions.begin(), legal_actions.end(),
                            [](const auto &x) {
                              return x.type() == mjxproto::ACTION_TYPE_TSUMOGIRI;
                            }) == 1,
@@ -199,7 +197,7 @@ std::unordered_map<PlayerId, Observation> State::CreateObservations() const {
       // => Discard (5)
       auto who = AbsolutePos(LastEvent().who());
       auto observation = Observation(who, state_);
-      observation.add_possible_actions(Action::CreateDiscardsAndTsumogiri(
+      observation.add_legal_actions(Action::CreateDiscardsAndTsumogiri(
           who, hand(who).PossibleDiscardsJustAfterRiichi(),
           state_.public_observation().game_id()));
       return {{player(who).player_id, std::move(observation)}};
@@ -209,10 +207,10 @@ std::unordered_map<PlayerId, Observation> State::CreateObservations() const {
       // => Discard (6)
       auto who = AbsolutePos(LastEvent().who());
       auto observation = Observation(who, state_);
-      observation.add_possible_actions(Action::CreateDiscardsAndTsumogiri(
+      observation.add_legal_actions(Action::CreateDiscardsAndTsumogiri(
           who, hand(who).PossibleDiscards(),
           state_.public_observation().game_id()));
-      Assert(!Any(observation.possible_actions(),
+      Assert(!Any(observation.legal_actions(),
                   [](const auto &x) {
                     return x.type() == mjxproto::ACTION_TYPE_TSUMOGIRI;
                   }),
@@ -228,8 +226,8 @@ std::unordered_map<PlayerId, Observation> State::CreateObservations() const {
       auto observations = CreateStealAndRonObservation();
       Assert(!observations.empty());
       for (const auto &[player_id, observation] : observations)
-        for (const auto &possible_action : observation.possible_actions())
-          Assert(Any(possible_action.type(),
+        for (const auto &legal_action : observation.legal_actions())
+          Assert(Any(legal_action.type(),
                      {mjxproto::ACTION_TYPE_RON, mjxproto::ACTION_TYPE_NO}));
       return observations;
     }
@@ -246,7 +244,8 @@ std::unordered_map<PlayerId, Observation> State::CreateObservations() const {
     case mjxproto::EVENT_TYPE_EXHAUSTIVE_DRAW_NAGASHI_MANGAN:
     case mjxproto::EVENT_TYPE_NEW_DORA:
     case mjxproto::EVENT_TYPE_RIICHI_SCORE_CHANGE:
-      Assert(false);  // Impossible state
+      Assert(false, "Got an unexpected last event type: " +
+                        std::to_string(LastEvent().type()));
   }
 }
 
@@ -1162,7 +1161,7 @@ std::unordered_map<PlayerId, Observation> State::CreateStealAndRonObservation()
 
     // check ron
     if (hand(stealer).IsCompleted(tile) && CanRon(stealer, tile)) {
-      observation.add_possible_action(Action::CreateRon(
+      observation.add_legal_action(Action::CreateRon(
           stealer, tile, state_.public_observation().game_id()));
     }
 
@@ -1173,12 +1172,12 @@ std::unordered_map<PlayerId, Observation> State::CreateStealAndRonObservation()
       auto possible_opens =
           hand(stealer).PossibleOpensAfterOthersDiscard(tile, relative_pos);
       for (const auto &possible_open : possible_opens)
-        observation.add_possible_action(Action::CreateOpen(
+        observation.add_legal_action(Action::CreateOpen(
             stealer, possible_open, state_.public_observation().game_id()));
     }
 
-    if (!observation.has_possible_action()) continue;
-    observation.add_possible_action(
+    if (!observation.has_legal_action()) continue;
+    observation.add_legal_action(
         Action::CreateNo(stealer, state_.public_observation().game_id()));
 
     observations[player(stealer).player_id] = std::move(observation);
@@ -1203,20 +1202,17 @@ WinStateInfo State::win_state_info(AbsolutePos who) const {
 void State::Update(std::vector<mjxproto::Action> &&action_candidates) {
   Assert(!IsRoundOver(), "Update is called after round end: \n" + ToJson());
   Assert(!action_candidates.empty());
-  // At the beginning of the round
-  if (!HasLastEvent()) {
-    Assert(std::all_of(action_candidates.begin(), action_candidates.end(),
-                       [](const mjxproto::Action &a) {
-                         return a.type() == mjxproto::ACTION_TYPE_DUMMY;
-                       }),
-           "At the beginning of the round, each player should return Dummy "
-           "action.");
-    // dealer draws the first tusmo
-    Draw(dealer());
-    return;
-  }
 
+  // filter all dummy actions
+  auto it = std::remove_if(action_candidates.begin(), action_candidates.end(),
+                           [](mjxproto::Action &x) {
+                             return x.type() == mjxproto::ACTION_TYPE_DUMMY;
+                           });
+  action_candidates.erase(it, action_candidates.end());
   Assert(action_candidates.size() <= 3);
+
+  if (action_candidates.empty()) return;
+
   if (action_candidates.size() == 1) {
     Update(std::move(action_candidates.front()));
     return;
@@ -1713,5 +1709,21 @@ std::vector<PlayerId> State::ShufflePlayerIds(
   std::vector<PlayerId> ret(player_ids.begin(), player_ids.end());
   Shuffle(ret.begin(), ret.end(), std::mt19937_64(game_seed));
   return ret;
+}
+
+std::unordered_map<PlayerId, Observation> State::CreateObservations(
+    bool observe_all) const {
+  auto observations = InternalCreateObservations();
+  if (!observe_all) return observations;
+  // Add observations whose legal_actions are empty
+  for (int i = 0; i < 4; ++i) {
+    auto seat = AbsolutePos(i);
+    auto player_id = player(seat).player_id;
+    if (!observations.count(player_id))
+      observations[player_id] = Observation(seat, state_);
+  }
+  Assert(observations.size() == 4,
+         "Size must be 4 but got " + std::to_string(observations.size()));
+  return observations;
 }
 }  // namespace mjx::internal

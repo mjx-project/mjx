@@ -1,8 +1,8 @@
-#include "agent.h"
+#include "mjx/internal/agent.h"
 
 #include <utility>
 
-#include "utils.h"
+#include "mjx/internal/utils.h"
 
 namespace mjx::internal {
 Agent::Agent(PlayerId player_id) : player_id_(std::move(player_id)) {}

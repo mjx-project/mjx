@@ -1,7 +1,7 @@
 #ifndef MAHJONG_GAME_RESULT_SUMMARIZER_H
 #define MAHJONG_GAME_RESULT_SUMMARIZER_H
 
-#include "state.h"
+#include "mjx/internal/state.h"
 
 namespace mjx::internal {
 class GameResultSummarizer {

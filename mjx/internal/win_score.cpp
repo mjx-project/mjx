@@ -1,8 +1,8 @@
-#include "win_score.h"
+#include "mjx/internal/win_score.h"
 
 #include <utility>
 
-#include "types.h"
+#include "mjx/internal/types.h"
 
 namespace mjx::internal {
 

@@ -1,28 +1,28 @@
-#include "observation.h"
+#include "mjx/internal/observation.h"
 
-#include "mjx.grpc.pb.h"
-#include "utils.h"
+#include "mjx/internal/mjx.grpc.pb.h"
+#include "mjx/internal/utils.h"
 
 namespace mjx::internal {
 Observation::Observation(const mjxproto::Observation& proto) : proto_(proto) {}
 
-std::vector<mjxproto::Action> Observation::possible_actions() const {
+std::vector<mjxproto::Action> Observation::legal_actions() const {
   std::vector<mjxproto::Action> ret;
-  for (auto possible_action : proto_.possible_actions()) {
-    ret.emplace_back(std::move(possible_action));
+  for (auto legal_action : proto_.legal_actions()) {
+    ret.emplace_back(std::move(legal_action));
   }
   return ret;
 }
 
 std::vector<std::pair<Tile, bool>> Observation::possible_discards() const {
   std::vector<std::pair<Tile, bool>> ret;
-  for (const auto& possible_action : proto_.possible_actions()) {
-    if (!Any(possible_action.type(),
+  for (const auto& legal_action : proto_.legal_actions()) {
+    if (!Any(legal_action.type(),
              {mjxproto::ActionType::ACTION_TYPE_DISCARD,
               mjxproto::ActionType::ACTION_TYPE_TSUMOGIRI}))
       continue;
-    ret.emplace_back(possible_action.tile(),
-                     possible_action.type() == mjxproto::ACTION_TYPE_TSUMOGIRI);
+    ret.emplace_back(legal_action.tile(),
+                     legal_action.type() == mjxproto::ACTION_TYPE_TSUMOGIRI);
   }
   Assert(std::count_if(ret.begin(), ret.end(),
                        [](const auto& x) { return x.second; }) <= 1,
@@ -32,14 +32,14 @@ std::vector<std::pair<Tile, bool>> Observation::possible_discards() const {
 
 AbsolutePos Observation::who() const { return AbsolutePos(proto_.who()); }
 
-void Observation::add_possible_action(mjxproto::Action&& possible_action) {
-  proto_.mutable_possible_actions()->Add(std::move(possible_action));
+void Observation::add_legal_action(mjxproto::Action&& legal_action) {
+  proto_.mutable_legal_actions()->Add(std::move(legal_action));
 }
 
-void Observation::add_possible_actions(
-    const std::vector<mjxproto::Action>& possible_actions) {
-  for (auto possible_action : possible_actions) {
-    add_possible_action(std::move(possible_action));
+void Observation::add_legal_actions(
+    const std::vector<mjxproto::Action>& legal_actions) {
+  for (auto legal_action : legal_actions) {
+    add_legal_action(std::move(legal_action));
   }
 }
 
@@ -62,8 +62,8 @@ Observation::Observation(AbsolutePos who, const mjxproto::State& state) {
     proto_.mutable_round_terminal()->CopyFrom(state.round_terminal());
 }
 
-bool Observation::has_possible_action() const {
-  return !proto_.possible_actions().empty();
+bool Observation::has_legal_action() const {
+  return !proto_.legal_actions().empty();
 }
 
 std::string Observation::ToJson() const {
@@ -140,5 +140,27 @@ std::vector<mjxproto::Event> Observation::EventHistory() const {
     events.emplace_back(event);
   }
   return events;
+}
+
+std::vector<float> Observation::ToFeature(std::string version) const {
+  if (version == "small_v0") {
+    return small_v0();
+  }
+  Assert(false, "invalid version");
+}
+
+std::vector<float> Observation::small_v0() const {
+  // closed hand
+  std::vector<float> feature(4 * 34);
+  std::vector<int> hand(34);
+  for (auto t : proto_.private_observation().curr_hand().closed_tiles()) {
+    ++hand[Tile(t).TypeUint()];
+  }
+  for (int i = 0; i < 34; ++i) {
+    for (int j = 0; j < hand[i]; ++j) {
+      feature[j * 34 + i] = 1;
+    }
+  }
+  return feature;
 }
 }  // namespace mjx::internal

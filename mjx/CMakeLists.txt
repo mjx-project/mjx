@@ -12,8 +12,6 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 option(MJX_USE_SYSTEM_BOOST "Use Boost previously installed." ON)
 option(MJX_USE_SYSTEM_GRPC "Use gRPC previously installed." ON)
 
-set(MJX_EXTERNALDIR ${CMAKE_CURRENT_SOURCE_DIR}/external)
-
 ####################################################################################
 # For Boost
 ####################################################################################
@@ -94,6 +92,14 @@ include_directories("${CMAKE_CURRENT_SOURCE_DIR}")
 ####################################################################################
 
 add_library(mjx STATIC
+        action.h
+        action.cpp
+        observation.h
+        observation.cpp
+        state.h
+        state.cpp
+        hand.h
+        hand.cpp
         env.h
         env.cpp
         internal/abstruct_hand.h
@@ -114,7 +120,6 @@ add_library(mjx STATIC
         internal/observation.h
         internal/open.h
         internal/shanten_cache.h
-        internal/shanten_cache_generator.h
         internal/shanten_calculator.h
         internal/state.h
         internal/strategy.h
@@ -144,7 +149,6 @@ add_library(mjx STATIC
         internal/observation.cpp
         internal/open.cpp
         internal/shanten_cache.cpp
-        internal/shanten_cache_generator.cpp
         internal/shanten_calculator.cpp
         internal/state.cpp
         internal/strategy_rule_based.cpp
@@ -157,7 +161,7 @@ add_library(mjx STATIC
         internal/win_score.cpp
         internal/yaku_evaluator.cpp
         ${mjx_proto_srcs} ${mjx_grpc_srcs} ${mjx_proto_hdrs} ${mjx_grpc_hdrs})
-target_include_directories(mjx PUBLIC ${Boost_INCLUDE_DIRS})
+target_include_directories(mjx PUBLIC ${Boost_INCLUDE_DIRS} ${MJX_INCLUDE_DIR})
 target_link_libraries(mjx PUBLIC ${_REFLECTION} ${_GRPC_GRPCPP} ${_PROTOBUF_LIBPROTOBUF})
 target_compile_definitions(mjx PUBLIC WIN_CACHE_DIR="${CMAKE_CURRENT_SOURCE_DIR}/cache")
 
@@ -168,6 +172,3 @@ target_compile_definitions(mjx PUBLIC WIN_CACHE_DIR="${CMAKE_CURRENT_SOURCE_DIR}
 # Generate cache file
 add_executable(win_cache_generator internal/win_cache_generator.cpp)
 target_link_libraries(win_cache_generator ${PROJECT_NAME})
-
-add_executable(shanten_cache_generator internal/shanten_cache_generator.cpp)
-target_link_libraries(shanten_cache_generator ${PROJECT_NAME})

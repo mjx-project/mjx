@@ -7,8 +7,8 @@
 #include <unordered_map>
 #include <vector>
 
-#include "abstruct_hand.h"
-#include "types.h"
+#include "mjx/internal/abstruct_hand.h"
+#include "mjx/internal/types.h"
 
 namespace mjx::internal {
 class WinHandCache {

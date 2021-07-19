@@ -2,10 +2,11 @@
 #define MAHJONG_SHANTEN_CALCULATOR_H
 
 #include <array>
+#include <bitset>
 #include <vector>
 
-#include "shanten_cache.h"
-#include "types.h"
+#include "mjx/internal/shanten_cache.h"
+#include "mjx/internal/types.h"
 
 namespace mjx::internal {
 class ShantenCalculator {
@@ -17,6 +18,8 @@ class ShantenCalculator {
       const std::array<uint8_t, 34>& count);
   [[nodiscard]] static int ShantenSevenPairs(
       const std::array<uint8_t, 34>& count);
+  [[nodiscard]] static std::bitset<34> ProceedingTileTypes(
+      std::array<uint8_t, 34> hand);
 };
 }  // namespace mjx::internal
 

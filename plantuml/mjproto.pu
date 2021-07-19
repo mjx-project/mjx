@@ -61,7 +61,7 @@ class mjproto::Observation <<(D,yellow) Data>> {
   + init_hand
   + draws
   + event_history
-  + possible_actions
+  + legal_actions
 }
 
 class mjproto::Action <<(D,yellow) Data>> { 

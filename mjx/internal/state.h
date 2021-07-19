@@ -10,16 +10,16 @@
 #include <utility>
 #include <vector>
 
-#include "action.h"
-#include "consts.h"
-#include "event.h"
-#include "hand.h"
-#include "mjx.grpc.pb.h"
-#include "observation.h"
-#include "tile.h"
-#include "utils.h"
-#include "wall.h"
-#include "yaku_evaluator.h"
+#include "mjx/internal/action.h"
+#include "mjx/internal/consts.h"
+#include "mjx/internal/event.h"
+#include "mjx/internal/hand.h"
+#include "mjx/internal/mjx.grpc.pb.h"
+#include "mjx/internal/observation.h"
+#include "mjx/internal/tile.h"
+#include "mjx/internal/utils.h"
+#include "mjx/internal/wall.h"
+#include "mjx/internal/yaku_evaluator.h"
 
 namespace mjx::internal {
 // 試合結果（半荘）
@@ -46,7 +46,8 @@ class State {
   bool IsRoundOver() const;
   bool IsGameOver() const;
   void Update(std::vector<mjxproto::Action>&& action_candidates);
-  std::unordered_map<PlayerId, Observation> CreateObservations() const;
+  std::unordered_map<PlayerId, Observation> CreateObservations(
+      bool observe_all = false) const;
   std::string ToJson() const;
   mjxproto::State proto() const;
   GameResult result() const;
@@ -134,8 +135,8 @@ class State {
   [[nodiscard]] WinStateInfo win_state_info(AbsolutePos who) const;
   [[nodiscard]] AbsolutePos top_player() const;
 
-  // update
   void Update(mjxproto::Action&& action);
+  std::unordered_map<PlayerId, Observation> InternalCreateObservations() const;
 
   // event operations
   Tile Draw(AbsolutePos who);

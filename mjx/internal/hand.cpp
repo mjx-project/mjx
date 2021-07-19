@@ -1,4 +1,4 @@
-#include "hand.h"
+#include "mjx/internal/hand.h"
 
 #include <algorithm>
 #include <array>
@@ -9,9 +9,9 @@
 #include <unordered_map>
 #include <utility>
 
-#include "open.h"
-#include "utils.h"
-#include "win_cache.h"
+#include "mjx/internal/open.h"
+#include "mjx/internal/utils.h"
+#include "mjx/internal/win_cache.h"
 
 namespace mjx::internal {
 Hand::Hand(std::vector<Tile> tiles) : Hand(tiles.begin(), tiles.end()) {}

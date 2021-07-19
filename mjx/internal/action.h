@@ -4,10 +4,10 @@
 #include <memory>
 #include <utility>
 
-#include "mjx.pb.h"
-#include "open.h"
-#include "tile.h"
-#include "types.h"
+#include "mjx/internal/mjx.pb.h"
+#include "mjx/internal/open.h"
+#include "mjx/internal/tile.h"
+#include "mjx/internal/types.h"
 
 namespace mjx::internal {
 class Action {
@@ -37,7 +37,7 @@ class Action {
   static bool Equal(const mjxproto::Action& lhs, const mjxproto::Action& rhs);
   static std::uint8_t Encode(const mjxproto::Action& action);
   static mjxproto::Action Decode(
-      std::uint8_t code, const std::vector<mjxproto::Action>& possible_action);
+      std::uint8_t code, const std::vector<mjxproto::Action>& legal_action);
   // 0~33: Discard m1~rd
   // 34,35,36: Discard m5(red), p5(red), s5(red)
   // 37~70: Tsumogiri m1~rd
@@ -54,6 +54,7 @@ class Action {
   // 177: Riichi
   // 178: Kyuushu
   // 179: No
+  // 180: Dummy
 };
 }  // namespace mjx::internal
 

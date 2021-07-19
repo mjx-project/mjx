@@ -8,12 +8,12 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
-    - name: Cache mjx/external
+    - name: Cache external
       uses: actions/cache@v2
       with:
         path: |
-          mjx/external
-        key: mjx-external-${{ hashFiles('mjx/cmake/*') }}
+          external
+        key: external-${{ hashFiles('mjx/cmake/*') }}-${{ hashFiles('pymjx/_mjx/CMakeLists.txt') }}
 
     - name: Build mjx
       run: mkdir -p build && cd build && cmake .. -DMJX_USE_SYSTEM_BOOST=OFF -DMJX_USE_SYSTEM_GRPC=OFF && make -j 4

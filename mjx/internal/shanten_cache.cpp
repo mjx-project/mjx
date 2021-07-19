@@ -1,9 +1,10 @@
-#include "shanten_cache.h"
+#include "mjx/internal/shanten_cache.h"
 
 #include <boost/property_tree/json_parser.hpp>
 #include <boost/property_tree/ptree.hpp>
 #include <iostream>
 #include <numeric>
+#include <sstream>
 
 namespace mjx::internal {
 ShantenCache::ShantenCache() { LoadCache(); }
@@ -16,35 +17,29 @@ const ShantenCache& ShantenCache::instance() {
 }
 int ShantenCache::Require(const std::vector<uint8_t>& count, int sets,
                           int heads) const {
-  if (sets == 0 and heads == 0) return 0;
-
   assert(count.size() == 9);
-  assert(std::accumulate(count.begin(), count.end(), 0) <= 14);
-  std::string code;
+  int code = 0;
   for (int i = 0; i < 9; ++i) {
-    code += std::to_string(count[i]);
+    code = code * 5 + count[i];
   }
-  code += '-';
-  code += std::to_string(sets);
-  code += '-';
-  code += std::to_string(heads);
-
-  return cache_.at(code);
+  return cache_[code][heads * 5 + sets];
 }
 
 void ShantenCache::LoadCache() {
   std::cerr << "ShantenCache::LoadCache: start" << std::endl;
-  boost::property_tree::ptree root;
-  boost::property_tree::read_json(
-      std::string(WIN_CACHE_DIR) + "/shanten_cache.json", root);
-  cache_.reserve(root.size());
-  int mx = 0;
-  for (const auto& [hand, patterns_pt] : root) {
-    cache_[hand] = patterns_pt.get_value<int>();
-    mx = std::max(mx, cache_[hand]);
+
+  std::ifstream ifs(std::string(WIN_CACHE_DIR) + "/shanten-rs.txt",
+                    std::ios::in);
+  std::string line;
+  while (!ifs.eof()) {
+    std::getline(ifs, line);
+    if (line.empty()) break;
+    std::stringstream ss(line);
+    std::vector<int> c(10);
+    for (int i = 0; i < 10; ++i) ss >> c[i];
+    cache_.push_back(c);
   }
-  assert(mx > 0);
-  std::cerr << "Max:" << mx << std::endl;
+  assert(cache_.size() == 1953125);
   std::cerr << "ShantenCache::LoadCache: end" << std::endl;
 }
 }  // namespace mjx::internal
