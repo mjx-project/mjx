@@ -117,11 +117,20 @@ PettingZooMahjongEnv::Last() const noexcept {
 }
 
 void PettingZooMahjongEnv::Reset() noexcept {
+  agents_to_act_.clear();
+  agent_selection_ = std::nullopt;
+  observations_.clear();
+  rewards_.clear();
+  dones_.clear();
+  infos_.clear();
+  action_dict_.clear();
+
   for (const auto& agent : agents_) {
     dones_[agent] = false;
     rewards_[agent] = 0;
     infos_[agent] = "";
   }
+
   observations_ = seed_ ? env_.Reset(seed_.value()) : env_.Reset();
   UpdateAgentsToAct();
   assert(agents_to_act_.size() == 1);
@@ -151,11 +160,14 @@ void PettingZooMahjongEnv::Step(Action action) noexcept {
     infos_[agent] = "";
   }
   if (done) {
+    // update rewards_
     auto state = env_.state();
     auto ranking_dict = state.ranking_dict();
     for (const auto& agent : agents_) {
       rewards_[agent] = reward_map_.at(ranking_dict.at(agent));
     }
+    // reset
+    seed_ = std::nullopt;
   }
 }
 
