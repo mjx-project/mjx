@@ -100,3 +100,38 @@ TEST(env, RLlibMahjongEnv) {
               mjxproto::ACTION_TYPE_DUMMY);
   }
 }
+
+TEST(env, PettingZooMahjongEnv) {
+  auto strategy = mjx::internal::StrategyRuleBased();
+  std::optional<mjx::PlayerId> agent_selection;
+  std::unordered_map<mjx::internal::PlayerId, int> expected_tens = {
+      {"player_0", 26600},
+      {"player_1", 25600},
+      {"player_2", 16800},
+      {"player_3", 31000}};
+
+  auto env = mjx::PettingZooMahjongEnv();
+  env.Seed(1234);
+  env.Reset();
+  agent_selection = env.agent_selection();
+  while(agent_selection) {
+    auto [observation, reward, done, info] = env.Last();
+    auto action = strategy.TakeAction(observation.value().ToProto());
+    env.Step(mjx::Action(action));
+
+    // std::cerr << agent_selection.value() << ", " << reward << ", " << done << ", " << observation.value().ToJson() << std::endl;
+    if (done) {
+      if (agent_selection.value() == "player_0") EXPECT_EQ(reward, 45);
+      if (agent_selection.value() == "player_1") EXPECT_EQ(reward, 0);
+      if (agent_selection.value() == "player_2") EXPECT_EQ(reward, -135);
+      if (agent_selection.value() == "player_3") EXPECT_EQ(reward, 90);
+      auto player_ids = observation.value().ToProto().public_observation().player_ids();
+      auto tens = observation.value().ToProto().round_terminal().final_score().tens();
+      for (int i = 0; i < 4; ++i) {
+        EXPECT_EQ(tens[i], expected_tens[player_ids[i]]);
+      }
+    }
+
+    agent_selection = env.agent_selection();
+  }
+}
