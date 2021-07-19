@@ -52,6 +52,27 @@ class RLlibMahjongEnv {
   MjxEnv env_{};
   const std::map<int, int> rewards_ = {{1, 90}, {2, 45}, {3, 0}, {4, -135}};
 };
+
+class PettingZooMahjongEnv {
+ public:
+  PettingZooMahjongEnv();
+
+  std::tuple<std::optional<Observation>,
+             int,  // reward
+             bool,  // done
+             std::string>  // info
+  Last() const noexcept;
+  void Reset() noexcept;
+  void Step() noexcept;
+  void Seed(std::uint64_t seed) noexcept;
+  Observation Observe(PlayerId agent) const noexcept;
+  std::vector<PlayerId> agents() const noexcept;
+  std::vector<PlayerId> possible_agents() const noexcept;
+  std::optional<PlayerId> agent_selection() const noexcept;
+  std::unordered_map<PlayerId, bool> dones() const noexcept;  // Last() accesses this
+  std::unordered_map<PlayerId, std::string> infos() const noexcept;  // Last() accesses this
+  std::unordered_map<PlayerId, int> rewards() const noexcept;  // Last() does not accesses this (but stores returned values to this)
+};
 }  // namespace mjx
 
 #endif  // MJX_PROJECT_ENV_H
