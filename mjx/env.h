@@ -61,7 +61,7 @@ class PettingZooMahjongEnv {
              int,          // reward
              bool,         // done
              std::string>  // info
-  Last(bool observe=true) const noexcept;
+  Last(bool observe = true) const noexcept;
   void Reset() noexcept;
   void Step(Action action) noexcept;
   void Seed(std::uint64_t seed) noexcept;
@@ -71,8 +71,8 @@ class PettingZooMahjongEnv {
   std::optional<PlayerId> agent_selection() const noexcept;
 
  private:
-  const std::vector<PlayerId> possible_agents_ = {"player_0", "player_1", "player_2",
-                                         "player_3"};
+  const std::vector<PlayerId> possible_agents_ = {"player_0", "player_1",
+                                                  "player_2", "player_3"};
   std::vector<PlayerId> agents_{};
   std::optional<std::uint64_t> seed_ = std::nullopt;
   MjxEnv env_ = MjxEnv(true);
