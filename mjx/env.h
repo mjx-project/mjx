@@ -65,14 +65,19 @@ class PettingZooMahjongEnv {
   void Reset() noexcept;
   void Step(Action action) noexcept;
   void Seed(std::uint64_t seed) noexcept;
-  Observation Observe(PlayerId agent) const noexcept;
+  Observation Observe(const PlayerId& agent) const noexcept;
   const std::vector<PlayerId>& agents() const noexcept;
   const std::vector<PlayerId>& possible_agents() const noexcept;
-  std::optional<const PlayerId&> agent_selection() const noexcept;
+  std::optional<PlayerId> agent_selection() const noexcept;
 
  private:
-  std::vector<PlayerId> agents_ = {"player_0", "player_1", "player_2",
+  const std::vector<PlayerId> agents_ = {"player_0", "player_1", "player_2",
                                    "player_3"};
+  std::optional<std::uint64_t> seed_ = std::nullopt;
+  MjxEnv env_ = MjxEnv(true);
+  // agents required to take actions
+  std::vector<PlayerId> agents_to_act_;
+  std::optional<PlayerId> agent_selection_;
   // Last() accesses these attributes
   std::unordered_map<PlayerId, Observation> observations_;
   std::unordered_map<PlayerId, int> rewards_;
@@ -81,6 +86,10 @@ class PettingZooMahjongEnv {
   // Step() stores action here and call MjxEnv.Step() when required actions are
   // ready
   std::unordered_map<PlayerId, Action> action_dict_;
+
+  const std::map<int, int> reward_map_ = {{1, 90}, {2, 45}, {3, 0}, {4, -135}};
+
+  void UpdateAgentsToAct() noexcept;
 };
 }  // namespace mjx
 
