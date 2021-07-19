@@ -25,6 +25,12 @@ TEST(env, MjxEnv) {
       observations = env.Step(action_dict);
     }
   }
+  EXPECT_EQ(observations.size(), 4);
+  for (const auto& [player_id, observation]: observations) {
+    auto legal_actions = observation.legal_actions();
+    EXPECT_EQ(legal_actions.size(), 1);
+    EXPECT_EQ(legal_actions.front().ToProto().type(), mjxproto::ACTION_TYPE_DUMMY);
+  }
   auto player_ids =
       observations["player_0"].ToProto().public_observation().player_ids();
   auto tens =
