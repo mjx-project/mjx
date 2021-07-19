@@ -117,6 +117,7 @@ PettingZooMahjongEnv::Last() const noexcept {
 }
 
 void PettingZooMahjongEnv::Reset() noexcept {
+  agents_ = std::vector<PlayerId>(possible_agents_.begin(), possible_agents_.end());
   agents_to_act_.clear();
   agent_selection_ = std::nullopt;
   observations_.clear();
@@ -140,8 +141,12 @@ void PettingZooMahjongEnv::Reset() noexcept {
 void PettingZooMahjongEnv::Step(Action action) noexcept {
   action_dict_[agent_selection_.value()] = std::move(action);
 
+  if (dones_.at(agent_selection_.value())) {
+    agents_.erase(std::find(agents_.begin(), agents_.end(), agent_selection_));
+  }
+
+  // Required actions are NOT prepared yet. Just increment agent_selection_.
   if (*agents_to_act_.rbegin() != agent_selection_) {
-    // All required actions are prepared. Just increment agent_selection_.
     auto it = std::find(agents_to_act_.begin(), agents_to_act_.end(),
                         agent_selection_);
     agent_selection_ = *(++it);
@@ -149,6 +154,14 @@ void PettingZooMahjongEnv::Step(Action action) noexcept {
   }
 
   assert(action_dict_.size() == agents_to_act_.size());
+
+  // If all dummy actions are gathered at the end of game
+  if (env_.Done()) {
+    seed_ = std::nullopt;
+    agent_selection_ = std::nullopt;
+    return;
+  }
+
   observations_ = env_.Step(action_dict_);
   action_dict_.clear();
   UpdateAgentsToAct();
@@ -166,8 +179,6 @@ void PettingZooMahjongEnv::Step(Action action) noexcept {
     for (const auto& agent : agents_) {
       rewards_[agent] = reward_map_.at(ranking_dict.at(agent));
     }
-    // reset
-    seed_ = std::nullopt;
   }
 }
 
@@ -184,7 +195,7 @@ const std::vector<PlayerId>& PettingZooMahjongEnv::agents() const noexcept {
 
 const std::vector<PlayerId>& PettingZooMahjongEnv::possible_agents()
     const noexcept {
-  return agents_;
+  return possible_agents_;
 }
 
 std::optional<PlayerId> PettingZooMahjongEnv::agent_selection() const noexcept {
