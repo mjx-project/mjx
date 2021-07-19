@@ -48,12 +48,12 @@ std::unordered_map<PlayerId, int> State::ranking_dict() const noexcept {
             [](auto x, auto y) { return x.second < y.second; });
   std::reverse(pos_ten.begin(), pos_ten.end());
   const auto& player_ids = proto_.public_observation().player_ids();
-  std::map<PlayerId, int> rankings;
+  std::unordered_map<PlayerId, int> rankings;
   for (int i = 0; i < 4; ++i) {
     int ranking = i + 1;
-    PlayerId player_id = player_ids.at(pos_ten[i].first);
+    const PlayerId& player_id = player_ids.at(pos_ten[i].first);
     rankings[player_id] = ranking;
   }
-  return std::unordered_map<PlayerId, int>();
+  return rankings;
 }
 }  // namespace mjx

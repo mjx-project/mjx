@@ -1,5 +1,7 @@
 #include "mjx/env.h"
 
+#include <utility>
+
 namespace mjx {
 
 MjxEnv::MjxEnv(bool observe_all)
@@ -103,5 +105,116 @@ RLlibMahjongEnv::step(
 
 void RLlibMahjongEnv::seed(std::uint64_t game_seed) noexcept {
   game_seed_ = game_seed;
+}
+PettingZooMahjongEnv::PettingZooMahjongEnv() {}
+
+std::tuple<std::optional<Observation>,
+           int,   // reward
+           bool,  // done
+           std::string>
+PettingZooMahjongEnv::Last(bool observe) const noexcept {
+  const auto& a = agent_selection_.value();
+  if (observe)
+    return {Observe(a), rewards_.at(a), dones_.at(a), infos_.at(a)};
+  else
+    return {std::nullopt, rewards_.at(a), dones_.at(a), infos_.at(a)};
+}
+
+void PettingZooMahjongEnv::Reset() noexcept {
+  agents_ =
+      std::vector<PlayerId>(possible_agents_.begin(), possible_agents_.end());
+  agents_to_act_.clear();
+  agent_selection_ = std::nullopt;
+  observations_.clear();
+  rewards_.clear();
+  dones_.clear();
+  infos_.clear();
+  action_dict_.clear();
+
+  for (const auto& agent : agents_) {
+    dones_[agent] = false;
+    rewards_[agent] = 0;
+    infos_[agent] = "";
+  }
+
+  observations_ = seed_ ? env_.Reset(seed_.value()) : env_.Reset();
+  UpdateAgentsToAct();
+  assert(agents_to_act_.size() == 1);
+  agent_selection_ = agents_to_act_.front();
+}
+
+void PettingZooMahjongEnv::Step(Action action) noexcept {
+  action_dict_[agent_selection_.value()] = std::move(action);
+
+  if (dones_.at(agent_selection_.value())) {
+    agents_.erase(std::find(agents_.begin(), agents_.end(), agent_selection_));
+  }
+
+  // Required actions are NOT prepared yet. Just increment agent_selection_.
+  if (*agents_to_act_.rbegin() != agent_selection_) {
+    auto it = std::find(agents_to_act_.begin(), agents_to_act_.end(),
+                        agent_selection_);
+    agent_selection_ = *(++it);
+    return;
+  }
+
+  assert(action_dict_.size() == agents_to_act_.size());
+
+  // If all dummy actions are gathered at the end of game
+  if (env_.Done()) {
+    seed_ = std::nullopt;
+    agent_selection_ = std::nullopt;
+    return;
+  }
+
+  observations_ = env_.Step(action_dict_);
+  action_dict_.clear();
+  UpdateAgentsToAct();
+  agent_selection_ = agents_to_act_.front();
+  bool done = env_.Done();
+  for (const auto& agent : agents_) {
+    dones_[agent] = done;
+    rewards_[agent] = 0;
+    infos_[agent] = "";
+  }
+  if (done) {
+    // update rewards_
+    auto state = env_.state();
+    auto ranking_dict = state.ranking_dict();
+    for (const auto& agent : possible_agents_) {
+      auto ranking = ranking_dict.at(agent);
+      rewards_[agent] = reward_map_.at(ranking);
+    }
+  }
+}
+
+void PettingZooMahjongEnv::Seed(std::uint64_t seed) noexcept { seed_ = seed; }
+
+Observation PettingZooMahjongEnv::Observe(
+    const PlayerId& agent) const noexcept {
+  return observations_.at(agent);
+}
+
+const std::vector<PlayerId>& PettingZooMahjongEnv::agents() const noexcept {
+  return agents_;
+}
+
+const std::vector<PlayerId>& PettingZooMahjongEnv::possible_agents()
+    const noexcept {
+  return possible_agents_;
+}
+
+std::optional<PlayerId> PettingZooMahjongEnv::agent_selection() const noexcept {
+  return agent_selection_;
+}
+
+void PettingZooMahjongEnv::UpdateAgentsToAct() noexcept {
+  agents_to_act_.clear();
+  // TODO: change the order
+  for (const auto& [agent, observation] : observations_) {
+    if (!observation.legal_actions().empty()) {
+      agents_to_act_.push_back(agent);
+    }
+  }
 }
 }  // namespace mjx
