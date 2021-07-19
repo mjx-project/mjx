@@ -58,8 +58,8 @@ class PettingZooMahjongEnv {
   PettingZooMahjongEnv();
 
   std::tuple<std::optional<Observation>,
-             int,  // reward
-             bool,  // done
+             int,          // reward
+             bool,         // done
              std::string>  // info
   Last() const noexcept;
   void Reset() noexcept;
@@ -69,9 +69,13 @@ class PettingZooMahjongEnv {
   std::vector<PlayerId> agents() const noexcept;
   std::vector<PlayerId> possible_agents() const noexcept;
   std::optional<PlayerId> agent_selection() const noexcept;
-  std::unordered_map<PlayerId, bool> dones() const noexcept;  // Last() accesses this
-  std::unordered_map<PlayerId, std::string> infos() const noexcept;  // Last() accesses this
-  std::unordered_map<PlayerId, int> rewards() const noexcept;  // Last() does not accesses this (but stores returned values to this)
+  std::unordered_map<PlayerId, bool> dones()
+      const noexcept;  // Last() accesses this
+  std::unordered_map<PlayerId, std::string> infos()
+      const noexcept;  // Last() accesses this
+  std::unordered_map<PlayerId, int> rewards()
+      const noexcept;  // Last() does not accesses this (but stores returned
+                       // values to this)
 };
 }  // namespace mjx
 
