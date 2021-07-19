@@ -52,6 +52,46 @@ class RLlibMahjongEnv {
   MjxEnv env_{};
   const std::map<int, int> rewards_ = {{1, 90}, {2, 45}, {3, 0}, {4, -135}};
 };
+
+class PettingZooMahjongEnv {
+ public:
+  PettingZooMahjongEnv();
+
+  std::tuple<std::optional<Observation>,
+             int,          // reward
+             bool,         // done
+             std::string>  // info
+  Last(bool observe = true) const noexcept;
+  void Reset() noexcept;
+  void Step(Action action) noexcept;
+  void Seed(std::uint64_t seed) noexcept;
+  Observation Observe(const PlayerId& agent) const noexcept;
+  const std::vector<PlayerId>& agents() const noexcept;
+  const std::vector<PlayerId>& possible_agents() const noexcept;
+  std::optional<PlayerId> agent_selection() const noexcept;
+
+ private:
+  const std::vector<PlayerId> possible_agents_ = {"player_0", "player_1",
+                                                  "player_2", "player_3"};
+  std::vector<PlayerId> agents_{};
+  std::optional<std::uint64_t> seed_ = std::nullopt;
+  MjxEnv env_ = MjxEnv(true);
+  // agents required to take actions
+  std::vector<PlayerId> agents_to_act_;
+  std::optional<PlayerId> agent_selection_;
+  // Last() accesses these attributes
+  std::unordered_map<PlayerId, Observation> observations_;
+  std::unordered_map<PlayerId, int> rewards_;
+  std::unordered_map<PlayerId, bool> dones_;
+  std::unordered_map<PlayerId, std::string> infos_;
+  // Step() stores action here and call MjxEnv.Step() when required actions are
+  // ready
+  std::unordered_map<PlayerId, Action> action_dict_;
+
+  const std::map<int, int> reward_map_ = {{1, 90}, {2, 45}, {3, 0}, {4, -135}};
+
+  void UpdateAgentsToAct() noexcept;
+};
 }  // namespace mjx
 
 #endif  // MJX_PROJECT_ENV_H
