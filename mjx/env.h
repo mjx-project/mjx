@@ -72,7 +72,7 @@ class PettingZooMahjongEnv {
 
  private:
   const std::vector<PlayerId> agents_ = {"player_0", "player_1", "player_2",
-                                   "player_3"};
+                                         "player_3"};
   std::optional<std::uint64_t> seed_ = std::nullopt;
   MjxEnv env_ = MjxEnv(true);
   // agents required to take actions

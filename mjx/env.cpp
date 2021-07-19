@@ -1,6 +1,6 @@
-#include <utility>
-
 #include "mjx/env.h"
+
+#include <utility>
 
 namespace mjx {
 
@@ -117,7 +117,7 @@ PettingZooMahjongEnv::Last() const noexcept {
 }
 
 void PettingZooMahjongEnv::Reset() noexcept {
-  for (const auto& agent: agents_) {
+  for (const auto& agent : agents_) {
     dones_[agent] = false;
     rewards_[agent] = 0;
     infos_[agent] = "";
@@ -145,7 +145,7 @@ void PettingZooMahjongEnv::Step(Action action) noexcept {
   UpdateAgentsToAct();
   agent_selection_ = agents_to_act_.front();
   bool done = env_.Done();
-  for (const auto& agent: agents_) {
+  for (const auto& agent : agents_) {
     dones_[agent] = done;
     rewards_[agent] = 0;
     infos_[agent] = "";
@@ -153,17 +153,16 @@ void PettingZooMahjongEnv::Step(Action action) noexcept {
   if (done) {
     auto state = env_.state();
     auto ranking_dict = state.ranking_dict();
-    for (const auto& agent: agents_) {
+    for (const auto& agent : agents_) {
       rewards_[agent] = reward_map_.at(ranking_dict.at(agent));
     }
   }
 }
 
-void PettingZooMahjongEnv::Seed(std::uint64_t seed) noexcept {
-  seed_ = seed;
-}
+void PettingZooMahjongEnv::Seed(std::uint64_t seed) noexcept { seed_ = seed; }
 
-Observation PettingZooMahjongEnv::Observe(const PlayerId& agent) const noexcept {
+Observation PettingZooMahjongEnv::Observe(
+    const PlayerId& agent) const noexcept {
   return observations_.at(agent);
 }
 
@@ -176,15 +175,14 @@ const std::vector<PlayerId>& PettingZooMahjongEnv::possible_agents()
   return agents_;
 }
 
-std::optional<PlayerId> PettingZooMahjongEnv::agent_selection()
-    const noexcept {
+std::optional<PlayerId> PettingZooMahjongEnv::agent_selection() const noexcept {
   return agent_selection_;
 }
 
 void PettingZooMahjongEnv::UpdateAgentsToAct() noexcept {
   agents_to_act_.clear();
   // TODO: change the order
-  for (const auto& [agent, observation]: observations_) {
+  for (const auto& [agent, observation] : observations_) {
     if (!observation.legal_actions().empty()) {
       agents_to_act_.push_back(agent);
     }
