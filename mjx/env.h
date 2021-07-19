@@ -61,7 +61,7 @@ class PettingZooMahjongEnv {
              int,          // reward
              bool,         // done
              std::string>  // info
-  Last() const noexcept;
+  Last(bool observe=true) const noexcept;
   void Reset() noexcept;
   void Step(Action action) noexcept;
   void Seed(std::uint64_t seed) noexcept;

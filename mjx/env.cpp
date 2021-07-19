@@ -112,8 +112,10 @@ std::tuple<std::optional<Observation>,
            int,   // reward
            bool,  // done
            std::string>
-PettingZooMahjongEnv::Last() const noexcept {
-  return std::tuple<std::optional<Observation>, int, bool, std::string>();
+PettingZooMahjongEnv::Last(bool observe) const noexcept {
+  const auto& a = agent_selection_.value();
+  if (observe) return {Observe(a), rewards_.at(a), dones_.at(a), infos_.at(a)};
+  else return  {std::nullopt, rewards_.at(a), dones_.at(a), infos_.at(a)};
 }
 
 void PettingZooMahjongEnv::Reset() noexcept {
