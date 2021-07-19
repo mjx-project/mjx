@@ -181,8 +181,9 @@ void PettingZooMahjongEnv::Step(Action action) noexcept {
     // update rewards_
     auto state = env_.state();
     auto ranking_dict = state.ranking_dict();
-    for (const auto& agent : agents_) {
-      rewards_[agent] = reward_map_.at(ranking_dict.at(agent));
+    for (const auto& agent : possible_agents_) {
+      auto ranking = ranking_dict.at(agent);
+      rewards_[agent] = reward_map_.at(ranking);
     }
   }
 }
