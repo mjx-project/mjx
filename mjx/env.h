@@ -66,17 +66,20 @@ class PettingZooMahjongEnv {
   void Step(Action action) noexcept;
   void Seed(std::uint64_t seed) noexcept;
   Observation Observe(PlayerId agent) const noexcept;
-  const std::vector<PlayerId> & agents() const noexcept;
-  const std::vector<PlayerId> & possible_agents() const noexcept;
+  const std::vector<PlayerId>& agents() const noexcept;
+  const std::vector<PlayerId>& possible_agents() const noexcept;
   std::optional<const PlayerId&> agent_selection() const noexcept;
+
  private:
-  std::vector<PlayerId> agents_ = {"player_0", "player_1", "player_2", "player_3"};
+  std::vector<PlayerId> agents_ = {"player_0", "player_1", "player_2",
+                                   "player_3"};
   // Last() accesses these attributes
   std::unordered_map<PlayerId, Observation> observations_;
   std::unordered_map<PlayerId, int> rewards_;
   std::unordered_map<PlayerId, bool> dones_;
   std::unordered_map<PlayerId, std::string> infos_;
-  // Step() stores action here and call MjxEnv.Step() when required actions are ready
+  // Step() stores action here and call MjxEnv.Step() when required actions are
+  // ready
   std::unordered_map<PlayerId, Action> action_dict_;
 };
 }  // namespace mjx
