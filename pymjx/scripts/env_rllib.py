@@ -297,7 +297,7 @@ def online_model_policy():
         num = re.sub(r"\D", "", agent_id)
         return f"random{num}" if num != "0" else "learned"
 
-    register_env("rllibmahjong", lambda _: WrappedMahjongEnv(env=_mjx.RLlibMahjongEnv(), seed=3))
+    register_env("rllibmahjong", lambda _: WrappedMahjongEnv(env=_mjx.RLlibMahjongEnv(), seed=16))
     config = dict(
         {
             "env": "rllibmahjong",
@@ -308,6 +308,12 @@ def online_model_policy():
             "num_gpus": 0,
             "num_workers": 0,
             "output": "batch/onpolicy",
+            "explore": False,
+            "exploration_config": {
+                "type": "EpsilonGreedy",
+                "initial_epsilon": 0.2,
+                "final_epsilon": 0.0,
+            },
             "multiagent": {
                 "policies_to_train": ["learned"],
                 "policies": {
@@ -331,7 +337,7 @@ def online_model_policy():
             },
             "framework": "torch"
         })
-    trainer_obj = ppo.PPOTrainer(config=config)
+    trainer_obj = pg.PGTrainer(config=config)
     for _ in range(50):
         results = trainer_obj.train()
         print(pretty_print(results))
@@ -355,8 +361,8 @@ def offline_model_policy():
             "num_gpus": 0,
             "num_workers": 0,
             # "input":{
-            #     "batch/onpolicy": 0.0,
-            #     "sampler": 1.0,
+            #     "batch/onpolicy": 0.8,
+            #     "sampler": 0.2,
             # },
             # "input_evaluation": [],
             "explore": False,
@@ -394,6 +400,6 @@ if __name__ == '__main__':
     # random_policy()
     # rllib_random_policy()
     # rllib_rulebased()
-    # online_model_policy()
+    online_model_policy()
     # offline_model_policy()
     ray.shutdown()
