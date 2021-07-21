@@ -50,7 +50,7 @@ class RLlibMahjongEnv {
  private:
   std::optional<std::uint64_t> game_seed_ = std::nullopt;
   MjxEnv env_{};
-  const std::map<int, int> rewards_ = {{1, 90}, {2, 45}, {3, 0}, {4, -135}};
+  const std::map<int, int> reward_map_ = {{1, 90}, {2, 45}, {3, 0}, {4, -135}};
 };
 
 class PettingZooMahjongEnv {
