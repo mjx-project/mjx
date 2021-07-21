@@ -99,6 +99,10 @@ TEST(env, RLlibMahjongEnv) {
     EXPECT_EQ(obs.ToProto().legal_actions(0).type(),
               mjxproto::ACTION_TYPE_DUMMY);
   }
+  EXPECT_EQ(rewards.at("player_0"), 45);
+  EXPECT_EQ(rewards.at("player_1"), 0);
+  EXPECT_EQ(rewards.at("player_2"), -135);
+  EXPECT_EQ(rewards.at("player_3"), 90);
 }
 
 TEST(env, PettingZooMahjongEnv) {
