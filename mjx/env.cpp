@@ -92,7 +92,8 @@ RLlibMahjongEnv::step(
     auto state = env_.state();
     auto ranking_dict = state.ranking_dict();
     for (const auto& [k, v] : observations) {
-      rewards[k] = ranking_dict[k];
+      auto ranking = ranking_dict[k];
+      rewards[k] = reward_map_.at(ranking);
       dones[k] = true;
       infos[k] = "";
     }
