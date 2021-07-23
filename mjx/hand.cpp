@@ -38,7 +38,7 @@ std::array<uint8_t, 34> Hand::ClosedTiles() const noexcept {
   std::array<uint8_t, 34> closed_tiles{};
   closed_tiles.fill(0);
   for (auto t : proto_.closed_tiles()) {
-    ++closed_tiles[t];
+    ++closed_tiles[t >> 2];
   }
   return closed_tiles;
 }
