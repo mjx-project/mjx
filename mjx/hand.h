@@ -13,6 +13,9 @@ class Hand {
   std::string ToJson() const noexcept;
   bool operator==(const Hand& other) const noexcept;
   bool operator!=(const Hand& other) const noexcept;
+  std::array<uint8_t, 34> ClosedTiles() const noexcept ;
+  bool IsTenpai() const;
+  int ShantenNumber() const;
 
  private:
   mjxproto::Hand proto_{};
