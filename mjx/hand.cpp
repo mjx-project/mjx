@@ -1,11 +1,11 @@
 #include "mjx/hand.h"
 
-#include "mjx/internal/shanten_calculator.h"
-
 #include <google/protobuf/util/json_util.h>
 #include <google/protobuf/util/message_differencer.h>
 
 #include <utility>
+
+#include "mjx/internal/shanten_calculator.h"
 
 namespace mjx {
 Hand::Hand(mjxproto::Hand proto) : proto_(std::move(proto)) {}
