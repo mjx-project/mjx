@@ -3,11 +3,11 @@
 namespace mjx::internal {
 int ShantenCalculator::ShantenNumber(const std::array<uint8_t, 34>& count,
                                      int num_opens) {
-  if (opens == 0) {
-    return std::min({ShantenNormal(count, opens), ShantenThirteenOrphans(count),
+  if (num_opens == 0) {
+    return std::min({ShantenNormal(count, num_opens), ShantenThirteenOrphans(count),
                      ShantenSevenPairs(count)});
   } else {
-    return ShantenNormal(count, opens);
+    return ShantenNormal(count, num_opens);
   }
 }
 
@@ -17,8 +17,8 @@ const ShantenCache& ShantenCalculator::shanten_cache() {
 
 int ShantenCalculator::ShantenNormal(const std::array<uint8_t, 34>& count,
                                      int num_opens) {
-  // (4-opens)面子1雀頭形
-  std::vector<std::vector<int>> cost(5 - opens, std::vector<int>(2, INT_MAX));
+  // (4-num_opens)面子1雀頭形
+  std::vector<std::vector<int>> cost(5 - num_opens, std::vector<int>(2, INT_MAX));
   cost[0][0] = 0;
 
   for (int margin : {0, 9, 18}) {
@@ -27,7 +27,7 @@ int ShantenCalculator::ShantenNormal(const std::array<uint8_t, 34>& count,
     // margin 18: souzu
     std::vector<uint8_t> tiles(count.begin() + margin,
                                count.begin() + margin + 9);
-    for (int i = 4 - opens; i >= 0; --i) {
+    for (int i = 4 - num_opens; i >= 0; --i) {
       for (int j = 1; j >= 0; --j) {
         for (int x = 0; i - x >= 0; ++x) {
           for (int y = 0; j - y >= 0; ++y) {
@@ -42,7 +42,7 @@ int ShantenCalculator::ShantenNormal(const std::array<uint8_t, 34>& count,
   }
   for (int k = 27; k < 34; ++k) {
     // 字牌
-    for (int i = 4 - opens; i >= 0; --i) {
+    for (int i = 4 - num_opens; i >= 0; --i) {
       for (int j = 1; j >= 0; --j) {
         // 1面子作る場合
         if (i - 1 >= 0 and cost[i - 1][j] != INT_MAX) {
@@ -57,7 +57,7 @@ int ShantenCalculator::ShantenNormal(const std::array<uint8_t, 34>& count,
       }
     }
   }
-  return cost[4 - opens][1] - 1;  // シャンテン数は 上がりに必要な枚数 - 1
+  return cost[4 - num_opens][1] - 1;  // シャンテン数は 上がりに必要な枚数 - 1
 }
 
 int ShantenCalculator::ShantenThirteenOrphans(
@@ -80,13 +80,13 @@ int ShantenCalculator::ShantenSevenPairs(const std::array<uint8_t, 34>& count) {
 }
 
 std::bitset<34> ShantenCalculator::ProceedingTileTypes(
-    std::array<uint8_t, 34> hand, int opens) {
-  int shanten = ShantenNumber(hand, opens);
+    std::array<uint8_t, 34> hand, int num_opens) {
+  int shanten = ShantenNumber(hand, num_opens);
   std::bitset<34> proceeding;
   for (int i = 0; i < 34; ++i) {
     if (hand[i] == 4) continue;
     ++hand[i];
-    if (shanten > ShantenNumber(hand, opens)) {
+    if (shanten > ShantenNumber(hand, num_opens)) {
       proceeding.set(i);
     }
     --hand[i];
