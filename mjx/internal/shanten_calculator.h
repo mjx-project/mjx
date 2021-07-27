@@ -11,15 +11,15 @@
 namespace mjx::internal {
 class ShantenCalculator {
  public:
-  [[nodiscard]] static int ShantenNumber(const std::array<uint8_t, 34>& count);
+  [[nodiscard]] static int ShantenNumber(const std::array<uint8_t, 34>& count, int opens);
   [[nodiscard]] static const ShantenCache& shanten_cache();
-  [[nodiscard]] static int ShantenNormal(const std::array<uint8_t, 34>& count);
+  [[nodiscard]] static int ShantenNormal(const std::array<uint8_t, 34>& count, int opens);
   [[nodiscard]] static int ShantenThirteenOrphans(
       const std::array<uint8_t, 34>& count);
   [[nodiscard]] static int ShantenSevenPairs(
       const std::array<uint8_t, 34>& count);
   [[nodiscard]] static std::bitset<34> ProceedingTileTypes(
-      std::array<uint8_t, 34> hand);
+      std::array<uint8_t, 34> hand, int opens);
 };
 }  // namespace mjx::internal
 
