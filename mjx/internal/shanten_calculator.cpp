@@ -16,7 +16,7 @@ const ShantenCache& ShantenCalculator::shanten_cache() {
 }
 
 int ShantenCalculator::ShantenNormal(const std::array<uint8_t, 34>& count,
-                                     int opens) {
+                                     int num_opens) {
   // (4-opens)面子1雀頭形
   std::vector<std::vector<int>> cost(5 - opens, std::vector<int>(2, INT_MAX));
   cost[0][0] = 0;
