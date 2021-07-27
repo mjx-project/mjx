@@ -2,7 +2,7 @@
 
 namespace mjx::internal {
 int ShantenCalculator::ShantenNumber(const std::array<uint8_t, 34>& count,
-                                     int opens) {
+                                     int num_opens) {
   if (opens == 0) {
     return std::min({ShantenNormal(count, opens), ShantenThirteenOrphans(count),
                      ShantenSevenPairs(count)});
