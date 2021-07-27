@@ -39,7 +39,6 @@ TEST(hand, IsTenpai) {
   // 上がり状態でもテンパイ扱い
   hand = mjx::Hand(R"({"closedTiles":[0,1,2,3,4,5,6,7,8,9,10,11,12,12]})");
   EXPECT_EQ(hand.IsTenpai(), true);
-
 }
 
 TEST(hand, op) {

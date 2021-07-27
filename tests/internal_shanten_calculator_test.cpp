@@ -19,7 +19,9 @@ TEST(internal_shanten_calculator, normal) {
   auto hand = Hand(HandParams("m1,m2,m3,m4,m9,rd,rd")
                        .Chi("m7,m8,m9")
                        .KanAdded("p1,p1,p1,p1"));
-  EXPECT_EQ(ShantenCalculator::ShantenNumber(hand.ToArrayClosed(), hand.Opens().size()), 1);
+  EXPECT_EQ(ShantenCalculator::ShantenNumber(hand.ToArrayClosed(),
+                                             hand.Opens().size()),
+            1);
 }
 
 TEST(internal_shanten_calculator, thirteen_orphan) {

@@ -44,11 +44,13 @@ std::array<uint8_t, 34> Hand::ClosedTiles() const noexcept {
 }
 
 bool Hand::IsTenpai() const {
-  return mjx::internal::ShantenCalculator::ShantenNumber(ClosedTiles(), proto_.opens_size()) <= 0;
+  return mjx::internal::ShantenCalculator::ShantenNumber(
+             ClosedTiles(), proto_.opens_size()) <= 0;
 }
 
 int Hand::ShantenNumber() const {
-  return mjx::internal::ShantenCalculator::ShantenNumber(ClosedTiles(), proto_.opens_size());
+  return mjx::internal::ShantenCalculator::ShantenNumber(ClosedTiles(),
+                                                         proto_.opens_size());
 }
 
 }  // namespace mjx
