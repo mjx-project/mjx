@@ -4,8 +4,8 @@ namespace mjx::internal {
 int ShantenCalculator::ShantenNumber(const std::array<uint8_t, 34>& count,
                                      int num_opens) {
   if (num_opens == 0) {
-    return std::min({ShantenNormal(count, num_opens), ShantenThirteenOrphans(count),
-                     ShantenSevenPairs(count)});
+    return std::min({ShantenNormal(count, num_opens),
+                     ShantenThirteenOrphans(count), ShantenSevenPairs(count)});
   } else {
     return ShantenNormal(count, num_opens);
   }
@@ -18,7 +18,8 @@ const ShantenCache& ShantenCalculator::shanten_cache() {
 int ShantenCalculator::ShantenNormal(const std::array<uint8_t, 34>& count,
                                      int num_opens) {
   // (4-num_opens)面子1雀頭形
-  std::vector<std::vector<int>> cost(5 - num_opens, std::vector<int>(2, INT_MAX));
+  std::vector<std::vector<int>> cost(5 - num_opens,
+                                     std::vector<int>(2, INT_MAX));
   cost[0][0] = 0;
 
   for (int margin : {0, 9, 18}) {
