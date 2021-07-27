@@ -44,7 +44,7 @@ std::array<uint8_t, 34> Hand::ClosedTiles() const noexcept {
 }
 
 bool Hand::IsTenpai() const {
-  return mjx::internal::ShantenCalculator::ShantenNumber(ClosedTiles()) == 0;
+  return mjx::internal::ShantenCalculator::ShantenNumber(ClosedTiles()) <= 0;
 }
 
 int Hand::ShantenNumber() const {
