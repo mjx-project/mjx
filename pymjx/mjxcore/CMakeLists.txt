@@ -18,7 +18,7 @@ fetchcontent_declare(
 )
 fetchcontent_makeavailable(pybind11)
 
-add_subdirectory(/Users/sotetsuk/github/mjx/mjx mjx/build)
+add_subdirectory($ENV{MJX_DIR} mjx/build)
 pybind11_add_module(mjxcore src/entry_point.cpp)
 target_include_directories(mjxcore PRIVATE ${MJX_INCLUDE_DIR})
 target_link_libraries(mjxcore PRIVATE mjx)
