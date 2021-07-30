@@ -1,16 +1,9 @@
-# download pybind11
-include(FetchContent)
-set(FETCHCONTENT_BASE_DIR ${MJX_EXTERNAL_DIR})
-set(FETCHCONTENT_QUIET OFF)
-set(FETCHCONTENT_UPDATES_DISCONNECTED ON)
-fetchcontent_declare(
-  pybind11
-  GIT_REPOSITORY https://github.com/pybind/pybind11.git
-  GIT_TAG v2.6.2
-)
-fetchcontent_makeavailable(pybind11)
+cmake_minimum_required(VERSION 3.4...3.18)
+project(cmake_example)
 
-# build target: mjxcore
-pybind11_add_module(mjxcore src/entry_point.cpp)
-target_include_directories(mjxcore PRIVATE ${MJX_INCLUDE_DIR})
-target_link_libraries(mjxcore PRIVATE mjx)
+add_subdirectory(pybind11)
+pybind11_add_module(cmake_example src/main.cpp)
+
+# EXAMPLE_VERSION_INFO is defined by setup.py and passed into the C++ code as a
+# define (VERSION_INFO) here.
+target_compile_definitions(cmake_example PRIVATE VERSION_INFO=${EXAMPLE_VERSION_INFO})
