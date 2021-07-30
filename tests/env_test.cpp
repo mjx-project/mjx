@@ -120,7 +120,7 @@ TEST(env, PettingZooMahjongEnv) {
   agent_selection = env.agent_selection();
   while (agent_selection) {
     auto [observation, reward, done, info] = env.Last();
-    auto action = strategy.TakeAction(observation.value().ToProto());
+    auto action = strategy.TakeAction(observation.value().proto());
     env.Step(mjx::Action(action));
 
     // std::cerr << agent_selection.value() << ", " << reward << ", " << done <<
@@ -131,9 +131,9 @@ TEST(env, PettingZooMahjongEnv) {
       if (agent_selection.value() == "player_2") EXPECT_EQ(reward, -135);
       if (agent_selection.value() == "player_3") EXPECT_EQ(reward, 90);
       auto player_ids =
-          observation.value().ToProto().public_observation().player_ids();
+          observation.value().proto().public_observation().player_ids();
       auto tens =
-          observation.value().ToProto().round_terminal().final_score().tens();
+          observation.value().proto().round_terminal().final_score().tens();
       for (int i = 0; i < 4; ++i) {
         EXPECT_EQ(tens[i], expected_tens[player_ids[i]]);
       }

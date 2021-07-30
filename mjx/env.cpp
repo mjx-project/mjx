@@ -45,7 +45,7 @@ std::unordered_map<PlayerId, Observation> MjxEnv::Step(
   std::vector<mjxproto::Action> actions;
   actions.reserve(action_dict.size());
   for (const auto& [player_id, action] : action_dict)
-    actions.push_back(action.ToProto());
+    actions.push_back(action.proto());
   state_.Update(std::move(actions));
   return Observe();
 }

@@ -11,7 +11,7 @@ PYBIND11_MODULE(_mjx, m) {
       .def(py::init<>())
       .def(py::init<int, const std::vector<mjx::Action>&>())
       .def("to_json", &mjx::Action::ToJson)
-      .def("idx", &mjx::Action::idx);
+      .def("to_idx", &mjx::Action::ToIdx);
 
   py::class_<mjx::Observation>(m, "Observation")
       .def(py::init<>())
