@@ -37,7 +37,7 @@ class RLlibMahjongEnv {
  public:
   RLlibMahjongEnv();
 
-  // RLlib MultiAgentEnv requires step and Reset as public API
+  // RLlib MultiAgentEnv requires step and reset as public API
   // https://github.com/ray-project/ray/blob/master/rllib/env/multi_agent_env.py
   std::unordered_map<mjx::PlayerId, mjx::Observation> Reset() noexcept;
   std::tuple<std::unordered_map<mjx::internal::PlayerId,
