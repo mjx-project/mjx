@@ -15,7 +15,7 @@ Hand::Hand(const std::string& json) {
   assert(status.ok());
 }
 
-const mjxproto::Hand& mjx::Hand::ToProto() const noexcept { return proto_; }
+const mjxproto::Hand& mjx::Hand::proto() const noexcept { return proto_; }
 
 std::string mjx::Hand::ToJson() const noexcept {
   std::string serialized;
