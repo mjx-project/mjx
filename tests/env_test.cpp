@@ -64,8 +64,8 @@ TEST(env, RLlibMahjongEnv) {
   std::unordered_map<mjx::internal::PlayerId, bool> dones;
   std::unordered_map<mjx::internal::PlayerId, std::string> infos;
 
-  env.seed(1234);
-  observations = env.reset();
+  env.Seed(1234);
+  observations = env.Reset();
   dones["__all__"] = false;
   auto strategy = mjx::internal::StrategyRuleBased();
   while (!dones.at("__all__")) {
@@ -77,7 +77,7 @@ TEST(env, RLlibMahjongEnv) {
       if (!is_round_over) EXPECT_NE(action.type(), mjxproto::ACTION_TYPE_DUMMY);
       if (is_round_over) EXPECT_EQ(action.type(), mjxproto::ACTION_TYPE_DUMMY);
     }
-    std::tie(observations, rewards, dones, infos) = env.step(action_dict);
+    std::tie(observations, rewards, dones, infos) = env.Step(action_dict);
   }
   EXPECT_TRUE(dones.at("__all__"));
   auto player_ids =

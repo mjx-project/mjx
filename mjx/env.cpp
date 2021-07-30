@@ -62,7 +62,7 @@ const std::vector<PlayerId>& MjxEnv::player_ids() const noexcept {
 
 mjx::RLlibMahjongEnv::RLlibMahjongEnv() {}
 
-std::unordered_map<PlayerId, Observation> RLlibMahjongEnv::reset() noexcept {
+std::unordered_map<PlayerId, Observation> RLlibMahjongEnv::Reset() noexcept {
   if (game_seed_)
     return env_.Reset(game_seed_.value());
   else
@@ -73,7 +73,7 @@ std::tuple<std::unordered_map<PlayerId, Observation>,
            std::unordered_map<PlayerId, int>,
            std::unordered_map<PlayerId, bool>,
            std::unordered_map<PlayerId, std::string>>
-RLlibMahjongEnv::step(
+RLlibMahjongEnv::Step(
     const std::unordered_map<PlayerId, Action>& action_dict) noexcept {
   std::unordered_map<PlayerId, int> rewards;
   std::unordered_map<PlayerId, bool> dones = {{"__all__", false}};
@@ -104,7 +104,7 @@ RLlibMahjongEnv::step(
   return std::make_tuple(observations, rewards, dones, infos);
 }
 
-void RLlibMahjongEnv::seed(std::uint64_t game_seed) noexcept {
+void RLlibMahjongEnv::Seed(std::uint64_t game_seed) noexcept {
   game_seed_ = game_seed;
 }
 PettingZooMahjongEnv::PettingZooMahjongEnv() {}

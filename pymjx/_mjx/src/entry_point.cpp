@@ -29,7 +29,7 @@ PYBIND11_MODULE(_mjx, m) {
 
   py::class_<mjx::RLlibMahjongEnv>(m, "RLlibMahjongEnv")
       .def(py::init<>())
-      .def("reset", &mjx::RLlibMahjongEnv::reset)
-      .def("step", &mjx::RLlibMahjongEnv::step)
-      .def("seed", &mjx::RLlibMahjongEnv::seed);
+      .def("reset", &mjx::RLlibMahjongEnv::Reset)
+      .def("step", &mjx::RLlibMahjongEnv::Step)
+      .def("seed", &mjx::RLlibMahjongEnv::Seed);
 }
