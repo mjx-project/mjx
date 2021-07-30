@@ -13,7 +13,7 @@ jobs:
       with:
         path: |
           external
-        key: external-${{ hashFiles('mjx/cmake/*') }}-${{ hashFiles('pymjx/_mjx/CMakeLists.txt') }}
+        key: external-${{ hashFiles('mjx/cmake/*') }}-${{ hashFiles('pymjx/mjxcore/CMakeLists.txt') }}
 
     - name: Build mjx
       run: mkdir -p build && cd build && cmake .. -DMJX_USE_SYSTEM_BOOST=OFF -DMJX_USE_SYSTEM_GRPC=OFF && make -j 4

@@ -2,13 +2,13 @@ from typing import Dict, Tuple
 
 from google.protobuf import json_format
 
-import _mjx
+import mjxcore
 import mjxproto
 
 
 class RLlibMahjongEnv:
     def __init__(self):
-        self.json_env = _mjx.RLlibMahjongEnv()
+        self.json_env = mjxcore.RLlibMahjongEnv()
 
     def step(
         self, actions: Dict[str, mjxproto.Action]

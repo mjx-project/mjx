@@ -17,6 +17,8 @@ class MjxEnv {
   std::unordered_map<PlayerId, Observation> Step(
       const std::unordered_map<PlayerId, mjx::Action>& action_dict) noexcept;
   bool Done() const noexcept;
+
+  // accessors
   State state() const noexcept;
   const std::vector<PlayerId>& player_ids()
       const noexcept;  // order does not change for each game
@@ -37,16 +39,15 @@ class RLlibMahjongEnv {
 
   // RLlib MultiAgentEnv requires step and reset as public API
   // https://github.com/ray-project/ray/blob/master/rllib/env/multi_agent_env.py
-  std::unordered_map<mjx::PlayerId, mjx::Observation> reset() noexcept;
-  std::tuple<std::unordered_map<mjx::internal::PlayerId,
+  std::unordered_map<mjx::PlayerId, mjx::Observation> Reset() noexcept;
+  std::tuple<std::unordered_map<mjx::PlayerId,
                                 mjx::Observation>,       // observations
              std::unordered_map<PlayerId, int>,          // rewards
              std::unordered_map<PlayerId, bool>,         // dones
              std::unordered_map<PlayerId, std::string>>  // infos
-  step(const std::unordered_map<PlayerId, mjx::Action>& action_dict) noexcept;
+  Step(const std::unordered_map<PlayerId, mjx::Action>& action_dict) noexcept;
+  void Seed(std::uint64_t game_seed) noexcept;
 
-  // extra methods
-  void seed(std::uint64_t game_seed) noexcept;  // TODO: make it compatible
  private:
   std::optional<std::uint64_t> game_seed_ = std::nullopt;
   MjxEnv env_{};
@@ -66,6 +67,8 @@ class PettingZooMahjongEnv {
   void Step(Action action) noexcept;
   void Seed(std::uint64_t seed) noexcept;
   Observation Observe(const PlayerId& agent) const noexcept;
+
+  // accessors
   const std::vector<PlayerId>& agents() const noexcept;
   const std::vector<PlayerId>& possible_agents() const noexcept;
   std::optional<PlayerId> agent_selection() const noexcept;

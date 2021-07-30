@@ -45,7 +45,7 @@ std::unordered_map<PlayerId, Observation> MjxEnv::Step(
   std::vector<mjxproto::Action> actions;
   actions.reserve(action_dict.size());
   for (const auto& [player_id, action] : action_dict)
-    actions.push_back(action.ToProto());
+    actions.push_back(action.proto());
   state_.Update(std::move(actions));
   return Observe();
 }
@@ -62,7 +62,7 @@ const std::vector<PlayerId>& MjxEnv::player_ids() const noexcept {
 
 mjx::RLlibMahjongEnv::RLlibMahjongEnv() {}
 
-std::unordered_map<PlayerId, Observation> RLlibMahjongEnv::reset() noexcept {
+std::unordered_map<PlayerId, Observation> RLlibMahjongEnv::Reset() noexcept {
   if (game_seed_)
     return env_.Reset(game_seed_.value());
   else
@@ -73,7 +73,7 @@ std::tuple<std::unordered_map<PlayerId, Observation>,
            std::unordered_map<PlayerId, int>,
            std::unordered_map<PlayerId, bool>,
            std::unordered_map<PlayerId, std::string>>
-RLlibMahjongEnv::step(
+RLlibMahjongEnv::Step(
     const std::unordered_map<PlayerId, Action>& action_dict) noexcept {
   std::unordered_map<PlayerId, int> rewards;
   std::unordered_map<PlayerId, bool> dones = {{"__all__", false}};
@@ -90,7 +90,7 @@ RLlibMahjongEnv::step(
     dones["__all__"] = false;
   } else {
     auto state = env_.state();
-    auto ranking_dict = state.ranking_dict();
+    auto ranking_dict = state.CalculateRankingDict();
     for (const auto& [k, v] : observations) {
       auto ranking = ranking_dict[k];
       rewards[k] = reward_map_.at(ranking);
@@ -104,7 +104,7 @@ RLlibMahjongEnv::step(
   return std::make_tuple(observations, rewards, dones, infos);
 }
 
-void RLlibMahjongEnv::seed(std::uint64_t game_seed) noexcept {
+void RLlibMahjongEnv::Seed(std::uint64_t game_seed) noexcept {
   game_seed_ = game_seed;
 }
 PettingZooMahjongEnv::PettingZooMahjongEnv() {}
@@ -181,7 +181,7 @@ void PettingZooMahjongEnv::Step(Action action) noexcept {
   if (done) {
     // update rewards_
     auto state = env_.state();
-    auto ranking_dict = state.ranking_dict();
+    auto ranking_dict = state.CalculateRankingDict();
     for (const auto& agent : possible_agents_) {
       auto ranking = ranking_dict.at(agent);
       rewards_[agent] = reward_map_.at(ranking);

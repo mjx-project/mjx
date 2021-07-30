@@ -13,7 +13,7 @@ TEST(state, State) {
 
 TEST(state, ToProto) {
   auto state = mjx::State(sample_json);
-  const auto& proto = state.ToProto();
+  const auto& proto = state.proto();
   std::string json;
   google::protobuf::util::MessageToJsonString(proto, &json);
   EXPECT_EQ(json, sample_json);

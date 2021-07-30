@@ -13,7 +13,7 @@ TEST(observation, Observation) {
 
 TEST(observation, ToProto) {
   auto observation = mjx::Observation(sample_json);
-  const auto& proto = observation.ToProto();
+  const auto& proto = observation.proto();
   std::string json;
   google::protobuf::util::MessageToJsonString(proto, &json);
   EXPECT_EQ(json, sample_json);

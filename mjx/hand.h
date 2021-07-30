@@ -9,12 +9,15 @@ class Hand {
   Hand() = default;
   explicit Hand(mjxproto::Hand proto);
   explicit Hand(const std::string& json);
-  const mjxproto::Hand& ToProto() const noexcept;
-  std::string ToJson() const noexcept;
   bool operator==(const Hand& other) const noexcept;
   bool operator!=(const Hand& other) const noexcept;
+
+  std::string ToJson() const noexcept;
   bool IsTenpai() const;
   int ShantenNumber() const;
+
+  // accessors
+  const mjxproto::Hand& proto() const noexcept;
 
  private:
   std::array<uint8_t, 34> ClosedTiles() const noexcept;

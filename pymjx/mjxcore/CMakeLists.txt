@@ -10,7 +10,7 @@ fetchcontent_declare(
 )
 fetchcontent_makeavailable(pybind11)
 
-# build target: _mjx
-pybind11_add_module(_mjx src/entry_point.cpp)
-target_include_directories(_mjx PRIVATE ${MJX_INCLUDE_DIR})
-target_link_libraries(_mjx PRIVATE mjx)
+# build target: mjxcore
+pybind11_add_module(mjxcore src/entry_point.cpp)
+target_include_directories(mjxcore PRIVATE ${MJX_INCLUDE_DIR})
+target_link_libraries(mjxcore PRIVATE mjx)

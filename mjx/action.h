@@ -9,13 +9,15 @@ class Action {
   Action() = default;
   explicit Action(mjxproto::Action proto);
   explicit Action(const std::string& json);
-  const mjxproto::Action& ToProto() const noexcept;
-  std::string ToJson() const noexcept;
+  Action(int action_idx, const std::vector<Action>& legal_actions);
   bool operator==(const Action& other) const noexcept;
   bool operator!=(const Action& other) const noexcept;
 
-  Action(int action_idx, const std::vector<Action>& legal_actions);
-  int idx() const noexcept;  // 0 ~ 180
+  std::string ToJson() const noexcept;
+  int ToIdx() const noexcept;  // 0 ~ 180
+
+  // accessors
+  const mjxproto::Action& proto() const noexcept;
 
  private:
   mjxproto::Action proto_{};

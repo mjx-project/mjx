@@ -16,7 +16,7 @@ Observation::Observation(const std::string& json) {
   assert(status.ok());
 }
 
-const mjxproto::Observation& mjx::Observation::ToProto() const noexcept {
+const mjxproto::Observation& mjx::Observation::proto() const noexcept {
   return proto_;
 }
 
@@ -37,7 +37,7 @@ bool Observation::operator!=(const Observation& other) const noexcept {
   return !(*this == other);
 }
 
-std::vector<float> Observation::feature(
+std::vector<float> Observation::ToFeature(
     const std::string& version) const noexcept {
   auto obs = internal::Observation(proto_);
   return obs.ToFeature(version);
@@ -62,7 +62,7 @@ std::vector<int> Observation::action_mask() const noexcept {
   return mask;
 }
 
-Hand Observation::current_hand() const noexcept {
+Hand Observation::curr_hand() const noexcept {
   return Hand{proto_.private_observation().curr_hand()};
 }
 }  // namespace mjx
