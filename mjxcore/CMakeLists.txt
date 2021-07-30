@@ -6,7 +6,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_FLAGS "-Wall")
 set(CMAKE_CXX_FLAGS "-fPIC")
 
-add_subdirectory(mjx)
+add_subdirectory(/Users/sotetsuk/github/mjx/mjx mjx/build)
 add_subdirectory(pybind11)
 pybind11_add_module(cmake_example src/entry_point.cpp)
 target_include_directories(cmake_example PRIVATE ${MJX_INCLUDE_DIR})
