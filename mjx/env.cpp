@@ -90,7 +90,7 @@ RLlibMahjongEnv::step(
     dones["__all__"] = false;
   } else {
     auto state = env_.state();
-    auto ranking_dict = state.ranking_dict();
+    auto ranking_dict = state.CalculateRankingDict();
     for (const auto& [k, v] : observations) {
       auto ranking = ranking_dict[k];
       rewards[k] = reward_map_.at(ranking);
@@ -181,7 +181,7 @@ void PettingZooMahjongEnv::Step(Action action) noexcept {
   if (done) {
     // update rewards_
     auto state = env_.state();
-    auto ranking_dict = state.ranking_dict();
+    auto ranking_dict = state.CalculateRankingDict();
     for (const auto& agent : possible_agents_) {
       auto ranking = ranking_dict.at(agent);
       rewards_[agent] = reward_map_.at(ranking);

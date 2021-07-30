@@ -18,7 +18,7 @@ class State {
   // accessors to protobuf members
 
   // utility
-  std::unordered_map<PlayerId, int> ranking_dict() const noexcept;
+  std::unordered_map<PlayerId, int> CalculateRankingDict() const noexcept;
 
  private:
   mjxproto::State proto_{};

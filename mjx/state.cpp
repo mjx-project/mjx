@@ -32,7 +32,7 @@ bool State::operator!=(const State& other) const noexcept {
   return !(*this == other);
 }
 
-std::unordered_map<PlayerId, int> State::ranking_dict() const noexcept {
+std::unordered_map<PlayerId, int> State::CalculateRankingDict() const noexcept {
   // ランキングの計算は終局時のみ可能。そうでないとリーチ棒などの計算が煩雑。
   assert(proto_.has_round_terminal());
   assert(proto_.round_terminal().is_game_over());
