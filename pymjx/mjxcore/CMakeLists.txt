@@ -6,8 +6,19 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_FLAGS "-Wall")
 set(CMAKE_CXX_FLAGS "-fPIC")
 
+# download pybind11
+include(FetchContent)
+set(FETCHCONTENT_BASE_DIR ${MJX_EXTERNAL_DIR})
+set(FETCHCONTENT_QUIET OFF)
+set(FETCHCONTENT_UPDATES_DISCONNECTED ON)
+fetchcontent_declare(
+  pybind11
+  GIT_REPOSITORY https://github.com/pybind/pybind11.git
+  GIT_TAG v2.6.2
+)
+fetchcontent_makeavailable(pybind11)
+
 add_subdirectory(/Users/sotetsuk/github/mjx/mjx mjx/build)
-add_subdirectory(pybind11)
 pybind11_add_module(cmake_example src/entry_point.cpp)
 target_include_directories(cmake_example PRIVATE ${MJX_INCLUDE_DIR})
 target_link_libraries(cmake_example PRIVATE mjx)
