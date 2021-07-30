@@ -18,7 +18,14 @@ PYBIND11_MODULE(_mjx, m) {
       .def("to_json", &mjx::Observation::ToJson)
       .def("feature", &mjx::Observation::feature)
       .def("legal_actions", &mjx::Observation::legal_actions)
-      .def("action_mask", &mjx::Observation::action_mask);
+      .def("action_mask", &mjx::Observation::action_mask)
+      .def("current_hand", &mjx::Observation::current_hand);
+
+  py::class_<mjx::Hand>(m, "Hand")
+      .def(py::init<>())
+      .def("to_json", &mjx::Hand::ToJson)
+      .def("is_tenpai", &mjx::Hand::IsTenpai)
+      .def("shanten_number", &mjx::Hand::ShantenNumber);
 
   py::class_<mjx::RLlibMahjongEnv>(m, "RLlibMahjongEnv")
       .def(py::init<>())

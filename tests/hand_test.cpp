@@ -24,6 +24,23 @@ TEST(hand, ToJson) {
   EXPECT_EQ(hand.ToJson(), sample_json);
 }
 
+TEST(hand, ShantenNumber) {
+  auto hand = mjx::Hand(sample_json);
+  EXPECT_EQ(hand.ShantenNumber(), 0);
+
+  hand = mjx::Hand(R"({"closedTiles":[0,1,2,3,4,5,6,7,8,9,10,11,12,12]})");
+  EXPECT_EQ(hand.ShantenNumber(), -1);
+}
+
+TEST(hand, IsTenpai) {
+  auto hand = mjx::Hand(sample_json);
+  EXPECT_EQ(hand.IsTenpai(), true);
+
+  // 上がり状態でもテンパイ扱い
+  hand = mjx::Hand(R"({"closedTiles":[0,1,2,3,4,5,6,7,8,9,10,11,12,12]})");
+  EXPECT_EQ(hand.IsTenpai(), true);
+}
+
 TEST(hand, op) {
   auto hand1 = mjx::Hand(sample_json);
   auto hand2 = mjx::Hand(sample_json);

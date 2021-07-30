@@ -61,4 +61,8 @@ std::vector<int> Observation::action_mask() const noexcept {
   }
   return mask;
 }
+
+Hand Observation::current_hand() const noexcept {
+  return Hand{proto_.private_observation().curr_hand()};
+}
 }  // namespace mjx
