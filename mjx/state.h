@@ -20,7 +20,6 @@ class State {
   // accessors
   const mjxproto::State& proto() const noexcept;
 
-
  private:
   mjxproto::State proto_{};
 };

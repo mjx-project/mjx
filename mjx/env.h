@@ -47,6 +47,7 @@ class RLlibMahjongEnv {
              std::unordered_map<PlayerId, std::string>>  // infos
   Step(const std::unordered_map<PlayerId, mjx::Action>& action_dict) noexcept;
   void Seed(std::uint64_t game_seed) noexcept;
+
  private:
   std::optional<std::uint64_t> game_seed_ = std::nullopt;
   MjxEnv env_{};

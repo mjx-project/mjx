@@ -89,14 +89,12 @@ TEST(env, RLlibMahjongEnv) {
       {"player_3", 31000}};
   for (int i = 0; i < 4; ++i) {
     EXPECT_EQ(
-        observations["player_0"].proto().round_terminal().final_score().tens(
-            i),
+        observations["player_0"].proto().round_terminal().final_score().tens(i),
         expected_tens[player_ids[i]]);
   }
   for (const auto& [player_id, obs] : observations) {
     EXPECT_EQ(obs.proto().legal_actions().size(), 1);
-    EXPECT_EQ(obs.proto().legal_actions(0).type(),
-              mjxproto::ACTION_TYPE_DUMMY);
+    EXPECT_EQ(obs.proto().legal_actions(0).type(), mjxproto::ACTION_TYPE_DUMMY);
   }
   EXPECT_EQ(rewards.at("player_0"), 45);
   EXPECT_EQ(rewards.at("player_1"), 0);
