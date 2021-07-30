@@ -16,10 +16,10 @@ PYBIND11_MODULE(_mjx, m) {
   py::class_<mjx::Observation>(m, "Observation")
       .def(py::init<>())
       .def("to_json", &mjx::Observation::ToJson)
-      .def("feature", &mjx::Observation::feature)
+      .def("to_feature", &mjx::Observation::ToFeature)
       .def("legal_actions", &mjx::Observation::legal_actions)
       .def("action_mask", &mjx::Observation::action_mask)
-      .def("current_hand", &mjx::Observation::current_hand);
+      .def("curr_hand", &mjx::Observation::curr_hand);
 
   py::class_<mjx::Hand>(m, "Hand")
       .def(py::init<>())
