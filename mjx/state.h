@@ -10,15 +10,16 @@ class State {
   State() = default;
   explicit State(mjxproto::State proto);
   explicit State(const std::string& json);
-  const mjxproto::State& ToProto() const noexcept;
-  std::string ToJson() const noexcept;
   bool operator==(const State& other) const noexcept;
   bool operator!=(const State& other) const noexcept;
 
-  // accessors to protobuf members
-
   // utility
+  std::string ToJson() const noexcept;
   std::unordered_map<PlayerId, int> CalculateRankingDict() const noexcept;
+
+  // accessors
+  const mjxproto::State& proto() const noexcept;
+
 
  private:
   mjxproto::State proto_{};

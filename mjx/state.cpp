@@ -13,7 +13,7 @@ State::State(const std::string& json) {
   assert(status.ok());
 }
 
-const mjxproto::State& mjx::State::ToProto() const noexcept { return proto_; }
+const mjxproto::State& mjx::State::proto() const noexcept { return proto_; }
 
 std::string mjx::State::ToJson() const noexcept {
   std::string serialized;
