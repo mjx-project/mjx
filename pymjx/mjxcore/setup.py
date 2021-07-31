@@ -126,7 +126,7 @@ setup(
     author_email="dean0x7d@gmail.com",
     description="A test project using pybind11 and CMake",
     long_description="",
-    ext_modules=[CMakeExtension("mjx._mjx")],
+    ext_modules=[CMakeExtension("mjx._mjx", "/Users/sotetsuk/github/mjx/mjx")],
     cmdclass={"build_ext": CMakeBuild},
     zip_safe=False,
     extras_require={"test": ["pytest"]},
