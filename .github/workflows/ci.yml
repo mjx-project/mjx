@@ -16,7 +16,7 @@ jobs:
         key: external-${{ hashFiles('mjx/include/mjx/cmake/*') }}
 
     - name: Build mjx
-      run: mkdir -p build && cd build && cmake .. -DMJX_USE_SYSTEM_BOOST=OFF -DMJX_USE_SYSTEM_GRPC=OFF && make -j 4
+      run: mkdir -p build && cd build && cmake .. -DMJX_USE_SYSTEM_BOOST=OFF -DMJX_USE_SYSTEM_GRPC=OFF -DMJX_BUILD_TESTS=ON && make -j 4
 
     - name: Test mjx
       run: ./build/tests/mjx_test
