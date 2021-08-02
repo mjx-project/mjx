@@ -6,7 +6,7 @@ clean:
 	rm -rf mjx/internal/*pb*
 
 build: mjx tests
-	mkdir -p build && cd build && cmake .. -DMJX_BUILD_TESTS=ON && make -j
+	mkdir -p build && cd build && cmake .. && make -j
 
 test: build
 	./build/tests/mjx_test
