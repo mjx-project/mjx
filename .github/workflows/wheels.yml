@@ -6,9 +6,9 @@ on:
       - published
 
 env:
-  MJX_DIR: {project}/mjx
   CIBW_TEST_COMMAND: python3 -m pytest {project}/mjx/test.py --verbose
   CIBW_TEST_EXTRAS: test
+  MJX_DIR: {project}/mjx
 
 
 jobs:

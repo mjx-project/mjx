@@ -2,6 +2,9 @@ name: pybind
 
 on: [ push ]
 
+env:
+  MJX_DIR: {project}/mjx
+
 jobs:
   build:
     strategy:
@@ -48,7 +51,7 @@ jobs:
           key: external-${{ hashFiles('mjx/include/mjx/cmake/*') }}-${{ matrix.platform }}
 
       - name: Build and install
-        run: python3 -m pip install --upgrade pip && cd mjx && export MJX_DIR=$(pwd) && python3 -m pip install --verbose .[test]
+        run: cd mjx && python3 -m pip install --verbose .[test]
 
       - name: Test
         run: cd mjx && python3 -m pytest test.py --verbose
