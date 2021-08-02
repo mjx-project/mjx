@@ -51,7 +51,8 @@ class CMakeBuild(build_ext):
             # not used on MSVC, but no harm
             "-DCMAKE_BUILD_TYPE={}".format(cfg),
             "-DMJX_USE_SYSTEM_BOOST=OFF",
-            "-DMJX_USE_SYSTEM_GRPC=OFF"
+            "-DMJX_USE_SYSTEM_GRPC=OFF",
+            "-DMJX_BUILD_PYTHON=ON"
         ]
         build_args = []
 
@@ -132,7 +133,7 @@ setup(
     package_dir={'': 'src'},
     # package_data={'': ['src/mjx/*', "src/mjx/include/mjx/cache/*"]},
     cmdclass={"build_ext": CMakeBuild},
-    # TODO: remove MJX_DIR
+    # TODO: remove MJX_DIR (by removing cache?)
     ext_modules=[CMakeExtension(
         "mjx._mjx", "/Users/sotetsuk/github/mjx")],
     zip_safe=False,
