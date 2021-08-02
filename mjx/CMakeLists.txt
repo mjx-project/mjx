@@ -184,7 +184,7 @@ target_link_libraries(win_cache_generator mjx)
 ####################################################################################
 # PyBind11
 ####################################################################################
-# import cmjx
+# import mjxcore
 
 # download pybind11
 include(FetchContent)
@@ -198,10 +198,10 @@ fetchcontent_declare(
 )
 fetchcontent_makeavailable(pybind11)
 
-pybind11_add_module(cmjx include/mjx/pybind.cpp)
-target_include_directories(cmjx PRIVATE ${MJX_INCLUDE_DIR})
-target_link_libraries(cmjx PRIVATE mjx)
+pybind11_add_module(mjxcore include/mjx/pybind.cpp)
+target_include_directories(mjxcore PRIVATE ${MJX_INCLUDE_DIR})
+target_link_libraries(mjxcore PRIVATE mjx)
 
 # EXAMPLE_VERSION_INFO is defined by setup.py and passed into the C++ code as a
 # define (VERSION_INFO) here.
-target_compile_definitions(cmjx PRIVATE VERSION_INFO=${EXAMPLE_VERSION_INFO})
+target_compile_definitions(mjxcore PRIVATE VERSION_INFO=${EXAMPLE_VERSION_INFO})
