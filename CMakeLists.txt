@@ -18,7 +18,7 @@ endif()
 
 if(MJX_BUILD_PYTHON)
   add_subdirectory(pybind11)
-  pybind11_add_module(_mjx src/mjx/pybind.cpp)
+  pybind11_add_module(_mjx pymjx/mjx/pybind.cpp)
   target_include_directories(_mjx PRIVATE ${MJX_INCLUDE_DIR})
   target_link_libraries(_mjx PRIVATE mjx)
   target_compile_definitions(_mjx PRIVATE VERSION_INFO=${EXAMPLE_VERSION_INFO})

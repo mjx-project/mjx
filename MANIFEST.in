@@ -1,6 +1,8 @@
 include README.md pybind11/LICENSE
 graft pybind11/include
 graft pybind11/tools
-graft src
+graft pymjx
 recursive-include mjx *.json *.txt
 global-include CMakeLists.txt *.cmake
+prune tests
+prune pymjx/tests
