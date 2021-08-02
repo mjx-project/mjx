@@ -20,14 +20,14 @@ jobs:
           submodules: true
 
       - name: Build SDist
-        run: pipx run build --sdist
+        run: cd mjx && pipx run build --sdist
 
       - name: Check metadata
-        run: pipx run twine check dist/*
+        run: cd mjx && pipx run twine check dist/*
 
       - uses: actions/upload-artifact@v2
         with:
-          path: dist/*.tar.gz
+          path: mjx/dist/*.tar.gz
 
 
   build_wheels:
@@ -59,7 +59,7 @@ jobs:
       - name: Upload wheels
         uses: actions/upload-artifact@v2
         with:
-          path: wheelhouse/*.whl
+          path: mjx/wheelhouse/*.whl
 
 
   upload_all:
@@ -74,7 +74,7 @@ jobs:
       - uses: actions/download-artifact@v2
         with:
           name: artifact
-          path: dist
+          path: mjx/dist
 
       - uses: pypa/gh-action-pypi-publish@v1.4.2
         with:
