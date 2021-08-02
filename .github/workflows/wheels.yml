@@ -8,7 +8,6 @@ on:
 env:
   CIBW_TEST_COMMAND: python3 -m pytest {project}/mjx/test.py --verbose
   CIBW_TEST_EXTRAS: test
-  MJX_DIR: {project}/mjx
 
 
 jobs:
@@ -17,6 +16,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+        env:
+          MJX_DIR: ${GITHUB_WORKSPACE}/mjx
         with:
           submodules: true
 

@@ -17,6 +17,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
+        env:
+          MJX_DIR: ${GITHUB_WORKSPACE}/mjx
         with:
           submodules: true
 
