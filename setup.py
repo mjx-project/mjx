@@ -50,8 +50,8 @@ class CMakeBuild(build_ext):
                 self.distribution.get_version()),
             # not used on MSVC, but no harm
             "-DCMAKE_BUILD_TYPE={}".format(cfg),
-            "-DMJX_USE_SYSTEM_BOOST=ON",
-            "-DMJX_USE_SYSTEM_GRPC=ON"
+            "-DMJX_USE_SYSTEM_BOOST=OFF",
+            "-DMJX_USE_SYSTEM_GRPC=OFF"
         ]
         build_args = []
 
