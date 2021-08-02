@@ -1,0 +1,19 @@
+name: py
+
+on: [push]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Python 3.9
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.9
+
+    - name: Build cmjd
+      run: cd mjx && python3 -m pip install .
+
+    - name: Test
+      run: python3 -m "import cmjx; env = cmjx.RLlibMahjongEnv(); print(env.reset())"
