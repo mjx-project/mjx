@@ -131,11 +131,10 @@ setup(
     long_description="",
     packages=find_packages('src'),
     package_dir={'': 'src'},
-    # package_data={'': ['src/mjx/*', "src/mjx/include/mjx/cache/*"]},
+    # package_data={'': ['*.json']},
     cmdclass={"build_ext": CMakeBuild},
     # TODO: remove MJX_DIR (by removing cache?)
-    ext_modules=[CMakeExtension(
-        "mjx._mjx", "/Users/sotetsuk/github/mjx")],
+    ext_modules=[CMakeExtension("mjx._mjx")],
     zip_safe=False,
     extras_require={"test": ["pytest"]},
     # include_package_data=True
