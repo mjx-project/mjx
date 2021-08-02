@@ -180,28 +180,3 @@ target_compile_definitions(mjx PUBLIC WIN_CACHE_DIR="${MJX_INCLUDE_DIR}/mjx/cach
 add_executable(win_cache_generator include/mjx/internal/win_cache_generator.cpp)
 target_include_directories(win_cache_generator PUBLIC ${Boost_INCLUDE_DIRS} ${MJX_INCLUDE_DIR})
 target_link_libraries(win_cache_generator mjx)
-
-####################################################################################
-# PyBind11
-####################################################################################
-# import mjxcore
-
-# download pybind11
-include(FetchContent)
-set(FETCHCONTENT_BASE_DIR ${MJX_EXTERNAL_DIR})
-set(FETCHCONTENT_QUIET OFF)
-set(FETCHCONTENT_UPDATES_DISCONNECTED ON)
-fetchcontent_declare(
-        pybind11
-        GIT_REPOSITORY https://github.com/pybind/pybind11.git
-        GIT_TAG v2.6.2
-)
-fetchcontent_makeavailable(pybind11)
-
-pybind11_add_module(mjxcore include/mjx/pybind.cpp)
-target_include_directories(mjxcore PRIVATE ${MJX_INCLUDE_DIR})
-target_link_libraries(mjxcore PRIVATE mjx)
-
-# EXAMPLE_VERSION_INFO is defined by setup.py and passed into the C++ code as a
-# define (VERSION_INFO) here.
-target_compile_definitions(mjxcore PRIVATE VERSION_INFO=${EXAMPLE_VERSION_INFO})
