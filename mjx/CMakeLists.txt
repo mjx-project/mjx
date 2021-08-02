@@ -44,7 +44,7 @@ else()
 endif()
 
 # Proto file
-get_filename_component(mjx_proto "${MJX_INCLUDE_DIR}/mjx/internal/mjx.proto" ABSOLUTE)
+get_filename_component(mjx_proto "include/mjx/internal/mjx.proto" ABSOLUTE)
 get_filename_component(mjx_proto_path "${mjx_proto}" PATH)
 
 # Generated sources
