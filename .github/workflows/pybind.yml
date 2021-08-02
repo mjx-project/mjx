@@ -1,0 +1,38 @@
+name: pybind
+
+on: [ push ]
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        platform: [ubuntu-latest] # [windows-latest, macos-latest, ubuntu-latest]
+        python-version: ["3.9"]  #  ["2.7", "3.5", "3.8", "3.9"]
+
+    runs-on: ${{ matrix.platform }}
+
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: true
+
+      - uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Add requirements
+        run: python -m pip install --upgrade wheel setuptools
+
+      - name: Cache external
+        uses: actions/cache@v2
+        with:
+          path: |
+            mjx/external
+          key: external-${{ hashFiles('mjx/include/mjx/cmake/*') }}-${{ matrix.platform }}
+
+      - name: Build and install
+        run: python3 setup.py sdist && python3 setup.py install
+
+      - name: Test
+        run: python3 -m pip install pytest && python3 -m pytest test.py --verbose
