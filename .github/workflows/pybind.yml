@@ -2,9 +2,6 @@ name: pybind
 
 on: [ push ]
 
-env:
-  MJX_DIR: {project}/mjx
-
 jobs:
   build:
     strategy:
