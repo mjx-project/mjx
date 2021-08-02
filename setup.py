@@ -140,6 +140,7 @@ setup(
     cmdclass={"build_ext": CMakeBuild},
     # TODO: remove MJX_DIR (by removing cache?)
     ext_modules=[CMakeExtension("mjx._mjx")],
+    entry_points={"console_scripts": "mjx = mjx.main:main"},
     zip_safe=False,
     extras_require={"test": ["pytest"]},
     # include_package_data=True
