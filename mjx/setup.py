@@ -50,6 +50,8 @@ class CMakeBuild(build_ext):
                 self.distribution.get_version()),
             # not used on MSVC, but no harm
             "-DCMAKE_BUILD_TYPE={}".format(cfg),
+            "-DMJX_USE_SYSTEM_BOOST=OFF",
+            "-DMJX_USE_SYSTEM_GRPC=OFF"
         ]
         build_args = []
 
@@ -126,7 +128,7 @@ setup(
     author_email="dean0x7d@gmail.com",
     description="A test project using pybind11 and CMake",
     long_description="",
-    ext_modules=[CMakeExtension("cmjx", "/Users/sotetsuk/github/mjx/mjx")],
+    ext_modules=[CMakeExtension("cmjx")],
     cmdclass={"build_ext": CMakeBuild},
     zip_safe=False,
     extras_require={"test": ["pytest"]},
