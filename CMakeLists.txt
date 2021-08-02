@@ -6,6 +6,9 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_FLAGS "-Wall")
 set(CMAKE_CXX_FLAGS "-fPIC")
 
+option(MJX_BUILD_TESTS "Build tests" OFF)
+option(MJX_BUILD_PYTHON "Build as Python liblary " OFF)
+
 add_subdirectory(mjx)
 
 if(MJX_BUILD_TESTS)
