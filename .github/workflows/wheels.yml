@@ -1,0 +1,83 @@
+name: wheels
+
+on:
+  release:
+    types:
+      - published
+
+env:
+  CIBW_TEST_COMMAND: python3 -m pytest {project}/mjx/test.py --verbose
+  CIBW_TEST_EXTRAS: test
+
+
+jobs:
+  build_sdist:
+    name: Build SDist
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: true
+
+      - name: Build SDist
+        run: cd mjx && export MJX_DIR=$(pwd) && pipx run build --sdist
+
+      - name: Check metadata
+        run: cd mjx && export MJX_DIR=$(pwd) && pipx run twine check dist/*
+
+      - uses: actions/upload-artifact@v2
+        with:
+          path: mjx/dist/*.tar.gz
+
+
+  build_wheels:
+    name: Wheels on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest]  # [ubuntu-latest, windows-latest, macos-latest]
+
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: true
+
+      - uses: pypa/cibuildwheel@v1.12.0
+        env:
+          MJX_DIR: ${GITHUB_WORKSPACE}/mjx
+          CIBW_BUILD: cp39-*
+          CIBW_SKIP: cp27-* cp35-* cp36-* cp37-* cp38-* *win* *macosx*
+          CIBW_ARCHS_MACOS: auto universal2
+          CIBW_TEST_SKIP: "*universal2:arm64"
+          CIBW_TEST_EXTRAS: test
+          CIBW_TEST_COMMAND: python3 -m pytest {project}/mjx/test.py --verbose
+
+      - name: Verify clean directory
+        run: git diff --exit-code
+        shell: bash
+
+      - name: Upload wheels
+        uses: actions/upload-artifact@v2
+        with:
+          path: mjx/wheelhouse/*.whl
+
+
+  upload_all:
+    name: Upload if release
+    needs: [build_wheels, build_sdist]
+    runs-on: ubuntu-latest
+    if: github.event_name == 'release' && github.event.action == 'published'
+
+    steps:
+      - uses: actions/setup-python@v2
+
+      - uses: actions/download-artifact@v2
+        with:
+          name: artifact
+          path: mjx/dist
+
+      - uses: pypa/gh-action-pypi-publish@v1.4.2
+        with:
+          user: __token__
+          password: ${{ secrets.pypi_password }}
