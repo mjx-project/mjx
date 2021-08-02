@@ -12,7 +12,14 @@ jobs:
       with:
         python-version: 3.9
 
-    - name: Build cmjd
+    - name: Cache external
+      uses: actions/cache@v2
+      with:
+        path: |
+          mjx/external
+        key: external-${{ hashFiles('mjx/include/mjx/cmake/*') }} }}
+
+    - name: Build cmjx
       run: cd mjx && python3 -m pip install .
 
     - name: Test
