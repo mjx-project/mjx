@@ -1,4 +1,4 @@
-name: py
+name: pybind
 
 on: [push]
 
@@ -20,7 +20,7 @@ jobs:
         key: external-${{ hashFiles('mjx/include/mjx/cmake/*') }} }}
 
     - name: Build cmjx
-      run: python3 -m pip install --upgrade pip && cd mjx && python3 -m pip install .
+      run: python3 -m pip install --upgrade pip && cd mjx && export MJX_DIR=$(pwd) && python3 -m pip install .
 
     - name: Test
       run: python3 -m "import cmjx; env = cmjx.RLlibMahjongEnv(); print(env.reset())"
