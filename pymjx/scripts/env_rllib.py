@@ -3,7 +3,10 @@ import _mjx
 import ray
 import ray.rllib.agents.ppo as ppo
 import ray.rllib.agents.dqn as dqn
+import ray.rllib.agents.impala as impla
+import ray.rllib.agents.marwil as marwil
 import ray.rllib.agents.pg as pg
+import ray.rllib.agents.a3c as a3c
 from ray.rllib.env.multi_agent_env import MultiAgentEnv
 import numpy as np
 from gym.spaces import Discrete, Box, Dict
@@ -15,6 +18,8 @@ from ray.tune.registry import register_env
 from ray.tune.logger import pretty_print
 from ray.rllib.policy.policy import Policy
 from ray import tune
+import matplotlib.pylab as plt
+import time
 
 tf1, tf, tfv = try_import_tf()
 torch, nn = try_import_torch()
@@ -38,6 +43,7 @@ class WrappedMahjongEnv(MultiAgentEnv):
         self.legal_actions = {}
         if seed is not None:
             self.seed(seed)
+        self.learn_dict = {}
 
     def _make_observation(self, orig_obs_dict):
         obs_dict = {}
@@ -56,6 +62,10 @@ class WrappedMahjongEnv(MultiAgentEnv):
 
     def reset(self):
         orig_obs_dict = self.env.reset()
+        for player_id in self.PLAYER_IDS:
+            self.learn_dict[player_id] = {}
+            for action in range(self.NUM_ACTION):
+                self.learn_dict[player_id][action] = 0
         return self._make_observation(orig_obs_dict=orig_obs_dict)
 
     def step(self, orig_act_dict):
@@ -64,6 +74,7 @@ class WrappedMahjongEnv(MultiAgentEnv):
         for player_id in self.PLAYER_IDS:
             if player_id in self.legal_actions:
                 act_dict[player_id] = _mjx.Action(orig_act_dict[player_id], self.legal_actions[player_id])
+                self.learn_dict[player_id][orig_act_dict[player_id]] += 1
         # print(act_dict)
         orig_obs_dict, orig_rew, orig_done, orig_info = self.env.step(act_dict)
         rew, done, info = {}, {}, {}
@@ -72,8 +83,20 @@ class WrappedMahjongEnv(MultiAgentEnv):
             done[id] = orig_done[id]
             info[id] = orig_info[id]
         done["__all__"] = orig_done["__all__"]
-        # if done["__all__"]:
-        #     print(rew)
+        if done["__all__"]:
+            for player_id in self.PLAYER_IDS:
+                dict = self.learn_dict[player_id].copy()
+                dict = sorted(dict.items())
+                x, y = zip(*dict)
+                plt.plot(x, y)
+            fig.savefig("plot.png")
+            plt.clf()
+            for player_id in self.PLAYER_IDS:
+                dict = self.learn_dict[player_id].copy()
+                dict = sorted(dict.items())
+                x, y = zip(*dict)
+                plt.plot(x[74:], y[74:])
+            fig.savefig("plot2.png")
         return self._make_observation(orig_obs_dict=orig_obs_dict), rew, done, info
 
     def seed(self, game_seed):
@@ -98,6 +121,7 @@ class TorchRLlibMahjongEnvModel(DQNTorchModel):
         self.action_embed_model = TorchFC(
             Box(-1, 1, shape=true_obs_shape), action_space, action_embed_size,
             model_config, name + "_action_embed")
+        self.timestep = 1
 
     def forward(self, input_dict, state, seq_lens):
         # Extract the available actions tensor from the observation.
@@ -123,6 +147,7 @@ class TorchRLlibMahjongEnvModel(DQNTorchModel):
         # as invalid actions that are not to be chosen.
         inf_mask = torch.clamp(torch.log(action_mask), FLOAT_MIN, FLOAT_MAX)
         # action_logits[:, 179] = FLOAT_MIN
+        self.timestep += 1
 
         return action_logits + inf_mask, state
 
@@ -297,7 +322,7 @@ def online_model_policy():
         num = re.sub(r"\D", "", agent_id)
         return f"random{num}" if num != "0" else "learned"
 
-    register_env("rllibmahjong", lambda _: WrappedMahjongEnv(env=_mjx.RLlibMahjongEnv(), seed=16))
+    register_env("rllibmahjong", lambda _: WrappedMahjongEnv(env=_mjx.RLlibMahjongEnv(), seed=3))
     config = dict(
         {
             "env": "rllibmahjong",
@@ -308,27 +333,34 @@ def online_model_policy():
             "num_gpus": 0,
             "num_workers": 0,
             "output": "batch/onpolicy",
-            "explore": False,
+            "explore": True,
+            # "exploration_config": {
+            #     "type": "EpsilonGreedy",
+            #     "initial_epsilon": 0.3,
+            #     "final_epsilon": 0.01,
+            # },
             "exploration_config": {
-                "type": "EpsilonGreedy",
-                "initial_epsilon": 0.2,
-                "final_epsilon": 0.0,
+                "type": "SoftQ",
+                "temperature": 1,
             },
+            # "gamma": 0.99,
+            # "train_batch_size": 2000,
+            # "batch_mode": "complete_episodes",
             "multiagent": {
                 "policies_to_train": ["learned"],
                 "policies": {
                     "learned": (None, WrappedMahjongEnv.AGENT_OBS_SPACE, WrappedMahjongEnv.AGENT_ACTION_SPACE, {
                         "framework": "torch",
                     }),
-                    "random1": (RandomSelect,
+                    "random1": (RuleBased,
                                 WrappedMahjongEnv.AGENT_OBS_SPACE,
                                 WrappedMahjongEnv.AGENT_ACTION_SPACE,
                                 {}),
-                    "random2": (RandomSelect,
+                    "random2": (RuleBased,
                                 WrappedMahjongEnv.AGENT_OBS_SPACE,
                                 WrappedMahjongEnv.AGENT_ACTION_SPACE,
                                 {}),
-                    "random3": (RandomSelect,
+                    "random3": (RuleBased,
                                 WrappedMahjongEnv.AGENT_OBS_SPACE,
                                 WrappedMahjongEnv.AGENT_ACTION_SPACE,
                                 {})
@@ -337,10 +369,19 @@ def online_model_policy():
             },
             "framework": "torch"
         })
-    trainer_obj = pg.PGTrainer(config=config)
-    for _ in range(50):
-        results = trainer_obj.train()
-        print(pretty_print(results))
+    trainer_obj = impla.ImpalaTrainer(config=config)
+    results = []
+    for _ in range(1000):
+        print(_)
+        result = trainer_obj.train()
+        if "learned" in result["policy_reward_mean"]:
+            print(result["policy_reward_mean"]["learned"])
+            results.append(result["policy_reward_mean"]["learned"])
+        # print(pretty_print(results))
+    fig = plt.figure()
+    plt.clf()
+    plt.plot(list(range(len(results))), results)
+    fig.savefig(f"perf_rulebased_{time.time()}.png")
 
 
 # online_model_policyで集めた経験を使って学習を行う
@@ -396,6 +437,7 @@ def offline_model_policy():
 
 
 if __name__ == '__main__':
+    fig = plt.figure()
     ray.init()
     # random_policy()
     # rllib_random_policy()
