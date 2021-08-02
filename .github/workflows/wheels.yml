@@ -16,16 +16,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-        env:
-          MJX_DIR: ${GITHUB_WORKSPACE}/mjx
         with:
           submodules: true
 
       - name: Build SDist
-        run: cd mjx && pipx run build --sdist
+        run: cd mjx && export MJX_DIR=$(pwd) && pipx run build --sdist
 
       - name: Check metadata
-        run: cd mjx && pipx run twine check dist/*
+        run: cd mjx && export MJX_DIR=$(pwd) && pipx run twine check dist/*
 
       - uses: actions/upload-artifact@v2
         with:
@@ -47,6 +45,7 @@ jobs:
 
       - uses: pypa/cibuildwheel@v1.12.0
         env:
+          MJX_DIR: ${GITHUB_WORKSPACE}/mjx
           CIBW_BUILD: cp39-*
           CIBW_SKIP: cp27-* cp35-* cp36-* cp37-* cp38-* *win* *macosx*
           CIBW_ARCHS_MACOS: auto universal2
