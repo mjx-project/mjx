@@ -16,8 +16,6 @@ build: mjx tests
 test: build
 	./build/tests/mjx_test
 
-all: clean test
-
 fmt:
 	clang-format -i mjx/include/mjx/internal/*.h mjx/include/mjx/internal/*.cpp
 	clang-format -i tests/*.cpp
@@ -45,4 +43,4 @@ docker-plantuml-stop:
 	docker rm -f mahjong-plantuml || true
 
 
-.PHONY: clean test all fmt docker-test docker-all docker-clion-stop docker-clion-start docker-plantuml-start docker-plantuml-stop
+.PHONY: clean test fmt docker-test docker-all docker-clion-stop docker-clion-start docker-plantuml-start docker-plantuml-stop
