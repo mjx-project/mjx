@@ -3,7 +3,7 @@ clean:
 	rm -rf cmake-build-debug
 	rm -rf build
 	rm -rf docker-build
-	rm -rf mjx/internal/*pb*
+	rm -rf mjx/include/mjx/internal/*pb*
 	rm -rf dist
 	rm -rf venv
 
@@ -19,7 +19,7 @@ test: build
 all: clean test
 
 fmt:
-	clang-format -i mjx/internal/*.h mjx/internal/*.cpp
+	clang-format -i mjx/include/mjx/internal/*.h mjx/include/mjx/internal/*.cpp
 	clang-format -i tests/*.cpp
 	clang-format -i scripts/*.cpp
 
