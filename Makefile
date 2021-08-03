@@ -21,6 +21,10 @@ fmt:
 	clang-format -i tests/*.cpp
 	clang-format -i scripts/*.cpp
 
+dist: setup.py mjx pymjx
+	which python3
+	export MJX_USE_SYSTEM_BOOST=ON && export MJX_USE_SYSTEM_GRPC=ON && python3 setup.py sdist && python3 setup.py install
+
 docker-build:
 	docker run -it -v ${CURDIR}:/mahjong sotetsuk/ubuntu-gcc-grpc:latest  /bin/bash -c "cd /mahjong && mkdir -p docker-build && cd docker-build && cmake .. && make -j"
 
