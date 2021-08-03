@@ -14,8 +14,8 @@ message(STATUS "MJX_INCLUDE_DIR=${MJX_INCLUDE_DIR}")
 ####################################################################################
 
 # set(LIB_DIR ${CMAKE_CURRENT_SOURCE_DIR}/external_libs)
-option(MJX_USE_SYSTEM_BOOST "Use Boost previously installed." ON)
-option(MJX_USE_SYSTEM_GRPC "Use gRPC previously installed." ON)
+option(MJX_USE_SYSTEM_BOOST "Use Boost previously installed." OFF)
+option(MJX_USE_SYSTEM_GRPC "Use gRPC previously installed." OFF)
 
 ####################################################################################
 # For Boost

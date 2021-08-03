@@ -11,7 +11,7 @@ venv:
 	python3 -m venv venv
 
 build: mjx tests
-	mkdir -p build && cd build && cmake .. -DMJX_BUILD_TESTS=ON && make -j
+	mkdir -p build && cd build && cmake .. -DMJX_USE_SYSTEM_BOOST=ON -DMJX_USE_SYSTEM_GRPC=ON -DMJX_BUILD_TESTS=ON && make -j
 
 test: build
 	./build/tests/mjx_test
