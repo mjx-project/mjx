@@ -4,6 +4,7 @@ clean:
 	rm -rf build
 	rm -rf docker-build
 	rm -rf mjx/internal/*pb*
+	rm -rf dist
 
 build: mjx tests
 	mkdir -p build && cd build && cmake .. -DMJX_BUILD_TESTS=ON && make -j
