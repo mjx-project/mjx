@@ -1,17 +1,13 @@
 name: Wheels
 
 on:
-  workflow_dispatch:
-  pull_request:
-  push:
-    branches:
-     - master
+  push: [ push  ]
   release:
     types:
       - published
 
 env:
-  CIBW_TEST_COMMAND: pytest {project}/tests
+  CIBW_TEST_COMMAND: python3 test.py
   CIBW_TEST_EXTRAS: test
 
 
@@ -52,11 +48,12 @@ jobs:
       env:
         # Python 2.7 on Windows requires a workaround for C++11 support,
         # built separately below
-        CIBW_SKIP: cp27-win*
+        CIBW_BUILD: cp39-*
+        CIBW_SKIP: pp* cp27-win* cp35-* cp36-* cp37-* cp38-* *macos* *win*
         CIBW_ARCHS_MACOS: auto universal2
         CIBW_TEST_SKIP: "*universal2:arm64"
         CIBW_TEST_EXTRAS: test
-        CIBW_TEST_COMMAND: pytest {project}/tests
+        CIBW_TEST_COMMAND: python3 test.py
 
     - name: Verify clean directory
       run: git diff --exit-code
@@ -64,45 +61,6 @@ jobs:
 
     - name: Upload wheels
       uses: actions/upload-artifact@v2
-      with:
-        path: wheelhouse/*.whl
-
-
-  # Windows 2.7 (requires workaround for MSVC 2008 replacement)
-  build_win27_wheels:
-    name: Py 2.7 wheels on Windows
-    runs-on: windows-latest
-
-    steps:
-    - uses: actions/checkout@v2
-      with:
-        submodules: true
-
-    - uses: ilammy/msvc-dev-cmd@v1
-
-    - name: Build 64-bit wheel
-      uses: pypa/cibuildwheel@v1.12.0
-      env:
-        CIBW_BUILD: cp27-win_amd64
-        DISTUTILS_USE_SDK: 1
-        MSSdk: 1
-
-    - uses: ilammy/msvc-dev-cmd@v1
-      with:
-        arch: x86
-
-    - name: Build 32-bit wheel
-      uses: pypa/cibuildwheel@v1.12.0
-      env:
-        CIBW_BUILD: cp27-win32
-        DISTUTILS_USE_SDK: 1
-        MSSdk: 1
-
-    - name: Verify clean directory
-      run: git diff --exit-code
-      shell: bash
-
-    - uses: actions/upload-artifact@v2
       with:
         path: wheelhouse/*.whl
 
