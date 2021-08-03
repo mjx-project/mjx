@@ -23,7 +23,7 @@ fmt:
 
 dist: setup.py mjx pymjx mjx/include/mjx/internal/mjx.proto
 	which python3
-	python3 -m pip install -r requirements.txt
+	python3 -m pip install -r pymjx/requirements.txt
 	python3 -m grpc_tools.protoc -I mjx/include/mjx/internal --python_out=./pymjx/mjxproto/ --grpc_python_out=./pymjx//mjxproto/ --mypy_out=./pymjx/mjxproto/ mjx.proto
 	export MJX_USE_SYSTEM_BOOST=ON && export MJX_USE_SYSTEM_GRPC=ON && python3 setup.py sdist && python3 setup.py install
 

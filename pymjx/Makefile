@@ -23,18 +23,13 @@ proto: ../mjx/include/mjx/internal/mjx.proto
 	python3 -m grpc_tools.protoc -I ../mjx/include/mjx/internal --python_out=./mjxproto/ --grpc_python_out=./mjxproto/ --mypy_out=./mjxproto/ mjx.proto
 
 requirements:
+	python3 -m pip install --upgrade pip
 	python3 -m pip install -r requirements.txt
 
-uninstall:
-	python3 -m pip uninstall mjx -y
-
-install: requirements proto
-	python3 setup.py install
-
-pytest: proto
+pytest: requirements proto
 	python3 -m pytest --doctest-modules
 
-test-cli: uninstall clean install
+test-cli:
 	echo "From mjlog => mjxproto"
 	cat mjx/tests/resources/mjlog/*.mjlog | mjx convert --to-mjxproto --verbose | wc -l
 	cat mjx/tests/resources/mjlog/*.mjlog | mjx convert --to-mjxproto --compress --verbose | wc -l
