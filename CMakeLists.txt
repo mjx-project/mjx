@@ -5,7 +5,6 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_FLAGS "-Wall")
 set(CMAKE_CXX_FLAGS "-fPIC")
-set(CMAKE_CXX_FLAGS "-lrt")
 
 option(MJX_BUILD_TESTS "Build tests" OFF)
 option(MJX_BUILD_PYTHON "Build as Python liblary " OFF)
