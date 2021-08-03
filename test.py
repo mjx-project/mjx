@@ -1,8 +1,8 @@
-import mjx
+import mjx._mjx as m
 
 
 def test_RLlibMahjongEnv():
-    env = mjx.RLlibMahjongEnv()
+    env = m.RLlibMahjongEnv()
     env.seed(1234)
     obs = env.reset()
     assert len(obs.keys()) == 1
