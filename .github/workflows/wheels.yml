@@ -67,7 +67,7 @@ jobs:
 
   upload_all:
     name: Upload if release
-    needs: [build_wheels, build_win27_wheels, build_sdist]
+    needs: [build_wheels, build_sdist]
     runs-on: ubuntu-latest
     if: github.event_name == 'release' && github.event.action == 'published'
 
