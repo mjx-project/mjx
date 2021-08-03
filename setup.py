@@ -26,11 +26,6 @@ class CMakeExtension(Extension):
 
 
 class CMakeBuild(build_ext):
-    user_options = build_ext.user_options + [
-        ('use-system-boost', None, 'if true, use the system boost.'),
-        ('use-system-grpc', None, 'if true, use the system grpc.'),
-        ]
-
     def initialize_options(self):
         build_ext.initialize_options(self)
         self.use_system_boost = None
@@ -60,8 +55,8 @@ class CMakeBuild(build_ext):
                 self.distribution.get_version()),
             # not used on MSVC, but no harm
             "-DCMAKE_BUILD_TYPE={}".format(cfg),
-            "-DMJX_USE_SYSTEM_BOOST={}".format("ON" if self.use_system_boost else "OFF"),
-            "-DMJX_USE_SYSTEM_GRPC={}".format("ON" if self.use_system_grpc else "OFF"),
+            "-DMJX_USE_SYSTEM_BOOST={}".format("ON" if "MJX_USE_SYSTEM_BOOST" in os.environ else "OFF"),
+            "-DMJX_USE_SYSTEM_GRPC={}".format("ON" if "MJX_USE_SYSTEM_GRPC" in os.environ else "OFF"),
             "-DMJX_BUILD_PYTHON=ON"
         ]
         build_args = []
