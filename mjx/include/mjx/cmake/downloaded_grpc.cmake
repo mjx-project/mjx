@@ -29,13 +29,9 @@ set(FETCHCONTENT_UPDATES_DISCONNECTED ON)
 fetchcontent_declare(
   grpc
   GIT_REPOSITORY https://github.com/grpc/grpc.git
-  GIT_TAG v1.36.4
+  GIT_TAG v1.39.0
 )
 fetchcontent_makeavailable(grpc)
-find_library(LIBRT rt)
-if(LIBRT)
-  target_link_libraries(grpc ${LIBRT})
-endif()
 
 # TODO: if there is a preinstalled protoc, preinstalled one may be used. We should prevent it.
 set(_PROTOBUF_LIBPROTOBUF libprotobuf)
