@@ -12,9 +12,6 @@ jobs:
       with:
         python-version: 3.9
 
-    - name: Install mjx CLI
-      run: cd pymjx && make install
-
     - name: Run pytest
       run: cd pymjx && make pytest
 

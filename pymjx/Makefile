@@ -1,4 +1,4 @@
-.PHONY: proto requirements install uninstall clean pytest test-cli
+.PHONY: proto requirements clean pytest test-cli
 
 clean:
 	rm -rf ./mjxproto/*pb2*
