@@ -5,6 +5,10 @@ clean:
 	rm -rf docker-build
 	rm -rf mjx/internal/*pb*
 	rm -rf dist
+	rm -rf venv
+
+venv:
+	python3 -m venv venv
 
 build: mjx tests
 	mkdir -p build && cd build && cmake .. -DMJX_BUILD_TESTS=ON && make -j
