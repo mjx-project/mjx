@@ -62,8 +62,6 @@ class CMakeBuild(build_ext):
             "-DCMAKE_BUILD_TYPE={}".format(cfg),
             "-DMJX_USE_SYSTEM_BOOST={}".format("ON" if self.use_system_boost else "OFF"),
             "-DMJX_USE_SYSTEM_GRPC={}".format("ON" if self.use_system_grpc else "OFF"),
-            #"-DMJX_USE_SYSTEM_BOOST={}".format("ON" if self.useSystemBoost else "OFF"),
-            #"-DMJX_USE_SYSTEM_GRPC={}".format("ON" if self.useSystemGrpc else "OFF"),
             "-DMJX_BUILD_PYTHON=ON"
         ]
         build_args = []
