@@ -7,7 +7,7 @@ on:
       - published
 
 env:
-  CIBW_TEST_COMMAND: python3 test.py
+  CIBW_TEST_COMMAND: python3 {project}/test.py
   CIBW_TEST_EXTRAS: test
 
 
@@ -61,7 +61,7 @@ jobs:
         CIBW_ARCHS_MACOS: auto universal2
         CIBW_TEST_SKIP: "*universal2:arm64"
         CIBW_TEST_EXTRAS: test
-        CIBW_TEST_COMMAND: python3 test.py
+        CIBW_TEST_COMMAND: python3 {project}/test.py
 
     - name: Verify clean directory
       run: git diff --exit-code
