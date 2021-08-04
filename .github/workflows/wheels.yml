@@ -37,7 +37,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest]  # [ubuntu-latest, windows-latest, macos-latest]
+        os: [ubuntu-latest, windows-latest, macos-latest]
 
     steps:
     - uses: actions/checkout@v2
@@ -57,7 +57,7 @@ jobs:
         # https://cibuildwheel.readthedocs.io/en/stable/cpp_standards/#manylinux1-and-c14
         MACOSX_DEPLOYMENT_TARGET: "10.14"
         CIBW_BUILD: cp39-*
-        CIBW_SKIP: pp* cp27-win* cp35-* cp36-* cp37-* cp38-* *macos* *win*
+        CIBW_SKIP: pp* cp27-win* cp35-* cp36-* cp37-* cp38-*
         CIBW_ARCHS_MACOS: auto universal2
         CIBW_TEST_SKIP: "*universal2:arm64"
         CIBW_TEST_EXTRAS: test
