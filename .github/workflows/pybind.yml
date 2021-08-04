@@ -32,7 +32,7 @@ jobs:
           key: external-${{ hashFiles('mjx/include/mjx/cmake/*') }}-${{ matrix.platform }}
 
       - name: Build and install
-        run: python3 setup.py sdist && python3 setup.py install
+        run: python setup.py sdist && python3 setup.py install
 
       - name: Test
-        run: python3 test.py
+        run: python test.py
