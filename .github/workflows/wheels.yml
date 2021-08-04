@@ -59,10 +59,10 @@ jobs:
         CIBW_BUILD: cp39-*
         CIBW_SKIP: pp* cp27-win* cp35-* cp36-* cp37-* cp38-* *win*
         # https://cibuildwheel.readthedocs.io/en/stable/options/#archs
-        # Avoid universal2 arch due to this error:
+        # universal2 arch raises this error:
         # CMake Error at mjx/external/grpc-src/third_party/boringssl-with-bazel/CMakeLists.txt:52 (message): Universal binaries not supported.
-        # TODO: check if this options is OK or not
-        CIBW_ARCHS_MACOS: x86_64 arm64  #  auto universal2
+        # TODO: support Apple Silicon
+        CIBW_ARCHS_MACOS: x86_64  #  auto universal2
         CIBW_TEST_SKIP: "*universal2:arm64"
         CIBW_TEST_EXTRAS: test
         CIBW_TEST_COMMAND: python3 {project}/test.py
