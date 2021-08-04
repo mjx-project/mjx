@@ -1,10 +1,6 @@
 name: Wheels
 
-on:
-  push:
-  release:
-    types:
-      - published
+on: [ release ]
 
 env:
   CIBW_TEST_COMMAND: python3 {project}/test.py

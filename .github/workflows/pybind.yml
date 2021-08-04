@@ -1,6 +1,6 @@
 name: pybind
 
-on: [ push ]
+on: [ release ]
 
 jobs:
   build:
