@@ -43,7 +43,7 @@ test-cli:
 	cat tests/resources/mjxproto/*.json | mjx convert --to-mjlog --verbose | wc -l
 	mjx convert tests/resources/mjxproto tests/resources/mjlog_recovered --to-mjlog --verbose && cat tests/resources/mjlog_recovered/* | wc -l
 	echo "Check diff"
-	python3 scripts/diff.py tests/resources/mjlog tests/resources/mjlog_recovered
+	python3 mjx/diff.py tests/resources/mjlog tests/resources/mjlog_recovered
 	echo "Clean up"
 	rm -rf tests/resources/mjxproto
 	rm -rf tests/resources/mjlog_recovered
