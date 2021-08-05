@@ -31,20 +31,20 @@ pytest: requirements proto
 
 test-cli:
 	echo "From mjlog => mjxproto"
-	cat mjx/tests/resources/mjlog/*.mjlog | mjx convert --to-mjxproto --verbose | wc -l
-	cat mjx/tests/resources/mjlog/*.mjlog | mjx convert --to-mjxproto --compress --verbose | wc -l
-	cat mjx/tests/resources/mjlog/*.mjlog | mjx convert --to-mjxproto-raw --verbose | wc -l
-	mjx convert mjx/tests/resources/mjlog mjx/tests/resources/mjxproto --to-mjxproto --verbose && cat mjx/tests/resources/mjxproto/* | wc -l
-	rm mjx/tests/resources/mjxproto/*.json
-	mjx convert mjx/tests/resources/mjlog mjx/tests/resources/mjxproto --to-mjxproto --compress --verbose && cat mjx/tests/resources/mjxproto/* | wc -l
-	rm mjx/tests/resources/mjxproto/*.json
-	mjx convert mjx/tests/resources/mjlog mjx/tests/resources/mjxproto --to-mjxproto-raw --verbose && cat mjx/tests/resources/mjxproto/* | wc -l
+	cat tests/resources/mjlog/*.mjlog | mjx convert --to-mjxproto --verbose | wc -l
+	cat tests/resources/mjlog/*.mjlog | mjx convert --to-mjxproto --compress --verbose | wc -l
+	cat tests/resources/mjlog/*.mjlog | mjx convert --to-mjxproto-raw --verbose | wc -l
+	mjx convert tests/resources/mjlog tests/resources/mjxproto --to-mjxproto --verbose && cat tests/resources/mjxproto/* | wc -l
+	rm tests/resources/mjxproto/*.json
+	mjx convert tests/resources/mjlog tests/resources/mjxproto --to-mjxproto --compress --verbose && cat tests/resources/mjxproto/* | wc -l
+	rm tests/resources/mjxproto/*.json
+	mjx convert tests/resources/mjlog tests/resources/mjxproto --to-mjxproto-raw --verbose && cat tests/resources/mjxproto/* | wc -l
 	echo "From mjxproto => mjlog_recovered"
-	cat mjx/tests/resources/mjxproto/*.json | mjx convert --to-mjlog --verbose | wc -l
-	mjx convert mjx/tests/resources/mjxproto mjx/tests/resources/mjlog_recovered --to-mjlog --verbose && cat mjx/tests/resources/mjlog_recovered/* | wc -l
+	cat tests/resources/mjxproto/*.json | mjx convert --to-mjlog --verbose | wc -l
+	mjx convert tests/resources/mjxproto tests/resources/mjlog_recovered --to-mjlog --verbose && cat tests/resources/mjlog_recovered/* | wc -l
 	echo "Check diff"
-	python3 mjx/diff.py mjx/tests/resources/mjlog mjx/tests/resources/mjlog_recovered
+	python3 scripts/diff.py tests/resources/mjlog tests/resources/mjlog_recovered
 	echo "Clean up"
-	rm -rf mjx/tests/resources/mjxproto
-	rm -rf mjx/tests/resources/mjlog_recovered
-	git checkout -- mjx/tests/resources
+	rm -rf tests/resources/mjxproto
+	rm -rf tests/resources/mjlog_recovered
+	git checkout -- tests/resources
