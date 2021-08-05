@@ -8,10 +8,9 @@ import xml.etree.ElementTree as ET
 from typing import Dict, Iterator, List, Optional, Tuple
 from xml.etree.ElementTree import Element
 
+import mjxproto
 import tenhou_wall_reproducer
 from google.protobuf import json_format
-
-import mjxproto
 from mjx.const import AbsolutePos, RelativePos
 from mjx.hand import Hand
 

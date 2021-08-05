@@ -4,7 +4,7 @@
 
 namespace py = pybind11;
 
-PYBIND11_MODULE(mjxcore, m) {
+PYBIND11_MODULE(_mjx, m) {
   m.doc() = "";
 
   py::class_<mjx::Action>(m, "Action")

@@ -1,0 +1,42 @@
+# Copied from github.com/pybind/cmake_example
+# Copyright (c) 2016 The Pybind Development Team, All rights reserved.
+# https://github.com/pybind/cmake_example/blob/master/LICENSE
+
+name: pybind
+
+on: [ release ]
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        platform: [macos-latest, ubuntu-latest]
+        python-version: ["3.9"]  #  ["2.7", "3.5", "3.8", "3.9"]
+
+    runs-on: ${{ matrix.platform }}
+
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: true
+
+      - uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Add requirements
+        run: python -m pip install --upgrade wheel setuptools
+
+      - name: Cache external
+        uses: actions/cache@v2
+        with:
+          path: |
+            mjx/external
+          key: external-${{ hashFiles('mjx/include/mjx/cmake/*') }}-${{ matrix.platform }}
+
+      - name: Build and install
+        run: python setup.py sdist && python3 setup.py install
+
+      - name: Test
+        run: python test.py

@@ -1,13 +1,25 @@
+# Copied from github.com/pybind/cmake_example
+# Copyright (c) 2016 The Pybind Development Team, All rights reserved.
+# https://github.com/pybind/cmake_example/blob/master/LICENSE
+[build-system]
+requires = [
+    "setuptools>=42",
+    "wheel",
+    "ninja; sys_platform != 'win32' and platform_machine != 'arm64'",
+    "cmake>=3.12",
+]
+build-backend = "setuptools.build_meta"
+
 [tool.black]
 line-length = 99
 
 # https://black.readthedocs.io/en/stable/compatible_configs.html
-[flake8]  
+[flake8]
 max-line-length = 99
 ignore = ['E203', 'E501', 'W503']
 
 # https://black.readthedocs.io/en/stable/compatible_configs.html
-[tool.isort]  
+[tool.isort]
 multi_line_output = 3
 include_trailing_comma = true
 force_grid_wrap = 0

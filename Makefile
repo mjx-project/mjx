@@ -3,20 +3,29 @@ clean:
 	rm -rf cmake-build-debug
 	rm -rf build
 	rm -rf docker-build
-	rm -rf mjx/internal/*pb*
+	rm -rf mjx/include/mjx/internal/*pb*
+	rm -rf dist
+	rm -rf venv
+
+venv:
+	python3 -m venv venv
 
 build: mjx tests
-	mkdir -p build && cd build && cmake .. && make -j
+	mkdir -p build && cd build && cmake .. -DMJX_USE_SYSTEM_BOOST=ON -DMJX_USE_SYSTEM_GRPC=ON -DMJX_BUILD_TESTS=ON && make -j
 
 test: build
 	./build/tests/mjx_test
 
-all: clean test
-
 fmt:
-	clang-format -i mjx/internal/*.h mjx/internal/*.cpp
+	clang-format -i mjx/include/mjx/internal/*.h mjx/include/mjx/internal/*.cpp
 	clang-format -i tests/*.cpp
 	clang-format -i scripts/*.cpp
+
+dist: setup.py mjx pymjx mjx/include/mjx/internal/mjx.proto
+	which python3
+	python3 -m pip install -r pymjx/requirements.txt
+	python3 -m grpc_tools.protoc -I mjx/include/mjx/internal --python_out=./pymjx/mjxproto/ --grpc_python_out=./pymjx//mjxproto/ --mypy_out=./pymjx/mjxproto/ mjx.proto
+	export MJX_USE_SYSTEM_BOOST=ON && export MJX_USE_SYSTEM_GRPC=ON && python3 setup.py sdist && python3 setup.py install
 
 docker-build:
 	docker run -it -v ${CURDIR}:/mahjong sotetsuk/ubuntu-gcc-grpc:latest  /bin/bash -c "cd /mahjong && mkdir -p docker-build && cd docker-build && cmake .. && make -j"
@@ -40,4 +49,4 @@ docker-plantuml-stop:
 	docker rm -f mahjong-plantuml || true
 
 
-.PHONY: clean test all fmt docker-test docker-all docker-clion-stop docker-clion-start docker-plantuml-start docker-plantuml-stop
+.PHONY: clean test fmt docker-test docker-all docker-clion-stop docker-clion-start docker-plantuml-start docker-plantuml-stop
