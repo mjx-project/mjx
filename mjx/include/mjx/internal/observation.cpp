@@ -200,8 +200,8 @@ std::vector<float> Observation::small_v0() const {
 
     if (target_tile.has_value()) {
       tmp[target_tile.value().Id() / 4] = 1;
-      std::copy(tmp.begin(), tmp.end(), std::back_inserter(feature));
     }
+    std::copy(tmp.begin(), tmp.end(), std::back_inserter(feature));
   }
   {
     // last drawed tile
@@ -220,8 +220,8 @@ std::vector<float> Observation::small_v0() const {
 
     if (drawed_tile.has_value()) {
       tmp[drawed_tile.value().Id() / 4] = 1;
-      std::copy(tmp.begin(), tmp.end(), std::back_inserter(feature));
     }
+    std::copy(tmp.begin(), tmp.end(), std::back_inserter(feature));
   }
 
   return feature;
