@@ -153,7 +153,7 @@ std::vector<float> Observation::small_v0() const {
   std::vector<float> feature;
   {
     // closed hand
-    std::vector<float> tmp(4*34);
+    std::vector<float> tmp(4 * 34);
     std::vector<int> hand(34);
     for (auto t : proto_.private_observation().curr_hand().closed_tiles()) {
       ++hand[Tile(t).TypeUint()];
@@ -171,7 +171,7 @@ std::vector<float> Observation::small_v0() const {
     std::vector<int> hand(34);
     for (auto open : proto_.private_observation().curr_hand().opens()) {
       for (auto t : Open(open).Tiles()) {
-          ++hand[Tile(t).TypeUint()];
+        ++hand[Tile(t).TypeUint()];
       }
     }
     for (int i = 0; i < 34; ++i) {
@@ -211,7 +211,8 @@ std::vector<float> Observation::small_v0() const {
       if (proto_.public_observation().events().empty()) return std::nullopt;
       auto event = *proto_.public_observation().events().rbegin();
       if (event.type() == mjxproto::EventType::EVENT_TYPE_DRAW) {
-        return mjx::internal::Tile(*proto_.private_observation().draw_history().rbegin());
+        return mjx::internal::Tile(
+            *proto_.private_observation().draw_history().rbegin());
       } else {
         return std::nullopt;
       }
