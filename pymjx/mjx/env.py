@@ -18,7 +18,8 @@ class RLlibMahjongEnv(MultiAgentEnv):
         self.env = _mjx.RLlibMahjongEnv()
         self.legal_actions = {}
 
-    def _make_observation(self, orig_obs_dict):
+    @staticmethod
+    def _make_observation(orig_obs_dict):
         obs_dict = {}
         for player_id, obs in orig_obs_dict.items():
             obs_dict[player_id] = {}
@@ -36,7 +37,7 @@ class RLlibMahjongEnv(MultiAgentEnv):
     def reset(self):
         orig_obs_dict = self.env.reset()
         self._update_legal_actions(orig_obs_dict)
-        return self._make_observation(orig_obs_dict=orig_obs_dict)
+        return RLlibMahjongEnv._make_observation(orig_obs_dict=orig_obs_dict)
 
     def step(self, orig_act_dict):
         import mjx._mjx as _mjx
@@ -47,7 +48,7 @@ class RLlibMahjongEnv(MultiAgentEnv):
                 action, self.legal_actions[player_id])
         orig_obs_dict, orig_rew, orig_done, orig_info = self.env.step(act_dict)
         self._update_legal_actions(orig_obs_dict)
-        return self._make_observation(orig_obs_dict=orig_obs_dict), orig_rew, orig_done, orig_info
+        return RLlibMahjongEnv._make_observation(orig_obs_dict=orig_obs_dict), orig_rew, orig_done, orig_info
 
     def seed(self, seed):
         self.env.seed(seed)
