@@ -13,12 +13,10 @@ class RLlibMahjongEnv(MultiAgentEnv):
     })
     AGENT_ACTION_SPACE = Discrete(NUM_ACTION)
 
-    def __init__(self, seed=None):
+    def __init__(self):
         import mjx._mjx as _mjx
         self.env = _mjx.RLlibMahjongEnv()
         self.legal_actions = {}
-        if seed is not None:
-            self.seed(seed)
 
     def _make_observation(self, orig_obs_dict):
         obs_dict = {}
@@ -26,7 +24,8 @@ class RLlibMahjongEnv(MultiAgentEnv):
             obs_dict[player_id] = {}
             mask = obs.action_mask()
             obs_dict[player_id]["action_mask"] = np.array(mask)
-            obs_dict[player_id]["real_obs"] = np.array(obs.to_feature("small_v0"))
+            obs_dict[player_id]["real_obs"] = np.array(
+                obs.to_feature("small_v0"))
         return obs_dict
 
     def _update_legal_actions(self, orig_obs_dict):
@@ -44,10 +43,11 @@ class RLlibMahjongEnv(MultiAgentEnv):
         act_dict = {}
         for player_id, action in orig_act_dict.items():
             assert player_id in self.legal_actions
-            act_dict[player_id] = _mjx.Action(action, self.legal_actions[player_id])
+            act_dict[player_id] = _mjx.Action(
+                action, self.legal_actions[player_id])
         orig_obs_dict, orig_rew, orig_done, orig_info = self.env.step(act_dict)
         self._update_legal_actions(orig_obs_dict)
         return self._make_observation(orig_obs_dict=orig_obs_dict), orig_rew, orig_done, orig_info
 
-    def seed(self, game_seed):
-        self.env.seed(game_seed)
+    def seed(self, seed):
+        self.env.seed(seed)
