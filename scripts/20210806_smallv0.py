@@ -116,13 +116,6 @@ class Net(torch.nn.Module):
         self.num_layers = num_layers
         self.num_units = num_units
 
-        # current_hand: 4*34
-        # target_tile: 37 
-        # under_riichi: 1 
-        # river: 4*34*4
-        # open_tiles: 4*34*4
-        # who: 4
-        # shanten: 1
         self.linears = torch.nn.ModuleList([torch.nn.Linear(
             10*34, num_units)])
         self.linears.extend([torch.nn.Linear(num_units, num_units) for i in range(num_layers)])
