@@ -8,7 +8,6 @@
 
 #include "mjx/internal/mjx.h"
 
-
 int main(int argc, char* argv[]) {
   assert(argc == 4);
   const std::string FEATURE = argv[1];
@@ -19,7 +18,7 @@ int main(int argc, char* argv[]) {
     auto src_dir = fs::directory_entry(argv[2]);
     auto dst_dir = fs::directory_entry(argv[3]);
     for (const fs::directory_entry& entry :
-        fs::recursive_directory_iterator(src_dir)) {
+         fs::recursive_directory_iterator(src_dir)) {
       if (entry.is_directory()) continue;
       std::string src_path = entry.path().string();
       std::string dst_path =
@@ -35,10 +34,9 @@ int main(int argc, char* argv[]) {
 
   for (int i = 0; i < num_threads; i++) {
     const int begin = data_size * i / num_threads;
-    const int end = data_size * (i+1) / num_threads;
-    threads.emplace_back([begin, end, &paths, &FEATURE](){
+    const int end = data_size * (i + 1) / num_threads;
+    threads.emplace_back([begin, end, &paths, &FEATURE]() {
       for (int j = begin; j < end; j++) {
-
         const auto& [src_path, dst_path] = paths[j];
         std::ifstream ifs(src_path, std::ios::in);
         std::ofstream ofs(dst_path, std::ios::out);
