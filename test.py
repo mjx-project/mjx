@@ -1,16 +1,18 @@
-import mjx.env
+from mjx.env import RLlibMahjongEnv
 import random
 
 
 def test_RLlibMahjongEnv():
     random.seed(1234)
-    env = mjx.env.RLlibMahjongEnv()
+    env = RLlibMahjongEnv()
     env.seed(1234)
     obs_dict = env.reset()
     dones = {"__all__": False}
     while not dones["__all__"]:
-        action_dict = {agent: random.choice(obs.legal_actions())
-                       for agent, obs in obs_dict.items()}
+        action_dict = {}
+        for agent, obs in obs_dict.items():
+            legal_actions = [idx for idx in range(env.NUM_ACTION) if obs['action_mask'][idx]]
+            action_dict[agent] = random.choice(legal_actions)
         obs_dict, rewards, dones, info = env.step(action_dict)
     assert len(rewards) == 4
     assert rewards['player_0'] == 0
