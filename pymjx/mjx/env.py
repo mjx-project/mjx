@@ -57,9 +57,3 @@ class RLlibMahjongEnv(MultiAgentEnv):
 
     def seed(self, game_seed):
         self.env.seed(game_seed)
-
-
-if __name__ == '__main__':
-    env = RLlibMahjongEnv()
-    env.reset()
-    print(env.step({player_id: 1 for player_id, actions in env.legal_actions.items()}))
