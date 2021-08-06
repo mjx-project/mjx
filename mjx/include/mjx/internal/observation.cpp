@@ -150,17 +150,79 @@ std::vector<float> Observation::ToFeature(std::string version) const {
 }
 
 std::vector<float> Observation::small_v0() const {
-  // closed hand
-  std::vector<float> feature(4 * 34);
-  std::vector<int> hand(34);
-  for (auto t : proto_.private_observation().curr_hand().closed_tiles()) {
-    ++hand[Tile(t).TypeUint()];
+  std::vector<float> feature;
+  {
+    // closed hand
+    std::vector<float> tmp(4*34);
+    std::vector<int> hand(34);
+    for (auto t : proto_.private_observation().curr_hand().closed_tiles()) {
+      ++hand[Tile(t).TypeUint()];
+    }
+    for (int i = 0; i < 34; ++i) {
+      for (int j = 0; j < hand[i]; ++j) {
+        tmp[j * 34 + i] = 1;
+      }
+    }
+    std::copy(tmp.begin(), tmp.end(), std::back_inserter(feature));
   }
-  for (int i = 0; i < 34; ++i) {
-    for (int j = 0; j < hand[i]; ++j) {
-      feature[j * 34 + i] = 1;
+  {
+    // opened
+    std::vector<float> tmp(4 * 34);
+    std::vector<int> hand(34);
+    for (auto open : proto_.private_observation().curr_hand().opens()) {
+      for (auto t : Open(open).Tiles()) {
+          ++hand[Tile(t).TypeUint()];
+      }
+    }
+    for (int i = 0; i < 34; ++i) {
+      for (int j = 0; j < hand[i]; ++j) {
+        tmp[j * 34 + i] = 1;
+      }
+    }
+    std::copy(tmp.begin(), tmp.end(), std::back_inserter(feature));
+  }
+  {
+    // last discarded tile
+    std::vector<float> tmp(34);
+
+    auto target_tile = [&]() -> std::optional<mjx::internal::Tile> {
+      if (proto_.public_observation().events().empty()) return std::nullopt;
+      auto event = *proto_.public_observation().events().rbegin();
+      if (event.type() == mjxproto::EventType::EVENT_TYPE_DISCARD or
+          event.type() == mjxproto::EventType::EVENT_TYPE_TSUMOGIRI) {
+        return mjx::internal::Tile(event.tile());
+      } else if (event.type() == mjxproto::EventType::EVENT_TYPE_ADDED_KAN) {
+        return mjx::internal::Open(event.open()).LastTile();
+      } else {
+        return std::nullopt;
+      }
+    }();
+
+    if (target_tile.has_value()) {
+      tmp[target_tile.value().Id() / 4] = 1;
+      std::copy(tmp.begin(), tmp.end(), std::back_inserter(feature));
     }
   }
+  {
+    // last drawed tile
+    std::vector<float> tmp(34);
+
+    auto drawed_tile = [&]() -> std::optional<mjx::internal::Tile> {
+      if (proto_.public_observation().events().empty()) return std::nullopt;
+      auto event = *proto_.public_observation().events().rbegin();
+      if (event.type() == mjxproto::EventType::EVENT_TYPE_DRAW) {
+        return mjx::internal::Tile(*proto_.private_observation().draw_history().rbegin());
+      } else {
+        return std::nullopt;
+      }
+    }();
+
+    if (drawed_tile.has_value()) {
+      tmp[drawed_tile.value().Id() / 4] = 1;
+      std::copy(tmp.begin(), tmp.end(), std::back_inserter(feature));
+    }
+  }
+
   return feature;
 }
 }  // namespace mjx::internal
