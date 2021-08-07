@@ -1,53 +1,53 @@
-from gym.spaces import Discrete, Box, Dict
 import numpy as np
+import gym
 
 
 class RLlibMahjongEnv:
-    NUM_ACTION = 181
-    NUM_FEATURE = 34 * 4
-    ACTION_EMBED_SIZE = 1
-    AGENT_OBS_SPACE = Dict({
-        "action_mask": Box(0, 1, shape=(NUM_ACTION,)),
-        "real_obs": Box(0, 1, shape=(NUM_FEATURE,)),
-    })
-    AGENT_ACTION_SPACE = Discrete(NUM_ACTION)
-
     def __init__(self):
         import mjx._mjx as _mjx
         self.env = _mjx.RLlibMahjongEnv()
+
         self.legal_actions = {}
+
+        # consts
+        self.num_actions = 181  # TODO: use val from self.env
+        self.num_features = 34 * 4  # TODO: use val from self.env
+        self.observation_space = gym.spaces.Dict({
+            "action_mask": Box(0, 1, shape=(self.num_actions,)),
+            "real_obs": Box(0, 1, shape=(self.num_features,)),
+        })
+        self.action_space = gym.spaces.Discrete(self.num_actions)
 
     @staticmethod
-    def _make_observation(orig_obs_dict):
+    def _convert_obs(obs):
         obs_dict = {}
-        for player_id, obs in orig_obs_dict.items():
-            obs_dict[player_id] = {}
+        for player_id, obs in obs.items():
+            obs_dict = {}
             mask = obs.action_mask()
-            obs_dict[player_id]["action_mask"] = np.array(mask)
-            obs_dict[player_id]["real_obs"] = np.array(
-                obs.to_feature("small_v0"))
+            obs_dict[player_id]["action_mask"] = np.array(mask, dtype=np.float32)
+            obs_dict[player_id]["real_obs"] = np.array(obs.to_feature("small_v0"), dtype=np.float32)
         return obs_dict
 
-    def _update_legal_actions(self, orig_obs_dict):
+    def _update_legal_actions(self, obs):
         self.legal_actions = {}
-        for player_id, obs in orig_obs_dict.items():
+        for player_id, obs in obs.items():
             self.legal_actions[player_id] = obs.legal_actions()
 
     def reset(self):
-        orig_obs_dict = self.env.reset()
-        self._update_legal_actions(orig_obs_dict)
-        return RLlibMahjongEnv._make_observation(orig_obs_dict=orig_obs_dict)
+        obs = self.env.reset()
+        self._update_legal_actions(obs)
+        return RLlibMahjongEnv._convert_obs(obs)
 
-    def step(self, orig_act_dict):
+    def step(self, action_dict):
         import mjx._mjx as _mjx
         act_dict = {}
-        for player_id, action in orig_act_dict.items():
+        for player_id, action in action_dict.items():
             assert player_id in self.legal_actions
             act_dict[player_id] = _mjx.Action(
                 action, self.legal_actions[player_id])
-        orig_obs_dict, orig_rew, orig_done, orig_info = self.env.step(act_dict)
-        self._update_legal_actions(orig_obs_dict)
-        return RLlibMahjongEnv._make_observation(orig_obs_dict=orig_obs_dict), orig_rew, orig_done, orig_info
+        obs, rewards, dones, infos = self.env.step(act_dict)
+        self._update_legal_actions(obs)
+        return RLlibMahjongEnv._convert_obs(obs), rewards, dones, infos
 
     def seed(self, seed):
         self.env.seed(seed)
