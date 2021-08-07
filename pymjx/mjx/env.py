@@ -1,9 +1,8 @@
-from ray.rllib.env.multi_agent_env import MultiAgentEnv
 from gym.spaces import Discrete, Box, Dict
 import numpy as np
 
 
-class RLlibMahjongEnv(MultiAgentEnv):
+class RLlibMahjongEnv:
     NUM_ACTION = 181
     NUM_FEATURE = 34 * 4
     ACTION_EMBED_SIZE = 1
