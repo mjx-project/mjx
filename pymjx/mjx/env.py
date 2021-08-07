@@ -13,8 +13,8 @@ class RLlibMahjongEnv:
         self.num_actions = 181  # TODO: use val from self.env
         self.num_features = 34 * 4  # TODO: use val from self.env
         self.observation_space = gym.spaces.Dict({
-            "action_mask": Box(0, 1, shape=(self.num_actions,)),
-            "real_obs": Box(0, 1, shape=(self.num_features,)),
+            "action_mask": gym.spaces.Box(0, 1, shape=(self.num_actions,)),
+            "real_obs": gym.spaces.Box(0, 1, shape=(self.num_features,)),
         })
         self.action_space = gym.spaces.Discrete(self.num_actions)
 
@@ -22,8 +22,8 @@ class RLlibMahjongEnv:
     def _convert_obs(obs):
         obs_dict = {}
         for player_id, obs in obs.items():
-            obs_dict = {}
             mask = obs.action_mask()
+            obs_dict[player_id] = {}
             obs_dict[player_id]["action_mask"] = np.array(mask, dtype=np.float32)
             obs_dict[player_id]["real_obs"] = np.array(obs.to_feature("small_v0"), dtype=np.float32)
         return obs_dict
