@@ -1,10 +1,10 @@
-from mjx.env import RLlibMahjongEnv
+import mjx.env
 import random
 
 
 def test_RLlibMahjongEnv():
     random.seed(1234)
-    env = RLlibMahjongEnv()
+    env = mjx.env.RLlibMahjongEnv()
     env.seed(1234)
     obs_dict = env.reset()
     dones = {"__all__": False}
