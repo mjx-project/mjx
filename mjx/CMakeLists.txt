@@ -108,6 +108,8 @@ add_library(
   include/mjx/hand.cpp
   include/mjx/env.h
   include/mjx/env.cpp
+  include/mjx/agent.h
+  include/mjx/agent.cpp
   include/mjx/internal/abstruct_hand.h
   include/mjx/internal/action.h
   include/mjx/internal/agent.h
