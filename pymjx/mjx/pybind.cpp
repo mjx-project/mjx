@@ -1,5 +1,5 @@
-#include <mjx/env.h>
 #include <mjx/agent.h>
+#include <mjx/env.h>
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 

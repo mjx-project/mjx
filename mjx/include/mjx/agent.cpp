@@ -14,7 +14,8 @@ Action Agent::TakeAction(const Observation& obs) {
 }
 
 Action Agent::TakeActionRuleBased(const Observation& obs) {
-  return Action(internal::StrategyRuleBased().TakeAction(internal::Observation(obs.proto())));
+  return Action(internal::StrategyRuleBased().TakeAction(
+      internal::Observation(obs.proto())));
 }
 
 }  // namespace mjx
