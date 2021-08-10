@@ -1,9 +1,9 @@
 #ifndef MJX_PROJECT_AGENT_H
 #define MJX_PROJECT_AGENT_H
 
+#include "mjx/action.h"
 #include "mjx/internal/mjx.grpc.pb.h"
 #include "mjx/observation.h"
-#include "mjx/action.h"
 
 namespace mjx {
 class Agent {
@@ -11,6 +11,7 @@ class Agent {
   Agent() = default;
   explicit Agent(const std::string& strategy);
   Action TakeAction(const Observation& obs);
+
  private:
   Action TakeActionRuleBased(const Observation& obs);
   const std::string strategy;
