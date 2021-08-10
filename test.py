@@ -4,13 +4,13 @@ import random
 
 def test_AgentSmallV0():
     env = mjx.env.RLlibMahjongEnv()
-    rule_based = mjx.agent.Agent("small_v0")
+    small_v0 = mjx.agent.Agent("small_v0")
 
     def run():
         obs_dict = env.reset()
         dones = {"__all__": False}
         while not dones["__all__"]:
-            action_dict = {agent: rule_based.take_action(obs) if agent == "player_0" else random.choice(obs.legal_actions())
+            action_dict = {agent: small_v0.take_action(obs) if agent == "player_0" else random.choice(obs.legal_actions())
                            for agent, obs in obs_dict.items()}
             obs_dict, rewards, dones, info = env.step(action_dict)
         assert len(rewards) == 4
@@ -28,7 +28,7 @@ def test_AgentSmallV0():
         for agent, point in rewards.items():
             wins[agent] += point
 
-    # rule_based agent must take first place
+    # small_v0 agent must take first place
     assert(wins['player_0'] == 90 * 100)
 
 def test_AgentRuleBased():
