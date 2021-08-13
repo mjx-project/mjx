@@ -120,7 +120,7 @@ class PettingZooMahjongEnv:
     def agent_selection(self):
         return self.env.agent_selection()
 
-    def agent_iter(self, max_iter=2**63):
+    def agent_iter(self, max_iter=2 ** 63):
         count = 0
         done_count = 0
         while done_count < 5 and count < max_iter:
