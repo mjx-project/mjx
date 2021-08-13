@@ -39,6 +39,7 @@ PYBIND11_MODULE(_mjx, m) {
       .def("reset", &mjx::PettingZooMahjongEnv::Reset)
       .def("step", &mjx::PettingZooMahjongEnv::Step)
       .def("seed", &mjx::PettingZooMahjongEnv::Seed)
+      .def("observe", &mjx::PettingZooMahjongEnv::Observe)
       .def("agents", &mjx::PettingZooMahjongEnv::agents)
       .def("possible_agents", &mjx::PettingZooMahjongEnv::possible_agents)
       .def("agent_selection", &mjx::PettingZooMahjongEnv::agent_selection);
