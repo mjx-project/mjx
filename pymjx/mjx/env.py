@@ -10,12 +10,43 @@ class SingleAgentEnv(gym.Env):
         self.env = RLlibMahjongEnv()
         self.agent_id = "player_0"
 
-    def reset(self, action):
-        pass
+        self.action_dict = {}
+
+    def reset(self):
+        obs_dict = self.reset()
+        while True:
+            self.action_dict = {}
+            for agent, obs in obs_dict:
+                if agent == self.agent_id:
+                    continue
+                self.action_dict[agent] = self.random_action(obs)
+            
+            if agent in obs_dict:
+                return obs
+            else:
+                self.env.step(self.action_dict)
+
 
     def step(self, action):
-        pass
+        self.action_dict[self.agent_id] = action
+        obs_dict, rewards, dones, infos = self.env.step(self.action_dict)
+        while True:
+            self.action_dict = {}
+            for agent, obs in obs_dict:
+                if agent == self.agent_id:
+                    continue
+                self.action_dict[agent] = self.random_action(obs)
 
+            if agent in obs_dict:
+                return obs_dict[self.agnet_id], rewards[self.agent_id], dones[self.agent_id], infos[self.agent_id]
+            else:
+                self.env.step(self.action_dict)
+ 
+
+    def random_action(self, obs):
+        legal_actions = [i for i, b in enumerate(obs["action_mask"]) if b]
+        return random.choice(legal_actions)
+ 
 
 class RLlibMahjongEnv:
     def __init__(self):
