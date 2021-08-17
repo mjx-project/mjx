@@ -4,46 +4,10 @@ import torch.nn
 import gym
 import numpy
 
-#env = gym.make('CartPole-v0')
-import mjx.env
-env = mjx.env.SingleAgentEnv()
 
-obs_size = env.observation_space["real_obs"].low.size
-n_actions = env.action_space.n
-print('obs_size:', obs_size)
-print('n_actions:', n_actions)
-
-q_func = torch.nn.Sequential(
-    torch.nn.Linear(obs_size, 50),
-    torch.nn.ReLU(),
-    torch.nn.Linear(50, 50),
-    torch.nn.ReLU(),
-    torch.nn.Linear(50, n_actions),
-    pfrl.q_functions.DiscreteActionValueHead(),
-)
-
-# Use Adam to optimize q_func. eps=1e-2 is for stability.
-optimizer = torch.optim.Adam(q_func.parameters(), eps=1e-2)
-
-
-# Set the discount factor that discounts future rewards.
-gamma = 0.9
-
-# Use epsilon-greedy for exploration
-explorer = pfrl.explorers.ConstantEpsilonGreedy(
-    epsilon=0.3, random_action_func=env.action_space.sample)
-
-# DQN uses Experience Replay.
-# Specify a replay buffer and its capacity.
-replay_buffer = pfrl.replay_buffers.ReplayBuffer(capacity=10 ** 6)
-
-# Since observations from CartPole-v0 is numpy.float64 while
-# As PyTorch only accepts numpy.float32 by default, specify
-# a converter as a feature extractor function phi.
-phi = lambda x: x["real_obs"].astype(numpy.float32, copy=False)
-
-# Set the device id to use GPU. To use CPU only, set it to -1.
-gpu = -1
+####################
+# patch: action mask
+####################
 
 from pfrl.agents import dqn
 from pfrl.utils import evaluating
@@ -120,6 +84,10 @@ class DoubleDQN(dqn.DQN):
 
         return batch_rewards + discount * (1.0 - batch_terminal) * next_q_max
 
+    def act(self, obs: Any) -> Any:
+        random_action_func.set_mask(obs["action_mask"])
+        return self.batch_act([obs])[0]
+
     def batch_act(self, batch_obs: Sequence[Any]) -> Sequence[Any]:
         with torch.no_grad(), evaluating(self.model):
             batch_av = self._evaluate_model_and_update_recurrent_states(batch_obs)
@@ -131,9 +99,6 @@ class DoubleDQN(dqn.DQN):
                 batch_argmax.append(
                         numpy.ma.masked_array(batch_av.q_values[i].detach().cpu().numpy(), mask).argmax()
                         )
-
-            for i in range(len(batch_obs)):
-                assert(batch_obs[i]["action_mask"][batch_argmax[i]] == 1)
 
         if self.training:
             batch_action = [
@@ -149,6 +114,111 @@ class DoubleDQN(dqn.DQN):
         else:
             batch_action = batch_argmax
         return batch_action
+
+
+
+from logging import getLogger
+
+import numpy as np
+
+from pfrl import explorer
+
+
+def select_action_epsilon_greedily(epsilon, random_action_func, greedy_action_func):
+    if np.random.rand() < epsilon:
+        return random_action_func(), False
+    else:
+        return greedy_action_func(), True
+
+
+class ConstantEpsilonGreedy(explorer.Explorer):
+    """Epsilon-greedy with constant epsilon.
+    Args:
+      epsilon: epsilon used
+      random_action_func: function with no argument that returns action
+      logger: logger used
+    """
+
+    def __init__(self, epsilon, random_action_func, logger=getLogger(__name__)):
+        assert epsilon >= 0 and epsilon <= 1
+        self.epsilon = epsilon
+        self.random_action_func = random_action_func
+        self.logger = logger
+
+    def select_action(self, t, greedy_action_func, action_value=None):
+        a, greedy = select_action_epsilon_greedily(
+            self.epsilon, self.random_action_func, greedy_action_func
+        )
+        greedy_str = "greedy" if greedy else "non-greedy"
+        self.logger.debug("t:%s a:%s %s", t, a, greedy_str)
+        return a
+
+    def __repr__(self):
+        return "ConstantEpsilonGreedy(epsilon={})".format(self.epsilon)
+
+
+
+###############
+
+
+#env = gym.make('CartPole-v0')
+import mjx.env
+env = mjx.env.SingleAgentEnv()
+
+obs_size = env.observation_space["real_obs"].low.size
+n_actions = env.action_space.n
+print('obs_size:', obs_size)
+print('n_actions:', n_actions)
+
+q_func = torch.nn.Sequential(
+    torch.nn.Linear(obs_size, 50),
+    torch.nn.ReLU(),
+    torch.nn.Linear(50, 50),
+    torch.nn.ReLU(),
+    torch.nn.Linear(50, n_actions),
+    pfrl.q_functions.DiscreteActionValueHead(),
+)
+
+# Use Adam to optimize q_func. eps=1e-2 is for stability.
+optimizer = torch.optim.Adam(q_func.parameters(), eps=1e-2)
+
+
+# Set the discount factor that discounts future rewards.
+gamma = 0.9
+
+
+class RandomActionFunction:
+    def __init__(self, n_actions: int):
+        self.actions = list(range(n_actions))
+        self.prob = [1.0 / n_actions] * n_actions
+
+    def set_mask(self, mask):
+        assert(n_actions == len(mask))
+        self.prob = mask / sum(mask)
+
+    def __call__(self):
+        return numpy.random.choice(self.actions, p=self.prob)
+
+random_action_func = RandomActionFunction(n_actions)
+
+# Use epsilon-greedy for exploration
+#explorer = pfrl.explorers.ConstantEpsilonGreedy(
+#    epsilon=0.3, random_action_func=env.action_space.sample)
+explorer = pfrl.explorers.ConstantEpsilonGreedy(
+    epsilon=0.3, random_action_func=random_action_func)
+
+
+# DQN uses Experience Replay.
+# Specify a replay buffer and its capacity.
+replay_buffer = pfrl.replay_buffers.ReplayBuffer(capacity=10 ** 6)
+
+# Since observations from CartPole-v0 is numpy.float64 while
+# As PyTorch only accepts numpy.float32 by default, specify
+# a converter as a feature extractor function phi.
+phi = lambda x: x["real_obs"].astype(numpy.float32, copy=False)
+
+# Set the device id to use GPU. To use CPU only, set it to -1.
+gpu = -1
 
 
 # Now create an agent that will interact with the environment.
@@ -170,7 +240,6 @@ agent = DoubleDQN(
 n_episodes = 300
 max_episode_len = 200
 for i in range(1, n_episodes + 1):
-    print('i:', i)
     obs = env.reset()
     R = 0  # return (sum of rewards)
     t = 0  # time step
@@ -179,6 +248,7 @@ for i in range(1, n_episodes + 1):
         # env.render()
         action = agent.act(obs)
 
+        # Assertion: valid action
         assert(obs["action_mask"][action] == 1)
 
         obs, reward, done, _ = env.step(action)
