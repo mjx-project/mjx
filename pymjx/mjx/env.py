@@ -1,5 +1,66 @@
+import random
+
 import gym
 import numpy as np
+
+
+class SingleAgentEnv(gym.Env):
+    """player_0 is controllable. Other player is random agents."""
+
+    def __init__(self):
+        super().__init__()
+        self.env = RLlibMahjongEnv()
+        self.action_dict = {}
+
+        # consts
+        self.agent_id = "player_0"
+        self.num_actions = 181  # TODO: use val from self.env
+        self.num_features = 340  # TODO: use val from self.env
+        self.observation_space = gym.spaces.Dict(
+            {
+                "action_mask": gym.spaces.Box(0, 1, shape=(self.num_actions,)),
+                "real_obs": gym.spaces.Box(0, 1, shape=(self.num_features,)),
+            }
+        )
+        self.action_space = gym.spaces.Discrete(self.num_actions)
+
+    def reset(self):
+        obs_dict = self.env.reset()
+        while True:
+            self.action_dict = {}
+            for agent, obs in obs_dict.items():
+                if agent == self.agent_id:
+                    continue
+                self.action_dict[agent] = self.random_action(obs)
+
+            if self.agent_id in obs_dict:
+                return obs
+            else:
+                obs_dict, rewards, dones, infos = self.env.step(self.action_dict)
+
+    def step(self, action):
+        self.action_dict[self.agent_id] = action
+        obs_dict, rewards, dones, infos = self.env.step(self.action_dict)
+        while True:
+            self.action_dict = {}
+            for agent, obs in obs_dict.items():
+                if agent == self.agent_id:
+                    continue
+                self.action_dict[agent] = self.random_action(obs)
+
+            if self.agent_id in obs_dict:
+                return (
+                    obs_dict[self.agent_id],
+                    rewards[self.agent_id],
+                    dones[self.agent_id],
+                    infos[self.agent_id],
+                )
+            else:
+                obs_dict, rewards, dones, infos = self.env.step(self.action_dict)
+
+    def random_action(self, obs):
+        legal_actions = [i for i, b in enumerate(obs["action_mask"]) if b]
+        return random.choice(legal_actions)
 
 
 class RLlibMahjongEnv:
@@ -12,7 +73,7 @@ class RLlibMahjongEnv:
 
         # consts
         self.num_actions = 181  # TODO: use val from self.env
-        self.num_features = 34 * 4  # TODO: use val from self.env
+        self.num_features = 340  # TODO: use val from self.env
         self.observation_space = gym.spaces.Dict(
             {
                 "action_mask": gym.spaces.Box(0, 1, shape=(self.num_actions,)),
