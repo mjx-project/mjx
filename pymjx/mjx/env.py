@@ -24,7 +24,6 @@ class SingleAgentEnv(gym.Env):
         )
         self.action_space = gym.spaces.Discrete(self.num_actions)
 
-
     def reset(self):
         obs_dict = self.env.reset()
         while True:
