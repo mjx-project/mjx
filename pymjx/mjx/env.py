@@ -2,6 +2,21 @@ import gym
 import numpy as np
 
 
+class SingleAgentEnv(gym.Env):
+    """player_0 is controllable. Other player is random agents."""
+
+    def __init__(self):
+        super().__init__()
+        self.env = RLlibMahjongEnv()
+        self.agent_id = "player_0"
+
+    def reset(self, action):
+        pass
+
+    def step(self, action):
+        pass
+
+
 class RLlibMahjongEnv:
     def __init__(self):
         import mjx._mjx as _mjx
