@@ -68,8 +68,10 @@ def test_RLlibMahjongEnv():
     obs_dict = env.reset()
     dones = {"__all__": False}
     while not dones["__all__"]:
-        action_dict = {agent: random.choice(obs.legal_actions())
-                       for agent, obs in obs_dict.items()}
+        action_dict = {}
+        for agent, obs in obs_dict.items():
+            legal_actions = [i for i, b in enumerate(obs["action_mask"]) if b]
+            action_dict[agent] = random.choice(legal_actions)
         obs_dict, rewards, dones, info = env.step(action_dict)
     assert len(rewards) == 4
     assert rewards['player_0'] == 0
