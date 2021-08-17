@@ -199,7 +199,7 @@ std::vector<float> Observation::small_v0() const {
     }();
 
     if (target_tile.has_value()) {
-      tmp[target_tile.value().Id() / 4] = 1;
+      tmp[target_tile.value().TypeUint()] = 1;
     }
     std::copy(tmp.begin(), tmp.end(), std::back_inserter(feature));
   }
@@ -219,7 +219,7 @@ std::vector<float> Observation::small_v0() const {
     }();
 
     if (drawed_tile.has_value()) {
-      tmp[drawed_tile.value().Id() / 4] = 1;
+      tmp[drawed_tile.value().TypeUint()] = 1;
     }
     std::copy(tmp.begin(), tmp.end(), std::back_inserter(feature));
   }
