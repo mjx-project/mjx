@@ -1,7 +1,30 @@
 import random
+from typing import Dict
 
 import gym
 import numpy as np
+
+import mjx
+
+
+class MjxEnv:
+    
+    def __init__():
+        import mjx._mjx as _mjx
+
+        self.env_ = _mjx.MjxEnv()
+
+    def reset(self) -> Dict[str, mjx.Observation]:
+        pass
+
+    def step(self, aciton_dict: Dict[str, mjx.Action]) -> Dict[str, mjx.Observation]:
+        pass
+
+    def done() -> bool:
+        return self.env_.done()
+
+    def rewards() -> Dict[str, int]:
+        return self.env_.rewards()
 
 
 class SingleAgentEnv(gym.Env):
