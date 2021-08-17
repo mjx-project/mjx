@@ -2,6 +2,19 @@ import mjx.env
 import random
 
 
+def test_SingleAgentEnv():
+    random.seed(1234)
+    env = mjx.env.SingleAgentEnv()
+    env.seed(1234)
+    obs = env.reset()
+    done = False
+    while not done:
+        legal_actions = [i for i, b in enumerate(obs["action_mask"]) if b]
+        action = random.choice(legal_actions)
+        obs, reward, done, info = env.step(action)
+    assert reward == 0
+
+
 def test_RLlibMahjongEnv():
     random.seed(1234)
     env = mjx.env.RLlibMahjongEnv()
@@ -22,4 +35,5 @@ def test_RLlibMahjongEnv():
 
 
 if __name__ == '__main__':
+    test_SingleAgentEnv()
     test_RLlibMahjongEnv()
