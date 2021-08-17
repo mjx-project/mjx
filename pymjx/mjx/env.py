@@ -1,5 +1,6 @@
 import gym
 import numpy as np
+import random
 
 
 class SingleAgentEnv(gym.Env):
@@ -13,18 +14,18 @@ class SingleAgentEnv(gym.Env):
         self.action_dict = {}
 
     def reset(self):
-        obs_dict = self.reset()
+        obs_dict = self.env.reset()
         while True:
             self.action_dict = {}
-            for agent, obs in obs_dict:
+            for agent, obs in obs_dict.items():
                 if agent == self.agent_id:
                     continue
                 self.action_dict[agent] = self.random_action(obs)
             
-            if agent in obs_dict:
+            if self.agent_id in obs_dict:
                 return obs
             else:
-                self.env.step(self.action_dict)
+                obs_dict, rewards, dones, infos = self.env.step(self.action_dict)
 
 
     def step(self, action):
@@ -32,15 +33,15 @@ class SingleAgentEnv(gym.Env):
         obs_dict, rewards, dones, infos = self.env.step(self.action_dict)
         while True:
             self.action_dict = {}
-            for agent, obs in obs_dict:
+            for agent, obs in obs_dict.items():
                 if agent == self.agent_id:
                     continue
                 self.action_dict[agent] = self.random_action(obs)
 
-            if agent in obs_dict:
-                return obs_dict[self.agnet_id], rewards[self.agent_id], dones[self.agent_id], infos[self.agent_id]
+            if self.agent_id in obs_dict:
+                return obs_dict[self.agent_id], rewards[self.agent_id], dones[self.agent_id], infos[self.agent_id]
             else:
-                self.env.step(self.action_dict)
+                obs_dict, rewards, dones, infos = self.env.step(self.action_dict)
  
 
     def random_action(self, obs):
