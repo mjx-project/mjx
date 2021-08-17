@@ -178,6 +178,9 @@ for i in range(1, n_episodes + 1):
         # Uncomment to watch the behavior in a GUI window
         # env.render()
         action = agent.act(obs)
+
+        assert(obs["action_mask"][action] == 1)
+
         obs, reward, done, _ = env.step(action)
         R += reward
         t += 1
