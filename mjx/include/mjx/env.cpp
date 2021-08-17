@@ -64,7 +64,7 @@ std::unordered_map<PlayerId, int> MjxEnv::Rewards() const noexcept {
   const std::map<int, int> reward_map = {{1, 90}, {2, 45}, {3, 0}, {4, -135}};
   const auto ranking_dict = state().CalculateRankingDict();
   std::unordered_map<PlayerId, int> rewards;
-  for (const auto& [player_id, ranking]: ranking_dict) {
+  for (const auto& [player_id, ranking] : ranking_dict) {
     rewards[player_id] = reward_map.at(ranking);
   }
   return rewards;
