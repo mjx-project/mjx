@@ -10,9 +10,20 @@ class SingleAgentEnv(gym.Env):
     def __init__(self):
         super().__init__()
         self.env = RLlibMahjongEnv()
-        self.agent_id = "player_0"
-
         self.action_dict = {}
+
+        # consts
+        self.agent_id = "player_0"
+        self.num_actions = 181  # TODO: use val from self.env
+        self.num_features = 340  # TODO: use val from self.env
+        self.observation_space = gym.spaces.Dict(
+            {
+                "action_mask": gym.spaces.Box(0, 1, shape=(self.num_actions,)),
+                "real_obs": gym.spaces.Box(0, 1, shape=(self.num_features,)),
+            }
+        )
+        self.action_space = gym.spaces.Discrete(self.num_actions)
+
 
     def reset(self):
         obs_dict = self.env.reset()
@@ -63,7 +74,7 @@ class RLlibMahjongEnv:
 
         # consts
         self.num_actions = 181  # TODO: use val from self.env
-        self.num_features = 34 * 4  # TODO: use val from self.env
+        self.num_features = 340  # TODO: use val from self.env
         self.observation_space = gym.spaces.Dict(
             {
                 "action_mask": gym.spaces.Box(0, 1, shape=(self.num_actions,)),
