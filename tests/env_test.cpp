@@ -14,7 +14,8 @@ TEST(env, MjxEnv) {
 
   // observe_all=false
   auto env = mjx::MjxEnv();
-  observations = env.Reset(1234);
+  env.Seed(1234);
+  observations = env.Reset();
   while (!env.Done()) {
     {
       std::unordered_map<mjx::PlayerId, mjx::Action> action_dict;
@@ -40,7 +41,8 @@ TEST(env, MjxEnv) {
 
   // observe_all=true
   auto env_all = mjx::MjxEnv(true);
-  observations = env_all.Reset(1234);
+  env_all.Seed(1234);
+  observations = env_all.Reset();
   EXPECT_EQ(observations.size(), 4);
   while (!env_all.Done()) {
     {
