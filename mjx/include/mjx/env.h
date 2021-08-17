@@ -17,6 +17,7 @@ class MjxEnv {
   std::unordered_map<PlayerId, Observation> Step(
       const std::unordered_map<PlayerId, mjx::Action>& action_dict) noexcept;
   bool Done() const noexcept;
+  std::unordered_map<PlayerId, int> Rewards() const noexcept; // TDOO: reward type
 
   // accessors
   State state() const noexcept;

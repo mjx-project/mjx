@@ -32,6 +32,11 @@ TEST(env, MjxEnv) {
   for (int i = 0; i < 4; ++i) {
     EXPECT_EQ(tens[i], expected_tens[player_ids[i]]);
   }
+  auto rewards = env.Rewards();
+  EXPECT_EQ(rewards["player_0"], 45);
+  EXPECT_EQ(rewards["player_1"], 0);
+  EXPECT_EQ(rewards["player_2"], -135);
+  EXPECT_EQ(rewards["player_3"], 90);
 
   // observe_all=true
   auto env_all = mjx::MjxEnv(true);
