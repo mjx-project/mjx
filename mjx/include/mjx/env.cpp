@@ -71,9 +71,7 @@ std::unordered_map<PlayerId, int> MjxEnv::Rewards() const noexcept {
   }
   return rewards;
 }
-void MjxEnv::Seed(std::uint64_t seed) noexcept {
-  game_seed_ = seed;
-}
+void MjxEnv::Seed(std::uint64_t seed) noexcept { game_seed_ = seed; }
 
 mjx::RLlibMahjongEnv::RLlibMahjongEnv() {}
 
@@ -199,7 +197,9 @@ void PettingZooMahjongEnv::Step(Action action) noexcept {
   }
 }
 
-void PettingZooMahjongEnv::Seed(std::uint64_t seed) noexcept { env_.Seed(seed) ; }
+void PettingZooMahjongEnv::Seed(std::uint64_t seed) noexcept {
+  env_.Seed(seed);
+}
 
 Observation PettingZooMahjongEnv::Observe(
     const PlayerId& agent) const noexcept {
