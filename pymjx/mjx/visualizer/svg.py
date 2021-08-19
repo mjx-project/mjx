@@ -165,11 +165,19 @@ def make_svg(filename: str, mode: str, page: int):
     dwg.add(dwg.text("".join(doras), (337, 400), style="font-size:40;font-family:GL-MahjongTile;"))
 
     # bou
-    thousand_mini_img = dwg.image("http://drive.google.com/uc?id=12TtHohmEvylFUqSmvCQzG1hO7hdErG6S")
+    thousand_mini_img = dwg.image(
+        "http://drive.google.com/uc?id=12TtHohmEvylFUqSmvCQzG1hO7hdErG6S"
+    )
     thousand_mini_img.translate(335, 405)
     thousand_mini_img.scale(0.15)
     dwg.add(thousand_mini_img)
-    dwg.add(dwg.text(f"×{sample_data.riichi}",(355, 430),style="font-size:22;font-family:serif;",))
+    dwg.add(
+        dwg.text(
+            f"×{sample_data.riichi}",
+            (355, 430),
+            style="font-size:22;font-family:serif;",
+        )
+    )
     hundred_mini_img = dwg.image("http://drive.google.com/uc?id=13v91ayZQXzXMM0uMKRPoa9MqIq-x7IHy")
     hundred_mini_img.translate(405, 405)
     hundred_mini_img.scale(0.15)
@@ -249,7 +257,7 @@ def make_svg(filename: str, mode: str, page: int):
                     rotate=True,
                 )
 
-                if discard[2]: # tsumogiri
+                if discard[2]:  # tsumogiri
                     dwg_add(
                         dwg,
                         pai[i],
