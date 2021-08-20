@@ -45,6 +45,8 @@ class AgentSmallV0:
         self.net.load_state_dict(torch.load(MODEL_DIR + "/" + name + ".pt"))
 
     def take_action(self, obs):
+        import mjx._mjx as _mjx
+
         # filter [0, 180) and select argmax
         legal_actions = obs.legal_actions()
 
@@ -58,7 +60,5 @@ class AgentSmallV0:
             mask[a.to_idx()] = False
 
         selected = np.ma.masked_array(output.detach().numpy().copy(), mask).argmax()
-
-        import mjx._mjx as _mjx
 
         return _mjx.Action(selected, legal_actions)
