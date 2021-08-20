@@ -1,4 +1,3 @@
-#include <mjx/agent.h>
 #include <mjx/env.h>
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
@@ -33,9 +32,4 @@ PYBIND11_MODULE(_mjx, m) {
       .def("reset", &mjx::RLlibMahjongEnv::Reset)
       .def("step", &mjx::RLlibMahjongEnv::Step)
       .def("seed", &mjx::RLlibMahjongEnv::Seed);
-
-  py::class_<mjx::Agent>(m, "Agent")
-      .def(py::init<>())
-      .def(py::init<const std::string&>())
-      .def("take_action", &mjx::Agent::TakeAction);
 }
