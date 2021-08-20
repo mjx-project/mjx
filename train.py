@@ -165,19 +165,38 @@ class ConstantEpsilonGreedy(explorer.Explorer):
 import mjx.env
 env = mjx.env.SingleAgentEnv()
 
+
+class QFunction(torch.nn.Module):
+
+    def __init__(self, obs_size, n_actions, num_layers, num_units):
+        super().__init__()
+        self.linears = torch.nn.ModuleList([torch.nn.Linear(
+            obs_size, num_units)])
+        self.linears.extend([torch.nn.Linear(num_units, num_units) for _ in range(num_layers)])
+        self.fc = torch.nn.Linear(num_units, n_actions)
+
+    def forward(self, x):
+        for linear in self.linears:
+            x = linear(x)
+            x = F.relu(x)
+        x = self.fc(x)
+        return pfrl.action_value.DiscreteActionValue(x)
+
 obs_size = env.observation_space["real_obs"].low.size
 n_actions = env.action_space.n
-print('obs_size:', obs_size)
-print('n_actions:', n_actions)
 
-q_func = torch.nn.Sequential(
-    torch.nn.Linear(obs_size, 50),
-    torch.nn.ReLU(),
-    torch.nn.Linear(50, 50),
-    torch.nn.ReLU(),
-    torch.nn.Linear(50, n_actions),
-    pfrl.q_functions.DiscreteActionValueHead(),
-)
+num_layers = 2
+num_units = 2048
+
+#q_func = QFunction(obs_size, n_actions, num_layers, num_units)
+
+# use pretrained model
+lr = 1e-3
+name = f"small_v0_not_jit-lr={lr}-num_layers={num_layers}-num_units={num_units}"
+MODEL_DIR = "/Users/habarakeigo/ghq/github.com/mjx-project/mjx/pymjx/mjx/resources" # FIXME
+q_func = QFunction(obs_size, n_actions, num_layers, num_units)
+q_func.load_state_dict(torch.load(MODEL_DIR + '/' + name + '.pt'))
+
 
 # Use Adam to optimize q_func. eps=1e-2 is for stability.
 optimizer = torch.optim.Adam(q_func.parameters(), eps=1e-2)
@@ -237,9 +256,14 @@ agent = DoubleDQN(
 )
 
 
-n_episodes = 300
-max_episode_len = 200
+#n_episodes = 300
+n_episodes = 10
+#max_episode_len = 200
+max_episode_len = 400
+avg_results = []
+sum_reward = 0
 for i in range(1, n_episodes + 1):
+    print('i:', i)
     obs = env.reset()
     R = 0  # return (sum of rewards)
     t = 0  # time step
@@ -258,11 +282,19 @@ for i in range(1, n_episodes + 1):
         agent.observe(obs, reward, done, reset)
         if done or reset:
             break
+    sum_reward += R
+    avg_results.append(sum_reward / i)
     if i % 10 == 0:
         print('episode:', i, 'R:', R)
     if i % 50 == 0:
         print('statistics:', agent.get_statistics())
 print('Finished.')
+
+
+import matplotlib.pyplot as plt
+print('avg_results:', avg_results)
+plt.plot(avg_results)
+plt.show()
 
 
 with agent.eval_mode():
@@ -277,7 +309,7 @@ with agent.eval_mode():
             obs, r, done, _ = env.step(action)
             R += r
             t += 1
-            reset = t == 200
+            reset = t == max_episode_len
             agent.observe(obs, r, done, reset)
             if done or reset:
                 break
