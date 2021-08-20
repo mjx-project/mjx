@@ -15,14 +15,12 @@ import numpy as np
 import torch
 import torch.nn.functional as F
 
+
 class AgentSmallV0:
-
-
     class Net(torch.nn.Module):
         def __init__(self, num_in, num_out, num_layers, num_units):
             super().__init__()
-            self.linears = torch.nn.ModuleList([torch.nn.Linear(
-                num_in, num_units)])
+            self.linears = torch.nn.ModuleList([torch.nn.Linear(num_in, num_units)])
             self.linears.extend([torch.nn.Linear(num_units, num_units) for _ in range(num_layers)])
             self.fc = torch.nn.Linear(num_units, num_out)
 
@@ -40,10 +38,11 @@ class AgentSmallV0:
         num_units = 2048
         lr = 1e-3
         name = f"small_v0_not_jit-lr={lr}-num_layers={num_layers}-num_units={num_units}"
-        MODEL_DIR = "/Users/habarakeigo/ghq/github.com/mjx-project/mjx/pymjx/mjx/resources" # FIXME
-        self.net = self.Net(34*10, 180, num_layers, num_units)
-        self.net.load_state_dict(torch.load(MODEL_DIR + '/' + name + '.pt'))
-
+        MODEL_DIR = (
+            "/Users/habarakeigo/ghq/github.com/mjx-project/mjx/pymjx/mjx/resources"  # FIXME
+        )
+        self.net = self.Net(34 * 10, 180, num_layers, num_units)
+        self.net.load_state_dict(torch.load(MODEL_DIR + "/" + name + ".pt"))
 
     def take_action(self, obs):
         # filter [0, 180) and select argmax
@@ -61,4 +60,5 @@ class AgentSmallV0:
         selected = np.ma.masked_array(output.detach().numpy().copy(), mask).argmax()
 
         import mjx._mjx as _mjx
+
         return _mjx.Action(selected, legal_actions)
