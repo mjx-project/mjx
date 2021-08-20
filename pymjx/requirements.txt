@@ -12,5 +12,6 @@ mypy
 mypy-protobuf==1.24  # TODO: update version
 tenhou_wall_reproducer
 types-protobuf
+torch
 rich 
 gym
