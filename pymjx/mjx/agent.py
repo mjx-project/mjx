@@ -1,3 +1,8 @@
+import numpy as np
+import torch
+import torch.nn.functional as F
+
+
 class Agent:
     def __init__(self, strategy: str):
         import mjx._mjx as _mjx
@@ -9,11 +14,6 @@ class Agent:
 
     def take_action(self, obs):
         return self.agent.take_action(obs)
-
-
-import numpy as np
-import torch
-import torch.nn.functional as F
 
 
 class AgentSmallV0:
