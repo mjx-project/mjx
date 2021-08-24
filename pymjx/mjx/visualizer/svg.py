@@ -1,7 +1,13 @@
 import os
 
 import svgwrite
-from mjx.visualizer.visualizer import *
+from mjx.visualizer.visualizer import (
+    FromWho,
+    MahjongTable,
+    TileUnitType,
+    get_tile_char,
+    get_wind_char,
+)
 
 
 def dwg_add(dwg_p, dwg_g, pos, txt, rotate=False):
