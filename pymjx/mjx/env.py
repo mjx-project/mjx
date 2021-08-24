@@ -100,10 +100,12 @@ class PettingZooMahjongEnv:
 
     def step(self, action: int):
         import mjx._mjx as _mjx
-
+        if action is None:
+            action = 180
         self.env.step(_mjx.Action(action, self.legal_actions))
-        obs = self.env.last(True)[0]
-        self._update_legal_actions(obs)
+        if self.agent_selection() is not None:
+            obs = self.env.last(True)[0]
+            self._update_legal_actions(obs)
 
     def seed(self, seed):
         self.env.seed(seed)
@@ -121,9 +123,6 @@ class PettingZooMahjongEnv:
         return self.env.agent_selection()
 
     def agent_iter(self, max_iter=2 ** 63):
-        count = 0
-        done_count = 0
-        while done_count < 5 and count < max_iter:
+        while self.agent_selection() is not None and max_iter > 0:
             yield self.agent_selection()
-            count += 1
-            done_count += self.last(False)[2]
+            max_iter -= 1
