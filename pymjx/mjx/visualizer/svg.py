@@ -12,9 +12,9 @@ from mjx.visualizer.visualizer import (
 
 def dwg_add(dwg_p, dwg_g, pos, txt, rotate=False):
     if rotate:
-        if txt == "\U0001F004\uFE0E":
+        if txt[1]:
             horizontal_tiles = [
-                dwg_p.text(txt, insert=(0, 0), fill="red"),
+                dwg_p.text(txt[0], insert=(0, 0), fill="red"),
                 dwg_p.text(
                     "\U0001F006",
                     insert=(0, 0),
@@ -29,13 +29,13 @@ def dwg_add(dwg_p, dwg_g, pos, txt, rotate=False):
                 horizontal_tile.translate(pos)
                 dwg_g.add(horizontal_tile)
         else:
-            horizontal_tile = dwg_p.text(txt, insert=(0, 0))
+            horizontal_tile = dwg_p.text(txt[0], insert=(0, 0))
             horizontal_tile.rotate(90, (0, 0))
             horizontal_tile.translate(pos)
             dwg_g.add(horizontal_tile)
     else:
-        if txt == "\U0001F004\uFE0E":
-            dwg_g.add(dwg_p.text(txt, pos, fill="red"))
+        if txt[1]:
+            dwg_g.add(dwg_p.text(txt[0], pos, fill="red"))
             dwg_g.add(
                 dwg_p.text(
                     "\U0001F006", pos, stroke=svgwrite.rgb(255, 255, 255, "%"), fill="white"
@@ -43,7 +43,7 @@ def dwg_add(dwg_p, dwg_g, pos, txt, rotate=False):
             )
             dwg_g.add(dwg_p.text("\U0001F006", pos, fill="black"))
         else:
-            dwg_g.add(dwg_p.text(txt, pos))
+            dwg_g.add(dwg_p.text(txt[0], pos))
 
 
 def make_svg(filename: str, mode: str, page: int):
@@ -52,6 +52,7 @@ def make_svg(filename: str, mode: str, page: int):
     char_width = 32  # 45:28.8,60:38.4
     char_height = 44  # 45:40.5,60:53
     chi_width = char_width * 2 + char_height
+    red_hai = [16, 52, 88]
 
     data = MahjongTable.load_data(filename, mode)
     sample_data = data[page]
@@ -94,16 +95,24 @@ def make_svg(filename: str, mode: str, page: int):
 
         for t_u in sample_data.players[i].tile_units:
             if t_u.tile_unit_type == TileUnitType.HAND:
-                hands[i] = [
-                    "\U0001F02B" if not tile.is_open else get_tile_char(tile.id, True)
-                    for tile in t_u.tiles
-                ]
+                for tile in t_u.tiles:
+                    hands[i].append(
+                        [
+                            [
+                                "\U0001F02B" if not tile.is_open else get_tile_char(tile.id, True),
+                                tile.id in red_hai,
+                            ]
+                        ]
+                    )
 
             if t_u.tile_unit_type == TileUnitType.DISCARD:
                 for tile in t_u.tiles:
                     discards[i].append(
                         [
-                            get_tile_char(tile.id, True),
+                            [
+                                get_tile_char(tile.id, True),
+                                tile.id in red_hai,
+                            ],
                             tile.with_riichi,
                             tile.is_tsumogiri,
                         ]
@@ -111,35 +120,35 @@ def make_svg(filename: str, mode: str, page: int):
             if t_u.tile_unit_type == TileUnitType.CHI:
                 chis[i].append(
                     [
-                        [get_tile_char(tile.id, True) for tile in t_u.tiles],
+                        [[get_tile_char(tile.id, True), tile.id in red_hai] for tile in t_u.tiles],
                         t_u.from_who,
                     ]
                 )
             if t_u.tile_unit_type == TileUnitType.PON:
                 pons[i].append(
                     [
-                        [get_tile_char(tile.id, True) for tile in t_u.tiles],
+                        [[get_tile_char(tile.id, True), tile.id in red_hai] for tile in t_u.tiles],
                         t_u.from_who,
                     ]
                 )
             if t_u.tile_unit_type == TileUnitType.CLOSED_KAN:
                 closed_kans[i].append(
                     [
-                        [get_tile_char(tile.id, True) for tile in t_u.tiles],
+                        [[get_tile_char(tile.id, True), tile.id in red_hai] for tile in t_u.tiles],
                         t_u.from_who,
                     ]
                 )
             if t_u.tile_unit_type == TileUnitType.OPEN_KAN:
                 open_kans[i].append(
                     [
-                        [get_tile_char(tile.id, True) for tile in t_u.tiles],
+                        [[get_tile_char(tile.id, True), tile.id in red_hai] for tile in t_u.tiles],
                         t_u.from_who,
                     ]
                 )
             if t_u.tile_unit_type == TileUnitType.ADDED_KAN:
                 added_kans[i].append(
                     [
-                        [get_tile_char(tile.id, True) for tile in t_u.tiles],
+                        [[get_tile_char(tile.id, True), tile.id in red_hai] for tile in t_u.tiles],
                         t_u.from_who,
                     ]
                 )
@@ -248,7 +257,8 @@ def make_svg(filename: str, mode: str, page: int):
         ) / 2
         # hand
         for j, hand in enumerate(hands[i]):
-            dwg_add(dwg, pai[i], (left_margin + j * char_width, 770), hand)
+            hand_txt = hand[0]
+            dwg_add(dwg, pai[i], (left_margin + j * char_width, 770), hand_txt)
 
         # discard
         riichi_idx = 100000
@@ -269,7 +279,7 @@ def make_svg(filename: str, mode: str, page: int):
                         dwg,
                         pai[i],
                         (535 + (j // 6) * char_height, -307 - (j % 6) * char_width),
-                        "\U0001F02B",
+                        ["\U0001F02B", False],
                         rotate=True,
                     )
 
@@ -292,7 +302,7 @@ def make_svg(filename: str, mode: str, page: int):
                             304 + char_height - char_width + (j % 6) * char_width,
                             570 + (j // 6) * char_height,
                         ),
-                        "\U0001F02B",
+                        ["\U0001F02B", False],
                     )
             else:
                 dwg_add(
@@ -307,7 +317,7 @@ def make_svg(filename: str, mode: str, page: int):
                         dwg,
                         pai[i],
                         (304 + (j % 6) * char_width, 570 + (j // 6) * char_height),
-                        "\U0001F02B",
+                        ["\U0001F02B", False],
                     )
 
         # chi
