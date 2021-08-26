@@ -96,7 +96,7 @@ class MahjongTable:
         all = 136 - 14
         for p in self.players:
             for t_u in p.tile_units:
-                all -= len(t_u.tiles)
+                all -= len([tile for tile in t_u.tiles if not tile.is_transparent])
         return all
 
     def check_num_tiles(self) -> bool:
