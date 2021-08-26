@@ -191,7 +191,7 @@ def make_svg(filename: str, mode: str, page: int):
 
     # bou
     thousand_mini_img = dwg.image(
-        "http://drive.google.com/uc?id=12TtHohmEvylFUqSmvCQzG1hO7hdErG6S"
+        "https://raw.githubusercontent.com/mjx-project/mjx/master/pymjx/mjx/visualizer/1000_mini.svg?token=ARMTVMERZ33ACLMTKKJRI2LBE6AG2"
     )
     thousand_mini_img.translate(335, 405)
     thousand_mini_img.scale(0.15)
@@ -203,7 +203,9 @@ def make_svg(filename: str, mode: str, page: int):
             style="font-size:22;font-family:serif;",
         )
     )
-    hundred_mini_img = dwg.image("http://drive.google.com/uc?id=13v91ayZQXzXMM0uMKRPoa9MqIq-x7IHy")
+    hundred_mini_img = dwg.image(
+        "https://raw.githubusercontent.com/mjx-project/mjx/master/pymjx/mjx/visualizer/100_mini.svg?token=ARMTVME6PM4HHDYXYXD7ZLLBE6AIK"
+    )
     hundred_mini_img.translate(405, 405)
     hundred_mini_img.scale(0.15)
     dwg.add(hundred_mini_img)
@@ -247,7 +249,7 @@ def make_svg(filename: str, mode: str, page: int):
         # riichi_bou
         if is_riichi[i]:
             thousand_img = dwg.image(
-                href="http://drive.google.com/uc?id=1UZk4EgZudG7Xv7SxkPPRrxRf9vDW657P"
+                href="https://raw.githubusercontent.com/mjx-project/mjx/master/pymjx/mjx/visualizer/1000.svg?token=ARMTVMGS7B6SMOFUME2NNITBE572M"
             )
             thousand_img.translate(476, 485)
             thousand_img.scale(0.4)

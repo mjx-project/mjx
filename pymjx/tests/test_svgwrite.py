@@ -11,7 +11,7 @@ def test_svg():
     )
     files = glob.glob(obs_files)
     for file in files:
-        for i in range(20):
+        for i in range(10):
             make_svg(file, mode, i)
 
     mode = "sta"
