@@ -6,7 +6,7 @@ from mjx.visualizer.visualizer import GameBoardVisualizer, GameVisualConfig, Mah
 
 def test_visualizer():
     mode = "obs"
-    show = False
+    show = True
     obs_files = os.path.join(
         os.path.dirname(os.path.abspath(__file__)), "resources/observation/*.json"
     )

@@ -10,18 +10,22 @@ from mjx.visualizer.visualizer import (
 )
 
 
-def dwg_add(dwg_p, dwg_g, pos, txt, rotate=False):
+def dwg_add(dwg_p, dwg_g, pos, txt, rotate=False, transparent=False):
+    opacity = 1.0
+    if transparent:
+        opacity = 0.5
+
     if rotate:
         if txt[1]:
             horizontal_tiles = [
-                dwg_p.text(txt[0], insert=(0, 0), fill="red"),
+                dwg_p.text(txt[0], insert=(0, 0), fill="red", opacity=opacity),
                 dwg_p.text(
                     "\U0001F006",
                     insert=(0, 0),
                     stroke=svgwrite.rgb(255, 255, 255, "%"),
                     fill="white",
                 ),
-                dwg_p.text("\U0001F006", insert=(0, 0), fill="black"),
+                dwg_p.text("\U0001F006", insert=(0, 0), fill="black", opacity=opacity),
             ]
 
             for horizontal_tile in horizontal_tiles:
@@ -29,21 +33,25 @@ def dwg_add(dwg_p, dwg_g, pos, txt, rotate=False):
                 horizontal_tile.translate(pos)
                 dwg_g.add(horizontal_tile)
         else:
-            horizontal_tile = dwg_p.text(txt[0], insert=(0, 0))
+            horizontal_tile = dwg_p.text(txt[0], insert=(0, 0), opacity=opacity)
             horizontal_tile.rotate(90, (0, 0))
             horizontal_tile.translate(pos)
             dwg_g.add(horizontal_tile)
     else:
         if txt[1]:
-            dwg_g.add(dwg_p.text(txt[0], pos, fill="red"))
+            dwg_g.add(dwg_p.text(txt[0], pos, fill="red", opacity=opacity))
             dwg_g.add(
                 dwg_p.text(
-                    "\U0001F006", pos, stroke=svgwrite.rgb(255, 255, 255, "%"), fill="white"
+                    "\U0001F006",
+                    pos,
+                    stroke=svgwrite.rgb(255, 255, 255, "%"),
+                    fill="white",
+                    opacity=opacity,
                 )
             )
-            dwg_g.add(dwg_p.text("\U0001F006", pos, fill="black"))
+            dwg_g.add(dwg_p.text("\U0001F006", pos, fill="black", opacity=opacity))
         else:
-            dwg_g.add(dwg_p.text(txt[0], pos))
+            dwg_g.add(dwg_p.text(txt[0], pos, opacity=opacity))
 
 
 def make_svg(filename: str, mode: str, page: int):
@@ -115,6 +123,7 @@ def make_svg(filename: str, mode: str, page: int):
                             ],
                             tile.with_riichi,
                             tile.is_tsumogiri,
+                            tile.is_transparent,
                         ]
                     )
             if t_u.tile_unit_type == TileUnitType.CHI:
@@ -272,6 +281,7 @@ def make_svg(filename: str, mode: str, page: int):
                     (535 + (j // 6) * char_height, -307 - (j % 6) * char_width),
                     discard_txt,
                     rotate=True,
+                    transparent=discard[3],  # 鳴かれた
                 )
 
                 if discard[2]:  # tsumogiri
@@ -281,6 +291,7 @@ def make_svg(filename: str, mode: str, page: int):
                         (535 + (j // 6) * char_height, -307 - (j % 6) * char_width),
                         ["\U0001F02B", False],
                         rotate=True,
+                        transparent=discard[3],
                     )
 
             elif (riichi_idx < j) and (j // 6 == riichi_idx // 6):
@@ -292,6 +303,7 @@ def make_svg(filename: str, mode: str, page: int):
                         570 + (j // 6) * char_height,
                     ),
                     discard_txt,
+                    transparent=discard[3],
                 )
 
                 if discard[2]:
@@ -303,6 +315,7 @@ def make_svg(filename: str, mode: str, page: int):
                             570 + (j // 6) * char_height,
                         ),
                         ["\U0001F02B", False],
+                        transparent=discard[3],
                     )
             else:
                 dwg_add(
@@ -310,6 +323,7 @@ def make_svg(filename: str, mode: str, page: int):
                     pai[i],
                     (304 + (j % 6) * char_width, 570 + (j // 6) * char_height),
                     discard_txt,
+                    transparent=discard[3],
                 )
 
                 if discard[2]:
@@ -318,6 +332,7 @@ def make_svg(filename: str, mode: str, page: int):
                         pai[i],
                         (304 + (j % 6) * char_width, 570 + (j // 6) * char_height),
                         ["\U0001F02B", False],
+                        transparent=discard[3],
                     )
 
         # chi

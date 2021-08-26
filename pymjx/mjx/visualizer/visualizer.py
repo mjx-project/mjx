@@ -43,6 +43,7 @@ class Tile:
         self.is_open = is_open
         self.is_tsumogiri = is_tsumogiri
         self.with_riichi = with_riichi
+        self.is_transparent = False  # 鳴かれた牌は透明にして河に表示
 
 
 class TileUnit:
@@ -131,9 +132,7 @@ class MahjongTable:
     def decode_private_observation(cls, table, private_observation, who: int):
         """
         MahjongTableのデータに、
-        - 手牌
-        - 鳴き牌
-        の情報を読み込ませる関数
+        手牌の情報を読み込ませる関数
         """
         table.players[who].tile_units.append(
             TileUnit(
@@ -142,24 +141,13 @@ class MahjongTable:
                 [Tile(i, is_open=True) for i in private_observation.curr_hand.closed_tiles],
             )
         )
-        for open in private_observation.curr_hand.opens:
-            table.players[who].tile_units.append(
-                TileUnit(
-                    open_event_type(open),
-                    open_from(open),
-                    [Tile(i, is_open=True) for i in open_tile_ids(open)],
-                )
-            )
-
         return table
 
     @classmethod
     def decode_public_observation(cls, table, public_observation):
         """
         MahjongTableのデータに、
-        - 手牌
-        - 鳴き牌
-        **以外**の情報を読み込ませる関数
+        手牌**以外**の情報を読み込ませる関数
         """
         table.round = public_observation.init_score.round + 1
         table.honba = public_observation.init_score.honba
@@ -208,6 +196,7 @@ class MahjongTable:
                             p.riichi_now = False
                         else:
                             t_u.tiles.append(Tile(eve.tile, is_open=True, is_tsumogiri=True))
+
             if eve.type == EventType.EVENT_TYPE_RIICHI:
                 p.riichi_now = True
 
@@ -230,18 +219,44 @@ class MahjongTable:
                 EventType.EVENT_TYPE_ADDED_KAN,
                 EventType.EVENT_TYPE_OPEN_KAN,
             ]:
-                idx_from = -1
-                if open_from(eve.open) == FromWho.LEFT:
-                    idx_from = (p.player_idx + 3) % 4
-                elif open_from(eve.open) == FromWho.MID:
-                    idx_from = (p.player_idx + 2) % 4
-                elif open_from(eve.open) == FromWho.RIGHT:
-                    idx_from = (p.player_idx + 1) % 4
+                if eve.type == EventType.EVENT_TYPE_ADDED_KAN:
+                    # added_kanのときにすでに存在するポンを取り除く処理
+                    p.tile_units = [
+                        t_u
+                        for t_u in p.tile_units
+                        if (
+                            t_u.tile_unit_type == TileUnitType.PON
+                            and t_u.tiles[0] // 4 == open_tile_ids(eve.open)[0] // 4
+                        )
+                    ]
 
-                p_from = table.players[idx_from]
-                for p_from_t_u in p_from.tile_units:
-                    if p_from_t_u.tile_unit_type == TileUnitType.DISCARD:
-                        p_from_t_u.tiles.pop(-1)
+                # 鳴き牌を追加する処理
+                p.tile_units.append(
+                    TileUnit(
+                        open_event_type(eve.open),
+                        open_from(eve.open),
+                        [Tile(i, is_open=True) for i in open_tile_ids(eve.open)],
+                    )
+                )
+
+                # 鳴かれた牌を透明にする処理
+                if eve.type in [
+                    EventType.EVENT_TYPE_CHI,
+                    EventType.EVENT_TYPE_PON,
+                    EventType.EVENT_TYPE_OPEN_KAN,
+                ]:
+                    idx_from = p.player_idx
+                    if open_from(eve.open) == FromWho.LEFT:
+                        idx_from = (p.player_idx + 3) % 4
+                    elif open_from(eve.open) == FromWho.MID:
+                        idx_from = (p.player_idx + 2) % 4
+                    elif open_from(eve.open) == FromWho.RIGHT:
+                        idx_from = (p.player_idx + 1) % 4
+
+                    p_from = table.players[idx_from]
+                    for p_from_t_u in p_from.tile_units:
+                        if p_from_t_u.tile_unit_type == TileUnitType.DISCARD:
+                            p_from_t_u.tiles[-1].is_transparent = True
 
         if len(public_observation.events) == 0:
             return table
