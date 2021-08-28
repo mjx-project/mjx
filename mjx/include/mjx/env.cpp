@@ -135,7 +135,7 @@ void PettingZooMahjongEnv::Reset() noexcept {
   for (const auto& agent : agents_) {
     dones_[agent] = false;
     rewards_[agent] = 0;
-    infos_[agent] = "";
+    infos_[agent] = "{}";
   }
 
   observations_ = seed_ ? env_.Reset(seed_.value()) : env_.Reset();
@@ -176,7 +176,7 @@ void PettingZooMahjongEnv::Step(Action action) noexcept {
   for (const auto& agent : agents_) {
     dones_[agent] = done;
     rewards_[agent] = 0;
-    infos_[agent] = "";
+    infos_[agent] = "{}";
   }
   if (done) {
     // update rewards_
