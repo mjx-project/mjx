@@ -1,5 +1,6 @@
 import mjx.env
 import random
+from pettingzoo.test import api_test
 
 
 def test_RLlibMahjongEnv():
@@ -42,7 +43,7 @@ def test_PettingZooMahjongEnv():
     assert observation["action_mask"][180] == 0
     assert reward == 0
     assert not done
-    assert info == ''
+    assert info == {}
 
     # After done
     agent, observation, reward, done, info = results[-4]
@@ -50,29 +51,31 @@ def test_PettingZooMahjongEnv():
     assert observation["action_mask"][180] == 1
     assert reward == 45
     assert done
-    assert info == ''
+    assert info == {}
 
     agent, observation, reward, done, info = results[-3]
     assert agent == "player_3"
     assert observation["action_mask"][180] == 1
     assert reward == -135
     assert done
-    assert info == ''
+    assert info == {}
 
     agent, observation, reward, done, info = results[-2]
     assert agent == "player_0"
     assert observation["action_mask"][180] == 1
     assert reward == 0
     assert done
-    assert info == ''
+    assert info == {}
 
     agent, observation, reward, done, info = results[-1]
     assert agent == "player_2"
     assert observation["action_mask"][180] == 1
     assert reward == 90
     assert done
-    assert info == ''
+    assert info == {}
 
+    # API test
+    api_test(env, num_cycles=100000, verbose_progress=False)
 
 if __name__ == '__main__':
     test_RLlibMahjongEnv()
