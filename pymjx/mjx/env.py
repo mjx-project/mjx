@@ -2,7 +2,6 @@ import gym
 import numpy as np
 from pettingzoo import AECEnv
 from typing import Optional
-import json
 
 
 class RLlibMahjongEnv:
@@ -108,14 +107,14 @@ class PettingZooMahjongEnv(AECEnv):
         self.dones = {i: False for i in self.possible_agents}
         self.infos = {i: {} for i in self.possible_agents}
 
-        obs = self.env.last(True)[0]
+        obs = self.observe(self.agent_selection)
         self._update_legal_actions(obs)
 
     def last(self, observe=True):
-        obs, reward, done, info = self.env.last(observe)
+        obs, cumulative_reward, done, info = super().last(observe)
         if observe:
             obs = self._convert_obs(obs)
-        return obs, reward, done, json.loads(info)
+        return obs, cumulative_reward, done, info
 
     def step(self, action: Optional[int]):
         import mjx._mjx as _mjx
@@ -130,10 +129,10 @@ class PettingZooMahjongEnv(AECEnv):
             if done and not self.dones[self.agent_selection]:
                 rewards = self.env.rewards()
                 self.rewards = {i: rewards[i] for i in self.possible_agents}
-                self._cumulative_rewards = {i: self._cumulative_rewards[i]+rewards[i] for i in self.possible_agents}
                 self.dones = {i: True for i in self.possible_agents}
                 self.infos = {i: {} for i in self.possible_agents}
             self._update_legal_actions(obs)
+        self._accumulate_rewards()
 
     def seed(self, seed):
         self.env.seed(seed)
