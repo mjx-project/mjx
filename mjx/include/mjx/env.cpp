@@ -209,6 +209,10 @@ std::optional<PlayerId> PettingZooMahjongEnv::agent_selection() const noexcept {
   return agent_selection_;
 }
 
+std::unordered_map<PlayerId, int> PettingZooMahjongEnv::rewards() const noexcept {
+  return rewards_;
+}
+
 void PettingZooMahjongEnv::UpdateAgentsToAct() noexcept {
   agents_to_act_.clear();
   // TODO: change the order
