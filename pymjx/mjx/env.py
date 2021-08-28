@@ -1,5 +1,6 @@
 import gym
 import numpy as np
+from pettingzoo import AECEnv
 
 
 class RLlibMahjongEnv:
@@ -58,10 +59,10 @@ class RLlibMahjongEnv:
         self.env.seed(seed)
 
 
-class PettingZooMahjongEnv:
+class PettingZooMahjongEnv(AECEnv):
     def __init__(self):
         import mjx._mjx as _mjx
-
+        super(PettingZooMahjongEnv, self).__init__()
         self.env = _mjx.PettingZooMahjongEnv()
 
         self.legal_actions = []
@@ -77,6 +78,13 @@ class PettingZooMahjongEnv:
         )
         self.action_space = gym.spaces.Discrete(self.num_actions)
 
+        # member variables
+        self.agents = self.env.agents()
+        self.rewards = {i: 0 for i in self.agents}
+        self._cumulative_rewards = {i: 0 for i in self.agents}
+        self.dones = {i: False for i in self.agents}
+        self.infos = {i: "" for i in self.agents}
+
     @staticmethod
     def _convert_obs(obs):
         mask = obs.action_mask()
@@ -90,6 +98,14 @@ class PettingZooMahjongEnv:
 
     def reset(self):
         self.env.reset()
+
+        # reset member varialbes
+        self.agents = self.env.agents()
+        self.rewards = {i: 0 for i in self.agents}
+        self._cumulative_rewards = {i: 0 for i in self.agents}
+        self.dones = {i: False for i in self.agents}
+        self.infos = {i: "" for i in self.agents}
+
         obs = self.env.last(True)[0]
         self._update_legal_actions(obs)
 
@@ -100,11 +116,20 @@ class PettingZooMahjongEnv:
 
     def step(self, action: int):
         import mjx._mjx as _mjx
+        if self.dones[self.agent_selection]:
+            self._was_done_step(action)
         if action is None:
+            # set dummy action
             action = 180
         self.env.step(_mjx.Action(action, self.legal_actions))
-        if self.agent_selection() is not None:
-            obs = self.env.last(True)[0]
+        if self.agent_selection is not None:
+            obs, _, done, _ = self.env.last(True)
+            if done and not self.dones[self.agent_selection]:
+                rewards = self.env.rewards()
+                self.rewards = {i: rewards[i] for i in self.agents}
+                self._cumulative_rewards = {i: rewards[i] for i in self.agents}
+                self.dones = {i: True for i in self.agents}
+                self.infos = {i: "" for i in self.agents}
             self._update_legal_actions(obs)
 
     def seed(self, seed):
@@ -119,10 +144,10 @@ class PettingZooMahjongEnv:
     def possible_agents(self):
         return self.env.possible_agents()
 
+    @property
     def agent_selection(self):
         return self.env.agent_selection()
 
-    def agent_iter(self, max_iter=2 ** 63):
-        while self.agent_selection() is not None and max_iter > 0:
-            yield self.agent_selection()
-            max_iter -= 1
+    @agent_selection.setter
+    def agent_selection(self, val):
+        pass
