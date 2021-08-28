@@ -14,3 +14,4 @@ tenhou_wall_reproducer
 types-protobuf
 rich 
 gym
+pettingzoo
