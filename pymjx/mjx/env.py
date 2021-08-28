@@ -1,7 +1,8 @@
+from typing import Optional
+
 import gym
 import numpy as np
 from pettingzoo import AECEnv
-from typing import Optional
 
 
 class RLlibMahjongEnv:
@@ -63,6 +64,7 @@ class RLlibMahjongEnv:
 class PettingZooMahjongEnv(AECEnv):
     def __init__(self):
         import mjx._mjx as _mjx
+
         super(PettingZooMahjongEnv, self).__init__()
         self.env = _mjx.PettingZooMahjongEnv()
 
@@ -71,13 +73,18 @@ class PettingZooMahjongEnv(AECEnv):
         # consts
         self.num_actions = 181  # TODO: use val from self.env
         self.num_features = 34 * 4  # TODO: use val from self.env
-        self.observation_spaces ={i: gym.spaces.Dict(
-            {
-                "action_mask": gym.spaces.Box(0, 1, shape=(self.num_actions,)),
-                "real_obs": gym.spaces.Box(0, 1, shape=(self.num_features,)),
-            }
-        ) for i in self.possible_agents}
-        self.action_spaces = {i: gym.spaces.Discrete(self.num_actions) for i in self.possible_agents}
+        self.observation_spaces = {
+            i: gym.spaces.Dict(
+                {
+                    "action_mask": gym.spaces.Box(0, 1, shape=(self.num_actions,)),
+                    "real_obs": gym.spaces.Box(0, 1, shape=(self.num_features,)),
+                }
+            )
+            for i in self.possible_agents
+        }
+        self.action_spaces = {
+            i: gym.spaces.Discrete(self.num_actions) for i in self.possible_agents
+        }
 
         # member variables
         self.agents = self.possible_agents
@@ -118,6 +125,7 @@ class PettingZooMahjongEnv(AECEnv):
 
     def step(self, action: Optional[int]):
         import mjx._mjx as _mjx
+
         if self.dones[self.agent_selection]:
             self._was_done_step(action)
         if action is None:
