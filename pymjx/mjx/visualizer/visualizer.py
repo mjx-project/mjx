@@ -225,8 +225,8 @@ class MahjongTable:
                         t_u
                         for t_u in p.tile_units
                         if (
-                            t_u.tile_unit_type == TileUnitType.PON
-                            and t_u.tiles[0] // 4 == open_tile_ids(eve.open)[0] // 4
+                            t_u.tile_unit_type != TileUnitType.PON
+                            or t_u.tiles[0].id // 4 != open_tile_ids(eve.open)[0] // 4
                         )
                     ]
 
