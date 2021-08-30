@@ -63,6 +63,8 @@ def make_svg(filename: str, mode: str, page: int):
 
     data = MahjongTable.load_data(filename, mode)
     sample_data = data[page]
+    sample_data.players.sort(key=lambda x: (x.player_idx - sample_data.my_idx) % 4)
+
     dwg = svgwrite.Drawing(
         filename.replace(".json", "") + "_" + str(page) + ".svg",
         (width, height),
@@ -96,7 +98,7 @@ def make_svg(filename: str, mode: str, page: int):
         scores[i] = sample_data.players[i].score
         is_riichi[i] = sample_data.players[i].is_declared_riichi
 
-        for t_u in sample_data.players[i].tile_units:
+        for t_u in reversed(sample_data.players[i].tile_units):
             if t_u.tile_unit_type == TileUnitType.HAND:
                 for tile in t_u.tiles:
                     hands[i].append(
@@ -317,7 +319,7 @@ def make_svg(filename: str, mode: str, page: int):
                         - left_x,  # 他の鳴き牌の分のずれ
                     ),
                     chi_txt[0],
-                    True,
+                    rotate=True,
                 )
                 dwg_add(
                     dwg,
@@ -358,7 +360,7 @@ def make_svg(filename: str, mode: str, page: int):
                             - left_x,
                         ),
                         pon_txt[0],
-                        True,
+                        rotate=True,
                     )
                     dwg_add(
                         dwg,
@@ -395,9 +397,10 @@ def make_svg(filename: str, mode: str, page: int):
                             - left_x
                             - char_width,  # 1つ目の牌の分のずれ
                         ),
-                        pon_txt[1],
-                        True,
+                        pon_txt[0],
+                        rotate=True,
                     )
+                    print(pon_txt)
                     dwg_add(
                         dwg,
                         pai[i],
@@ -405,7 +408,7 @@ def make_svg(filename: str, mode: str, page: int):
                             left_margin + (len(hands[i]) + 1) * char_width + left_x,
                             770,
                         ),
-                        pon_txt[0],
+                        pon_txt[1],
                     )
                     dwg_add(
                         dwg,
@@ -434,8 +437,8 @@ def make_svg(filename: str, mode: str, page: int):
                             - char_width  # 1つ目の牌の分のずれ
                             - char_width,  # 2つ目の牌の分のずれ
                         ),
-                        pon_txt[2],
-                        True,
+                        pon_txt[0],
+                        rotate=True,
                     )
                     dwg_add(
                         dwg,
@@ -444,7 +447,7 @@ def make_svg(filename: str, mode: str, page: int):
                             left_margin + (len(hands[i]) + 1) * char_width + left_x,
                             770,
                         ),
-                        pon_txt[0],
+                        pon_txt[1],
                     )
                     dwg_add(
                         dwg,
@@ -453,7 +456,7 @@ def make_svg(filename: str, mode: str, page: int):
                             left_margin + (len(hands[i]) + 1) * char_width + left_x + char_width,
                             770,
                         ),
-                        pon_txt[1],
+                        pon_txt[2],
                     )
                 left_x += char_width * 3 + char_height
 
@@ -466,7 +469,7 @@ def make_svg(filename: str, mode: str, page: int):
                         left_margin + (len(hands[i]) + 1) * char_width + left_x,
                         770,
                     ),
-                    "\U0001F02B",
+                    ["\U0001F02B", False],
                 )
                 dwg_add(
                     dwg,
@@ -493,7 +496,7 @@ def make_svg(filename: str, mode: str, page: int):
                         left_margin + (len(hands[i]) + 1) * char_width + left_x + char_width * 3,
                         770,
                     ),
-                    "\U0001F02B",
+                    ["\U0001F02B", False],
                 )
                 left_x += char_width * 5
 
@@ -561,7 +564,7 @@ def make_svg(filename: str, mode: str, page: int):
                             - left_x
                             - char_width,
                         ),
-                        open_kan_txt[1],
+                        open_kan_txt[0],
                         rotate=True,
                     )
                     dwg_add(
@@ -571,7 +574,7 @@ def make_svg(filename: str, mode: str, page: int):
                             left_margin + (len(hands[i]) + 1) * char_width + left_x,
                             770,
                         ),
-                        open_kan_txt[0],
+                        open_kan_txt[1],
                     )
                     dwg_add(
                         dwg,
@@ -612,7 +615,7 @@ def make_svg(filename: str, mode: str, page: int):
                             - left_x
                             - char_width * 3,
                         ),
-                        open_kan_txt[3],
+                        open_kan_txt[0],
                         rotate=True,
                     )
                     dwg_add(
@@ -622,7 +625,7 @@ def make_svg(filename: str, mode: str, page: int):
                             left_margin + (len(hands[i]) + 1) * char_width + left_x,
                             770,
                         ),
-                        open_kan_txt[0],
+                        open_kan_txt[1],
                     )
                     dwg_add(
                         dwg,
@@ -631,7 +634,7 @@ def make_svg(filename: str, mode: str, page: int):
                             left_margin + (len(hands[i]) + 1) * char_width + left_x + char_width,
                             770,
                         ),
-                        open_kan_txt[1],
+                        open_kan_txt[2],
                     )
                     dwg_add(
                         dwg,
@@ -644,7 +647,7 @@ def make_svg(filename: str, mode: str, page: int):
                             + char_width * 2,
                             770,
                         ),
-                        open_kan_txt[2],
+                        open_kan_txt[3],
                     )
                 left_x += char_width * 4 + char_height
 

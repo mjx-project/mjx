@@ -4,6 +4,7 @@ from dataclasses import dataclass
 
 import mjxproto
 from google.protobuf import json_format
+from mjx.converter.open_converter import open_stolen_tile_type
 from mjx.visualizer.converter import (
     FromWho,
     TileUnitType,
@@ -231,13 +232,17 @@ class MahjongTable:
                     ]
 
                 # 鳴き牌を追加する処理
-                p.tile_units.append(
-                    TileUnit(
-                        open_event_type(eve.open),
-                        open_from(eve.open),
-                        [Tile(i, is_open=True) for i in open_tile_ids(eve.open)],
+                if eve.type in [
+                    EventType.EVENT_TYPE_CLOSED_KAN,
+                    EventType.EVENT_TYPE_ADDED_KAN,
+                ]:
+                    p.tile_units.append(
+                        TileUnit(
+                            open_event_type(eve.open),
+                            open_from(eve.open),
+                            [Tile(i, is_open=True) for i in open_tile_ids(eve.open)],
+                        )
                     )
-                )
 
                 # 鳴かれた牌を透明にする処理
                 if eve.type in [
@@ -257,6 +262,21 @@ class MahjongTable:
                     for p_from_t_u in p_from.tile_units:
                         if p_from_t_u.tile_unit_type == TileUnitType.DISCARD:
                             p_from_t_u.tiles[-1].is_transparent = True
+
+                            # 鳴き牌を追加する処理
+                            p.tile_units.append(
+                                TileUnit(
+                                    open_event_type(eve.open),
+                                    open_from(eve.open),
+                                    [Tile(p_from_t_u.tiles[-1].id, is_open=True)]
+                                    + [
+                                        Tile(i, is_open=True)
+                                        for i in open_tile_ids(eve.open)
+                                        if i != p_from_t_u.tiles[-1].id
+                                    ],
+                                )
+                            )
+                            assert p.tile_units[-1].tiles[0].id == p_from_t_u.tiles[-1].id
 
         if len(public_observation.events) == 0:
             return table
@@ -278,10 +298,6 @@ class MahjongTable:
         ]:
             table.result = "nowinner"
             table.event_info = public_observation.events[-1].type
-        else:
-            # 鳴き牌を天鳳の順と合わせる処理
-            for p in table.players:
-                p.tile_units.reverse()
 
         return table
 
@@ -293,26 +309,6 @@ class MahjongTable:
                 table.uradoras = win_data.ura_dora_indicators
                 for i in range(4):
                     final_ten_changes[i] += win_data.ten_changes[i]
-                winner = table.players[win_data.who]
-                winner.tile_units = [
-                    i for i in winner.tile_units if i.tile_unit_type == TileUnitType.DISCARD
-                ]
-                winner.tile_units.append(
-                    TileUnit(
-                        TileUnitType.HAND,
-                        FromWho.NONE,
-                        [Tile(i, is_open=True) for i in win_data.hand.closed_tiles],
-                    )
-                )
-                for opens in win_data.hand.opens:
-                    winner.tile_units.append(
-                        TileUnit(
-                            open_event_type(opens),
-                            open_from(opens),
-                            [Tile(i, is_open=True) for i in open_tile_ids(opens)],
-                        )
-                    )
-                winner.tile_units.reverse()  # 鳴き牌を天鳳の順と合わせる処理
 
             for i, p in enumerate(table.players):
                 delta = final_ten_changes[i]
@@ -320,28 +316,6 @@ class MahjongTable:
                     str(int(p.score) + delta) + ("(+" if delta > 0 else "(") + str(delta) + ")"
                 )
         else:
-            for tenpai in round_terminal.no_winner.tenpais:
-                tenpai_p = table.players[tenpai.who]
-                tenpai_p.tile_units = [
-                    i for i in tenpai_p.tile_units if i.tile_unit_type == TileUnitType.DISCARD
-                ]
-                tenpai_p.tile_units.append(
-                    TileUnit(
-                        TileUnitType.HAND,
-                        FromWho.NONE,
-                        [Tile(i, is_open=True) for i in tenpai.hand.closed_tiles],
-                    )
-                )
-                for opens in tenpai.hand.opens:
-                    tenpai_p.tile_units.append(
-                        TileUnit(
-                            open_event_type(opens),
-                            open_from(opens),
-                            [Tile(i, is_open=True) for i in open_tile_ids(opens)],
-                        )
-                    )
-                tenpai_p.tile_units.reverse()  # 鳴き牌を天鳳の順と合わせる処理
-
             for i, p in enumerate(table.players):
                 delta = round_terminal.no_winner.ten_changes[i]
                 p.score = (
@@ -743,9 +717,7 @@ class GameBoardVisualizer:
         return board_info
 
     def show_by_text(self, table: MahjongTable) -> str:
-        my_idx = table.my_idx
         board_info = self.get_board_info(table)
-
         board_info = (
             "#"
             + "#" * len(board_info)
@@ -759,7 +731,7 @@ class GameBoardVisualizer:
         )
 
         players_info = []
-        table.players.sort(key=lambda x: (x.player_idx - my_idx) % 4)
+        table.players.sort(key=lambda x: (x.player_idx - table.my_idx) % 4)
         for i, p in enumerate(table.players):
             player_info = []
 
@@ -779,7 +751,7 @@ class GameBoardVisualizer:
             player_info.append("\n\n")
 
             opens = []
-            for t_u in p.tile_units:
+            for t_u in reversed(p.tile_units):
                 if t_u.tile_unit_type == TileUnitType.HAND:
                     hand = self.add_suffix(t_u)
                 elif t_u.tile_unit_type == TileUnitType.DISCARD:
@@ -808,7 +780,6 @@ class GameBoardVisualizer:
     def show_by_rich(self, table: MahjongTable) -> None:
         layout = self.get_layout()
 
-        my_idx = table.my_idx
         layout["info"].update(
             Panel(
                 Text(self.get_board_info(table), justify="center", style="color(1)"),
@@ -816,7 +787,7 @@ class GameBoardVisualizer:
             )
         )
 
-        table.players.sort(key=lambda x: (x.player_idx - my_idx) % 4)
+        table.players.sort(key=lambda x: (x.player_idx - table.my_idx) % 4)
 
         players_info_top = [
             "player1_info_top",
@@ -872,7 +843,7 @@ class GameBoardVisualizer:
                 )
 
             opens = []
-            for t_u in p.tile_units:
+            for t_u in reversed(p.tile_units):
                 if t_u.tile_unit_type == TileUnitType.HAND:
                     hand = self.add_suffix(t_u, player_idx=i)
                 elif t_u.tile_unit_type == TileUnitType.DISCARD:
