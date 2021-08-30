@@ -278,6 +278,10 @@ class MahjongTable:
         ]:
             table.result = "nowinner"
             table.event_info = public_observation.events[-1].type
+        else:
+            # 鳴き牌を天鳳の順と合わせる処理
+            for p in table.players:
+                p.tile_units.reverse()
 
         return table
 
@@ -308,6 +312,7 @@ class MahjongTable:
                             [Tile(i, is_open=True) for i in open_tile_ids(opens)],
                         )
                     )
+                winner.tile_units.reverse()  # 鳴き牌を天鳳の順と合わせる処理
 
             for i, p in enumerate(table.players):
                 delta = final_ten_changes[i]

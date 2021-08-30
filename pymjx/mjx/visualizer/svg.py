@@ -59,7 +59,6 @@ def make_svg(filename: str, mode: str, page: int):
     height = 800
     char_width = 32  # 45:28.8,60:38.4
     char_height = 44  # 45:40.5,60:53
-    chi_width = char_width * 2 + char_height
     red_hai = [16, 52, 88]
 
     data = MahjongTable.load_data(filename, mode)
@@ -85,11 +84,7 @@ def make_svg(filename: str, mode: str, page: int):
     is_riichi = [False, False, False, False]
 
     hands = [[], [], [], []]
-    chis = [[], [], [], []]
-    pons = [[], [], [], []]
-    closed_kans = [[], [], [], []]
-    open_kans = [[], [], [], []]
-    added_kans = [[], [], [], []]
+    opens = [[], [], [], []]
     discards = [[], [], [], []]
 
     for i in range(4):  # iは各プレイヤー(0-3)
@@ -126,39 +121,18 @@ def make_svg(filename: str, mode: str, page: int):
                             tile.is_transparent,
                         ]
                     )
-            if t_u.tile_unit_type == TileUnitType.CHI:
-                chis[i].append(
+            if t_u.tile_unit_type in [
+                TileUnitType.CHI,
+                TileUnitType.PON,
+                TileUnitType.CLOSED_KAN,
+                TileUnitType.OPEN_KAN,
+                TileUnitType.ADDED_KAN,
+            ]:
+                opens[i].append(
                     [
                         [[get_tile_char(tile.id, True), tile.id in red_hai] for tile in t_u.tiles],
                         t_u.from_who,
-                    ]
-                )
-            if t_u.tile_unit_type == TileUnitType.PON:
-                pons[i].append(
-                    [
-                        [[get_tile_char(tile.id, True), tile.id in red_hai] for tile in t_u.tiles],
-                        t_u.from_who,
-                    ]
-                )
-            if t_u.tile_unit_type == TileUnitType.CLOSED_KAN:
-                closed_kans[i].append(
-                    [
-                        [[get_tile_char(tile.id, True), tile.id in red_hai] for tile in t_u.tiles],
-                        t_u.from_who,
-                    ]
-                )
-            if t_u.tile_unit_type == TileUnitType.OPEN_KAN:
-                open_kans[i].append(
-                    [
-                        [[get_tile_char(tile.id, True), tile.id in red_hai] for tile in t_u.tiles],
-                        t_u.from_who,
-                    ]
-                )
-            if t_u.tile_unit_type == TileUnitType.ADDED_KAN:
-                added_kans[i].append(
-                    [
-                        [[get_tile_char(tile.id, True), tile.id in red_hai] for tile in t_u.tiles],
-                        t_u.from_who,
+                        t_u.tile_unit_type,
                     ]
                 )
 
@@ -256,16 +230,7 @@ def make_svg(filename: str, mode: str, page: int):
             thousand_img.rotate(90)
             player_info[i].add(thousand_img)
 
-        left_margin = (
-            width
-            - (
-                char_width * len(hands[i])
-                + (char_width * 3 + char_height)
-                * (len(chis[i]) + len(pons[i]) + len(added_kans[i]))
-                + (char_width * 5) * len(closed_kans[i])
-                + (char_width * 4 + char_height) * len(open_kans[i])
-            )
-        ) / 2
+        left_margin = 100
         # hand
         for j, hand in enumerate(hands[i]):
             hand_txt = hand[0]
@@ -337,57 +302,10 @@ def make_svg(filename: str, mode: str, page: int):
                         transparent=discard[3],
                     )
 
-        # chi
-        for j, chi in enumerate(chis[i]):
-            if chis[i] == []:
-                continue
-            chi_txt = chi[0]
-            dwg_add(
-                dwg,
-                pai[i],
-                (
-                    741.3,
-                    -left_margin  # 初期位置
-                    - 3  # 回転時のずれ
-                    - (len(hands[i]) + 1) * char_width  # 手牌の分のずれ
-                    - j * (chi_width + char_width),  # 他のチーの分のずれ
-                ),
-                chi_txt[0],
-                True,
-            )
-            dwg_add(
-                dwg,
-                pai[i],
-                (
-                    left_margin
-                    + (len(hands[i]) + 1) * char_width
-                    + j * (chi_width + char_width)
-                    + char_height,
-                    770,
-                ),
-                chi_txt[1],
-            )
-            dwg_add(
-                dwg,
-                pai[i],
-                (
-                    left_margin
-                    + (len(hands[i]) + 1) * char_width
-                    + j * (chi_width + char_width)
-                    + char_height
-                    + char_width,
-                    770,
-                ),
-                chi_txt[2],
-            )
-
-        # pon
-        for j, pon in enumerate(pons[i]):
-            if pons[i] == []:
-                continue
-
-            pon_txt = pon[0]
-            if pon[1] == FromWho.LEFT:
+        left_x = 0
+        for open in opens[i]:
+            if open[2] == TileUnitType.CHI:
+                chi_txt = open[0]
                 dwg_add(
                     dwg,
                     pai[i],
@@ -396,24 +314,19 @@ def make_svg(filename: str, mode: str, page: int):
                         -left_margin  # 初期位置
                         - 3  # 回転時のずれ
                         - (len(hands[i]) + 1) * char_width  # 手牌の分のずれ
-                        - (len(chis[i])) * (chi_width + char_width)  # チーの分のずれ
-                        - j * (chi_width + char_width),  # 他のポンの分のずれ
+                        - left_x,  # 他の鳴き牌の分のずれ
                     ),
-                    pon_txt[0],
+                    chi_txt[0],
                     True,
                 )
                 dwg_add(
                     dwg,
                     pai[i],
                     (
-                        left_margin
-                        + (len(hands[i]) + 1) * char_width
-                        + (len(chis[i])) * (chi_width + char_width)
-                        + j * (chi_width + char_width)
-                        + char_height,
+                        left_margin + (len(hands[i]) + 1) * char_width + left_x + char_height,
                         770,
                     ),
-                    pon_txt[1],
+                    chi_txt[1],
                 )
                 dwg_add(
                     dwg,
@@ -421,577 +334,472 @@ def make_svg(filename: str, mode: str, page: int):
                     (
                         left_margin
                         + (len(hands[i]) + 1) * char_width
-                        + (len(chis[i])) * (chi_width + char_width)
-                        + j * (chi_width + char_width)
+                        + left_x
                         + char_height
                         + char_width,
                         770,
                     ),
-                    pon_txt[2],
+                    chi_txt[2],
                 )
 
-            elif pon[1] == FromWho.MID:
-                dwg_add(
-                    dwg,
-                    pai[i],
-                    (
-                        741.3,
-                        -left_margin  # 初期位置
-                        - 3  # 回転時のずれ
-                        - (len(hands[i]) + 1) * char_width  # 手牌の分のずれ
-                        - (len(chis[i])) * (chi_width + char_width)  # チーの分のずれ
-                        - j * (chi_width + char_width)  # 他のポンの分のずれ
-                        - char_width,  # 1つ目の牌の分のずれ
-                    ),
-                    pon_txt[1],
-                    True,
-                )
-                dwg_add(
-                    dwg,
-                    pai[i],
-                    (
-                        left_margin
-                        + (len(hands[i]) + 1) * char_width
-                        + (len(chis[i])) * (chi_width + char_width)
-                        + j * (chi_width + char_width),
-                        770,
-                    ),
-                    pon_txt[0],
-                )
-                dwg_add(
-                    dwg,
-                    pai[i],
-                    (
-                        left_margin
-                        + (len(hands[i]) + 1) * char_width
-                        + (len(chis[i])) * (chi_width + char_width)
-                        + j * (chi_width + char_width)
-                        + char_height
-                        + char_width,
-                        770,
-                    ),
-                    pon_txt[2],
-                )
+                left_x += char_width * 3 + char_height
 
-            elif pon[1] == FromWho.RIGHT:
-                dwg_add(
-                    dwg,
-                    pai[i],
-                    (
-                        741.3,
-                        -left_margin  # 初期位置
-                        - 3  # 回転時のずれ
-                        - (len(hands[i]) + 1) * char_width  # 手牌の分のずれ
-                        - (len(chis[i])) * (chi_width + char_width)  # チーの分のずれ
-                        - j * (chi_width + char_width)  # 他のポンの分のずれ
-                        - char_width  # 1つ目の牌の分のずれ
-                        - char_width,  # 2つ目の牌の分のずれ
-                    ),
-                    pon_txt[2],
-                    True,
-                )
-                dwg_add(
-                    dwg,
-                    pai[i],
-                    (
-                        left_margin
-                        + (len(hands[i]) + 1) * char_width
-                        + (len(chis[i])) * (chi_width + char_width)
-                        + j * (chi_width + char_width),
-                        770,
-                    ),
-                    pon_txt[0],
-                )
-                dwg_add(
-                    dwg,
-                    pai[i],
-                    (
-                        left_margin
-                        + (len(hands[i]) + 1) * char_width
-                        + (len(chis[i])) * (chi_width + char_width)
-                        + j * (chi_width + char_width)
-                        + char_width,
-                        770,
-                    ),
-                    pon_txt[1],
-                )
+            elif open[2] == TileUnitType.PON:
+                pon_txt = open[0]
+                if open[1] == FromWho.LEFT:
+                    dwg_add(
+                        dwg,
+                        pai[i],
+                        (
+                            741.3,
+                            -left_margin  # 初期位置
+                            - 3  # 回転時のずれ
+                            - (len(hands[i]) + 1) * char_width  # 手牌の分のずれ
+                            - left_x,
+                        ),
+                        pon_txt[0],
+                        True,
+                    )
+                    dwg_add(
+                        dwg,
+                        pai[i],
+                        (
+                            left_margin + (len(hands[i]) + 1) * char_width + left_x + char_height,
+                            770,
+                        ),
+                        pon_txt[1],
+                    )
+                    dwg_add(
+                        dwg,
+                        pai[i],
+                        (
+                            left_margin
+                            + (len(hands[i]) + 1) * char_width
+                            + left_x
+                            + char_height
+                            + char_width,
+                            770,
+                        ),
+                        pon_txt[2],
+                    )
 
-        # closed_kan
-        for j, closed_kan in enumerate(closed_kans[i]):
-            if closed_kans[i] == []:
-                continue
+                elif open[1] == FromWho.MID:
+                    dwg_add(
+                        dwg,
+                        pai[i],
+                        (
+                            741.3,
+                            -left_margin  # 初期位置
+                            - 3  # 回転時のずれ
+                            - (len(hands[i]) + 1) * char_width  # 手牌の分のずれ
+                            - left_x
+                            - char_width,  # 1つ目の牌の分のずれ
+                        ),
+                        pon_txt[1],
+                        True,
+                    )
+                    dwg_add(
+                        dwg,
+                        pai[i],
+                        (
+                            left_margin + (len(hands[i]) + 1) * char_width + left_x,
+                            770,
+                        ),
+                        pon_txt[0],
+                    )
+                    dwg_add(
+                        dwg,
+                        pai[i],
+                        (
+                            left_margin
+                            + (len(hands[i]) + 1) * char_width
+                            + left_x
+                            + char_height
+                            + char_width,
+                            770,
+                        ),
+                        pon_txt[2],
+                    )
 
-            closed_kan_txt = closed_kan[0]
+                elif open[1] == FromWho.RIGHT:
+                    dwg_add(
+                        dwg,
+                        pai[i],
+                        (
+                            741.3,
+                            -left_margin  # 初期位置
+                            - 3  # 回転時のずれ
+                            - (len(hands[i]) + 1) * char_width  # 手牌の分のずれ
+                            - left_x
+                            - char_width  # 1つ目の牌の分のずれ
+                            - char_width,  # 2つ目の牌の分のずれ
+                        ),
+                        pon_txt[2],
+                        True,
+                    )
+                    dwg_add(
+                        dwg,
+                        pai[i],
+                        (
+                            left_margin + (len(hands[i]) + 1) * char_width + left_x,
+                            770,
+                        ),
+                        pon_txt[0],
+                    )
+                    dwg_add(
+                        dwg,
+                        pai[i],
+                        (
+                            left_margin + (len(hands[i]) + 1) * char_width + left_x + char_width,
+                            770,
+                        ),
+                        pon_txt[1],
+                    )
+                left_x += char_width * 3 + char_height
 
-            dwg_add(
-                dwg,
-                pai[i],
-                (
-                    left_margin
-                    + (len(hands[i]) + 1) * char_width
-                    + (len(chis[i])) * (chi_width + char_width)
-                    + (len(pons[i])) * (chi_width + char_width)
-                    + j * (chi_width + char_width),
-                    770,
-                ),
-                "\U0001F02B",
-            )
-            dwg_add(
-                dwg,
-                pai[i],
-                (
-                    left_margin
-                    + (len(hands[i]) + 1) * char_width
-                    + (len(chis[i])) * (chi_width + char_width)
-                    + (len(pons[i])) * (chi_width + char_width)
-                    + j * (chi_width + char_width)
-                    + char_width,
-                    770,
-                ),
-                closed_kan_txt[1],
-            )
-            dwg_add(
-                dwg,
-                pai[i],
-                (
-                    left_margin
-                    + (len(hands[i]) + 1) * char_width
-                    + (len(chis[i])) * (chi_width + char_width)
-                    + (len(pons[i])) * (chi_width + char_width)
-                    + j * (chi_width + char_width)
-                    + char_width * 2,
-                    770,
-                ),
-                closed_kan_txt[2],
-            )
-            dwg_add(
-                dwg,
-                pai[i],
-                (
-                    left_margin
-                    + (len(hands[i]) + 1) * char_width
-                    + (len(chis[i])) * (chi_width + char_width)
-                    + (len(pons[i])) * (chi_width + char_width)
-                    + j * (chi_width + char_width)
-                    + char_width * 3,
-                    770,
-                ),
-                "\U0001F02B",
-            )
+            elif open[2] == TileUnitType.CLOSED_KAN:
+                closed_kan_txt = open[0]
+                dwg_add(
+                    dwg,
+                    pai[i],
+                    (
+                        left_margin + (len(hands[i]) + 1) * char_width + left_x,
+                        770,
+                    ),
+                    "\U0001F02B",
+                )
+                dwg_add(
+                    dwg,
+                    pai[i],
+                    (
+                        left_margin + (len(hands[i]) + 1) * char_width + left_x + char_width,
+                        770,
+                    ),
+                    closed_kan_txt[1],
+                )
+                dwg_add(
+                    dwg,
+                    pai[i],
+                    (
+                        left_margin + (len(hands[i]) + 1) * char_width + left_x + char_width * 2,
+                        770,
+                    ),
+                    closed_kan_txt[2],
+                )
+                dwg_add(
+                    dwg,
+                    pai[i],
+                    (
+                        left_margin + (len(hands[i]) + 1) * char_width + left_x + char_width * 3,
+                        770,
+                    ),
+                    "\U0001F02B",
+                )
+                left_x += char_width * 5
 
-        # open_kan
-        for j, open_kan in enumerate(open_kans[i]):
-            if open_kans[i] == []:
-                continue
+            elif open[2] == TileUnitType.OPEN_KAN:
+                open_kan_txt = open[0]
+                if open[1] == FromWho.LEFT:
+                    dwg_add(
+                        dwg,
+                        pai[i],
+                        (
+                            741.3,
+                            -left_margin  # 初期位置
+                            - 3  # 回転時のずれ
+                            - (len(hands[i]) + 1) * char_width  # 手牌の分のずれ
+                            - left_x,
+                        ),
+                        open_kan_txt[0],
+                        rotate=True,
+                    )
+                    dwg_add(
+                        dwg,
+                        pai[i],
+                        (
+                            left_margin + (len(hands[i]) + 1) * char_width + left_x + char_height,
+                            770,
+                        ),
+                        open_kan_txt[1],
+                    )
+                    dwg_add(
+                        dwg,
+                        pai[i],
+                        (
+                            left_margin
+                            + (len(hands[i]) + 1) * char_width
+                            + left_x
+                            + char_height
+                            + char_width,
+                            770,
+                        ),
+                        open_kan_txt[2],
+                    )
+                    dwg_add(
+                        dwg,
+                        pai[i],
+                        (
+                            left_margin
+                            + (len(hands[i]) + 1) * char_width
+                            + left_x
+                            + char_height
+                            + char_width * 2,
+                            770,
+                        ),
+                        open_kan_txt[3],
+                    )
 
-            open_kan_txt = open_kan[0]
-            if open_kan[1] == FromWho.LEFT:
-                dwg_add(
-                    dwg,
-                    pai[i],
-                    (
-                        741.3,
-                        -left_margin  # 初期位置
-                        - 3  # 回転時のずれ
-                        - (len(hands[i]) + 1) * char_width  # 手牌の分のずれ
-                        - (len(chis[i])) * (chi_width + char_width)  # チーの分のずれ
-                        - (len(pons[i])) * (chi_width + char_width)  # ポンの分のずれ
-                        - (len(closed_kans[i])) * char_width * 5  # closed_kansのずれ
-                        - j * (chi_width + char_width),
-                    ),
-                    open_kan_txt[0],
-                    rotate=True,
-                )
-                dwg_add(
-                    dwg,
-                    pai[i],
-                    (
-                        left_margin
-                        + (len(hands[i]) + 1) * char_width
-                        + (len(chis[i])) * (chi_width + char_width)
-                        + (len(pons[i])) * (chi_width + char_width)
-                        + (len(closed_kans[i])) * char_width * 5
-                        + j * (chi_width + char_width)
-                        + char_height,
-                        770,
-                    ),
-                    open_kan_txt[1],
-                )
-                dwg_add(
-                    dwg,
-                    pai[i],
-                    (
-                        left_margin
-                        + (len(hands[i]) + 1) * char_width
-                        + (len(chis[i])) * (chi_width + char_width)
-                        + (len(pons[i])) * (chi_width + char_width)
-                        + (len(closed_kans[i])) * char_width * 5
-                        + j * (chi_width + char_width)
-                        + char_height
-                        + char_width,
-                        770,
-                    ),
-                    open_kan_txt[2],
-                )
-                dwg_add(
-                    dwg,
-                    pai[i],
-                    (
-                        left_margin
-                        + (len(hands[i]) + 1) * char_width
-                        + (len(chis[i])) * (chi_width + char_width)
-                        + (len(pons[i])) * (chi_width + char_width)
-                        + (len(closed_kans[i])) * char_width * 5
-                        + j * (chi_width + char_width)
-                        + char_height
-                        + char_width * 2,
-                        770,
-                    ),
-                    open_kan_txt[3],
-                )
+                elif open[1] == FromWho.MID:
+                    dwg_add(
+                        dwg,
+                        pai[i],
+                        (
+                            741.3,
+                            -left_margin  # 初期位置
+                            - 3  # 回転時のずれ
+                            - (len(hands[i]) + 1) * char_width  # 手牌の分のずれ
+                            - left_x
+                            - char_width,
+                        ),
+                        open_kan_txt[1],
+                        rotate=True,
+                    )
+                    dwg_add(
+                        dwg,
+                        pai[i],
+                        (
+                            left_margin + (len(hands[i]) + 1) * char_width + left_x,
+                            770,
+                        ),
+                        open_kan_txt[0],
+                    )
+                    dwg_add(
+                        dwg,
+                        pai[i],
+                        (
+                            left_margin
+                            + (len(hands[i]) + 1) * char_width
+                            + left_x
+                            + char_height
+                            + char_width,
+                            770,
+                        ),
+                        open_kan_txt[2],
+                    )
+                    dwg_add(
+                        dwg,
+                        pai[i],
+                        (
+                            left_margin
+                            + (len(hands[i]) + 1) * char_width
+                            + left_x
+                            + char_height
+                            + char_width * 2,
+                            770,
+                        ),
+                        open_kan_txt[3],
+                    )
 
-            elif open_kan[1] == FromWho.MID:
-                dwg_add(
-                    dwg,
-                    pai[i],
-                    (
-                        741.3,
-                        -left_margin  # 初期位置
-                        - 3  # 回転時のずれ
-                        - (len(hands[i]) + 1) * char_width  # 手牌の分のずれ
-                        - (len(chis[i])) * (chi_width + char_width)  # チーの分のずれ
-                        - (len(pons[i])) * (chi_width + char_width)  # ポンの分のずれ
-                        - (len(closed_kans[i])) * char_width * 5  # closed_kansのずれ
-                        - j * (chi_width + char_width)
-                        - char_width,
-                    ),
-                    open_kan_txt[1],
-                    rotate=True,
-                )
-                dwg_add(
-                    dwg,
-                    pai[i],
-                    (
-                        left_margin
-                        + (len(hands[i]) + 1) * char_width
-                        + (len(chis[i])) * (chi_width + char_width)
-                        + (len(pons[i])) * (chi_width + char_width)
-                        + (len(closed_kans[i])) * char_width * 5
-                        + j * (chi_width + char_width),
-                        770,
-                    ),
-                    open_kan_txt[0],
-                )
-                dwg_add(
-                    dwg,
-                    pai[i],
-                    (
-                        left_margin
-                        + (len(hands[i]) + 1) * char_width
-                        + (len(chis[i])) * (chi_width + char_width)
-                        + (len(pons[i])) * (chi_width + char_width)
-                        + (len(closed_kans[i])) * char_width * 5
-                        + j * (chi_width + char_width)
-                        + char_height
-                        + char_width,
-                        770,
-                    ),
-                    open_kan_txt[2],
-                )
-                dwg_add(
-                    dwg,
-                    pai[i],
-                    (
-                        left_margin
-                        + (len(hands[i]) + 1) * char_width
-                        + (len(chis[i])) * (chi_width + char_width)
-                        + (len(pons[i])) * (chi_width + char_width)
-                        + (len(closed_kans[i])) * char_width * 5
-                        + j * (chi_width + char_width)
-                        + char_height
-                        + char_width * 2,
-                        770,
-                    ),
-                    open_kan_txt[3],
-                )
+                elif open[1] == FromWho.RIGHT:
+                    dwg_add(
+                        dwg,
+                        pai[i],
+                        (
+                            741.3,
+                            -left_margin  # 初期位置
+                            - 3  # 回転時のずれ
+                            - (len(hands[i]) + 1) * char_width  # 手牌の分のずれ
+                            - left_x
+                            - char_width * 3,
+                        ),
+                        open_kan_txt[3],
+                        rotate=True,
+                    )
+                    dwg_add(
+                        dwg,
+                        pai[i],
+                        (
+                            left_margin + (len(hands[i]) + 1) * char_width + left_x,
+                            770,
+                        ),
+                        open_kan_txt[0],
+                    )
+                    dwg_add(
+                        dwg,
+                        pai[i],
+                        (
+                            left_margin + (len(hands[i]) + 1) * char_width + left_x + char_width,
+                            770,
+                        ),
+                        open_kan_txt[1],
+                    )
+                    dwg_add(
+                        dwg,
+                        pai[i],
+                        (
+                            left_margin
+                            + (len(hands[i]) + 1) * char_width
+                            + left_x
+                            + char_height
+                            + char_width * 2,
+                            770,
+                        ),
+                        open_kan_txt[2],
+                    )
+                left_x += char_width * 4 + char_height
 
-            elif open_kan[1] == FromWho.RIGHT:
-                dwg_add(
-                    dwg,
-                    pai[i],
-                    (
-                        741.3,
-                        -left_margin  # 初期位置
-                        - 3  # 回転時のずれ
-                        - (len(hands[i]) + 1) * char_width  # 手牌の分のずれ
-                        - (len(chis[i])) * (chi_width + char_width)  # チーの分のずれ
-                        - (len(pons[i])) * (chi_width + char_width)  # ポンの分のずれ
-                        - (len(closed_kans[i])) * char_width * 5  # closed_kansのずれ
-                        - j * (chi_width + char_width)
-                        - char_width * 3,
-                    ),
-                    open_kan_txt[3],
-                    rotate=True,
-                )
-                dwg_add(
-                    dwg,
-                    pai[i],
-                    (
-                        left_margin
-                        + (len(hands[i]) + 1) * char_width
-                        + (len(chis[i])) * (chi_width + char_width)
-                        + (len(pons[i])) * (chi_width + char_width)
-                        + (len(closed_kans[i])) * char_width * 5
-                        + j * (chi_width + char_width),
-                        770,
-                    ),
-                    open_kan_txt[0],
-                )
-                dwg_add(
-                    dwg,
-                    pai[i],
-                    (
-                        left_margin
-                        + (len(hands[i]) + 1) * char_width
-                        + (len(chis[i])) * (chi_width + char_width)
-                        + (len(pons[i])) * (chi_width + char_width)
-                        + (len(closed_kans[i])) * char_width * 5
-                        + j * (chi_width + char_width)
-                        + char_width,
-                        770,
-                    ),
-                    open_kan_txt[1],
-                )
-                dwg_add(
-                    dwg,
-                    pai[i],
-                    (
-                        left_margin
-                        + (len(hands[i]) + 1) * char_width
-                        + (len(chis[i])) * (chi_width + char_width)
-                        + (len(pons[i])) * (chi_width + char_width)
-                        + (len(closed_kans[i])) * char_width * 5
-                        + j * (chi_width + char_width)
-                        + char_height
-                        + char_width * 2,
-                        770,
-                    ),
-                    open_kan_txt[2],
-                )
+            elif open[2] == TileUnitType.ADDED_KAN:
+                added_kan_txt = open[0]
+                if open[1] == FromWho.LEFT:
+                    dwg_add(
+                        dwg,
+                        pai[i],
+                        (
+                            741.3,
+                            -left_margin  # 初期位置
+                            - 3  # 回転時のずれ
+                            - (len(hands[i]) + 1) * char_width  # 手牌の分のずれ
+                            - left_x,
+                        ),
+                        added_kan_txt[0],
+                        rotate=True,
+                    )
+                    dwg_add(
+                        dwg,
+                        pai[i],
+                        (
+                            710,
+                            -left_margin  # 初期位置
+                            - 3  # 回転時のずれ
+                            - (len(hands[i]) + 1) * char_width  # 手牌の分のずれ
+                            - left_x,
+                        ),
+                        added_kan_txt[1],
+                        rotate=True,
+                    )
+                    dwg_add(
+                        dwg,
+                        pai[i],
+                        (
+                            left_margin + (len(hands[i]) + 1) * char_width + left_x + char_height,
+                            770,
+                        ),
+                        added_kan_txt[2],
+                    )
+                    dwg_add(
+                        dwg,
+                        pai[i],
+                        (
+                            left_margin
+                            + (len(hands[i]) + 1) * char_width
+                            + left_x
+                            + char_height
+                            + char_width,
+                            770,
+                        ),
+                        added_kan_txt[3],
+                    )
 
-        # added_kan
-        for j, added_kan in enumerate(added_kans[i]):
-            if added_kans[i] == []:
-                continue
+                elif open[1] == FromWho.MID:
+                    dwg_add(
+                        dwg,
+                        pai[i],
+                        (
+                            741.3,
+                            -left_margin  # 初期位置
+                            - 3  # 回転時のずれ
+                            - (len(hands[i]) + 1) * char_width  # 手牌の分のずれ
+                            - left_x
+                            - char_width,
+                        ),
+                        added_kan_txt[1],
+                        rotate=True,
+                    )
+                    dwg_add(
+                        dwg,
+                        pai[i],
+                        (
+                            710,
+                            -left_margin  # 初期位置
+                            - 3  # 回転時のずれ
+                            - (len(hands[i]) + 1) * char_width  # 手牌の分のずれ
+                            - left_x
+                            - char_width,
+                        ),
+                        added_kan_txt[2],
+                        rotate=True,
+                    )
+                    dwg_add(
+                        dwg,
+                        pai[i],
+                        (
+                            left_margin + (len(hands[i]) + 1) * char_width + left_x,
+                            770,
+                        ),
+                        added_kan_txt[0],
+                    )
+                    dwg_add(
+                        dwg,
+                        pai[i],
+                        (
+                            left_margin
+                            + (len(hands[i]) + 1) * char_width
+                            + left_x
+                            + char_height
+                            + char_width,
+                            770,
+                        ),
+                        added_kan_txt[3],
+                    )
 
-            added_kan_txt = added_kan[0]
-            if added_kan[1] == FromWho.LEFT:
-                dwg_add(
-                    dwg,
-                    pai[i],
-                    (
-                        741.3,
-                        -left_margin  # 初期位置
-                        - 3  # 回転時のずれ
-                        - (len(hands[i]) + 1) * char_width  # 手牌の分のずれ
-                        - (len(chis[i])) * (chi_width + char_width)  # チーの分のずれ
-                        - (len(pons[i])) * (chi_width + char_width)  # ポンの分のずれ
-                        - (len(closed_kans[i])) * char_width * 5  # closed_kansのずれ
-                        - (len(open_kans[i])) * (char_height + char_width * 4)  # open_kansのずれ
-                        - j * (chi_width + char_width),
-                    ),
-                    added_kan_txt[0],
-                    rotate=True,
-                )
-                dwg_add(
-                    dwg,
-                    pai[i],
-                    (
-                        710,
-                        -left_margin  # 初期位置
-                        - 3  # 回転時のずれ
-                        - (len(hands[i]) + 1) * char_width  # 手牌の分のずれ
-                        - (len(chis[i])) * (chi_width + char_width)  # チーの分のずれ
-                        - (len(pons[i])) * (chi_width + char_width)  # ポンの分のずれ
-                        - (len(closed_kans[i])) * char_width * 5  # closed_kansのずれ
-                        - (len(open_kans[i])) * (char_height + char_width * 4)  # open_kansのずれ
-                        - j * (chi_width + char_width),
-                    ),
-                    added_kan_txt[1],
-                    rotate=True,
-                )
-                dwg_add(
-                    dwg,
-                    pai[i],
-                    (
-                        left_margin
-                        + (len(hands[i]) + 1) * char_width
-                        + (len(chis[i])) * (chi_width + char_width)
-                        + (len(pons[i])) * (chi_width + char_width)
-                        + (len(closed_kans[i])) * char_width * 5
-                        + (len(open_kans[i])) * (char_height + char_width * 4)
-                        + j * (chi_width + char_width)
-                        + char_height,
-                        770,
-                    ),
-                    added_kan_txt[2],
-                )
-                dwg_add(
-                    dwg,
-                    pai[i],
-                    (
-                        left_margin
-                        + (len(hands[i]) + 1) * char_width
-                        + (len(chis[i])) * (chi_width + char_width)
-                        + (len(pons[i])) * (chi_width + char_width)
-                        + (len(closed_kans[i])) * char_width * 5
-                        + (len(open_kans[i])) * (char_height + char_width * 4)
-                        + j * (chi_width + char_width)
-                        + char_height
-                        + char_width,
-                        770,
-                    ),
-                    added_kan_txt[3],
-                )
-
-            elif added_kan[1] == FromWho.MID:
-                dwg_add(
-                    dwg,
-                    pai[i],
-                    (
-                        741.3,
-                        -left_margin  # 初期位置
-                        - 3  # 回転時のずれ
-                        - (len(hands[i]) + 1) * char_width  # 手牌の分のずれ
-                        - (len(chis[i])) * (chi_width + char_width)  # チーの分のずれ
-                        - (len(pons[i])) * (chi_width + char_width)  # ポンの分のずれ
-                        - (len(closed_kans[i])) * char_width * 5  # closed_kansのずれ
-                        - (len(open_kans[i])) * (char_height + char_width * 4)  # open_kansのずれ
-                        - j * (chi_width + char_width)
-                        - char_width,
-                    ),
-                    added_kan_txt[1],
-                    rotate=True,
-                )
-                dwg_add(
-                    dwg,
-                    pai[i],
-                    (
-                        710,
-                        -left_margin  # 初期位置
-                        - 3  # 回転時のずれ
-                        - (len(hands[i]) + 1) * char_width  # 手牌の分のずれ
-                        - (len(chis[i])) * (chi_width + char_width)  # チーの分のずれ
-                        - (len(pons[i])) * (chi_width + char_width)  # ポンの分のずれ
-                        - (len(closed_kans[i])) * char_width * 5  # closed_kansのずれ
-                        - (len(open_kans[i])) * (char_height + char_width * 4)  # open_kansのずれ
-                        - j * (chi_width + char_width)
-                        - char_width,
-                    ),
-                    added_kan_txt[2],
-                    rotate=True,
-                )
-                dwg_add(
-                    dwg,
-                    pai[i],
-                    (
-                        left_margin
-                        + (len(hands[i]) + 1) * char_width
-                        + (len(chis[i])) * (chi_width + char_width)
-                        + (len(pons[i])) * (chi_width + char_width)
-                        + (len(closed_kans[i])) * char_width * 5
-                        + (len(open_kans[i])) * (char_height + char_width * 4)
-                        + j * (chi_width + char_width),
-                        770,
-                    ),
-                    added_kan_txt[0],
-                )
-                dwg_add(
-                    dwg,
-                    pai[i],
-                    (
-                        left_margin
-                        + (len(hands[i]) + 1) * char_width
-                        + (len(chis[i])) * (chi_width + char_width)
-                        + (len(pons[i])) * (chi_width + char_width)
-                        + (len(closed_kans[i])) * char_width * 5
-                        + (len(open_kans[i])) * (char_height + char_width * 4)
-                        + j * (chi_width + char_width)
-                        + char_height
-                        + char_width,
-                        770,
-                    ),
-                    added_kan_txt[3],
-                )
-
-            elif added_kan[1] == FromWho.RIGHT:
-                dwg_add(
-                    dwg,
-                    pai[i],
-                    (
-                        741.3,
-                        -left_margin  # 初期位置
-                        - 3  # 回転時のずれ
-                        - (len(hands[i]) + 1) * char_width  # 手牌の分のずれ
-                        - (len(chis[i])) * (chi_width + char_width)  # チーの分のずれ
-                        - (len(pons[i])) * (chi_width + char_width)  # ポンの分のずれ
-                        - (len(closed_kans[i])) * char_width * 5  # closed_kansのずれ
-                        - (len(open_kans[i])) * (char_height + char_width * 4)  # open_kansのずれ
-                        - j * (chi_width + char_width)
-                        - char_width * 2,
-                    ),
-                    added_kan_txt[2],
-                    rotate=True,
-                )
-                dwg_add(
-                    dwg,
-                    pai[i],
-                    (
-                        710,
-                        -left_margin  # 初期位置
-                        - 3  # 回転時のずれ
-                        - (len(hands[i]) + 1) * char_width  # 手牌の分のずれ
-                        - (len(chis[i])) * (chi_width + char_width)  # チーの分のずれ
-                        - (len(pons[i])) * (chi_width + char_width)  # ポンの分のずれ
-                        - (len(closed_kans[i])) * char_width * 5  # closed_kansのずれ
-                        - (len(open_kans[i])) * (char_height + char_width * 4)  # open_kansのずれ
-                        - j * (chi_width + char_width)
-                        - char_width * 2,
-                    ),
-                    added_kan_txt[3],
-                    rotate=True,
-                )
-                dwg_add(
-                    dwg,
-                    pai[i],
-                    (
-                        left_margin
-                        + (len(hands[i]) + 1) * char_width
-                        + (len(chis[i])) * (chi_width + char_width)
-                        + (len(pons[i])) * (chi_width + char_width)
-                        + (len(closed_kans[i])) * char_width * 5
-                        + (len(open_kans[i])) * (char_height + char_width * 4)
-                        + j * (chi_width + char_width),
-                        770,
-                    ),
-                    added_kan_txt[0],
-                )
-                dwg_add(
-                    dwg,
-                    pai[i],
-                    (
-                        left_margin
-                        + (len(hands[i]) + 1) * char_width
-                        + (len(chis[i])) * (chi_width + char_width)
-                        + (len(pons[i])) * (chi_width + char_width)
-                        + (len(closed_kans[i])) * char_width * 5
-                        + (len(open_kans[i])) * (char_height + char_width * 4)
-                        + j * (chi_width + char_width)
-                        + char_width,
-                        770,
-                    ),
-                    added_kan_txt[1],
-                )
+                elif open[1] == FromWho.RIGHT:
+                    dwg_add(
+                        dwg,
+                        pai[i],
+                        (
+                            741.3,
+                            -left_margin  # 初期位置
+                            - 3  # 回転時のずれ
+                            - (len(hands[i]) + 1) * char_width  # 手牌の分のずれ
+                            - left_x
+                            - char_width * 2,
+                        ),
+                        added_kan_txt[2],
+                        rotate=True,
+                    )
+                    dwg_add(
+                        dwg,
+                        pai[i],
+                        (
+                            710,
+                            -left_margin  # 初期位置
+                            - 3  # 回転時のずれ
+                            - (len(hands[i]) + 1) * char_width  # 手牌の分のずれ
+                            - left_x
+                            - char_width * 2,
+                        ),
+                        added_kan_txt[3],
+                        rotate=True,
+                    )
+                    dwg_add(
+                        dwg,
+                        pai[i],
+                        (
+                            left_margin + (len(hands[i]) + 1) * char_width + left_x,
+                            770,
+                        ),
+                        added_kan_txt[0],
+                    )
+                    dwg_add(
+                        dwg,
+                        pai[i],
+                        (
+                            left_margin + (len(hands[i]) + 1) * char_width + left_x + char_width,
+                            770,
+                        ),
+                        added_kan_txt[1],
+                    )
+                left_x += char_width * 3 + char_height
 
         players[i].add(pai[i])
         players[i].add(player_info[i])
