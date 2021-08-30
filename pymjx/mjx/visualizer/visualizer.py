@@ -210,7 +210,7 @@ class MahjongTable:
                     p = table.players[public_observation.events[i - 1].who]
                     for t_u in p.tile_units:
                         if t_u.tile_unit_type == TileUnitType.DISCARD:
-                            t_u.tiles.pop(-1)
+                            t_u.tiles[-1].is_transparent = True
 
             if eve.type in [
                 EventType.EVENT_TYPE_CHI,
@@ -340,6 +340,7 @@ class MahjongTable:
                             [Tile(i, is_open=True) for i in open_tile_ids(opens)],
                         )
                     )
+                tenpai_p.tile_units.reverse()  # 鳴き牌を天鳳の順と合わせる処理
 
             for i, p in enumerate(table.players):
                 delta = round_terminal.no_winner.ten_changes[i]
@@ -659,61 +660,91 @@ class GameBoardVisualizer:
                             + get_modifier(tile_unit.from_who, tile_unit.tile_unit_type)
                             + " "
                         )
-
             return tiles
+
+        return "error"
+
+    def add_suffix(self, tile_unit) -> str:
+        """
+        wdwdwd -> wdwdwdL
+        のように、情報を付け加える関数。
+        get_modified_tilesが複雑すぎるため、簡易化したい。
+        """
+
+        for tile in tile_unit.tiles:
+            if not tile.is_open:
+                tile.char = "\U0001F02B" if self.config.uni else "#"
+            else:
+                tile.char = get_tile_char(tile.id, self.config.uni)
+            if tile.is_tsumogiri:
+                if tile.with_riichi:
+                    if self.config.uni and tile.char != "\U0001F004\uFE0E":
+                        tile.char += " *r"
+                    else:
+                        tile.char += "*r"
+                else:
+                    if self.config.uni and tile.char != "\U0001F004\uFE0E":
+                        tile.char += " *"
+                    else:
+                        tile.char += "*"
+            elif tile.with_riichi:
+                if self.config.uni and tile.char != "\U0001F004\uFE0E":
+                    tile.char += " r"
+                else:
+                    tile.char += "r"
+
+        if self.config.rich:
+            pass
         else:
-            tiles = ""
-            for tile_unit in table.players[player_idx].tile_units:
-                if tile_unit.tile_unit_type == tile_unit_type:
-                    if tile_unit.tile_unit_type == TileUnitType.HAND:
-                        tiles += "".join(
-                            [
-                                tile.char + ("" if tile.char == "\U0001F004\uFE0E" else " ")
-                                for tile in tile_unit.tiles
-                            ]
+            if tile_unit.tile_unit_type == TileUnitType.HAND:
+                tiles = "".join(
+                    [
+                        tile.char + ("" if tile.char == "\U0001F004\uFE0E" else " ")
+                        for tile in tile_unit.tiles
+                    ]
+                )
+                return tiles
+            if tile_unit.tile_unit_type == TileUnitType.DISCARD:
+                discards = [
+                    tile.char
+                    + (
+                        ""
+                        if (
+                            tile.char == "\U0001F004\uFE0E"
+                            or (tile.is_tsumogiri and tile.with_riichi)
                         )
-                        break
-                    if tile_unit.tile_unit_type == TileUnitType.DISCARD:
-                        discards = [
-                            tile.char
-                            + (
-                                ""
-                                if (
-                                    tile.char == "\U0001F004\uFE0E"
-                                    or (tile.is_tsumogiri and tile.with_riichi)
-                                )
-                                else " "
-                            )
-                            + (
-                                ""
-                                if (tile.is_tsumogiri or tile.with_riichi)
-                                else "  "
-                                if self.config.uni
-                                else " "
-                            )
-                            for tile in tile_unit.tiles
-                        ]
-                        tiles += "\n".join(
-                            [
-                                "".join(discards[idx : idx + 6])
-                                for idx in range(0, len(discards), 6)
-                            ]
-                        )
-                        break
+                        else " "
+                    )
+                    + (
+                        ""
+                        if (tile.is_tsumogiri or tile.with_riichi)
+                        else "  "
+                        if self.config.uni
+                        else " "
+                    )
+                    for tile in tile_unit.tiles
+                ]
+                tiles = "\n".join(
+                    ["".join(discards[idx : idx + 6]) for idx in range(0, len(discards), 6)]
+                )
+                return tiles
 
-                    tiles += "".join(
-                        [
-                            tile.char
-                            + (
-                                ""
-                                if (not self.config.uni or tile.char == "\U0001F004\uFE0E")
-                                else " "
-                            )
-                            for tile in tile_unit.tiles
-                        ]
-                    ) + get_modifier(tile_unit.from_who, tile_unit.tile_unit_type)
-
-            return tiles
+            if tile_unit.tile_unit_type in [
+                TileUnitType.CHI,
+                TileUnitType.PON,
+                TileUnitType.CLOSED_KAN,
+                TileUnitType.OPEN_KAN,
+                TileUnitType.ADDED_KAN,
+            ]:
+                tiles = "".join(
+                    [
+                        tile.char
+                        + ("" if (not self.config.uni or tile.char == "\U0001F004\uFE0E") else " ")
+                        for tile in tile_unit.tiles
+                    ]
+                ) + get_modifier(tile_unit.from_who, tile_unit.tile_unit_type)
+                return tiles
+        return "error"
 
     def get_board_info(self, table: MahjongTable) -> str:
         board_info = []
@@ -755,13 +786,24 @@ class GameBoardVisualizer:
 
         event_info = get_event_type(table.event_info, self.config.lang)
         board_info.append("    " + event_info)
-        board_info.append("\n\n")
         board_info = "".join(board_info)
         return board_info
 
     def show_by_text(self, table: MahjongTable) -> str:
         my_idx = table.my_idx
         board_info = self.get_board_info(table)
+
+        board_info = (
+            "#"
+            + "#" * len(board_info)
+            + "#\n"
+            + "#"
+            + board_info
+            + "#\n"
+            + "#"
+            + "#" * len(board_info)
+            + "#\n"
+        )
 
         players_info = []
         table.players.sort(key=lambda x: (x.player_idx - my_idx) % 4)
@@ -783,17 +825,19 @@ class GameBoardVisualizer:
                 player_info.append(" " + p.name)
             player_info.append("\n\n")
 
-            hand = self.get_modified_tiles(table, i, TileUnitType.HAND)
-            chi = self.get_modified_tiles(table, i, TileUnitType.CHI)
-            pon = self.get_modified_tiles(table, i, TileUnitType.PON)
-            open_kan = self.get_modified_tiles(table, i, TileUnitType.OPEN_KAN)
-            closed_kan = self.get_modified_tiles(table, i, TileUnitType.CLOSED_KAN)
-            added_kan = self.get_modified_tiles(table, i, TileUnitType.ADDED_KAN)
-            hand_area = hand + "      " + chi + pon + open_kan + closed_kan + added_kan
+            opens = []
+            for t_u in p.tile_units:
+                if t_u.tile_unit_type == TileUnitType.HAND:
+                    hand = self.add_suffix(t_u)
+                elif t_u.tile_unit_type == TileUnitType.DISCARD:
+                    discards = self.add_suffix(t_u)
+                else:
+                    opens.append(self.add_suffix(t_u))
+
+            hand_area = hand + "      " + " ".join(opens)
             player_info.append(hand_area)
             player_info.append("\n\n")
 
-            discards = self.get_modified_tiles(table, i, TileUnitType.DISCARD)
             player_info.append(discards)
             player_info.append("\n\n\n")
             players_info.append("".join(player_info))
