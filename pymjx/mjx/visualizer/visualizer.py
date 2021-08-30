@@ -4,7 +4,6 @@ from dataclasses import dataclass
 
 import mjxproto
 from google.protobuf import json_format
-from mjx.converter.open_converter import open_stolen_tile_type
 from mjx.visualizer.converter import (
     FromWho,
     TileUnitType,
