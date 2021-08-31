@@ -3,6 +3,24 @@ import random
 from pettingzoo.test import api_test
 
 
+def test_MjxEnv():
+    random.seed(1234)
+    env = mjx.env.MjxEnv()
+    env.seed(1234)
+    obs_dict = env.reset()
+    while not env.done():
+        action_dict = {}
+        for agent, obs in obs_dict.items():
+            legal_actions = [i for i, b in enumerate(obs["action_mask"]) if b]
+            action_dict[agent] = random.choice(legal_actions)
+        obs_dict, rewards, dones, info = env.step(action_dict)
+    assert len(rewards) == 4
+    assert rewards['player_0'] == 0
+    assert rewards['player_1'] == 45
+    assert rewards['player_2'] == 90
+    assert rewards['player_3'] == -135
+
+
 def test_SingleAgentEnv():
     random.seed(1234)
     env = mjx.env.SingleAgentEnv()

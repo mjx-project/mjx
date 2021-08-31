@@ -1,9 +1,36 @@
 import random
-from typing import Optional
+from typing import Dict, Optional
 
 import gym
 import numpy as np
 from pettingzoo import AECEnv
+
+import mjx
+
+
+class MjxEnv:
+    def __init__(self):
+        import mjx._mjx as _mjx
+
+        self._env = _mjx.MjxEnv()
+
+    def seed(self, seed) -> None:
+        self._env.seed(seed)
+
+    def reset(self) -> Dict[str, mjx.Observation]:
+        cpp_obs_dict = self._env.reset()
+        return {k: mjx.Observation(v) for k, v in cpp_obs_dict.items()}
+
+    def step(self, aciton_dict: Dict[str, mjx.Action]) -> Dict[str, mjx.Observation]:
+        cpp_action_dict = {k: v._cpp_obj for k, v in aciton_dict.items()}
+        cpp_obs_dict = self.step(cpp_action_dict)
+        return {k: mjx.Observation(v) for k, v in cpp_obs_dict.items()}
+
+    def done(self) -> bool:
+        return self._env.done()
+
+    def rewards(self) -> Dict[str, int]:
+        return self._env.rewards()
 
 
 class SingleAgentEnv(gym.Env):

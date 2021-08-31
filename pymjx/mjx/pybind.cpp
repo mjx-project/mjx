@@ -27,6 +27,14 @@ PYBIND11_MODULE(_mjx, m) {
       .def("is_tenpai", &mjx::Hand::IsTenpai)
       .def("shanten_number", &mjx::Hand::ShantenNumber);
 
+  py::class_<mjx::MjxEnv>(m, "MjxEnv")
+      .def(py::init<>())
+      .def("reset", &mjx::MjxEnv::Reset)
+      .def("step", &mjx::MjxEnv::Step)
+      .def("done", &mjx::MjxEnv::Done)
+      .def("rewards", &mjx::MjxEnv::Rewards)
+      .def("seed", &mjx::MjxEnv::Seed);
+
   py::class_<mjx::RLlibMahjongEnv>(m, "RLlibMahjongEnv")
       .def(py::init<>())
       .def("reset", &mjx::RLlibMahjongEnv::Reset)
