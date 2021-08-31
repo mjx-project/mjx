@@ -1,3 +1,4 @@
+import base64
 import os
 
 import svgwrite
@@ -86,7 +87,7 @@ def make_svg(filename: str, mode: str, page: int):
     is_riichi = [False, False, False, False]
 
     hands = [[], [], [], []]
-    opens = [[], [], [], []]
+    open_tiles = [[], [], [], []]
     discards = [[], [], [], []]
 
     for i in range(4):  # iは各プレイヤー(0-3)
@@ -130,7 +131,7 @@ def make_svg(filename: str, mode: str, page: int):
                 TileUnitType.OPEN_KAN,
                 TileUnitType.ADDED_KAN,
             ]:
-                opens[i].append(
+                open_tiles[i].append(
                     [
                         [[get_tile_char(tile.id, True), tile.id in red_hai] for tile in t_u.tiles],
                         t_u.from_who,
@@ -166,9 +167,12 @@ def make_svg(filename: str, mode: str, page: int):
     dwg.add(dwg.text("".join(doras), (337, 400), style="font-size:40;font-family:GL-MahjongTile;"))
 
     # bou
-    thousand_mini_img = dwg.image(
-        "https://raw.githubusercontent.com/mjx-project/mjx/master/pymjx/mjx/visualizer/1000_mini.svg?token=ARMTVMERZ33ACLMTKKJRI2LBE6AG2"
-    )
+    with open(
+        os.path.join(os.path.dirname(os.path.abspath(__file__)), "1000_mini.svg"), "rb"
+    ) as im:
+        b64_1000_mini = base64.b64encode(im.read())
+
+    thousand_mini_img = dwg.image("data:image/svg;base64," + b64_1000_mini.decode("ascii"))
     thousand_mini_img.translate(335, 405)
     thousand_mini_img.scale(0.15)
     dwg.add(thousand_mini_img)
@@ -180,7 +184,7 @@ def make_svg(filename: str, mode: str, page: int):
         )
     )
     hundred_mini_img = dwg.image(
-        "https://raw.githubusercontent.com/mjx-project/mjx/master/pymjx/mjx/visualizer/100_mini.svg?token=ARMTVME6PM4HHDYXYXD7ZLLBE6AIK"
+        "https://raw.githubusercontent.com/mjx-project/mjx/master/pymjx/mjx/visualizer/100_mini.svg"
     )
     hundred_mini_img.translate(405, 405)
     hundred_mini_img.scale(0.15)
@@ -225,14 +229,14 @@ def make_svg(filename: str, mode: str, page: int):
         # riichi_bou
         if is_riichi[i]:
             thousand_img = dwg.image(
-                href="https://raw.githubusercontent.com/mjx-project/mjx/master/pymjx/mjx/visualizer/1000.svg?token=ARMTVMGS7B6SMOFUME2NNITBE572M"
+                href="https://raw.githubusercontent.com/mjx-project/mjx/master/pymjx/mjx/visualizer/1000.svg"
             )
             thousand_img.translate(476, 485)
             thousand_img.scale(0.4)
             thousand_img.rotate(90)
             player_info[i].add(thousand_img)
 
-        left_margin = 100
+        left_margin = 190
         # hand
         for j, hand in enumerate(hands[i]):
             hand_txt = hand[0]
@@ -304,10 +308,12 @@ def make_svg(filename: str, mode: str, page: int):
                         transparent=discard[3],
                     )
 
-        left_x = 0
-        for open in opens[i]:
-            if open[2] == TileUnitType.CHI:
-                chi_txt = open[0]
+        num_of_tehai = len(hands[i]) + len(open_tiles[i]) * 3
+        left_x = char_width if num_of_tehai == 13 else 0
+
+        for open_tile in open_tiles[i]:
+            if open_tile[2] == TileUnitType.CHI:
+                chi_txt = open_tile[0]
                 dwg_add(
                     dwg,
                     pai[i],
@@ -344,11 +350,11 @@ def make_svg(filename: str, mode: str, page: int):
                     chi_txt[2],
                 )
 
-                left_x += char_width * 3 + char_height
+                left_x += char_width * 2 + char_height
 
-            elif open[2] == TileUnitType.PON:
-                pon_txt = open[0]
-                if open[1] == FromWho.LEFT:
+            elif open_tile[2] == TileUnitType.PON:
+                pon_txt = open_tile[0]
+                if open_tile[1] == FromWho.LEFT:
                     dwg_add(
                         dwg,
                         pai[i],
@@ -385,7 +391,7 @@ def make_svg(filename: str, mode: str, page: int):
                         pon_txt[2],
                     )
 
-                elif open[1] == FromWho.MID:
+                elif open_tile[1] == FromWho.MID:
                     dwg_add(
                         dwg,
                         pai[i],
@@ -400,7 +406,6 @@ def make_svg(filename: str, mode: str, page: int):
                         pon_txt[0],
                         rotate=True,
                     )
-                    print(pon_txt)
                     dwg_add(
                         dwg,
                         pai[i],
@@ -424,7 +429,7 @@ def make_svg(filename: str, mode: str, page: int):
                         pon_txt[2],
                     )
 
-                elif open[1] == FromWho.RIGHT:
+                elif open_tile[1] == FromWho.RIGHT:
                     dwg_add(
                         dwg,
                         pai[i],
@@ -458,10 +463,10 @@ def make_svg(filename: str, mode: str, page: int):
                         ),
                         pon_txt[2],
                     )
-                left_x += char_width * 3 + char_height
+                left_x += char_width * 2 + char_height
 
-            elif open[2] == TileUnitType.CLOSED_KAN:
-                closed_kan_txt = open[0]
+            elif open_tile[2] == TileUnitType.CLOSED_KAN:
+                closed_kan_txt = open_tile[0]
                 dwg_add(
                     dwg,
                     pai[i],
@@ -498,11 +503,11 @@ def make_svg(filename: str, mode: str, page: int):
                     ),
                     ["\U0001F02B", False],
                 )
-                left_x += char_width * 5
+                left_x += char_width * 4
 
-            elif open[2] == TileUnitType.OPEN_KAN:
-                open_kan_txt = open[0]
-                if open[1] == FromWho.LEFT:
+            elif open_tile[2] == TileUnitType.OPEN_KAN:
+                open_tile_kan_txt = open_tile[0]
+                if open_tile[1] == FromWho.LEFT:
                     dwg_add(
                         dwg,
                         pai[i],
@@ -513,7 +518,7 @@ def make_svg(filename: str, mode: str, page: int):
                             - (len(hands[i]) + 1) * char_width  # 手牌の分のずれ
                             - left_x,
                         ),
-                        open_kan_txt[0],
+                        open_tile_kan_txt[0],
                         rotate=True,
                     )
                     dwg_add(
@@ -523,7 +528,7 @@ def make_svg(filename: str, mode: str, page: int):
                             left_margin + (len(hands[i]) + 1) * char_width + left_x + char_height,
                             770,
                         ),
-                        open_kan_txt[1],
+                        open_tile_kan_txt[1],
                     )
                     dwg_add(
                         dwg,
@@ -536,7 +541,7 @@ def make_svg(filename: str, mode: str, page: int):
                             + char_width,
                             770,
                         ),
-                        open_kan_txt[2],
+                        open_tile_kan_txt[2],
                     )
                     dwg_add(
                         dwg,
@@ -549,10 +554,10 @@ def make_svg(filename: str, mode: str, page: int):
                             + char_width * 2,
                             770,
                         ),
-                        open_kan_txt[3],
+                        open_tile_kan_txt[3],
                     )
 
-                elif open[1] == FromWho.MID:
+                elif open_tile[1] == FromWho.MID:
                     dwg_add(
                         dwg,
                         pai[i],
@@ -564,7 +569,7 @@ def make_svg(filename: str, mode: str, page: int):
                             - left_x
                             - char_width,
                         ),
-                        open_kan_txt[0],
+                        open_tile_kan_txt[0],
                         rotate=True,
                     )
                     dwg_add(
@@ -574,7 +579,7 @@ def make_svg(filename: str, mode: str, page: int):
                             left_margin + (len(hands[i]) + 1) * char_width + left_x,
                             770,
                         ),
-                        open_kan_txt[1],
+                        open_tile_kan_txt[1],
                     )
                     dwg_add(
                         dwg,
@@ -587,7 +592,7 @@ def make_svg(filename: str, mode: str, page: int):
                             + char_width,
                             770,
                         ),
-                        open_kan_txt[2],
+                        open_tile_kan_txt[2],
                     )
                     dwg_add(
                         dwg,
@@ -600,10 +605,10 @@ def make_svg(filename: str, mode: str, page: int):
                             + char_width * 2,
                             770,
                         ),
-                        open_kan_txt[3],
+                        open_tile_kan_txt[3],
                     )
 
-                elif open[1] == FromWho.RIGHT:
+                elif open_tile[1] == FromWho.RIGHT:
                     dwg_add(
                         dwg,
                         pai[i],
@@ -615,7 +620,7 @@ def make_svg(filename: str, mode: str, page: int):
                             - left_x
                             - char_width * 3,
                         ),
-                        open_kan_txt[0],
+                        open_tile_kan_txt[0],
                         rotate=True,
                     )
                     dwg_add(
@@ -625,7 +630,7 @@ def make_svg(filename: str, mode: str, page: int):
                             left_margin + (len(hands[i]) + 1) * char_width + left_x,
                             770,
                         ),
-                        open_kan_txt[1],
+                        open_tile_kan_txt[1],
                     )
                     dwg_add(
                         dwg,
@@ -634,7 +639,7 @@ def make_svg(filename: str, mode: str, page: int):
                             left_margin + (len(hands[i]) + 1) * char_width + left_x + char_width,
                             770,
                         ),
-                        open_kan_txt[2],
+                        open_tile_kan_txt[2],
                     )
                     dwg_add(
                         dwg,
@@ -647,13 +652,13 @@ def make_svg(filename: str, mode: str, page: int):
                             + char_width * 2,
                             770,
                         ),
-                        open_kan_txt[3],
+                        open_tile_kan_txt[3],
                     )
-                left_x += char_width * 4 + char_height
+                left_x += char_width * 3 + char_height
 
-            elif open[2] == TileUnitType.ADDED_KAN:
-                added_kan_txt = open[0]
-                if open[1] == FromWho.LEFT:
+            elif open_tile[2] == TileUnitType.ADDED_KAN:
+                added_kan_txt = open_tile[0]
+                if open_tile[1] == FromWho.LEFT:
                     dwg_add(
                         dwg,
                         pai[i],
@@ -703,7 +708,7 @@ def make_svg(filename: str, mode: str, page: int):
                         added_kan_txt[3],
                     )
 
-                elif open[1] == FromWho.MID:
+                elif open_tile[1] == FromWho.MID:
                     dwg_add(
                         dwg,
                         pai[i],
@@ -755,7 +760,7 @@ def make_svg(filename: str, mode: str, page: int):
                         added_kan_txt[3],
                     )
 
-                elif open[1] == FromWho.RIGHT:
+                elif open_tile[1] == FromWho.RIGHT:
                     dwg_add(
                         dwg,
                         pai[i],
@@ -802,7 +807,7 @@ def make_svg(filename: str, mode: str, page: int):
                         ),
                         added_kan_txt[1],
                     )
-                left_x += char_width * 3 + char_height
+                left_x += char_width * 2 + char_height
 
         players[i].add(pai[i])
         players[i].add(player_info[i])
