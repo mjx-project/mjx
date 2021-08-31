@@ -12,7 +12,8 @@ def test_svg():
     files = glob.glob(obs_files)
     for file in files:
         for i in range(10):
-            make_svg(file, mode, i)
+            # make_svg(file, mode, i)
+            pass
 
     mode = "sta"
     obs_files = os.path.join(os.path.dirname(os.path.abspath(__file__)), "resources/state/*.json")

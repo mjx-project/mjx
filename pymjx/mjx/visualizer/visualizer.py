@@ -73,6 +73,7 @@ class Player:
         self.riichi_now = False
         self.is_declared_riichi = False
         self.name = ""
+        self.draw_now = False
 
 
 class MahjongTable:
@@ -102,15 +103,20 @@ class MahjongTable:
     def check_num_tiles(self) -> bool:
         for p in self.players:
             num_of_tiles = 0
+            hand = ""
+            open = []
             for tile_unit in p.tile_units:
                 if tile_unit.tile_unit_type == TileUnitType.HAND:
                     num_of_tiles += len(tile_unit.tiles)
+                    hand = " ".join([str(tile.id) for tile in tile_unit.tiles])
                 elif tile_unit.tile_unit_type != TileUnitType.DISCARD:
                     num_of_tiles += 3
+                    open.append(" ".join([str(tile.id) for tile in tile_unit.tiles]))
 
+            open = " : ".join(open)
             if num_of_tiles < 13 or 14 < num_of_tiles:
                 sys.stderr.write(
-                    f"ERROR: The number of tiles is inaccurate. Player: {p.player_idx}, {num_of_tiles}"
+                    f"ERROR: The number of tiles is inaccurate. Player: {p.player_idx}\nhand:[{hand}],open:[{open}]"
                 )
                 return False
         return True
@@ -134,13 +140,39 @@ class MahjongTable:
         MahjongTableのデータに、
         手牌の情報を読み込ませる関数
         """
-        table.players[who].tile_units.append(
-            TileUnit(
-                TileUnitType.HAND,
-                FromWho.NONE,
-                [Tile(i, is_open=True) for i in private_observation.curr_hand.closed_tiles],
+        has_tsumotile = False
+        if private_observation.draw_history != [] and (
+            private_observation.draw_history[-1]
+            in [id for id in private_observation.curr_hand.closed_tiles]
+        ):
+            has_tsumotile = True
+
+        if table.players[who].draw_now and has_tsumotile:
+            table.players[who].tile_units.append(
+                TileUnit(
+                    TileUnitType.HAND,
+                    FromWho.NONE,
+                    [
+                        Tile(i, is_open=True)
+                        for i in private_observation.curr_hand.closed_tiles
+                        if i != private_observation.draw_history[-1]
+                    ]
+                    + [Tile(private_observation.draw_history[-1], is_open=True)],
+                )
             )
-        )
+        else:
+            table.players[who].tile_units.append(
+                TileUnit(
+                    TileUnitType.HAND,
+                    FromWho.NONE,
+                    [Tile(i, is_open=True) for i in private_observation.curr_hand.closed_tiles],
+                )
+            )
+        if has_tsumotile:
+            print(
+                table.players[who].tile_units[-1].tiles[-1].id
+                == private_observation.draw_history[-1]
+            )
         return table
 
     @classmethod
@@ -160,6 +192,8 @@ class MahjongTable:
 
         for i, eve in enumerate(public_observation.events):
             p = table.players[eve.who]
+
+            p.draw_now = eve.type == EventType.EVENT_TYPE_DRAW
 
             if eve.type == EventType.EVENT_TYPE_DISCARD:
                 for t_u in p.tile_units:
