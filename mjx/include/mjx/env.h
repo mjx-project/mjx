@@ -72,6 +72,7 @@ class PettingZooMahjongEnv {
   const std::vector<PlayerId>& agents() const noexcept;
   const std::vector<PlayerId>& possible_agents() const noexcept;
   std::optional<PlayerId> agent_selection() const noexcept;
+  std::unordered_map<PlayerId, int> rewards() const noexcept;
 
  private:
   const std::vector<PlayerId> possible_agents_ = {"player_0", "player_1",
