@@ -16,3 +16,4 @@ rich
 gym
 pillow
 pettingzoo
+svgwrite
