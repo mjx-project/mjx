@@ -9,10 +9,11 @@ import mjx
 
 
 class MjxEnv:
-    def __init__(self):
+    def __init__(self, player_ids=["player_0", "player_1", "player_2", "player_3"], observe_all=False):
         import mjx._mjx as _mjx
 
-        self._env = _mjx.MjxEnv()
+        assert len(player_ids) == 4
+        self._env = _mjx.MjxEnv(player_ids, observe_all)
 
     def seed(self, seed) -> None:
         self._env.seed(seed)
@@ -150,59 +151,80 @@ class RLlibMahjongEnv:
 
 class PettingZooMahjongEnv(AECEnv):
     def __init__(self):
-        import mjx._mjx as _mjx
 
         super(PettingZooMahjongEnv, self).__init__()
-        self.env = _mjx.PettingZooMahjongEnv()
+        self.env = MjxEnv(observe_all=True)
 
         self.legal_actions = []
+
+        # member variables
+        self.possible_agents = ["player_0", "player_1", "player_2", "player_3"]
+        self.agents = self.possible_agents
+        self._agents_to_act = []
+        self.agent_selection = None
+        self.observations = {}
+        self.rewards = {agent: 0 for agent in self.possible_agents}
+        self._cumulative_rewards = {agent: 0 for agent in self.possible_agents}
+        self.dones = {agent: False for agent in self.possible_agents}
+        self.infos = {agent: {} for agent in self.possible_agents}
+        self._action_dict = {}
 
         # consts
         self.num_actions = 181  # TODO: use val from self.env
         self.num_features = 34 * 4  # TODO: use val from self.env
         self.observation_spaces = {
-            i: gym.spaces.Dict(
+            agent: gym.spaces.Dict(
                 {
                     "action_mask": gym.spaces.Box(0, 1, shape=(self.num_actions,)),
                     "real_obs": gym.spaces.Box(0, 1, shape=(self.num_features,)),
                 }
             )
-            for i in self.possible_agents
+            for agent in self.possible_agents
         }
         self.action_spaces = {
-            i: gym.spaces.Discrete(self.num_actions) for i in self.possible_agents
+            agent: gym.spaces.Discrete(self.num_actions) for agent in self.possible_agents
         }
+        self._reward_map = {1: 90, 2: 45, 3: 0, 4: -135}
 
-        # member variables
-        self.agents = self.possible_agents
-        self.rewards = {i: 0 for i in self.possible_agents}
-        self._cumulative_rewards = {i: 0 for i in self.possible_agents}
-        self.dones = {i: False for i in self.possible_agents}
-        self.infos = {i: {} for i in self.possible_agents}
 
     @staticmethod
     def _convert_obs(obs):
         mask = obs.action_mask()
         obs_dict = {}
         obs_dict["action_mask"] = np.array(mask, dtype=np.float32)
-        obs_dict["real_obs"] = np.array(obs.to_feature("small_v0"), dtype=np.float32)
+        obs_dict["real_obs"] = np.array(
+            obs.to_feature("small_v0"), dtype=np.float32)
         return obs_dict
 
     def _update_legal_actions(self, obs):
         self.legal_actions = obs.legal_actions()
 
-    def reset(self):
-        self.env.reset()
+    def _update_agents_to_act(self):
+        self._agents_to_act.clear()
+        for agent, observation in self.observations.items():
+            if not observation.legal_actions().empty():
+                self._agents_to_act.append(agent)
 
+    def reset(self):
         # reset member varialbes
         self.agents = self.possible_agents
-        self.rewards = {i: 0 for i in self.possible_agents}
-        self._cumulative_rewards = {i: 0 for i in self.possible_agents}
-        self.dones = {i: False for i in self.possible_agents}
-        self.infos = {i: {} for i in self.possible_agents}
+        self._agents_to_act = []
+        self.agent_selection = None
+        self.observations = {}
+        self.rewards = {agent: 0 for agent in self.possible_agents}
+        self._cumulative_rewards = {agent: 0 for agent in self.possible_agents}
+        self.dones = {agent: False for agent in self.possible_agents}
+        self.infos = {agent: {} for agent in self.possible_agents}
+        self._action_dict = {}
 
+        # initialize
+        observations = self.env.reset()
+        self.observations = {agent: self._convert_obs(obs) for agent, obs in observations.items()}
         obs = self.observe(self.agent_selection)
         self._update_legal_actions(obs)
+        self._update_agents_to_act()
+        assert len(self._agents_to_act) == 1
+        self.agent_selection = self._agents_to_act.front()
 
     def last(self, observe=True):
         obs, cumulative_reward, done, info = super().last(observe)
@@ -215,37 +237,41 @@ class PettingZooMahjongEnv(AECEnv):
 
         if self.dones[self.agent_selection]:
             self._was_done_step(action)
+        # set dummy action
         if action is None:
-            # set dummy action
             action = 180
-        self.env.step(_mjx.Action(action, self.legal_actions))
-        if self.agent_selection is not None:
-            obs, _, done, _ = self.env.last(True)
-            if done and not self.dones[self.agent_selection]:
-                rewards = self.env.rewards()
-                self.rewards = {i: rewards[i] for i in self.possible_agents}
-                self.dones = {i: True for i in self.possible_agents}
-                self.infos = {i: {} for i in self.possible_agents}
-            self._update_legal_actions(obs)
+
+        # update state
+        self._action_dict[self.agent_selection] = mjx.Action(_mjx.Action(action, self.legal_actions))
+
+        if self._agents_to_act[-1] != self.agent_selection:
+            self.agent_selection = self._agents_to_act[self._agents_to_act.index(self.agent_selection) + 1]
+        else:
+            assert  len(self._action_dict) == len(self._agents_to_act)
+            # all dummy actions were taken
+            if self.env.done():
+                self.agent_selection = None
+                return
+            self.observations = {agent: self._convert_obs(obs) for agent, obs
+                                 in self.env.step(self.action_dict).items()}
+            self._action_dict.clear()
+            self._update_agents_to_act()
+            self.agent_selection = self._agents_to_act.front()
+
+
+        # update information
+        obs, _, done, _ = self.env.last(True)
+        if done and not self.dones[self.agent_selection]:
+            rewards = self.env.rewards()
+            self.rewards = {agent: rewards[i] for agent in self.possible_agents}
+            self.dones = {agent: True for agent in self.possible_agents}
+            self.infos = {agent: {} for agent in self.possible_agents}
+        self._update_legal_actions(obs)
         self._accumulate_rewards()
 
     def seed(self, seed):
         self.env.seed(seed)
 
     def observe(self, agent):
-        return self.env.observe(agent)
+        return self.observations[self.agent_selection]
 
-    def agents(self):
-        return self.env.agents()
-
-    @property
-    def possible_agents(self):
-        return self.env.possible_agents()
-
-    @property
-    def agent_selection(self):
-        return self.env.agent_selection()
-
-    @agent_selection.setter
-    def agent_selection(self, val):
-        pass
