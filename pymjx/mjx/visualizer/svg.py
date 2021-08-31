@@ -167,7 +167,7 @@ def make_svg(filename: str, mode: str, page: int):
 
     # bou
     thousand_mini_img = dwg.image(
-        "https://raw.githubusercontent.com/mjx-project/mjx/master/pymjx/mjx/visualizer/1000_mini.svg?token=ARMTVMERZ33ACLMTKKJRI2LBE6AG2"
+        "https://raw.githubusercontent.com/mjx-project/mjx/master/pymjx/mjx/visualizer/1000_mini.svg"
     )
     thousand_mini_img.translate(335, 405)
     thousand_mini_img.scale(0.15)
@@ -180,7 +180,7 @@ def make_svg(filename: str, mode: str, page: int):
         )
     )
     hundred_mini_img = dwg.image(
-        "https://raw.githubusercontent.com/mjx-project/mjx/master/pymjx/mjx/visualizer/100_mini.svg?token=ARMTVME6PM4HHDYXYXD7ZLLBE6AIK"
+        "https://raw.githubusercontent.com/mjx-project/mjx/master/pymjx/mjx/visualizer/100_mini.svg"
     )
     hundred_mini_img.translate(405, 405)
     hundred_mini_img.scale(0.15)
@@ -225,14 +225,14 @@ def make_svg(filename: str, mode: str, page: int):
         # riichi_bou
         if is_riichi[i]:
             thousand_img = dwg.image(
-                href="https://raw.githubusercontent.com/mjx-project/mjx/master/pymjx/mjx/visualizer/1000.svg?token=ARMTVMGS7B6SMOFUME2NNITBE572M"
+                href="https://raw.githubusercontent.com/mjx-project/mjx/master/pymjx/mjx/visualizer/1000.svg"
             )
             thousand_img.translate(476, 485)
             thousand_img.scale(0.4)
             thousand_img.rotate(90)
             player_info[i].add(thousand_img)
 
-        left_margin = 100
+        left_margin = 190
         # hand
         for j, hand in enumerate(hands[i]):
             hand_txt = hand[0]
@@ -304,7 +304,9 @@ def make_svg(filename: str, mode: str, page: int):
                         transparent=discard[3],
                     )
 
-        left_x = 0
+        num_of_tehai = len(hands[i]) + len(opens[i]) * 3
+        left_x = char_width if num_of_tehai == 13 else 0
+
         for open in opens[i]:
             if open[2] == TileUnitType.CHI:
                 chi_txt = open[0]
@@ -344,7 +346,7 @@ def make_svg(filename: str, mode: str, page: int):
                     chi_txt[2],
                 )
 
-                left_x += char_width * 3 + char_height
+                left_x += char_width * 2 + char_height
 
             elif open[2] == TileUnitType.PON:
                 pon_txt = open[0]
@@ -458,7 +460,7 @@ def make_svg(filename: str, mode: str, page: int):
                         ),
                         pon_txt[2],
                     )
-                left_x += char_width * 3 + char_height
+                left_x += char_width * 2 + char_height
 
             elif open[2] == TileUnitType.CLOSED_KAN:
                 closed_kan_txt = open[0]
@@ -498,7 +500,7 @@ def make_svg(filename: str, mode: str, page: int):
                     ),
                     ["\U0001F02B", False],
                 )
-                left_x += char_width * 5
+                left_x += char_width * 4
 
             elif open[2] == TileUnitType.OPEN_KAN:
                 open_kan_txt = open[0]
@@ -649,7 +651,7 @@ def make_svg(filename: str, mode: str, page: int):
                         ),
                         open_kan_txt[3],
                     )
-                left_x += char_width * 4 + char_height
+                left_x += char_width * 3 + char_height
 
             elif open[2] == TileUnitType.ADDED_KAN:
                 added_kan_txt = open[0]
@@ -802,7 +804,7 @@ def make_svg(filename: str, mode: str, page: int):
                         ),
                         added_kan_txt[1],
                     )
-                left_x += char_width * 3 + char_height
+                left_x += char_width * 2 + char_height
 
         players[i].add(pai[i])
         players[i].add(player_info[i])
