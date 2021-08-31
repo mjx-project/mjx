@@ -168,11 +168,7 @@ class MahjongTable:
                     [Tile(i, is_open=True) for i in private_observation.curr_hand.closed_tiles],
                 )
             )
-        if has_tsumotile:
-            print(
-                table.players[who].tile_units[-1].tiles[-1].id
-                == private_observation.draw_history[-1]
-            )
+
         return table
 
     @classmethod
