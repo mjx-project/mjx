@@ -132,6 +132,7 @@ class MahjongTable:
         """
         MahjongTableのデータに、
         - 手牌
+        - 鳴き牌
         の情報を読み込ませる関数
         """
         table.players[who].tile_units.append(
@@ -141,6 +142,14 @@ class MahjongTable:
                 [Tile(i, is_open=True) for i in private_observation.curr_hand.closed_tiles],
             )
         )
+        for open in private_observation.curr_hand.opens:
+            table.players[who].tile_units.append(
+                TileUnit(
+                    open_event_type(open),
+                    open_from(open),
+                    [Tile(i, is_open=True) for i in open_tile_ids(open)],
+                )
+            )
 
         return table
 
@@ -221,14 +230,6 @@ class MahjongTable:
                 EventType.EVENT_TYPE_ADDED_KAN,
                 EventType.EVENT_TYPE_OPEN_KAN,
             ]:
-                p.tile_units.append(
-                    TileUnit(
-                        open_event_type(eve.open),
-                        open_from(eve.open),
-                        [Tile(i, is_open=True) for i in open_tile_ids(eve.open)],
-                    )
-                )
-
                 idx_from = -1
                 if open_from(eve.open) == FromWho.LEFT:
                     idx_from = (p.player_idx + 3) % 4
