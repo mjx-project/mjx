@@ -1,5 +1,5 @@
-from typing import Optional
 import random
+from typing import Optional
 
 import gym
 import numpy as np
