@@ -8,7 +8,6 @@ import mjx
 
 
 class MjxEnv:
-    
     def __init__():
         import mjx._mjx as _mjx
 
