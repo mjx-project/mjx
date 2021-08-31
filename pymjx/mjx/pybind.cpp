@@ -28,7 +28,7 @@ PYBIND11_MODULE(_mjx, m) {
       .def("shanten_number", &mjx::Hand::ShantenNumber);
 
   py::class_<mjx::MjxEnv>(m, "MjxEnv")
-      .def(py::init<>())
+      .def(py::init<std::vector<std::string>, bool>())
       .def("reset", &mjx::MjxEnv::Reset)
       .def("step", &mjx::MjxEnv::Step)
       .def("done", &mjx::MjxEnv::Done)
