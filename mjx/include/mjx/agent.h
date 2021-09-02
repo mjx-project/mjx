@@ -2,14 +2,14 @@
 #define MJX_PROJECT_AGENT_H
 
 #include "mjx/action.h"
-#include "mjx/observation.h"
 #include "mjx/internal/utils.h"
+#include "mjx/observation.h"
 
 namespace mjx {
 
 class Agent {
  public:
-  virtual ~Agent() { }
+  virtual ~Agent() {}
   virtual mjx::Action act(Observation observation) = 0;
   void Serve(const std::string& socket_address) noexcept;
 };

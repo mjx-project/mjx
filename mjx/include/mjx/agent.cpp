@@ -31,12 +31,11 @@ Action GrpcAgent::act(Observation observation) {
   return Action(response);
 }
 
-AgentGrpcServerImpl::AgentGrpcServerImpl(Agent* agent)
-    : agent_(agent) {}
+AgentGrpcServerImpl::AgentGrpcServerImpl(Agent* agent) : agent_(agent) {}
 
 grpc::Status AgentGrpcServerImpl::TakeAction(
-    grpc::ServerContext *context, const mjxproto::Observation *request,
-    mjxproto::Action *reply) {
+    grpc::ServerContext* context, const mjxproto::Observation* request,
+    mjxproto::Action* reply) {
   reply->CopyFrom(agent_->act(Observation(*request)).proto());
   return grpc::Status::OK;
 }
