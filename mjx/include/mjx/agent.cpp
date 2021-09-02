@@ -1,10 +1,10 @@
 #include "agent.h"
-#include "mjx/internal/utils.h"
+
 #include <grpcpp/grpcpp.h>
 
+#include "mjx/internal/utils.h"
 
-namespace mjx
-{
+namespace mjx {
 Action RandomAgent::Act(const Observation& observation) const noexcept {
   // Prepare some seed and MT engine for reproducibility
   const std::uint64_t seed =
@@ -13,11 +13,12 @@ Action RandomAgent::Act(const Observation& observation) const noexcept {
   auto mt = std::mt19937_64(seed);
 
   const auto possible_actions = observation.legal_actions();
-  return *internal::SelectRandomly(possible_actions.begin(), possible_actions.end(),
-                         mt);
+  return *internal::SelectRandomly(possible_actions.begin(),
+                                   possible_actions.end(), mt);
 }
-GrpcAgent::GrpcAgent(const std::string& socket_address):
-stub_(std::make_shared<mjxproto::Agent::Stub>(grpc::CreateChannel(socket_address, grpc::InsecureChannelCredentials()))) {}
+GrpcAgent::GrpcAgent(const std::string& socket_address)
+    : stub_(std::make_shared<mjxproto::Agent::Stub>(grpc::CreateChannel(
+          socket_address, grpc::InsecureChannelCredentials()))) {}
 Action GrpcAgent::Act(const Observation& observation) const noexcept {
   const mjxproto::Observation& request = observation.proto();
   mjxproto::Action response;
