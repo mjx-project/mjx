@@ -2,10 +2,13 @@ import mjx.env
 import random
 from pettingzoo.test import api_test
 
+
 def test_EnvRunner():
     import mjx._mjx as _mjx
-    agents = {"player_0": _mjx.RandomAgent(), "player_1": _mjx.RandomAgent(), "player_2": _mjx.RandomAgent(), "player_3": _mjx.RandomAgent()}
+    agents = {"player_0": _mjx.RandomAgent(), "player_1": _mjx.RandomAgent(
+    ), "player_2": _mjx.RandomAgent(), "player_3": _mjx.RandomAgent()}
     _mjx.EnvRunner.run(agents)
+
 
 def test_MjxEnv():
     random.seed(1234)
@@ -66,7 +69,8 @@ def test_PettingZooMahjongEnv():
     for agent in env.agent_iter():
         observation, reward, done, info = env.last(True)
         results.append((agent, observation, reward, done, info))
-        legal_actions = [i for i, b in enumerate(observation["action_mask"]) if b]
+        legal_actions = [i for i, b in enumerate(
+            observation["action_mask"]) if b]
         action = random.choice(legal_actions)
         env.step(action if not done else None)
 
@@ -112,8 +116,9 @@ def test_PettingZooMahjongEnv():
     # API test
     api_test(env, num_cycles=100000, verbose_progress=False)
 
+
 if __name__ == '__main__':
     test_EnvRunner()
-    test_SingleAgentEnv()
+    # test_SingleAgentEnv()
     test_RLlibMahjongEnv()
     test_PettingZooMahjongEnv()
