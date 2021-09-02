@@ -107,7 +107,7 @@ class EnvRunner {
       {
         std::unordered_map<PlayerId, mjx::Action> action_dict;
         for (const auto& [player_id, observation] : observations) {
-          auto action = agents.at(player_id)->act(observation);
+          auto action = agents.at(player_id)->Act(observation);
           action_dict[player_id] = mjx::Action(action);
         }
         observations = env.Step(action_dict);

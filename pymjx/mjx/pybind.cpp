@@ -4,13 +4,14 @@
 
 namespace py = pybind11;
 
-// ref)
+// [references]
 // https://pybind11.readthedocs.io/en/stable/advanced/classes.html#overriding-virtual-functions-in-python
+// https://pybind11.readthedocs.io/en/stable/reference.html#c.PYBIND11_OVERRIDE_NAME
 class PyAgent : public mjx::Agent {
  public:
   using mjx::Agent::Agent;
-  mjx::Action act(mjx::Observation observation) override {
-    PYBIND11_OVERRIDE_PURE(mjx::Action, mjx::Agent, act, observation);
+  mjx::Action Act(mjx::Observation observation) override {
+    PYBIND11_OVERRIDE_PURE_NAME(mjx::Action, mjx::Agent, "act", Act, observation);
   }
 };
 
@@ -39,7 +40,7 @@ PYBIND11_MODULE(_mjx, m) {
 
   py::class_<mjx::Agent, PyAgent>(m, "Agent")
       .def(py::init<>())
-      .def("act", &mjx::Agent::act)
+      .def("act", &mjx::Agent::Act)
       .def("serve", &mjx::Agent::Serve);
 
   py::class_<mjx::RandomAgent, mjx::Agent>(m, "RandomAgent").def(py::init<>());

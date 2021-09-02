@@ -10,13 +10,13 @@ namespace mjx {
 class Agent {
  public:
   virtual ~Agent() {}
-  virtual mjx::Action act(Observation observation) = 0;
+  virtual mjx::Action Act(Observation observation) = 0;
   void Serve(const std::string& socket_address) noexcept;
 };
 
 class RandomAgent : public Agent {
  public:
-  mjx::Action act(Observation observation) override {
+  mjx::Action Act(Observation observation) override {
     const std::uint64_t seed =
         12345 + 4096 * observation.proto().public_observation().events_size() +
         16 * observation.legal_actions().size() + 1 * observation.proto().who();
@@ -31,7 +31,7 @@ class RandomAgent : public Agent {
 class GrpcAgent : public Agent {
  public:
   explicit GrpcAgent(const std::string& socket_address);
-  mjx::Action act(Observation observation) override;
+  mjx::Action Act(Observation observation) override;
 
  private:
   std::shared_ptr<mjxproto::Agent::Stub> stub_;
