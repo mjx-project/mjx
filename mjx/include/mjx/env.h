@@ -1,4 +1,5 @@
 #include "mjx/action.h"
+#include "mjx/agent.h"
 #include "mjx/internal/state.h"
 #include "mjx/observation.h"
 #include "mjx/state.h"
@@ -96,6 +97,26 @@ class PettingZooMahjongEnv {
 
   void UpdateAgentsToAct() noexcept;
 };
+
+class EnvRunner {
+ public:
+  static void Run(const std::unordered_map<PlayerId, Agent*>& agents) {
+    auto env = MjxEnv();
+    auto observations = env.Reset();
+    while (!env.Done()) {
+      {
+        std::unordered_map<PlayerId, mjx::Action> action_dict;
+        for (const auto& [player_id, observation] : observations) {
+          auto action = agents.at(player_id)->Act(observation);
+          action_dict[player_id] = mjx::Action(action);
+        }
+        observations = env.Step(action_dict);
+      }
+    }
+    std::cerr << env.state().ToJson() << std::endl;
+  }
+};
+
 }  // namespace mjx
 
 #endif  // MJX_PROJECT_ENV_H

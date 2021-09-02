@@ -1,7 +1,19 @@
+#include <mjx/agent.h>
 #include <mjx/env.h>
 #include <mjx/internal/strategy_rule_based.h>
 
 #include "gtest/gtest.h"
+
+TEST(env, run) {
+  auto agent = std::make_shared<mjx::RandomAgent>();
+  std::unordered_map<mjx::PlayerId, mjx::Agent*> agents = {
+      {"player_0", agent.get()},
+      {"player_1", agent.get()},
+      {"player_2", agent.get()},
+      {"player_3", agent.get()},
+  };
+  mjx::EnvRunner::Run(agents);
+}
 
 TEST(env, MjxEnv) {
   std::unordered_map<mjx::PlayerId, mjx::Observation> observations;

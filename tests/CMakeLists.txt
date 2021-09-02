@@ -23,6 +23,7 @@ FetchContent_MakeAvailable(googletest)
 ###################################################################################
 add_executable(mjx_test
         action_test.cpp
+        env_test.cpp
         hand_test.cpp
         observation_test.cpp
         state_test.cpp
@@ -33,7 +34,6 @@ add_executable(mjx_test
         internal_hand_test.cpp
         internal_observation_test.cpp
         internal_open_test.cpp
-        env_test.cpp
         internal_environment_test.cpp
         internal_shanten_calculator_test.cpp
         internal_state_test.cpp
