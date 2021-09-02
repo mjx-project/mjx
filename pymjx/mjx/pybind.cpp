@@ -39,7 +39,8 @@ PYBIND11_MODULE(_mjx, m) {
 
   py::class_<mjx::Agent, PyAgent>(m, "Agent")
       .def(py::init<>())
-      .def("act", &mjx::Agent::act);
+      .def("act", &mjx::Agent::act)
+      .def("serve", &mjx::Agent::Serve);
 
   py::class_<mjx::RandomAgent, mjx::Agent>(m, "RandomAgent").def(py::init<>());
 
