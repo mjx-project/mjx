@@ -43,12 +43,11 @@ Action GrpcAgent::Act(const Observation& observation) const noexcept {
   return Action(response);
 }
 
-AgentGrpcServerImpl::AgentGrpcServerImpl(Agent *agent)
-    : agent_(agent) {}
+AgentGrpcServerImpl::AgentGrpcServerImpl(Agent* agent) : agent_(agent) {}
 
 grpc::Status AgentGrpcServerImpl::TakeAction(
-    grpc::ServerContext *context, const mjxproto::Observation *request,
-    mjxproto::Action *reply) {
+    grpc::ServerContext* context, const mjxproto::Observation* request,
+    mjxproto::Action* reply) {
   reply->CopyFrom(agent_->Act(Observation(*request)).proto());
   return grpc::Status::OK;
 }

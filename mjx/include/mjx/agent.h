@@ -19,7 +19,7 @@ class RandomAgent final : public Agent {
       const Observation& observation) const noexcept;
 };
 
-class GrpcAgent final : public Agent{
+class GrpcAgent final : public Agent {
  public:
   explicit GrpcAgent(const std::string& socket_address);
   [[nodiscard]] virtual Action Act(
