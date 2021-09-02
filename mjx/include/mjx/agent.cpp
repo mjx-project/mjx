@@ -1,5 +1,6 @@
 #include "agent.h"
 #include "mjx/internal/utils.h"
+#include <grpcpp/grpcpp.h>
 
 
 namespace mjx
@@ -14,5 +15,15 @@ Action RandomAgent::Act(const Observation& observation) const noexcept {
   const auto possible_actions = observation.legal_actions();
   return *internal::SelectRandomly(possible_actions.begin(), possible_actions.end(),
                          mt);
+}
+GrpcAgent::GrpcAgent(const std::string& socket_address):
+stub_(std::make_shared<mjxproto::Agent::Stub>(grpc::CreateChannel(socket_address, grpc::InsecureChannelCredentials()))) {}
+Action GrpcAgent::Act(const Observation& observation) const noexcept {
+  const mjxproto::Observation& request = observation.proto();
+  mjxproto::Action response;
+  grpc::ClientContext context;
+  grpc::Status status = stub_->TakeAction(&context, request, &response);
+  assert(status.ok());
+  return Action(response);
 }
 }  // namespace mjx
