@@ -11,7 +11,8 @@ class PyAgent : public mjx::Agent {
  public:
   using mjx::Agent::Agent;
   mjx::Action Act(const mjx::Observation &observation) const noexcept override {
-    PYBIND11_OVERRIDE_PURE_NAME(mjx::Action, mjx::Agent, "act", Act, observation);
+    PYBIND11_OVERRIDE_PURE_NAME(mjx::Action, mjx::Agent, "act", Act,
+                                observation);
   }
 };
 
@@ -20,7 +21,7 @@ PYBIND11_MODULE(_mjx, m) {
 
   py::class_<mjx::Action>(m, "Action")
       .def(py::init<>())
-      .def(py::init<int, const std::vector<mjx::Action>&>())
+      .def(py::init<int, const std::vector<mjx::Action> &>())
       .def("to_json", &mjx::Action::ToJson)
       .def("to_idx", &mjx::Action::ToIdx);
 
@@ -46,7 +47,7 @@ PYBIND11_MODULE(_mjx, m) {
   py::class_<mjx::RandomAgent, mjx::Agent>(m, "RandomAgent").def(py::init<>());
 
   py::class_<mjx::GrpcAgent, mjx::Agent>(m, "GrpcAgent")
-      .def(py::init<const std::string&>());
+      .def(py::init<const std::string &>());
 
   py::class_<mjx::EnvRunner>(m, "EnvRunner").def("run", &mjx::EnvRunner::Run);
 
