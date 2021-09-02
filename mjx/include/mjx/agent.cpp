@@ -6,7 +6,7 @@
 #include "mjx/internal/utils.h"
 
 namespace mjx {
-void Agent::Serve(const std::string& socket_address) noexcept {
+void Agent::Serve(const std::string& socket_address) const noexcept {
   std::unique_ptr<grpc::Service> agent_impl =
       std::make_unique<AgentGrpcServerImpl>(this);
   std::cout << socket_address << std::endl;
@@ -22,7 +22,7 @@ void Agent::Serve(const std::string& socket_address) noexcept {
 GrpcAgent::GrpcAgent(const std::string& socket_address)
     : stub_(std::make_shared<mjxproto::Agent::Stub>(grpc::CreateChannel(
           socket_address, grpc::InsecureChannelCredentials()))) {}
-Action GrpcAgent::Act(const Observation& observation) {
+Action GrpcAgent::Act(const Observation& observation) const noexcept {
   const mjxproto::Observation& request = observation.proto();
   mjxproto::Action response;
   grpc::ClientContext context;
@@ -31,7 +31,7 @@ Action GrpcAgent::Act(const Observation& observation) {
   return Action(response);
 }
 
-AgentGrpcServerImpl::AgentGrpcServerImpl(Agent* agent) : agent_(agent) {}
+AgentGrpcServerImpl::AgentGrpcServerImpl(const Agent* agent) : agent_(agent) {}
 
 grpc::Status AgentGrpcServerImpl::TakeAction(
     grpc::ServerContext* context, const mjxproto::Observation* request,

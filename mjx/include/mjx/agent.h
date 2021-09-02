@@ -10,13 +10,13 @@ namespace mjx {
 class Agent {
  public:
   virtual ~Agent() {}
-  virtual mjx::Action Act(const Observation& observation) = 0;
-  void Serve(const std::string& socket_address) noexcept;
+  virtual mjx::Action Act(const Observation& observation) const noexcept = 0;
+  void Serve(const std::string& socket_address) const noexcept;
 };
 
 class RandomAgent : public Agent {
  public:
-  mjx::Action Act(const Observation& observation) override {
+  mjx::Action Act(const Observation& observation) const noexcept override {
     const std::uint64_t seed =
         12345 + 4096 * observation.proto().public_observation().events_size() +
         16 * observation.legal_actions().size() + 1 * observation.proto().who();
@@ -31,7 +31,7 @@ class RandomAgent : public Agent {
 class GrpcAgent : public Agent {
  public:
   explicit GrpcAgent(const std::string& socket_address);
-  mjx::Action Act(const Observation& observation) override;
+  mjx::Action Act(const Observation& observation) const noexcept override;
 
  private:
   std::shared_ptr<mjxproto::Agent::Stub> stub_;
@@ -39,14 +39,14 @@ class GrpcAgent : public Agent {
 
 class AgentGrpcServerImpl final : public mjxproto::Agent::Service {
  public:
-  explicit AgentGrpcServerImpl(Agent* agent);
+  explicit AgentGrpcServerImpl(const Agent* agent);
   ~AgentGrpcServerImpl() final = default;
   grpc::Status TakeAction(grpc::ServerContext* context,
                           const mjxproto::Observation* request,
                           mjxproto::Action* reply) final;
 
  private:
-  Agent* agent_;
+  const Agent* agent_;
 };
 }  // namespace mjx
 
