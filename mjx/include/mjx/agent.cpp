@@ -19,6 +19,17 @@ void Agent::Serve(const std::string& socket_address) const noexcept {
   server->Wait();
 }
 
+mjx::Action RandomAgent::Act(const Observation& observation) const noexcept {
+  const std::uint64_t seed =
+      12345 + 4096 * observation.proto().public_observation().events_size() +
+      16 * observation.legal_actions().size() + 1 * observation.proto().who();
+  auto mt = std::mt19937_64(seed);
+
+  const auto possible_actions = observation.legal_actions();
+  return *internal::SelectRandomly(possible_actions.begin(),
+                                   possible_actions.end(), mt);
+}
+
 GrpcAgent::GrpcAgent(const std::string& socket_address)
     : stub_(std::make_shared<mjxproto::Agent::Stub>(grpc::CreateChannel(
           socket_address, grpc::InsecureChannelCredentials()))) {}
