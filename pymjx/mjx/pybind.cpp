@@ -47,7 +47,7 @@ PYBIND11_MODULE(_mjx, m) {
   py::class_<mjx::GrpcAgent, mjx::Agent>(m, "GrpcAgent")
       .def(py::init<const std::string&>());
 
-  py::class_<mjx::EnvRunner>(m, "EnvRunner").def("run", &mjx::EnvRunner::run);
+  py::class_<mjx::EnvRunner>(m, "EnvRunner").def("run", &mjx::EnvRunner::Run);
 
   py::class_<mjx::MjxEnv>(m, "MjxEnv")
       .def(py::init<>())
