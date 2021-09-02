@@ -10,7 +10,7 @@ namespace py = pybind11;
 class PyAgent : public mjx::Agent {
  public:
   using mjx::Agent::Agent;
-  mjx::Action Act(mjx::Observation observation) override {
+  mjx::Action Act(const mjx::Observation &observation) override {
     PYBIND11_OVERRIDE_PURE_NAME(mjx::Action, mjx::Agent, "act", Act, observation);
   }
 };

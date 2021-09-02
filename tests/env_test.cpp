@@ -12,7 +12,7 @@ TEST(env, run) {
       {"player_2", agent.get()},
       {"player_3", agent.get()},
   };
-  mjx::EnvRunner::run(agents);
+  mjx::EnvRunner::Run(agents);
 }
 
 TEST(env, MjxEnv) {
