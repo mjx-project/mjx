@@ -28,10 +28,10 @@ class RandomAgent : public Agent {
   }
 };
 
-class GrpcAgent final : public Agent {
+class GrpcAgent : public Agent {
  public:
   explicit GrpcAgent(const std::string& socket_address);
-  [[nodiscard]] mjx::Action act(Observation observation) override;
+  mjx::Action act(Observation observation) override;
 
  private:
   std::shared_ptr<mjxproto::Agent::Stub> stub_;
