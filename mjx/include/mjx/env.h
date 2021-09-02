@@ -99,7 +99,7 @@ class PettingZooMahjongEnv {
 };
 
 class EnvRunner {
- public :
+ public:
   static void Run(std::unordered_map<PlayerId, std::shared_ptr<Agent>> agents) {
     auto env = MjxEnv();
     auto observations = env.Reset();
