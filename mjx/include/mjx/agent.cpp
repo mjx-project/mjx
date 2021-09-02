@@ -1,4 +1,4 @@
-#include "agent.h"
+#include "mjx/agent.h"
 
 #include <grpcpp/grpcpp.h>
 

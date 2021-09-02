@@ -1,8 +1,8 @@
 #ifndef MJX_PROJECT_AGENT_H
 #define MJX_PROJECT_AGENT_H
 
-#include "action.h"
-#include "observation.h"
+#include "mjx/action.h"
+#include "mjx/observation.h"
 
 namespace mjx {
 class Agent {
