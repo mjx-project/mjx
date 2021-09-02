@@ -1,7 +1,18 @@
+#include <mjx/agent.h>
 #include <mjx/env.h>
 #include <mjx/internal/strategy_rule_based.h>
 
 #include "gtest/gtest.h"
+
+TEST(env, run) {
+  std::unordered_map<mjx::PlayerId, std::shared_ptr<mjx::Agent>> agents = {
+      {"player_0", std::make_shared<mjx::RandomAgent>()},
+      {"player_1", std::make_shared<mjx::RandomAgent>()},
+      {"player_2", std::make_shared<mjx::RandomAgent>()},
+      {"player_3", std::make_shared<mjx::RandomAgent>()},
+  };
+  mjx::EnvRunner::Run(agents);
+}
 
 TEST(env, MjxEnv) {
   std::unordered_map<mjx::PlayerId, mjx::Observation> observations;

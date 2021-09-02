@@ -12,7 +12,7 @@ class Agent {
       const Observation& observation) const noexcept = 0;
 };
 
-class RandomAgent {
+class RandomAgent final:  public Agent {
  public:
   [[nodiscard]] virtual Action Act(
       const Observation& observation) const noexcept;
