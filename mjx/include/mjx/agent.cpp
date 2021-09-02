@@ -19,22 +19,10 @@ void Agent::Serve(const std::string& socket_address) noexcept {
   server->Wait();
 }
 
-Action RandomAgent::Act(const Observation& observation) const noexcept {
-  // Prepare some seed and MT engine for reproducibility
-  const std::uint64_t seed =
-      12345 + 4096 * observation.proto().public_observation().events_size() +
-      16 * observation.legal_actions().size() + 1 * observation.proto().who();
-  auto mt = std::mt19937_64(seed);
-
-  const auto possible_actions = observation.legal_actions();
-  return *internal::SelectRandomly(possible_actions.begin(),
-                                   possible_actions.end(), mt);
-}
-
 GrpcAgent::GrpcAgent(const std::string& socket_address)
     : stub_(std::make_shared<mjxproto::Agent::Stub>(grpc::CreateChannel(
           socket_address, grpc::InsecureChannelCredentials()))) {}
-Action GrpcAgent::Act(const Observation& observation) const noexcept {
+Action GrpcAgent::act(Observation observation) {
   const mjxproto::Observation& request = observation.proto();
   mjxproto::Action response;
   grpc::ClientContext context;
@@ -43,12 +31,13 @@ Action GrpcAgent::Act(const Observation& observation) const noexcept {
   return Action(response);
 }
 
-AgentGrpcServerImpl::AgentGrpcServerImpl(Agent* agent) : agent_(agent) {}
+AgentGrpcServerImpl::AgentGrpcServerImpl(Agent* agent)
+    : agent_(agent) {}
 
 grpc::Status AgentGrpcServerImpl::TakeAction(
-    grpc::ServerContext* context, const mjxproto::Observation* request,
-    mjxproto::Action* reply) {
-  reply->CopyFrom(agent_->Act(Observation(*request)).proto());
+    grpc::ServerContext *context, const mjxproto::Observation *request,
+    mjxproto::Action *reply) {
+  reply->CopyFrom(agent_->act(Observation(*request)).proto());
   return grpc::Status::OK;
 }
 }  // namespace mjx

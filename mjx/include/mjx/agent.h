@@ -3,27 +3,35 @@
 
 #include "mjx/action.h"
 #include "mjx/observation.h"
+#include "mjx/internal/utils.h"
 
 namespace mjx {
+
 class Agent {
  public:
-  virtual ~Agent() = default;
-  [[nodiscard]] virtual Action Act(
-      const Observation& observation) const noexcept = 0;
+  virtual ~Agent() { }
+  virtual mjx::Action act(Observation observation) = 0;
   void Serve(const std::string& socket_address) noexcept;
 };
 
-class RandomAgent final : public Agent {
+class RandomAgent : public Agent {
  public:
-  [[nodiscard]] virtual Action Act(
-      const Observation& observation) const noexcept;
+  mjx::Action act(Observation observation) override {
+    const std::uint64_t seed =
+        12345 + 4096 * observation.proto().public_observation().events_size() +
+        16 * observation.legal_actions().size() + 1 * observation.proto().who();
+    auto mt = std::mt19937_64(seed);
+
+    const auto possible_actions = observation.legal_actions();
+    return *internal::SelectRandomly(possible_actions.begin(),
+                                     possible_actions.end(), mt);
+  }
 };
 
 class GrpcAgent final : public Agent {
  public:
   explicit GrpcAgent(const std::string& socket_address);
-  [[nodiscard]] virtual Action Act(
-      const Observation& observation) const noexcept;
+  [[nodiscard]] mjx::Action act(Observation observation) override;
 
  private:
   std::shared_ptr<mjxproto::Agent::Stub> stub_;

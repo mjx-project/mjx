@@ -5,13 +5,14 @@
 #include "gtest/gtest.h"
 
 TEST(env, run) {
-  std::unordered_map<mjx::PlayerId, std::shared_ptr<mjx::Agent>> agents = {
-      {"player_0", std::make_shared<mjx::RandomAgent>()},
-      {"player_1", std::make_shared<mjx::RandomAgent>()},
-      {"player_2", std::make_shared<mjx::RandomAgent>()},
-      {"player_3", std::make_shared<mjx::RandomAgent>()},
+  auto agent = std::make_shared<mjx::RandomAgent>();
+  std::unordered_map<mjx::PlayerId, mjx::Agent*> agents = {
+      {"player_0", agent.get()},
+      {"player_1", agent.get()},
+      {"player_2", agent.get()},
+      {"player_3", agent.get()},
   };
-  mjx::EnvRunner::Run(agents);
+  mjx::EnvRunner::run(agents);
 }
 
 TEST(env, MjxEnv) {
