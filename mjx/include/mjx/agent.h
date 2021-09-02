@@ -10,19 +10,19 @@ namespace mjx {
 class Agent {
  public:
   virtual ~Agent() {}
-  virtual mjx::Action Act(const Observation& observation) const noexcept = 0;
+  [[nodiscard]] virtual mjx::Action Act(const Observation& observation) const noexcept = 0;
   void Serve(const std::string& socket_address) const noexcept;
 };
 
 class RandomAgent : public Agent {
  public:
-  mjx::Action Act(const Observation& observation) const noexcept override;
+  [[nodiscard]] mjx::Action Act(const Observation& observation) const noexcept override;
 };
 
 class GrpcAgent : public Agent {
  public:
   explicit GrpcAgent(const std::string& socket_address);
-  mjx::Action Act(const Observation& observation) const noexcept override;
+  [[nodiscard]] mjx::Action Act(const Observation& observation) const noexcept override;
 
  private:
   std::shared_ptr<mjxproto::Agent::Stub> stub_;
