@@ -7,17 +7,6 @@ requires = [
     "wheel",
     "ninja; sys_platform != 'win32' and platform_machine != 'arm64'",
     "cmake>=3.12",
-    "click",
-    "google",
-    "protobuf",
-    "grpcio",
-    "grpcio-tools",
-    "tenhou_wall_reproducer",
-    "rich",
-    "gym",
-    "pillow",
-    "pettingzoo",
-    "svgwrite",
 ]
 build-backend = "setuptools.build_meta"
 
