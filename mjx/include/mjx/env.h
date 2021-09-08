@@ -1,4 +1,5 @@
 #include "mjx/action.h"
+#include "mjx/agent.h"
 #include "mjx/internal/state.h"
 #include "mjx/observation.h"
 #include "mjx/state.h"
@@ -11,12 +12,13 @@ class MjxEnv {
  public:
   explicit MjxEnv(bool observe_all = false);
   explicit MjxEnv(std::vector<PlayerId> player_ids, bool observe_all = false);
-  std::unordered_map<PlayerId, Observation> Reset(
-      std::uint64_t game_seed) noexcept;
   std::unordered_map<PlayerId, Observation> Reset() noexcept;
   std::unordered_map<PlayerId, Observation> Step(
       const std::unordered_map<PlayerId, mjx::Action>& action_dict) noexcept;
   bool Done() const noexcept;
+  std::unordered_map<PlayerId, int> Rewards()
+      const noexcept;  // TDOO: reward type
+  void Seed(std::uint64_t seed) noexcept;
 
   // accessors
   State state() const noexcept;
@@ -24,6 +26,7 @@ class MjxEnv {
       const noexcept;  // order does not change for each game
 
  private:
+  std::optional<std::uint64_t> game_seed_ = std::nullopt;
   std::mt19937_64 seed_gen_ =
       internal::GameSeed::CreateRandomGameSeedGenerator();
   internal::State state_{};
@@ -49,7 +52,6 @@ class RLlibMahjongEnv {
   void Seed(std::uint64_t game_seed) noexcept;
 
  private:
-  std::optional<std::uint64_t> game_seed_ = std::nullopt;
   MjxEnv env_{};
   const std::map<int, int> reward_map_ = {{1, 90}, {2, 45}, {3, 0}, {4, -135}};
 };
@@ -72,12 +74,12 @@ class PettingZooMahjongEnv {
   const std::vector<PlayerId>& agents() const noexcept;
   const std::vector<PlayerId>& possible_agents() const noexcept;
   std::optional<PlayerId> agent_selection() const noexcept;
+  std::unordered_map<PlayerId, int> rewards() const noexcept;
 
  private:
   const std::vector<PlayerId> possible_agents_ = {"player_0", "player_1",
                                                   "player_2", "player_3"};
   std::vector<PlayerId> agents_{};
-  std::optional<std::uint64_t> seed_ = std::nullopt;
   MjxEnv env_ = MjxEnv(true);
   // agents required to take actions
   std::vector<PlayerId> agents_to_act_;
@@ -95,6 +97,26 @@ class PettingZooMahjongEnv {
 
   void UpdateAgentsToAct() noexcept;
 };
+
+class EnvRunner {
+ public:
+  static void Run(const std::unordered_map<PlayerId, Agent*>& agents) {
+    auto env = MjxEnv();
+    auto observations = env.Reset();
+    while (!env.Done()) {
+      {
+        std::unordered_map<PlayerId, mjx::Action> action_dict;
+        for (const auto& [player_id, observation] : observations) {
+          auto action = agents.at(player_id)->Act(observation);
+          action_dict[player_id] = mjx::Action(action);
+        }
+        observations = env.Step(action_dict);
+      }
+    }
+    std::cerr << env.state().ToJson() << std::endl;
+  }
+};
+
 }  // namespace mjx
 
 #endif  // MJX_PROJECT_ENV_H

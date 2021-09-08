@@ -1,7 +1,19 @@
+#include <mjx/agent.h>
 #include <mjx/env.h>
 #include <mjx/internal/strategy_rule_based.h>
 
 #include "gtest/gtest.h"
+
+TEST(env, run) {
+  auto agent = std::make_shared<mjx::RandomAgent>();
+  std::unordered_map<mjx::PlayerId, mjx::Agent*> agents = {
+      {"player_0", agent.get()},
+      {"player_1", agent.get()},
+      {"player_2", agent.get()},
+      {"player_3", agent.get()},
+  };
+  mjx::EnvRunner::Run(agents);
+}
 
 TEST(env, MjxEnv) {
   std::unordered_map<mjx::PlayerId, mjx::Observation> observations;
@@ -14,7 +26,8 @@ TEST(env, MjxEnv) {
 
   // observe_all=false
   auto env = mjx::MjxEnv();
-  observations = env.Reset(1234);
+  env.Seed(1234);
+  observations = env.Reset();
   while (!env.Done()) {
     {
       std::unordered_map<mjx::PlayerId, mjx::Action> action_dict;
@@ -32,10 +45,16 @@ TEST(env, MjxEnv) {
   for (int i = 0; i < 4; ++i) {
     EXPECT_EQ(tens[i], expected_tens[player_ids[i]]);
   }
+  auto rewards = env.Rewards();
+  EXPECT_EQ(rewards["player_0"], 45);
+  EXPECT_EQ(rewards["player_1"], 0);
+  EXPECT_EQ(rewards["player_2"], -135);
+  EXPECT_EQ(rewards["player_3"], 90);
 
   // observe_all=true
   auto env_all = mjx::MjxEnv(true);
-  observations = env_all.Reset(1234);
+  env_all.Seed(1234);
+  observations = env_all.Reset();
   EXPECT_EQ(observations.size(), 4);
   while (!env_all.Done()) {
     {
