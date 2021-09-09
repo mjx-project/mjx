@@ -1,11 +1,8 @@
 import json
-from typing import List, Optional
 
 import mjxproto
 from google.protobuf import json_format
 from mjx.visualizer.svg import save_svg
-
-import mjx
 
 
 class State:

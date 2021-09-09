@@ -14,7 +14,6 @@ from mjx.visualizer.converter import (
     get_wind_char,
 )
 from mjxproto import EventType
-from mjxproto.mjx_pb2 import Observation
 from rich.console import Console
 from rich.layout import Layout
 from rich.panel import Panel

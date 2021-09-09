@@ -1,6 +1,5 @@
 import base64
-import os
-from importlib.resources import read_binary, read_text
+from importlib.resources import read_binary
 from typing import Optional, Union
 
 import mjx.visualizer
