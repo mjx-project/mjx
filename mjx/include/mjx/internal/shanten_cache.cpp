@@ -1,11 +1,12 @@
 #include "mjx/internal/shanten_cache.h"
-#include "mjx/internal/shanten_cache_data.cpp"
 
 #include <boost/property_tree/json_parser.hpp>
 #include <boost/property_tree/ptree.hpp>
 #include <iostream>
 #include <numeric>
 #include <sstream>
+
+#include "mjx/internal/shanten_cache_data.cpp"
 
 namespace mjx::internal {
 ShantenCache::ShantenCache() { LoadCache(); }
