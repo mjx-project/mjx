@@ -146,11 +146,11 @@ class MahjongTable:
         try:
             observation = json_format.ParseDict(json.loads(json_data), mjxproto.Observation())
             return observation
-        except:
+        except json_format.ParseError:
             try:
                 state = json_format.ParseDict(json.loads(json_data), mjxproto.State())
                 return state
-            except:
+            except json_format.ParseError:
                 raise ValueError(
                     f"Input json cannot be converted to either State or Observation.\n{json_data}"
                 )
