@@ -48,6 +48,13 @@ jobs:
       with:
         submodules: true
 
+    - name: Cache external
+      uses: actions/cache@v2
+      with:
+        path: |
+          mjx/external
+        key: external-${{ hashFiles('mjx/include/mjx/cmake/*') }}-${{ matrix.platform }}
+
     - uses: pypa/cibuildwheel@v1.12.0
       env:
         # Use manylinux2014 to use C++17 features
