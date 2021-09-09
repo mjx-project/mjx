@@ -32,6 +32,10 @@ class MjxEnv:
     def rewards(self) -> Dict[str, int]:
         return self._env.rewards()
 
+    @property
+    def state(self) -> mjx.State:
+        return mjx.State(self._env.state())
+
 
 class SingleAgentEnv(gym.Env):
     """player_0 is controllable. Other player is random agents."""

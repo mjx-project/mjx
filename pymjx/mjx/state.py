@@ -12,9 +12,6 @@ class State:
     def __init__(self, cpp_obj):
         self._cpp_obj = cpp_obj
 
-    def legal_actions(self) -> List[mjx.Action]:
-        return [mjx.Action(cpp_obj) for cpp_obj in self._cpp_obj.legal_actions()]
-
     def to_json(self) -> str:
         return self._cpp_obj.to_json()
 
