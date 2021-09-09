@@ -166,5 +166,5 @@ setup(
         "svgwrite",
     ],
     extras_require={"test": ["pytest"]},
-    # include_package_data=True
+    include_package_data=True
 )
