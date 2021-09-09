@@ -6,6 +6,8 @@
 #include <numeric>
 #include <sstream>
 
+#include "mjx/internal/shanten_cache_data.cpp"
+
 namespace mjx::internal {
 ShantenCache::ShantenCache() { LoadCache(); }
 
@@ -27,9 +29,8 @@ int ShantenCache::Require(const std::vector<uint8_t>& count, int sets,
 
 void ShantenCache::LoadCache() {
   std::cerr << "ShantenCache::LoadCache: start" << std::endl;
-
-  std::ifstream ifs(std::string(WIN_CACHE_DIR) + "/shanten-rs.txt",
-                    std::ios::in);
+  std::stringstream ifs;
+  ifs << shanten_cache_str;
   std::string line;
   while (!ifs.eof()) {
     std::getline(ifs, line);

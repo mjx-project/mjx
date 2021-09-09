@@ -5,7 +5,9 @@
 #include <iostream>
 
 #include "mjx/internal/abstruct_hand.h"
+#include "mjx/internal/tenpai_cache_data.cpp"
 #include "mjx/internal/utils.h"
+#include "mjx/internal/win_cache_data.cpp"
 
 namespace mjx::internal {
 
@@ -15,9 +17,10 @@ WinHandCache::WinHandCache() {
 }
 
 void WinHandCache::LoadWinCache() {
+  std::stringstream ss;
+  ss << win_cache_str;
   boost::property_tree::ptree root;
-  boost::property_tree::read_json(
-      std::string(WIN_CACHE_DIR) + "/win_cache.json", root);
+  boost::property_tree::read_json(ss, root);
   cache_.reserve(root.size());
   for (const auto& [hand, patterns_pt] : root) {
     for (auto& pattern_pt : patterns_pt) {
@@ -36,9 +39,10 @@ void WinHandCache::LoadWinCache() {
 }
 
 void WinHandCache::LoadTenpaiCache() {
+  std::stringstream ss;
+  ss << tenpai_cache_str;
   boost::property_tree::ptree root;
-  boost::property_tree::read_json(
-      std::string(WIN_CACHE_DIR) + "/tenpai_cache.json", root);
+  boost::property_tree::read_json(ss, root);
   for (auto& hand_pt : root.get_child("data")) {
     tenpai_cache_.insert(hand_pt.second.get_value<std::string>());
   }
