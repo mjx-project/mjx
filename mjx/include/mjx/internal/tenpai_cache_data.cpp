@@ -1,6 +1,5 @@
 #include <string>
 
-
 namespace mjx::internal {
 std::string tenpai_cache_str = R"({
     "data": [

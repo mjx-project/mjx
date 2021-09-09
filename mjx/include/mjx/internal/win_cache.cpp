@@ -5,9 +5,9 @@
 #include <iostream>
 
 #include "mjx/internal/abstruct_hand.h"
+#include "mjx/internal/tenpai_cache_data.cpp"
 #include "mjx/internal/utils.h"
 #include "mjx/internal/win_cache_data.cpp"
-#include "mjx/internal/tenpai_cache_data.cpp"
 
 namespace mjx::internal {
 
