@@ -197,7 +197,7 @@ def save_svg(
     b64_1000_mini = base64.b64encode(
         read_binary(mjx.visualizer, "1000_mini.svg"),
     )
-    thousand_mini_img = dwg.image("data:image/svg;base64," + b64_1000_mini.decode("ascii"))
+    thousand_mini_img = dwg.image("data:image/svg+xml;base64," + b64_1000_mini.decode("ascii"))
     thousand_mini_img.translate(335, 405)
     thousand_mini_img.scale(0.15)
     dwg.add(thousand_mini_img)
@@ -212,7 +212,7 @@ def save_svg(
     b64_hundred_mini = base64.b64encode(
         read_binary(mjx.visualizer, "100_mini.svg"),
     )
-    hundred_mini_img = dwg.image("data:image/svg;base64," + b64_hundred_mini.decode("ascii"))
+    hundred_mini_img = dwg.image("data:image/svg+xml;base64," + b64_hundred_mini.decode("ascii"))
     hundred_mini_img.translate(405, 405)
     hundred_mini_img.scale(0.15)
     dwg.add(hundred_mini_img)
@@ -258,7 +258,7 @@ def save_svg(
             b64_thousand = base64.b64encode(
                 read_binary(mjx.visualizer, "1000.svg"),
             )
-            thousand_img = dwg.image("data:image/svg;base64," + b64_thousand.decode("ascii"))
+            thousand_img = dwg.image("data:image/svg+xml;base64," + b64_thousand.decode("ascii"))
             thousand_img.translate(476, 485)
             thousand_img.scale(0.4)
             thousand_img.rotate(90)
