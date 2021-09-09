@@ -1,7 +1,9 @@
 import base64
 import os
+from importlib.resources import read_binary, read_text
 from typing import Optional, Union
 
+import mjx.visualizer
 import mjxproto
 import svgwrite
 from mjx.visualizer.visualizer import (
@@ -97,9 +99,10 @@ def save_svg(
         debug=True,
     )
 
-    dwg.embed_font(
-        name="GL-MahjongTile",
-        filename=os.path.join(os.path.dirname(os.path.abspath(__file__)), "GL-MahjongTile.ttf"),
+    dwg._embed_font_data(
+        "GL-MahjongTile",
+        read_binary(mjx.visualizer, "GL-MahjongTile.ttf"),
+        "application/x-font-ttf",
     )
 
     player_g = dwg.g()
@@ -192,11 +195,9 @@ def save_svg(
     dwg.add(dwg.text("".join(doras), (337, 400), style="font-size:40;font-family:GL-MahjongTile;"))
 
     # bou
-    with open(
-        os.path.join(os.path.dirname(os.path.abspath(__file__)), "1000_mini.svg"), "rb"
-    ) as im:
-        b64_1000_mini = base64.b64encode(im.read())
-
+    b64_1000_mini = base64.b64encode(
+        read_binary(mjx.visualizer, "1000_mini.svg"),
+    )
     thousand_mini_img = dwg.image("data:image/svg;base64," + b64_1000_mini.decode("ascii"))
     thousand_mini_img.translate(335, 405)
     thousand_mini_img.scale(0.15)
@@ -208,9 +209,11 @@ def save_svg(
             style="font-size:22;font-family:serif;",
         )
     )
-    hundred_mini_img = dwg.image(
-        "https://raw.githubusercontent.com/mjx-project/mjx/master/pymjx/mjx/visualizer/100_mini.svg"
+
+    b64_hundred_mini = base64.b64encode(
+        read_binary(mjx.visualizer, "100_mini.svg"),
     )
+    hundred_mini_img = dwg.image("data:image/svg;base64," + b64_hundred_mini.decode("ascii"))
     hundred_mini_img.translate(405, 405)
     hundred_mini_img.scale(0.15)
     dwg.add(hundred_mini_img)
@@ -253,9 +256,10 @@ def save_svg(
 
         # riichi_bou
         if is_riichi[i]:
-            thousand_img = dwg.image(
-                href="https://raw.githubusercontent.com/mjx-project/mjx/master/pymjx/mjx/visualizer/1000.svg"
+            b64_thousand = base64.b64encode(
+                read_binary(mjx.visualizer, "1000.svg"),
             )
+            thousand_img = dwg.image("data:image/svg;base64," + b64_thousand.decode("ascii"))
             thousand_img.translate(476, 485)
             thousand_img.scale(0.4)
             thousand_img.rotate(90)
