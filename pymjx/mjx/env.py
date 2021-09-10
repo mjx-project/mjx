@@ -1,5 +1,5 @@
 import random
-from typing import Dict, Optional
+from typing import Dict, List, Optional
 
 import gym
 import numpy as np
@@ -9,10 +9,14 @@ import mjx
 
 
 class MjxEnv:
-    def __init__(self):
+    def __init__(
+        self,
+        player_ids: List[str] = ["player_0", "player_1", "player_2", "player_3"],
+        observe_all: bool = False,
+    ):
         import mjx._mjx as _mjx
 
-        self._env = _mjx.MjxEnv()
+        self._env = _mjx.MjxEnv(player_ids, observe_all)
 
     def seed(self, seed) -> None:
         self._env.seed(seed)
