@@ -17,3 +17,4 @@ gym
 pillow
 pettingzoo
 svgwrite
+inquirer
