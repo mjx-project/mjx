@@ -36,7 +36,7 @@ class Selector:
             + get_tile_char(actions[1], self.uni)
             for actions in mahjong_table.legal_actions
         ]
-        print(choice)
+        # print(choice)
 
         questions = [
             inquirer.List(

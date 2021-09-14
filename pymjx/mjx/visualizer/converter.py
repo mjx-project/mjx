@@ -229,35 +229,35 @@ event_type_ja = {
 }
 
 action_type_en = {
-    0: "DISCARD",
-    1: "TSUMOGIRI",
-    2: "RIICHI",
-    3: "ACTION_TYPE_CLOSED_KAN",
-    4: "ADDED_KAN",
-    5: "TSUMO",
-    6: "ABORTIVE_DRAW_NINE_TERMINALS",
-    7: "CHI",
-    8: "PON",
-    9: "OPEN_KAN",
-    10: "ACTION_TYPE_RON",
-    11: "NO",
-    12: "DUMMY",
+    ActionType.ACTION_TYPE_DISCARD: "DISCARD",
+    ActionType.ACTION_TYPE_TSUMOGIRI: "TSUMOGIRI",
+    ActionType.ACTION_TYPE_RIICHI: "RIICHI",
+    ActionType.ACTION_TYPE_CLOSED_KAN: "ACTION_TYPE_CLOSED_KAN",
+    ActionType.ACTION_TYPE_ADDED_KAN: "ADDED_KAN",
+    ActionType.ACTION_TYPE_TSUMO: "TSUMO",
+    ActionType.ACTION_TYPE_ABORTIVE_DRAW_NINE_TERMINALS: "ABORTIVE_DRAW_NINE_TERMINALS",
+    ActionType.ACTION_TYPE_CHI: "CHI",
+    ActionType.ACTION_TYPE_PON: "PON",
+    ActionType.ACTION_TYPE_OPEN_KAN: "OPEN_KAN",
+    ActionType.ACTION_TYPE_RON: "RON",
+    ActionType.ACTION_TYPE_NO: "NO",
+    ActionType.ACTION_TYPE_DUMMY: "DUMMY",
 }
 
 action_type_ja = {
-    0: "打牌",
-    1: "ツモ切り",
-    2: "リーチ",
-    3: "暗槓",
-    4: "加槓",
-    5: "ツモ",
-    6: "ABORTIVE_DRAW_NINE_TERMINALS",  # これ何ですか
-    7: "チー",
-    8: "ポン",
-    9: "明槓",
-    10: "ロン",
-    11: "無し",
-    12: "ダミー",
+    ActionType.ACTION_TYPE_DISCARD: "打牌",
+    ActionType.ACTION_TYPE_TSUMOGIRI: "ツモ切り",
+    ActionType.ACTION_TYPE_RIICHI: "リーチ",
+    ActionType.ACTION_TYPE_CLOSED_KAN: "暗槓",
+    ActionType.ACTION_TYPE_ADDED_KAN: "加槓",
+    ActionType.ACTION_TYPE_TSUMO: "ツモ",
+    ActionType.ACTION_TYPE_ABORTIVE_DRAW_NINE_TERMINALS: "ABORTIVE_DRAW_NINE_TERMINALS",  # これ何ですか
+    ActionType.ACTION_TYPE_CHI: "チー",
+    ActionType.ACTION_TYPE_PON: "ポン",
+    ActionType.ACTION_TYPE_OPEN_KAN: "明槓",
+    ActionType.ACTION_TYPE_RON: "ロン",
+    ActionType.ACTION_TYPE_NO: "無し",
+    ActionType.ACTION_TYPE_DUMMY: "ダミー",
 }
 
 

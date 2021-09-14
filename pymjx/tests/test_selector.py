@@ -13,8 +13,9 @@ def test_selector():
     )
     files = glob.glob(obs_files)
     for file in files:
-        selector = Selector(file, mode, ja=1)
+        selector = Selector(file, mode, ja=0, unicode=True)
         selector.run()
 
 
-test_selector()
+if __name__ == "__main__":
+    test_selector()
