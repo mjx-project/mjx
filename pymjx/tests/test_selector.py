@@ -6,7 +6,7 @@ sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
 from mjx.visualizer.selector import Selector
 
 
-def test_selector():
+def selector():
     mode = "obs"
     obs_files = os.path.join(
         os.path.dirname(os.path.abspath(__file__)), "resources/observation/*.json"
@@ -18,4 +18,4 @@ def test_selector():
 
 
 if __name__ == "__main__":
-    test_selector()
+    selector()
