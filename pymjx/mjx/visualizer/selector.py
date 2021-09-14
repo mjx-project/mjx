@@ -1,9 +1,4 @@
-import os
-import sys
-
 import inquirer
-
-sys.path.append(os.path.dirname(__file__))
 from converter import action_type_en, action_type_ja, get_tile_char
 from mjxproto.mjx_pb2 import ActionType
 from visualizer import GameBoardVisualizer, GameVisualConfig, MahjongTable
