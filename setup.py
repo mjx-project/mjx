@@ -139,7 +139,7 @@ class CMakeBuild(build_ext):
 # logic and declaration, and simpler if you include description/version in a file.
 setup(
     name="mjx",
-    version="0.0.1",
+    version="0.0.2",
     author="Mjx Project Team",
     author_email="koyamada-s@sys.i.kyoto-u.ac.jp",
     description="",
@@ -166,5 +166,5 @@ setup(
         "svgwrite",
     ],
     extras_require={"test": ["pytest"]},
-    # include_package_data=True
+    include_package_data=True
 )
