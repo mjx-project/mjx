@@ -277,7 +277,6 @@ def convert(
 @cli.command()
 @click.argument("path", type=str, default="")
 @click.argument("page", type=str, default="0")
-@click.option("--mode", type=str, default="obs")
 @click.option("--uni", is_flag=True)
 @click.option("--rich", is_flag=True)
 @click.option("--show_name", is_flag=True)
@@ -297,12 +296,6 @@ def visualize(path: str, page: str, mode: str, uni: bool, rich: bool, show_name:
       $ mjx visualize test.json 0 --rich --uni --show_name --jp
 
     """
-    if mode not in ["obs", "sta"]:
-        sys.stderr.write(
-            f"Error: Invalid value for '--mode': {mode} is neither 'obs' nor 'sta'.\n"
-        )
-        return
-
     board_visualizer = GameBoardVisualizer(
         GameVisualConfig(rich=rich, uni=uni, show_name=show_name, lang=(1 if jp else 0))
     )
@@ -311,14 +304,13 @@ def visualize(path: str, page: str, mode: str, uni: bool, rich: bool, show_name:
         itr = StdinIterator()
         for line in itr:
             s_line = line.strip().strip("\n")
-            if mode == "obs":
-                mahjong_table = MahjongTable.decode_observation(s_line)
-            else:
-                mahjong_table = MahjongTable.decode_state(s_line)
+            proto_data = MahjongTable.json_to_proto(s_line)
+            mahjong_table = MahjongTable.from_proto(proto_data)
             board_visualizer.print(mahjong_table)
 
     else:  # From files
-        mahjong_tables = MahjongTable.load_data(path, mode)
+        proto_data_list = MahjongTable.load_proto_data(path)
+        mahjong_tables = [MahjongTable.from_proto(proto_data) for proto_data in proto_data_list]
         board_visualizer.print(mahjong_tables[int(page)])
 
 

@@ -1,7 +1,6 @@
 .PHONY: proto requirements clean pytest test-cli
 
 clean:
-	rm -rf ./mjxproto/*pb2*
 	rm -rf build
 	rm -rf dist
 	rm -rf *.egg-info

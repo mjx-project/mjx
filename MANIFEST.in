@@ -3,3 +3,4 @@ graft pybind11/include
 graft pybind11/tools
 global-include CMakeLists.txt *.cmake
 recursive-include mjx/include/mjx/cache *.json *.txt
+recursive-include pymjx *.ttf *.svg

@@ -1,6 +1,7 @@
 import json
 import sys
 from dataclasses import dataclass
+from typing import List, Union
 
 import mjxproto
 from google.protobuf import json_format
@@ -122,18 +123,37 @@ class MahjongTable:
                 return False
         return True
 
-    @classmethod
-    def load_data(cls, path, mode) -> list:
-        with open(path, "r", errors="ignore") as f:
-            tables = []
+    @staticmethod
+    def load_proto_data(path) -> Union[List[mjxproto.Observation], List[mjxproto.State]]:
+        print(path, flush=True)
+        with open(path, "r") as f:
+            proto_data_list = []
             for line in f:
-                if mode == "obs":
-                    table = cls.decode_observation(line)
-                else:
-                    table = cls.decode_state(line)
-                assert table.check_num_tiles()
-                tables.append(table)
-        return tables
+                line = line.strip("\n").strip()
+                proto_data = MahjongTable.json_to_proto(line)
+                proto_data_list.append(proto_data)
+        return proto_data_list
+
+    @classmethod
+    def from_proto(cls, proto_data: Union[mjxproto.Observation, mjxproto.State]):
+        if isinstance(proto_data, mjxproto.Observation):
+            return cls.decode_observation(proto_data)
+        else:
+            return cls.decode_state(proto_data)
+
+    @staticmethod
+    def json_to_proto(json_data: str) -> Union[mjxproto.State, mjxproto.Observation]:
+        try:
+            observation = json_format.ParseDict(json.loads(json_data), mjxproto.Observation())
+            return observation
+        except json_format.ParseError:
+            try:
+                state = json_format.ParseDict(json.loads(json_data), mjxproto.State())
+                return state
+            except json_format.ParseError:
+                raise ValueError(
+                    f"Input json cannot be converted to either State or Observation.\n{json_data}"
+                )
 
     @classmethod
     def decode_private_observation(cls, table, private_observation, who: int):
@@ -355,15 +375,14 @@ class MahjongTable:
         return table
 
     @classmethod
-    def decode_observation(cls, jsondata):
-        d = json.loads(jsondata)
-        gamedata = json_format.ParseDict(d, mjxproto.Observation())
-
+    def decode_observation(cls, proto_data: mjxproto.Observation):
         table = MahjongTable()
 
-        table.my_idx = gamedata.who
-        table = cls.decode_public_observation(table, gamedata.public_observation)
-        table = cls.decode_private_observation(table, gamedata.private_observation, gamedata.who)
+        table.my_idx = proto_data.who
+        table = cls.decode_public_observation(table, proto_data.public_observation)
+        table = cls.decode_private_observation(
+            table, proto_data.private_observation, proto_data.who
+        )
 
         # Obsevationの場合,適切な数の裏向きの手牌を用意する
         for i, p in enumerate(table.players):
@@ -386,12 +405,12 @@ class MahjongTable:
             p.wind = (-table.round + 1 + i) % 4
 
         table.wall_num = cls.get_wall_num(table)
-        if len(gamedata.public_observation.events) != 0:
+        if len(proto_data.public_observation.events) != 0:
             if table.result == "win":
-                table = cls.decode_round_terminal(table, gamedata.round_terminal, True)
+                table = cls.decode_round_terminal(table, proto_data.round_terminal, True)
 
             elif table.result == "nowinner":
-                table = cls.decode_round_terminal(table, gamedata.round_terminal, False)
+                table = cls.decode_round_terminal(table, proto_data.round_terminal, False)
 
         table.legal_actions = [
             [act.type, act.tile] for act in gamedata.legal_actions if act.type != ACTION_TYPE_DUMMY
@@ -400,27 +419,24 @@ class MahjongTable:
         return table
 
     @classmethod
-    def decode_state(cls, jsondata):
-        d = json.loads(jsondata)
-        gamedata = json_format.ParseDict(d, mjxproto.State())
-
+    def decode_state(cls, proto_data: mjxproto.State):
         table = MahjongTable()
 
-        table = cls.decode_public_observation(table, gamedata.public_observation)
+        table = cls.decode_public_observation(table, proto_data.public_observation)
         for i in range(4):
-            table = cls.decode_private_observation(table, gamedata.private_observations[i], i)
+            table = cls.decode_private_observation(table, proto_data.private_observations[i], i)
 
         for i, p in enumerate(table.players):
             p.wind = (-table.round + 1 + i) % 4
 
         table.wall_num = cls.get_wall_num(table)
 
-        if len(gamedata.public_observation.events) != 0:
+        if len(proto_data.public_observation.events) != 0:
             if table.result == "win":
-                table = cls.decode_round_terminal(table, gamedata.round_terminal, True)
+                table = cls.decode_round_terminal(table, proto_data.round_terminal, True)
 
             elif table.result == "nowinner":
-                table = cls.decode_round_terminal(table, gamedata.round_terminal, False)
+                table = cls.decode_round_terminal(table, proto_data.round_terminal, False)
 
         return table
 

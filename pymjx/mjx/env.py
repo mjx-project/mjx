@@ -1,5 +1,5 @@
 import random
-from typing import Dict, Optional
+from typing import Dict, List, Optional
 
 import gym
 import numpy as np
@@ -9,10 +9,14 @@ import mjx
 
 
 class MjxEnv:
-    def __init__(self):
+    def __init__(
+        self,
+        player_ids: List[str] = ["player_0", "player_1", "player_2", "player_3"],
+        observe_all: bool = False,
+    ):
         import mjx._mjx as _mjx
 
-        self._env = _mjx.MjxEnv()
+        self._env = _mjx.MjxEnv(player_ids, observe_all)
 
     def seed(self, seed) -> None:
         self._env.seed(seed)
@@ -23,7 +27,7 @@ class MjxEnv:
 
     def step(self, aciton_dict: Dict[str, mjx.Action]) -> Dict[str, mjx.Observation]:
         cpp_action_dict = {k: v._cpp_obj for k, v in aciton_dict.items()}
-        cpp_obs_dict = self.step(cpp_action_dict)
+        cpp_obs_dict = self._env.step(cpp_action_dict)
         return {k: mjx.Observation(v) for k, v in cpp_obs_dict.items()}
 
     def done(self) -> bool:
@@ -31,6 +35,10 @@ class MjxEnv:
 
     def rewards(self) -> Dict[str, int]:
         return self._env.rewards()
+
+    @property
+    def state(self) -> mjx.State:
+        return mjx.State(self._env.state())
 
 
 class SingleAgentEnv(gym.Env):

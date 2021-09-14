@@ -33,6 +33,10 @@ PYBIND11_MODULE(_mjx, m) {
       .def("action_mask", &mjx::Observation::action_mask)
       .def("curr_hand", &mjx::Observation::curr_hand);
 
+  py::class_<mjx::State>(m, "State")
+      .def(py::init<>())
+      .def("to_json", &mjx::State::ToJson);
+
   py::class_<mjx::Hand>(m, "Hand")
       .def(py::init<>())
       .def("to_json", &mjx::Hand::ToJson)
@@ -52,12 +56,13 @@ PYBIND11_MODULE(_mjx, m) {
   py::class_<mjx::EnvRunner>(m, "EnvRunner").def("run", &mjx::EnvRunner::Run);
 
   py::class_<mjx::MjxEnv>(m, "MjxEnv")
-      .def(py::init<>())
+      .def(py::init<std::vector<mjx::PlayerId>, bool>())
       .def("reset", &mjx::MjxEnv::Reset)
       .def("step", &mjx::MjxEnv::Step)
       .def("done", &mjx::MjxEnv::Done)
       .def("rewards", &mjx::MjxEnv::Rewards)
-      .def("seed", &mjx::MjxEnv::Seed);
+      .def("seed", &mjx::MjxEnv::Seed)
+      .def("state", &mjx::MjxEnv::state);
 
   py::class_<mjx::RLlibMahjongEnv>(m, "RLlibMahjongEnv")
       .def(py::init<>())

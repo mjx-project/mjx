@@ -1,6 +1,9 @@
 import base64
-import os
+from importlib.resources import read_binary
+from typing import Optional, Union
 
+import mjx.visualizer
+import mjxproto
 import svgwrite
 from mjx.visualizer.visualizer import (
     FromWho,
@@ -55,26 +58,50 @@ def dwg_add(dwg_p, dwg_g, pos, txt, rotate=False, transparent=False):
             dwg_g.add(dwg_p.text(txt[0], pos, opacity=opacity))
 
 
-def make_svg(filename: str, mode: str, page: int):
+def save_svg(
+    proto_data: Union[mjxproto.State, mjxproto.Observation],
+    filename: str,
+    target_idx: Optional[int] = None,
+) -> None:
+    """Visualize State/Observation proto and save as svg file.
+
+    Args
+    ----
+      proto_data: State or observation proto
+      target_idx: the player you want to highlight
+    """
+    assert filename.endswith(".svg")
+
+    sample_data: MahjongTable
+    if isinstance(proto_data, mjxproto.Observation):
+        sample_data = MahjongTable.decode_observation(proto_data)
+    else:
+        sample_data = MahjongTable.decode_state(proto_data)
+
     width = 800
     height = 800
     char_width = 32  # 45:28.8,60:38.4
     char_height = 44  # 45:40.5,60:53
     red_hai = [16, 52, 88]
 
-    data = MahjongTable.load_data(filename, mode)
-    sample_data = data[page]
-    sample_data.players.sort(key=lambda x: (x.player_idx - sample_data.my_idx) % 4)
+    if target_idx is None:
+        if isinstance(proto_data, mjxproto.Observation):
+            target_idx = proto_data.who
+        else:
+            target_idx = 0
+    assert target_idx is not None
+    sample_data.players.sort(key=lambda x: (x.player_idx - target_idx) % 4)
 
     dwg = svgwrite.Drawing(
-        filename.replace(".json", "") + "_" + str(page) + ".svg",
+        filename,
         (width, height),
         debug=True,
     )
 
-    dwg.embed_font(
-        name="GL-MahjongTile",
-        filename=os.path.join(os.path.dirname(os.path.abspath(__file__)), "GL-MahjongTile.ttf"),
+    dwg._embed_font_data(
+        "GL-MahjongTile",
+        read_binary(mjx.visualizer, "GL-MahjongTile.ttf"),
+        "application/x-font-ttf",
     )
 
     player_g = dwg.g()
@@ -167,12 +194,10 @@ def make_svg(filename: str, mode: str, page: int):
     dwg.add(dwg.text("".join(doras), (337, 400), style="font-size:40;font-family:GL-MahjongTile;"))
 
     # bou
-    with open(
-        os.path.join(os.path.dirname(os.path.abspath(__file__)), "1000_mini.svg"), "rb"
-    ) as im:
-        b64_1000_mini = base64.b64encode(im.read())
-
-    thousand_mini_img = dwg.image("data:image/svg;base64," + b64_1000_mini.decode("ascii"))
+    b64_1000_mini = base64.b64encode(
+        read_binary(mjx.visualizer, "1000_mini.svg"),
+    )
+    thousand_mini_img = dwg.image("data:image/svg+xml;base64," + b64_1000_mini.decode("ascii"))
     thousand_mini_img.translate(335, 405)
     thousand_mini_img.scale(0.15)
     dwg.add(thousand_mini_img)
@@ -183,9 +208,11 @@ def make_svg(filename: str, mode: str, page: int):
             style="font-size:22;font-family:serif;",
         )
     )
-    hundred_mini_img = dwg.image(
-        "https://raw.githubusercontent.com/mjx-project/mjx/master/pymjx/mjx/visualizer/100_mini.svg"
+
+    b64_hundred_mini = base64.b64encode(
+        read_binary(mjx.visualizer, "100_mini.svg"),
     )
+    hundred_mini_img = dwg.image("data:image/svg+xml;base64," + b64_hundred_mini.decode("ascii"))
     hundred_mini_img.translate(405, 405)
     hundred_mini_img.scale(0.15)
     dwg.add(hundred_mini_img)
@@ -228,9 +255,10 @@ def make_svg(filename: str, mode: str, page: int):
 
         # riichi_bou
         if is_riichi[i]:
-            thousand_img = dwg.image(
-                href="https://raw.githubusercontent.com/mjx-project/mjx/master/pymjx/mjx/visualizer/1000.svg"
+            b64_thousand = base64.b64encode(
+                read_binary(mjx.visualizer, "1000.svg"),
             )
+            thousand_img = dwg.image("data:image/svg+xml;base64," + b64_thousand.decode("ascii"))
             thousand_img.translate(476, 485)
             thousand_img.scale(0.4)
             thousand_img.rotate(90)
@@ -816,3 +844,9 @@ def make_svg(filename: str, mode: str, page: int):
 
     dwg.add(player_g)
     dwg.save()
+
+
+def make_svg(filename: str, page: int):
+    proto_data_list = MahjongTable.load_proto_data(filename)
+    proto_data = proto_data_list[page]
+    save_svg(proto_data, filename.replace(".json", "") + "_" + str(page) + ".svg")
