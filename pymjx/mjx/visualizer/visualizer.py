@@ -1,7 +1,9 @@
 import json
+import os
 import sys
 from dataclasses import dataclass
 
+sys.path.append(os.path.join(os.path.dirname(__file__), "../.."))
 import mjxproto
 from google.protobuf import json_format
 from mjx.visualizer.converter import (
@@ -13,12 +15,12 @@ from mjx.visualizer.converter import (
     get_wind_char,
 )
 from mjxproto import EventType
+from mjxproto.mjx_pb2 import ACTION_TYPE_DUMMY
+from open_utils import open_event_type, open_from, open_tile_ids
 from rich.console import Console
 from rich.layout import Layout
 from rich.panel import Panel
 from rich.text import Text
-
-from .open_utils import open_event_type, open_from, open_tile_ids
 
 
 @dataclass
@@ -92,6 +94,7 @@ class MahjongTable:
         self.uradoras = []
         self.result = ""
         self.event_info = ""
+        self.legal_actions = []
 
     def get_wall_num(self) -> int:
         all = 136 - 14
@@ -391,6 +394,10 @@ class MahjongTable:
 
             elif table.result == "nowinner":
                 table = cls.decode_round_terminal(table, gamedata.round_terminal, False)
+
+        table.legal_actions = [
+            [act.type, act.tile] for act in gamedata.legal_actions if act.type != ACTION_TYPE_DUMMY
+        ]
 
         return table
 

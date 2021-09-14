@@ -1,6 +1,10 @@
+import os
+import sys
 from enum import Enum
 
+sys.path.append(os.path.join(os.path.dirname(__file__), "../.."))
 from mjxproto import EventType
+from mjxproto.mjx_pb2 import ActionType
 
 
 class TileUnitType(Enum):
@@ -222,6 +226,38 @@ event_type_ja = {
     EventType.EVENT_TYPE_ABORTIVE_DRAW_FOUR_WINDS: "四風連打",
     EventType.EVENT_TYPE_EXHAUSTIVE_DRAW_NORMAL: "流局",
     EventType.EVENT_TYPE_EXHAUSTIVE_DRAW_NAGASHI_MANGAN: "流し満貫",
+}
+
+action_type_en = {
+    0: "DISCARD",
+    1: "TSUMOGIRI",
+    2: "RIICHI",
+    3: "ACTION_TYPE_CLOSED_KAN",
+    4: "ADDED_KAN",
+    5: "TSUMO",
+    6: "ABORTIVE_DRAW_NINE_TERMINALS",
+    7: "CHI",
+    8: "PON",
+    9: "OPEN_KAN",
+    10: "ACTION_TYPE_RON",
+    11: "NO",
+    12: "DUMMY",
+}
+
+action_type_ja = {
+    0: "打牌",
+    1: "ツモ切り",
+    2: "リーチ",
+    3: "暗槓",
+    4: "加槓",
+    5: "ツモ",
+    6: "ABORTIVE_DRAW_NINE_TERMINALS",  # これ何ですか
+    7: "チー",
+    8: "ポン",
+    9: "明槓",
+    10: "ロン",
+    11: "無し",
+    12: "ダミー",
 }
 
 
