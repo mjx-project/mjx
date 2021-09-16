@@ -17,8 +17,6 @@ pymjx/dist
 pymjx/mjx.egg-info
 pymjx/mjx/__pycache__
 pymjx/mjx/tests/__pycache__/
-pymjx/mjxproto/mjx_pb2.py
-pymjx/mjxproto/mjx_pb2_grpc.py
 test/resources/*
 !test/resources/.gitkeep
 *.pb.cc
