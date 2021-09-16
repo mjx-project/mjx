@@ -26,6 +26,7 @@ test: build
 	./build/tests/mjx_test
 
 fmt:
+	clang-format -i mjx/include/mjx/*.h mjx/include/mjx/*.cpp
 	clang-format -i mjx/include/mjx/internal/*.h mjx/include/mjx/internal/*.cpp
 	clang-format -i tests/*.cpp
 	clang-format -i scripts/*.cpp
