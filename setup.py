@@ -161,10 +161,11 @@ setup(
         "grpcio==1.39.0",
         "grpcio-tools==1.39.0",
         "rich==10.9.0",
-        "gym==0.19.0",
-        "tenhou_wall_reproducer",
+        "pillow",
+        "gym",
         "pettingzoo",
         "svgwrite",
+        "tenhou_wall_reproducer",
     ],
     extras_require={"test": ["pytest"]},
     include_package_data=True
