@@ -6,11 +6,13 @@ clean:
 	rm -rf mjx/include/mjx/internal/*pb*
 	rm -rf dist
 	rm -rf venv
+	rm -rf mjx/external
+	rm -rf tests/external
 
 venv:
 	python3 -m venv venv
 
-build: mjx tests
+build: mjx/* mjx/include/mjx/* mjx/include/mjx/internal/* tests/*
 	mkdir -p build && cd build && cmake .. -DMJX_BUILD_BOOST=OFF -DMJX_BUILD_GRPC=OFF -DMJX_BUILD_TESTS=ON && make -j
 
 test: build
