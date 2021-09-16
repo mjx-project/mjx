@@ -60,6 +60,7 @@ class CMakeBuild(build_ext):
                 self.distribution.get_version()),
             # not used on MSVC, but no harm
             "-DCMAKE_BUILD_TYPE={}".format(cfg),
+            "-DMJX_BUILD_TESTS=OFF"
             "-DMJX_BUILD_PYTHON=ON"
         ]
         build_args = []
