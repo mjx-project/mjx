@@ -11,7 +11,7 @@ venv:
 	python3 -m venv venv
 
 build: mjx tests
-	mkdir -p build && cd build && cmake .. -DMJX_USE_SYSTEM_BOOST=ON -DMJX_USE_SYSTEM_GRPC=ON -DMJX_BUILD_TESTS=ON && make -j
+	mkdir -p build && cd build && cmake .. -DMJX_BUILD_BOOST=OFF -DMJX_BUILD_GRPC=OFF -DMJX_BUILD_TESTS=ON && make -j
 
 test: build
 	./build/tests/mjx_test
@@ -25,7 +25,7 @@ dist: setup.py mjx pymjx mjx/include/mjx/internal/mjx.proto
 	which python3
 	python3 -m pip install -r pymjx/requirements.txt
 	python3 -m grpc_tools.protoc -I mjx/include/mjx/internal --python_out=./pymjx/mjxproto/ --grpc_python_out=./pymjx//mjxproto/ --mypy_out=./pymjx/mjxproto/ mjx.proto
-	export MJX_USE_SYSTEM_BOOST=ON && export MJX_USE_SYSTEM_GRPC=ON && python3 setup.py sdist && python3 setup.py install
+	export MJX_BUILD_BOOST=OFF && export MJX_BUILD_GRPC=OFF && python3 setup.py sdist && python3 setup.py install
 
 docker-build:
 	docker run -it -v ${CURDIR}:/mahjong sotetsuk/ubuntu-gcc-grpc:latest  /bin/bash -c "cd /mahjong && mkdir -p docker-build && cd docker-build && cmake .. && make -j"

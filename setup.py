@@ -60,16 +60,22 @@ class CMakeBuild(build_ext):
                 self.distribution.get_version()),
             # not used on MSVC, but no harm
             "-DCMAKE_BUILD_TYPE={}".format(cfg),
+            "-DMJX_BUILD_TESTS=OFF"
             "-DMJX_BUILD_PYTHON=ON"
         ]
         build_args = []
 
-        if ("MJX_USE_SYSTEM_BOOST" in os.environ
-                and os.environ["MJX_USE_SYSTEM_BOOST"] not in ["OFF", "0"]):
-            cmake_args.append("-DMJX_USE_SYSTEM_BOOST=ON")
-        if ("MJX_USE_SYSTEM_GRPC" in os.environ
-                and os.environ["MJX_USE_SYSTEM_GRPC"] not in ["OFF", "0"]):
-            cmake_args.append("-DMJX_USE_SYSTEM_GRPC=ON")
+        build_boost = "ON"
+        if "MJX_BUILD_BOOST" in os.environ:
+            assert os.environ['MJX_BUILD_BOOST'] in ["OFF", "ON"]
+            build_boost = os.environ['MJX_BUILD_BOOST']
+        cmake_args.append(f"-DMJX_BUILD_BOOST={build_boost}")
+
+        build_grpc = "ON"
+        if "MJX_BUILD_GRPC" in os.environ:
+            assert os.environ['MJX_BUILD_GRPC'] in ["OFF", "ON"]
+            build_grpc = os.environ['MJX_BUILD_GRPC']
+        cmake_args.append(f"-DMJX_BUILD_GRPC={build_grpc}")
 
         if self.compiler.compiler_type != "msvc":
             # Using Ninja-build since it a) is available as a wheel and b)

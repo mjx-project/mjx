@@ -14,20 +14,19 @@ message(STATUS "MJX_INCLUDE_DIR=${MJX_INCLUDE_DIR}")
 ####################################################################################
 
 # set(LIB_DIR ${CMAKE_CURRENT_SOURCE_DIR}/external_libs)
-option(MJX_USE_SYSTEM_BOOST "Use Boost previously installed." OFF)
-option(MJX_USE_SYSTEM_GRPC "Use gRPC previously installed." OFF)
+option(MJX_BUILD_BOOST "Use Boost previously installed." OFF)
+option(MJX_BUILD_GRPC "Use gRPC previously installed." OFF)
 
 ####################################################################################
 # For Boost
 ####################################################################################
 
 # We use boost as header-only
-if(MJX_USE_SYSTEM_BOOST)
-  message(STATUS "MJX_USE_SYSTEM_BOOST=ON")
-  find_package(Boost REQUIRED)
-else()
-  message(STATUS "MJX_USE_SYSTEM_BOOST=OFF")
+message(STATUS "MJX_BUILD_BOOST=${MJX_BUILD_BOOST}")
+if(MJX_BUILD_BOOST)
   include(${MJX_INCLUDE_DIR}/mjx/cmake/downloaded_boost.cmake)
+else()
+  find_package(Boost REQUIRED)
 endif()
 message(STATUS "Include Boost_INCLUDE_DIRS=${Boost_INCLUDE_DIRS}")
 
@@ -35,12 +34,11 @@ message(STATUS "Include Boost_INCLUDE_DIRS=${Boost_INCLUDE_DIRS}")
 # For gRPc
 ####################################################################################
 
-if(MJX_USE_SYSTEM_GRPC)
-  message(STATUS "MJX_USE_SYSTEM_GRPC=ON")
-  include(${MJX_INCLUDE_DIR}/mjx/cmake/preinstalled_grpc.cmake)
-else()
-  message(STATUS "MJX_USE_SYSTEM_GRPC=OFF")
+message(STATUS "MJX_BUILD_GRPC=${MJX_BUILD_BOOST}")
+if(MJX_BUILD_GRPC)
   include(${MJX_INCLUDE_DIR}/mjx/cmake/downloaded_grpc.cmake)
+else()
+  include(${MJX_INCLUDE_DIR}/mjx/cmake/preinstalled_grpc.cmake)
 endif()
 
 # Proto file
