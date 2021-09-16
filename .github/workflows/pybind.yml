@@ -28,9 +28,6 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
 
-      - name: Add requirements
-        run: python -m pip install --upgrade wheel setuptools
-
       - name: Cache external
         uses: actions/cache@v2
         with:
@@ -38,8 +35,11 @@ jobs:
             mjx/external
           key: external-${{ hashFiles('mjx/include/mjx/cmake/*') }}-${{ matrix.platform }}
 
-      - name: Build and install
-        run: python setup.py sdist && python3 setup.py install
+      - name: Add requirements
+        run: python -m pip install --upgrade wheel setuptools
+
+     - name: Build and install
+        run: export MJX_BUILD_BOOST=OFF && export MJX_BUILD_GRPC=OFF && python setup.py sdist && python3 setup.py install
 
       - name: Test
         run: python test.py
