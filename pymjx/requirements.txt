@@ -1,7 +1,7 @@
 click
 google
 protobuf
-grpcio
+grpcio==1.40.0
 grpcio-tools
 pytest
 black

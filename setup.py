@@ -3,7 +3,6 @@
 # Copied from github.com/pybind/cmake_example
 # Copyright (c) 2016 The Pybind Development Team, All rights reserved.
 # https://github.com/pybind/cmake_example/blob/master/LICENSE
-
 import os
 import re
 import subprocess
@@ -159,7 +158,7 @@ setup(
         "click",
         "google",
         "protobuf",
-        "grpcio",
+        "grpcio==1.40.0",
         "grpcio-tools",
         "tenhou_wall_reproducer",
         "rich",
