@@ -40,7 +40,7 @@ jobs:
         run: python -m pip install --upgrade wheel setuptools
 
       - name: Build and install
-        run: export MJX_BUILD_BOOST=OFF && export MJX_BUILD_GRPC=OFF && python setup.py sdist && python3 setup.py install
+        run: export MJX_BUILD_BOOST=ON && export MJX_BUILD_GRPC=ON && CMAKE_BUILD_PARALLEL_LEVEL=4 && python setup.py sdist && python3 setup.py install
 
       - name: Test
         run: python test.py
