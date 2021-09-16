@@ -5,6 +5,7 @@
 name: pybind
 
 on:
+  push:
   release:
     types:
       - published
@@ -14,7 +15,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        platform: [macos-latest, ubuntu-latest]
+        platform: [ubuntu-latest]  # [macos-latest, ubuntu-latest]
         python-version: ["3.9"]  #  ["2.7", "3.5", "3.8", "3.9"]
 
     runs-on: ${{ matrix.platform }}
