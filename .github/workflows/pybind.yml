@@ -5,6 +5,7 @@
 name: pybind
 
 on:
+  push:
   release:
     types:
       - published
@@ -14,7 +15,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        platform: [macos-latest, ubuntu-latest]
+        platform: [ubuntu-latest]  # [macos-latest, ubuntu-latest]
         python-version: ["3.9"]  #  ["2.7", "3.5", "3.8", "3.9"]
 
     runs-on: ${{ matrix.platform }}
@@ -28,9 +29,6 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
 
-      - name: Add requirements
-        run: python -m pip install --upgrade wheel setuptools
-
       - name: Cache external
         uses: actions/cache@v2
         with:
@@ -38,8 +36,11 @@ jobs:
             mjx/external
           key: external-${{ hashFiles('mjx/include/mjx/cmake/*') }}-${{ matrix.platform }}
 
+      - name: Add requirements
+        run: python -m pip install --upgrade wheel setuptools
+
       - name: Build and install
-        run: python setup.py sdist && python3 setup.py install
+        run: export MJX_BUILD_BOOST=ON && export MJX_BUILD_GRPC=ON && CMAKE_BUILD_PARALLEL_LEVEL=4 && python setup.py sdist && python3 setup.py install
 
       - name: Test
         run: python test.py

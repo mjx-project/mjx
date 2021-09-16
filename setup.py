@@ -3,7 +3,6 @@
 # Copied from github.com/pybind/cmake_example
 # Copyright (c) 2016 The Pybind Development Team, All rights reserved.
 # https://github.com/pybind/cmake_example/blob/master/LICENSE
-
 import os
 import re
 import subprocess
@@ -51,16 +50,13 @@ class CMakeBuild(build_ext):
         cmake_generator = os.environ.get("CMAKE_GENERATOR", "")
 
         # Set Python_EXECUTABLE instead if you use PYBIND11_FINDPYTHON
-        # EXAMPLE_VERSION_INFO shows you how to pass a value into the C++ code
         # from Python.
         cmake_args = [
             "-DCMAKE_LIBRARY_OUTPUT_DIRECTORY={}".format(extdir),
             "-DPYTHON_EXECUTABLE={}".format(sys.executable),
-            "-DEXAMPLE_VERSION_INFO={}".format(
-                self.distribution.get_version()),
             # not used on MSVC, but no harm
             "-DCMAKE_BUILD_TYPE={}".format(cfg),
-            "-DMJX_BUILD_TESTS=OFF"
+            "-DMJX_BUILD_TESTS=OFF",
             "-DMJX_BUILD_PYTHON=ON"
         ]
         build_args = []
@@ -159,17 +155,17 @@ setup(
     entry_points={"console_scripts": "mjx = mjx.main:main"},
     zip_safe=False,
     install_requires=[
-        "click",
-        "google",
-        "protobuf",
-        "grpcio",
-        "grpcio-tools",
-        "tenhou_wall_reproducer",
-        "rich",
-        "gym",
+        "click==8.0.1",
+        "google==3.0.0",
+        "protobuf==3.17.3",
+        "grpcio==1.39.0",
+        "grpcio-tools==1.39.0",
+        "rich==10.9.0",
         "pillow",
+        "gym",
         "pettingzoo",
         "svgwrite",
+        "tenhou_wall_reproducer",
     ],
     extras_require={"test": ["pytest"]},
     include_package_data=True
