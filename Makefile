@@ -29,7 +29,7 @@ fmt:
 	clang-format -i tests/*.cpp
 	clang-format -i scripts/*.cpp
 
-dist: setup.py mjx pymjx mjx/include/mjx/internal/mjx.proto
+dist: setup.py mjx/* mjx/include/mjx/* mjx/include/mjx/internal/* tests/* pymjx/* pymjx/mjx/* mjx/include/mjx/internal/mjx.proto
 	which python3
 	python3 -m pip install -r pymjx/requirements.txt
 	python3 -m grpc_tools.protoc -I mjx/include/mjx/internal --python_out=./pymjx/mjxproto/ --grpc_python_out=./pymjx//mjxproto/ --mypy_out=./pymjx/mjxproto/ mjx.proto
