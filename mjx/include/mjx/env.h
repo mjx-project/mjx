@@ -10,8 +10,8 @@
 namespace mjx {
 class MjxEnv {
  public:
-  explicit MjxEnv(bool observe_all = false);
-  explicit MjxEnv(std::vector<PlayerId> player_ids, bool observe_all = false);
+  explicit MjxEnv();
+  explicit MjxEnv(std::vector<PlayerId> player_ids);
   std::unordered_map<PlayerId, Observation> Reset() noexcept;
   std::unordered_map<PlayerId, Observation> Step(
       const std::unordered_map<PlayerId, mjx::Action>& action_dict) noexcept;
@@ -22,6 +22,7 @@ class MjxEnv {
 
   // accessors
   State state() const noexcept;
+  Observation observation(const PlayerId &player_id) const noexcept;
   const std::vector<PlayerId>& player_ids()
       const noexcept;  // order does not change for each game
 
@@ -31,7 +32,6 @@ class MjxEnv {
       internal::GameSeed::CreateRandomGameSeedGenerator();
   internal::State state_{};
   const std::vector<PlayerId> player_ids_;
-  const bool observe_all_;
 
   std::unordered_map<PlayerId, Observation> Observe() const noexcept;
 };
@@ -80,7 +80,7 @@ class PettingZooMahjongEnv {
   const std::vector<PlayerId> possible_agents_ = {"player_0", "player_1",
                                                   "player_2", "player_3"};
   std::vector<PlayerId> agents_{};
-  MjxEnv env_ = MjxEnv(true);
+  MjxEnv env_ = MjxEnv();
   // agents required to take actions
   std::vector<PlayerId> agents_to_act_;
   std::optional<PlayerId> agent_selection_;

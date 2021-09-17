@@ -56,7 +56,7 @@ PYBIND11_MODULE(_mjx, m) {
   py::class_<mjx::EnvRunner>(m, "EnvRunner").def("run", &mjx::EnvRunner::Run);
 
   py::class_<mjx::MjxEnv>(m, "MjxEnv")
-      .def(py::init<std::vector<mjx::PlayerId>, bool>())
+      .def(py::init<std::vector<mjx::PlayerId>>())
       .def("reset", &mjx::MjxEnv::Reset)
       .def("step", &mjx::MjxEnv::Step)
       .def("done", &mjx::MjxEnv::Done)

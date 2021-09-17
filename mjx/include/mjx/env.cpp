@@ -4,11 +4,11 @@
 
 namespace mjx {
 
-MjxEnv::MjxEnv(bool observe_all)
-    : MjxEnv({"player_0", "player_1", "player_2", "player_3"}, observe_all) {}
+MjxEnv::MjxEnv()
+    : MjxEnv({"player_0", "player_1", "player_2", "player_3"}) {}
 
-MjxEnv::MjxEnv(std::vector<PlayerId> player_ids, bool observe_all)
-    : player_ids_(std::move(player_ids)), observe_all_(observe_all) {}
+MjxEnv::MjxEnv(std::vector<PlayerId> player_ids)
+    : player_ids_(std::move(player_ids)) {}
 
 std::unordered_map<PlayerId, Observation> MjxEnv::Reset() noexcept {
   if (!game_seed_) game_seed_ = seed_gen_();
@@ -22,7 +22,7 @@ std::unordered_map<PlayerId, Observation> MjxEnv::Reset() noexcept {
 
 std::unordered_map<PlayerId, Observation> MjxEnv::Observe() const noexcept {
   std::unordered_map<PlayerId, Observation> observations;
-  auto internal_observations = state_.CreateObservations(observe_all_);
+  auto internal_observations = state_.CreateObservations();
   for (const auto& [player_id, obs] : internal_observations)
     observations[player_id] = mjx::Observation(obs.proto());
   return observations;
@@ -72,6 +72,10 @@ std::unordered_map<PlayerId, int> MjxEnv::Rewards() const noexcept {
   return rewards;
 }
 void MjxEnv::Seed(std::uint64_t seed) noexcept { game_seed_ = seed; }
+
+Observation MjxEnv::observation(const PlayerId& player_id) const noexcept {
+  return Observation(state_.observation(player_id));
+}
 
 mjx::RLlibMahjongEnv::RLlibMahjongEnv() {}
 
@@ -176,6 +180,7 @@ void PettingZooMahjongEnv::Step(Action action) noexcept {
     return;
   }
 
+  observations_.clear();
   observations_ = env_.Step(action_dict_);
   action_dict_.clear();
   UpdateAgentsToAct();
@@ -203,7 +208,15 @@ void PettingZooMahjongEnv::Seed(std::uint64_t seed) noexcept {
 
 Observation PettingZooMahjongEnv::Observe(
     const PlayerId& agent) const noexcept {
-  return observations_.at(agent);
+  Observation obs;
+  if (observations_.count(agent)) {
+    obs = observations_.at(agent);
+    assert(!obs.legal_actions().empty());
+  } else {
+    obs = env_.observation(agent);
+    assert(obs.legal_actions().empty());
+  }
+  return obs;
 }
 
 const std::vector<PlayerId>& PettingZooMahjongEnv::agents() const noexcept {
@@ -228,9 +241,8 @@ void PettingZooMahjongEnv::UpdateAgentsToAct() noexcept {
   agents_to_act_.clear();
   // TODO: change the order
   for (const auto& [agent, observation] : observations_) {
-    if (!observation.legal_actions().empty()) {
-      agents_to_act_.push_back(agent);
-    }
+    assert(!observation.legal_actions().empty());
+    agents_to_act_.push_back(agent);
   }
 }
 }  // namespace mjx

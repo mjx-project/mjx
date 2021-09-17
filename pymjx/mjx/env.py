@@ -12,11 +12,10 @@ class MjxEnv:
     def __init__(
         self,
         player_ids: List[str] = ["player_0", "player_1", "player_2", "player_3"],
-        observe_all: bool = False,
     ):
         import mjx._mjx as _mjx
 
-        self._env = _mjx.MjxEnv(player_ids, observe_all)
+        self._env = _mjx.MjxEnv(player_ids)
 
     def seed(self, seed) -> None:
         self._env.seed(seed)
