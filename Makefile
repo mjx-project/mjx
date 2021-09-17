@@ -1,5 +1,5 @@
 clean:
-	rm -rf mjx/venv
+	rm -rf venv
 	rm -rf cmake-build-debug
 	rm -rf build
 	rm -rf docker-build
