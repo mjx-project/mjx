@@ -1,6 +1,6 @@
 import random
-from typing import Dict, List, Optional
 from importlib import import_module
+from typing import Dict, List, Optional
 
 import gym
 import numpy as np
