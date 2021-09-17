@@ -1,22 +1,32 @@
 clean:
-	cd pymjx && make clean
+	rm -rf mjx/venv
 	rm -rf cmake-build-debug
 	rm -rf build
 	rm -rf docker-build
-	rm -rf mjx/include/mjx/internal/*pb*
 	rm -rf dist
-	rm -rf venv
+	rm -rf mjx/__pycache__
+	rm -rf mjx/include/mjx/internal/mjx.grpc.pb.cc
+	rm -rf mjx/include/mjx/internal/mjx.grpc.pb.h
+	rm -rf mjx/include/mjx/internal/mjx.pb.cc
+	rm -rf mjx/include/mjx/internal/mjx.pb.h
+	rm -rf mjx/external
+	rm -rf tests/external
+	rm -rf pymjx/mjx.egg-info
+	rm -rf pymjx/mjxproto/mjx_pb2.pyi
+	rm -rf pymjx/mjxproto/mjx_pb2.py
+	rm -rf pymjx/mjxproto/mjx_pb2_grpc.py
 
 venv:
 	python3 -m venv venv
 
-build: mjx tests
+build: mjx/* mjx/include/mjx/* mjx/include/mjx/internal/* tests/*
 	mkdir -p build && cd build && cmake .. -DMJX_BUILD_BOOST=OFF -DMJX_BUILD_GRPC=OFF -DMJX_BUILD_TESTS=ON && make -j
 
 test: build
 	./build/tests/mjx_test
 
 fmt:
+	clang-format -i mjx/include/mjx/*.h mjx/include/mjx/*.cpp
 	clang-format -i mjx/include/mjx/internal/*.h mjx/include/mjx/internal/*.cpp
 	clang-format -i tests/*.cpp
 	clang-format -i scripts/*.cpp
