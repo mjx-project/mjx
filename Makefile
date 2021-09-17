@@ -13,8 +13,6 @@ clean:
 	rm -rf tests/external
 	rm -rf pymjx/mjx.egg-info
 	rm -rf pymjx/mjxproto/mjx_pb2.pyi
-	rm -rf pymjx/mjxproto/mjx_pb2.py
-	rm -rf pymjx/mjxproto/mjx_pb2_grpc.py
 
 venv:
 	python3 -m venv venv
