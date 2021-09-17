@@ -46,12 +46,12 @@ class State {
   bool IsRoundOver() const;
   bool IsGameOver() const;
   void Update(std::vector<mjxproto::Action>&& action_candidates);
-  std::unordered_map<PlayerId, Observation> CreateObservations(
-      bool observe_all = false) const;
+  std::unordered_map<PlayerId, Observation> CreateObservations() const;
   std::string ToJson() const;
   mjxproto::State proto() const;
   GameResult result() const;
   State::ScoreInfo Next() const;
+  mjxproto::Observation observation(const PlayerId& player_id) const;
 
   static std::vector<PlayerId> ShufflePlayerIds(
       std::uint64_t game_seed, const std::vector<PlayerId>& player_ids);
@@ -136,7 +136,6 @@ class State {
   [[nodiscard]] AbsolutePos top_player() const;
 
   void Update(mjxproto::Action&& action);
-  std::unordered_map<PlayerId, Observation> InternalCreateObservations() const;
 
   // event operations
   Tile Draw(AbsolutePos who);
