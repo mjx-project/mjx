@@ -136,7 +136,6 @@ class State {
   [[nodiscard]] AbsolutePos top_player() const;
 
   void Update(mjxproto::Action&& action);
-  std::unordered_map<PlayerId, Observation> InternalCreateObservations() const;
 
   // event operations
   Tile Draw(AbsolutePos who);

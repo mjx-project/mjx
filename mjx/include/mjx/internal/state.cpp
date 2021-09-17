@@ -128,7 +128,7 @@ GameResult State::result() const {
   return GameResult{game_seed(), rankings, tens_map};
 }
 
-std::unordered_map<PlayerId, Observation> State::InternalCreateObservations()
+std::unordered_map<PlayerId, Observation> State::CreateObservations()
     const {
   // At the round end, sync round terminal information to each player
   if (IsRoundOver()) {
@@ -1709,11 +1709,6 @@ std::vector<PlayerId> State::ShufflePlayerIds(
   std::vector<PlayerId> ret(player_ids.begin(), player_ids.end());
   Shuffle(ret.begin(), ret.end(), std::mt19937_64(game_seed));
   return ret;
-}
-
-std::unordered_map<PlayerId, Observation> State::CreateObservations() const {
-  auto observations = InternalCreateObservations();
-  return observations;
 }
 
 mjxproto::Observation State::observation(const PlayerId &player_id) const {
