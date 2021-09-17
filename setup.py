@@ -163,10 +163,9 @@ setup(
         "rich==10.9.0",
         "pillow",
         "gym",
-        "pettingzoo",
         "svgwrite",
         "tenhou_wall_reproducer",
     ],
-    extras_require={"test": ["pytest"]},
+    extras_require={"test": ["pytest", "pettingzoo"]},
     include_package_data=True
 )

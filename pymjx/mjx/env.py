@@ -1,9 +1,12 @@
 import random
 from typing import Dict, List, Optional
+from importlib import import_module
 
 import gym
 import numpy as np
-from pettingzoo import AECEnv
+
+pettingzoo = import_module("pettingzoo")
+
 
 import mjx
 
@@ -155,7 +158,7 @@ class RLlibMahjongEnv:
         self.env.seed(seed)
 
 
-class PettingZooMahjongEnv(AECEnv):
+class PettingZooMahjongEnv(pettingzoo.AECEnv):
     def __init__(self):
         import mjx._mjx as _mjx
 
