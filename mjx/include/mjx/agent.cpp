@@ -19,10 +19,11 @@ void Agent::Serve(const std::string& socket_address) const noexcept {
   server->Wait();
 }
 
-mjx::Action RandomAgent::Act(const Observation& observation) const noexcept {
+mjx::Action RandomDebugAgent::Act(const Observation& observation) const noexcept {
   const std::uint64_t seed =
-      12345 + 4096 * observation.proto().public_observation().events_size() +
-      16 * observation.legal_actions().size() + 1 * observation.proto().who();
+      (observation.proto().public_observation().events_size() << 6)  // 64 <= x < 8192 = 128 << 6
+      + (observation.legal_actions().size() << 2) // 4 <= x <  64 = 16 << 2
+      + observation.proto().who();  // 0 <= x < 4
   auto mt = std::mt19937_64(seed);
 
   const auto possible_actions = observation.legal_actions();

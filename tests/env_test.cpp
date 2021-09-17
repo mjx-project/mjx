@@ -5,7 +5,7 @@
 #include "gtest/gtest.h"
 
 TEST(env, run) {
-  auto agent = std::make_shared<mjx::RandomAgent>();
+  auto agent = std::make_shared<mjx::RandomDebugAgent>();
   std::unordered_map<mjx::PlayerId, mjx::Agent*> agents = {
       {"player_0", agent.get()},
       {"player_1", agent.get()},
