@@ -162,10 +162,9 @@ setup(
         "grpcio-tools==1.39.0",
         "rich==10.9.0",
         "pillow",
-        "gym",
         "svgwrite",
         "tenhou_wall_reproducer",
     ],
-    extras_require={"test": ["pytest", "pettingzoo", "ray[rllib]"]},
+    extras_require={"test": ["pytest", "gym", "pettingzoo", "ray[rllib]"]},
     include_package_data=True
 )

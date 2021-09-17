@@ -2,11 +2,11 @@ import random
 from importlib import import_module
 from typing import Dict, List, Optional
 
-import gym
 import numpy as np
 
 import mjx
 
+gym = import_module("gym")
 pettingzoo = import_module("pettingzoo")
 multi_agent_env = import_module("ray.rllib.env.multi_agent_env")
 
