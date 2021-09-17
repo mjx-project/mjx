@@ -4,8 +4,7 @@
 
 namespace mjx {
 
-MjxEnv::MjxEnv()
-    : MjxEnv({"player_0", "player_1", "player_2", "player_3"}) {}
+MjxEnv::MjxEnv() : MjxEnv({"player_0", "player_1", "player_2", "player_3"}) {}
 
 MjxEnv::MjxEnv(std::vector<PlayerId> player_ids)
     : player_ids_(std::move(player_ids)) {}

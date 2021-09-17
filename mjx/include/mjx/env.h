@@ -22,7 +22,7 @@ class MjxEnv {
 
   // accessors
   State state() const noexcept;
-  Observation observation(const PlayerId &player_id) const noexcept;
+  Observation observation(const PlayerId& player_id) const noexcept;
   const std::vector<PlayerId>& player_ids()
       const noexcept;  // order does not change for each game
 
