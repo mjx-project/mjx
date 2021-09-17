@@ -166,7 +166,7 @@ class PettingZooMahjongEnv(AECEnv):
 
         # consts
         self.num_actions = 181  # TODO: use val from self.env
-        self.num_features = 34 * 4  # TODO: use val from self.env
+        self.num_features = 34 * 10  # TODO: use val from self.env
         self.observation_spaces = {
             i: gym.spaces.Dict(
                 {
