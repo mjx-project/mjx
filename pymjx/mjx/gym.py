@@ -1,10 +1,8 @@
 import random
 from importlib import import_module
-from typing import Dict, List, Optional
+from typing import Optional
 
 import numpy as np
-
-import mjx
 
 gym = import_module("gym")
 pettingzoo = import_module("pettingzoo")
