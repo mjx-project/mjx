@@ -166,6 +166,6 @@ setup(
         "svgwrite",
         "tenhou_wall_reproducer",
     ],
-    extras_require={"test": ["pytest", "pettingzoo"]},
+    extras_require={"test": ["pytest", "pettingzoo", "ray[rllib]"]},
     include_package_data=True
 )

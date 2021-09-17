@@ -6,6 +6,7 @@ import gym
 import numpy as np
 
 pettingzoo = import_module("pettingzoo")
+multi_agent_env = import_module("ray.rllib.env.multi_agent_env")
 
 
 import mjx
@@ -102,7 +103,7 @@ class SingleAgentEnv(gym.Env):
         return random.choice(legal_actions)
 
 
-class RLlibMahjongEnv:
+class RLlibMahjongEnv(multi_agent_env.MultiAgentEnv):
     def __init__(self):
         import mjx._mjx as _mjx
 
@@ -112,7 +113,7 @@ class RLlibMahjongEnv:
 
         # consts
         self.num_actions = 181  # TODO: use val from self.env
-        self.num_features = 340  # TODO: use val from self.env
+        self.num_features = 34 * 10  # TODO: use val from self.env
         self.observation_space = gym.spaces.Dict(
             {
                 "action_mask": gym.spaces.Box(0, 1, shape=(self.num_actions,)),
