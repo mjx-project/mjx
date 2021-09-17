@@ -50,6 +50,7 @@ def test_RLlibMahjongEnv():
             action_dict[agent] = random.choice(legal_actions)
         obs_dict, rewards, dones, info = env.step(action_dict)
     assert len(rewards) == 4
+    assert list(sorted(rewards.values())) == [-135, 0, 45, 90]
 
 
 def test_PettingZooMahjongEnv():
