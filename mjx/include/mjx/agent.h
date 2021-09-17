@@ -15,7 +15,6 @@ class Agent {
   void Serve(const std::string& socket_address) const noexcept;
 };
 
-
 // Agent that acts randomly but in the reproducible way.
 // The same observation should return the same action.
 // Only for debugging purpose.
