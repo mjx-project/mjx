@@ -5,11 +5,10 @@ from typing import Dict, List, Optional
 import gym
 import numpy as np
 
+import mjx
+
 pettingzoo = import_module("pettingzoo")
 multi_agent_env = import_module("ray.rllib.env.multi_agent_env")
-
-
-import mjx
 
 
 class MjxEnv:
