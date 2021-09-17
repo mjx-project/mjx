@@ -1,4 +1,4 @@
-import mjx.env
+import mjx.gym
 import mjx.agent
 import random
 from pettingzoo.test import api_test
@@ -15,7 +15,7 @@ def test_MjxEnv():
     random_agent = mjx.agent.RandomDebugAgent()
 
     random.seed(1234)
-    env = mjx.env.MjxEnv()
+    env = mjx.MjxEnv()
     env.seed(1234)
     obs_dict = env.reset()
 
@@ -39,7 +39,7 @@ def test_MjxEnv():
 
 def test_RLlibMahjongEnv():
     random.seed(1234)
-    env = mjx.env.RLlibMahjongEnv()
+    env = mjx.gym.RLlibMahjongEnv()
     env.seed(1234)
     obs_dict = env.reset()
     dones = {"__all__": False}
@@ -55,7 +55,7 @@ def test_RLlibMahjongEnv():
 
 def test_PettingZooMahjongEnv():
     random.seed(1234)
-    env = mjx.env.PettingZooMahjongEnv()
+    env = mjx.gym.PettingZooMahjongEnv()
     env.seed(1234)
     env.reset()
     results = []
