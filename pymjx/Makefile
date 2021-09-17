@@ -19,8 +19,8 @@ requirements:
 	python3 -m pip install --upgrade pip
 	python3 -m pip install -r requirements.txt
 
-pytest: requirements proto
-	python3 -m pytest --doctest-modules
+pytest: requirements
+	python3 -m pytest --doctest-modules --ignore mjx/env.py
 
 test-cli:
 	echo "From mjlog => mjxproto"
