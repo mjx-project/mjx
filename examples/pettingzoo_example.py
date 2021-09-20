@@ -1,8 +1,9 @@
-import numpy as np
 from typing import Dict, List, Optional
-from pettingzoo import AECEnv
+
 import gym
 import mjx._mjx as _mjx
+import numpy as np
+from pettingzoo import AECEnv
 
 
 class PettingZooMahjongEnv(AECEnv):
@@ -116,8 +117,7 @@ def random_run():
     for agent in env.agent_iter():
         observation, reward, done, info = env.last(True)
         results.append((agent, observation, reward, done, info))
-        legal_actions = [i for i, b in enumerate(
-            observation["action_mask"]) if b]
+        legal_actions = [i for i, b in enumerate(observation["action_mask"]) if b]
         action = random.choice(legal_actions)
         env.step(action if not done else None)
 
@@ -162,10 +162,11 @@ def random_run():
 
 def pettingzoo_api_test():
     from pettingzoo.test import api_test
+
     env = PettingZooMahjongEnv()
     api_test(env, num_cycles=100000, verbose_progress=False)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     random_run()
     pettingzoo_api_test()
