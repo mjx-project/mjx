@@ -36,7 +36,7 @@ dist: setup.py mjx/* mjx/include/mjx/* mjx/include/mjx/internal/* pymjx/* pymjx/
 	export MJX_BUILD_BOOST=OFF && export MJX_BUILD_GRPC=OFF && python3 setup.py sdist && python3 setup.py install
 
 pytest: dist
-	python3 -m pytest pymjx --import-mode=importlib 
+	python3 -m pytest pymjx/tests --import-mode=importlib 
 
 docker-build:
 	docker run -it -v ${CURDIR}:/mahjong sotetsuk/ubuntu-gcc-grpc:latest  /bin/bash -c "cd /mahjong && mkdir -p docker-build && cd docker-build && cmake .. && make -j"
