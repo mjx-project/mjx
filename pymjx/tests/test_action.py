@@ -23,10 +23,3 @@ def test_select_from():
     legal_actions = [mjx.Action('{"gameId":"xxx","tile":0}'), mjx.Action('{"gameId":"xxx","tile":10}')]
     action = mjx.Action.select_from(0, legal_actions)
     action.to_json() == '{"gameId":"xxx","tile":0}'
-
-
-if __name__ == '__main__':
-    test_Action()
-    test_to_json()
-    test_to_idx()
-    test_select_from()
