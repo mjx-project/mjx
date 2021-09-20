@@ -1,15 +1,15 @@
 from __future__ import annotations
+
 import json
 from typing import List, Optional
 
+import mjx._mjx as _mjx
+import mjxproto
+import numpy as np
 from google.protobuf import json_format
 from mjx.visualizer.svg import save_svg
 
-import numpy as np
-
-import mjxproto
 import mjx
-import mjx._mjx as _mjx
 
 
 class Observation:
