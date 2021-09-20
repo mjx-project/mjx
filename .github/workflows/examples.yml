@@ -12,11 +12,11 @@ jobs:
       with:
         python-version: 3.9
 
-    - name: Run checks
-      run: cd examples && make checks
-
     - name: Install
       run: cd examples && make install
+
+    - name: Run checks
+      run: cd examples && make checks
 
     - name: Run test
       run: cd examples && make test
