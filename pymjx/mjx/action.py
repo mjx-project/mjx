@@ -13,6 +13,12 @@ class Action:
 
         self._cpp_obj = _mjx.Action(action_json)
 
+    def to_json(self) -> str:
+        return self._cpp_obj.to_json()
+
+    def to_idx(self) -> str:
+        return self._cpp_obj.to_idx()
+
     @classmethod
     def _from_cpp_obj(cls, cpp_obj):
         action = cls()
