@@ -2,11 +2,10 @@ from __future__ import annotations
 
 import json
 
+import mjx._mjx as _mjx
 import mjxproto
 from google.protobuf import json_format
 from mjx.visualizer.svg import save_svg
-
-import mjx._mjx as _mjx
 
 
 class State:
