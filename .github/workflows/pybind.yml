@@ -43,4 +43,4 @@ jobs:
         run: CMAKE_BUILD_PARALLEL_LEVEL=4 && python3 setup.py sdist && python3 setup.py install
 
       - name: Test
-        run: python3 -m pip install pytest gym pettingzoo "ray[rllib]" && python3 test.py
+        run: python3 test.py
