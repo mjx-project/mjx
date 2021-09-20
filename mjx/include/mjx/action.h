@@ -9,10 +9,11 @@ class Action {
   Action() = default;
   explicit Action(mjxproto::Action proto);
   explicit Action(const std::string& json);
-  Action(int action_idx, const std::vector<Action>& legal_actions);
   bool operator==(const Action& other) const noexcept;
   bool operator!=(const Action& other) const noexcept;
 
+  static Action SelectFrom(int action_idx,
+                           const std::vector<Action>& legal_actions);
   std::string ToJson() const noexcept;
   int ToIdx() const noexcept;  // 0 ~ 180
 

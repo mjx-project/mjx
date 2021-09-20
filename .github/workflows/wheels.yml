@@ -10,7 +10,7 @@ on:
       - published
 
 env:
-  CIBW_TEST_COMMAND: python3 {project}/pymjx/tests/test_env.py
+  CIBW_TEST_COMMAND: python3 -m pytest {project}/pymjx/tests --import-mode=importlib 
   CIBW_TEST_EXTRAS: test
 
 
@@ -68,7 +68,7 @@ jobs:
         CIBW_ARCHS_MACOS: x86_64  #  auto universal2
         CIBW_TEST_SKIP: "*universal2:arm64"
         CIBW_TEST_EXTRAS: test
-        CIBW_TEST_COMMAND: python3 {project}pymjx/tests/test_env.py
+        CIBW_TEST_COMMAND: python3 -m pytest {project}/pymjx/tests --import-mode=importlib 
 
     - name: Verify clean directory
       run: git diff --exit-code

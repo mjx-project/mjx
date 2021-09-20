@@ -19,9 +19,6 @@ requirements:
 	python3 -m pip install --upgrade pip
 	python3 -m pip install -r requirements.txt
 
-pytest: requirements
-	python3 -m pytest --doctest-modules --ignore mjx/env.py --ignore tests/test_env.py
-
 test-cli:
 	echo "From mjlog => mjxproto"
 	cat tests/resources/mjlog/*.mjlog | mjx convert --to-mjxproto --verbose | wc -l

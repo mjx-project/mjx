@@ -8,4 +8,4 @@ class RandomDebugAgent:
         self._agent = _mjx.RandomDebugAgent()
 
     def act(self, observation):
-        return mjx.Action(self._agent.act(observation._cpp_obj))
+        return mjx.Action._from_cpp_obj(self._agent.act(observation._cpp_obj))
