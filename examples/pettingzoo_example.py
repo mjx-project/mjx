@@ -105,9 +105,8 @@ class PettingZooMahjongEnv(AECEnv):
         pass
 
 
-if __name__ == '__main__':
+def random_run():
     import random
-    from pettingzoo.test import api_test
 
     random.seed(1234)
     env = PettingZooMahjongEnv()
@@ -160,5 +159,13 @@ if __name__ == '__main__':
 
     assert final_rewards == {-135, 0, 45, 90}
 
-    # API test
+
+def pettingzoo_api_test():
+    from pettingzoo.test import api_test
+    env = PettingZooMahjongEnv()
     api_test(env, num_cycles=100000, verbose_progress=False)
+
+
+if __name__ == '__main__':
+    random_run()
+    pettingzoo_api_test()
