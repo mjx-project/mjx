@@ -1,9 +1,8 @@
 from __future__ import annotations
 
-import importlib
 from typing import List
 
-_mjx = importlib.import_module("mjx._mjx")
+import mjx._mjx as _mjx
 
 
 class Action:

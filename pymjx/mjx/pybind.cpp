@@ -26,7 +26,7 @@ PYBIND11_MODULE(_mjx, m) {
       .def("to_idx", &mjx::Action::ToIdx);
 
   py::class_<mjx::Observation>(m, "Observation")
-      .def(py::init<>())
+      .def(py::init<std::string>())
       .def("to_json", &mjx::Observation::ToJson)
       .def("to_feature", &mjx::Observation::ToFeature)
       .def("legal_actions", &mjx::Observation::legal_actions)
