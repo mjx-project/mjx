@@ -22,9 +22,6 @@ requirements:
 pytest: requirements
 	python3 -m pytest --doctest-modules --ignore mjx/env.py --ignore tests/env.py
 
-pytest-all: requirements
-	python3 -m pytest --doctest-modules
-
 test-cli:
 	echo "From mjlog => mjxproto"
 	cat tests/resources/mjlog/*.mjlog | mjx convert --to-mjxproto --verbose | wc -l
