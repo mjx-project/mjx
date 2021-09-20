@@ -2,10 +2,12 @@ from __future__ import annotations
 import json
 from typing import List, Optional
 
-import mjxproto
 from google.protobuf import json_format
 from mjx.visualizer.svg import save_svg
 
+import numpy as np
+
+import mjxproto
 import mjx
 import mjx._mjx as _mjx
 
@@ -20,6 +22,9 @@ class Observation:
 
     def legal_actions(self) -> List[mjx.Action]:
         return [mjx.Action._from_cpp_obj(cpp_obj) for cpp_obj in self._cpp_obj.legal_actions()]
+
+    def action_mask(self, dtype=np.float32):
+        return np.array(self._cpp_obj.action_mask(), dtype=dtype)
 
     def to_json(self) -> str:
         return self._cpp_obj.to_json()
