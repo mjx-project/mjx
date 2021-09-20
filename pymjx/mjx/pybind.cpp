@@ -20,8 +20,8 @@ PYBIND11_MODULE(_mjx, m) {
   m.doc() = "";
 
   py::class_<mjx::Action>(m, "Action")
-      .def(py::init<>())
-      .def(py::init<int, const std::vector<mjx::Action> &>())
+      .def(py::init<std::string>())
+      .def("select_from", &mjx::Action::SelectFrom)
       .def("to_json", &mjx::Action::ToJson)
       .def("to_idx", &mjx::Action::ToIdx);
 
