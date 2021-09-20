@@ -12,7 +12,8 @@ class Action {
   bool operator==(const Action& other) const noexcept;
   bool operator!=(const Action& other) const noexcept;
 
-  static Action SelectFrom(int action_idx, const std::vector<Action>& legal_actions);
+  static Action SelectFrom(int action_idx,
+                           const std::vector<Action>& legal_actions);
   std::string ToJson() const noexcept;
   int ToIdx() const noexcept;  // 0 ~ 180
 
