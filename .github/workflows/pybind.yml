@@ -39,8 +39,11 @@ jobs:
       - name: Add requirements
         run: python -m pip install --upgrade wheel setuptools
 
+      - name: Run check
+        run: cd pymjx && make checks
+
       - name: Build and install
         run: CMAKE_BUILD_PARALLEL_LEVEL=4 && python3 setup.py sdist && python3 setup.py install
 
       - name: Test
-        run: python3 pymjx/tests/test_env.py
+        run: make pytest
