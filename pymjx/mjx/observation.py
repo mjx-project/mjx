@@ -18,7 +18,6 @@ class Observation:
 
         self._cpp_obj = _mjx.Observation(obs_json)
 
-
     def legal_actions(self) -> List[mjx.Action]:
         return [mjx.Action._from_cpp_obj(cpp_obj) for cpp_obj in self._cpp_obj.legal_actions()]
 
