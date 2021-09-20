@@ -23,7 +23,7 @@ class Observation:
     def legal_actions(self) -> List[mjx.Action]:
         return [mjx.Action._from_cpp_obj(cpp_obj) for cpp_obj in self._cpp_obj.legal_actions()]
 
-    def action_mask(self, dtype=np.float32):
+    def action_mask(self, dtype=np.float32) -> np.array:
         return np.array(self._cpp_obj.action_mask(), dtype=dtype)
 
     def to_json(self) -> str:
@@ -33,7 +33,7 @@ class Observation:
         json_data = self.to_json()
         return json_format.ParseDict(json.loads(json_data), mjxproto.Observation())
 
-    def save_svg(self, filename: str, view_idx: Optional[int] = None):
+    def save_svg(self, filename: str, view_idx: Optional[int] = None) -> None:
         assert filename.endswith(".svg")
         assert view_idx is None or 0 <= view_idx < 4
 
