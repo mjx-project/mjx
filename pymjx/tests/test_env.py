@@ -36,7 +36,6 @@ def test_MjxEnv():
     assert rewards['player_3'] == -135
 
 
-
 if __name__ == '__main__':
     test_EnvRunner()
     test_MjxEnv()
