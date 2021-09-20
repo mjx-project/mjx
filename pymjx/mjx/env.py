@@ -32,4 +32,4 @@ class MjxEnv:
 
     @property
     def state(self) -> mjx.State:
-        return mjx.State(self._env.state())
+        return mjx.State._from_cpp_obj(self._env.state())

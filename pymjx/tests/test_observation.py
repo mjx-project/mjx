@@ -1,6 +1,5 @@
 import mjx
 import os
-import numpy as np
 
 
 def test_Observation():

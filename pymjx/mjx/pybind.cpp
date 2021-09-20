@@ -34,7 +34,7 @@ PYBIND11_MODULE(_mjx, m) {
       .def("curr_hand", &mjx::Observation::curr_hand);
 
   py::class_<mjx::State>(m, "State")
-      .def(py::init<>())
+      .def(py::init<std::string>())
       .def("to_json", &mjx::State::ToJson);
 
   py::class_<mjx::Hand>(m, "Hand")
