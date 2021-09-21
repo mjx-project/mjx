@@ -1,25 +1,23 @@
 #include "mjx/agent.h"
 
 #include <grpcpp/ext/proto_server_reflection_plugin.h>
+#include <grpcpp/grpcpp.h>
 
 #include "mjx/internal/utils.h"
 
 namespace mjx {
-void Agent::Serve(const std::string& socket_address) noexcept {
+void Agent::Serve(const std::string& socket_address) const noexcept {
   std::unique_ptr<grpc::Service> agent_impl =
       std::make_unique<AgentGrpcServerImpl>(this);
-  std::cerr << socket_address << std::endl;
+  std::cout << socket_address << std::endl;
   grpc::EnableDefaultHealthCheckService(true);
   grpc::reflection::InitProtoReflectionServerBuilderPlugin();
   grpc::ServerBuilder builder;
   builder.AddListeningPort(socket_address, grpc::InsecureServerCredentials());
   builder.RegisterService(agent_impl.get());
-  server_ = builder.BuildAndStart();
+  std::unique_ptr<grpc::Server> server(builder.BuildAndStart());
+  server->Wait();
 }
-
-void Agent::Wait() const noexcept { server_->Wait(); }
-
-void Agent::Shutdown() const noexcept { server_->Shutdown(); }
 
 mjx::Action RandomDebugAgent::Act(
     const Observation& observation) const noexcept {
