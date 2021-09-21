@@ -844,9 +844,3 @@ def save_svg(
 
     dwg.add(player_g)
     dwg.save()
-
-
-def make_svg(filename: str, page: int):
-    proto_data_list = MahjongTable.load_proto_data(filename)
-    proto_data = proto_data_list[page]
-    save_svg(proto_data, filename.replace(".json", "") + "_" + str(page) + ".svg")

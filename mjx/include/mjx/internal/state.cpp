@@ -128,8 +128,7 @@ GameResult State::result() const {
   return GameResult{game_seed(), rankings, tens_map};
 }
 
-std::unordered_map<PlayerId, Observation> State::InternalCreateObservations()
-    const {
+std::unordered_map<PlayerId, Observation> State::CreateObservations() const {
   // At the round end, sync round terminal information to each player
   if (IsRoundOver()) {
     std::unordered_map<PlayerId, Observation> observations;
@@ -1711,19 +1710,12 @@ std::vector<PlayerId> State::ShufflePlayerIds(
   return ret;
 }
 
-std::unordered_map<PlayerId, Observation> State::CreateObservations(
-    bool observe_all) const {
-  auto observations = InternalCreateObservations();
-  if (!observe_all) return observations;
-  // Add observations whose legal_actions are empty
+mjxproto::Observation State::observation(const PlayerId &player_id) const {
   for (int i = 0; i < 4; ++i) {
     auto seat = AbsolutePos(i);
-    auto player_id = player(seat).player_id;
-    if (!observations.count(player_id))
-      observations[player_id] = Observation(seat, state_);
+    if (player(seat).player_id != player_id) continue;
+    auto obs = Observation(seat, state_);
+    return obs.proto_;
   }
-  Assert(observations.size() == 4,
-         "Size must be 4 but got " + std::to_string(observations.size()));
-  return observations;
 }
 }  // namespace mjx::internal

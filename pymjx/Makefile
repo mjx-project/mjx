@@ -1,11 +1,5 @@
 .PHONY: proto requirements clean pytest test-cli
 
-clean:
-	rm -rf build
-	rm -rf dist
-	rm -rf *.egg-info
-	find . -name "*pycache*" | xargs rm -rf
-
 formats:
 	black mjx
 	blackdoc mjx
@@ -24,9 +18,6 @@ proto: ../mjx/include/mjx/internal/mjx.proto
 requirements:
 	python3 -m pip install --upgrade pip
 	python3 -m pip install -r requirements.txt
-
-pytest: requirements proto
-	python3 -m pytest --doctest-modules
 
 test-cli:
 	echo "From mjlog => mjxproto"

@@ -1,31 +1,42 @@
 clean:
-	cd pymjx && make clean
+	rm -rf venv
 	rm -rf cmake-build-debug
 	rm -rf build
 	rm -rf docker-build
-	rm -rf mjx/include/mjx/internal/*pb*
 	rm -rf dist
-	rm -rf venv
+	rm -rf mjx/__pycache__
+	rm -rf mjx/include/mjx/internal/mjx.grpc.pb.cc
+	rm -rf mjx/include/mjx/internal/mjx.grpc.pb.h
+	rm -rf mjx/include/mjx/internal/mjx.pb.cc
+	rm -rf mjx/include/mjx/internal/mjx.pb.h
+	rm -rf mjx/external
+	rm -rf tests/external
+	rm -rf pymjx/mjx.egg-info
+	rm -rf pymjx/mjxproto/mjx_pb2.pyi
 
 venv:
 	python3 -m venv venv
 
-build: mjx tests
-	mkdir -p build && cd build && cmake .. -DMJX_USE_SYSTEM_BOOST=ON -DMJX_USE_SYSTEM_GRPC=ON -DMJX_BUILD_TESTS=ON && make -j
+build: mjx/* mjx/include/mjx/* mjx/include/mjx/internal/* tests/*
+	mkdir -p build && cd build && cmake .. -DMJX_BUILD_BOOST=OFF -DMJX_BUILD_GRPC=OFF -DMJX_BUILD_TESTS=ON && make -j
 
 test: build
 	./build/tests/mjx_test
 
 fmt:
+	clang-format -i mjx/include/mjx/*.h mjx/include/mjx/*.cpp
 	clang-format -i mjx/include/mjx/internal/*.h mjx/include/mjx/internal/*.cpp
 	clang-format -i tests/*.cpp
 	clang-format -i scripts/*.cpp
 
-dist: setup.py mjx pymjx mjx/include/mjx/internal/mjx.proto
+dist: setup.py mjx/* mjx/include/mjx/* mjx/include/mjx/internal/* pymjx/* pymjx/mjx/* pymjx/mjx/converter/* pymjx/mjx/visualizer/* mjx/include/mjx/internal/mjx.proto
 	which python3
-	python3 -m pip install -r pymjx/requirements.txt
-	python3 -m grpc_tools.protoc -I mjx/include/mjx/internal --python_out=./pymjx/mjxproto/ --grpc_python_out=./pymjx//mjxproto/ --mypy_out=./pymjx/mjxproto/ mjx.proto
-	export MJX_USE_SYSTEM_BOOST=ON && export MJX_USE_SYSTEM_GRPC=ON && python3 setup.py sdist && python3 setup.py install
+	# python3 -m pip install -r pymjx/requirements.txt
+	# python3 -m grpc_tools.protoc -I mjx/include/mjx/internal --python_out=./pymjx/mjxproto/ --grpc_python_out=./pymjx//mjxproto/ --mypy_out=./pymjx/mjxproto/ mjx.proto
+	export MJX_BUILD_BOOST=OFF && export MJX_BUILD_GRPC=OFF && python3 setup.py sdist && python3 setup.py install
+
+pytest: dist
+	python3 -m pytest pymjx/tests --import-mode=importlib 
 
 docker-build:
 	docker run -it -v ${CURDIR}:/mahjong sotetsuk/ubuntu-gcc-grpc:latest  /bin/bash -c "cd /mahjong && mkdir -p docker-build && cd docker-build && cmake .. && make -j"

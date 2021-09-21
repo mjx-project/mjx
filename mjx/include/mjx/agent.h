@@ -15,7 +15,10 @@ class Agent {
   void Serve(const std::string& socket_address) const noexcept;
 };
 
-class RandomAgent : public Agent {
+// Agent that acts randomly but in the reproducible way.
+// The same observation should return the same action.
+// Only for debugging purpose.
+class RandomDebugAgent : public Agent {
  public:
   [[nodiscard]] mjx::Action Act(
       const Observation& observation) const noexcept override;

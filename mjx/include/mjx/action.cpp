@@ -34,11 +34,11 @@ bool Action::operator!=(const Action& other) const noexcept {
   return !(*this == other);
 }
 
-Action::Action(int action_idx, const std::vector<Action>& legal_actions) {
+Action Action::SelectFrom(int action_idx,
+                          const std::vector<Action>& legal_actions) {
   for (const auto& legal_action : legal_actions) {
     if (legal_action.ToIdx() == action_idx) {
-      proto_ = legal_action.proto_;
-      return;
+      return legal_action;
     }
   }
   assert(false);

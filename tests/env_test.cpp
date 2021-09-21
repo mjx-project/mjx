@@ -5,7 +5,7 @@
 #include "gtest/gtest.h"
 
 TEST(env, run) {
-  auto agent = std::make_shared<mjx::RandomAgent>();
+  auto agent = std::make_shared<mjx::RandomDebugAgent>();
   std::unordered_map<mjx::PlayerId, mjx::Agent*> agents = {
       {"player_0", agent.get()},
       {"player_1", agent.get()},
@@ -24,7 +24,6 @@ TEST(env, MjxEnv) {
       {"player_2", 16800},
       {"player_3", 31000}};
 
-  // observe_all=false
   auto env = mjx::MjxEnv();
   env.Seed(1234);
   observations = env.Reset();
@@ -50,30 +49,6 @@ TEST(env, MjxEnv) {
   EXPECT_EQ(rewards["player_1"], 0);
   EXPECT_EQ(rewards["player_2"], -135);
   EXPECT_EQ(rewards["player_3"], 90);
-
-  // observe_all=true
-  auto env_all = mjx::MjxEnv(true);
-  env_all.Seed(1234);
-  observations = env_all.Reset();
-  EXPECT_EQ(observations.size(), 4);
-  while (!env_all.Done()) {
-    {
-      std::unordered_map<mjx::PlayerId, mjx::Action> action_dict;
-      for (const auto& [agent, observation] : observations) {
-        if (observation.legal_actions().empty()) continue;
-        auto action = strategy.TakeAction(observation.proto());
-        action_dict[agent] = mjx::Action(action);
-      }
-      observations = env_all.Step(action_dict);
-      EXPECT_EQ(observations.size(), 4);
-    }
-  }
-  player_ids =
-      observations["player_0"].proto().public_observation().player_ids();
-  tens = observations["player_0"].proto().round_terminal().final_score().tens();
-  for (int i = 0; i < 4; ++i) {
-    EXPECT_EQ(tens[i], expected_tens[player_ids[i]]);
-  }
 }
 
 TEST(env, RLlibMahjongEnv) {

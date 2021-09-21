@@ -20,13 +20,13 @@ PYBIND11_MODULE(_mjx, m) {
   m.doc() = "";
 
   py::class_<mjx::Action>(m, "Action")
-      .def(py::init<>())
-      .def(py::init<int, const std::vector<mjx::Action> &>())
+      .def(py::init<std::string>())
+      .def("select_from", &mjx::Action::SelectFrom)
       .def("to_json", &mjx::Action::ToJson)
       .def("to_idx", &mjx::Action::ToIdx);
 
   py::class_<mjx::Observation>(m, "Observation")
-      .def(py::init<>())
+      .def(py::init<std::string>())
       .def("to_json", &mjx::Observation::ToJson)
       .def("to_feature", &mjx::Observation::ToFeature)
       .def("legal_actions", &mjx::Observation::legal_actions)
@@ -34,7 +34,7 @@ PYBIND11_MODULE(_mjx, m) {
       .def("curr_hand", &mjx::Observation::curr_hand);
 
   py::class_<mjx::State>(m, "State")
-      .def(py::init<>())
+      .def(py::init<std::string>())
       .def("to_json", &mjx::State::ToJson);
 
   py::class_<mjx::Hand>(m, "Hand")
@@ -48,7 +48,8 @@ PYBIND11_MODULE(_mjx, m) {
       .def("act", &mjx::Agent::Act)
       .def("serve", &mjx::Agent::Serve);
 
-  py::class_<mjx::RandomAgent, mjx::Agent>(m, "RandomAgent").def(py::init<>());
+  py::class_<mjx::RandomDebugAgent, mjx::Agent>(m, "RandomDebugAgent")
+      .def(py::init<>());
 
   py::class_<mjx::GrpcAgent, mjx::Agent>(m, "GrpcAgent")
       .def(py::init<const std::string &>());
@@ -56,7 +57,7 @@ PYBIND11_MODULE(_mjx, m) {
   py::class_<mjx::EnvRunner>(m, "EnvRunner").def("run", &mjx::EnvRunner::Run);
 
   py::class_<mjx::MjxEnv>(m, "MjxEnv")
-      .def(py::init<std::vector<mjx::PlayerId>, bool>())
+      .def(py::init<std::vector<mjx::PlayerId>>())
       .def("reset", &mjx::MjxEnv::Reset)
       .def("step", &mjx::MjxEnv::Step)
       .def("done", &mjx::MjxEnv::Done)
