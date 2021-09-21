@@ -1,7 +1,7 @@
 import inquirer
-from converter import action_type_en, action_type_ja, get_tile_char
+from mjx.visualizer.converter import action_type_en, action_type_ja, get_tile_char
 from mjxproto.mjx_pb2 import ActionType
-from visualizer import GameBoardVisualizer, GameVisualConfig, MahjongTable
+from mjx.visualizer.visualizer import GameBoardVisualizer, GameVisualConfig, MahjongTable
 
 
 class Selector:

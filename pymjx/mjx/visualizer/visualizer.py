@@ -15,7 +15,7 @@ from mjx.visualizer.converter import (
 )
 from mjxproto import EventType
 from mjxproto.mjx_pb2 import ACTION_TYPE_DUMMY
-from open_utils import open_event_type, open_from, open_tile_ids
+from mjx.visualizer.open_utils import open_event_type, open_from, open_tile_ids
 from rich.console import Console
 from rich.layout import Layout
 from rich.panel import Panel
