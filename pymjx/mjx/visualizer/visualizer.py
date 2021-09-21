@@ -413,7 +413,7 @@ class MahjongTable:
                 table = cls.decode_round_terminal(table, proto_data.round_terminal, False)
 
         table.legal_actions = [
-            [act.type, act.tile] for act in gamedata.legal_actions if act.type != ACTION_TYPE_DUMMY
+            [act.type, act.tile] for act in proto_data.legal_actions if act.type != ACTION_TYPE_DUMMY
         ]
 
         return table
