@@ -17,6 +17,7 @@ class Agent {
   void Serve(const std::string& socket_address) noexcept;
   void Wait() const noexcept;
   void Shutdown() const noexcept;
+
  private:
   std::unique_ptr<grpc::Server> server_;
 };

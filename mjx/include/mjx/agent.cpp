@@ -17,13 +17,9 @@ void Agent::Serve(const std::string& socket_address) noexcept {
   server_ = builder.BuildAndStart();
 }
 
-void Agent::Wait() const noexcept {
-  server_->Wait();
-}
+void Agent::Wait() const noexcept { server_->Wait(); }
 
-void Agent::Shutdown() const noexcept {
-  server_->Shutdown();
-}
+void Agent::Shutdown() const noexcept { server_->Shutdown(); }
 
 mjx::Action RandomDebugAgent::Act(
     const Observation& observation) const noexcept {
