@@ -1,6 +1,8 @@
 #ifndef MJX_PROJECT_AGENT_H
 #define MJX_PROJECT_AGENT_H
 
+#include <grpcpp/grpcpp.h>
+
 #include "mjx/action.h"
 #include "mjx/internal/utils.h"
 #include "mjx/observation.h"
@@ -12,7 +14,12 @@ class Agent {
   virtual ~Agent() {}
   [[nodiscard]] virtual mjx::Action Act(
       const Observation& observation) const noexcept = 0;
-  void Serve(const std::string& socket_address) const noexcept;
+  void Serve(const std::string& socket_address) noexcept;
+  void Wait() const noexcept;
+  void Shutdown() const noexcept;
+
+ private:
+  std::unique_ptr<grpc::Server> server_;
 };
 
 // Agent that acts randomly but in the reproducible way.

@@ -46,7 +46,9 @@ PYBIND11_MODULE(_mjx, m) {
   py::class_<mjx::Agent, PyAgent>(m, "Agent")
       .def(py::init<>())
       .def("act", &mjx::Agent::Act)
-      .def("serve", &mjx::Agent::Serve);
+      .def("serve", &mjx::Agent::Serve)
+      .def("wait", &mjx::Agent::Wait)
+      .def("shutdown", &mjx::Agent::Shutdown);
 
   py::class_<mjx::RandomDebugAgent, mjx::Agent>(m, "RandomDebugAgent")
       .def(py::init<>());
