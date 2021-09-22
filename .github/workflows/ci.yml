@@ -12,8 +12,8 @@ jobs:
       uses: actions/cache@v2
       with:
         path: |
-          mjx/external
-        key: external-${{ hashFiles('mjx/include/mjx/cmake/*') }}
+          external
+        key: external-${{ hashFiles('include/mjx/cmake/*') }}
 
     - name: Build mjx
       run: mkdir -p build && cd build && cmake .. -DMJX_BUILD_BOOST=ON -DMJX_BUILD_GRPC=ON -DMJX_BUILD_TESTS=ON && make -j 4

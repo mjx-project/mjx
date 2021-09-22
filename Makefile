@@ -4,12 +4,11 @@ clean:
 	rm -rf build
 	rm -rf docker-build
 	rm -rf dist
-	rm -rf mjx/__pycache__
-	rm -rf mjx/include/mjx/internal/mjx.grpc.pb.cc
-	rm -rf mjx/include/mjx/internal/mjx.grpc.pb.h
-	rm -rf mjx/include/mjx/internal/mjx.pb.cc
-	rm -rf mjx/include/mjx/internal/mjx.pb.h
-	rm -rf mjx/external
+	rm -rf include/mjx/internal/mjx.grpc.pb.cc
+	rm -rf include/mjx/internal/mjx.grpc.pb.h
+	rm -rf include/mjx/internal/mjx.pb.cc
+	rm -rf include/mjx/internal/mjx.pb.h
+	rm -rf external
 	rm -rf tests/external
 	rm -rf pymjx/mjx.egg-info
 	rm -rf pymjx/mjxproto/mjx_pb2.pyi
@@ -17,23 +16,23 @@ clean:
 venv:
 	python3 -m venv venv
 
-build: mjx/* mjx/include/mjx/* mjx/include/mjx/internal/* tests/*
+build: include/mjx/* include/mjx/internal/* tests/*
 	mkdir -p build && cd build && cmake .. -DMJX_BUILD_BOOST=OFF -DMJX_BUILD_GRPC=OFF -DMJX_BUILD_TESTS=ON && make -j
 
 test: build
 	./build/tests/mjx_test
 
 fmt:
-	clang-format -i mjx/include/mjx/*.h mjx/include/mjx/*.cpp
-	clang-format -i mjx/include/mjx/internal/*.h mjx/include/mjx/internal/*.cpp
+	clang-format -i include/mjx/*.h include/mjx/*.cpp
+	clang-format -i include/mjx/internal/*.h include/mjx/internal/*.cpp
 	clang-format -i tests/*.cpp
 	clang-format -i scripts/*.cpp
 
-dist: setup.py mjx/* mjx/include/mjx/* mjx/include/mjx/internal/* pymjx/* pymjx/mjx/* pymjx/mjx/converter/* pymjx/mjx/visualizer/* mjx/include/mjx/internal/mjx.proto
+dist: setup.py include/mjx/* include/mjx/internal/* pymjx/* pymjx/mjx/* pymjx/mjx/converter/* pymjx/mjx/visualizer/* include/mjx/internal/mjx.proto
 	which python3
 	git submodule update --init
 	# python3 -m pip install -r pymjx/requirements.txt
-	# python3 -m grpc_tools.protoc -I mjx/include/mjx/internal --python_out=./pymjx/mjxproto/ --grpc_python_out=./pymjx//mjxproto/ --mypy_out=./pymjx/mjxproto/ mjx.proto
+	# python3 -m grpc_tools.protoc -I include/mjx/internal --python_out=./pymjx/mjxproto/ --grpc_python_out=./pymjx//mjxproto/ --mypy_out=./pymjx/mjxproto/ mjx.proto
 	export MJX_BUILD_BOOST=OFF && export MJX_BUILD_GRPC=OFF && python3 setup.py sdist && python3 setup.py install
 
 pytest: dist
