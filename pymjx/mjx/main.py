@@ -8,6 +8,7 @@ from typing import List, Optional
 import click
 import mjxproto
 from google.protobuf import json_format
+
 from mjx.converter.mjlog_decoder import MjlogDecoder
 from mjx.converter.mjlog_encoder import MjlogEncoder
 from mjx.visualizer.visualizer import GameBoardVisualizer, GameVisualConfig, MahjongTable

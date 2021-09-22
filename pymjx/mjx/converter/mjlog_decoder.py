@@ -11,6 +11,7 @@ from xml.etree.ElementTree import Element
 import mjxproto
 import tenhou_wall_reproducer
 from google.protobuf import json_format
+
 from mjx.const import AbsolutePos, RelativePos
 from mjx.hand import Hand
 

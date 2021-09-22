@@ -2,9 +2,10 @@ import base64
 from importlib.resources import read_binary
 from typing import Optional, Union
 
-import mjx.visualizer
 import mjxproto
 import svgwrite
+
+import mjx.visualizer
 from mjx.visualizer.visualizer import (
     FromWho,
     MahjongTable,

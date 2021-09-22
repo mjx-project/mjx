@@ -1,6 +1,7 @@
 from typing import List
 
 import mjxproto
+
 from mjx.converter.open_converter import open_event_type
 
 MASK_CHI_OFFSET = [0b0000000000011000, 0b0000000001100000, 0b0000000110000000]
