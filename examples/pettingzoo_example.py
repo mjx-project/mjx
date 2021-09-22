@@ -1,9 +1,10 @@
 from typing import Dict, List, Optional
 
 import gym
-import mjx._mjx as _mjx
 import numpy as np
 from pettingzoo import AECEnv
+
+import mjx._mjx as _mjx
 
 
 class PettingZooMahjongEnv(AECEnv):

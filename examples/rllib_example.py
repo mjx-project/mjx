@@ -1,9 +1,10 @@
 from typing import Dict, List
 
 import gym
-import mjx._mjx as _mjx
 import numpy as np
 from ray.rllib.env.multi_agent_env import MultiAgentEnv
+
+import mjx._mjx as _mjx
 
 
 class RLlibMahjongEnv(MultiAgentEnv):
@@ -83,7 +84,6 @@ def random_run():
 def train():
     import re
 
-    import mjx.env
     import numpy as np
     import ray
     import ray.rllib.agents.pg as pg
@@ -95,6 +95,8 @@ def train():
     from ray.rllib.utils.torch_ops import FLOAT_MAX, FLOAT_MIN
     from ray.tune.logger import pretty_print
     from ray.tune.registry import register_env
+
+    import mjx.env
 
     tf1, tf, tfv = try_import_tf()
     torch, nn = try_import_torch()
