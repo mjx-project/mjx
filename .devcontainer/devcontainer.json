@@ -1,0 +1,13 @@
+{
+	"name": "Mjx on ubuntu",
+	"build": {
+		"dockerfile": "Dockerfile"
+	},
+	"settings": {},
+	"extensions": [
+		"ms-vscode.cpptools",
+		"ms-vscode.cmake-tools"
+		"ms-python.python",
+		"ms-python.vscode-pylance",
+	]
+} 
