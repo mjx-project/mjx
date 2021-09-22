@@ -45,5 +45,7 @@ RUN curl -o ~/miniconda.sh https://repo.anaconda.com/miniconda/Miniconda3-latest
      ~/miniconda.sh -b -p /opt/conda && \
      rm ~/miniconda.sh && \
      /opt/conda/bin/conda install -y python=${PY_VERSION} && \
-     /opt/conda/bin/conda clean -ya
+     /opt/conda/bin/conda clean -ya && \
+     /opt/conda/bin/python3 -m pip install pytest black blackdoc isort flake8 mypy mypy-protobuf types-protobuf
+
 ENV PATH /opt/conda/bin:$PATH

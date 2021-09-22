@@ -31,6 +31,7 @@ fmt:
 
 dist: setup.py mjx/* mjx/include/mjx/* mjx/include/mjx/internal/* pymjx/* pymjx/mjx/* pymjx/mjx/converter/* pymjx/mjx/visualizer/* mjx/include/mjx/internal/mjx.proto
 	which python3
+	git submodule update --init
 	# python3 -m pip install -r pymjx/requirements.txt
 	# python3 -m grpc_tools.protoc -I mjx/include/mjx/internal --python_out=./pymjx/mjxproto/ --grpc_python_out=./pymjx//mjxproto/ --mypy_out=./pymjx/mjxproto/ mjx.proto
 	export MJX_BUILD_BOOST=OFF && export MJX_BUILD_GRPC=OFF && python3 setup.py sdist && python3 setup.py install
