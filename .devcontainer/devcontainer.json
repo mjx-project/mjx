@@ -1,13 +1,14 @@
 {
 	"name": "Mjx on ubuntu",
 	"build": {
-		"dockerfile": "Dockerfile"
+		"dockerfile": "Dockerfile",
+        "cacheFrom": "sotetsuk/ubuntu-gcc-grpc"
 	},
 	"settings": {},
 	"extensions": [
 		"ms-vscode.cpptools",
-		"ms-vscode.cmake-tools"
+		"ms-vscode.cmake-tools",
 		"ms-python.python",
-		"ms-python.vscode-pylance",
+		"ms-python.vscode-pylance"
 	]
 } 
