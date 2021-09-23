@@ -8,10 +8,12 @@ clean:
 	rm -rf include/mjx/internal/mjx.grpc.pb.h
 	rm -rf include/mjx/internal/mjx.pb.cc
 	rm -rf include/mjx/internal/mjx.pb.h
-	rm -rf external
-	rm -rf tests/external
 	rm -rf pymjx/mjx.egg-info
 	rm -rf pymjx/mjxproto/mjx_pb2.pyi
+	rm -rf external/*-build
+	rm -rf external/*-subbuild
+	rm -rf tests/external/*-build
+	rm -rf tests/external/*-subbuild
 
 venv:
 	python3 -m venv venv
