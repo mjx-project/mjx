@@ -31,6 +31,7 @@ fetchcontent_declare(
   grpc
   GIT_REPOSITORY https://github.com/grpc/grpc.git
   GIT_TAG v1.39.0
+  GIT_PROGRESS TRUE
 )
 fetchcontent_makeavailable(grpc)
 

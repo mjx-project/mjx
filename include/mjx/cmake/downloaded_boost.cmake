@@ -7,6 +7,7 @@ fetchcontent_declare(
   boost
   GIT_REPOSITORY https://github.com/boostorg/boost.git
   GIT_TAG boost-1.71.0
+  GIT_PROGRESS TRUE
 )
 
 fetchcontent_getproperties(boost)
