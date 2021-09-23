@@ -33,7 +33,7 @@ endif()
 message(STATUS "Include Boost_INCLUDE_DIRS=${Boost_INCLUDE_DIRS}")
 
 ###################################################################################
-# gRPc
+# gRPC
 ####################################################################################
 
 message(STATUS "MJX_BUILD_GRPC=${MJX_BUILD_BOOST}")
