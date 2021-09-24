@@ -11,7 +11,7 @@ class Action:
         if action_json is None:
             return
 
-        self._cpp_obj = _mjx.Action(action_json)
+        self._cpp_obj = _mjx.Action(action_json)  # type: ignore
 
     def to_json(self) -> str:
         assert self._cpp_obj is not None
@@ -23,7 +23,7 @@ class Action:
 
     @classmethod
     def select_from(cls, idx: int, legal_actions: List[Action]) -> Action:
-        return _mjx.Action.select_from(idx, [a._cpp_obj for a in legal_actions])
+        return _mjx.Action.select_from(idx, [a._cpp_obj for a in legal_actions])  # type: ignore
 
     @classmethod
     def _from_cpp_obj(cls, cpp_obj) -> Action:

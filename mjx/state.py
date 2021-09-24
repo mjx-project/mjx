@@ -15,14 +15,14 @@ class State:
         if state_json is None:
             return
 
-        self._cpp_obj = _mjx.State(state_json)
+        self._cpp_obj = _mjx.State(state_json)  # type: ignore
 
     def to_json(self) -> str:
-        return self._cpp_obj.to_json()
+        return self._cpp_obj.to_json()  # type: ignore
 
     def to_proto(self) -> mjxproto.State:
         json_data = self.to_json()
-        return json_format.ParseDict(json.loads(json_data), mjxproto.State())
+        return json_format.ParseDict(json.loads(json_data), mjxproto.State())  # type: ignore
 
     def save_svg(self, filename: str, view_idx: int = 0):
         assert filename.endswith(".svg")
