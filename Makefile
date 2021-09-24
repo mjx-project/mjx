@@ -30,10 +30,10 @@ venv:
 build: include/mjx/* include/mjx/internal/* tests_cpp/*
 	mkdir -p build && cd build && cmake .. -DMJX_BUILD_BOOST=OFF -DMJX_BUILD_GRPC=OFF -DMJX_BUILD_TESTS=ON && make -j
 
-test: build
+cpptest: build
 	./build/tests_cpp/mjx_test
 
-fmt:
+cppfmt:
 	clang-format -i include/mjx/*.h include/mjx/*.cpp
 	clang-format -i include/mjx/internal/*.h include/mjx/internal/*.cpp
 	clang-format -i tests_cpp/*.cpp
@@ -83,4 +83,4 @@ docker-plantuml-stop:
 	docker rm -f mahjong-plantuml || true
 
 
-.PHONY: clean test fmt docker-test pyfmt pycheck pytest docker-all docker-clion-stop docker-clion-start docker-plantuml-start docker-plantuml-stop
+.PHONY: clean cpptest cppfmt pyfmt pycheck pytest docker-test docker-all docker-clion-stop docker-clion-start docker-plantuml-start docker-plantuml-stop
