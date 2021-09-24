@@ -11,14 +11,13 @@
         "editor.insertSpaces": true,
         "editor.codeActionsOnSave": {
           "source.organizeImports": true
-        },
+        }
     },
     "python.testing.pytestArgs": [
-        "mjx",
-        "--doctest-modules",
+        "--import-mode=importlib",
+        "${workspaceFolder}/tests_py"
     ],
     "python.testing.unittestEnabled": false,
-    "python.testing.nosetestsEnabled": false,
     "python.testing.pytestEnabled": true,
     "python.formatting.provider": "black",
     "python.linting.flake8Enabled": true,
@@ -29,9 +28,6 @@
     "python.linting.mypyEnabled": true,
     "python.linting.mypyArgs": [
         "--config", "pyproject.toml"
-    ],
-    "python.venvFolders": [
-        "venv"
     ],
     "python.pythonPath": "venv/bin/python3",
     "python.terminal.activateEnvInCurrentTerminal": true

@@ -1,5 +1,6 @@
 clean:
 	rm -rf venv
+	rm -rf examples/venv
 	rm -rf cmake-build-debug
 	rm -rf build
 	rm -rf docker-build
@@ -14,6 +15,14 @@ clean:
 	rm -rf external/*-subbuild
 	rm -rf tests/external/*-build
 	rm -rf tests/external/*-subbuild
+	rm -rf .pytest_cache
+	rm -rf __pycache__ 
+	rm -rf mjx/__pycache__
+	rm -rf mjx/converter/__pycache__
+	rm -rf mjx/visualizer/__pycache__
+	rm -rf mjxproto/__pycache__
+	rm -rf tests_py/__pycache__
+	rm -rf examples/__pycache__
 
 venv:
 	python3 -m venv venv

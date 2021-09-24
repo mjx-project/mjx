@@ -22,3 +22,4 @@ test/resources/*
 dataset/resources/*
 mjx-py/.vscode/*
 dist
+.pytest_cache
