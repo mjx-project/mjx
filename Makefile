@@ -31,7 +31,7 @@ build: include/mjx/* include/mjx/internal/* tests_cpp/*
 	mkdir -p build && cd build && cmake .. -DMJX_BUILD_BOOST=OFF -DMJX_BUILD_GRPC=OFF -DMJX_BUILD_TESTS=ON && make -j
 
 cpptest: build
-	./build/tests_cpp/mjx_test
+	./build/tests_cpp/mjx_tests_cpp
 
 cppfmt:
 	clang-format -i include/mjx/*.h include/mjx/*.cpp
@@ -65,7 +65,7 @@ docker-build:
 	docker run -it -v ${CURDIR}:/mahjong sotetsuk/ubuntu-gcc-grpc:latest  /bin/bash -c "cd /mahjong && mkdir -p docker-build && cd docker-build && cmake .. && make -j"
 
 docker-test: docker-build
-	docker run -it -v ${CURDIR}:/mahjong sotetsuk/ubuntu-gcc-grpc:latest  /bin/bash -c "/mahjong/docker-build/tests_cpp/mjx_test"
+	docker run -it -v ${CURDIR}:/mahjong sotetsuk/ubuntu-gcc-grpc:latest  /bin/bash -c "/mahjong/docker-build/tests_cpp/mjx_tests_cpp"
 
 docker-all: clean docker-test
 
