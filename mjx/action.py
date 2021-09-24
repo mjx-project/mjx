@@ -1,8 +1,7 @@
 from __future__ import annotations
 
-from typing import List
-
 import _mjx
+from typing import List
 
 
 class Action:
