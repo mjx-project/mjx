@@ -1,8 +1,9 @@
 import random
 
+import _mjx
+
 import mjx.agent
 import mjx.env
-import _mjx
 
 
 def test_EnvRunner():

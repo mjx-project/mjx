@@ -1,5 +1,6 @@
-import mjx
 import _mjx
+
+import mjx
 
 
 class RandomDebugAgent:

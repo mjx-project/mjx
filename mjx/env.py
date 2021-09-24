@@ -1,7 +1,8 @@
 from typing import Dict, List
 
-import mjx
 import _mjx
+
+import mjx
 
 
 class MjxEnv:

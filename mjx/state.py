@@ -2,9 +2,9 @@ from __future__ import annotations
 
 import json
 
+import _mjx
 from google.protobuf import json_format
 
-import _mjx
 import mjxproto
 from mjx.visualizer.svg import save_svg
 
