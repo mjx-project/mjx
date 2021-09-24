@@ -45,8 +45,8 @@ pyfmt:
 pycheck:
 	black --check --diff mjx tests_py examples scripts
 	blackdoc --check mjx tests_py examples scripts
-	isort --check --diff mjx tests_py examples scripts
-	flake8 --config pyproject.toml --ignore E203,E501,W503 mjx tests_py examples scripts
+	isort --check --diff mjx tests_py 
+	flake8 --config pyproject.toml --ignore E203,E501,W503 mjx # tests_py examples scripts
 	# mypy --config pyproject.toml mjx
 
 pytest: dist
@@ -74,4 +74,4 @@ docker-plantuml-stop:
 	docker rm -f mahjong-plantuml || true
 
 
-.PHONY: clean test fmt docker-test docker-all docker-clion-stop docker-clion-start docker-plantuml-start docker-plantuml-stop
+.PHONY: clean test fmt docker-test pyfmt pycheck pytest docker-all docker-clion-stop docker-clion-start docker-plantuml-start docker-plantuml-stop
