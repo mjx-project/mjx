@@ -1,8 +1,7 @@
 .idea/*
-mjx/cmake-build-debug/*
 cmake-build-*/*
 build/*
-mjx/external/*
+external/*
 tests/external/*
 docker-build/*
 tests/lib/*

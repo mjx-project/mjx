@@ -11,40 +11,43 @@ include(FetchContent)
 set(FETCHCONTENT_BASE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/external)
 set(FETCHCONTENT_QUIET OFF)
 set(FETCHCONTENT_UPDATES_DISCONNECTED ON)
-FetchContent_Declare(
-        googletest
-        GIT_REPOSITORY https://github.com/google/googletest.git
-        GIT_TAG        release-1.10.0
+fetchcontent_declare(
+  googletest
+  GIT_REPOSITORY https://github.com/google/googletest.git
+  GIT_TAG release-1.10.0
+  GIT_PROGRESS TRUE
 )
-FetchContent_MakeAvailable(googletest)
+fetchcontent_makeavailable(googletest)
 
 ###################################################################################
 # Define target
 ###################################################################################
-add_executable(mjx_test
-        action_test.cpp
-        env_test.cpp
-        hand_test.cpp
-        observation_test.cpp
-        state_test.cpp
-        internal_action_test.cpp
-        internal_environment_test.cpp
-        internal_game_seed_test.cpp
-        internal_game_result_summarizer_test.cpp
-        internal_hand_test.cpp
-        internal_observation_test.cpp
-        internal_open_test.cpp
-        internal_environment_test.cpp
-        internal_shanten_calculator_test.cpp
-        internal_state_test.cpp
-        internal_strategy_rule_based_test.cpp
-        internal_tile_test.cpp
-        internal_type_test.cpp
-        internal_utils_test.cpp
-        internal_wall_test.cpp
-        internal_win_score_test.cpp
-        internal_yaku_evaluator_test.cpp
-        failure_cases_test.cpp)
+add_executable(
+  mjx_test
+  action_test.cpp
+  env_test.cpp
+  hand_test.cpp
+  observation_test.cpp
+  state_test.cpp
+  internal_action_test.cpp
+  internal_environment_test.cpp
+  internal_game_seed_test.cpp
+  internal_game_result_summarizer_test.cpp
+  internal_hand_test.cpp
+  internal_observation_test.cpp
+  internal_open_test.cpp
+  internal_environment_test.cpp
+  internal_shanten_calculator_test.cpp
+  internal_state_test.cpp
+  internal_strategy_rule_based_test.cpp
+  internal_tile_test.cpp
+  internal_type_test.cpp
+  internal_utils_test.cpp
+  internal_wall_test.cpp
+  internal_win_score_test.cpp
+  internal_yaku_evaluator_test.cpp
+  failure_cases_test.cpp
+)
 target_include_directories(mjx_test PRIVATE ${MJX_INCLUDE_DIR})
 target_link_libraries(mjx_test PRIVATE gtest gtest_main mjx)
 target_compile_definitions(mjx_test PRIVATE TEST_RESOURCES_DIR="${CMAKE_CURRENT_SOURCE_DIR}/resources")
