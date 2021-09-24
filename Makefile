@@ -45,7 +45,6 @@ dist: setup.py include/mjx/* include/mjx/internal/* mjx/* mjx/converter/* mjx/vi
 	export MJX_BUILD_BOOST=OFF && export MJX_BUILD_GRPC=OFF && python3 setup.py sdist && python3 setup.py install
 
 mjxproto: include/mjx/internal/mjx.proto
-	python3 -m pip install mypy-protobuf
 	python3 -m grpc_tools.protoc -I include/mjx/internal --python_out=./mjxproto/ --grpc_python_out=./mjxproto/ --mypy_out=./mjxproto/ mjx.proto
 
 pyfmt:
