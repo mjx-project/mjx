@@ -146,8 +146,8 @@ setup(
     author_email="koyamada-s@sys.i.kyoto-u.ac.jp",
     description="",
     long_description="",
-    packages=find_packages('pymjx'),
-    package_dir={'': 'pymjx'},
+    packages=find_packages('.'),
+    package_dir={'': '.'},
     # package_data={'': ['*.json']},
     cmdclass={"build_ext": CMakeBuild},
     # TODO: remove MJX_DIR (by removing cache?)

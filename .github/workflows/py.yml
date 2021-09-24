@@ -40,7 +40,7 @@ jobs:
         run: python -m pip install --upgrade wheel setuptools pytest black blackdoc isort flake8
 
       - name: Run check
-        run: cd pymjx && make checks
+        run: make pycheck
 
       - name: Build and install
         run: CMAKE_BUILD_PARALLEL_LEVEL=4 && python3 setup.py sdist && python3 setup.py install

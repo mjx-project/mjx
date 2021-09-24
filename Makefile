@@ -8,8 +8,8 @@ clean:
 	rm -rf include/mjx/internal/mjx.grpc.pb.h
 	rm -rf include/mjx/internal/mjx.pb.cc
 	rm -rf include/mjx/internal/mjx.pb.h
-	rm -rf pymjx/mjx.egg-info
-	rm -rf pymjx/mjxproto/mjx_pb2.pyi
+	rm -rf mjx.egg-info
+	rm -rf mjxproto/mjx_pb2.pyi
 	rm -rf external/*-build
 	rm -rf external/*-subbuild
 	rm -rf tests/external/*-build
@@ -30,15 +30,27 @@ fmt:
 	clang-format -i tests/*.cpp
 	clang-format -i scripts/*.cpp
 
-dist: setup.py include/mjx/* include/mjx/internal/* pymjx/* pymjx/mjx/* pymjx/mjx/converter/* pymjx/mjx/visualizer/* include/mjx/internal/mjx.proto
+dist: setup.py include/mjx/* include/mjx/internal/* mjx/* mjx/converter/* mjx/visualizer/* include/mjx/internal/mjx.proto
 	which python3
 	git submodule update --init
-	# python3 -m pip install -r pymjx/requirements.txt
-	# python3 -m grpc_tools.protoc -I include/mjx/internal --python_out=./pymjx/mjxproto/ --grpc_python_out=./pymjx//mjxproto/ --mypy_out=./pymjx/mjxproto/ mjx.proto
+	# python3 -m pip install -r requirements.txt
+	# python3 -m grpc_tools.protoc -I include/mjx/internal --python_out=./mjxproto/ --grpc_python_out=./mjxproto/ --mypy_out=./mjxproto/ mjx.proto
 	export MJX_BUILD_BOOST=OFF && export MJX_BUILD_GRPC=OFF && python3 setup.py sdist && python3 setup.py install
 
+pyfmt:
+	black mjx tests_py examples scripts
+	blackdoc mjx tests_py examples scripts
+	isort mjx tests_py examples scripts
+
+pycheck:
+	black --check --diff mjx tests_py examples scripts
+	blackdoc --check mjx tests_py examples scripts
+	isort --check --diff mjx tests_py examples scripts
+	flake8 --config pyproject.toml --ignore E203,E501,W503 mjx tests_py examples scripts
+	# mypy --config pyproject.toml mjx
+
 pytest: dist
-	python3 -m pytest pymjx/tests --import-mode=importlib 
+	python3 -m pytest tests_py --import-mode=importlib 
 
 docker-build:
 	docker run -it -v ${CURDIR}:/mahjong sotetsuk/ubuntu-gcc-grpc:latest  /bin/bash -c "cd /mahjong && mkdir -p docker-build && cd docker-build && cmake .. && make -j"
