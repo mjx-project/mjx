@@ -2,9 +2,8 @@
 cmake-build-*/*
 build/*
 external/*
-tests/external/*
+tests_cpp/external/*
 docker-build/*
-tests/lib/*
 **/venv
 **/__pycache__
 mjxproto/*
@@ -14,7 +13,6 @@ build
 dist
 mjx.egg-info
 mjx/__pycache__
-mjx/tests/__pycache__/
 test/resources/*
 !test/resources/.gitkeep
 *.pb.cc

@@ -13,8 +13,8 @@ clean:
 	rm -rf mjxproto/mjx_pb2.pyi
 	rm -rf external/*-build
 	rm -rf external/*-subbuild
-	rm -rf tests/external/*-build
-	rm -rf tests/external/*-subbuild
+	rm -rf tests_cpp/external/*-build
+	rm -rf tests_cpp/external/*-subbuild
 	rm -rf .pytest_cache
 	rm -rf __pycache__ 
 	rm -rf mjx/__pycache__
@@ -27,16 +27,16 @@ clean:
 venv:
 	python3 -m venv venv
 
-build: include/mjx/* include/mjx/internal/* tests/*
+build: include/mjx/* include/mjx/internal/* tests_cpp/*
 	mkdir -p build && cd build && cmake .. -DMJX_BUILD_BOOST=OFF -DMJX_BUILD_GRPC=OFF -DMJX_BUILD_TESTS=ON && make -j
 
 test: build
-	./build/tests/mjx_test
+	./build/tests_cpp/mjx_test
 
 fmt:
 	clang-format -i include/mjx/*.h include/mjx/*.cpp
 	clang-format -i include/mjx/internal/*.h include/mjx/internal/*.cpp
-	clang-format -i tests/*.cpp
+	clang-format -i tests_cpp/*.cpp
 	clang-format -i scripts/*.cpp
 
 dist: setup.py include/mjx/* include/mjx/internal/* mjx/* mjx/converter/* mjx/visualizer/* include/mjx/internal/mjx.proto
@@ -65,7 +65,7 @@ docker-build:
 	docker run -it -v ${CURDIR}:/mahjong sotetsuk/ubuntu-gcc-grpc:latest  /bin/bash -c "cd /mahjong && mkdir -p docker-build && cd docker-build && cmake .. && make -j"
 
 docker-test: docker-build
-	docker run -it -v ${CURDIR}:/mahjong sotetsuk/ubuntu-gcc-grpc:latest  /bin/bash -c "/mahjong/docker-build/tests/mjx_test"
+	docker run -it -v ${CURDIR}:/mahjong sotetsuk/ubuntu-gcc-grpc:latest  /bin/bash -c "/mahjong/docker-build/tests_cpp/mjx_test"
 
 docker-all: clean docker-test
 
