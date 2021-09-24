@@ -159,7 +159,6 @@ setup(
         "google==3.0.0",
         "protobuf==3.17.3",
         "grpcio==1.39.0",
-        "grpcio-tools==1.39.0",
         "rich==10.9.0",
         "numpy",
         "pillow",

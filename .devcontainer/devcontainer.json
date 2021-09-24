@@ -2,7 +2,8 @@
 	"name": "Mjx on ubuntu",
 	"build": {
 		"dockerfile": "Dockerfile",
-        "cacheFrom": "sotetsuk/ubuntu-gcc-grpc"
+        "cacheFrom": "sotetsuk/ubuntu-gcc-grpc",
+    	"context": "..",
 	},
 	"settings": {},
 	"extensions": [

@@ -1,0 +1,9 @@
+grpcio-tools==1.39.0
+pytest
+black
+blackdoc
+isort
+flake8
+mypy
+mypy-protobuf
+types-protobuf
