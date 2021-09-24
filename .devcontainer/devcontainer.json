@@ -12,5 +12,9 @@
 		"ms-python.python",
 		"ms-python.vscode-pylance",
 		"twxs.cmake"
-	]
+	],
+	"hostRequirements": {
+		"cpus": 4,
+		"memory": "8gb"
+	}
 } 
