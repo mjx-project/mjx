@@ -10,7 +10,6 @@ clean:
 	rm -rf include/mjx/internal/mjx.pb.cc
 	rm -rf include/mjx/internal/mjx.pb.h
 	rm -rf mjx.egg-info
-	rm -rf mjxproto/mjx_pb2.pyi
 	rm -rf external/*-build
 	rm -rf external/*-subbuild
 	rm -rf tests_cpp/external/*-build
@@ -43,9 +42,6 @@ dist: setup.py include/mjx/* include/mjx/internal/* mjx/* mjx/converter/* mjx/vi
 	which python3
 	git submodule update --init
 	export MJX_BUILD_BOOST=OFF && export MJX_BUILD_GRPC=OFF && python3 setup.py sdist && python3 setup.py install
-
-mjxproto: include/mjx/internal/mjx.proto
-	python3 -m grpc_tools.protoc -I include/mjx/internal --python_out=./mjxproto/ --grpc_python_out=./mjxproto/ --mypy_out=./mjxproto/ mjx.proto
 
 pyfmt:
 	black mjx tests_py examples scripts
