@@ -1,5 +1,6 @@
-import mjx
 import os
+
+import mjx
 
 
 def test_Observation():

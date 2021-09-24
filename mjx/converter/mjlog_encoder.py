@@ -5,8 +5,9 @@ import json
 import urllib.parse
 from typing import List
 
-import mjxproto
 from google.protobuf import json_format
+
+import mjxproto
 
 
 class MjlogEncoder:

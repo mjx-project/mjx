@@ -3,12 +3,12 @@ from __future__ import annotations
 import json
 from typing import List, Optional
 
-import mjxproto
 import numpy as np
 from google.protobuf import json_format
 
 import mjx
 import mjx._mjx as _mjx
+import mjxproto
 from mjx.visualizer.svg import save_svg
 
 

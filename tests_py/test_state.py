@@ -1,5 +1,6 @@
-import mjx
 import os
+
+import mjx
 
 
 def test_State():
@@ -7,6 +8,7 @@ def test_State():
     state = mjx.State(json_str)
     restored = state.to_json()
     assert json_str == restored
+
 
 def test_to_proto():
     json_str = '{"hiddenState":{"gameSeed":"1234","wall":[24,3,87,124,97,112,56,15,44,48,41,11,109,51,47,105,37,42,58,134,53,14,64,49,59,20,100,35,130,131,52,83,92,82,122,18,7,91,0,1,132,119,62,107,63,128,16,45,117,85,125,121,79,120,73,95,104,84,70,94,129,54,5,78,33,36,71,102,17,133,25,9,116,46,8,66,32,19,115,21,75,114,77,38,27,61,118,28,88,113,76,26,29,12,81,106,39,108,99,80,93,22,123,43,10,127,90,126,96,30,50,67,57,86,40,89,34,69,4,6,98,74,13,60,111,31,23,72,65,135,101,103,2,68,55,110],"uraDoraIndicators":[103]},"publicObservation":{"gameId":"b5b163e4-b7c3-4757-b623-c71e4be008db","playerIds":["player_2","player_1","player_0","player_3"],"initScore":{"tens":[25000,25000,25000,25000]},"doraIndicators":[101],"events":[{"type":"EVENT_TYPE_DRAW"}]},"privateObservations":[{"initHand":{"closedTiles":[24,3,87,124,37,42,58,134,92,82,122,18,117]},"drawHistory":[79],"currHand":{"closedTiles":[3,18,24,37,42,58,79,82,87,92,117,122,124,134]}},{"who":1,"initHand":{"closedTiles":[97,112,56,15,53,14,64,49,7,91,0,1,85]},"currHand":{"closedTiles":[0,1,7,14,15,49,53,56,64,85,91,97,112]}},{"who":2,"initHand":{"closedTiles":[44,48,41,11,59,20,100,35,132,119,62,107,125]},"currHand":{"closedTiles":[11,20,35,41,44,48,59,62,100,107,119,125,132]}},{"who":3,"initHand":{"closedTiles":[109,51,47,105,130,131,52,83,63,128,16,45,121]},"currHand":{"closedTiles":[16,45,47,51,52,63,83,105,109,121,128,130,131]}}]}'
@@ -20,4 +22,3 @@ def test_to_json():
     state = mjx.State(json_str)
     restored = state.to_json()
     assert json_str == restored
-

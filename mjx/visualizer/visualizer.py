@@ -3,14 +3,13 @@ import sys
 from dataclasses import dataclass
 from typing import List, Union
 
-import mjxproto
 from google.protobuf import json_format
-from mjxproto import EventType
 from rich.console import Console
 from rich.layout import Layout
 from rich.panel import Panel
 from rich.text import Text
 
+import mjxproto
 from mjx.visualizer.converter import (
     FromWho,
     TileUnitType,
@@ -19,6 +18,7 @@ from mjx.visualizer.converter import (
     get_tile_char,
     get_wind_char,
 )
+from mjxproto import EventType
 
 from .open_utils import open_event_type, open_from, open_tile_ids
 
