@@ -37,7 +37,7 @@ jobs:
           key: external-${{ hashFiles('include/mjx/cmake/*') }}-${{ matrix.platform }}
 
       - name: Add requirements
-        run: python -m pip install --upgrade wheel setuptools pytest black blackdoc isort flake8
+        run: python -m pip install --upgrade wheel setuptools
 
       - name: Run check
         run: make pycheck
@@ -46,4 +46,4 @@ jobs:
         run: CMAKE_BUILD_PARALLEL_LEVEL=4 && python3 setup.py sdist && python3 setup.py install
 
       - name: Test
-        run: make pytest
+        run: python3 -m pip install pytest && make pytest
