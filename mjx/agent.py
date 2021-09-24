@@ -1,4 +1,4 @@
-import _mjx
+import _mjx  # type: ignore
 
 import mjx
 
