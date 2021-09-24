@@ -1,7 +1,7 @@
 set -eu
 
 TEST_DIR="$(pwd)"
-MJCONVERT_DIR=${TEST_DIR}/../pymjx
+MJCONVERT_DIR=${TEST_DIR}/..
 ZIP_DIR=${TEST_DIR}/resources/zip
 TMP_DIR=${TEST_DIR}/resources/tmp
 
@@ -42,7 +42,7 @@ for gzip_file in $(ls); do gzip -d ${gzip_file} &>/dev/null || true ; done
 check_gz
  
 echo "* Filtering ..."
-python3 ${MJCONVERT_DIR}/pymjx/scripts/filter.py ${TMP_DIR} --hounan --ng-chars "><"
+python3 ${MJCONVERT_DIR}/scripts/filter.py ${TMP_DIR} --hounan --ng-chars "><"
   
 echo "* Converting ..."
 mjx convert ${TMP_DIR} ${TEST_DIR}/resources/json --to-mjxproto --verbose --store-cache

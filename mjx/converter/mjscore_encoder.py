@@ -5,7 +5,6 @@ import json
 from typing import Dict, List
 
 import mjxproto
-
 from mjx.const import AbsolutePos, RelativePos
 from mjx.converter import open_converter
 

@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.11)
-project(mjx_test)
+project(mjx_tests_cpp)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -23,7 +23,7 @@ fetchcontent_makeavailable(googletest)
 # Define target
 ###################################################################################
 add_executable(
-  mjx_test
+  mjx_tests_cpp
   action_test.cpp
   env_test.cpp
   hand_test.cpp
@@ -48,6 +48,6 @@ add_executable(
   internal_yaku_evaluator_test.cpp
   failure_cases_test.cpp
 )
-target_include_directories(mjx_test PRIVATE ${MJX_INCLUDE_DIR})
-target_link_libraries(mjx_test PRIVATE gtest gtest_main mjx)
-target_compile_definitions(mjx_test PRIVATE TEST_RESOURCES_DIR="${CMAKE_CURRENT_SOURCE_DIR}/resources")
+target_include_directories(mjx_tests_cpp PRIVATE ${MJX_INCLUDE_DIR})
+target_link_libraries(mjx_tests_cpp PRIVATE gtest gtest_main mjx)
+target_compile_definitions(mjx_tests_cpp PRIVATE TEST_RESOURCES_DIR="${CMAKE_CURRENT_SOURCE_DIR}/resources")

@@ -1,5 +1,7 @@
 from typing import Dict, List
 
+import _mjx
+
 import mjx
 
 
@@ -8,8 +10,6 @@ class MjxEnv:
         self,
         player_ids: List[str] = ["player_0", "player_1", "player_2", "player_3"],
     ):
-        import mjx._mjx as _mjx
-
         self._env = _mjx.MjxEnv(player_ids)
 
     def seed(self, seed) -> None:

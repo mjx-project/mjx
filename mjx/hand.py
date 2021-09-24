@@ -1,7 +1,6 @@
 from typing import List
 
 import mjxproto
-
 from mjx.converter.open_converter import open_event_type
 from mjx.converter.open_tile_ids_converter import open_tile_ids
 

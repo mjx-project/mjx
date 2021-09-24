@@ -1,12 +1,18 @@
-import mjx.env
-import mjx.agent
 import random
+
+import _mjx
+
+import mjx.agent
+import mjx.env
 
 
 def test_EnvRunner():
-    import mjx._mjx as _mjx
-    agents = {"player_0": _mjx.RandomDebugAgent(), "player_1": _mjx.RandomDebugAgent(
-    ), "player_2": _mjx.RandomDebugAgent(), "player_3": _mjx.RandomDebugAgent()}
+    agents = {
+        "player_0": _mjx.RandomDebugAgent(),
+        "player_1": _mjx.RandomDebugAgent(),
+        "player_2": _mjx.RandomDebugAgent(),
+        "player_3": _mjx.RandomDebugAgent(),
+    }
     _mjx.EnvRunner.run(agents)
 
 
@@ -20,7 +26,7 @@ def test_MjxEnv():
 
     assert len(obs_dict) == 1
     assert "player_2" in obs_dict
-    assert(env.state.to_proto().hidden_state.wall[:5] == [24, 3, 87, 124, 97])
+    assert env.state.to_proto().hidden_state.wall[:5] == [24, 3, 87, 124, 97]
 
     while not env.done():
         action_dict = {}
@@ -30,7 +36,7 @@ def test_MjxEnv():
     rewards = env.rewards()
 
     assert len(rewards) == 4
-    assert rewards['player_0'] == 90
-    assert rewards['player_1'] == 0
-    assert rewards['player_2'] == 45
-    assert rewards['player_3'] == -135
+    assert rewards["player_0"] == 90
+    assert rewards["player_1"] == 0
+    assert rewards["player_2"] == 45
+    assert rewards["player_3"] == -135
