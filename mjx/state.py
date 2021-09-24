@@ -4,7 +4,7 @@ import json
 
 from google.protobuf import json_format
 
-import mjx._mjx as _mjx
+import _mjx
 import mjxproto
 from mjx.visualizer.svg import save_svg
 

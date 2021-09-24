@@ -151,7 +151,7 @@ setup(
     # package_data={'': ['*.json']},
     cmdclass={"build_ext": CMakeBuild},
     # TODO: remove MJX_DIR (by removing cache?)
-    ext_modules=[CMakeExtension("mjx._mjx")],
+    ext_modules=[CMakeExtension("_mjx")],
     entry_points={"console_scripts": "mjx = mjx.main:main"},
     zip_safe=False,
     install_requires=[

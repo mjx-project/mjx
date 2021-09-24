@@ -2,11 +2,10 @@ import random
 
 import mjx.agent
 import mjx.env
+import _mjx
 
 
 def test_EnvRunner():
-    import mjx._mjx as _mjx
-
     agents = {
         "player_0": _mjx.RandomDebugAgent(),
         "player_1": _mjx.RandomDebugAgent(),

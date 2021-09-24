@@ -1,10 +1,9 @@
 import mjx
+import _mjx
 
 
 class RandomDebugAgent:
     def __init__(self) -> None:
-        import mjx._mjx as _mjx
-
         self._agent = _mjx.RandomDebugAgent()
 
     def act(self, observation):

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import List
 
-import mjx._mjx as _mjx
+import _mjx
 
 
 class Action:
