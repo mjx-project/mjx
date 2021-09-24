@@ -47,6 +47,7 @@ RUN cd /tmp && \
   cmake .. -DBUILD_SHARED_LIBS=ON -DCMAKE_INSTALL_PREFIX=/usr/local && \
   make -j 2 && \
   make install && \
+  ldconfig && \
   rm -rf /tmp/googletest
 
 # install python
