@@ -6,8 +6,6 @@ tests_cpp/external/*
 docker-build/*
 **/venv
 **/__pycache__
-mjxproto/*
-!mjxproto/*.py
 mjxproto/__pycache__/*
 build
 dist

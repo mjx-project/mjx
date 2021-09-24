@@ -3,8 +3,8 @@ from __future__ import annotations
 import json
 from typing import List, Optional
 
-import _mjx
-import numpy as np
+import _mjx  # type: ignore
+import numpy as np  # type: ignore
 from google.protobuf import json_format
 
 import mjx

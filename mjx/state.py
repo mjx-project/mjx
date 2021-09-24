@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import json
 
-import _mjx
+import _mjx  # type: ignore
 from google.protobuf import json_format
 
 import mjxproto
