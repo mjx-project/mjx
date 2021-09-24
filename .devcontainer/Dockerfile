@@ -24,14 +24,14 @@ RUN cd / && \
   cd cmake/build && \
   cmake -DgRPC_INSTALL=ON \
       -DgRPC_BUILD_TESTS=OFF \
-      -DCMAKE_INSTALL_PREFIX=$MY_INSTALL_DIR \
+      -DCMAKE_INSTALL_PREFIX=/usr/local \
       ../.. && \
   make -j 2 && \
   make install && \
   cd ../.. && \
   mkdir -p third_party/abseil-cpp/cmake/build && \
   cd third_party/abseil-cpp/cmake/build && \
-  cmake -DCMAKE_INSTALL_PREFIX=$MY_INSTALL_DIR \
+  cmake -DCMAKE_INSTALL_PREFIX=/usr/local \
       -DCMAKE_POSITION_INDEPENDENT_CODE=TRUE \
       ../.. && \
   make -j 2 && \
