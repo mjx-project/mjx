@@ -10,7 +10,7 @@ class MjxEnv:
         self,
         player_ids: List[str] = ["player_0", "player_1", "player_2", "player_3"],
     ):
-        self._env = _mjx.MjxEnv(player_ids)
+        self._env = _mjx.MjxEnv(player_ids)  # type: ignore
 
     def seed(self, seed) -> None:
         self._env.seed(seed)

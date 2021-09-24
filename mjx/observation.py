@@ -18,20 +18,20 @@ class Observation:
         if obs_json is None:
             return
 
-        self._cpp_obj = _mjx.Observation(obs_json)
+        self._cpp_obj = _mjx.Observation(obs_json)  # type: ignore
 
     def legal_actions(self) -> List[mjx.Action]:
-        return [mjx.Action._from_cpp_obj(cpp_obj) for cpp_obj in self._cpp_obj.legal_actions()]
+        return [mjx.Action._from_cpp_obj(cpp_obj) for cpp_obj in self._cpp_obj.legal_actions()]  # type: ignore
 
-    def action_mask(self, dtype=np.float32) -> np.array:
-        return np.array(self._cpp_obj.action_mask(), dtype=dtype)
+    def action_mask(self, dtype=np.float32) -> np.ndarray:
+        return np.array(self._cpp_obj.action_mask(), dtype=dtype)  # type: ignore
 
     def to_json(self) -> str:
-        return self._cpp_obj.to_json()
+        return self._cpp_obj.to_json()  # type: ignore
 
     def to_proto(self) -> mjxproto.Observation:
         json_data = self.to_json()
-        return json_format.ParseDict(json.loads(json_data), mjxproto.Observation())
+        return json_format.ParseDict(json.loads(json_data), mjxproto.Observation())  # type: ignore
 
     def save_svg(self, filename: str, view_idx: Optional[int] = None) -> None:
         assert filename.endswith(".svg")

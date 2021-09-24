@@ -27,7 +27,8 @@
     ],
     "python.linting.mypyEnabled": true,
     "python.linting.mypyArgs": [
-        "--config", "pyproject.toml"
+        "--config", "pyproject.toml",
+        "--ignore-missing-imports"
     ],
     "python.pythonPath": "venv/bin/python3",
     "python.terminal.activateEnvInCurrentTerminal": true
