@@ -1,4 +1,4 @@
-name: clang-format
+name: fmt
 
 on: [push]
 
@@ -8,6 +8,17 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
+    - uses: actions/setup-python@v2
+      with:
+        python-version: '3.9'
+        architecture: 'x64'
+    - name: pip install 
+      run: |
+        python3 -m pip install --upgrade pip
+        python3 -m pip install black blackdoc isort
+    - name: make pyfmt
+      run: |
+        make pyfmt
     - uses: DoozyX/clang-format-lint-action@v0.11
       with:
         source: '.'
@@ -19,6 +30,6 @@ jobs:
       with:
         author_name: GitHub Actions
         author_email: 41898282+github-actions[bot]@users.noreply.github.com
-        message: 'Apply clang-format'
+        message: 'Apply formatter'
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
