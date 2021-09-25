@@ -38,6 +38,18 @@ RUN cd / && \
   make install && \
   rm -rf /grpc
 
+# install googletest
+RUN cd /tmp && \
+  git clone -b release-1.11.0 https://github.com/google/googletest.git && \
+  cd googletest && \
+  mkdir build && \
+  cd build && \
+  cmake .. -DBUILD_SHARED_LIBS=ON -DCMAKE_INSTALL_PREFIX=/usr/local && \
+  make -j 2 && \
+  make install && \
+  ldconfig && \
+  rm -rf /tmp/googletest
+
 # install python
 ARG PY_VERSION=3.9
 COPY requirements.txt /tmp/requirements.txt
