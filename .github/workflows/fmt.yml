@@ -18,7 +18,7 @@ jobs:
         python3 -m pip install black blackdoc isort
     - name: make pyfmt
       run: |
-        make pyfmt
+        make py-fmt
     - uses: DoozyX/clang-format-lint-action@v0.11
       with:
         source: '.'

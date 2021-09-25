@@ -32,10 +32,12 @@ venv:
 build: include/mjx/* include/mjx/internal/* tests_cpp/*
 	mkdir -p build && cd build && cmake .. -DMJX_BUILD_BOOST=OFF -DMJX_BUILD_GRPC=OFF -DMJX_BUILD_TESTS=ON && make -j
 
-cpptest: build
+cpp-build: build
+
+cpp-test: build
 	./build/tests_cpp/mjx_tests_cpp
 
-cppfmt:
+cpp-fmt:
 	clang-format -i include/mjx/*.h include/mjx/*.cpp
 	clang-format -i include/mjx/internal/*.h include/mjx/internal/*.cpp
 	clang-format -i tests_cpp/*.cpp
@@ -46,22 +48,24 @@ dist: setup.py include/mjx/* include/mjx/internal/* mjx/* mjx/converter/* mjx/vi
 	git submodule update --init
 	export MJX_BUILD_BOOST=OFF && export MJX_BUILD_GRPC=OFF && python3 setup.py sdist && python3 setup.py install
 
-pyfmt:
+py-build: dist
+
+py-test: dist
+	python3 -m pytest tests_py --import-mode=importlib 
+
+py-fmt:
 	black mjx tests_py examples scripts
 	blackdoc mjx tests_py examples scripts
 	isort mjx tests_py examples scripts
 
-pycheck:
+py-check:
 	black --check --diff mjx tests_py examples scripts
 	blackdoc --check mjx tests_py examples scripts
 	isort --check --diff mjx tests_py 
 	flake8 --config pyproject.toml --ignore E203,E501,W503 mjx # tests_py examples scripts
 	# mypy --config pyproject.toml mjx
 
-pytest: dist
-	python3 -m pytest tests_py --import-mode=importlib 
-
-clitest:
+cli-test:
 	echo "From mjlog => mjxproto"
 	cat tests_cpp/resources/mjlog/*.mjlog | mjx convert --to-mjxproto --verbose | wc -l
 	cat tests_cpp/resources/mjlog/*.mjlog | mjx convert --to-mjxproto --compress --verbose | wc -l
@@ -83,26 +87,5 @@ clitest:
 	rm -rf tests_cpp/resources/mjlog_recovered
 	git checkout -- tests_cpp/resources
 
-docker-build:
-	docker run -it -v ${CURDIR}:/mahjong sotetsuk/ubuntu-gcc-grpc:latest  /bin/bash -c "cd /mahjong && mkdir -p docker-build && cd docker-build && cmake .. && make -j"
 
-docker-test: docker-build
-	docker run -it -v ${CURDIR}:/mahjong sotetsuk/ubuntu-gcc-grpc:latest  /bin/bash -c "/mahjong/docker-build/tests_cpp/mjx_tests_cpp"
-
-docker-all: clean docker-test
-
-docker-clion-start: docker-clion-stop
-	docker run -d --cap-add sys_ptrace -p 127.0.0.1:2222:22 --name mahjong-remote-clion sotetsuk/ubuntu-gcc-grpc-clion:latest
-	ssh-keygen -f "${HOME}/.ssh/known_hosts" -R "[localhost]:2222"
-
-docker-clion-stop:
-	docker rm -f mahjong-remote-clion || true
-
-docker-plantuml-start: docker-plantuml-stop
-	docker run -d -p 8080:8080 --name mahjong-plantuml plantuml/plantuml-server:jetty
-
-docker-plantuml-stop:
-	docker rm -f mahjong-plantuml || true
-
-
-.PHONY: clean cpptest cppfmt pyfmt pycheck pytest clitest docker-test docker-all docker-clion-stop docker-clion-start docker-plantuml-start docker-plantuml-stop
+.PHONY: clean cpp-build cpp-test cpp-fmt py-fmt py-check py-test cli-test
