@@ -12,7 +12,8 @@
 		"matepek.vscode-catch2-test-adapter",
 		"ms-python.python",
 		"ms-python.vscode-pylance",
-		"twxs.cmake"
+		"twxs.cmake",
+		"zxh404.vscode-proto3"
 	],
 	"hostRequirements": {
 		"cpus": 4,

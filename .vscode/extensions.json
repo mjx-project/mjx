@@ -1,10 +1,11 @@
 {
     "recommendations": [
-        "ms-vscode.cpptools",
+		"ms-vscode.cpptools",
 		"ms-vscode.cmake-tools",
 		"twxs.cmake",
 		"matepek.vscode-catch2-test-adapter",
 		"ms-python.python",
-		"ms-python.vscode-pylance"
-    ]
+		"ms-python.vscode-pylance",
+		"zxh404.vscode-proto3"
+	]
 }
