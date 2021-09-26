@@ -19,6 +19,15 @@ void Agent::Serve(const std::string& socket_address) const noexcept {
   server->Wait();
 }
 
+std::vector<mjx::Action> Agent::ActBatch(
+    const std::vector<mjx::Observation>& observations) const noexcept {
+  std::vector<mjx::Action> actions;
+  for (const auto& obs: observations) {
+    actions.emplace_back(Act(obs));
+  }
+  return actions;
+}
+
 mjx::Action RandomDebugAgent::Act(
     const Observation& observation) const noexcept {
   const std::uint64_t seed =
