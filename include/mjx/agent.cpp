@@ -6,9 +6,11 @@
 #include "mjx/internal/utils.h"
 
 namespace mjx {
-void Agent::Serve(const std::string& socket_address) const noexcept {
+void Agent::Serve(const std::string& socket_address, int batch_size, int wait_limit_ms, int sleep_ms) const noexcept {
   std::unique_ptr<grpc::Service> agent_impl =
-      std::make_unique<AgentGrpcServerImpl>(this);
+      std::make_unique<AgentBatchGrpcServerImpl>(this,
+                                                 batch_size,
+                                                 wait_limit_ms, sleep_ms);
   std::cout << socket_address << std::endl;
   grpc::EnableDefaultHealthCheckService(true);
   grpc::reflection::InitProtoReflectionServerBuilderPlugin();
@@ -54,12 +56,87 @@ Action GrpcAgent::Act(const Observation& observation) const noexcept {
   return Action(response);
 }
 
-AgentGrpcServerImpl::AgentGrpcServerImpl(const Agent* agent) : agent_(agent) {}
+AgentBatchGrpcServerImpl::AgentBatchGrpcServerImpl(
+    const Agent* agent, int batch_size, int wait_limit_ms, int sleep_ms)
+    : agent_(agent),
+      batch_size_(batch_size),
+      wait_limit_ms_(wait_limit_ms),
+      sleep_ms_(sleep_ms){
+  thread_inference_ = std::thread([this]() {
+    while (!stop_flag_) {
+      this->InferAction();
+    }
+  });
+}
 
-grpc::Status AgentGrpcServerImpl::TakeAction(
-    grpc::ServerContext* context, const mjxproto::Observation* request,
-    mjxproto::Action* reply) {
-  reply->CopyFrom(agent_->Act(Observation(*request)).proto());
+AgentBatchGrpcServerImpl::~AgentBatchGrpcServerImpl() {
+  stop_flag_ = true;
+  thread_inference_.join();
+}
+
+grpc::Status AgentBatchGrpcServerImpl::TakeAction(
+    grpc::ServerContext *context, const mjxproto::Observation *request,
+    mjxproto::Action *reply) {
+  // Observationデータ追加
+  auto id = boost::uuids::random_generator()();
+  {
+    std::lock_guard<std::mutex> lock_que(mtx_que_);
+    obs_que_.push({id, mjx::Observation(*request)});
+  }
+
+  // 推論待ち
+  while (true) {
+    std::lock_guard<std::mutex> lock(mtx_map_);
+    if (act_map_.count(id)) break;
+  }
+
+  // 推論結果をmapに返す
+  {
+    std::lock_guard<std::mutex> lock_map(mtx_map_);
+    reply->CopyFrom(act_map_[id].proto());
+    act_map_.erase(id);
+  }
   return grpc::Status::OK;
+}
+
+void AgentBatchGrpcServerImpl::InferAction() {
+  // データが溜まるまで待機
+  auto start = std::chrono::system_clock::now();
+  while (true) {
+    {
+      std::lock_guard<std::mutex> lock(mtx_que_);
+      if (obs_que_.size() >= batch_size_) break;
+    }
+    if (std::chrono::duration_cast<std::chrono::milliseconds>(
+            std::chrono::system_clock::now() - start)
+            .count() >= wait_limit_ms_)
+      break;
+    std::this_thread::sleep_for(std::chrono::milliseconds(sleep_ms_));
+  }
+
+  // Queueからデータを取り出す
+  std::vector<boost::uuids::uuid> ids;
+  std::vector<mjx::Observation> observations;
+  {
+    std::lock_guard<std::mutex> lock_que(mtx_que_);
+    while (!obs_que_.empty()) {
+      ObservationInfo obsinfo = obs_que_.front();
+      obs_que_.pop();
+      ids.push_back(obsinfo.id);
+      observations.push_back(std::move(obsinfo.obs));
+    }
+  }
+
+  // 推論する
+  std::vector<mjx::Action> actions =
+      agent_->ActBatch(observations);
+  assert(ids.size() == actions.size());
+  // Mapにデータを返す
+  {
+    std::lock_guard<std::mutex> lock_map(mtx_map_);
+    for (int i = 0; i < ids.size(); ++i) {
+      act_map_.emplace(ids[i], std::move(actions[i]));
+    }
+  }
 }
 }  // namespace mjx
