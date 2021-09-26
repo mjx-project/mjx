@@ -6,10 +6,10 @@
 #include "mjx/internal/utils.h"
 
 namespace mjx {
-void Agent::Serve(const std::string& socket_address, int batch_size, int wait_limit_ms, int sleep_ms) const noexcept {
+void Agent::Serve(const std::string& socket_address, int batch_size,
+                  int wait_limit_ms, int sleep_ms) const noexcept {
   std::unique_ptr<grpc::Service> agent_impl =
-      std::make_unique<AgentBatchGrpcServerImpl>(this,
-                                                 batch_size,
+      std::make_unique<AgentBatchGrpcServerImpl>(this, batch_size,
                                                  wait_limit_ms, sleep_ms);
   std::cout << socket_address << std::endl;
   grpc::EnableDefaultHealthCheckService(true);
@@ -24,7 +24,7 @@ void Agent::Serve(const std::string& socket_address, int batch_size, int wait_li
 std::vector<mjx::Action> Agent::ActBatch(
     const std::vector<mjx::Observation>& observations) const noexcept {
   std::vector<mjx::Action> actions;
-  for (const auto& obs: observations) {
+  for (const auto& obs : observations) {
     actions.emplace_back(Act(obs));
   }
   return actions;
@@ -56,12 +56,14 @@ Action GrpcAgent::Act(const Observation& observation) const noexcept {
   return Action(response);
 }
 
-AgentBatchGrpcServerImpl::AgentBatchGrpcServerImpl(
-    const Agent* agent, int batch_size, int wait_limit_ms, int sleep_ms)
+AgentBatchGrpcServerImpl::AgentBatchGrpcServerImpl(const Agent* agent,
+                                                   int batch_size,
+                                                   int wait_limit_ms,
+                                                   int sleep_ms)
     : agent_(agent),
       batch_size_(batch_size),
       wait_limit_ms_(wait_limit_ms),
-      sleep_ms_(sleep_ms){
+      sleep_ms_(sleep_ms) {
   thread_inference_ = std::thread([this]() {
     while (!stop_flag_) {
       this->InferAction();
@@ -75,8 +77,8 @@ AgentBatchGrpcServerImpl::~AgentBatchGrpcServerImpl() {
 }
 
 grpc::Status AgentBatchGrpcServerImpl::TakeAction(
-    grpc::ServerContext *context, const mjxproto::Observation *request,
-    mjxproto::Action *reply) {
+    grpc::ServerContext* context, const mjxproto::Observation* request,
+    mjxproto::Action* reply) {
   // Observationデータ追加
   auto id = boost::uuids::random_generator()();
   {
@@ -128,8 +130,7 @@ void AgentBatchGrpcServerImpl::InferAction() {
   }
 
   // 推論する
-  std::vector<mjx::Action> actions =
-      agent_->ActBatch(observations);
+  std::vector<mjx::Action> actions = agent_->ActBatch(observations);
   assert(ids.size() == actions.size());
   // Mapにデータを返す
   {
