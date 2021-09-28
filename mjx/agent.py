@@ -22,3 +22,15 @@ class RandomAgent(Agent):  # type: ignore
 
     def act_impl(self, observation: mjx.Observation) -> mjx.Action:  # type: ignore
         return random.choice(observation.legal_actions())
+
+
+class RandomDebugAgent(Agent):
+    def __init__(self) -> None:
+        super().__init__()
+        self._agent = _mjx.RandomDebugAgent()  # type: ignore
+
+    def act_impl(self, observation: mjx.Observation) -> mjx.Action:
+        return mjx.Action._from_cpp_obj(self.act(observation._cpp_obj))
+
+    def act(self, observation: _mjx.Observation) -> _mjx.Action:  # type: ignore
+        return self._agent.act(observation)

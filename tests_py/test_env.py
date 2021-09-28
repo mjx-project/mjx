@@ -31,7 +31,7 @@ def test_MjxEnv():
     while not env.done():
         action_dict = {}
         for agent, obs in obs_dict.items():
-            action_dict[agent] = random_agent.act(obs)
+            action_dict[agent] = random_agent.act_impl(obs)
         obs_dict = env.step(action_dict)
     rewards = env.rewards()
 
