@@ -1,11 +1,13 @@
+import random
+
 import _mjx  # type: ignore
 
 import mjx
 
 
-class RandomDebugAgent:
+class RandomAgent(_mjx.Agent):  # type: ignore
     def __init__(self) -> None:
-        self._agent = _mjx.RandomDebugAgent()  # type: ignore
+        _mjx.Agent.__init__(self)  # type: ignore
 
-    def act(self, observation):
-        return mjx.Action._from_cpp_obj(self._agent.act(observation._cpp_obj))
+    def act(self, observation: _mjx.Observation) -> _mjx.Action:  # type: ignore
+        return random.choice(observation.legal_actions())
