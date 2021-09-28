@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import json
 import sys
 from dataclasses import dataclass
@@ -42,10 +44,11 @@ class Tile:
         with_riichi: bool = False,
     ):
         self.id = tile_id
-        self.is_open = is_open
-        self.is_tsumogiri = is_tsumogiri
-        self.with_riichi = with_riichi
-        self.is_transparent = False  # 鳴かれた牌は透明にして河に表示
+        self.is_open: bool = is_open
+        self.is_tsumogiri: bool = is_tsumogiri
+        self.with_riichi: bool = with_riichi
+        self.is_transparent: bool = False  # 鳴かれた牌は透明にして河に表示
+        self.char: str
 
 
 class TileUnit:
@@ -53,29 +56,29 @@ class TileUnit:
         self,
         tiles_type: TileUnitType,
         from_who: FromWho,
-        tiles: list,
+        tiles: List[Tile],
     ):
-        self.tile_unit_type = tiles_type
-        self.from_who = from_who
-        self.tiles = tiles
+        self.tile_unit_type: TileUnitType = tiles_type
+        self.from_who: FromWho = from_who
+        self.tiles: List[Tile] = tiles
 
 
 class Player:
     def __init__(self, idx: int):
-        self.player_idx = idx
-        self.wind = 0
-        self.score = ""
-        self.tile_units = [
+        self.player_idx: int = idx
+        self.wind: int = 0
+        self.score: str = ""
+        self.tile_units: List[TileUnit] = [
             TileUnit(
                 TileUnitType.DISCARD,
                 FromWho.NONE,
                 [],
             )
         ]
-        self.riichi_now = False
-        self.is_declared_riichi = False
-        self.name = ""
-        self.draw_now = False
+        self.riichi_now: bool = False
+        self.is_declared_riichi: bool = False
+        self.name: str = ""
+        self.draw_now: bool = False
 
 
 class MahjongTable:
@@ -85,15 +88,15 @@ class MahjongTable:
 
     def __init__(self):
         self.players = [Player(i) for i in range(4)]
-        self.riichi = 0
-        self.round = 0
-        self.honba = 0
-        self.my_idx = 0  # 0-3; The player you want to show.
-        self.wall_num = 134
-        self.doras = []
-        self.uradoras = []
-        self.result = ""
-        self.event_info = ""
+        self.riichi: int = 0
+        self.round: int = 0
+        self.honba: int = 0
+        self.my_idx: int = 0  # The player you want to show.
+        self.wall_num: int = 134
+        self.doras: List[int] = []
+        self.uradoras: List[int] = []
+        self.result: str = ""
+        self.event_info: EventType.V
 
     def get_wall_num(self) -> int:
         all = 136 - 14
@@ -115,16 +118,16 @@ class MahjongTable:
                     num_of_tiles += 3
                     open.append(" ".join([str(tile.id) for tile in tile_unit.tiles]))
 
-            open = " : ".join(open)
+            open_str = " : ".join(open)
             if num_of_tiles < 13 or 14 < num_of_tiles:
                 sys.stderr.write(
-                    f"ERROR: The number of tiles is inaccurate. Player: {p.player_idx}\nhand:[{hand}],open:[{open}]"
+                    f"ERROR: The number of tiles is inaccurate. Player: {p.player_idx}\nhand:[{hand}],open:[{open_str}]"
                 )
                 return False
         return True
 
     @staticmethod
-    def load_proto_data(path) -> Union[List[mjxproto.Observation], List[mjxproto.State]]:
+    def load_proto_data(path) -> List[Union[mjxproto.Observation, mjxproto.State]]:
         print(path, flush=True)
         with open(path, "r") as f:
             proto_data_list = []
@@ -156,7 +159,9 @@ class MahjongTable:
                 )
 
     @classmethod
-    def decode_private_observation(cls, table, private_observation, who: int):
+    def decode_private_observation(
+        cls, table: MahjongTable, private_observation: mjxproto.PrivateObservation, who: int
+    ):
         """
         MahjongTableのデータに、
         手牌の情報を読み込ませる関数
@@ -193,7 +198,9 @@ class MahjongTable:
         return table
 
     @classmethod
-    def decode_public_observation(cls, table, public_observation):
+    def decode_public_observation(
+        cls, table: MahjongTable, public_observation: mjxproto.PublicObservation
+    ):
         """
         MahjongTableのデータに、
         手牌**以外**の情報を読み込ませる関数
@@ -201,7 +208,7 @@ class MahjongTable:
         table.round = public_observation.init_score.round + 1
         table.honba = public_observation.init_score.honba
         table.riichi = public_observation.init_score.riichi
-        table.doras = public_observation.dora_indicators
+        table.doras = list(public_observation.dora_indicators)
 
         for i, p in enumerate(table.players):
             p.name = public_observation.player_ids[i]
@@ -757,10 +764,13 @@ class GameBoardVisualizer:
         if uradora != "":
             board_info.append(" " + ["UraDora:", "裏ドラ:"][self.config.lang] + uradora)
 
-        event_info = get_event_type(table.event_info, self.config.lang)
-        board_info.append("    " + event_info)
-        board_info = "".join(board_info)
-        return board_info
+        try:
+            event_info = get_event_type(table.event_info, self.config.lang)
+            board_info.append("    " + event_info)
+        except:
+            pass
+
+        return "".join(board_info)
 
     def show_by_text(self, table: MahjongTable) -> str:
         board_info = self.get_board_info(table)
@@ -812,16 +822,14 @@ class GameBoardVisualizer:
             player_info.append(discards)
             player_info.append("\n\n\n")
             players_info.append("".join(player_info))
-        players_info = "".join(players_info)
 
         system_info = []
         system_info.append(
             get_wind_char(table.players[0].wind, self.config.lang)
             + ["'s turn now.\n", "の番です\n"][self.config.lang]
         )
-        system_info = "".join(system_info)
 
-        return "".join([board_info, players_info, system_info])
+        return "".join([board_info, "".join(players_info), "".join(system_info)])
 
     def show_by_rich(self, table: MahjongTable) -> None:
         layout = self.get_layout()
@@ -907,12 +915,16 @@ class GameBoardVisualizer:
                 )
             )
 
-            discards = Text(
-                discards,
-                justify="left",
-                style="white",
+            layout[discards_idx[i]].update(
+                Panel(
+                    Text(
+                        discards,
+                        justify="left",
+                        style="white",
+                    ),
+                    style="bold green",
+                )
             )
-            layout[discards_idx[i]].update(Panel(discards, style="bold green"))
 
         console = Console()
         console.print(layout)

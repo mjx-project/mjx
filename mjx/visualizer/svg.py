@@ -1,8 +1,9 @@
 import base64
 from importlib.resources import read_binary
-from typing import Optional, Union
+from typing import List, Optional, Tuple, Union
 
 import svgwrite
+from svgwrite.drawing import Drawing
 
 import mjx.visualizer
 import mjxproto
@@ -107,16 +108,16 @@ def save_svg(
 
     player_g = dwg.g()
 
-    players = [[], [], [], []]
-    pai = [[], [], [], []]
-    player_info = [[], [], [], []]
-    winds = [0, 0, 0, 0]
-    scores = [0, 0, 0, 0]
+    players: List[Drawing] = [dwg.g(), dwg.g(), dwg.g(), dwg.g()]
+    pai: List[Drawing] = [dwg.g(), dwg.g(), dwg.g(), dwg.g()]
+    player_info: List[Drawing] = [dwg.g(), dwg.g(), dwg.g(), dwg.g()]
+    winds: List[str] = ["", "", "", ""]
+    scores: List[str] = ["", "", "", ""]
     is_riichi = [False, False, False, False]
 
-    hands = [[], [], [], []]
-    open_tiles = [[], [], [], []]
-    discards = [[], [], [], []]
+    hands: List[List[List[Tuple[str, bool]]]] = [[], [], [], []]
+    open_tiles: List[List[Tuple[List[Tuple[str, bool]], FromWho, TileUnitType]]] = [[], [], [], []]
+    discards: List[List[Tuple[Tuple[str, bool], bool, bool, bool]]] = [[], [], [], []]
 
     for i in range(4):  # iは各プレイヤー(0-3)
         players[i] = dwg.g()
@@ -132,25 +133,25 @@ def save_svg(
                 for tile in t_u.tiles:
                     hands[i].append(
                         [
-                            [
+                            (
                                 "\U0001F02B" if not tile.is_open else get_tile_char(tile.id, True),
                                 tile.id in red_hai,
-                            ]
+                            )
                         ]
                     )
 
             if t_u.tile_unit_type == TileUnitType.DISCARD:
                 for tile in t_u.tiles:
                     discards[i].append(
-                        [
-                            [
+                        (
+                            (
                                 get_tile_char(tile.id, True),
                                 tile.id in red_hai,
-                            ],
+                            ),
                             tile.with_riichi,
                             tile.is_tsumogiri,
                             tile.is_transparent,
-                        ]
+                        )
                     )
             if t_u.tile_unit_type in [
                 TileUnitType.CHI,
@@ -160,11 +161,11 @@ def save_svg(
                 TileUnitType.ADDED_KAN,
             ]:
                 open_tiles[i].append(
-                    [
-                        [[get_tile_char(tile.id, True), tile.id in red_hai] for tile in t_u.tiles],
+                    (
+                        [(get_tile_char(tile.id, True), tile.id in red_hai) for tile in t_u.tiles],
                         t_u.from_who,
                         t_u.tile_unit_type,
-                    ]
+                    )
                 )
 
     dwg.add(dwg.rect(insert=(278, 278), size=(244, 244)))

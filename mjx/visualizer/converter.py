@@ -1,4 +1,7 @@
+from __future__ import annotations
+
 from enum import Enum
+from typing import Dict
 
 from mjxproto import EventType
 
@@ -202,20 +205,20 @@ event_type_en = {
 }
 
 event_type_ja = {
-    EventType.EVENT_TYPE_DISCARD: "DISCARD",
-    EventType.EVENT_TYPE_TSUMOGIRI: "TSUMOGIRI",
-    EventType.EVENT_TYPE_RIICHI: "RIICHI",
-    EventType.EVENT_TYPE_CLOSED_KAN: "CLOSED_KAN",
-    EventType.EVENT_TYPE_ADDED_KAN: "ADDED_KAN",
+    EventType.EVENT_TYPE_DISCARD: "打牌",
+    EventType.EVENT_TYPE_TSUMOGIRI: "ツモ切り",
+    EventType.EVENT_TYPE_RIICHI: "リーチ",
+    EventType.EVENT_TYPE_CLOSED_KAN: "暗槓",
+    EventType.EVENT_TYPE_ADDED_KAN: "加槓",
     EventType.EVENT_TYPE_TSUMO: "ツモ",
     EventType.EVENT_TYPE_ABORTIVE_DRAW_NINE_TERMINALS: "九種九牌",
-    EventType.EVENT_TYPE_CHI: "CHI",
-    EventType.EVENT_TYPE_PON: "PON",
-    EventType.EVENT_TYPE_OPEN_KAN: "OPEN_KAN",
+    EventType.EVENT_TYPE_CHI: "チー",
+    EventType.EVENT_TYPE_PON: "ポン",
+    EventType.EVENT_TYPE_OPEN_KAN: "大明槓",
     EventType.EVENT_TYPE_RON: "ロン",
-    EventType.EVENT_TYPE_DRAW: "DRAW",
-    EventType.EVENT_TYPE_RIICHI_SCORE_CHANGE: "RIICHI_SCORE_CHANGE",
-    EventType.EVENT_TYPE_NEW_DORA: "NEW_DORA",
+    EventType.EVENT_TYPE_DRAW: "引き分け",
+    EventType.EVENT_TYPE_RIICHI_SCORE_CHANGE: "リーチ（スコア変動）",
+    EventType.EVENT_TYPE_NEW_DORA: "新ドラ",
     EventType.EVENT_TYPE_ABORTIVE_DRAW_FOUR_RIICHIS: "四家立直",
     EventType.EVENT_TYPE_ABORTIVE_DRAW_THREE_RONS: "三家和了",
     EventType.EVENT_TYPE_ABORTIVE_DRAW_FOUR_KANS: "四槓散了",
@@ -254,9 +257,7 @@ def get_yaku(yaku: int) -> str:
     return yaku_list[yaku]
 
 
-def get_event_type(last_event: EventType, lang: int) -> str:
-    if last_event == "":
-        return ""
+def get_event_type(last_event: EventType.V, lang: int) -> str:
     if lang == 0:
         return event_type_en[last_event]
     else:
