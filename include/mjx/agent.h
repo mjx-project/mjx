@@ -53,6 +53,7 @@ class AgentServer {
   AgentServer(const Agent* agent, const std::string& socket_address,
               int batch_size, int wait_limit_ms, int sleep_ms);
   ~AgentServer();
+
  private:
   std::unique_ptr<grpc::Server> server_;
 };

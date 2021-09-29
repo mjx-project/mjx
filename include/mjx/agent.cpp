@@ -49,7 +49,8 @@ AgentServer::AgentServer(const Agent* agent, const std::string& socket_address,
     {
       std::lock_guard<std::mutex> lock_que(mtx_que_);
       while (!obs_que_.empty()) {
-        std::pair<boost::uuids::uuid, mjx::Observation> id_obs = obs_que_.front();
+        std::pair<boost::uuids::uuid, mjx::Observation> id_obs =
+            obs_que_.front();
         obs_que_.pop();
         ids.push_back(id_obs.first);
         observations.push_back(std::move(id_obs.second));
