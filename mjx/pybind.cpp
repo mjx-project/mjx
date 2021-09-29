@@ -11,7 +11,7 @@ class PyAgent : public mjx::Agent {
  public:
   using mjx::Agent::Agent;
   mjx::Action Act(const mjx::Observation &observation) const noexcept override {
-    PYBIND11_OVERRIDE_PURE_NAME(mjx::Action, mjx::Agent, "act", Act,
+    PYBIND11_OVERRIDE_PURE_NAME(mjx::Action, mjx::Agent, "_act", Act,
                                 observation);
   }
 };
@@ -45,7 +45,7 @@ PYBIND11_MODULE(_mjx, m) {
 
   py::class_<mjx::Agent, PyAgent>(m, "Agent")
       .def(py::init<>())
-      .def("act", &mjx::Agent::Act);
+      .def("_act", &mjx::Agent::Act);
 
   py::class_<mjx::RandomDebugAgent, mjx::Agent>(m, "RandomDebugAgent")
       .def(py::init<>());
