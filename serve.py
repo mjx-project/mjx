@@ -2,7 +2,7 @@ import mjx.agent
 import _mjx
 
 agent = mjx.agent.RandomAgent()
-_mjx.AgentServer.serve(agent, "127.0.0.1:9090", 1, 0, 0)
+_mjx.AgentServer(agent, "127.0.0.1:9090", 1, 0, 0)
 
 # agents = {
 #     "player_0": mjx.agent.RandomAgent(),

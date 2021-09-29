@@ -7,6 +7,7 @@
 #include <boost/uuid/uuid_io.hpp>
 #include <queue>
 #include <thread>
+#include <grpcpp/grpcpp.h>
 
 #include "mjx/action.h"
 #include "mjx/internal/mjx.grpc.pb.h"
@@ -27,8 +28,11 @@ class Agent {
 
 class AgentServer {
  public:
-  static void Serve(Agent* agent, const std::string& socket_address,
-                    int batch_size, int wait_limit_ms, int sleep_ms) noexcept;
+  AgentServer(const Agent* agent, const std::string& socket_address,
+                    int batch_size, int wait_limit_ms, int sleep_ms);
+  ~AgentServer();
+ private:
+  std::unique_ptr<grpc::Server> server_;
 };
 
 // Agent that acts randomly but in the reproducible way.

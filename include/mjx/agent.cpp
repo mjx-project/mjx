@@ -6,9 +6,9 @@
 #include "mjx/internal/utils.h"
 
 namespace mjx {
-void AgentServer::Serve(Agent* agent, const std::string& socket_address,
+AgentServer::AgentServer(const Agent* agent, const std::string& socket_address,
                         int batch_size, int wait_limit_ms,
-                        int sleep_ms) noexcept {
+                        int sleep_ms) {
   std::mutex mtx_que_;
   std::mutex mtx_map_;
   std::queue<ObservationInfo> obs_que_;
@@ -69,7 +69,11 @@ void AgentServer::Serve(Agent* agent, const std::string& socket_address,
     }
   }
 
-  server->Wait();
+  server_->Wait();
+}
+
+AgentServer::~AgentServer() {
+  server_->Shutdown();
 }
 
 std::vector<mjx::Action> Agent::ActBatch(
