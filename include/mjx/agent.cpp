@@ -6,10 +6,10 @@
 #include "mjx/internal/utils.h"
 
 namespace mjx {
-void Agent::Serve(const std::string& socket_address, int batch_size,
-                  int wait_limit_ms, int sleep_ms) const noexcept {
+void AgentServer::Serve(const Agent* agent, const std::string& socket_address, int batch_size,
+                  int wait_limit_ms, int sleep_ms) noexcept {
   std::unique_ptr<grpc::Service> agent_impl =
-      std::make_unique<AgentBatchGrpcServerImpl>(this, batch_size,
+      std::make_unique<AgentBatchGrpcServerImpl>(agent, batch_size,
                                                  wait_limit_ms, sleep_ms);
   std::cout << socket_address << std::endl;
   grpc::EnableDefaultHealthCheckService(true);

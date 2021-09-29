@@ -23,8 +23,12 @@ class Agent {
       const Observation& observation) const noexcept = 0;
   [[nodiscard]] virtual std::vector<mjx::Action> ActBatch(
       const std::vector<mjx::Observation>& observations) const noexcept;
-  void Serve(const std::string& socket_address, int batch_size = 64,
-             int wait_limit_ms = 100, int sleep_ms = 10) const noexcept;
+};
+
+class AgentServer {
+ public:
+  static void Serve(const Agent* agent, const std::string& socket_address, int batch_size,
+                    int wait_limit_ms, int sleep_ms) noexcept;
 };
 
 // Agent that acts randomly but in the reproducible way.
