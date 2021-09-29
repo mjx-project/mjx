@@ -50,40 +50,29 @@ class GrpcAgent : public Agent {
   std::shared_ptr<mjxproto::Agent::Stub> stub_;
 };
 
+struct ObservationInfo {
+  boost::uuids::uuid id;
+  mjx::Observation obs;
+};
+
 class AgentBatchGrpcServerImpl final : public mjxproto::Agent::Service {
  public:
-  explicit AgentBatchGrpcServerImpl(const Agent* agent, int batch_size,
-                                    int wait_limit_ms, int sleep_ms);
+  explicit AgentBatchGrpcServerImpl(
+                                    std::mutex& mtx_que,
+                                    std::mutex& mtx_map,
+                                    std::queue<ObservationInfo>& obs_que,
+                                    std::unordered_map<boost::uuids::uuid, mjx::Action, boost::hash<boost::uuids::uuid>>& act_map);
   ~AgentBatchGrpcServerImpl() final;
   grpc::Status TakeAction(grpc::ServerContext* context,
                           const mjxproto::Observation* request,
                           mjxproto::Action* reply) final;
 
- private:
-  struct ObservationInfo {
-    boost::uuids::uuid id;
-    mjx::Observation obs;
-  };
-
-  void InferAction();
-
-  const Agent* agent_;
-
-  // 推論を始めるデータ数の閾値
-  int batch_size_;
-  // 推論を始めるまでの待機時間
-  int wait_limit_ms_;
-  // 何ms毎にデータサイズを確認するか
-  int sleep_ms_;
-
-  std::mutex mtx_que_, mtx_map_;
-  std::queue<ObservationInfo> obs_que_;
+  std::mutex& mtx_que_;
+  std::mutex& mtx_map_;
+  std::queue<ObservationInfo>& obs_que_;
   std::unordered_map<boost::uuids::uuid, mjx::Action,
-                     boost::hash<boost::uuids::uuid>>
+                     boost::hash<boost::uuids::uuid>> &
       act_map_;
-  // 常駐する推論スレッド
-  std::thread thread_inference_;
-  bool stop_flag_ = false;
 };
 }  // namespace mjx
 

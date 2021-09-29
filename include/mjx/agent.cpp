@@ -6,11 +6,69 @@
 #include "mjx/internal/utils.h"
 
 namespace mjx {
-void AgentServer::Serve(const Agent* agent, const std::string& socket_address, int batch_size,
+void AgentServer::Serve(const Agent* agent,
+                        const std::string& socket_address, int batch_size,
                   int wait_limit_ms, int sleep_ms) noexcept {
+
+  std::mutex mtx_que_, mtx_map_;
+  std::queue<ObservationInfo> obs_que_;
+  std::unordered_map<boost::uuids::uuid, mjx::Action,
+      boost::hash<boost::uuids::uuid>>
+      act_map_;
+
+
   std::unique_ptr<grpc::Service> agent_impl =
-      std::make_unique<AgentBatchGrpcServerImpl>(agent, batch_size,
-                                                 wait_limit_ms, sleep_ms);
+      std::make_unique<AgentBatchGrpcServerImpl>(mtx_que_, mtx_map_, obs_que_, act_map_);
+
+
+
+  // 常駐する推論スレッド
+  std::thread thread_inference_;
+  bool stop_flag_ = false;
+  thread_inference_ = std::thread([&]() {
+    while (!stop_flag_) {
+      // データが溜まるまで待機
+      auto start = std::chrono::system_clock::now();
+      while (true) {
+        {
+          std::lock_guard<std::mutex> lock(mtx_que_);
+          if (obs_que_.size() >= batch_size) break;
+        }
+        if (std::chrono::duration_cast<std::chrono::milliseconds>(
+            std::chrono::system_clock::now() - start)
+                .count() >= wait_limit_ms)
+          break;
+        std::this_thread::sleep_for(std::chrono::milliseconds(sleep_ms));
+      }
+
+      // Queueからデータを取り出す
+      std::vector<boost::uuids::uuid> ids;
+      std::vector<mjx::Observation> observations;
+      {
+        std::lock_guard<std::mutex> lock_que(mtx_que_);
+        while (!obs_que_.empty()) {
+          ObservationInfo obsinfo = obs_que_.front();
+          obs_que_.pop();
+          ids.push_back(obsinfo.id);
+          observations.push_back(std::move(obsinfo.obs));
+        }
+      }
+
+      // 推論する
+      std::vector<mjx::Action> actions = agent->ActBatch(observations);
+      assert(ids.size() == actions.size());
+      // Mapにデータを返す
+      {
+        std::lock_guard<std::mutex> lock_map(mtx_map_);
+        for (int i = 0; i < ids.size(); ++i) {
+          act_map_.emplace(ids[i], std::move(actions[i]));
+        }
+      }
+
+    }
+  });
+
+
   std::cout << socket_address << std::endl;
   grpc::EnableDefaultHealthCheckService(true);
   grpc::reflection::InitProtoReflectionServerBuilderPlugin();
@@ -19,6 +77,11 @@ void AgentServer::Serve(const Agent* agent, const std::string& socket_address, i
   builder.RegisterService(agent_impl.get());
   std::unique_ptr<grpc::Server> server(builder.BuildAndStart());
   server->Wait();
+
+
+
+  stop_flag_ = true;
+  thread_inference_.join();
 }
 
 std::vector<mjx::Action> Agent::ActBatch(
@@ -56,24 +119,18 @@ Action GrpcAgent::Act(const Observation& observation) const noexcept {
   return Action(response);
 }
 
-AgentBatchGrpcServerImpl::AgentBatchGrpcServerImpl(const Agent* agent,
-                                                   int batch_size,
-                                                   int wait_limit_ms,
-                                                   int sleep_ms)
-    : agent_(agent),
-      batch_size_(batch_size),
-      wait_limit_ms_(wait_limit_ms),
-      sleep_ms_(sleep_ms) {
-  thread_inference_ = std::thread([this]() {
-    while (!stop_flag_) {
-      this->InferAction();
-    }
-  });
-}
+AgentBatchGrpcServerImpl::AgentBatchGrpcServerImpl(
+                                                   std::mutex& mtx_que,
+                                                   std::mutex& mtx_map,
+                                                   std::queue<ObservationInfo>& obs_que,
+                                                   std::unordered_map<boost::uuids::uuid, mjx::Action, boost::hash<boost::uuids::uuid>>& act_map):
+      mtx_que_(mtx_que),
+      mtx_map_(mtx_map),
+      obs_que_(obs_que),
+      act_map_(act_map)
+      {}
 
 AgentBatchGrpcServerImpl::~AgentBatchGrpcServerImpl() {
-  stop_flag_ = true;
-  thread_inference_.join();
 }
 
 grpc::Status AgentBatchGrpcServerImpl::TakeAction(
@@ -99,45 +156,5 @@ grpc::Status AgentBatchGrpcServerImpl::TakeAction(
     act_map_.erase(id);
   }
   return grpc::Status::OK;
-}
-
-void AgentBatchGrpcServerImpl::InferAction() {
-  // データが溜まるまで待機
-  auto start = std::chrono::system_clock::now();
-  while (true) {
-    {
-      std::lock_guard<std::mutex> lock(mtx_que_);
-      if (obs_que_.size() >= batch_size_) break;
-    }
-    if (std::chrono::duration_cast<std::chrono::milliseconds>(
-            std::chrono::system_clock::now() - start)
-            .count() >= wait_limit_ms_)
-      break;
-    std::this_thread::sleep_for(std::chrono::milliseconds(sleep_ms_));
-  }
-
-  // Queueからデータを取り出す
-  std::vector<boost::uuids::uuid> ids;
-  std::vector<mjx::Observation> observations;
-  {
-    std::lock_guard<std::mutex> lock_que(mtx_que_);
-    while (!obs_que_.empty()) {
-      ObservationInfo obsinfo = obs_que_.front();
-      obs_que_.pop();
-      ids.push_back(obsinfo.id);
-      observations.push_back(std::move(obsinfo.obs));
-    }
-  }
-
-  // 推論する
-  std::vector<mjx::Action> actions = agent_->ActBatch(observations);
-  assert(ids.size() == actions.size());
-  // Mapにデータを返す
-  {
-    std::lock_guard<std::mutex> lock_map(mtx_map_);
-    for (int i = 0; i < ids.size(); ++i) {
-      act_map_.emplace(ids[i], std::move(actions[i]));
-    }
-  }
 }
 }  // namespace mjx
