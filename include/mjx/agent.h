@@ -22,7 +22,7 @@ class Agent {
   [[nodiscard]] virtual mjx::Action Act(
       const Observation& observation) const noexcept = 0;
   [[nodiscard]] virtual std::vector<mjx::Action> ActBatch(
-      const std::vector<mjx::Observation>& observations) const noexcept = 0;
+      const std::vector<mjx::Observation>& observations) const noexcept;
 };
 
 class AgentServer {
@@ -38,9 +38,6 @@ class RandomDebugAgent : public Agent {
  public:
   [[nodiscard]] mjx::Action Act(
       const Observation& observation) const noexcept override;
-  [[nodiscard]] virtual std::vector<mjx::Action> ActBatch(
-      const std::vector<mjx::Observation>& observations)
-      const noexcept override;
 };
 
 class GrpcAgent : public Agent {
@@ -48,10 +45,6 @@ class GrpcAgent : public Agent {
   explicit GrpcAgent(const std::string& socket_address);
   [[nodiscard]] mjx::Action Act(
       const Observation& observation) const noexcept override;
-  [[nodiscard]] virtual std::vector<mjx::Action> ActBatch(
-      const std::vector<mjx::Observation>& observations)
-      const noexcept override;
-
  private:
   std::shared_ptr<mjxproto::Agent::Stub> stub_;
 };

@@ -72,16 +72,7 @@ void AgentServer::Serve(Agent* agent, const std::string& socket_address,
   server->Wait();
 }
 
-std::vector<mjx::Action> RandomDebugAgent::ActBatch(
-    const std::vector<mjx::Observation>& observations) const noexcept {
-  std::vector<mjx::Action> actions;
-  for (const auto& obs : observations) {
-    actions.emplace_back(Act(obs));
-  }
-  return actions;
-}
-
-std::vector<mjx::Action> GrpcAgent::ActBatch(
+std::vector<mjx::Action> Agent::ActBatch(
     const std::vector<mjx::Observation>& observations) const noexcept {
   std::vector<mjx::Action> actions;
   for (const auto& obs : observations) {
