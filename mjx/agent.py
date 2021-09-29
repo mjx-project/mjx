@@ -14,18 +14,15 @@ class Agent(_mjx.Agent):  # type: ignore
         raise NotImplementedError
 
     def act_batch(self, observations: List[mjx.Observation]) -> List[mjx.Action]:
-        print("act_batch", flush=True)
         return [self.act(obs) for obs in observations]
 
     def serve(self, socket_address):
         raise NotImplementedError
 
     def _act(self, observation: _mjx.Observation) -> _mjx.Action:  # type: ignore
-        print("_act", flush=True)
         return self.act(mjx.Observation._from_cpp_obj(observation))._cpp_obj
 
     def _act_batch(self, observations: List[_mjx.Observation]) -> List[_mjx.Action]:  # type: ignore
-        print("_act_batch", flush=True)
         actions: List[mjx.Action] = self.act_batch(
             [mjx.Observation._from_cpp_obj(obs) for obs in observations]
         )
@@ -37,7 +34,6 @@ class RandomAgent(Agent):  # type: ignore
         super().__init__()
 
     def act(self, observation: mjx.Observation) -> mjx.Action:  # type: ignore
-        print("RandomAgent::Act", flush=True)
         return random.choice(observation.legal_actions())
 
 
