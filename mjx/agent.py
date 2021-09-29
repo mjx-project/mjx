@@ -16,7 +16,13 @@ class Agent(_mjx.Agent):  # type: ignore
     def act_batch(self, observations: List[mjx.Observation]) -> List[mjx.Action]:
         return [self.act(obs) for obs in observations]
 
-    def serve(self, socket_address: str, batch_size: int = 64, wait_limit_ms: int = 100, sleep_ms: int = 10):
+    def serve(
+        self,
+        socket_address: str,
+        batch_size: int = 64,
+        wait_limit_ms: int = 100,
+        sleep_ms: int = 10,
+    ):
         _mjx.AgentServer(self, socket_address, batch_size, wait_limit_ms, sleep_ms)  # type: ignore
 
     def _act(self, observation: _mjx.Observation) -> _mjx.Action:  # type: ignore
