@@ -26,7 +26,9 @@ class Agent(_mjx.Agent):  # type: ignore
 
     def _act_batch(self, observations: List[_mjx.Observation]) -> List[_mjx.Action]:  # type: ignore
         print("_act_batch", flush=True)
-        actions: List[mjx.Action] = self.act_batch([mjx.Observation._from_cpp_obj(obs) for obs in observations])
+        actions: List[mjx.Action] = self.act_batch(
+            [mjx.Observation._from_cpp_obj(obs) for obs in observations]
+        )
         return [action._cpp_obj for action in actions]
 
 

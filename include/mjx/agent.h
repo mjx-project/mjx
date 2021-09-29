@@ -27,8 +27,8 @@ class Agent {
 
 class AgentServer {
  public:
-  static void Serve(Agent* agent, const std::string& socket_address, int batch_size,
-                    int wait_limit_ms, int sleep_ms) noexcept;
+  static void Serve(Agent* agent, const std::string& socket_address,
+                    int batch_size, int wait_limit_ms, int sleep_ms) noexcept;
 };
 
 // Agent that acts randomly but in the reproducible way.
@@ -39,7 +39,8 @@ class RandomDebugAgent : public Agent {
   [[nodiscard]] mjx::Action Act(
       const Observation& observation) const noexcept override;
   [[nodiscard]] virtual std::vector<mjx::Action> ActBatch(
-      const std::vector<mjx::Observation>& observations) const noexcept override;
+      const std::vector<mjx::Observation>& observations)
+      const noexcept override;
 };
 
 class GrpcAgent : public Agent {
@@ -48,7 +49,8 @@ class GrpcAgent : public Agent {
   [[nodiscard]] mjx::Action Act(
       const Observation& observation) const noexcept override;
   [[nodiscard]] virtual std::vector<mjx::Action> ActBatch(
-      const std::vector<mjx::Observation>& observations) const noexcept override;
+      const std::vector<mjx::Observation>& observations)
+      const noexcept override;
 
  private:
   std::shared_ptr<mjxproto::Agent::Stub> stub_;
@@ -62,10 +64,10 @@ struct ObservationInfo {
 class AgentBatchGrpcServerImpl final : public mjxproto::Agent::Service {
  public:
   explicit AgentBatchGrpcServerImpl(
-                                    std::mutex& mtx_que,
-                                    std::mutex& mtx_map,
-                                    std::queue<ObservationInfo>& obs_que,
-                                    std::unordered_map<boost::uuids::uuid, mjx::Action, boost::hash<boost::uuids::uuid>>& act_map);
+      std::mutex& mtx_que, std::mutex& mtx_map,
+      std::queue<ObservationInfo>& obs_que,
+      std::unordered_map<boost::uuids::uuid, mjx::Action,
+                         boost::hash<boost::uuids::uuid>>& act_map);
   ~AgentBatchGrpcServerImpl() final;
   grpc::Status TakeAction(grpc::ServerContext* context,
                           const mjxproto::Observation* request,
@@ -75,8 +77,7 @@ class AgentBatchGrpcServerImpl final : public mjxproto::Agent::Service {
   std::mutex& mtx_map_;
   std::queue<ObservationInfo>& obs_que_;
   std::unordered_map<boost::uuids::uuid, mjx::Action,
-                     boost::hash<boost::uuids::uuid>> &
-      act_map_;
+                     boost::hash<boost::uuids::uuid>>& act_map_;
 };
 }  // namespace mjx
 
