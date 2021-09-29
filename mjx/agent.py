@@ -16,8 +16,8 @@ class Agent(_mjx.Agent):  # type: ignore
     def act_batch(self, observations: List[mjx.Observation]) -> List[mjx.Action]:
         return [self.act(obs) for obs in observations]
 
-    def serve(self, socket_address):
-        raise NotImplementedError
+    def serve(self, socket_address: str, batch_size: int, wait_limit_ms: int, sleep_ms: int):
+        _mjx.AgentServer(self, socket_address, batch_size, wait_limit_ms, sleep_ms)  # type: ignore
 
     def _act(self, observation: _mjx.Observation) -> _mjx.Action:  # type: ignore
         return self.act(mjx.Observation._from_cpp_obj(observation))._cpp_obj
