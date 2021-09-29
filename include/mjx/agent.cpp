@@ -7,8 +7,7 @@
 
 namespace mjx {
 AgentServer::AgentServer(const Agent* agent, const std::string& socket_address,
-                        int batch_size, int wait_limit_ms,
-                        int sleep_ms) {
+                         int batch_size, int wait_limit_ms, int sleep_ms) {
   std::mutex mtx_que_;
   std::mutex mtx_map_;
   std::queue<ObservationInfo> obs_que_;
@@ -72,9 +71,7 @@ AgentServer::AgentServer(const Agent* agent, const std::string& socket_address,
   server_->Wait();
 }
 
-AgentServer::~AgentServer() {
-  server_->Shutdown();
-}
+AgentServer::~AgentServer() { server_->Shutdown(); }
 
 std::vector<mjx::Action> Agent::ActBatch(
     const std::vector<mjx::Observation>& observations) const noexcept {

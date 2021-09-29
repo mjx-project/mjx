@@ -1,13 +1,14 @@
 #ifndef MJX_PROJECT_AGENT_H
 #define MJX_PROJECT_AGENT_H
 
+#include <grpcpp/grpcpp.h>
+
 #include <boost/container_hash/hash.hpp>
 #include <boost/uuid/uuid.hpp>
 #include <boost/uuid/uuid_generators.hpp>
 #include <boost/uuid/uuid_io.hpp>
 #include <queue>
 #include <thread>
-#include <grpcpp/grpcpp.h>
 
 #include "mjx/action.h"
 #include "mjx/internal/mjx.grpc.pb.h"
@@ -24,14 +25,16 @@ class Agent {
       const Observation& observation) const noexcept = 0;
   [[nodiscard]] virtual std::vector<mjx::Action> ActBatch(
       const std::vector<mjx::Observation>& observations) const noexcept;
-  void Serve(const std::string& socket_address, int batch_size = 64, int wait_limit_ms = 100, int sleep_ms = 10) const noexcept;
+  void Serve(const std::string& socket_address, int batch_size = 64,
+             int wait_limit_ms = 100, int sleep_ms = 10) const noexcept;
 };
 
 class AgentServer {
  public:
   AgentServer(const Agent* agent, const std::string& socket_address,
-                    int batch_size, int wait_limit_ms, int sleep_ms);
+              int batch_size, int wait_limit_ms, int sleep_ms);
   ~AgentServer();
+
  private:
   std::unique_ptr<grpc::Server> server_;
 };
@@ -50,6 +53,7 @@ class GrpcAgent : public Agent {
   explicit GrpcAgent(const std::string& socket_address);
   [[nodiscard]] mjx::Action Act(
       const Observation& observation) const noexcept override;
+
  private:
   std::shared_ptr<mjxproto::Agent::Stub> stub_;
 };
