@@ -24,6 +24,7 @@ class Agent {
       const Observation& observation) const noexcept = 0;
   [[nodiscard]] virtual std::vector<mjx::Action> ActBatch(
       const std::vector<mjx::Observation>& observations) const noexcept;
+  void Serve(const std::string& socket_address, int batch_size, int wait_limit_ms, int sleep_ms) const noexcept;
 };
 
 class AgentServer {

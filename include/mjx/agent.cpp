@@ -85,6 +85,11 @@ std::vector<mjx::Action> Agent::ActBatch(
   return actions;
 }
 
+void Agent::Serve(const std::string& socket_address, int batch_size,
+                  int wait_limit_ms, int sleep_ms) const noexcept {
+  AgentServer(this, socket_address, batch_size, wait_limit_ms, sleep_ms);
+}
+
 mjx::Action RandomDebugAgent::Act(
     const Observation& observation) const noexcept {
   const std::uint64_t seed =
