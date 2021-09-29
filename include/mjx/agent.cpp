@@ -10,7 +10,7 @@ AgentServer::AgentServer(const Agent* agent, const std::string& socket_address,
                          int batch_size, int wait_limit_ms, int sleep_ms) {
   std::mutex mtx_que_;
   std::mutex mtx_map_;
-  std::queue<ObservationInfo> obs_que_;
+  std::queue<std::pair<boost::uuids::uuid, mjx::Observation>> obs_que_;
   std::unordered_map<boost::uuids::uuid, mjx::Action,
                      boost::hash<boost::uuids::uuid>>
       act_map_;
@@ -49,10 +49,10 @@ AgentServer::AgentServer(const Agent* agent, const std::string& socket_address,
     {
       std::lock_guard<std::mutex> lock_que(mtx_que_);
       while (!obs_que_.empty()) {
-        ObservationInfo obsinfo = obs_que_.front();
+        std::pair<boost::uuids::uuid, mjx::Observation> id_obs = obs_que_.front();
         obs_que_.pop();
-        ids.push_back(obsinfo.id);
-        observations.push_back(std::move(obsinfo.obs));
+        ids.push_back(id_obs.first);
+        observations.push_back(std::move(id_obs.second));
       }
     }
 
@@ -115,7 +115,7 @@ Action GrpcAgent::Act(const Observation& observation) const noexcept {
 
 AgentBatchGrpcServerImpl::AgentBatchGrpcServerImpl(
     std::mutex& mtx_que, std::mutex& mtx_map,
-    std::queue<ObservationInfo>& obs_que,
+    std::queue<std::pair<boost::uuids::uuid, mjx::Observation>>& obs_que,
     std::unordered_map<boost::uuids::uuid, mjx::Action,
                        boost::hash<boost::uuids::uuid>>& act_map)
     : mtx_que_(mtx_que),

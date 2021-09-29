@@ -29,16 +29,6 @@ class Agent {
              int wait_limit_ms = 100, int sleep_ms = 10) const noexcept;
 };
 
-class AgentServer {
- public:
-  AgentServer(const Agent* agent, const std::string& socket_address,
-              int batch_size, int wait_limit_ms, int sleep_ms);
-  ~AgentServer();
-
- private:
-  std::unique_ptr<grpc::Server> server_;
-};
-
 // Agent that acts randomly but in the reproducible way.
 // The same observation should return the same action.
 // Only for debugging purpose.
@@ -58,16 +48,20 @@ class GrpcAgent : public Agent {
   std::shared_ptr<mjxproto::Agent::Stub> stub_;
 };
 
-struct ObservationInfo {
-  boost::uuids::uuid id;
-  mjx::Observation obs;
+class AgentServer {
+ public:
+  AgentServer(const Agent* agent, const std::string& socket_address,
+              int batch_size, int wait_limit_ms, int sleep_ms);
+  ~AgentServer();
+ private:
+  std::unique_ptr<grpc::Server> server_;
 };
 
 class AgentBatchGrpcServerImpl final : public mjxproto::Agent::Service {
  public:
   explicit AgentBatchGrpcServerImpl(
       std::mutex& mtx_que, std::mutex& mtx_map,
-      std::queue<ObservationInfo>& obs_que,
+      std::queue<std::pair<boost::uuids::uuid, mjx::Observation>>& obs_que,
       std::unordered_map<boost::uuids::uuid, mjx::Action,
                          boost::hash<boost::uuids::uuid>>& act_map);
   ~AgentBatchGrpcServerImpl() final;
@@ -77,7 +71,7 @@ class AgentBatchGrpcServerImpl final : public mjxproto::Agent::Service {
 
   std::mutex& mtx_que_;
   std::mutex& mtx_map_;
-  std::queue<ObservationInfo>& obs_que_;
+  std::queue<std::pair<boost::uuids::uuid, mjx::Observation>>& obs_que_;
   std::unordered_map<boost::uuids::uuid, mjx::Action,
                      boost::hash<boost::uuids::uuid>>& act_map_;
 };
