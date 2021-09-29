@@ -1,4 +1,5 @@
 import random
+from typing import List
 
 import _mjx  # type: ignore
 
@@ -10,6 +11,12 @@ class Agent(_mjx.Agent):  # type: ignore
         _mjx.Agent.__init__(self)  # type: ignore
 
     def act(self, observation: mjx.Observation) -> mjx.Action:
+        raise NotImplementedError
+
+    def act_batch(self, observations: List[mjx.Observation]) -> List[mjx.Action]:
+        return [self.act(obs) for obs in observations]
+
+    def serve(self, socket_address):
         raise NotImplementedError
 
     def _act(self, observation: _mjx.Observation) -> _mjx.Action:  # type: ignore
