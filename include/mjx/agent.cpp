@@ -58,13 +58,7 @@ void AgentServer::Serve(Agent* agent, const std::string& socket_address,
     }
 
     // 推論する
-    std::vector<mjx::Action> actions;
-    // std::cerr << "Before ActBatch" << std::endl;
-    for (const auto& obs : observations) {
-      actions.push_back(agent->Act(obs));
-    }
-    // std::vector<mjx::Action> actions = agent->ActBatch(observations);
-    // std::cerr << "After ActBatch" << std::endl;
+    std::vector<mjx::Action> actions = agent->ActBatch(observations);
     assert(ids.size() == actions.size());
     // Mapにデータを返す
     {
