@@ -56,6 +56,9 @@ PYBIND11_MODULE(_mjx, m) {
   py::class_<mjx::RandomDebugAgent, mjx::Agent>(m, "RandomDebugAgent")
       .def(py::init<>());
 
+  py::class_<mjx::RuleBasedAgent, mjx::Agent>(m, "RuleBasedAgent")
+      .def(py::init<>());
+
   py::class_<mjx::GrpcAgent, mjx::Agent>(m, "GrpcAgent")
       .def(py::init<const std::string &>());
 
