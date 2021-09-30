@@ -21,8 +21,7 @@ def test_MjxEnv():
 
     random.seed(1234)
     env = mjx.env.MjxEnv()
-    env.seed(1234)
-    obs_dict = env.reset()
+    obs_dict = env.reset(1234)
 
     assert len(obs_dict) == 1
     assert "player_2" in obs_dict
@@ -40,3 +39,12 @@ def test_MjxEnv():
     assert rewards["player_1"] == 0
     assert rewards["player_2"] == 45
     assert rewards["player_3"] == -135
+
+    # test specifing daler order
+    obs_dict = env.reset(1234, ["player_3", "player_1", "player_2", "player_0"])
+    assert len(obs_dict) == 1
+    assert "player_3" in obs_dict
+
+    obs_dict = env.reset(1234)
+    assert len(obs_dict) == 1
+    assert "player_2" in obs_dict
