@@ -12,8 +12,10 @@ class MjxEnv {
  public:
   explicit MjxEnv();
   explicit MjxEnv(std::vector<PlayerId> player_ids);
-  std::unordered_map<PlayerId, Observation> Reset(std::optional<std::uint64_t> seed = std::nullopt,
-                                                  std::optional<std::vector<PlayerId>> dealer_order = std::nullopt) noexcept;
+  std::unordered_map<PlayerId, Observation> Reset(
+      std::optional<std::uint64_t> seed = std::nullopt,
+      std::optional<std::vector<PlayerId>> dealer_order =
+          std::nullopt) noexcept;
   std::unordered_map<PlayerId, Observation> Step(
       const std::unordered_map<PlayerId, mjx::Action>& action_dict) noexcept;
   bool Done() const noexcept;
