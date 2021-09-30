@@ -3,7 +3,7 @@ from __future__ import annotations
 import json
 import sys
 from dataclasses import dataclass
-from typing import List, Union
+from typing import List, Optional, Union
 
 from google.protobuf import json_format
 from rich.console import Console
@@ -96,7 +96,7 @@ class MahjongTable:
         self.doras: List[int] = []
         self.uradoras: List[int] = []
         self.result: str = ""
-        self.event_info: EventType.V
+        self.event_info: Optional[EventType.V]
 
     def get_wall_num(self) -> int:
         all = 136 - 14
@@ -335,9 +335,9 @@ class MahjongTable:
                             )
                             assert p.tile_units[-1].tiles[0].id == p_from_t_u.tiles[-1].id
 
+        table.event_info = None
+
         if len(public_observation.events) == 0:
-            # ダミーのEventType
-            table.event_info = EventType.EVENT_TYPE_DISCARD
             return table
 
         if public_observation.events[-1].type in [
@@ -345,6 +345,7 @@ class MahjongTable:
             EventType.EVENT_TYPE_RON,
         ]:
             table.result = "win"
+            table.event_info = public_observation.events[-1].type
         elif public_observation.events[-1].type in [
             EventType.EVENT_TYPE_ABORTIVE_DRAW_NINE_TERMINALS,
             EventType.EVENT_TYPE_ABORTIVE_DRAW_FOUR_RIICHIS,
@@ -355,8 +356,7 @@ class MahjongTable:
             EventType.EVENT_TYPE_EXHAUSTIVE_DRAW_NAGASHI_MANGAN,
         ]:
             table.result = "nowinner"
-
-        table.event_info = public_observation.events[-1].type
+            table.event_info = public_observation.events[-1].type
 
         return table
 
@@ -766,17 +766,7 @@ class GameBoardVisualizer:
         if uradora != "":
             board_info.append(" " + ["UraDora:", "裏ドラ:"][self.config.lang] + uradora)
 
-        if table.event_info in [
-            EventType.EVENT_TYPE_TSUMO,
-            EventType.EVENT_TYPE_RON,
-            EventType.EVENT_TYPE_ABORTIVE_DRAW_NINE_TERMINALS,
-            EventType.EVENT_TYPE_ABORTIVE_DRAW_FOUR_RIICHIS,
-            EventType.EVENT_TYPE_ABORTIVE_DRAW_THREE_RONS,
-            EventType.EVENT_TYPE_ABORTIVE_DRAW_FOUR_KANS,
-            EventType.EVENT_TYPE_ABORTIVE_DRAW_FOUR_WINDS,
-            EventType.EVENT_TYPE_EXHAUSTIVE_DRAW_NORMAL,
-            EventType.EVENT_TYPE_EXHAUSTIVE_DRAW_NAGASHI_MANGAN,
-        ]:
+        if table.event_info is not None:
             event_info = get_event_type(table.event_info, self.config.lang)
             board_info.append("    " + event_info)
 
