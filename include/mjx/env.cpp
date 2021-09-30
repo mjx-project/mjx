@@ -9,13 +9,12 @@ MjxEnv::MjxEnv() : MjxEnv({"player_0", "player_1", "player_2", "player_3"}) {}
 MjxEnv::MjxEnv(std::vector<PlayerId> player_ids)
     : player_ids_(std::move(player_ids)) {}
 
-std::unordered_map<PlayerId, Observation> MjxEnv::Reset() noexcept {
-  if (!game_seed_) game_seed_ = seed_gen_();
+std::unordered_map<PlayerId, Observation> MjxEnv::Reset(std::optional<std::uint64_t> seed) noexcept {
+  if (!seed) seed = seed_gen_();
   auto shuffled_player_ids =
-      internal::State::ShufflePlayerIds(game_seed_.value(), player_ids_);
+      internal::State::ShufflePlayerIds(seed.value(), player_ids_);
   state_ = internal::State(
-      mjx::internal::State::ScoreInfo{shuffled_player_ids, game_seed_.value()});
-  game_seed_ = std::nullopt;
+      mjx::internal::State::ScoreInfo{shuffled_player_ids, seed.value()});
   return Observe();
 }
 
@@ -70,7 +69,6 @@ std::unordered_map<PlayerId, int> MjxEnv::Rewards() const noexcept {
   }
   return rewards;
 }
-void MjxEnv::Seed(std::uint64_t seed) noexcept { game_seed_ = seed; }
 
 Observation MjxEnv::observation(const PlayerId& player_id) const noexcept {
   return Observation(state_.observation(player_id));

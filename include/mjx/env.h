@@ -12,13 +12,12 @@ class MjxEnv {
  public:
   explicit MjxEnv();
   explicit MjxEnv(std::vector<PlayerId> player_ids);
-  std::unordered_map<PlayerId, Observation> Reset() noexcept;
+  std::unordered_map<PlayerId, Observation> Reset(std::optional<std::uint64_t> seed = std::nullopt) noexcept;
   std::unordered_map<PlayerId, Observation> Step(
       const std::unordered_map<PlayerId, mjx::Action>& action_dict) noexcept;
   bool Done() const noexcept;
   std::unordered_map<PlayerId, int> Rewards()
       const noexcept;  // TDOO: reward type
-  void Seed(std::uint64_t seed) noexcept;
 
   // accessors
   State state() const noexcept;
@@ -27,7 +26,6 @@ class MjxEnv {
       const noexcept;  // order does not change for each game
 
  private:
-  std::optional<std::uint64_t> game_seed_ = std::nullopt;
   std::mt19937_64 seed_gen_ =
       internal::GameSeed::CreateRandomGameSeedGenerator();
   internal::State state_{};
