@@ -11,8 +11,13 @@ class PyAgent : public mjx::Agent {
  public:
   using mjx::Agent::Agent;
   mjx::Action Act(const mjx::Observation &observation) const noexcept override {
-    PYBIND11_OVERRIDE_PURE_NAME(mjx::Action, mjx::Agent, "act", Act,
+    PYBIND11_OVERRIDE_PURE_NAME(mjx::Action, mjx::Agent, "_act", Act,
                                 observation);
+  }
+  std::vector<mjx::Action> ActBatch(const std::vector<mjx::Observation>
+                                        &observations) const noexcept override {
+    PYBIND11_OVERRIDE_PURE_NAME(std::vector<mjx::Action>, mjx::Agent,
+                                "_act_batch", ActBatch, observations);
   }
 };
 
@@ -45,17 +50,22 @@ PYBIND11_MODULE(_mjx, m) {
 
   py::class_<mjx::Agent, PyAgent>(m, "Agent")
       .def(py::init<>())
-      .def("act", &mjx::Agent::Act)
-      .def("act_batch", &mjx::Agent::ActBatch)
-      .def("serve", &mjx::Agent::Serve);
+      .def("_act", &mjx::Agent::Act)
+      .def("_act_batch", &mjx::Agent::ActBatch);
 
   py::class_<mjx::RandomDebugAgent, mjx::Agent>(m, "RandomDebugAgent")
+      .def(py::init<>());
+
+  py::class_<mjx::RuleBasedAgent, mjx::Agent>(m, "RuleBasedAgent")
       .def(py::init<>());
 
   py::class_<mjx::GrpcAgent, mjx::Agent>(m, "GrpcAgent")
       .def(py::init<const std::string &>());
 
   py::class_<mjx::EnvRunner>(m, "EnvRunner").def("run", &mjx::EnvRunner::Run);
+
+  py::class_<mjx::AgentServer>(m, "AgentServer")
+      .def(py::init<const mjx::Agent *, const std::string &, int, int, int>());
 
   py::class_<mjx::MjxEnv>(m, "MjxEnv")
       .def(py::init<std::vector<mjx::PlayerId>>())

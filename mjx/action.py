@@ -1,13 +1,13 @@
 from __future__ import annotations
 
-from typing import List
+from typing import List, Optional
 
 import _mjx  # type: ignore
 
 
 class Action:
     def __init__(self, action_json=None) -> None:
-        self._cpp_obj = None
+        self._cpp_obj: Optional[_mjx.Action] = None  # type: ignore
         if action_json is None:
             return
 
@@ -26,7 +26,7 @@ class Action:
         return _mjx.Action.select_from(idx, [a._cpp_obj for a in legal_actions])  # type: ignore
 
     @classmethod
-    def _from_cpp_obj(cls, cpp_obj) -> Action:
+    def _from_cpp_obj(cls, cpp_obj: _mjx.Action) -> Action:  # type: ignore
         action = cls()
         action._cpp_obj = cpp_obj
         return action

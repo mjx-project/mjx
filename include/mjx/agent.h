@@ -1,6 +1,9 @@
 #ifndef MJX_PROJECT_AGENT_H
 #define MJX_PROJECT_AGENT_H
 
+#include <grpcpp/grpcpp.h>
+#include <mjx/internal/strategy_rule_based.h>
+
 #include <boost/container_hash/hash.hpp>
 #include <boost/uuid/uuid.hpp>
 #include <boost/uuid/uuid_generators.hpp>
@@ -36,6 +39,14 @@ class RandomDebugAgent : public Agent {
       const Observation& observation) const noexcept override;
 };
 
+class RuleBasedAgent : public Agent {
+  [[nodiscard]] mjx::Action Act(
+      const Observation& observation) const noexcept override;
+
+ private:
+  internal::StrategyRuleBased strategy_;
+};
+
 class GrpcAgent : public Agent {
  public:
   explicit GrpcAgent(const std::string& socket_address);
@@ -46,40 +57,33 @@ class GrpcAgent : public Agent {
   std::shared_ptr<mjxproto::Agent::Stub> stub_;
 };
 
+class AgentServer {
+ public:
+  AgentServer(const Agent* agent, const std::string& socket_address,
+              int batch_size, int wait_limit_ms, int sleep_ms);
+  ~AgentServer();
+
+ private:
+  std::unique_ptr<grpc::Server> server_;
+};
+
 class AgentBatchGrpcServerImpl final : public mjxproto::Agent::Service {
  public:
-  explicit AgentBatchGrpcServerImpl(const Agent* agent, int batch_size,
-                                    int wait_limit_ms, int sleep_ms);
+  explicit AgentBatchGrpcServerImpl(
+      std::mutex& mtx_que, std::mutex& mtx_map,
+      std::queue<std::pair<boost::uuids::uuid, mjx::Observation>>& obs_que,
+      std::unordered_map<boost::uuids::uuid, mjx::Action,
+                         boost::hash<boost::uuids::uuid>>& act_map);
   ~AgentBatchGrpcServerImpl() final;
   grpc::Status TakeAction(grpc::ServerContext* context,
                           const mjxproto::Observation* request,
                           mjxproto::Action* reply) final;
 
- private:
-  struct ObservationInfo {
-    boost::uuids::uuid id;
-    mjx::Observation obs;
-  };
-
-  void InferAction();
-
-  const Agent* agent_;
-
-  // 推論を始めるデータ数の閾値
-  int batch_size_;
-  // 推論を始めるまでの待機時間
-  int wait_limit_ms_;
-  // 何ms毎にデータサイズを確認するか
-  int sleep_ms_;
-
-  std::mutex mtx_que_, mtx_map_;
-  std::queue<ObservationInfo> obs_que_;
+  std::mutex& mtx_que_;
+  std::mutex& mtx_map_;
+  std::queue<std::pair<boost::uuids::uuid, mjx::Observation>>& obs_que_;
   std::unordered_map<boost::uuids::uuid, mjx::Action,
-                     boost::hash<boost::uuids::uuid>>
-      act_map_;
-  // 常駐する推論スレッド
-  std::thread thread_inference_;
-  bool stop_flag_ = false;
+                     boost::hash<boost::uuids::uuid>>& act_map_;
 };
 }  // namespace mjx
 

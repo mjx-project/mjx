@@ -2,7 +2,9 @@ from typing import Dict, List
 
 import _mjx  # type: ignore
 
-import mjx
+from mjx.action import Action
+from mjx.observation import Observation
+from mjx.state import State
 
 
 class MjxEnv:
@@ -10,19 +12,19 @@ class MjxEnv:
         self,
         player_ids: List[str] = ["player_0", "player_1", "player_2", "player_3"],
     ):
-        self._env = _mjx.MjxEnv(player_ids)  # type: ignore
+        self._env: _mjx.MjxEnv = _mjx.MjxEnv(player_ids)  # type: ignore
 
     def seed(self, seed) -> None:
         self._env.seed(seed)
 
-    def reset(self) -> Dict[str, mjx.Observation]:
-        cpp_obs_dict = self._env.reset()
-        return {k: mjx.Observation._from_cpp_obj(v) for k, v in cpp_obs_dict.items()}
+    def reset(self) -> Dict[str, Observation]:
+        cpp_obs_dict: Dict[str, _mjx.Observation] = self._env.reset()  # type: ignore
+        return {k: Observation._from_cpp_obj(v) for k, v in cpp_obs_dict.items()}
 
-    def step(self, aciton_dict: Dict[str, mjx.Action]) -> Dict[str, mjx.Observation]:
-        cpp_action_dict = {k: v._cpp_obj for k, v in aciton_dict.items()}
-        cpp_obs_dict = self._env.step(cpp_action_dict)
-        return {k: mjx.Observation._from_cpp_obj(v) for k, v in cpp_obs_dict.items()}
+    def step(self, aciton_dict: Dict[str, Action]) -> Dict[str, Observation]:
+        cpp_action_dict: Dict[str, _mjx.Action] = {k: v._cpp_obj for k, v in aciton_dict.items()}  # type: ignore
+        cpp_obs_dict: Dict[str, _mjx.Observation] = self._env.step(cpp_action_dict)  # type: ignore
+        return {k: Observation._from_cpp_obj(v) for k, v in cpp_obs_dict.items()}
 
     def done(self) -> bool:
         return self._env.done()
@@ -31,5 +33,5 @@ class MjxEnv:
         return self._env.rewards()
 
     @property
-    def state(self) -> mjx.State:
-        return mjx.State._from_cpp_obj(self._env.state())
+    def state(self) -> State:
+        return State._from_cpp_obj(self._env.state())

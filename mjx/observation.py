@@ -7,26 +7,29 @@ import _mjx  # type: ignore
 import numpy as np  # type: ignore
 from google.protobuf import json_format
 
-import mjx
 import mjxproto
+from mjx.action import Action
 from mjx.visualizer.svg import save_svg
 
 
 class Observation:
     def __init__(self, obs_json=None) -> None:
-        self._cpp_obj = None
+        self._cpp_obj: Optional[_mjx.Observation] = None  # type: ignore
         if obs_json is None:
             return
 
         self._cpp_obj = _mjx.Observation(obs_json)  # type: ignore
 
-    def legal_actions(self) -> List[mjx.Action]:
-        return [mjx.Action._from_cpp_obj(cpp_obj) for cpp_obj in self._cpp_obj.legal_actions()]  # type: ignore
+    def legal_actions(self) -> List[Action]:
+        assert self._cpp_obj is not None
+        return [Action._from_cpp_obj(cpp_obj) for cpp_obj in self._cpp_obj.legal_actions()]  # type: ignore
 
     def action_mask(self, dtype=np.float32) -> np.ndarray:
+        assert self._cpp_obj is not None
         return np.array(self._cpp_obj.action_mask(), dtype=dtype)  # type: ignore
 
     def to_json(self) -> str:
+        assert self._cpp_obj is not None
         return self._cpp_obj.to_json()  # type: ignore
 
     def to_proto(self) -> mjxproto.Observation:
