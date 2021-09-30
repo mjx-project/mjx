@@ -336,6 +336,8 @@ class MahjongTable:
                             assert p.tile_units[-1].tiles[0].id == p_from_t_u.tiles[-1].id
 
         if len(public_observation.events) == 0:
+            # ダミーのEventType
+            table.event_info = EventType.EVENT_TYPE_DISCARD
             return table
 
         if public_observation.events[-1].type in [
@@ -343,7 +345,6 @@ class MahjongTable:
             EventType.EVENT_TYPE_RON,
         ]:
             table.result = "win"
-            table.event_info = public_observation.events[-1].type
         elif public_observation.events[-1].type in [
             EventType.EVENT_TYPE_ABORTIVE_DRAW_NINE_TERMINALS,
             EventType.EVENT_TYPE_ABORTIVE_DRAW_FOUR_RIICHIS,
@@ -354,7 +355,8 @@ class MahjongTable:
             EventType.EVENT_TYPE_EXHAUSTIVE_DRAW_NAGASHI_MANGAN,
         ]:
             table.result = "nowinner"
-            table.event_info = public_observation.events[-1].type
+
+        table.event_info = public_observation.events[-1].type
 
         return table
 
@@ -764,11 +766,19 @@ class GameBoardVisualizer:
         if uradora != "":
             board_info.append(" " + ["UraDora:", "裏ドラ:"][self.config.lang] + uradora)
 
-        try:
+        if table.event_info in [
+            EventType.EVENT_TYPE_TSUMO,
+            EventType.EVENT_TYPE_RON,
+            EventType.EVENT_TYPE_ABORTIVE_DRAW_NINE_TERMINALS,
+            EventType.EVENT_TYPE_ABORTIVE_DRAW_FOUR_RIICHIS,
+            EventType.EVENT_TYPE_ABORTIVE_DRAW_THREE_RONS,
+            EventType.EVENT_TYPE_ABORTIVE_DRAW_FOUR_KANS,
+            EventType.EVENT_TYPE_ABORTIVE_DRAW_FOUR_WINDS,
+            EventType.EVENT_TYPE_EXHAUSTIVE_DRAW_NORMAL,
+            EventType.EVENT_TYPE_EXHAUSTIVE_DRAW_NAGASHI_MANGAN,
+        ]:
             event_info = get_event_type(table.event_info, self.config.lang)
             board_info.append("    " + event_info)
-        except AttributeError:
-            pass
 
         return "".join(board_info)
 
