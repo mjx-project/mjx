@@ -1,7 +1,7 @@
 import glob
 import os
 
-from mjx.visualizer.svg import *
+from mjx.visualizer.svg import MahjongTable, save_svg
 
 
 def test_svg():

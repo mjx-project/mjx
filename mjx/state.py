@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+from typing import Optional
 
 import _mjx  # type: ignore
 from google.protobuf import json_format
@@ -11,13 +12,14 @@ from mjx.visualizer.svg import save_svg
 
 class State:
     def __init__(self, state_json=None) -> None:
-        self._cpp_obj = None
+        self._cpp_obj: Optional[_mjx.State] = None  # type: ignore
         if state_json is None:
             return
 
         self._cpp_obj = _mjx.State(state_json)  # type: ignore
 
     def to_json(self) -> str:
+        assert self._cpp_obj is not None
         return self._cpp_obj.to_json()  # type: ignore
 
     def to_proto(self) -> mjxproto.State:

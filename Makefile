@@ -81,7 +81,7 @@ cli-test:
 	mkdir -p tests_cpp/resources/mjlog_recovered
 	mjx convert tests_cpp/resources/mjxproto tests_cpp/resources/mjlog_recovered --to-mjlog --verbose && cat tests_cpp/resources/mjlog_recovered/* | wc -l
 	echo "Check diff"
-	python3 mjx/diff.py tests_cpp/resources/mjlog tests_cpp/resources/mjlog_recovered
+	python3 mjx/utils/diff.py tests_cpp/resources/mjlog tests_cpp/resources/mjlog_recovered
 	echo "Clean up"
 	rm -rf tests_cpp/resources/mjxproto
 	rm -rf tests_cpp/resources/mjlog_recovered
