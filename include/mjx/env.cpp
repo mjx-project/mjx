@@ -9,12 +9,26 @@ MjxEnv::MjxEnv() : MjxEnv({"player_0", "player_1", "player_2", "player_3"}) {}
 MjxEnv::MjxEnv(std::vector<PlayerId> player_ids)
     : player_ids_(std::move(player_ids)) {}
 
-std::unordered_map<PlayerId, Observation> MjxEnv::Reset(std::optional<std::uint64_t> seed) noexcept {
+std::unordered_map<PlayerId, Observation> MjxEnv::Reset(std::optional<std::uint64_t> seed,
+                                                        std::optional<std::vector<PlayerId>> dealer_order) noexcept {
+  // set seed
   if (!seed) seed = seed_gen_();
-  auto shuffled_player_ids =
-      internal::State::ShufflePlayerIds(seed.value(), player_ids_);
+
+  // set dealer order (setas)
+  std::vector<PlayerId> shuffled_player_ids;
+  if (dealer_order) {
+    shuffled_player_ids = dealer_order.value();
+    for (const auto& player_id: shuffled_player_ids) {
+      assert(std::count(player_ids_.begin(), player_ids_.end(), player_id) == 1);
+    }
+  } else {
+    shuffled_player_ids = internal::State::ShufflePlayerIds(seed.value(), player_ids_);
+  }
+
+  // initialize state
   state_ = internal::State(
       mjx::internal::State::ScoreInfo{shuffled_player_ids, seed.value()});
+
   return Observe();
 }
 
