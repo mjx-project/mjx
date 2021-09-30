@@ -25,8 +25,7 @@ TEST(env, MjxEnv) {
       {"player_3", 31000}};
 
   auto env = mjx::MjxEnv();
-  env.Seed(1234);
-  observations = env.Reset();
+  observations = env.Reset(1234);
   while (!env.Done()) {
     {
       std::unordered_map<mjx::PlayerId, mjx::Action> action_dict;
