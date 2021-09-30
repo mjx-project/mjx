@@ -73,7 +73,6 @@ PYBIND11_MODULE(_mjx, m) {
       .def("step", &mjx::MjxEnv::Step)
       .def("done", &mjx::MjxEnv::Done)
       .def("rewards", &mjx::MjxEnv::Rewards)
-      .def("seed", &mjx::MjxEnv::Seed)
       .def("state", &mjx::MjxEnv::state);
 
   py::class_<mjx::RLlibMahjongEnv>(m, "RLlibMahjongEnv")

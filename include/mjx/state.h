@@ -5,6 +5,14 @@
 
 namespace mjx {
 using PlayerId = std::string;  // identical over different games
+
+struct GameResult {
+  std::uint64_t game_seed;
+  std::vector<PlayerId> players;  // 0-th player is the first dealer (起家)
+  std::unordered_map<PlayerId, int> rankings;  // 1~4
+  std::unordered_map<PlayerId, int> tens;      // 25000スタート
+};
+
 class State {
  public:
   State() = default;
