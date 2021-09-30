@@ -150,4 +150,8 @@ grpc::Status AgentBatchGrpcServerImpl::TakeAction(
   }
   return grpc::Status::OK;
 }
+
+mjx::Action RuleBasedAgent::Act(const Observation& observation) const noexcept {
+  return mjx::Action(strategy_.TakeAction(internal::Observation(observation.proto())));
+}
 }  // namespace mjx
