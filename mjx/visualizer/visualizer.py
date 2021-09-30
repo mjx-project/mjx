@@ -767,7 +767,7 @@ class GameBoardVisualizer:
         try:
             event_info = get_event_type(table.event_info, self.config.lang)
             board_info.append("    " + event_info)
-        except:
+        except AttributeError:
             pass
 
         return "".join(board_info)
