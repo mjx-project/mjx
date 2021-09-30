@@ -91,7 +91,8 @@ Observation MjxEnv::observation(const PlayerId& player_id) const noexcept {
 mjx::RLlibMahjongEnv::RLlibMahjongEnv() {}
 
 std::unordered_map<PlayerId, Observation> RLlibMahjongEnv::Reset() noexcept {
-  return env_.Reset();
+  return env_.Reset(seed_);
+  seed_ = std::nullopt;
 }
 
 std::tuple<std::unordered_map<PlayerId, Observation>,
@@ -129,7 +130,7 @@ RLlibMahjongEnv::Step(
 }
 
 void RLlibMahjongEnv::Seed(std::uint64_t game_seed) noexcept {
-  env_.Seed(game_seed);
+  seed_ = game_seed;
 }
 PettingZooMahjongEnv::PettingZooMahjongEnv() {}
 
@@ -162,7 +163,8 @@ void PettingZooMahjongEnv::Reset() noexcept {
     infos_[agent] = "";
   }
 
-  observations_ = env_.Reset();
+  observations_ = env_.Reset(seed_);
+  seed_ = std::nullopt;
   UpdateAgentsToAct();
   assert(agents_to_act_.size() == 1);
   agent_selection_ = agents_to_act_.front();
@@ -214,7 +216,7 @@ void PettingZooMahjongEnv::Step(Action action) noexcept {
 }
 
 void PettingZooMahjongEnv::Seed(std::uint64_t seed) noexcept {
-  env_.Seed(seed);
+  seed_ = seed;
 }
 
 Observation PettingZooMahjongEnv::Observe(

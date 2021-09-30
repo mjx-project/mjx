@@ -51,6 +51,7 @@ class RLlibMahjongEnv {
   void Seed(std::uint64_t game_seed) noexcept;
 
  private:
+  std::optional<std::uint64_t> seed_ = std::nullopt;
   MjxEnv env_{};
   const std::map<int, int> reward_map_ = {{1, 90}, {2, 45}, {3, 0}, {4, -135}};
 };
@@ -76,6 +77,7 @@ class PettingZooMahjongEnv {
   std::unordered_map<PlayerId, int> rewards() const noexcept;
 
  private:
+  std::optional<std::uint64_t> seed_ = std::nullopt;
   const std::vector<PlayerId> possible_agents_ = {"player_0", "player_1",
                                                   "player_2", "player_3"};
   std::vector<PlayerId> agents_{};
