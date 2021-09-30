@@ -1,4 +1,4 @@
-from typing import Dict, List
+from typing import Dict, List, Optional
 
 import _mjx  # type: ignore
 
@@ -14,11 +14,11 @@ class MjxEnv:
     ):
         self._env: _mjx.MjxEnv = _mjx.MjxEnv(player_ids)  # type: ignore
 
-    def seed(self, seed) -> None:
-        self._env.seed(seed)
-
-    def reset(self) -> Dict[str, Observation]:
-        cpp_obs_dict: Dict[str, _mjx.Observation] = self._env.reset()  # type: ignore
+    def reset(
+        self, seed: Optional[int] = None, dealer_order: Optional[List[str]] = None
+    ) -> Dict[str, Observation]:
+        assert seed is None or seed >= 0
+        cpp_obs_dict: Dict[str, _mjx.Observation] = self._env.reset(seed, dealer_order)  # type: ignore
         return {k: Observation._from_cpp_obj(v) for k, v in cpp_obs_dict.items()}
 
     def step(self, aciton_dict: Dict[str, Action]) -> Dict[str, Observation]:

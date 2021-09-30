@@ -12,13 +12,15 @@ class MjxEnv {
  public:
   explicit MjxEnv();
   explicit MjxEnv(std::vector<PlayerId> player_ids);
-  std::unordered_map<PlayerId, Observation> Reset() noexcept;
+  std::unordered_map<PlayerId, Observation> Reset(
+      std::optional<std::uint64_t> seed = std::nullopt,
+      std::optional<std::vector<PlayerId>> dealer_order =
+          std::nullopt) noexcept;
   std::unordered_map<PlayerId, Observation> Step(
       const std::unordered_map<PlayerId, mjx::Action>& action_dict) noexcept;
   bool Done() const noexcept;
   std::unordered_map<PlayerId, int> Rewards()
       const noexcept;  // TDOO: reward type
-  void Seed(std::uint64_t seed) noexcept;
 
   // accessors
   State state() const noexcept;
@@ -27,7 +29,6 @@ class MjxEnv {
       const noexcept;  // order does not change for each game
 
  private:
-  std::optional<std::uint64_t> game_seed_ = std::nullopt;
   std::mt19937_64 seed_gen_ =
       internal::GameSeed::CreateRandomGameSeedGenerator();
   internal::State state_{};
@@ -52,6 +53,7 @@ class RLlibMahjongEnv {
   void Seed(std::uint64_t game_seed) noexcept;
 
  private:
+  std::optional<std::uint64_t> seed_ = std::nullopt;
   MjxEnv env_{};
   const std::map<int, int> reward_map_ = {{1, 90}, {2, 45}, {3, 0}, {4, -135}};
 };
@@ -77,6 +79,7 @@ class PettingZooMahjongEnv {
   std::unordered_map<PlayerId, int> rewards() const noexcept;
 
  private:
+  std::optional<std::uint64_t> seed_ = std::nullopt;
   const std::vector<PlayerId> possible_agents_ = {"player_0", "player_1",
                                                   "player_2", "player_3"};
   std::vector<PlayerId> agents_{};

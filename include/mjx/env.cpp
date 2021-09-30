@@ -9,13 +9,29 @@ MjxEnv::MjxEnv() : MjxEnv({"player_0", "player_1", "player_2", "player_3"}) {}
 MjxEnv::MjxEnv(std::vector<PlayerId> player_ids)
     : player_ids_(std::move(player_ids)) {}
 
-std::unordered_map<PlayerId, Observation> MjxEnv::Reset() noexcept {
-  if (!game_seed_) game_seed_ = seed_gen_();
-  auto shuffled_player_ids =
-      internal::State::ShufflePlayerIds(game_seed_.value(), player_ids_);
+std::unordered_map<PlayerId, Observation> MjxEnv::Reset(
+    std::optional<std::uint64_t> seed,
+    std::optional<std::vector<PlayerId>> dealer_order) noexcept {
+  // set seed
+  if (!seed) seed = seed_gen_();
+
+  // set dealer order (setas)
+  std::vector<PlayerId> shuffled_player_ids;
+  if (dealer_order) {
+    shuffled_player_ids = dealer_order.value();
+    for (const auto& player_id : shuffled_player_ids) {
+      assert(std::count(player_ids_.begin(), player_ids_.end(), player_id) ==
+             1);
+    }
+  } else {
+    shuffled_player_ids =
+        internal::State::ShufflePlayerIds(seed.value(), player_ids_);
+  }
+
+  // initialize state
   state_ = internal::State(
-      mjx::internal::State::ScoreInfo{shuffled_player_ids, game_seed_.value()});
-  game_seed_ = std::nullopt;
+      mjx::internal::State::ScoreInfo{shuffled_player_ids, seed.value()});
+
   return Observe();
 }
 
@@ -70,7 +86,6 @@ std::unordered_map<PlayerId, int> MjxEnv::Rewards() const noexcept {
   }
   return rewards;
 }
-void MjxEnv::Seed(std::uint64_t seed) noexcept { game_seed_ = seed; }
 
 Observation MjxEnv::observation(const PlayerId& player_id) const noexcept {
   return Observation(state_.observation(player_id));
@@ -79,7 +94,8 @@ Observation MjxEnv::observation(const PlayerId& player_id) const noexcept {
 mjx::RLlibMahjongEnv::RLlibMahjongEnv() {}
 
 std::unordered_map<PlayerId, Observation> RLlibMahjongEnv::Reset() noexcept {
-  return env_.Reset();
+  return env_.Reset(seed_);
+  seed_ = std::nullopt;
 }
 
 std::tuple<std::unordered_map<PlayerId, Observation>,
@@ -117,7 +133,7 @@ RLlibMahjongEnv::Step(
 }
 
 void RLlibMahjongEnv::Seed(std::uint64_t game_seed) noexcept {
-  env_.Seed(game_seed);
+  seed_ = game_seed;
 }
 PettingZooMahjongEnv::PettingZooMahjongEnv() {}
 
@@ -150,7 +166,8 @@ void PettingZooMahjongEnv::Reset() noexcept {
     infos_[agent] = "";
   }
 
-  observations_ = env_.Reset();
+  observations_ = env_.Reset(seed_);
+  seed_ = std::nullopt;
   UpdateAgentsToAct();
   assert(agents_to_act_.size() == 1);
   agent_selection_ = agents_to_act_.front();
@@ -201,9 +218,7 @@ void PettingZooMahjongEnv::Step(Action action) noexcept {
   }
 }
 
-void PettingZooMahjongEnv::Seed(std::uint64_t seed) noexcept {
-  env_.Seed(seed);
-}
+void PettingZooMahjongEnv::Seed(std::uint64_t seed) noexcept { seed_ = seed; }
 
 Observation PettingZooMahjongEnv::Observe(
     const PlayerId& agent) const noexcept {

@@ -5,6 +5,7 @@
 
 namespace mjx {
 using PlayerId = std::string;  // identical over different games
+
 class State {
  public:
   State() = default;
