@@ -21,6 +21,7 @@ from mjx.visualizer.converter import (
     get_wind_char,
 )
 from mjxproto import EventType
+from mjxproto.mjx_pb2 import ActionType
 
 from .open_utils import open_event_type, open_from, open_tile_ids
 
@@ -97,6 +98,7 @@ class MahjongTable:
         self.uradoras: List[int] = []
         self.result: str = ""
         self.event_info: Optional[EventType.V]
+        self.legal_actions: List[ActionType.V, int]
 
     def get_wall_num(self) -> int:
         all = 136 - 14
@@ -414,6 +416,11 @@ class MahjongTable:
             p.wind = (-table.round + 1 + i) % 4
 
         table.wall_num = cls.get_wall_num(table)
+        table.legal_actions = [
+            [act.type, act.tile]
+            for act in proto_data.legal_actions
+            if act.type != ActionType.ACTION_TYPE_DUMMY
+        ]
         if len(proto_data.public_observation.events) != 0:
             if table.result == "win":
                 table = cls.decode_round_terminal(table, proto_data.round_terminal, True)
