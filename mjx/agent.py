@@ -53,3 +53,15 @@ class RandomDebugAgent(Agent):
 
     def _act(self, observation: _mjx.Observation) -> _mjx.Action:  # type: ignore
         return self._agent._act(observation)
+
+
+class RuleBasedAgent(Agent):
+    def __init__(self) -> None:
+        super().__init__()
+        self._agent = _mjx.RuleBasedAgent()  # type: ignore
+
+    def act(self, observation: mjx.Observation) -> mjx.Action:
+        return mjx.Action._from_cpp_obj(self._act(observation._cpp_obj))
+
+    def _act(self, observation: _mjx.Observation) -> _mjx.Action:  # type: ignore
+        return self._agent._act(observation)
