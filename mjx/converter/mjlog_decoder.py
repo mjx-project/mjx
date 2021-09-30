@@ -13,7 +13,7 @@ from google.protobuf import json_format
 
 import mjxproto
 from mjx.const import AbsolutePos, RelativePos
-from mjx.hand import Hand
+from mjx.converter.hand import Hand
 
 
 class MjlogDecoder:
