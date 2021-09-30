@@ -24,3 +24,13 @@ def test_RandomDebugAgent():
         "player_3": mjx.agent.RandomDebugAgent(),
     }
     _mjx.EnvRunner.run(agents)
+
+
+def test_RuleBasedAgent():
+    agents = {
+        "player_0": mjx.agent.RuleBasedAgent(),
+        "player_1": mjx.agent.RuleBasedAgent(),
+        "player_2": mjx.agent.RuleBasedAgent(),
+        "player_3": mjx.agent.RuleBasedAgent(),
+    }
+    _mjx.EnvRunner.run(agents)

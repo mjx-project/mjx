@@ -2,6 +2,7 @@
 #define MJX_PROJECT_AGENT_H
 
 #include <grpcpp/grpcpp.h>
+#include <mjx/internal/strategy_rule_based.h>
 
 #include <boost/container_hash/hash.hpp>
 #include <boost/uuid/uuid.hpp>
@@ -36,6 +37,14 @@ class RandomDebugAgent : public Agent {
  public:
   [[nodiscard]] mjx::Action Act(
       const Observation& observation) const noexcept override;
+};
+
+class RuleBasedAgent : public Agent {
+  [[nodiscard]] mjx::Action Act(
+      const Observation& observation) const noexcept override;
+
+ private:
+  internal::StrategyRuleBased strategy_;
 };
 
 class GrpcAgent : public Agent {
