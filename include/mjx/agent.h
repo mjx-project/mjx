@@ -42,6 +42,7 @@ class RandomDebugAgent : public Agent {
 class RuleBasedAgent : public Agent {
   [[nodiscard]] mjx::Action Act(
       const Observation& observation) const noexcept override;
+
  private:
   internal::StrategyRuleBased strategy_;
 };
