@@ -38,8 +38,8 @@ def open_from(bits: int) -> FromWho:
             return FromWho.MID
         if bits & 3 == 3:
             return FromWho.LEFT
-    else:
-        return FromWho.SELF
+
+    return FromWho.SELF
 
 
 def chi_ids_(bits: int) -> List[int]:
