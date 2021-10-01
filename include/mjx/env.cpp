@@ -261,8 +261,7 @@ void PettingZooMahjongEnv::UpdateAgentsToAct() noexcept {
 }
 
 EnvRunner::EnvRunner(const std::unordered_map<PlayerId, Agent*>& agents,
-                     int num_games, int num_parallels, bool store_states)
-    : store_states_(store_states) {
+                     int num_games, int num_parallels, bool store_states) {
   std::vector<std::thread> threads;
 
   std::mutex mtx_thread_idx;
@@ -294,7 +293,7 @@ EnvRunner::EnvRunner(const std::unordered_map<PlayerId, Agent*>& agents,
           if (store_states && env.state().proto().has_round_terminal()) {
             {
               std::lock_guard<std::mutex> lock(state_mtx_);
-              if (store_states_) que_states_in_.push(env.state().ToJson());
+              if (store_states) que_states_in_.push(env.state().ToJson());
             }
           }
 
@@ -307,7 +306,7 @@ EnvRunner::EnvRunner(const std::unordered_map<PlayerId, Agent*>& agents,
         }
         {
           std::lock_guard<std::mutex> lock(state_mtx_);
-          if (store_states_) que_states_in_.push(env.state().ToJson());
+          if (store_states) que_states_in_.push(env.state().ToJson());
         }
       }
 
@@ -320,10 +319,14 @@ EnvRunner::EnvRunner(const std::unordered_map<PlayerId, Agent*>& agents,
 
   // Move state jsons to queue for outputs
   auto que_states_th = std::thread([&] {
-    if (!store_states) return;
+    if (!store_states) {
+        que_states_out_.push(sentinel_end_);
+        return;
+    }
+
+    int sentinel_cnt = 0;
 
     std::queue<std::string> tmp;  // accessible only from this thread
-    int cnt_end = 0;
     while (true) {
       {
         {
@@ -336,18 +339,15 @@ EnvRunner::EnvRunner(const std::unordered_map<PlayerId, Agent*>& agents,
         {
           std::lock_guard<std::mutex> lock(que_states_out_mtx_);
           while (!tmp.empty()) {
-            const auto& str = tmp.front();
-            if (str == sentinel_end_) {
-              cnt_end++;
-            } else {
-              que_states_out_.push(str);
-            }
+            auto str = tmp.front();
             tmp.pop();
+            if (str == sentinel_end_) sentinel_cnt++;
+            else que_states_out_.push(str);
           }
         }
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
-        if (cnt_end == num_parallels) {
-          game_threads_end_ = true;
+        if (sentinel_cnt == num_parallels) {
+          que_states_out_.push(sentinel_end_);
           break;
         }
       }
@@ -360,15 +360,8 @@ EnvRunner::EnvRunner(const std::unordered_map<PlayerId, Agent*>& agents,
   que_states_th.join();
 }
 
-bool EnvRunner::que_state_empty() const {
-  if (!store_states_) return true;
-  return is_que_states_out_empty_;
-}
-
-std::string EnvRunner::pop_state() {
-  assert(!que_state_empty());
-  assert(store_states_);
-  std::string ret;
+std::optional<std::string> EnvRunner::pop_state() {
+  std::optional<std::string> ret;
   while (true) {
     if (!que_states_out_.empty()) break;
     std::this_thread::sleep_for(std::chrono::milliseconds(100));
@@ -377,8 +370,7 @@ std::string EnvRunner::pop_state() {
     std::lock_guard<std::mutex> lock(que_states_out_mtx_);
     ret = que_states_out_.front();
     que_states_out_.pop();
-    if (game_threads_end_ && que_states_out_.empty())
-      is_que_states_out_empty_ = true;
+    if (ret == sentinel_end_) ret = std::nullopt;
   }
   return ret;
 }

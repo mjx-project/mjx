@@ -18,8 +18,9 @@ TEST(env, Run) {
   int num_parallels = 5;
   auto runner = mjx::EnvRunner(agents, num_games, num_parallels, true);
   int game_over_cnt = 0;
-  while (!runner.que_state_empty()) {
-    if (mjx::State(runner.pop_state()).proto().round_terminal().is_game_over())
+  std::optional<std::string> state;
+  while ((state = runner.pop_state())) {
+    if (mjx::State(state.value()).proto().round_terminal().is_game_over())
       game_over_cnt++;
   }
   EXPECT_EQ(num_games, game_over_cnt);
@@ -28,13 +29,7 @@ TEST(env, Run) {
   num_games = 32;
   num_parallels = 5;
   auto runner2 = mjx::EnvRunner(agents, num_games, num_parallels, false);
-  game_over_cnt = 0;
-  while (!runner2.que_state_empty()) {
-    // assume not called
-    if (mjx::State(runner2.pop_state()).proto().round_terminal().is_game_over())
-      game_over_cnt++;
-  }
-  EXPECT_EQ(0, game_over_cnt);
+  EXPECT_EQ(runner2.pop_state(), std::nullopt);
 }
 
 TEST(env, MjxEnv) {
