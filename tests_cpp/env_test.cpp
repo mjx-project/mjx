@@ -4,7 +4,7 @@
 
 #include "gtest/gtest.h"
 
-TEST(env, run) {
+TEST(env, Run) {
   auto agent = std::make_shared<mjx::RandomDebugAgent>();
   std::unordered_map<mjx::PlayerId, mjx::Agent*> agents = {
       {"player_0", agent.get()},
@@ -13,6 +13,10 @@ TEST(env, run) {
       {"player_3", agent.get()},
   };
   auto runner = mjx::EnvRunner(agents);
+  EXPECT_NE(runner.que_state_size(), 0);
+  while (runner.que_state_size() > 0) {
+    std::cout << runner.pop_state() << std::endl;
+  }
 }
 
 TEST(env, MjxEnv) {

@@ -259,4 +259,37 @@ void PettingZooMahjongEnv::UpdateAgentsToAct() noexcept {
     agents_to_act_.push_back(agent);
   }
 }
+
+EnvRunner::EnvRunner(const std::unordered_map<PlayerId, Agent*>& agents) {
+  auto env = MjxEnv();
+  auto observations = env.Reset();
+  while (!env.Done()) {
+    // TODO: Fix env.state().proto().has_round_terminal() in the efficient way
+    if (env.state().proto().has_round_terminal()) {
+      que_states_in_.push(env.state().ToJson());
+    }
+    std::unordered_map<PlayerId, mjx::Action> action_dict;
+    for (const auto& [player_id, observation] : observations) {
+      auto action = agents.at(player_id)->Act(observation);
+      action_dict[player_id] = mjx::Action(action);
+    }
+    observations = env.Step(action_dict);
+  }
+  que_states_in_.push(env.state().ToJson());
+
+  while (!que_states_in_.empty()) {
+    que_states_out_.push(que_states_in_.front());
+    que_states_in_.pop();
+  }
+}
+
+int EnvRunner::que_state_size() const {
+  return que_states_out_.size();
+}
+
+std::string EnvRunner::pop_state() {
+  auto ret = que_states_out_.front();
+  que_states_out_.pop();
+  return ret;
+}
 }  // namespace mjx
