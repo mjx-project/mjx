@@ -12,14 +12,27 @@ TEST(env, Run) {
       {"player_2", agent.get()},
       {"player_3", agent.get()},
   };
+
+  // Store states
   int num_games = 32;
   int num_parallels = 5;
-  auto runner = mjx::EnvRunner(agents, num_games, num_parallels);
+  auto runner = mjx::EnvRunner(agents, num_games, num_parallels, true);
   int game_over_cnt = 0;
   while (!runner.que_state_empty()) {
     if(mjx::State(runner.pop_state()).proto().round_terminal().is_game_over()) game_over_cnt++;
   }
   EXPECT_EQ(num_games, game_over_cnt);
+
+  // Not store states
+  num_games = 32;
+  num_parallels = 5;
+  auto runner2 = mjx::EnvRunner(agents, num_games, num_parallels, false);
+  game_over_cnt = 0;
+  while (!runner2.que_state_empty()) {
+    // assume not called
+    if(mjx::State(runner2.pop_state()).proto().round_terminal().is_game_over()) game_over_cnt++;
+  }
+  EXPECT_EQ(0, game_over_cnt);
 }
 
 TEST(env, MjxEnv) {

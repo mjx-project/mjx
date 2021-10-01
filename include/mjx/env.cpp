@@ -260,7 +260,11 @@ void PettingZooMahjongEnv::UpdateAgentsToAct() noexcept {
   }
 }
 
-EnvRunner::EnvRunner(const std::unordered_map<PlayerId, Agent*>& agents, int num_games, int num_parallels) {
+EnvRunner::EnvRunner(const std::unordered_map<PlayerId, Agent*>& agents,
+                     int num_games,
+                     int num_parallels,
+                     bool store_states):
+  store_states_(store_states) {
   std::vector<std::thread> threads;
 
   std::mutex j_mtx;
@@ -288,10 +292,10 @@ EnvRunner::EnvRunner(const std::unordered_map<PlayerId, Agent*>& agents, int num
         auto observations = env.Reset();
         while (!env.Done()) {
           // TODO: Fix env.state().proto().has_round_terminal() in the efficient way
-          if (env.state().proto().has_round_terminal()) {
+          if (store_states && env.state().proto().has_round_terminal()) {
             {
               std::lock_guard<std::mutex> lock(state_mtx_);
-              que_states_in_.push(env.state().ToJson());
+              if (store_states_) que_states_in_.push(env.state().ToJson());
             }
           }
 
@@ -304,19 +308,21 @@ EnvRunner::EnvRunner(const std::unordered_map<PlayerId, Agent*>& agents, int num
         }
         {
           std::lock_guard<std::mutex> lock(state_mtx_);
-          que_states_in_.push(env.state().ToJson());
+          if (store_states_) que_states_in_.push(env.state().ToJson());
         }
       }
 
       {
         std::lock_guard<std::mutex> lock(state_mtx_);
-        que_states_in_.push("<END>");
+        if (store_states) que_states_in_.push("<END>");
       }
     }));
   }
 
   // Move state jsons to queue for outputs
   auto que_states_th = std::thread([&] {
+    if (!store_states) return;
+
     std::queue<std::string> tmp;  // accessible only from this thread
     int cnt_end = 0;
     while (true) {
@@ -356,10 +362,13 @@ EnvRunner::EnvRunner(const std::unordered_map<PlayerId, Agent*>& agents, int num
 }
 
 bool EnvRunner::que_state_empty() const {
+  if (!store_states_) return true;
   return is_que_states_out_empty_;
 }
 
 std::string EnvRunner::pop_state() {
+  assert(!que_state_empty());
+  assert(store_states_);
   std::string ret;
   while (true) {
     if (!que_states_out_.empty()) break;
