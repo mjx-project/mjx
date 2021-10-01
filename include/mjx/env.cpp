@@ -265,8 +265,8 @@ EnvRunner::EnvRunner(const std::unordered_map<PlayerId, Agent*>& agents,
     : store_states_(store_states) {
   std::vector<std::thread> threads;
 
-  std::mutex j_mtx;
-  int j = 0;
+  std::mutex mtx_thread_idx;
+  int thread_idx = 0;
 
   // Run games
   for (int i = 0; i < num_parallels; ++i) {
@@ -276,16 +276,14 @@ EnvRunner::EnvRunner(const std::unordered_map<PlayerId, Agent*>& agents,
 
       // E.g., num_games = 100, num_parallels = 16
       // - num_games / num_parallels = 6
-      // - offset = (int)(j < (num_games - (num_games / num_parallels) *
-      // num_parallels))
-      //          = (int)(j < (100 - 6 * 16))
-      //          = (int)(j < 4)
-      //          = 1 if i < 4 else 0
+      // - offset = (int)(thread_idx < (100 - 6 * 16))
+      //          = (int)(thread_idx < 4)
+      //          = 1 if thread_idx < 4 else 0
       {
-        std::lock_guard<std::mutex> lock(j_mtx);
-        offset = (int)(j < (num_games -
+        std::lock_guard<std::mutex> lock(mtx_thread_idx);
+        offset = (int)(thread_idx < (num_games -
                             (num_games / num_parallels) * num_parallels));
-        ++j;
+        ++thread_idx;
       }
 
       for (int n = 0; n < num_games / num_parallels + offset; ++n) {
