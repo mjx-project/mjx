@@ -103,7 +103,7 @@ class PettingZooMahjongEnv {
 
 class EnvRunner {
  public:
-  explicit EnvRunner(const std::unordered_map<PlayerId, Agent*>& agents, int num_parallels);
+  explicit EnvRunner(const std::unordered_map<PlayerId, Agent*>& agents, int num_games, int num_parallels);
   bool que_state_empty() const;
   std::string pop_state();
  private:

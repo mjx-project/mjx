@@ -260,34 +260,54 @@ void PettingZooMahjongEnv::UpdateAgentsToAct() noexcept {
   }
 }
 
-EnvRunner::EnvRunner(const std::unordered_map<PlayerId, Agent*>& agents, int num_parallels) {
+EnvRunner::EnvRunner(const std::unordered_map<PlayerId, Agent*>& agents, int num_games, int num_parallels) {
   std::vector<std::thread> threads;
+
+  std::mutex j_mtx;
+  int j = 0;
 
   // Run games
   for (int i = 0; i < num_parallels; ++i) {
     threads.emplace_back(std::thread([&] {
       auto env = MjxEnv();
-      auto observations = env.Reset();
-      while (!env.Done()) {
-        // TODO: Fix env.state().proto().has_round_terminal() in the efficient way
-        if (env.state().proto().has_round_terminal()) {
-          {
-            std::lock_guard<std::mutex> lock(state_mtx_);
-            que_states_in_.push(env.state().ToJson());
-          }
-        }
+      int offset = 0;
 
-        std::unordered_map<PlayerId, mjx::Action> action_dict;
-        for (const auto& [player_id, observation] : observations) {
-          auto action = agents.at(player_id)->Act(observation);
-          action_dict[player_id] = mjx::Action(action);
-        }
-        observations = env.Step(action_dict);
-      }
+      // E.g., num_games = 100, num_parallels = 16
+      // - num_games / num_parallels = 6
+      // - offset = (int)(j < (num_games - (num_games / num_parallels) * num_parallels))
+      //          = (int)(j < (100 - 6 * 16))
+      //          = (int)(j < 4)
+      //          = 1 if i < 4 else 0
       {
-        std::lock_guard<std::mutex> lock(state_mtx_);
-        que_states_in_.push(env.state().ToJson());
+        std::lock_guard<std::mutex> lock(j_mtx);
+        offset =(int)(j < (num_games - (num_games / num_parallels) * num_parallels));
+        ++j;
       }
+
+      for (int n = 0; n < num_games / num_parallels + offset; ++n) {
+        auto observations = env.Reset();
+        while (!env.Done()) {
+          // TODO: Fix env.state().proto().has_round_terminal() in the efficient way
+          if (env.state().proto().has_round_terminal()) {
+            {
+              std::lock_guard<std::mutex> lock(state_mtx_);
+              que_states_in_.push(env.state().ToJson());
+            }
+          }
+
+          std::unordered_map<PlayerId, mjx::Action> action_dict;
+          for (const auto& [player_id, observation] : observations) {
+            auto action = agents.at(player_id)->Act(observation);
+            action_dict[player_id] = mjx::Action(action);
+          }
+          observations = env.Step(action_dict);
+        }
+        {
+          std::lock_guard<std::mutex> lock(state_mtx_);
+          que_states_in_.push(env.state().ToJson());
+        }
+      }
+
       {
         std::lock_guard<std::mutex> lock(state_mtx_);
         que_states_in_.push("<END>");
