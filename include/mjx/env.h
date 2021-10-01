@@ -117,7 +117,7 @@ class EnvRunner {
   std::queue<std::string> que_states_out_;
   bool game_threads_end_ = false;
   bool is_que_states_out_empty_ = false;
-
+  const std::string sentinel_end_ = "<QUEUE_END>";
 };
 
 }  // namespace mjx

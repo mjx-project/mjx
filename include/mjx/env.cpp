@@ -313,7 +313,7 @@ EnvRunner::EnvRunner(const std::unordered_map<PlayerId, Agent*>& agents,
 
       {
         std::lock_guard<std::mutex> lock(state_mtx_);
-        if (store_states) que_states_in_.push("<END>");
+        if (store_states) que_states_in_.push(sentinel_end_);
       }
     }));
   }
@@ -337,7 +337,7 @@ EnvRunner::EnvRunner(const std::unordered_map<PlayerId, Agent*>& agents,
           std::lock_guard<std::mutex> lock(que_states_out_mtx_);
           while (!tmp.empty()) {
             const auto& str = tmp.front();
-            if (str == "<END>") {
+            if (str == sentinel_end_) {
               cnt_end++;
             } else {
               que_states_out_.push(str);
