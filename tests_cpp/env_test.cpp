@@ -13,7 +13,6 @@ TEST(env, run) {
       {"player_3", agent.get()},
   };
   auto runner = mjx::EnvRunner(agents);
-  runner.Run();
 }
 
 TEST(env, MjxEnv) {

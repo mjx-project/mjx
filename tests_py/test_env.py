@@ -13,7 +13,7 @@ def test_EnvRunner():
         "player_2": _mjx.RandomDebugAgent(),
         "player_3": _mjx.RandomDebugAgent(),
     }
-    _mjx.EnvRunner.run(agents)
+    runner = _mjx.EnvRunner(agents)
 
 
 def test_MjxEnv():
