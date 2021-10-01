@@ -103,13 +103,16 @@ class PettingZooMahjongEnv {
 
 class EnvRunner {
  public:
-  explicit EnvRunner(const std::unordered_map<PlayerId, Agent*>& agents);
-  int que_state_size() const;
+  explicit EnvRunner(const std::unordered_map<PlayerId, Agent*>& agents, int num_parallels);
+  bool que_state_empty() const;
   std::string pop_state();
  private:
   std::mutex state_mtx_;
+  std::mutex que_states_out_mtx_;
   std::queue<std::string> que_states_in_;
   std::queue<std::string> que_states_out_;
+  bool game_threads_end_ = false;
+  bool is_que_states_out_empty_ = false;
 };
 
 }  // namespace mjx
