@@ -106,7 +106,7 @@ class EnvRunner {
   explicit EnvRunner(const std::unordered_map<PlayerId, Agent*>& agents,
                      int num_games, int num_parallels,
                      bool store_states = true);
-  bool que_state_empty() const;
+  [[nodiscard]] bool que_state_empty() const;
   std::string pop_state();
 
  private:
