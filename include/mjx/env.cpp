@@ -272,7 +272,6 @@ EnvRunner::EnvRunner(const std::unordered_map<PlayerId, Agent*>& agents,
   for (int i = 0; i < num_parallels; ++i) {
     threads.emplace_back(std::thread([&] {
       auto env = MjxEnv();
-      int offset = 0;
 
       // E.g., num_games = 100, num_parallels = 16
       // - num_games / num_parallels = 6
@@ -281,10 +280,10 @@ EnvRunner::EnvRunner(const std::unordered_map<PlayerId, Agent*>& agents,
       //          = (int)(j < (100 - 6 * 16))
       //          = (int)(j < 4)
       //          = 1 if i < 4 else 0
+      int offset = (int)(j < (num_games -
+                              (num_games / num_parallels) * num_parallels));
       {
         std::lock_guard<std::mutex> lock(j_mtx);
-        offset = (int)(j < (num_games -
-                            (num_games / num_parallels) * num_parallels));
         ++j;
       }
 
