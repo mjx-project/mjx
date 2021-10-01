@@ -261,10 +261,8 @@ void PettingZooMahjongEnv::UpdateAgentsToAct() noexcept {
 }
 
 EnvRunner::EnvRunner(const std::unordered_map<PlayerId, Agent*>& agents,
-                     int num_games,
-                     int num_parallels,
-                     bool store_states):
-  store_states_(store_states) {
+                     int num_games, int num_parallels, bool store_states)
+    : store_states_(store_states) {
   std::vector<std::thread> threads;
 
   std::mutex j_mtx;
@@ -278,20 +276,23 @@ EnvRunner::EnvRunner(const std::unordered_map<PlayerId, Agent*>& agents,
 
       // E.g., num_games = 100, num_parallels = 16
       // - num_games / num_parallels = 6
-      // - offset = (int)(j < (num_games - (num_games / num_parallels) * num_parallels))
+      // - offset = (int)(j < (num_games - (num_games / num_parallels) *
+      // num_parallels))
       //          = (int)(j < (100 - 6 * 16))
       //          = (int)(j < 4)
       //          = 1 if i < 4 else 0
       {
         std::lock_guard<std::mutex> lock(j_mtx);
-        offset =(int)(j < (num_games - (num_games / num_parallels) * num_parallels));
+        offset = (int)(j < (num_games -
+                            (num_games / num_parallels) * num_parallels));
         ++j;
       }
 
       for (int n = 0; n < num_games / num_parallels + offset; ++n) {
         auto observations = env.Reset();
         while (!env.Done()) {
-          // TODO: Fix env.state().proto().has_round_terminal() in the efficient way
+          // TODO: Fix env.state().proto().has_round_terminal() in the efficient
+          // way
           if (store_states && env.state().proto().has_round_terminal()) {
             {
               std::lock_guard<std::mutex> lock(state_mtx_);
@@ -329,14 +330,14 @@ EnvRunner::EnvRunner(const std::unordered_map<PlayerId, Agent*>& agents,
       {
         {
           std::lock_guard<std::mutex> lock(state_mtx_);
-          while(!que_states_in_.empty()) {
+          while (!que_states_in_.empty()) {
             tmp.push(que_states_in_.front());
             que_states_in_.pop();
           }
         }
         {
           std::lock_guard<std::mutex> lock(que_states_out_mtx_);
-          while(!tmp.empty()) {
+          while (!tmp.empty()) {
             const auto& str = tmp.front();
             if (str == "<END>") {
               cnt_end++;
@@ -355,7 +356,7 @@ EnvRunner::EnvRunner(const std::unordered_map<PlayerId, Agent*>& agents,
     }
   });
 
-  for (auto &thread : threads) {
+  for (auto& thread : threads) {
     thread.join();
   }
   que_states_th.join();
@@ -378,7 +379,8 @@ std::string EnvRunner::pop_state() {
     std::lock_guard<std::mutex> lock(que_states_out_mtx_);
     ret = que_states_out_.front();
     que_states_out_.pop();
-    if (game_threads_end_ && que_states_out_.empty()) is_que_states_out_empty_ = true;
+    if (game_threads_end_ && que_states_out_.empty())
+      is_que_states_out_empty_ = true;
   }
   return ret;
 }
