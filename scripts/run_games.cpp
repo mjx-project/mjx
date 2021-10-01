@@ -9,5 +9,6 @@ int main() {
       {"player_2", agent.get()},
       {"player_3", agent.get()},
   };
-  mjx::EnvRunner::Run(agents);
+  auto runner = mjx::EnvRunner(agents);
+  runner.Run();
 }

@@ -103,14 +103,15 @@ class PettingZooMahjongEnv {
 
 class EnvRunner {
  public:
-  static void Run(const std::unordered_map<PlayerId, Agent*>& agents) {
+  explicit EnvRunner(const std::unordered_map<PlayerId, Agent*>& agents): agents_(agents) {}
+  void Run() {
     auto env = MjxEnv();
     auto observations = env.Reset();
     while (!env.Done()) {
       {
         std::unordered_map<PlayerId, mjx::Action> action_dict;
         for (const auto& [player_id, observation] : observations) {
-          auto action = agents.at(player_id)->Act(observation);
+          auto action = agents_.at(player_id)->Act(observation);
           action_dict[player_id] = mjx::Action(action);
         }
         observations = env.Step(action_dict);
@@ -118,6 +119,8 @@ class EnvRunner {
     }
     std::cerr << env.state().ToJson() << std::endl;
   }
+ private:
+  const std::unordered_map<PlayerId, Agent*>& agents_;
 };
 
 }  // namespace mjx
