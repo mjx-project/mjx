@@ -2,16 +2,13 @@ from typing import Union
 
 import inquirer
 
-import mjxproto
 from mjx.visualizer.converter import action_type_en, action_type_ja, get_tile_char
 from mjx.visualizer.visualizer import GameBoardVisualizer, GameVisualConfig, MahjongTable
+from mjxproto import Observation, State
 from mjxproto.mjx_pb2 import ActionType
 
 
 class Selector:
-    def __init__(self):
-        pass
-
     @classmethod
     def select_from_MahjongTable(cls, table: MahjongTable, unicode: bool = False, ja: int = 0):
         board_visualizer = GameBoardVisualizer(GameVisualConfig())
@@ -39,7 +36,7 @@ class Selector:
         ]
         answers = inquirer.prompt(questions)
 
-        if answers == None:
+        if answers is None:
             print("Incorrect choice was made.")
             return ActionType.ACTION_TYPE_DUMMY
 
@@ -50,8 +47,10 @@ class Selector:
     @classmethod
     def select_from_proto(
         cls,
-        proto_data: Union[mjxproto.Observation, mjxproto.State],
+        proto_data: Union[Observation, State],
         unicode: bool = False,
         ja: int = 0,
     ):
-        cls.select_from_MahjongTable(MahjongTable.from_proto(proto_data), unicode=unicode, ja=ja)
+        return cls.select_from_MahjongTable(
+            MahjongTable.from_proto(proto_data), unicode=unicode, ja=ja
+        )

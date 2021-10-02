@@ -6,7 +6,7 @@ from mjx.visualizer.visualizer import MahjongTable
 
 """
 このテストではカーソルキーを利用して選択する動作を行うが、
-pytestで実行するのが難しいためわざと自動テストされないようにしている
+pytestで実行するのが難しいため、わざとファイル名を変えて自動テストされないようにしている
 """
 
 
