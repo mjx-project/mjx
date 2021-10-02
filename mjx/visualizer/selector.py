@@ -11,15 +11,25 @@ from mjxproto.mjx_pb2 import ActionType
 class Selector:
     @classmethod
     def select_from_MahjongTable(cls, table: MahjongTable, unicode: bool = False, ja: int = 0):
+        """Make selector from State/Observation MahjongTable data.
+
+        Args
+        ----
+        table: MahjongTable
+        unicode: bool
+        ja: int (0-English,1-Japanese)
+        """
         board_visualizer = GameBoardVisualizer(GameVisualConfig())
         board_visualizer.print(table)
 
         if table.legal_actions == []:
+            # 本来は return None
+            # 今は空っぽの時でも結果を見たいので、ダミーを出しておく
             table.legal_actions = [
                 (ActionType.ACTION_TYPE_CHI, 10),
                 (ActionType.ACTION_TYPE_PON, 20),
                 (ActionType.ACTION_TYPE_OPEN_KAN, 30),
-            ]  # 空っぽの時でも結果を見たいので、ダミーを出しておく
+            ]
 
         choice = [
             (action_type_en[actions[0]] if ja == 0 else action_type_ja[actions[0]])
@@ -51,6 +61,14 @@ class Selector:
         unicode: bool = False,
         ja: int = 0,
     ):
+        """Make selector from State/Observation MahjongTable data.
+
+        Args
+        ----
+        proto_data: State or observation proto
+        unicode: bool
+        ja: int (0-English,1-Japanese)
+        """
         return cls.select_from_MahjongTable(
             MahjongTable.from_proto(proto_data), unicode=unicode, ja=ja
         )
