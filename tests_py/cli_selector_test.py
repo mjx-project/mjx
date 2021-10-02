@@ -20,30 +20,38 @@ def select_test():
     )
     files = glob.glob(obs_files)
     for filename in files:
-        for i in range(10):
+        for i in range(5):
             proto_data_list = MahjongTable.load_proto_data(filename)
             proto_data = MahjongTable.from_proto(proto_data_list[i])
             answer = Selector.select_from_MahjongTable(proto_data)
-            print(f"1:You selected '{answer}'.")
+            print(f"1 :'{answer}'.")
+            answer = Selector.select_from_MahjongTable(proto_data, unicode=True, ja=1)
+            print(f"2 (uni,ja):'{answer}'.")
 
-        for i in range(10):
+        for i in range(5):
             proto_data_list = MahjongTable.load_proto_data(filename)
             answer = Selector.select_from_proto(proto_data_list[i])
-            print(f"2:You selected '{answer}'.")
+            print(f"3 :'{answer}'.")
+            answer = Selector.select_from_proto(proto_data_list[i], unicode=True, ja=1)
+            print(f"4 (uni,ja):'{answer}'.")
 
     obs_files = os.path.join(os.path.dirname(os.path.abspath(__file__)), "resources/state/*.json")
     files = glob.glob(obs_files)
     for filename in files:
-        for i in range(10):
+        for i in range(5):
             proto_data_list = MahjongTable.load_proto_data(filename)
             proto_data = MahjongTable.from_proto(proto_data_list[i])
             answer = Selector.select_from_MahjongTable(proto_data)
-            print(f"1:You selected '{answer}'.")
+            print(f"1 :'{answer}'.")
+            answer = Selector.select_from_MahjongTable(proto_data, unicode=True, ja=1)
+            print(f"2 (uni,ja):'{answer}'.")
 
-        for i in range(10):
+        for i in range(5):
             proto_data_list = MahjongTable.load_proto_data(filename)
             answer = Selector.select_from_proto(proto_data_list[i])
-            print(f"2:You selected '{answer}'.")
+            print(f"3 :'{answer}'.")
+            answer = Selector.select_from_proto(proto_data_list[i], unicode=True, ja=1)
+            print(f"4 (uni,ja):'{answer}'.")
 
 
 if __name__ == "__main__":
