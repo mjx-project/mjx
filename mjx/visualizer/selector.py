@@ -1,8 +1,14 @@
-from typing import Union
+from typing import Optional, Union
 
 import inquirer
 
-from mjx.visualizer.converter import action_type_en, action_type_ja, get_tile_char
+from mjx.visualizer.converter import (
+    action_type_en,
+    action_type_ja,
+    get_tile_char,
+    to_char,
+    to_unicode,
+)
 from mjx.visualizer.visualizer import GameBoardVisualizer, GameVisualConfig, MahjongTable
 from mjxproto import Observation, State
 from mjxproto.mjx_pb2 import ActionType
@@ -48,11 +54,24 @@ class Selector:
 
         if answers is None:
             print("Incorrect choice was made.")
-            return ActionType.ACTION_TYPE_DUMMY
+            return (ActionType.ACTION_TYPE_DUMMY, int(0))
 
         item = answers["action"].split("-")[0]
+        id_str: str = answers["action"].split("-")[1]
+        id: Optional[int] = None
+        if unicode:
+            for i, k in enumerate(to_unicode):
+                if k == id_str:
+                    id = i
+                    break
+        else:
+            for i, k in enumerate(to_char):
+                if k == id_str:
+                    id = i
+                    break
+
         action = [k for k, v in [action_type_en, action_type_ja][ja].items() if v == item][0]
-        return action
+        return (action, id)
 
     @classmethod
     def select_from_proto(
