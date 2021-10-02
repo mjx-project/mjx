@@ -9,6 +9,9 @@ int main() {
       {"player_2", agent.get()},
       {"player_3", agent.get()},
   };
-  auto runner = mjx::EnvRunner(agents);
-  runner.Run();
+  auto runner = mjx::EnvRunner(agents, 1, 1, true);
+  std::optional<std::string> state_json;
+  while ( (state_json = runner.pop_state()) ) {
+    std::cerr << state_json.value() << std::endl;
+  }
 }
