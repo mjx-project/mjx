@@ -280,8 +280,8 @@ EnvRunner::EnvRunner(const std::unordered_map<PlayerId, Agent*>& agents,
       //          = 1 if thread_idx < 4 else 0
       {
         std::lock_guard<std::mutex> lock(mtx_thread_idx);
-        offset = (int)(thread_idx < (num_games -
-                            (num_games / num_parallels) * num_parallels));
+        offset = (int)(thread_idx < (num_games - (num_games / num_parallels) *
+                                                     num_parallels));
         ++thread_idx;
       }
 
@@ -320,8 +320,8 @@ EnvRunner::EnvRunner(const std::unordered_map<PlayerId, Agent*>& agents,
   // Move state jsons to queue for outputs
   auto que_states_th = std::thread([&] {
     if (!store_states) {
-        que_states_out_.push(sentinel_end_);
-        return;
+      que_states_out_.push(sentinel_end_);
+      return;
     }
 
     int sentinel_cnt = 0;
@@ -341,8 +341,10 @@ EnvRunner::EnvRunner(const std::unordered_map<PlayerId, Agent*>& agents,
           while (!tmp.empty()) {
             auto str = tmp.front();
             tmp.pop();
-            if (str == sentinel_end_) sentinel_cnt++;
-            else que_states_out_.push(str);
+            if (str == sentinel_end_)
+              sentinel_cnt++;
+            else
+              que_states_out_.push(str);
           }
         }
         std::this_thread::sleep_for(std::chrono::milliseconds(100));

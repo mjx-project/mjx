@@ -106,8 +106,8 @@ class EnvRunner {
   explicit EnvRunner(const std::unordered_map<PlayerId, Agent*>& agents,
                      int num_games, int num_parallels,
                      bool store_states = true);
-  // Return state json. If no state json is available, block till new one is pushed.
-  // If all games ended and all json are popped, return null.
+  // Return state json. If no state json is available, block till new one is
+  // pushed. If all games ended and all json are popped, return null.
   std::optional<std::string> pop_state();
 
  private:
