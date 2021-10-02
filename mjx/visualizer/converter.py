@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from enum import Enum
 
-from mjxproto import EventType, ActionType
+from mjxproto import ActionType, EventType
 
 
 class TileUnitType(Enum):
@@ -257,6 +257,7 @@ action_type_ja = {
     ActionType.ACTION_TYPE_NO: "無し",
     ActionType.ACTION_TYPE_DUMMY: "ダミー",
 }
+
 
 def get_tile_char(tile_id: int, is_using_unicode: bool) -> str:
     if tile_id < 0 or 136 < tile_id:

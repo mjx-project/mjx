@@ -3,7 +3,7 @@ from __future__ import annotations
 import json
 import sys
 from dataclasses import dataclass
-from typing import List, Optional, Union
+from typing import List, Optional, Tuple, Union
 
 from google.protobuf import json_format
 from rich.console import Console
@@ -98,7 +98,7 @@ class MahjongTable:
         self.uradoras: List[int] = []
         self.result: str = ""
         self.event_info: Optional[EventType.V]
-        self.legal_actions: List[ActionType.V, int]
+        self.legal_actions: List[Tuple[ActionType.V, int]]
 
     def get_wall_num(self) -> int:
         all = 136 - 14
@@ -417,10 +417,11 @@ class MahjongTable:
 
         table.wall_num = cls.get_wall_num(table)
         table.legal_actions = [
-            [act.type, act.tile]
+            (act.type, act.tile)
             for act in proto_data.legal_actions
             if act.type != ActionType.ACTION_TYPE_DUMMY
         ]
+
         if len(proto_data.public_observation.events) != 0:
             if table.result == "win":
                 table = cls.decode_round_terminal(table, proto_data.round_terminal, True)
