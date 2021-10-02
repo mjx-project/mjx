@@ -19,7 +19,10 @@ def select_test():
         proto_data_list = MahjongTable.load_proto_data(filename)
         proto_data = MahjongTable.from_proto(proto_data_list[0])
         answer = Selector.select_from_MahjongTable(proto_data)
-        print(f"You selected '{answer}'.")
+        print(f"1:You selected '{answer}'.")
+
+        answer = Selector.select_from_proto(proto_data_list[0])
+        print(f"2:You selected '{answer}'.")
 
     obs_files = os.path.join(os.path.dirname(os.path.abspath(__file__)), "resources/state/*.json")
     files = glob.glob(obs_files)
@@ -27,7 +30,10 @@ def select_test():
         proto_data_list = MahjongTable.load_proto_data(filename)
         proto_data = MahjongTable.from_proto(proto_data_list[0])
         answer = Selector.select_from_MahjongTable(proto_data)
-        print(f"You selected '{answer}'.")
+        print(f"1:You selected '{answer}'.")
+
+        answer = Selector.select_from_proto(proto_data_list[0])
+        print(f"2:You selected '{answer}'.")
 
 
 if __name__ == "__main__":

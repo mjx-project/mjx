@@ -1,5 +1,8 @@
+from typing import Union
+
 import inquirer
 
+import mjxproto
 from mjx.visualizer.converter import action_type_en, action_type_ja, get_tile_char
 from mjx.visualizer.visualizer import GameBoardVisualizer, GameVisualConfig, MahjongTable
 from mjxproto.mjx_pb2 import ActionType
@@ -27,7 +30,6 @@ class Selector:
             + get_tile_char(actions[1], unicode)
             for actions in table.legal_actions
         ]
-
         questions = [
             inquirer.List(
                 "action",
@@ -36,5 +38,20 @@ class Selector:
             ),
         ]
         answers = inquirer.prompt(questions)
-        print(answers)
-        # return answer
+
+        if answers == None:
+            print("Incorrect choice was made.")
+            return ActionType.ACTION_TYPE_DUMMY
+
+        item = answers["action"].split("-")[0]
+        action = [k for k, v in [action_type_en, action_type_ja][ja].items() if v == item][0]
+        return action
+
+    @classmethod
+    def select_from_proto(
+        cls,
+        proto_data: Union[mjxproto.Observation, mjxproto.State],
+        unicode: bool = False,
+        ja: int = 0,
+    ):
+        cls.select_from_MahjongTable(MahjongTable.from_proto(proto_data), unicode=unicode, ja=ja)
