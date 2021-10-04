@@ -14,22 +14,9 @@ TEST(env, Run) {
   };
 
   // Store states
-  int num_games = 32;
-  int num_parallels = 5;
-  auto runner = mjx::EnvRunner(agents, num_games, num_parallels, true);
-  int game_over_cnt = 0;
-  std::optional<std::string> state;
-  while ((state = runner.pop_state())) {
-    if (mjx::State(state.value()).proto().round_terminal().is_game_over())
-      game_over_cnt++;
-  }
-  EXPECT_EQ(num_games, game_over_cnt);
-
-  // Not store states
-  num_games = 32;
-  num_parallels = 5;
-  auto runner2 = mjx::EnvRunner(agents, num_games, num_parallels, false);
-  EXPECT_EQ(runner2.pop_state(), std::nullopt);
+  int num_games = 1;
+  int num_parallels = 1;
+  mjx::EnvRunner(agents, num_games, num_parallels, "/Users/sotetsuk/github/mjx/states");
 }
 
 TEST(env, MjxEnv) {

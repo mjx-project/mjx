@@ -105,17 +105,7 @@ class EnvRunner {
  public:
   explicit EnvRunner(const std::unordered_map<PlayerId, Agent*>& agents,
                      int num_games, int num_parallels,
-                     bool store_states = true);
-  // Return state json. If no state json is available, block till new one is
-  // pushed. If all games ended and all json are popped, return null.
-  std::optional<std::string> pop_state();
-
- private:
-  std::mutex state_mtx_;
-  std::mutex que_states_out_mtx_;
-  std::queue<std::string> que_states_in_;
-  std::queue<std::string> que_states_out_;
-  const std::string sentinel_end_ = "<QUEUE_END>";
+                     std::optional<std::string> states_save_dir = std::nullopt);
 };
 
 }  // namespace mjx
