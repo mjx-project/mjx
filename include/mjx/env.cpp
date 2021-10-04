@@ -99,10 +99,13 @@ mjxproto::GameResult MjxEnv::GameResult() const noexcept {
   mjxproto::GameResult game_result;
   game_result.set_game_seed(state_.game_seed());
   auto state_proto = state_.proto();  // TODO: avoid proto copy
-  game_result.mutable_player_ids()->CopyFrom(state_proto.public_observation().player_ids());
+  game_result.mutable_player_ids()->CopyFrom(
+      state_proto.public_observation().player_ids());
   auto result = state_.result();
-  for (const auto &[k, v]: result.tens) game_result.mutable_tens()->insert({k, v});
-  for (const auto &[k, v]: result.rankings) game_result.mutable_rankings()->insert({k, v});
+  for (const auto& [k, v] : result.tens)
+    game_result.mutable_tens()->insert({k, v});
+  for (const auto& [k, v] : result.rankings)
+    game_result.mutable_rankings()->insert({k, v});
   return game_result;
 }
 
@@ -326,7 +329,9 @@ EnvRunner::EnvRunner(const std::unordered_map<PlayerId, Agent*>& agents,
         if (states_save_dir) {
           state_json += env.state().ToJson() + "\n";
           // TODO: avoid env.state().proto().hidden_state().game_seed()
-          auto filename = state_file_name(states_save_dir.value(), env.state().proto().hidden_state().game_seed());
+          auto filename =
+              state_file_name(states_save_dir.value(),
+                              env.state().proto().hidden_state().game_seed());
           std::ofstream ofs(filename, std::ios::out);
           ofs << state_json;
         }
@@ -342,12 +347,14 @@ EnvRunner::EnvRunner(const std::unordered_map<PlayerId, Agent*>& agents,
 std::string EnvRunner::current_time() noexcept {
   // Follow ISO 8601 format
   auto now = std::chrono::system_clock::now();
-  auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(now.time_since_epoch()) % 1000;
+  auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(
+                now.time_since_epoch()) %
+            1000;
   auto timer = std::chrono::system_clock::to_time_t(now);
   std::ostringstream oss;
   std::tm bt = *std::localtime(&timer);
   // oss << std::put_time(&bt, "%H:%M:%S");
-  oss << std::put_time(&bt, "%Y-%m-%dT%H:%M:%S"); // HH:MM:SS
+  oss << std::put_time(&bt, "%Y-%m-%dT%H:%M:%S");  // HH:MM:SS
   oss << '.' << std::setfill('0') << std::setw(3) << ms.count();
   oss << 'Z';
   return oss.str();
