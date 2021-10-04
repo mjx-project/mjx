@@ -312,15 +312,9 @@ EnvRunner::EnvRunner(const std::unordered_map<PlayerId, Agent*>& agents,
 
         if (states_save_dir) {
           state_json += env.state().ToJson() + "\n";
-          std::filesystem::path dir(states_save_dir.value());
-          std::ostringstream oss;
-          oss << EnvRunner::current_time();
-          oss << "_";
-          oss << std::to_string(env.state().proto().hidden_state().game_seed());
-          oss << ".json";
-          std::filesystem::path filename(oss.str());
-
-          std::ofstream ofs(dir / filename, std::ios::out);
+          // TODO: avoid env.state().proto().hidden_state().game_seed()
+          auto filename = state_file_name(states_save_dir.value(), env.state().proto().hidden_state().game_seed());
+          std::ofstream ofs(filename, std::ios::out);
           ofs << state_json;
         }
       }
@@ -331,6 +325,7 @@ EnvRunner::EnvRunner(const std::unordered_map<PlayerId, Agent*>& agents,
     thread.join();
   }
 }
+
 std::string EnvRunner::current_time() noexcept {
   // Follow ISO 8601 format
   auto now = std::chrono::system_clock::now();
@@ -343,6 +338,17 @@ std::string EnvRunner::current_time() noexcept {
   oss << '.' << std::setfill('0') << std::setw(3) << ms.count();
   oss << 'Z';
   return oss.str();
+}
+
+std::string EnvRunner::state_file_name(const std::string& dir,
+                                       std::uint64_t seed) noexcept {
+  std::ostringstream oss;
+  oss << current_time();
+  oss << "_";
+  oss << std::to_string(seed);
+  oss << ".json";
+  std::filesystem::path filename(oss.str());
+  return std::filesystem::path(dir) / filename;
 }
 
 }  // namespace mjx

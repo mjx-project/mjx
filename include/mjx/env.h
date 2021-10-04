@@ -108,6 +108,7 @@ class EnvRunner {
                      std::optional<std::string> states_save_dir = std::nullopt);
  private:
   static std::string current_time() noexcept;
+  static std::string state_file_name(const std::string& dir, std::uint64_t seed) noexcept;
 };
 
 }  // namespace mjx
