@@ -16,7 +16,6 @@ class State {
 
   // utility
   std::string ToJson() const noexcept;
-  std::unordered_map<PlayerId, int> CalculateRankingDict() const noexcept;
 
   // accessors
   const mjxproto::State& proto() const noexcept;

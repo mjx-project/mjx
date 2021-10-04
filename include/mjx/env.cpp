@@ -81,8 +81,9 @@ std::unordered_map<PlayerId, int> MjxEnv::Rewards() const noexcept {
     }
     return rewards;
   }
+  auto game_result = GameResult();
   const std::map<int, int> reward_map = {{1, 90}, {2, 45}, {3, 0}, {4, -135}};
-  const auto ranking_dict = state().CalculateRankingDict();
+  const auto& ranking_dict = game_result.rankings();
   for (const auto& [player_id, ranking] : ranking_dict) {
     rewards[player_id] = reward_map.at(ranking);
   }
@@ -91,6 +92,18 @@ std::unordered_map<PlayerId, int> MjxEnv::Rewards() const noexcept {
 
 Observation MjxEnv::observation(const PlayerId& player_id) const noexcept {
   return Observation(state_.observation(player_id));
+}
+
+mjxproto::GameResult MjxEnv::GameResult() const noexcept {
+  assert(Done());
+  mjxproto::GameResult game_result;
+  game_result.set_game_seed(state_.game_seed());
+  auto state_proto = state_.proto();  // TODO: avoid proto copy
+  game_result.mutable_player_ids()->CopyFrom(state_proto.public_observation().player_ids());
+  auto result = state_.result();
+  for (const auto &[k, v]: result.tens) game_result.mutable_tens()->insert({k, v});
+  for (const auto &[k, v]: result.rankings) game_result.mutable_rankings()->insert({k, v});
+  return game_result;
 }
 
 mjx::RLlibMahjongEnv::RLlibMahjongEnv() {}
@@ -121,7 +134,7 @@ RLlibMahjongEnv::Step(
     dones["__all__"] = false;
   } else {
     auto state = env_.state();
-    auto ranking_dict = state.CalculateRankingDict();
+    auto ranking_dict = env_.GameResult().rankings();
     for (const auto& [k, v] : observations) {
       auto ranking = ranking_dict[k];
       rewards[k] = reward_map_.at(ranking);
@@ -212,7 +225,7 @@ void PettingZooMahjongEnv::Step(Action action) noexcept {
   if (done) {
     // update rewards_
     auto state = env_.state();
-    auto ranking_dict = state.CalculateRankingDict();
+    auto ranking_dict = env_.GameResult().rankings();
     for (const auto& agent : possible_agents_) {
       auto ranking = ranking_dict.at(agent);
       rewards_[agent] = reward_map_.at(ranking);

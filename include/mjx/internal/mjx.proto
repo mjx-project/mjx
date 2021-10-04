@@ -99,7 +99,7 @@ message Event {
 
 message PublicObservation {
   string game_id = 1;
-  repeated string player_ids = 2;
+  repeated string player_ids = 2;  // Sorted by the dealer order (起家, ..., ラス親)
   Score init_score = 3;  // public info
   repeated uint32 dora_indicators = 4;  // len(dora_indicators) = 1 + # of Kan
   repeated Event events = 5;
@@ -187,4 +187,11 @@ message Action {
   ActionType type = 3;
   uint32 tile = 4;
   uint32 open = 5;
+}
+
+message GameResult {
+  uint64 game_seed = 1;
+  repeated string player_ids = 2;  // Sorted by the dealer order (起家, ..., ラス親)
+  map<string, int32> tens = 3;
+  map<string, int32> rankings = 4;  // ranking in {1, 2, 3, 4}
 }

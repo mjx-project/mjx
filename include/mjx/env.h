@@ -21,6 +21,7 @@ class MjxEnv {
   bool Done() const noexcept;
   std::unordered_map<PlayerId, int> Rewards()
       const noexcept;  // TDOO: reward type
+  mjxproto::GameResult GameResult() const noexcept;
 
   // accessors
   State state() const noexcept;
