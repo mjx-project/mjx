@@ -280,18 +280,20 @@ void PettingZooMahjongEnv::UpdateAgentsToAct() noexcept {
 
 EnvRunner::EnvRunner(const std::unordered_map<PlayerId, Agent*>& agents,
                      int num_games, int num_parallels,
-                     std::optional<std::string> states_save_dir) {
+                     std::optional<std::string> states_save_dir,
+                     std::optional<std::string> results_save_file) {
   std::vector<std::thread> threads;
 
   std::mutex mtx_thread_idx;
   int thread_idx = 0;
 
+  std::mutex mtx_game_result;
+  std::ofstream ofs_results;
+  if (results_save_file) ofs_results = std::ofstream (results_save_file.value(), std::ios::app);
+
   // Run games
   for (int i = 0; i < num_parallels; ++i) {
     threads.emplace_back(std::thread([&] {
-      auto t = std::time(nullptr);
-      auto tm = *std::localtime(&t);
-
       auto env = MjxEnv();
       int offset = 0;
 
@@ -329,11 +331,19 @@ EnvRunner::EnvRunner(const std::unordered_map<PlayerId, Agent*>& agents,
         if (states_save_dir) {
           state_json += env.state().ToJson() + "\n";
           // TODO: avoid env.state().proto().hidden_state().game_seed()
-          auto filename =
-              state_file_name(states_save_dir.value(),
-                              env.state().proto().hidden_state().game_seed());
-          std::ofstream ofs(filename, std::ios::out);
-          ofs << state_json;
+          auto filename = state_file_name(states_save_dir.value(), env.state().proto().hidden_state().game_seed());
+          std::ofstream ofs_states(filename, std::ios::out);
+          ofs_states << state_json;
+        }
+        if (results_save_file) {
+          std::string result_json;
+          auto status = google::protobuf::util::MessageToJsonString(
+              env.GameResult(), &result_json);
+          assert(status.ok());
+          {
+            std::lock_guard<std::mutex> lock(mtx_game_result);
+            ofs_results << result_json + "\n";
+          }
         }
       }
     }));

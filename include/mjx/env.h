@@ -106,8 +106,8 @@ class EnvRunner {
  public:
   explicit EnvRunner(const std::unordered_map<PlayerId, Agent*>& agents,
                      int num_games, int num_parallels,
-                     std::optional<std::string> states_save_dir = std::nullopt);
-
+                     std::optional<std::string> states_save_dir = std::nullopt,
+                     std::optional<std::string> results_save_file = std::nullopt);
  private:
   static std::string current_time() noexcept;
   static std::string state_file_name(const std::string& dir,
