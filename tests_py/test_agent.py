@@ -13,7 +13,7 @@ def test_RandomAgent():
         "player_2": mjx.agent.RandomAgent(),
         "player_3": mjx.agent.RandomAgent(),
     }
-    runner = _mjx.EnvRunner(agents, 1, 1)
+    runner = _mjx.EnvRunner(agents, 16, 4, None, None)
 
 
 def test_RandomDebugAgent():
@@ -23,7 +23,7 @@ def test_RandomDebugAgent():
         "player_2": mjx.agent.RandomDebugAgent(),
         "player_3": mjx.agent.RandomDebugAgent(),
     }
-    runner = _mjx.EnvRunner(agents, 1, 1)
+    runner = _mjx.EnvRunner(agents, 16, 4, None, None)
 
 
 def test_RuleBasedAgent():
@@ -33,4 +33,4 @@ def test_RuleBasedAgent():
         "player_2": mjx.agent.RuleBasedAgent(),
         "player_3": mjx.agent.RuleBasedAgent(),
     }
-    runner = _mjx.EnvRunner(agents, 1, 1)
+    runner = _mjx.EnvRunner(agents, 16, 4, None, None)
