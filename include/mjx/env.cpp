@@ -1,8 +1,8 @@
 #include "mjx/env.h"
 
-#include <utility>
 #include <filesystem>
 #include <fstream>
+#include <utility>
 
 namespace mjx {
 
@@ -263,7 +263,8 @@ void PettingZooMahjongEnv::UpdateAgentsToAct() noexcept {
 }
 
 EnvRunner::EnvRunner(const std::unordered_map<PlayerId, Agent*>& agents,
-                     int num_games, int num_parallels, std::optional<std::string> states_save_dir) {
+                     int num_games, int num_parallels,
+                     std::optional<std::string> states_save_dir) {
   std::vector<std::thread> threads;
 
   std::mutex mtx_thread_idx;
