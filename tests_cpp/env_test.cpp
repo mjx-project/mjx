@@ -14,8 +14,8 @@ TEST(env, Run) {
   };
 
   // Store states
-  int num_games = 1;
-  int num_parallels = 1;
+  int num_games = 32;
+  int num_parallels = 4;
   mjx::EnvRunner(agents, num_games, num_parallels,
                  "/Users/sotetsuk/github/mjx/states");
 }

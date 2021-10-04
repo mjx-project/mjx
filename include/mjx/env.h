@@ -106,6 +106,8 @@ class EnvRunner {
   explicit EnvRunner(const std::unordered_map<PlayerId, Agent*>& agents,
                      int num_games, int num_parallels,
                      std::optional<std::string> states_save_dir = std::nullopt);
+ private:
+  static std::string current_time() noexcept;
 };
 
 }  // namespace mjx

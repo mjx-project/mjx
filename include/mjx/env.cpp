@@ -314,7 +314,7 @@ EnvRunner::EnvRunner(const std::unordered_map<PlayerId, Agent*>& agents,
           state_json += env.state().ToJson() + "\n";
           std::filesystem::path dir(states_save_dir.value());
           std::ostringstream oss;
-          oss << std::put_time(&tm, "%Y:%m:%d-%H:%M:%S");
+          oss << EnvRunner::current_time();
           oss << "_";
           oss << std::to_string(env.state().proto().hidden_state().game_seed());
           oss << ".json";
@@ -331,4 +331,18 @@ EnvRunner::EnvRunner(const std::unordered_map<PlayerId, Agent*>& agents,
     thread.join();
   }
 }
+std::string EnvRunner::current_time() noexcept {
+  // Follow ISO 8601 format
+  auto now = std::chrono::system_clock::now();
+  auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(now.time_since_epoch()) % 1000;
+  auto timer = std::chrono::system_clock::to_time_t(now);
+  std::ostringstream oss;
+  std::tm bt = *std::localtime(&timer);
+  // oss << std::put_time(&bt, "%H:%M:%S");
+  oss << std::put_time(&bt, "%Y-%m-%dT%H:%M:%S"); // HH:MM:SS
+  oss << '.' << std::setfill('0') << std::setw(3) << ms.count();
+  oss << 'Z';
+  return oss.str();
+}
+
 }  // namespace mjx
