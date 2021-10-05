@@ -42,6 +42,7 @@ def run(
     agent_addresses: Dict[str, str],
     num_games: int,
     num_parallels: int,
+    show_interval: int = 100,
     states_save_dir: Optional[str] = None,
     results_save_file: Optional[str] = None,
 ):
@@ -52,4 +53,4 @@ def run(
         assert os.path.isdir(states_save_dir)
 
     agents = {k: _mjx.GrpcAgent(addr) for k, addr in agent_addresses.items()}  # type: ignore
-    _mjx.EnvRunner(agents, num_games, num_parallels, states_save_dir, results_save_file)  # type: ignore
+    _mjx.EnvRunner(agents, num_games, num_parallels, show_interval, states_save_dir, results_save_file)  # type: ignore
