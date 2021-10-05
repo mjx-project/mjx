@@ -289,7 +289,8 @@ EnvRunner::EnvRunner(const std::unordered_map<PlayerId, Agent*>& agents,
 
   std::mutex mtx_game_result;
   std::ofstream ofs_results;
-  if (results_save_file) ofs_results = std::ofstream (results_save_file.value(), std::ios::app);
+  if (results_save_file)
+    ofs_results = std::ofstream(results_save_file.value(), std::ios::app);
 
   // Run games
   for (int i = 0; i < num_parallels; ++i) {
@@ -331,7 +332,9 @@ EnvRunner::EnvRunner(const std::unordered_map<PlayerId, Agent*>& agents,
         if (states_save_dir) {
           state_json += env.state().ToJson() + "\n";
           // TODO: avoid env.state().proto().hidden_state().game_seed()
-          auto filename = state_file_name(states_save_dir.value(), env.state().proto().hidden_state().game_seed());
+          auto filename =
+              state_file_name(states_save_dir.value(),
+                              env.state().proto().hidden_state().game_seed());
           std::ofstream ofs_states(filename, std::ios::out);
           ofs_states << state_json;
         }
