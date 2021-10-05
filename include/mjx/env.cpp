@@ -280,8 +280,10 @@ void PettingZooMahjongEnv::UpdateAgentsToAct() noexcept {
 
 EnvRunner::EnvRunner(const std::unordered_map<PlayerId, Agent*>& agents,
                      int num_games, int num_parallels,
+                     int show_interval,
                      std::optional<std::string> states_save_dir,
-                     std::optional<std::string> results_save_file) {
+                     std::optional<std::string> results_save_file):
+  num_games_(num_games), show_interval_(show_interval) {
   std::vector<std::thread> threads;
 
   std::mutex mtx_thread_idx;
@@ -329,6 +331,9 @@ EnvRunner::EnvRunner(const std::unordered_map<PlayerId, Agent*>& agents,
           observations = env.Step(action_dict);
         }
 
+        auto game_result = env.GameResult();
+
+        // Save state protobuf as json if necessary
         if (states_save_dir) {
           state_json += env.state().ToJson() + "\n";
           // TODO: avoid env.state().proto().hidden_state().game_seed()
@@ -338,16 +343,21 @@ EnvRunner::EnvRunner(const std::unordered_map<PlayerId, Agent*>& agents,
           std::ofstream ofs_states(filename, std::ios::out);
           ofs_states << state_json;
         }
+
+        // Save result json if necessary
         if (results_save_file) {
           std::string result_json;
           auto status = google::protobuf::util::MessageToJsonString(
-              env.GameResult(), &result_json);
+              game_result, &result_json);
           assert(status.ok());
           {
             std::lock_guard<std::mutex> lock(mtx_game_result);
             ofs_results << result_json + "\n";
           }
         }
+
+        // Update result summary
+        UpdateResults(game_result);
       }
     }));
   }
@@ -384,4 +394,49 @@ std::string EnvRunner::state_file_name(const std::string& dir,
   return std::filesystem::path(dir) / filename;
 }
 
+double EnvRunner::stable_dan(std::map<int, int> num_ranking) noexcept {
+  if (num_ranking.at(4) == 0) return 1000.0;  // INF
+  // For the definition of stable dan (安定段位, see these materials:
+  //   - Appendix C. https://arxiv.org/abs/2003.13590
+  //   - https://tenhou.net/man/#RANKING
+  double n1 = num_ranking.at(1);
+  double n2 = num_ranking.at(2);
+  double n4 = num_ranking.at(4);
+  return (5.0 * n1 + 2.0 * n2) / n4 - 2.0;
+}
+
+void EnvRunner::UpdateResults(const mjxproto::GameResult& game_result) noexcept {
+  std::lock_guard<std::mutex> lock(mtx_);
+  num_curr_games_++;
+  for (const auto& player_id: game_result.player_ids()) {
+    if (!num_rankings_.count(player_id)) num_rankings_[player_id] = {{1,0}, {2,0}, {3,0}, {4,0}};
+    num_rankings_[player_id][game_result.rankings().at(player_id)]++;
+  }
+  // TODO: add result summary structure
+  if (num_curr_games_ % show_interval_ == 0) {
+    std::ostringstream oss;
+    int tmp = num_games_;
+    int z = 0;
+    while (tmp) {
+      z++;
+      tmp /= 10;
+    }
+    oss << "# ";
+    oss << std::setfill('0') << std::setw(z) << num_curr_games_;
+    oss << " / ";
+    oss << num_games_;
+    oss << "\t";
+    std::map<PlayerId, double> stable_dans;
+    for (const auto& [player_id, num_ranking]: num_rankings_) {
+      stable_dans[player_id] = stable_dan(num_ranking);
+    }
+    for (const auto& [player_id, stable_dan]: stable_dans) {
+      oss << player_id;
+      oss << ": ";
+      oss << std::fixed << std::setprecision(3) << stable_dan;
+      oss << "\t";
+    }
+    std::cerr << oss.str() << std::endl;
+  }
+}
 }  // namespace mjx

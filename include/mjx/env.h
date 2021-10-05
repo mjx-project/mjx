@@ -106,14 +106,21 @@ class EnvRunner {
  public:
   explicit EnvRunner(
       const std::unordered_map<PlayerId, Agent*>& agents, int num_games,
-      int num_parallels,
+      int num_parallels, int show_interval = 100,
       std::optional<std::string> states_save_dir = std::nullopt,
       std::optional<std::string> results_save_file = std::nullopt);
-
  private:
+  const int num_games_;
+  const int show_interval_;
+  std::mutex mtx_;
+  int num_curr_games_ = 0;
+  std::unordered_map<PlayerId, std::map<int, int>> num_rankings_;  // Eg., "player_0" = {1: 100, 2: 100, 3: 100, 4: 100}
+
   static std::string current_time() noexcept;
   static std::string state_file_name(const std::string& dir,
                                      std::uint64_t seed) noexcept;
+  static double stable_dan(std::map<int, int> num_ranking) noexcept;
+  void UpdateResults(const mjxproto::GameResult& game_result) noexcept;
 };
 
 }  // namespace mjx
