@@ -279,11 +279,10 @@ void PettingZooMahjongEnv::UpdateAgentsToAct() noexcept {
 }
 
 EnvRunner::EnvRunner(const std::unordered_map<PlayerId, Agent*>& agents,
-                     int num_games, int num_parallels,
-                     int show_interval,
+                     int num_games, int num_parallels, int show_interval,
                      std::optional<std::string> states_save_dir,
-                     std::optional<std::string> results_save_file):
-  num_games_(num_games), show_interval_(show_interval) {
+                     std::optional<std::string> results_save_file)
+    : num_games_(num_games), show_interval_(show_interval) {
   std::vector<std::thread> threads;
 
   std::mutex mtx_thread_idx;
@@ -405,11 +404,13 @@ double EnvRunner::stable_dan(std::map<int, int> num_ranking) noexcept {
   return (5.0 * n1 + 2.0 * n2) / n4 - 2.0;
 }
 
-void EnvRunner::UpdateResults(const mjxproto::GameResult& game_result) noexcept {
+void EnvRunner::UpdateResults(
+    const mjxproto::GameResult& game_result) noexcept {
   std::lock_guard<std::mutex> lock(mtx_);
   num_curr_games_++;
-  for (const auto& player_id: game_result.player_ids()) {
-    if (!num_rankings_.count(player_id)) num_rankings_[player_id] = {{1,0}, {2,0}, {3,0}, {4,0}};
+  for (const auto& player_id : game_result.player_ids()) {
+    if (!num_rankings_.count(player_id))
+      num_rankings_[player_id] = {{1, 0}, {2, 0}, {3, 0}, {4, 0}};
     num_rankings_[player_id][game_result.rankings().at(player_id)]++;
   }
   // TODO: add result summary structure
@@ -427,10 +428,10 @@ void EnvRunner::UpdateResults(const mjxproto::GameResult& game_result) noexcept 
     oss << num_games_;
     oss << "\t";
     std::map<PlayerId, double> stable_dans;
-    for (const auto& [player_id, num_ranking]: num_rankings_) {
+    for (const auto& [player_id, num_ranking] : num_rankings_) {
       stable_dans[player_id] = stable_dan(num_ranking);
     }
-    for (const auto& [player_id, stable_dan]: stable_dans) {
+    for (const auto& [player_id, stable_dan] : stable_dans) {
       oss << player_id;
       oss << ": ";
       oss << std::fixed << std::setprecision(3) << stable_dan;

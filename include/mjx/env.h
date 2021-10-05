@@ -109,12 +109,14 @@ class EnvRunner {
       int num_parallels, int show_interval = 100,
       std::optional<std::string> states_save_dir = std::nullopt,
       std::optional<std::string> results_save_file = std::nullopt);
+
  private:
   const int num_games_;
   const int show_interval_;
   std::mutex mtx_;
   int num_curr_games_ = 0;
-  std::unordered_map<PlayerId, std::map<int, int>> num_rankings_;  // Eg., "player_0" = {1: 100, 2: 100, 3: 100, 4: 100}
+  std::unordered_map<PlayerId, std::map<int, int>>
+      num_rankings_;  // Eg., "player_0" = {1: 100, 2: 100, 3: 100, 4: 100}
 
   static std::string current_time() noexcept;
   static std::string state_file_name(const std::string& dir,
