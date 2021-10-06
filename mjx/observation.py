@@ -43,8 +43,8 @@ class Observation:
         return self._cpp_obj.to_json()  # type: ignore
 
     def to_proto(self) -> mjxproto.Observation:
-        json_data = self.to_json()
-        return json_format.ParseDict(json.loads(json_data), mjxproto.Observation())  # type: ignore
+        assert self._cpp_obj is not None
+        return json_format.Parse(self.to_json(), mjxproto.Observation())
 
     def save_svg(self, filename: str, view_idx: Optional[int] = None) -> None:
         assert filename.endswith(".svg")

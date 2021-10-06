@@ -33,8 +33,8 @@ class State:
         return self._cpp_obj.to_json()  # type: ignore
 
     def to_proto(self) -> mjxproto.State:
-        json_data = self.to_json()
-        return json_format.ParseDict(json.loads(json_data), mjxproto.State())  # type: ignore
+        assert self._cpp_obj is not None
+        return json_format.Parse(self.to_json(), mjxproto.State())
 
     def save_svg(self, filename: str, view_idx: int = 0):
         assert filename.endswith(".svg")
