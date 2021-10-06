@@ -283,7 +283,8 @@ EnvRunner::EnvRunner(const std::vector<std::pair<PlayerId, Agent*>>& agents,
                      std::optional<std::string> states_save_dir,
                      std::optional<std::string> results_save_file)
     : num_games_(num_games), show_interval_(show_interval) {
-  for (const auto& [player_id, agent]: agents) player_ids_.emplace_back(player_id);
+  for (const auto& [player_id, agent] : agents)
+    player_ids_.emplace_back(player_id);
 
   std::vector<std::thread> threads;
 
