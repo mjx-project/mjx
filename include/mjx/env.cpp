@@ -283,8 +283,8 @@ EnvRunner::EnvRunner(const std::unordered_map<PlayerId, Agent*>& agents,
                      std::optional<std::string> states_save_dir,
                      std::optional<std::string> results_save_file)
     : num_games_(num_games), show_interval_(show_interval) {
-  for(const auto& [k, v]: agents) player_ids_.emplace_back(k);
-  std::sort(player_ids_.begin(),player_ids_.end());
+  for (const auto& [k, v] : agents) player_ids_.emplace_back(k);
+  std::sort(player_ids_.begin(), player_ids_.end());
 
   std::vector<std::thread> threads;
 
