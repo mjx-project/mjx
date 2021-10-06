@@ -238,7 +238,7 @@ action_type_en = {
     ActionType.ACTION_TYPE_PON: "PON",
     ActionType.ACTION_TYPE_OPEN_KAN: "OPEN_KAN",
     ActionType.ACTION_TYPE_RON: "RON",
-    ActionType.ACTION_TYPE_NO: "NO",
+    ActionType.ACTION_TYPE_NO: "PASS",
     ActionType.ACTION_TYPE_DUMMY: "DUMMY",
 }
 
