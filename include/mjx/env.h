@@ -113,6 +113,7 @@ class EnvRunner {
  private:
   const int num_games_;
   const int show_interval_;
+  std::vector<PlayerId> player_ids_;
   std::mutex mtx_;
   int num_curr_games_ = 0;
   std::unordered_map<PlayerId, std::map<int, int>>
