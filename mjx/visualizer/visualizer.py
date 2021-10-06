@@ -12,6 +12,7 @@ from rich.panel import Panel
 from rich.text import Text
 
 import mjxproto
+from mjx.action import Action
 from mjx.visualizer.converter import (
     FromWho,
     TileUnitType,
@@ -98,7 +99,7 @@ class MahjongTable:
         self.uradoras: List[int] = []
         self.result: str = ""
         self.event_info: Optional[EventType.V]
-        self.legal_actions: List[Tuple[ActionType.V, int]]
+        self.legal_actions: List[Action]
 
     def get_wall_num(self) -> int:
         all = 136 - 14
@@ -416,11 +417,7 @@ class MahjongTable:
             p.wind = (-table.round + 1 + i) % 4
 
         table.wall_num = cls.get_wall_num(table)
-        table.legal_actions = [
-            (act.type, act.tile)
-            for act in proto_data.legal_actions
-            if act.type != ActionType.ACTION_TYPE_DUMMY
-        ]
+        table.legal_actions = [Action.from_proto(act) for act in proto_data.legal_actions]
 
         if len(proto_data.public_observation.events) != 0:
             if table.result == "win":
@@ -831,13 +828,7 @@ class GameBoardVisualizer:
             player_info.append("\n\n\n")
             players_info.append("".join(player_info))
 
-        system_info = []
-        system_info.append(
-            get_wind_char(table.players[0].wind, self.config.lang)
-            + ["'s turn now.\n", "の番です\n"][self.config.lang]
-        )
-
-        return "".join([board_info, "".join(players_info), "".join(system_info)])
+        return board_info+ "".join(players_info)
 
     def show_by_rich(self, table: MahjongTable) -> None:
         layout = self.get_layout()

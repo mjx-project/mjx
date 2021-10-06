@@ -2,6 +2,7 @@ from typing import Optional, Union
 
 import inquirer
 
+from mjx.action import Action
 from mjx.visualizer.converter import (
     action_type_en,
     action_type_ja,
@@ -28,14 +29,22 @@ class Selector:
         board_visualizer = GameBoardVisualizer(GameVisualConfig())
         board_visualizer.print(table)
 
-        if table.legal_actions == []:
+        assert table.legal_actions != []
+
+        legal_actions_proto = []
+        for act in table.legal_actions:
+            legal_actions_proto.append(act.to_proto())
+
+        if legal_actions_proto[0].type == ActionType.ACTION_TYPE_DUMMY:
             return None
 
         choice = [
-            (action_type_en[actions[0]] if ja == 0 else action_type_ja[actions[0]])
+            str(i)
+            + ":"
+            + (action_type_en[action.type] if ja == 0 else action_type_ja[action.type])
             + "-"
-            + get_tile_char(actions[1], unicode)
-            for actions in table.legal_actions
+            + get_tile_char(action.tile, unicode)
+            for i, action in enumerate(legal_actions_proto)
         ]
         questions = [
             inquirer.List(
@@ -46,26 +55,15 @@ class Selector:
         ]
         answers = inquirer.prompt(questions)
 
-        if answers is None:
-            print("Incorrect choice was made.")
-            return (ActionType.ACTION_TYPE_DUMMY, int(0))
+        assert answers is not None
 
-        item = answers["action"].split("-")[0]
-        id_str: str = answers["action"].split("-")[1]
-        id: Optional[int] = None
-        if unicode:
-            for i, k in enumerate(to_unicode):
-                if k == id_str:
-                    id = i
-                    break
-        else:
-            for i, k in enumerate(to_char):
-                if k == id_str:
-                    id = i
-                    break
+        idx = int(answers["action"].split(":")[0])
+        selected = table.legal_actions[idx]
 
-        action = [k for k, v in [action_type_en, action_type_ja][ja].items() if v == item][0]
-        return (action, id)
+        return Action.select_from(
+            idx=selected.to_idx(),
+            legal_actions=table.legal_actions,
+        )
 
     @classmethod
     def select_from_proto(
