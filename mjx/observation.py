@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import json
 from typing import List, Optional
 
 import _mjx  # type: ignore
@@ -13,12 +12,22 @@ from mjx.visualizer.svg import save_svg
 
 
 class Observation:
-    def __init__(self, obs_json=None) -> None:
+    def __init__(self, obs_json: Optional[str] = None) -> None:
         self._cpp_obj: Optional[_mjx.Observation] = None  # type: ignore
         if obs_json is None:
             return
 
         self._cpp_obj = _mjx.Observation(obs_json)  # type: ignore
+
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, Observation):
+            raise NotImplementedError
+        raise NotImplementedError  # TODO: implement
+
+    def __ne__(self, other: object) -> bool:
+        if not isinstance(other, Observation):
+            raise NotImplementedError
+        raise NotImplementedError  # TODO: implement
 
     def legal_actions(self) -> List[Action]:
         assert self._cpp_obj is not None
@@ -33,8 +42,8 @@ class Observation:
         return self._cpp_obj.to_json()  # type: ignore
 
     def to_proto(self) -> mjxproto.Observation:
-        json_data = self.to_json()
-        return json_format.ParseDict(json.loads(json_data), mjxproto.Observation())  # type: ignore
+        assert self._cpp_obj is not None
+        return json_format.Parse(self.to_json(), mjxproto.Observation())
 
     def save_svg(self, filename: str, view_idx: Optional[int] = None) -> None:
         assert filename.endswith(".svg")
@@ -42,6 +51,10 @@ class Observation:
 
         observation = self.to_proto()
         save_svg(observation, filename, view_idx)
+
+    @classmethod
+    def from_proto(cls, proto: mjxproto.Observation) -> Observation:
+        return Observation(json_format.MessageToJson(proto))
 
     @classmethod
     def _from_cpp_obj(cls, cpp_obj) -> Observation:
