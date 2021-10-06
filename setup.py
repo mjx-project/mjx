@@ -163,6 +163,7 @@ setup(
         "numpy",
         "pillow",
         "svgwrite",
+        "inquirer",
         "tenhou_wall_reproducer",
     ],
     extras_require={"test": ["pytest"]},
