@@ -254,7 +254,7 @@ action_type_ja = {
     ActionType.ACTION_TYPE_PON: "ポン",
     ActionType.ACTION_TYPE_OPEN_KAN: "明槓",
     ActionType.ACTION_TYPE_RON: "ロン",
-    ActionType.ACTION_TYPE_NO: "無し",
+    ActionType.ACTION_TYPE_NO: "パス",
     ActionType.ACTION_TYPE_DUMMY: "ダミー",
 }
 
