@@ -6,7 +6,7 @@ import _mjx  # type: ignore
 
 
 class Action:
-    def __init__(self, action_json=None) -> None:
+    def __init__(self, action_json: Optional[str] = None) -> None:
         self._cpp_obj: Optional[_mjx.Action] = None  # type: ignore
         if action_json is None:
             return

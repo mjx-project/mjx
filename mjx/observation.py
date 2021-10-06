@@ -13,7 +13,7 @@ from mjx.visualizer.svg import save_svg
 
 
 class Observation:
-    def __init__(self, obs_json=None) -> None:
+    def __init__(self, obs_json: Optional[str] = None) -> None:
         self._cpp_obj: Optional[_mjx.Observation] = None  # type: ignore
         if obs_json is None:
             return

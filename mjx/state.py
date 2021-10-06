@@ -11,7 +11,7 @@ from mjx.visualizer.svg import save_svg
 
 
 class State:
-    def __init__(self, state_json=None) -> None:
+    def __init__(self, state_json: Optional[str] = None) -> None:
         self._cpp_obj: Optional[_mjx.State] = None  # type: ignore
         if state_json is None:
             return
