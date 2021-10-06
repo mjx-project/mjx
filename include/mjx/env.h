@@ -105,7 +105,7 @@ class PettingZooMahjongEnv {
 class EnvRunner {
  public:
   explicit EnvRunner(
-      const std::vector<std::pair<PlayerId, Agent*>>& agents, int num_games,
+      const std::unordered_map<PlayerId, Agent*>& agents, int num_games,
       int num_parallels, int show_interval = 100,
       std::optional<std::string> states_save_dir = std::nullopt,
       std::optional<std::string> results_save_file = std::nullopt);
@@ -113,7 +113,6 @@ class EnvRunner {
  private:
   const int num_games_;
   const int show_interval_;
-  std::vector<PlayerId> player_ids_;
   std::mutex mtx_;
   int num_curr_games_ = 0;
   std::unordered_map<PlayerId, std::map<int, int>>
