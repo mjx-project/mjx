@@ -29,13 +29,7 @@ class Selector:
         board_visualizer.print(table)
 
         if table.legal_actions == []:
-            # 本来は return None
-            # 今は空っぽの時でも結果を見たいので、ダミーを出しておく
-            table.legal_actions = [
-                (ActionType.ACTION_TYPE_CHI, 10),
-                (ActionType.ACTION_TYPE_PON, 20),
-                (ActionType.ACTION_TYPE_OPEN_KAN, 30),
-            ]
+            return None
 
         choice = [
             (action_type_en[actions[0]] if ja == 0 else action_type_ja[actions[0]])
@@ -76,7 +70,7 @@ class Selector:
     @classmethod
     def select_from_proto(
         cls,
-        proto_data: Union[Observation, State],
+        proto_data: Observation,
         unicode: bool = False,
         ja: int = 0,
     ):
@@ -84,10 +78,11 @@ class Selector:
 
         Args
         ----
-        proto_data: State or observation proto
+        proto_data: Observation proto
         unicode: bool
         ja: int (0-English,1-Japanese)
         """
+        assert isinstance(proto_data, Observation)
         return cls.select_from_MahjongTable(
             MahjongTable.from_proto(proto_data), unicode=unicode, ja=ja
         )
