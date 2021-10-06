@@ -3,7 +3,7 @@ from __future__ import annotations
 import json
 import sys
 from dataclasses import dataclass
-from typing import List, Optional, Tuple, Union
+from typing import List, Optional, Union
 
 from google.protobuf import json_format
 from rich.console import Console
@@ -22,7 +22,6 @@ from mjx.visualizer.converter import (
     get_wind_char,
 )
 from mjxproto import EventType
-from mjxproto.mjx_pb2 import ActionType
 
 from .open_utils import open_event_type, open_from, open_tile_ids
 
@@ -828,7 +827,7 @@ class GameBoardVisualizer:
             player_info.append("\n\n\n")
             players_info.append("".join(player_info))
 
-        return board_info+ "".join(players_info)
+        return board_info + "".join(players_info)
 
     def show_by_rich(self, table: MahjongTable) -> None:
         layout = self.get_layout()

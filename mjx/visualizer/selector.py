@@ -1,17 +1,9 @@
-from typing import Optional, Union
-
 import inquirer
 
 from mjx.action import Action
-from mjx.visualizer.converter import (
-    action_type_en,
-    action_type_ja,
-    get_tile_char,
-    to_char,
-    to_unicode,
-)
+from mjx.visualizer.converter import action_type_en, action_type_ja, get_tile_char
 from mjx.visualizer.visualizer import GameBoardVisualizer, GameVisualConfig, MahjongTable
-from mjxproto import Observation, State
+from mjxproto import Observation
 from mjxproto.mjx_pb2 import ActionType
 
 
