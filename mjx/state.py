@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import json
 from typing import Optional
 
 import _mjx  # type: ignore
@@ -11,20 +10,30 @@ from mjx.visualizer.svg import save_svg
 
 
 class State:
-    def __init__(self, state_json=None) -> None:
+    def __init__(self, state_json: Optional[str] = None) -> None:
         self._cpp_obj: Optional[_mjx.State] = None  # type: ignore
         if state_json is None:
             return
 
         self._cpp_obj = _mjx.State(state_json)  # type: ignore
 
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, State):
+            raise NotImplementedError
+        raise NotImplementedError  # TODO: implement
+
+    def __ne__(self, other: object) -> bool:
+        if not isinstance(other, State):
+            raise NotImplementedError
+        raise NotImplementedError  # TODO: implement
+
     def to_json(self) -> str:
         assert self._cpp_obj is not None
         return self._cpp_obj.to_json()  # type: ignore
 
     def to_proto(self) -> mjxproto.State:
-        json_data = self.to_json()
-        return json_format.ParseDict(json.loads(json_data), mjxproto.State())  # type: ignore
+        assert self._cpp_obj is not None
+        return json_format.Parse(self.to_json(), mjxproto.State())
 
     def save_svg(self, filename: str, view_idx: int = 0):
         assert filename.endswith(".svg")
@@ -32,6 +41,10 @@ class State:
 
         observation = self.to_proto()
         save_svg(observation, filename, view_idx)
+
+    @classmethod
+    def from_proto(cls, proto: mjxproto.State) -> State:
+        return State(json_format.MessageToJson(proto))
 
     @classmethod
     def _from_cpp_obj(cls, cpp_obj) -> State:

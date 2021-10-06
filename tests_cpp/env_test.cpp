@@ -4,7 +4,7 @@
 
 #include "gtest/gtest.h"
 
-TEST(env, run) {
+TEST(env, Run) {
   auto agent = std::make_shared<mjx::RandomDebugAgent>();
   std::unordered_map<mjx::PlayerId, mjx::Agent*> agents = {
       {"player_0", agent.get()},
@@ -12,7 +12,11 @@ TEST(env, run) {
       {"player_2", agent.get()},
       {"player_3", agent.get()},
   };
-  mjx::EnvRunner::Run(agents);
+
+  // Store states
+  int num_games = 16;
+  int num_parallels = 4;
+  mjx::EnvRunner(agents, num_games, num_parallels);
 }
 
 TEST(env, MjxEnv) {

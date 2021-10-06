@@ -29,7 +29,7 @@ venv:
 	venv/bin/python3 -m pip install -r requirements.txt
 	venv/bin/python3 -m pip install -r requirements-dev.txt
 
-build: include/mjx/* include/mjx/internal/* tests_cpp/*
+build: include/mjx/* include/mjx/internal/* tests_cpp/* scripts/*
 	mkdir -p build && cd build && cmake .. -DMJX_BUILD_BOOST=OFF -DMJX_BUILD_GRPC=OFF -DMJX_BUILD_TESTS=ON && make -j
 
 cpp-build: build
