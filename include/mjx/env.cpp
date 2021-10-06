@@ -283,6 +283,9 @@ EnvRunner::EnvRunner(const std::unordered_map<PlayerId, Agent*>& agents,
                      std::optional<std::string> states_save_dir,
                      std::optional<std::string> results_save_file)
     : num_games_(num_games), show_interval_(show_interval) {
+  for(const auto& [k, v]: agents) player_ids_.emplace_back(k);
+  std::sort(player_ids_.begin(),player_ids_.end());
+
   std::vector<std::thread> threads;
 
   std::mutex mtx_thread_idx;
@@ -296,7 +299,7 @@ EnvRunner::EnvRunner(const std::unordered_map<PlayerId, Agent*>& agents,
   // Run games
   for (int i = 0; i < num_parallels; ++i) {
     threads.emplace_back(std::thread([&] {
-      auto env = MjxEnv();
+      auto env = MjxEnv(player_ids_);
       int offset = 0;
 
       // E.g., num_games = 100, num_parallels = 16
