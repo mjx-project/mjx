@@ -242,7 +242,9 @@ class PublicObservation(google.protobuf.message.Message):
     EVENTS_FIELD_NUMBER: builtins.int
     game_id: typing.Text = ...
     @property
-    def player_ids(self) -> google.protobuf.internal.containers.RepeatedScalarFieldContainer[typing.Text]: ...
+    def player_ids(self) -> google.protobuf.internal.containers.RepeatedScalarFieldContainer[typing.Text]:
+        """Sorted by the dealer order (起家, ..., ラス親)"""
+        pass
     @property
     def init_score(self) -> global___Score:
         """public info"""
@@ -531,3 +533,56 @@ class Action(google.protobuf.message.Message):
         ) -> None: ...
     def ClearField(self, field_name: typing_extensions.Literal[u"game_id",b"game_id",u"open",b"open",u"tile",b"tile",u"type",b"type",u"who",b"who"]) -> None: ...
 global___Action = Action
+
+class GameResult(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor = ...
+    class TensEntry(google.protobuf.message.Message):
+        DESCRIPTOR: google.protobuf.descriptor.Descriptor = ...
+        KEY_FIELD_NUMBER: builtins.int
+        VALUE_FIELD_NUMBER: builtins.int
+        key: typing.Text = ...
+        value: builtins.int = ...
+        def __init__(self,
+            *,
+            key : typing.Text = ...,
+            value : builtins.int = ...,
+            ) -> None: ...
+        def ClearField(self, field_name: typing_extensions.Literal[u"key",b"key",u"value",b"value"]) -> None: ...
+
+    class RankingsEntry(google.protobuf.message.Message):
+        DESCRIPTOR: google.protobuf.descriptor.Descriptor = ...
+        KEY_FIELD_NUMBER: builtins.int
+        VALUE_FIELD_NUMBER: builtins.int
+        key: typing.Text = ...
+        value: builtins.int = ...
+        def __init__(self,
+            *,
+            key : typing.Text = ...,
+            value : builtins.int = ...,
+            ) -> None: ...
+        def ClearField(self, field_name: typing_extensions.Literal[u"key",b"key",u"value",b"value"]) -> None: ...
+
+    GAME_SEED_FIELD_NUMBER: builtins.int
+    PLAYER_IDS_FIELD_NUMBER: builtins.int
+    TENS_FIELD_NUMBER: builtins.int
+    RANKINGS_FIELD_NUMBER: builtins.int
+    game_seed: builtins.int = ...
+    @property
+    def player_ids(self) -> google.protobuf.internal.containers.RepeatedScalarFieldContainer[typing.Text]:
+        """Sorted by the dealer order (起家, ..., ラス親)"""
+        pass
+    @property
+    def tens(self) -> google.protobuf.internal.containers.ScalarMap[typing.Text, builtins.int]: ...
+    @property
+    def rankings(self) -> google.protobuf.internal.containers.ScalarMap[typing.Text, builtins.int]:
+        """ranking in {1, 2, 3, 4}"""
+        pass
+    def __init__(self,
+        *,
+        game_seed : builtins.int = ...,
+        player_ids : typing.Optional[typing.Iterable[typing.Text]] = ...,
+        tens : typing.Optional[typing.Mapping[typing.Text, builtins.int]] = ...,
+        rankings : typing.Optional[typing.Mapping[typing.Text, builtins.int]] = ...,
+        ) -> None: ...
+    def ClearField(self, field_name: typing_extensions.Literal[u"game_seed",b"game_seed",u"player_ids",b"player_ids",u"rankings",b"rankings",u"tens",b"tens"]) -> None: ...
+global___GameResult = GameResult

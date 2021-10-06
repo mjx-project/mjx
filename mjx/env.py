@@ -1,3 +1,4 @@
+import os
 from typing import Dict, List, Optional
 
 import _mjx  # type: ignore
@@ -35,3 +36,21 @@ class MjxEnv:
     @property
     def state(self) -> State:
         return State._from_cpp_obj(self._env.state())
+
+
+def run(
+    agent_addresses: Dict[str, str],
+    num_games: int,
+    num_parallels: int,
+    show_interval: int = 100,
+    states_save_dir: Optional[str] = None,
+    results_save_file: Optional[str] = None,
+):
+    assert len(agent_addresses) == 4
+    assert num_games >= 1
+    assert num_parallels >= 1
+    if states_save_dir:
+        assert os.path.isdir(states_save_dir)
+
+    agents = {k: _mjx.GrpcAgent(addr) for k, addr in agent_addresses.items()}  # type: ignore
+    _mjx.EnvRunner(agents, num_games, num_parallels, show_interval, states_save_dir, results_save_file)  # type: ignore

@@ -21,6 +21,7 @@ class MjxEnv {
   bool Done() const noexcept;
   std::unordered_map<PlayerId, int> Rewards()
       const noexcept;  // TDOO: reward type
+  mjxproto::GameResult GameResult() const noexcept;
 
   // accessors
   State state() const noexcept;
@@ -103,21 +104,25 @@ class PettingZooMahjongEnv {
 
 class EnvRunner {
  public:
-  static void Run(const std::unordered_map<PlayerId, Agent*>& agents) {
-    auto env = MjxEnv();
-    auto observations = env.Reset();
-    while (!env.Done()) {
-      {
-        std::unordered_map<PlayerId, mjx::Action> action_dict;
-        for (const auto& [player_id, observation] : observations) {
-          auto action = agents.at(player_id)->Act(observation);
-          action_dict[player_id] = mjx::Action(action);
-        }
-        observations = env.Step(action_dict);
-      }
-    }
-    std::cerr << env.state().ToJson() << std::endl;
-  }
+  explicit EnvRunner(
+      const std::unordered_map<PlayerId, Agent*>& agents, int num_games,
+      int num_parallels, int show_interval = 100,
+      std::optional<std::string> states_save_dir = std::nullopt,
+      std::optional<std::string> results_save_file = std::nullopt);
+
+ private:
+  const int num_games_;
+  const int show_interval_;
+  std::mutex mtx_;
+  int num_curr_games_ = 0;
+  std::unordered_map<PlayerId, std::map<int, int>>
+      num_rankings_;  // Eg., "player_0" = {1: 100, 2: 100, 3: 100, 4: 100}
+
+  static std::string current_time() noexcept;
+  static std::string state_file_name(const std::string& dir,
+                                     std::uint64_t seed) noexcept;
+  static double stable_dan(std::map<int, int> num_ranking) noexcept;
+  void UpdateResults(const mjxproto::GameResult& game_result) noexcept;
 };
 
 }  // namespace mjx

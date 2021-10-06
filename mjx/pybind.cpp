@@ -62,7 +62,10 @@ PYBIND11_MODULE(_mjx, m) {
   py::class_<mjx::GrpcAgent, mjx::Agent>(m, "GrpcAgent")
       .def(py::init<const std::string &>());
 
-  py::class_<mjx::EnvRunner>(m, "EnvRunner").def("run", &mjx::EnvRunner::Run);
+  py::class_<mjx::EnvRunner>(m, "EnvRunner")
+      .def(py::init<const std::unordered_map<mjx::PlayerId, mjx::Agent *> &,
+                    int, int, int, std::optional<std::string>,
+                    std::optional<std::string>>());
 
   py::class_<mjx::AgentServer>(m, "AgentServer")
       .def(py::init<const mjx::Agent *, const std::string &, int, int, int>());
