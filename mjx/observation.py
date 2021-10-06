@@ -20,6 +20,16 @@ class Observation:
 
         self._cpp_obj = _mjx.Observation(obs_json)  # type: ignore
 
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, Observation):
+            raise NotImplementedError
+        raise NotImplementedError  # TODO: implement
+
+    def __ne__(self, other: object) -> bool:
+        if not isinstance(other, Observation):
+            raise NotImplementedError
+        raise NotImplementedError  # TODO: implement
+
     def legal_actions(self) -> List[Action]:
         assert self._cpp_obj is not None
         return [Action._from_cpp_obj(cpp_obj) for cpp_obj in self._cpp_obj.legal_actions()]  # type: ignore
@@ -42,6 +52,10 @@ class Observation:
 
         observation = self.to_proto()
         save_svg(observation, filename, view_idx)
+
+    @classmethod
+    def from_proto(cls, proto: mjxproto.Observation) -> Observation:
+        return Observation(json_format.MessageToJson(proto))
 
     @classmethod
     def _from_cpp_obj(cls, cpp_obj) -> Observation:

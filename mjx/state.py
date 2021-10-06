@@ -18,6 +18,16 @@ class State:
 
         self._cpp_obj = _mjx.State(state_json)  # type: ignore
 
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, State):
+            raise NotImplementedError
+        raise NotImplementedError  # TODO: implement
+
+    def __ne__(self, other: object) -> bool:
+        if not isinstance(other, State):
+            raise NotImplementedError
+        raise NotImplementedError  # TODO: implement
+
     def to_json(self) -> str:
         assert self._cpp_obj is not None
         return self._cpp_obj.to_json()  # type: ignore
@@ -32,6 +42,10 @@ class State:
 
         observation = self.to_proto()
         save_svg(observation, filename, view_idx)
+
+    @classmethod
+    def from_proto(cls, proto: mjxproto.State) -> State:
+        return State(json_format.MessageToJson(proto))
 
     @classmethod
     def _from_cpp_obj(cls, cpp_obj) -> State:
