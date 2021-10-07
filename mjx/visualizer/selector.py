@@ -2,6 +2,7 @@ import inquirer
 
 from mjx.action import Action
 from mjx.visualizer.converter import action_type_en, action_type_ja, get_tile_char
+from mjx.visualizer.open_utils import open_tile_ids
 from mjx.visualizer.visualizer import GameBoardVisualizer, GameVisualConfig, MahjongTable
 from mjxproto import Observation
 from mjxproto.mjx_pb2 import ActionType
@@ -34,21 +35,25 @@ class Selector:
 
         choice = []
         for i, action in enumerate(legal_actions_proto):
-            if action.type in [
+            if action.type == ActionType.ACTION_TYPE_NO:
+                choice.append(
+                    str(i)
+                    + ":"
+                    + (action_type_en[action.type] if ja == 0 else action_type_ja[action.type])
+                )
+            elif action.type in [
                 ActionType.ACTION_TYPE_PON,
                 ActionType.ACTION_TYPE_CHI,
                 ActionType.ACTION_TYPE_CLOSED_KAN,
                 ActionType.ACTION_TYPE_OPEN_KAN,
                 ActionType.ACTION_TYPE_ADDED_KAN,
-                ActionType.ACTION_TYPE_NO,
-                ActionType.ACTION_TYPE_RON,
             ]:
                 choice.append(
                     str(i)
                     + ":"
                     + (action_type_en[action.type] if ja == 0 else action_type_ja[action.type])
                     + "-"
-                    + get_tile_char(table.last_event_tile, unicode)
+                    + " ".join([get_tile_char(id, unicode) for id in open_tile_ids(action.open)])
                 )
             else:
                 choice.append(

@@ -99,7 +99,6 @@ class MahjongTable:
         self.result: str = ""
         self.event_info: Optional[EventType.V]
         self.legal_actions: List[Action]
-        self.last_event_tile: int
 
     def get_wall_num(self) -> int:
         all = 136 - 14
@@ -341,10 +340,7 @@ class MahjongTable:
         table.event_info = None
 
         if len(public_observation.events) == 0:
-            table.last_event_tile = 0
             return table
-
-        table.last_event_tile = public_observation.events[-1].tile
 
         if public_observation.events[-1].type in [
             EventType.EVENT_TYPE_TSUMO,
