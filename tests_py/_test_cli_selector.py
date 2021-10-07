@@ -11,7 +11,7 @@ from mjxproto.mjx_pb2 import Observation
 pytestで実行するのが難しいため、わざとファイル名を変えて自動テストされないようにしています。
 
 動作を確認するときは、通常のpythonファイルと同様に
-python cli_selector_test.py
+python _test_cli_selector.py
 としてください。
 """
 
