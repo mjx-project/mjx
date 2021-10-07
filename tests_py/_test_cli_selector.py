@@ -1,5 +1,6 @@
 import glob
 import os
+from typing import List
 
 from mjx.visualizer.selector import Selector
 from mjx.visualizer.visualizer import MahjongTable
@@ -21,21 +22,33 @@ def select_test():
     )
     files = glob.glob(obs_files)
     for filename in files:
-        for i in range(5):
+        for i in range(3):
             proto_data_list = MahjongTable.load_proto_data(filename)
             proto_data = MahjongTable.from_proto(proto_data_list[i])
             action = Selector.select_from_MahjongTable(proto_data)
-            print(f"action:{action}")
+            if action is not None:
+                print("Action:")
+                print(action)
+                print(action.to_json())
             action = Selector.select_from_MahjongTable(proto_data, unicode=True, ja=1)
-            print(f"action:{action}")
+            if action is not None:
+                print("Action:")
+                print(action)
+                print(action.to_json())
 
-        for i in range(5):
+        for i in range(3):
             proto_data_list = MahjongTable.load_proto_data(filename)
-            assert isinstance(proto_data_list[0], Observation)
+            assert isinstance(proto_data_list[i], Observation)
             action = Selector.select_from_proto(proto_data_list[i])
-            print(f"action:{action}")
+            if action is not None:
+                print("Action:")
+                print(action)
+                print(action.to_json())
             action = Selector.select_from_proto(proto_data_list[i], unicode=True, ja=1)
-            print(f"action:{action}")
+            if action is not None:
+                print("Action:")
+                print(action)
+                print(action.to_json())
 
 
 if __name__ == "__main__":

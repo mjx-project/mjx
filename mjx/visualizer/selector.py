@@ -45,21 +45,14 @@ class Selector:
         questions = [
             inquirer.List(
                 "action",
-                message=["Select your action", "選択肢を選んでください"][ja],
+                message=["Select your action", "行動を選んでください"][ja],
                 choices=choice,
             ),
         ]
         answers = inquirer.prompt(questions)
-
         assert answers is not None
-
         idx = int(answers["action"].split(":")[0])
-        selected = table.legal_actions[idx]
-
-        return Action.select_from(
-            idx=selected.to_idx(),
-            legal_actions=table.legal_actions,
-        )
+        return table.legal_actions[idx]
 
     @classmethod
     def select_from_proto(
