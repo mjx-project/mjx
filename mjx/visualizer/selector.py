@@ -1,3 +1,5 @@
+from typing import List
+
 import inquirer
 
 from mjx.action import Action
@@ -30,13 +32,32 @@ class Selector:
         for act in table.legal_actions:
             legal_actions_proto.append(act.to_proto())
 
-        if legal_actions_proto[0].type == ActionType.ACTION_TYPE_DUMMY:
+        if (
+            legal_actions_proto[0].type == ActionType.ACTION_TYPE_DUMMY
+            or len(table.legal_actions) == 1
+        ):  # 選択肢がダミーだったり一つしかないときは、そのまま返す
             return table.legal_actions[0]
 
-        choice = []
+        choices = cls.make_choices(legal_actions_proto, unicode, ja)
+
+        questions = [
+            inquirer.List(
+                "action",
+                message=["Select your action", "行動を選んでください"][ja],
+                choices=choices,
+            ),
+        ]
+        answers = inquirer.prompt(questions)
+        assert answers is not None
+        idx = int(answers["action"].split(":")[0])
+        return table.legal_actions[idx]
+
+    @classmethod
+    def make_choices(cls, legal_actions_proto, unicode, ja) -> List[str]:
+        choices = []
         for i, action in enumerate(legal_actions_proto):
             if action.type == ActionType.ACTION_TYPE_NO:
-                choice.append(
+                choices.append(
                     str(i)
                     + ":"
                     + (action_type_en[action.type] if ja == 0 else action_type_ja[action.type])
@@ -49,7 +70,7 @@ class Selector:
                 ActionType.ACTION_TYPE_ADDED_KAN,
                 ActionType.ACTION_TYPE_RON,
             ]:
-                choice.append(
+                choices.append(
                     str(i)
                     + ":"
                     + (action_type_en[action.type] if ja == 0 else action_type_ja[action.type])
@@ -57,7 +78,7 @@ class Selector:
                     + " ".join([get_tile_char(id, unicode) for id in open_tile_ids(action.open)])
                 )
             else:
-                choice.append(
+                choices.append(
                     str(i)
                     + ":"
                     + (action_type_en[action.type] if ja == 0 else action_type_ja[action.type])
@@ -65,17 +86,7 @@ class Selector:
                     + get_tile_char(action.tile, unicode)
                 )
 
-        questions = [
-            inquirer.List(
-                "action",
-                message=["Select your action", "行動を選んでください"][ja],
-                choices=choice,
-            ),
-        ]
-        answers = inquirer.prompt(questions)
-        assert answers is not None
-        idx = int(answers["action"].split(":")[0])
-        return table.legal_actions[idx]
+        return choices
 
     @classmethod
     def select_from_proto(
