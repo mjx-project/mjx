@@ -16,7 +16,7 @@ class SeedGenerator
 
 // Generate seed and shuffle players randomly.
 // Note that the results are NOT reproducible.
-class RandomSeedGenerator: SeedGenerator
+class RandomSeedGenerator: public SeedGenerator
 {
  public:
   explicit RandomSeedGenerator(std::vector<std::string> player_ids);
