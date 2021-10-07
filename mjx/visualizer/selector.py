@@ -53,38 +53,44 @@ class Selector:
         return table.legal_actions[idx]
 
     @classmethod
+    def make_choice(cls, action, i, unicode, ja) -> str:
+        if action.type == ActionType.ACTION_TYPE_NO:
+            return (
+                str(i)
+                + ":"
+                + (action_type_en[action.type] if ja == 0 else action_type_ja[action.type])
+            )
+
+        elif action.type in [
+            ActionType.ACTION_TYPE_PON,
+            ActionType.ACTION_TYPE_CHI,
+            ActionType.ACTION_TYPE_CLOSED_KAN,
+            ActionType.ACTION_TYPE_OPEN_KAN,
+            ActionType.ACTION_TYPE_ADDED_KAN,
+            ActionType.ACTION_TYPE_RON,
+        ]:
+            return (
+                str(i)
+                + ":"
+                + (action_type_en[action.type] if ja == 0 else action_type_ja[action.type])
+                + "-"
+                + " ".join([get_tile_char(id, unicode) for id in open_tile_ids(action.open)])
+            )
+
+        else:
+            return (
+                str(i)
+                + ":"
+                + (action_type_en[action.type] if ja == 0 else action_type_ja[action.type])
+                + "-"
+                + get_tile_char(action.tile, unicode)
+            )
+
+    @classmethod
     def make_choices(cls, legal_actions_proto, unicode, ja) -> List[str]:
         choices = []
         for i, action in enumerate(legal_actions_proto):
-            if action.type == ActionType.ACTION_TYPE_NO:
-                choices.append(
-                    str(i)
-                    + ":"
-                    + (action_type_en[action.type] if ja == 0 else action_type_ja[action.type])
-                )
-            elif action.type in [
-                ActionType.ACTION_TYPE_PON,
-                ActionType.ACTION_TYPE_CHI,
-                ActionType.ACTION_TYPE_CLOSED_KAN,
-                ActionType.ACTION_TYPE_OPEN_KAN,
-                ActionType.ACTION_TYPE_ADDED_KAN,
-                ActionType.ACTION_TYPE_RON,
-            ]:
-                choices.append(
-                    str(i)
-                    + ":"
-                    + (action_type_en[action.type] if ja == 0 else action_type_ja[action.type])
-                    + "-"
-                    + " ".join([get_tile_char(id, unicode) for id in open_tile_ids(action.open)])
-                )
-            else:
-                choices.append(
-                    str(i)
-                    + ":"
-                    + (action_type_en[action.type] if ja == 0 else action_type_ja[action.type])
-                    + "-"
-                    + get_tile_char(action.tile, unicode)
-                )
+            choices.append(cls.make_choice(action, i, unicode, ja))
 
         return choices
 
