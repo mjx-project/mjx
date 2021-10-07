@@ -3,7 +3,7 @@ import inquirer
 from mjx.action import Action
 from mjx.visualizer.converter import action_type_en, action_type_ja, get_tile_char
 from mjx.visualizer.visualizer import GameBoardVisualizer, GameVisualConfig, MahjongTable
-from mjxproto import Observation
+from mjxproto import EventType, Observation
 from mjxproto.mjx_pb2 import ActionType
 
 
@@ -23,7 +23,7 @@ class Selector:
         board_visualizer = GameBoardVisualizer(GameVisualConfig())
         board_visualizer.print(table)
 
-        assert table.legal_actions != []
+        assert len(table.legal_actions) != 0
 
         legal_actions_proto = []
         for act in table.legal_actions:
@@ -32,14 +32,33 @@ class Selector:
         if legal_actions_proto[0].type == ActionType.ACTION_TYPE_DUMMY:
             return table.legal_actions[0]
 
-        choice = [
-            str(i)
-            + ":"
-            + (action_type_en[action.type] if ja == 0 else action_type_ja[action.type])
-            + "-"
-            + get_tile_char(action.tile, unicode)
-            for i, action in enumerate(legal_actions_proto)
-        ]
+        choice = []
+        for i, action in enumerate(legal_actions_proto):
+            if action.type in [
+                ActionType.ACTION_TYPE_PON,
+                ActionType.ACTION_TYPE_CHI,
+                ActionType.ACTION_TYPE_CLOSED_KAN,
+                ActionType.ACTION_TYPE_OPEN_KAN,
+                ActionType.ACTION_TYPE_ADDED_KAN,
+                ActionType.ACTION_TYPE_NO,
+                ActionType.ACTION_TYPE_RON,
+            ]:
+                choice.append(
+                    str(i)
+                    + ":"
+                    + (action_type_en[action.type] if ja == 0 else action_type_ja[action.type])
+                    + "-"
+                    + get_tile_char(table.last_event_tile, unicode)
+                )
+            else:
+                choice.append(
+                    str(i)
+                    + ":"
+                    + (action_type_en[action.type] if ja == 0 else action_type_ja[action.type])
+                    + "-"
+                    + get_tile_char(action.tile, unicode)
+                )
+
         questions = [
             inquirer.List(
                 "action",
