@@ -1,13 +1,14 @@
 #include <gtest/gtest.h>
 #include <mjx/seed_generator.h>
 
-
 TEST(seed_generator, RandomSeedGenerator) {
-  std::vector<mjx::PlayerId> player_ids = {"player_0", "player_1", "player_2", "player_3"};
+  std::vector<mjx::PlayerId> player_ids = {"player_0", "player_1", "player_2",
+                                           "player_3"};
   std::unique_ptr<mjx::SeedGenerator> seed_generator =
       std::make_unique<mjx::RandomSeedGenerator>(player_ids);
   std::set<std::uint64_t> seeds;
-  std::unordered_map<mjx::PlayerId, int> first_dealer_cnt = {{"player_0", 0}, {"player_1", 0}, {"player_2", 0}, {"player_3", 0}};
+  std::unordered_map<mjx::PlayerId, int> first_dealer_cnt = {
+      {"player_0", 0}, {"player_1", 0}, {"player_2", 0}, {"player_3", 0}};
   int N = 100000;
   for (int i = 0; i < N; ++i) {
     auto [seed, player_ids] = seed_generator->Get();
