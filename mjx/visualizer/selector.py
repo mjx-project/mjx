@@ -1,5 +1,3 @@
-from typing import Optional
-
 import inquirer
 
 from mjx.action import Action
@@ -13,7 +11,7 @@ class Selector:
     @classmethod
     def select_from_MahjongTable(
         cls, table: MahjongTable, unicode: bool = False, ja: int = 0
-    ) -> Optional[Action]:
+    ) -> Action:
         """Make selector from State/Observation MahjongTable data.
 
         Args
@@ -32,7 +30,7 @@ class Selector:
             legal_actions_proto.append(act.to_proto())
 
         if legal_actions_proto[0].type == ActionType.ACTION_TYPE_DUMMY:
-            return None
+            return table.legal_actions[0]
 
         choice = [
             str(i)
@@ -60,7 +58,7 @@ class Selector:
         proto_data: Observation,
         unicode: bool = False,
         ja: int = 0,
-    ) -> Optional[Action]:
+    ) -> Action:
         """Make selector from State/Observation MahjongTable data.
 
         Args
