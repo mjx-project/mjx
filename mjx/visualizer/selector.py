@@ -47,6 +47,7 @@ class Selector:
                 ActionType.ACTION_TYPE_CLOSED_KAN,
                 ActionType.ACTION_TYPE_OPEN_KAN,
                 ActionType.ACTION_TYPE_ADDED_KAN,
+                ActionType.ACTION_TYPE_RON,
             ]:
                 choice.append(
                     str(i)
