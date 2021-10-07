@@ -32,6 +32,7 @@ add_executable(
   hand_test.cpp
   observation_test.cpp
   state_test.cpp
+  seed_generator_test.cpp
   internal_action_test.cpp
   internal_environment_test.cpp
   internal_game_seed_test.cpp
