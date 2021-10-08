@@ -22,8 +22,8 @@ RandomSeedGenerator::Get() noexcept {
 }
 
 DuplicateRandomSeedGenerator::DuplicateRandomSeedGenerator(
-    std::vector<PlayerId> player_ids): SeedGenerator(std::move(player_ids)) {
-}
+    std::vector<PlayerId> player_ids)
+    : SeedGenerator(std::move(player_ids)) {}
 
 std::pair<std::uint64_t, std::vector<PlayerId>>
 DuplicateRandomSeedGenerator::Get() noexcept {
@@ -36,12 +36,15 @@ DuplicateRandomSeedGenerator::Get() noexcept {
     duplicates_.push({seed, {p[2], p[3], p[0], p[1]}});
     duplicates_.push({seed, {p[3], p[2], p[1], p[0]}});
   }
-  auto ret = duplicates_.front(); duplicates_.pop();
+  auto ret = duplicates_.front();
+  duplicates_.pop();
   return ret;
 }
 
-SeedGenerator::SeedGenerator(std::vector<PlayerId> player_ids): player_ids_(std::move(player_ids))  {
+SeedGenerator::SeedGenerator(std::vector<PlayerId> player_ids)
+    : player_ids_(std::move(player_ids)) {
   assert(player_ids_.size() == 4);
-  assert(std::set(player_ids_.begin(), player_ids_.end()).size() == 4);  // each player_id is different
+  assert(std::set(player_ids_.begin(), player_ids_.end()).size() ==
+         4);  // each player_id is different
 }
 }  // namespace mjx

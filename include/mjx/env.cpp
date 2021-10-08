@@ -279,8 +279,8 @@ void PettingZooMahjongEnv::UpdateAgentsToAct() noexcept {
 }
 
 EnvRunner::EnvRunner(const std::unordered_map<PlayerId, Agent*>& agents,
-                     SeedGenerator* seed_generator,
-                     int num_games, int num_parallels, int show_interval,
+                     SeedGenerator* seed_generator, int num_games,
+                     int num_parallels, int show_interval,
                      std::optional<std::string> states_save_dir,
                      std::optional<std::string> results_save_file)
     : num_games_(num_games), show_interval_(show_interval) {

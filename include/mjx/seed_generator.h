@@ -1,8 +1,9 @@
 #ifndef MJX_SEED_GENERATOR_H
 #define MJX_SEED_GENERATOR_H
 
-#include <thread>
 #include <queue>
+#include <thread>
+
 #include "mjx/internal/state.h"
 
 namespace mjx {
@@ -14,7 +15,7 @@ class SeedGenerator {
   virtual ~SeedGenerator() = default;
   [[nodiscard]] virtual std::pair<std::uint64_t, std::vector<PlayerId>>
   Get() noexcept = 0;
- 
+
  protected:
   std::vector<PlayerId> player_ids_;
 };
@@ -33,9 +34,9 @@ class RandomSeedGenerator : public SeedGenerator {
   std::mutex mtx_;
 };
 
-
-// Use duplicate technique (http://mahjong-mil.org/rules_dup.html) to reduce the randomness.
-// After generating a random seed, prepare four different dealer order as
+// Use duplicate technique (http://mahjong-mil.org/rules_dup.html) to reduce the
+// randomness. After generating a random seed, prepare four different dealer
+// order as
 //
 //   - seed = 1234, dealer_order = p0, p1, p2, p3
 //   - seed = 1234, dealer_order = p1, p0, p3, p2
@@ -43,11 +44,12 @@ class RandomSeedGenerator : public SeedGenerator {
 //   - seed = 1234, dealer_order = p3, p2, p1, p0
 //
 // The way of duplicate follows http://mahjong-mil.org/rules_dup.html
-class DuplicateRandomSeedGenerator: public SeedGenerator
-{
+class DuplicateRandomSeedGenerator : public SeedGenerator {
  public:
   explicit DuplicateRandomSeedGenerator(std::vector<PlayerId> player_ids);
-  [[nodiscard]] std::pair<std::uint64_t, std::vector<PlayerId>> Get() noexcept override;
+  [[nodiscard]] std::pair<std::uint64_t, std::vector<PlayerId>> Get() noexcept
+      override;
+
  private:
   std::mt19937_64 seed_gen_ =
       internal::GameSeed::CreateRandomGameSeedGenerator();
@@ -55,8 +57,6 @@ class DuplicateRandomSeedGenerator: public SeedGenerator
   std::queue<std::pair<std::uint64_t, std::vector<PlayerId>>> duplicates_;
 };
 
-
 }  // namespace mjx
-
 
 #endif  // MJX_SEED_GENERATOR_H

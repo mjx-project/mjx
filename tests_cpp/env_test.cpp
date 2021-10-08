@@ -6,7 +6,8 @@
 
 TEST(env, Run) {
   auto agent = std::make_shared<mjx::RandomDebugAgent>();
-  std::vector<mjx::PlayerId> player_ids = {"player_0", "player_1", "player_2", "player_3"};
+  std::vector<mjx::PlayerId> player_ids = {"player_0", "player_1", "player_2",
+                                           "player_3"};
   std::unordered_map<mjx::PlayerId, mjx::Agent*> agents = {
       {"player_0", agent.get()},
       {"player_1", agent.get()},
