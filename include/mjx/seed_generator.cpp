@@ -1,9 +1,8 @@
 #include "seed_generator.h"
 
 namespace mjx {
-mjx::RandomSeedGenerator::RandomSeedGenerator(
-    std::vector<PlayerId> player_ids): SeedGenerator(std::move(player_ids)) {
-}
+mjx::RandomSeedGenerator::RandomSeedGenerator(std::vector<PlayerId> player_ids)
+    : SeedGenerator(std::move(player_ids)) {}
 
 std::pair<std::uint64_t, std::vector<PlayerId>>
 RandomSeedGenerator::Get() noexcept {
