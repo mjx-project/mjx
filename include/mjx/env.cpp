@@ -17,7 +17,7 @@ std::unordered_map<PlayerId, Observation> MjxEnv::Reset(
   // set seed
   if (!seed) seed = seed_gen_();
 
-  // set dealer order (setas)
+  // set dealer order (seats)
   std::vector<PlayerId> shuffled_player_ids;
   if (dealer_order) {
     shuffled_player_ids = dealer_order.value();
@@ -279,6 +279,7 @@ void PettingZooMahjongEnv::UpdateAgentsToAct() noexcept {
 }
 
 EnvRunner::EnvRunner(const std::unordered_map<PlayerId, Agent*>& agents,
+                     SeedGenerator* seed_generator,
                      int num_games, int num_parallels, int show_interval,
                      std::optional<std::string> states_save_dir,
                      std::optional<std::string> results_save_file)
@@ -317,7 +318,8 @@ EnvRunner::EnvRunner(const std::unordered_map<PlayerId, Agent*>& agents,
       for (int n = 0; n < num_games / num_parallels + offset; ++n) {
         std::string state_json;
 
-        auto observations = env.Reset();
+        auto [seed, shuffled_player_ids] = seed_generator->Get();
+        auto observations = env.Reset(seed, shuffled_player_ids);
         while (!env.Done()) {
           // TODO: Fix env.state().proto().has_round_terminal() in the efficient
           // way

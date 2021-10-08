@@ -9,5 +9,7 @@ int main() {
       {"player_2", agent.get()},
       {"player_3", agent.get()},
   };
-  auto runner = mjx::EnvRunner(agents, 1, 1);
+  std::vector<mjx::PlayerId> player_ids = {"player_0", "player_1", "player_2", "player_3"};
+  auto seed_generator = mjx::RandomSeedGenerator(player_ids);
+  auto runner = mjx::EnvRunner(agents, &seed_generator, 1, 1);
 }

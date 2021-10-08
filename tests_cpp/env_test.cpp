@@ -6,6 +6,7 @@
 
 TEST(env, Run) {
   auto agent = std::make_shared<mjx::RandomDebugAgent>();
+  std::vector<mjx::PlayerId> player_ids = {"player_0", "player_1", "player_2", "player_3"};
   std::unordered_map<mjx::PlayerId, mjx::Agent*> agents = {
       {"player_0", agent.get()},
       {"player_1", agent.get()},
@@ -16,7 +17,8 @@ TEST(env, Run) {
   // Store states
   int num_games = 16;
   int num_parallels = 4;
-  mjx::EnvRunner(agents, num_games, num_parallels);
+  auto seed_generator = mjx::RandomSeedGenerator(player_ids);
+  mjx::EnvRunner(agents, &seed_generator, num_games, num_parallels);
 }
 
 TEST(env, MjxEnv) {
