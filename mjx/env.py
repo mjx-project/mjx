@@ -51,6 +51,6 @@ def run(
     assert num_parallels >= 1
     if states_save_dir:
         assert os.path.isdir(states_save_dir)
-
     agents = {k: _mjx.GrpcAgent(addr) for k, addr in agent_addresses.items()}  # type: ignore
-    _mjx.EnvRunner(agents, num_games, num_parallels, show_interval, states_save_dir, results_save_file)  # type: ignore
+    seed_generator = _mjx.RandomSeedGenerator(list(agent_addresses.keys()))
+    _mjx.EnvRunner(agents, seed_generator, num_games, num_parallels, show_interval, states_save_dir, results_save_file)  # type: ignore
