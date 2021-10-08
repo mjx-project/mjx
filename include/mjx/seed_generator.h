@@ -44,6 +44,7 @@ class RandomSeedGenerator : public SeedGenerator {
 //   - seed = 1234, dealer_order = p3, p2, p1, p0
 //
 // The way of duplicate follows http://mahjong-mil.org/rules_dup.html
+// Note that the seeds are NOT reproducible.
 class DuplicateRandomSeedGenerator : public SeedGenerator {
  public:
   explicit DuplicateRandomSeedGenerator(std::vector<PlayerId> player_ids);
