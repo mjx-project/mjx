@@ -13,7 +13,8 @@ def test_EnvRunner():
         "player_2": _mjx.RandomDebugAgent(),
         "player_3": _mjx.RandomDebugAgent(),
     }
-    runner = _mjx.EnvRunner(agents, 100, 4, 10, None, None)
+    seed_generator = _mjx.RandomSeedGenerator(["player_0", "player_1", "player_2", "player_3"])
+    runner = _mjx.EnvRunner(agents, seed_generator, 100, 4, 10, None, None)
 
 
 def test_MjxEnv():

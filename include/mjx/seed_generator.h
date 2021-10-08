@@ -10,9 +10,13 @@ using PlayerId = std::string;  // identical over different games
 
 class SeedGenerator {
  public:
+  explicit SeedGenerator(std::vector<PlayerId> player_ids);
   virtual ~SeedGenerator() = default;
   [[nodiscard]] virtual std::pair<std::uint64_t, std::vector<PlayerId>>
   Get() noexcept = 0;
+ 
+ protected:
+  std::vector<PlayerId> player_ids_;
 };
 
 // Generate seed and shuffle players randomly.
@@ -24,7 +28,6 @@ class RandomSeedGenerator : public SeedGenerator {
       override;
 
  private:
-  std::vector<std::string> player_ids_;
   std::mt19937_64 seed_gen_ =
       internal::GameSeed::CreateRandomGameSeedGenerator();
   std::mutex mtx_;
@@ -43,10 +46,9 @@ class RandomSeedGenerator : public SeedGenerator {
 class DuplicateRandomSeedGenerator: public SeedGenerator
 {
  public:
-  explicit DuplicateRandomSeedGenerator(std::vector<std::string> player_ids);
+  explicit DuplicateRandomSeedGenerator(std::vector<PlayerId> player_ids);
   [[nodiscard]] std::pair<std::uint64_t, std::vector<PlayerId>> Get() noexcept override;
  private:
-  std::vector<std::string> player_ids_;
   std::mt19937_64 seed_gen_ =
       internal::GameSeed::CreateRandomGameSeedGenerator();
   std::mutex mtx_;
