@@ -2,15 +2,7 @@
 
 namespace mjx {
 mjx::RandomSeedGenerator::RandomSeedGenerator(
-<<<<<<< HEAD
-    std::vector<std::string> player_ids)
-    : player_ids_(std::move(player_ids)) {
-  assert(player_ids_.size() == 4);
-  assert(std::set(player_ids_.begin(), player_ids_.end()).size() ==
-         4);  // each player_id is different
-=======
     std::vector<PlayerId> player_ids): SeedGenerator(std::move(player_ids)) {
->>>>>>> f91b0b70 (implement py)
 }
 
 std::pair<std::uint64_t, std::vector<PlayerId>>
