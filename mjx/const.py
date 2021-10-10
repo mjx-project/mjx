@@ -13,3 +13,8 @@ class RelativePos(IntEnum):
     RIGHT = 1
     MID = 2
     LEFT = 3
+
+
+class SeedType(IntEnum):
+    RANDOM = 0
+    DUPLICATE = 1
