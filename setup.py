@@ -133,7 +133,7 @@ class CMakeBuild(build_ext):
 # logic and declaration, and simpler if you include description/version in a file.
 setup(
     name="mjx",
-    version="0.0.2",
+    version="0.0.3",
     author="Mjx Project Team",
     author_email="koyamada-s@sys.i.kyoto-u.ac.jp",
     description="",
