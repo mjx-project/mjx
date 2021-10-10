@@ -8,7 +8,7 @@ import re
 import subprocess
 import sys
 
-from setuptools import setup, Extension, find_packages
+from setuptools import Extension, find_packages, setup
 from setuptools.command.build_ext import build_ext
 
 # Convert distutils Windows platform specifiers to CMake -A arguments
@@ -36,8 +36,7 @@ class CMakeBuild(build_ext):
         self.use_system_grpc = None
 
     def build_extension(self, ext):
-        extdir = os.path.abspath(os.path.dirname(
-            self.get_ext_fullpath(ext.name)))
+        extdir = os.path.abspath(os.path.dirname(self.get_ext_fullpath(ext.name)))
 
         # required for auto-detection of auxiliary "native" libs
         if not extdir.endswith(os.path.sep):
@@ -57,20 +56,20 @@ class CMakeBuild(build_ext):
             # not used on MSVC, but no harm
             "-DCMAKE_BUILD_TYPE={}".format(cfg),
             "-DMJX_BUILD_TESTS=OFF",
-            "-DMJX_BUILD_PYTHON=ON"
+            "-DMJX_BUILD_PYTHON=ON",
         ]
         build_args = []
 
         build_boost = "ON"
         if "MJX_BUILD_BOOST" in os.environ:
-            assert os.environ['MJX_BUILD_BOOST'] in ["OFF", "ON"]
-            build_boost = os.environ['MJX_BUILD_BOOST']
+            assert os.environ["MJX_BUILD_BOOST"] in ["OFF", "ON"]
+            build_boost = os.environ["MJX_BUILD_BOOST"]
         cmake_args.append(f"-DMJX_BUILD_BOOST={build_boost}")
 
         build_grpc = "ON"
         if "MJX_BUILD_GRPC" in os.environ:
-            assert os.environ['MJX_BUILD_GRPC'] in ["OFF", "ON"]
-            build_grpc = os.environ['MJX_BUILD_GRPC']
+            assert os.environ["MJX_BUILD_GRPC"] in ["OFF", "ON"]
+            build_grpc = os.environ["MJX_BUILD_GRPC"]
         cmake_args.append(f"-DMJX_BUILD_GRPC={build_grpc}")
 
         if self.compiler.compiler_type != "msvc":
@@ -90,8 +89,7 @@ class CMakeBuild(build_ext):
         else:
 
             # Single config generators are handled "normally"
-            single_config = any(
-                x in cmake_generator for x in {"NMake", "Ninja"})
+            single_config = any(x in cmake_generator for x in {"NMake", "Ninja"})
 
             # CMake allows an arch-in-generator style for backward compatibility
             contains_arch = any(x in cmake_generator for x in {"ARM", "Win64"})
@@ -105,8 +103,7 @@ class CMakeBuild(build_ext):
             # Multi-config generators have a different way to specify configs
             if not single_config:
                 cmake_args += [
-                    "-DCMAKE_LIBRARY_OUTPUT_DIRECTORY_{}={}".format(
-                        cfg.upper(), extdir)
+                    "-DCMAKE_LIBRARY_OUTPUT_DIRECTORY_{}={}".format(cfg.upper(), extdir)
                 ]
                 build_args += ["--config", cfg]
 
@@ -114,8 +111,7 @@ class CMakeBuild(build_ext):
             # Cross-compile support for macOS - respect ARCHFLAGS if set
             archs = re.findall(r"-arch (\S+)", os.environ.get("ARCHFLAGS", ""))
             if archs:
-                cmake_args += [
-                    "-DCMAKE_OSX_ARCHITECTURES={}".format(";".join(archs))]
+                cmake_args += ["-DCMAKE_OSX_ARCHITECTURES={}".format(";".join(archs))]
 
         # Set CMAKE_BUILD_PARALLEL_LEVEL to control the parallel build level
         # across all generators.
@@ -129,25 +125,22 @@ class CMakeBuild(build_ext):
         if not os.path.exists(self.build_temp):
             os.makedirs(self.build_temp)
 
-        subprocess.check_call(
-            ["cmake", ext.sourcedir] + cmake_args, cwd=self.build_temp
-        )
-        subprocess.check_call(
-            ["cmake", "--build", "."] + build_args, cwd=self.build_temp
-        )
+        subprocess.check_call(["cmake", ext.sourcedir] + cmake_args, cwd=self.build_temp)
+        subprocess.check_call(["cmake", "--build", "."] + build_args, cwd=self.build_temp)
 
 
 # The information here can also be placed in setup.cfg - better separation of
 # logic and declaration, and simpler if you include description/version in a file.
 setup(
     name="mjx",
-    version="0.0.2",
+    version="0.0.3",
     author="Mjx Project Team",
     author_email="koyamada-s@sys.i.kyoto-u.ac.jp",
     description="",
     long_description="",
-    packages=find_packages('.'),
-    package_dir={'': '.'},
+    packages=find_packages("."),
+    package_dir={"": "."},
+    package_data={"mjx": ["visualizer/*.svg", "visualizer/GL-MahjongTile.ttf"]},
     # package_data={'': ['*.json']},
     cmdclass={"build_ext": CMakeBuild},
     # TODO: remove MJX_DIR (by removing cache?)
@@ -166,5 +159,5 @@ setup(
         "tenhou_wall_reproducer",
     ],
     extras_require={"test": ["pytest"]},
-    include_package_data=True
+    include_package_data=True,
 )
