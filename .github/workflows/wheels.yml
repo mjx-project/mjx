@@ -58,8 +58,8 @@ jobs:
         CIBW_MANYLINUX_PYPY_I686_IMAGE: manylinux2014
         # To use C++17 features
         # https://cibuildwheel.readthedocs.io/en/stable/cpp_standards/#manylinux1-and-c14
-        MACOSX_DEPLOYMENT_TARGET: "10.14"
-        CIBW_BUILD: cp39-*  # cp37-* cp38-* cp39-* importlib.resources requires <=3.7 
+        MACOSX_DEPLOYMENT_TARGET: "10.15"  # <filesystem> requires 10.15
+        CIBW_BUILD: cp39-*  # cp37-* cp38-* cp39-* importlib.resources requires >= 3.7 
         CIBW_SKIP: pp* cp27-win* cp35-* cp36-* cp37-* cp38-* *win*
         # https://cibuildwheel.readthedocs.io/en/stable/options/#archs
         # universal2 arch raises this error:
