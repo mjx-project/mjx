@@ -140,6 +140,7 @@ setup(
     long_description="",
     packages=find_packages("."),
     package_dir={"": "."},
+    package_data={"mjx": ["visualizer/*.svg", "visualizer/GL-MahjongTile.ttf"]},
     # package_data={'': ['*.json']},
     cmdclass={"build_ext": CMakeBuild},
     # TODO: remove MJX_DIR (by removing cache?)
