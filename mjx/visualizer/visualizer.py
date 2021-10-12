@@ -417,6 +417,7 @@ class MahjongTable:
 
         table.wall_num = cls.get_wall_num(table)
         table.legal_actions = [Action.from_proto(act) for act in proto_data.legal_actions]
+        table.legal_actions.sort(key=lambda a: a.to_idx())
 
         if len(proto_data.public_observation.events) != 0:
             if table.result == "win":
