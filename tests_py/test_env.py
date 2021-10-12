@@ -13,7 +13,46 @@ def test_EnvRunner():
         "player_2": _mjx.RandomDebugAgent(),
         "player_3": _mjx.RandomDebugAgent(),
     }
-    runner = _mjx.EnvRunner(agents, 100, 4, 10, None, None)
+    seed_generator = _mjx.RandomSeedGenerator(["player_0", "player_1", "player_2", "player_3"])
+    runner = _mjx.EnvRunner(agents, seed_generator, 100, 4, 10, None, None)
+
+
+def test_RandomSeedGenerator():
+    seed_generator = _mjx.RandomSeedGenerator(["player_0", "player_1", "player_2", "player_3"])  # type: ignore
+    N = 100000
+    seeds = set([])
+    first_dealer_cnt = {}
+    for i in range(N):
+        seed, player_ids = seed_generator.get()
+        seeds.add(seed)
+        first_dealer_cnt[player_ids[0]] = (
+            first_dealer_cnt[player_ids[0]] + 1 if player_ids[0] in first_dealer_cnt else 1
+        )
+
+    assert len(seeds) == N
+    assert N / 4 - N / 10 < first_dealer_cnt["player_0"] < N / 4 + N / 10
+    assert N / 4 - N / 10 < first_dealer_cnt["player_1"] < N / 4 + N / 10
+    assert N / 4 - N / 10 < first_dealer_cnt["player_2"] < N / 4 + N / 10
+    assert N / 4 - N / 10 < first_dealer_cnt["player_3"] < N / 4 + N / 10
+
+
+def test_DuplicateRandomSeedGenerator():
+    seed_generator = _mjx.DuplicateRandomSeedGenerator(["player_0", "player_1", "player_2", "player_3"])  # type: ignore
+    N = 100000
+    seeds = set([])
+    first_dealer_cnt = {}
+    for i in range(N):
+        seed, player_ids = seed_generator.get()
+        seeds.add(seed)
+        first_dealer_cnt[player_ids[0]] = (
+            first_dealer_cnt[player_ids[0]] + 1 if player_ids[0] in first_dealer_cnt else 1
+        )
+
+    assert len(seeds) == N // 4
+    assert N // 4 == first_dealer_cnt["player_0"]
+    assert N // 4 == first_dealer_cnt["player_1"]
+    assert N // 4 == first_dealer_cnt["player_2"]
+    assert N // 4 == first_dealer_cnt["player_3"]
 
 
 def test_MjxEnv():

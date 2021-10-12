@@ -62,10 +62,22 @@ PYBIND11_MODULE(_mjx, m) {
   py::class_<mjx::GrpcAgent, mjx::Agent>(m, "GrpcAgent")
       .def(py::init<const std::string &>());
 
+  py::class_<mjx::SeedGenerator>(m, "SeedGenerator");
+
+  py::class_<mjx::RandomSeedGenerator, mjx::SeedGenerator>(
+      m, "RandomSeedGenerator")
+      .def(py::init<std::vector<mjx::PlayerId>>())
+      .def("get", &mjx::RandomSeedGenerator::Get);
+
+  py::class_<mjx::DuplicateRandomSeedGenerator, mjx::SeedGenerator>(
+      m, "DuplicateRandomSeedGenerator")
+      .def(py::init<std::vector<mjx::PlayerId>>())
+      .def("get", &mjx::DuplicateRandomSeedGenerator::Get);
+
   py::class_<mjx::EnvRunner>(m, "EnvRunner")
       .def(py::init<const std::unordered_map<mjx::PlayerId, mjx::Agent *> &,
-                    int, int, int, std::optional<std::string>,
-                    std::optional<std::string>>());
+                    mjx::SeedGenerator *, int, int, int,
+                    std::optional<std::string>, std::optional<std::string>>());
 
   py::class_<mjx::AgentServer>(m, "AgentServer")
       .def(py::init<const mjx::Agent *, const std::string &, int, int, int>());

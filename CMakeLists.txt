@@ -79,6 +79,8 @@ add_library(
   include/mjx/observation.cpp
   include/mjx/state.h
   include/mjx/state.cpp
+  include/mjx/seed_generator.h
+  include/mjx/seed_generator.cpp
   include/mjx/hand.h
   include/mjx/hand.cpp
   include/mjx/env.h

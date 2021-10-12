@@ -2,6 +2,7 @@
 #include "mjx/agent.h"
 #include "mjx/internal/state.h"
 #include "mjx/observation.h"
+#include "mjx/seed_generator.h"
 #include "mjx/state.h"
 
 #ifndef MJX_PROJECT_ENV_H
@@ -105,8 +106,9 @@ class PettingZooMahjongEnv {
 class EnvRunner {
  public:
   explicit EnvRunner(
-      const std::unordered_map<PlayerId, Agent*>& agents, int num_games,
-      int num_parallels, int show_interval = 100,
+      const std::unordered_map<PlayerId, Agent*>& agents,
+      SeedGenerator* seed_generator, int num_games, int num_parallels,
+      int show_interval = 100,
       std::optional<std::string> states_save_dir = std::nullopt,
       std::optional<std::string> results_save_file = std::nullopt);
 

@@ -4,6 +4,7 @@ from typing import Dict, List, Optional
 import _mjx  # type: ignore
 
 from mjx.action import Action
+from mjx.const import SeedType
 from mjx.observation import Observation
 from mjx.state import State
 
@@ -45,6 +46,7 @@ def run(
     show_interval: int = 100,
     states_save_dir: Optional[str] = None,
     results_save_file: Optional[str] = None,
+    seed_type: SeedType = SeedType.RANDOM,
 ):
     assert len(agent_addresses) == 4
     assert num_games >= 1
@@ -53,4 +55,13 @@ def run(
         assert os.path.isdir(states_save_dir)
 
     agents = {k: _mjx.GrpcAgent(addr) for k, addr in agent_addresses.items()}  # type: ignore
-    _mjx.EnvRunner(agents, num_games, num_parallels, show_interval, states_save_dir, results_save_file)  # type: ignore
+
+    # define seed geenrators
+    if seed_type == SeedType.RANDOM:
+        seed_generator = _mjx.RandomSeedGenerator(list(agent_addresses.keys()))  # type: ignore
+    elif seed_type == SeedType.DUPLICATE:
+        seed_generator = _mjx.DuplicateRandomSeedGenerator(list(agent_addresses.keys()))  # type: ignore
+    else:
+        raise NotImplementedError()
+
+    _mjx.EnvRunner(agents, seed_generator, num_games, num_parallels, show_interval, states_save_dir, results_save_file)  # type: ignore
