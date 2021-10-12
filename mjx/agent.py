@@ -66,3 +66,11 @@ class RuleBasedAgent(Agent):
 
     def _act(self, observation: _mjx.Observation) -> _mjx.Action:  # type: ignore
         return self._agent._act(observation)
+
+
+class HumanControlAgent(Agent):  # type: ignore
+    def __init__(self) -> None:
+        super().__init__()
+
+    def act(self, observation: Observation) -> Action:  # type: ignore
+        return random.choice(observation.legal_actions())
