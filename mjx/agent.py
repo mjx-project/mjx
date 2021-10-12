@@ -5,6 +5,7 @@ import _mjx  # type: ignore
 
 from mjx.action import Action
 from mjx.observation import Observation
+from mjx.visualizer.selector import Selector
 
 
 class Agent(_mjx.Agent):  # type: ignore
@@ -73,4 +74,4 @@ class HumanControlAgent(Agent):  # type: ignore
         super().__init__()
 
     def act(self, observation: Observation) -> Action:  # type: ignore
-        return random.choice(observation.legal_actions())
+        return Selector.select_from_proto(observation.to_proto())
