@@ -23,7 +23,8 @@ class Selector:
         unicode: bool
         ja: int (0-English,1-Japanese)
         """
-        board_visualizer = GameBoardVisualizer(GameVisualConfig())
+        language: int = 1 if ja else 0
+        board_visualizer = GameBoardVisualizer(GameVisualConfig(uni=unicode, lang=language))
         board_visualizer.print(table)
 
         assert len(table.legal_actions) != 0
