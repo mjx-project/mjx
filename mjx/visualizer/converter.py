@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from enum import Enum
 
-from mjxproto import EventType
+from mjxproto import ActionType, EventType
 
 
 class TileUnitType(Enum):
@@ -224,6 +224,38 @@ event_type_ja = {
     EventType.EVENT_TYPE_ABORTIVE_DRAW_FOUR_WINDS: "四風連打",
     EventType.EVENT_TYPE_EXHAUSTIVE_DRAW_NORMAL: "流局",
     EventType.EVENT_TYPE_EXHAUSTIVE_DRAW_NAGASHI_MANGAN: "流し満貫",
+}
+
+action_type_en = {
+    ActionType.ACTION_TYPE_DISCARD: "DISCARD",
+    ActionType.ACTION_TYPE_TSUMOGIRI: "TSUMOGIRI",
+    ActionType.ACTION_TYPE_RIICHI: "RIICHI",
+    ActionType.ACTION_TYPE_CLOSED_KAN: "CLOSED_KAN",
+    ActionType.ACTION_TYPE_ADDED_KAN: "ADDED_KAN",
+    ActionType.ACTION_TYPE_TSUMO: "TSUMO",
+    ActionType.ACTION_TYPE_ABORTIVE_DRAW_NINE_TERMINALS: "ABORTIVE_DRAW_NINE_TERMINALS",
+    ActionType.ACTION_TYPE_CHI: "CHI",
+    ActionType.ACTION_TYPE_PON: "PON",
+    ActionType.ACTION_TYPE_OPEN_KAN: "OPEN_KAN",
+    ActionType.ACTION_TYPE_RON: "RON",
+    ActionType.ACTION_TYPE_NO: "PASS",
+    ActionType.ACTION_TYPE_DUMMY: "DUMMY",
+}
+
+action_type_ja = {
+    ActionType.ACTION_TYPE_DISCARD: "打牌",
+    ActionType.ACTION_TYPE_TSUMOGIRI: "ツモ切り",
+    ActionType.ACTION_TYPE_RIICHI: "リーチ",
+    ActionType.ACTION_TYPE_CLOSED_KAN: "暗槓",
+    ActionType.ACTION_TYPE_ADDED_KAN: "加槓",
+    ActionType.ACTION_TYPE_TSUMO: "ツモ",
+    ActionType.ACTION_TYPE_ABORTIVE_DRAW_NINE_TERMINALS: "九種九牌",
+    ActionType.ACTION_TYPE_CHI: "チー",
+    ActionType.ACTION_TYPE_PON: "ポン",
+    ActionType.ACTION_TYPE_OPEN_KAN: "明槓",
+    ActionType.ACTION_TYPE_RON: "ロン",
+    ActionType.ACTION_TYPE_NO: "パス",
+    ActionType.ACTION_TYPE_DUMMY: "ダミー",
 }
 
 
