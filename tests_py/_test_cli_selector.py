@@ -1,6 +1,5 @@
 import glob
 import os
-from typing import List
 
 from mjx.visualizer.selector import Selector
 from mjx.visualizer.visualizer import MahjongTable
@@ -29,7 +28,7 @@ def select_test():
             print("Action:")
             print(action)
             print(action.to_json())
-            action = Selector.select_from_MahjongTable(proto_data, unicode=True, ja=1)
+            action = Selector.select_from_MahjongTable(proto_data, unicode=True, ja=True)
             print("Action:")
             print(action)
             print(action.to_json())
@@ -41,7 +40,7 @@ def select_test():
             print("Action:")
             print(action)
             print(action.to_json())
-            action = Selector.select_from_proto(proto_data_list[i], unicode=True, ja=1)
+            action = Selector.select_from_proto(proto_data_list[i], unicode=True, ja=True)
             print("Action:")
             print(action)
             print(action.to_json())

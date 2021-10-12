@@ -13,7 +13,7 @@ from mjxproto.mjx_pb2 import ActionType
 class Selector:
     @classmethod
     def select_from_MahjongTable(
-        cls, table: MahjongTable, unicode: bool = False, ja: int = 0
+        cls, table: MahjongTable, unicode: bool = False, ja: bool = False
     ) -> Action:
         """Make selector from State/Observation MahjongTable data.
 
@@ -43,7 +43,7 @@ class Selector:
         questions = [
             inquirer.List(
                 "action",
-                message=["Select your action", "行動を選んでください"][ja],
+                message=("行動を選んでください" if ja else "Select your action"),
                 choices=choices,
             ),
         ]
@@ -56,9 +56,7 @@ class Selector:
     def make_choice(cls, action, i, unicode, ja) -> str:
         if action.type == ActionType.ACTION_TYPE_NO:
             return (
-                str(i)
-                + ":"
-                + (action_type_en[action.type] if ja == 0 else action_type_ja[action.type])
+                str(i) + ":" + (action_type_ja[action.type] if ja else action_type_en[action.type])
             )
 
         elif action.type in [
@@ -72,7 +70,7 @@ class Selector:
             return (
                 str(i)
                 + ":"
-                + (action_type_en[action.type] if ja == 0 else action_type_ja[action.type])
+                + (action_type_ja[action.type] if ja else action_type_en[action.type])
                 + "-"
                 + " ".join([get_tile_char(id, unicode) for id in open_tile_ids(action.open)])
             )
@@ -81,7 +79,7 @@ class Selector:
             return (
                 str(i)
                 + ":"
-                + (action_type_en[action.type] if ja == 0 else action_type_ja[action.type])
+                + (action_type_ja[action.type] if ja else action_type_en[action.type])
                 + "-"
                 + get_tile_char(action.tile, unicode)
             )
@@ -99,7 +97,7 @@ class Selector:
         cls,
         proto_data: Observation,
         unicode: bool = False,
-        ja: int = 0,
+        ja: bool = False,
     ) -> Action:
         """Make selector from State/Observation MahjongTable data.
 
