@@ -70,10 +70,13 @@ class RuleBasedAgent(Agent):
 
 
 class HumanControlAgent(Agent):  # type: ignore
-    def __init__(self, unicode: bool = False, ja: bool = False) -> None:
+    def __init__(self, unicode: bool = False, rich: bool = False, ja: bool = False) -> None:
         super().__init__()
         self.unicode: bool = unicode
         self.ja: bool = ja
+        self.rich: bool = rich
 
     def act(self, observation: Observation) -> Action:  # type: ignore
-        return Selector.select_from_proto(observation.to_proto(), unicode=self.unicode, ja=self.ja)
+        return Selector.select_from_proto(
+            observation.to_proto(), unicode=self.unicode, rich=self.rich, ja=self.ja
+        )

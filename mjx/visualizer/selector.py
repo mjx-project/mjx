@@ -13,7 +13,7 @@ from mjxproto.mjx_pb2 import ActionType
 class Selector:
     @classmethod
     def select_from_MahjongTable(
-        cls, table: MahjongTable, unicode: bool = False, ja: bool = False
+        cls, table: MahjongTable, unicode: bool = False, rich: bool = False, ja: bool = False
     ) -> Action:
         """Make selector from State/Observation MahjongTable data.
 
@@ -24,7 +24,9 @@ class Selector:
         ja: int (0-English,1-Japanese)
         """
         language: int = 1 if ja else 0
-        board_visualizer = GameBoardVisualizer(GameVisualConfig(uni=unicode, lang=language))
+        board_visualizer = GameBoardVisualizer(
+            GameVisualConfig(uni=unicode, rich=rich, lang=language)
+        )
         board_visualizer.print(table)
 
         assert len(table.legal_actions) != 0
@@ -98,6 +100,7 @@ class Selector:
         cls,
         proto_data: Observation,
         unicode: bool = False,
+        rich: bool = False,
         ja: bool = False,
     ) -> Action:
         """Make selector from State/Observation MahjongTable data.
@@ -110,5 +113,5 @@ class Selector:
         """
         assert isinstance(proto_data, Observation)
         return cls.select_from_MahjongTable(
-            MahjongTable.from_proto(proto_data), unicode=unicode, ja=ja
+            MahjongTable.from_proto(proto_data), unicode=unicode, rich=rich, ja=ja
         )
