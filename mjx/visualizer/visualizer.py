@@ -363,20 +363,71 @@ class MahjongTable:
         return table
 
     @classmethod
-    def decode_round_terminal(cls, table, round_terminal, win: bool):
+    def decode_round_terminal(cls, table: MahjongTable, round_terminal, win: bool):
         final_ten_changes = [0, 0, 0, 0]
         if win:
             for win_data in round_terminal.wins:
                 table.uradoras = win_data.ura_dora_indicators
                 for i in range(4):
+                    if table.players[i].player_idx == win_data.who:
+                        # 手牌をround_terminalのもので上書き
+                        table.players[i].tile_units = [
+                            t_u
+                            for t_u in table.players[i].tile_units
+                            if t_u.tile_unit_type == TileUnitType.DISCARD
+                        ]
+
+                        table.players[i].tile_units.append(
+                            TileUnit(
+                                TileUnitType.HAND,
+                                FromWho.NONE,
+                                [Tile(i, is_open=True) for i in win_data.hand.closed_tiles],
+                            )
+                        )
+                        for open in win_data.hand.opens:
+                            table.players[i].tile_units.append(
+                                TileUnit(
+                                    open_event_type(open),
+                                    open_from(open),
+                                    [Tile(i, is_open=True) for i in open_tile_ids(open)],
+                                )
+                            )
                     final_ten_changes[i] += win_data.ten_changes[i]
 
+            # 複数人勝者が居た場合のために、後でまとめて点数移動を計算
             for i, p in enumerate(table.players):
                 delta = final_ten_changes[i]
                 p.score = (
                     str(int(p.score) + delta) + ("(+" if delta > 0 else "(") + str(delta) + ")"
                 )
-        else:
+
+        else:  # nowinner
+            for tenpai_data in round_terminal.no_winner.tenpais:
+                for i in range(4):
+                    if table.players[i].player_idx == tenpai_data.who:
+                        # 手牌をround_terminalのもので上書き
+                        table.players[i].tile_units = [
+                            t_u
+                            for t_u in table.players[i].tile_units
+                            if t_u.tile_unit_type == TileUnitType.DISCARD
+                        ]
+
+                        table.players[i].tile_units.append(
+                            TileUnit(
+                                TileUnitType.HAND,
+                                FromWho.NONE,
+                                [Tile(i, is_open=True) for i in tenpai_data.hand.closed_tiles],
+                            )
+                        )
+                        for open in tenpai_data.hand.opens:
+                            table.players[i].tile_units.append(
+                                TileUnit(
+                                    open_event_type(open),
+                                    open_from(open),
+                                    [Tile(i, is_open=True) for i in open_tile_ids(open)],
+                                )
+                            )
+
             for i, p in enumerate(table.players):
                 delta = round_terminal.no_winner.ten_changes[i]
                 p.score = (
