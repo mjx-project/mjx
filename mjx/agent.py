@@ -5,6 +5,7 @@ import _mjx  # type: ignore
 
 from mjx.action import Action
 from mjx.observation import Observation
+from mjx.visualizer.selector import Selector
 
 
 class Agent(_mjx.Agent):  # type: ignore
@@ -66,3 +67,16 @@ class RuleBasedAgent(Agent):
 
     def _act(self, observation: _mjx.Observation) -> _mjx.Action:  # type: ignore
         return self._agent._act(observation)
+
+
+class HumanControlAgent(Agent):  # type: ignore
+    def __init__(self, unicode: bool = False, rich: bool = False, ja: bool = False) -> None:
+        super().__init__()
+        self.unicode: bool = unicode
+        self.ja: bool = ja
+        self.rich: bool = rich
+
+    def act(self, observation: Observation) -> Action:  # type: ignore
+        return Selector.select_from_proto(
+            observation.to_proto(), unicode=self.unicode, rich=self.rich, ja=self.ja
+        )
