@@ -371,7 +371,12 @@ class MahjongTable:
                 for i in range(4):
                     if table.players[i].player_idx == win_data.who:
                         # 手牌をround_terminalのもので上書き
-                        table.players[i].tile_units = []
+                        table.players[i].tile_units = [
+                            t_u
+                            for t_u in table.players[i].tile_units
+                            if t_u.tile_unit_type == TileUnitType.DISCARD
+                        ]
+
                         table.players[i].tile_units.append(
                             TileUnit(
                                 TileUnitType.HAND,
@@ -397,11 +402,16 @@ class MahjongTable:
                 )
 
         else:  # nowinner
-            for tenpai_data in round_terminal.nowinner.tenpais:
+            for tenpai_data in round_terminal.no_winner.tenpais:
                 for i in range(4):
                     if table.players[i].player_idx == tenpai_data.who:
                         # 手牌をround_terminalのもので上書き
-                        table.players[i].tile_units = []
+                        table.players[i].tile_units = [
+                            t_u
+                            for t_u in table.players[i].tile_units
+                            if t_u.tile_unit_type == TileUnitType.DISCARD
+                        ]
+
                         table.players[i].tile_units.append(
                             TileUnit(
                                 TileUnitType.HAND,
