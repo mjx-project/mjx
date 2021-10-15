@@ -1670,4 +1670,12 @@ mjxproto::Observation State::observation(const PlayerId &player_id) const {
     return obs.proto_;
   }
 }
+
+std::string State::ProtoToJson(const mjxproto::State &proto) {
+  std::string serialized;
+  auto status =
+      google::protobuf::util::MessageToJsonString(proto, &serialized);
+  Assert(status.ok());
+  return serialized;
+}
 }  // namespace mjx::internal

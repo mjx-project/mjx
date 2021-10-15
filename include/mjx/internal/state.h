@@ -159,6 +159,7 @@ class State {
   bool CanTsumo(AbsolutePos who) const;
 
   static mjxproto::State LoadJson(const std::string& json_str);
+  static std::string ProtoToJson(const mjxproto::State& proto);
 
   // protoのcurr_handを同期する。
   void SyncCurrHand(AbsolutePos who);
