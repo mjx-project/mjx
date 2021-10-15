@@ -127,6 +127,7 @@ bool Action::IsValid(const mjxproto::Action& action) {
   if (who < 0 or 3 < who) return false;
   switch (type) {
     case mjxproto::ACTION_TYPE_DISCARD:
+    case mjxproto::ACTION_TYPE_TSUMOGIRI:
     case mjxproto::ACTION_TYPE_TSUMO:
     case mjxproto::ACTION_TYPE_RON:
       if (!(0 <= action.tile() && action.tile() < 136)) return false;
@@ -149,11 +150,20 @@ bool Action::IsValid(const mjxproto::Action& action) {
   }
   return true;
 }
+
 bool Action::Equal(const mjxproto::Action& lhs, const mjxproto::Action& rhs) {
-  return lhs.game_id() == rhs.game_id() and lhs.who() == rhs.who() and
-         lhs.type() == rhs.type() and lhs.tile() == rhs.tile() and
-         lhs.open() == rhs.open();
+  if (lhs.game_id() != rhs.game_id()) return false;
+  if (lhs.who() != rhs.who()) return false;
+  if (lhs.type() != rhs.type()) return false;
+  if (Any(lhs.type(), {mjxproto::ACTION_TYPE_DISCARD, mjxproto::ACTION_TYPE_TSUMOGIRI, mjxproto::ACTION_TYPE_TSUMO, mjxproto::ACTION_TYPE_RON})) {
+    if (!Tile(lhs.tile()).Equals(Tile(rhs.tile()))) return false;
+  }
+  if (Any(lhs.type(), {mjxproto::ACTION_TYPE_CHI, mjxproto::ACTION_TYPE_PON, mjxproto::ACTION_TYPE_CLOSED_KAN, mjxproto::ACTION_TYPE_ADDED_KAN, mjxproto::ACTION_TYPE_OPEN_KAN})) {
+    if (!Open(lhs.open()).Equals(Open(rhs.open()))) return false;
+  }
+  return true;
 }
+
 std::uint8_t Action::Encode(const mjxproto::Action& action) {
   switch (action.type()) {
     case mjxproto::ACTION_TYPE_DISCARD: {
