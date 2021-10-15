@@ -310,54 +310,6 @@ State::State(const mjxproto::State &state) {
   for (int i = 0; i < 4; ++i) SyncCurrHand(AbsolutePos(i));
 }
 
-void State::UpdateByEvent(const mjxproto::Event &event) {
-  auto who = AbsolutePos(event.who());
-  switch (event.type()) {
-    case mjxproto::EVENT_TYPE_DRAW:
-      // TODO: wrap by func
-      // private_observations_[ToUType(who)].add_draw_history(state->private_observations(ToUType(who)).draw_history(draw_ixs[ToUType(who)]));
-      // draw_ixs[ToUType(who)]++;
-      Draw(who);
-      break;
-    case mjxproto::EVENT_TYPE_DISCARD:
-    case mjxproto::EVENT_TYPE_TSUMOGIRI:
-      Discard(who, Tile(event.tile()));
-      break;
-    case mjxproto::EVENT_TYPE_RIICHI:
-      Riichi(who);
-      break;
-    case mjxproto::EVENT_TYPE_TSUMO:
-      Tsumo(who);
-      break;
-    case mjxproto::EVENT_TYPE_RON:
-      Assert(LastEvent().type() == mjxproto::EVENT_TYPE_ADDED_KAN ||
-             Tile(LastEvent().tile()) == Tile(event.tile()));
-      Ron(who);
-      break;
-    case mjxproto::EVENT_TYPE_CHI:
-    case mjxproto::EVENT_TYPE_PON:
-    case mjxproto::EVENT_TYPE_CLOSED_KAN:
-    case mjxproto::EVENT_TYPE_OPEN_KAN:
-    case mjxproto::EVENT_TYPE_ADDED_KAN:
-      ApplyOpen(who, Open(event.open()));
-      break;
-    case mjxproto::EVENT_TYPE_NEW_DORA:
-      AddNewDora();
-      break;
-    case mjxproto::EVENT_TYPE_RIICHI_SCORE_CHANGE:
-      RiichiScoreChange();
-      break;
-    case mjxproto::EVENT_TYPE_ABORTIVE_DRAW_NINE_TERMINALS:
-    case mjxproto::EVENT_TYPE_ABORTIVE_DRAW_FOUR_RIICHIS:
-    case mjxproto::EVENT_TYPE_ABORTIVE_DRAW_THREE_RONS:
-    case mjxproto::EVENT_TYPE_ABORTIVE_DRAW_FOUR_KANS:
-    case mjxproto::EVENT_TYPE_ABORTIVE_DRAW_FOUR_WINDS:
-    case mjxproto::EVENT_TYPE_EXHAUSTIVE_DRAW_NORMAL:
-    case mjxproto::EVENT_TYPE_EXHAUSTIVE_DRAW_NAGASHI_MANGAN:
-      NoWinner(event.type());
-      break;
-  }
-}
 
 std::string State::ToJson() const {
   std::string serialized;

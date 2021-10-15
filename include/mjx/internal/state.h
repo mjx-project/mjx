@@ -85,9 +85,6 @@ class State {
   bool Equals(const State& other) const noexcept;
   bool CanReach(const State& other) const noexcept;
 
-  // TODO: make private
-  void UpdateByEvent(const mjxproto::Event& event);
-
   static bool CheckGameOver(int round, std::array<int, 4> tens,
                             AbsolutePos dealer, bool is_dealer_win_or_tenpai,
                             std::optional<mjxproto::EventType> no_winner_type =
