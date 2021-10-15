@@ -172,6 +172,7 @@ message HiddenState {
 message Action {
   //                   tile   open
   //  DISCARD           Yes     No
+  //  TSUMOGIRI         Yes     No
   //  RIICHI             No     No
   //  TSUMO             Yes     No
   //  CLOSED_KAN         No    Yes

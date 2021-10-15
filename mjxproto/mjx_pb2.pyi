@@ -507,6 +507,7 @@ class Action(google.protobuf.message.Message):
     game_id: typing.Text = ...
     """                  tile   open
      DISCARD           Yes     No
+     TSUMOGIRI         Yes     No
      RIICHI             No     No
      TSUMO             Yes     No
      CLOSED_KAN         No    Yes

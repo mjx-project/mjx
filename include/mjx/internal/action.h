@@ -34,6 +34,9 @@ class Action {
                                           std::string game_id = "");
   static mjxproto::Action CreateDummy(AbsolutePos who,
                                       std::string game_id = "");
+  static std::optional<mjxproto::Action> FromEvent(
+      const mjxproto::Event& event);
+  static std::string ProtoToJson(const mjxproto::Action& proto);
   static bool Equal(const mjxproto::Action& lhs, const mjxproto::Action& rhs);
   static std::uint8_t Encode(const mjxproto::Action& action);
   static mjxproto::Action Decode(

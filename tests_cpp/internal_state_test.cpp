@@ -116,7 +116,7 @@ std::string SwapTiles(const std::string &json_str, Tile a, Tile b) {
     else if (state.hidden_state().ura_dora_indicators(i) == b.Id())
       state.mutable_hidden_state()->set_ura_dora_indicators(i, a.Id());
   }
-  // init hand, draw_history
+  // init hand, curr hand, draw_history
   for (int j = 0; j < 4; ++j) {
     auto init_hand = state.mutable_private_observations(j)->mutable_init_hand();
     for (int i = 0; i < init_hand->closed_tiles_size(); ++i) {
@@ -125,6 +125,17 @@ std::string SwapTiles(const std::string &json_str, Tile a, Tile b) {
       else if (init_hand->closed_tiles(i) == b.Id())
         init_hand->set_closed_tiles(i, a.Id());
     }
+
+    auto curr_hand = state.mutable_private_observations(j)->mutable_curr_hand();
+    for (int i = 0; i < curr_hand->closed_tiles_size(); ++i) {
+      if (curr_hand->closed_tiles(i) == a.Id())
+        curr_hand->set_closed_tiles(i, b.Id());
+      else if (curr_hand->closed_tiles(i) == b.Id())
+        curr_hand->set_closed_tiles(i, a.Id());
+    }
+    std::sort(curr_hand->mutable_closed_tiles()->begin(),
+              curr_hand->mutable_closed_tiles()->end());
+
     auto mpinfo = state.mutable_private_observations(j);
     for (int i = 0; i < mpinfo->draw_history_size(); ++i) {
       if (mpinfo->draw_history(i) == a.Id())
@@ -971,10 +982,38 @@ std::string TruncateAfterFirstDraw(const std::string &json) {
   mjxproto::State state = mjxproto::State();
   auto status = google::protobuf::util::JsonStringToMessage(json, &state);
   Assert(status.ok());
+
+  // events
   auto events = state.mutable_public_observation()->mutable_events();
   events->erase(events->begin() + 1, events->end());
   state.clear_round_terminal();
-  // drawについては消さなくても良い（wallから引いてsetされるので）
+
+  // doras, uradoras
+  auto doras = state.mutable_public_observation()->mutable_dora_indicators();
+  doras->erase(doras->begin() + 1, doras->end());
+  auto uradoras = state.mutable_hidden_state()->mutable_ura_dora_indicators();
+  uradoras->erase(uradoras->begin() + 1, uradoras->end());
+
+  auto dealer = events->at(0).who();
+  auto first_tsumo = state.hidden_state().wall().at(13 * 4);
+  for (int i = 0; i < 4; ++i) {
+    // draw_hist
+    auto draw_hist =
+        state.mutable_private_observations(i)->mutable_draw_history();
+    draw_hist->erase(draw_hist->begin(), draw_hist->end());
+    // curr_hand
+    auto curr_hand = state.mutable_private_observations(i)->mutable_curr_hand();
+    auto init_hand = state.private_observations(i).init_hand();
+    curr_hand->CopyFrom(init_hand);
+    // first draw
+    if (i == dealer) {
+      draw_hist->Add(first_tsumo);
+      curr_hand->mutable_closed_tiles()->Add(first_tsumo);
+    }
+    std::sort(curr_hand->mutable_closed_tiles()->begin(),
+              curr_hand->mutable_closed_tiles()->end());
+  }
+
   std::string serialized;
   status = google::protobuf::util::MessageToJsonString(state, &serialized);
   Assert(status.ok());

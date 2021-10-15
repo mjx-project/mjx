@@ -3,6 +3,8 @@
 #include <google/protobuf/util/json_util.h>
 #include <google/protobuf/util/message_differencer.h>
 
+#include <queue>
+
 #include "mjx/internal/utils.h"
 
 namespace mjx::internal {
@@ -258,10 +260,6 @@ mjxproto::State State::LoadJson(const std::string &json_str) {
 State::State(const std::string &json_str) : State(LoadJson(json_str)) {}
 
 State::State(const mjxproto::State &state) {
-  // mjxproto::State state = mjxproto::State();
-  // auto status = google::protobuf::util::JsonStringToMessage(json_str,
-  // &state); Assert(status.ok());
-
   // Set player ids
   state_.mutable_public_observation()->mutable_player_ids()->CopyFrom(
       state.public_observation().player_ids());
@@ -302,70 +300,99 @@ State::State(const mjxproto::State &state) {
         state.public_observation().game_id());
   }
 
-  for (const auto &event : state.public_observation().events()) {
-    UpdateByEvent(event);
-  }
+  // Initial draw from dealer
+  Draw(dealer());
 
   // sync curr_hand
   for (int i = 0; i < 4; ++i) SyncCurrHand(AbsolutePos(i));
-}
 
-void State::UpdateByEvent(const mjxproto::Event &event) {
-  auto who = AbsolutePos(event.who());
-  switch (event.type()) {
-    case mjxproto::EVENT_TYPE_DRAW:
-      // TODO: wrap by func
-      // private_observations_[ToUType(who)].add_draw_history(state->private_observations(ToUType(who)).draw_history(draw_ixs[ToUType(who)]));
-      // draw_ixs[ToUType(who)]++;
-      Draw(who);
-      break;
-    case mjxproto::EVENT_TYPE_DISCARD:
-    case mjxproto::EVENT_TYPE_TSUMOGIRI:
-      Discard(who, Tile(event.tile()));
-      break;
-    case mjxproto::EVENT_TYPE_RIICHI:
-      Riichi(who);
-      break;
-    case mjxproto::EVENT_TYPE_TSUMO:
-      Tsumo(who);
-      break;
-    case mjxproto::EVENT_TYPE_RON:
-      Assert(LastEvent().type() == mjxproto::EVENT_TYPE_ADDED_KAN ||
-             Tile(LastEvent().tile()) == Tile(event.tile()));
-      Ron(who);
-      break;
-    case mjxproto::EVENT_TYPE_CHI:
-    case mjxproto::EVENT_TYPE_PON:
-    case mjxproto::EVENT_TYPE_CLOSED_KAN:
-    case mjxproto::EVENT_TYPE_OPEN_KAN:
-    case mjxproto::EVENT_TYPE_ADDED_KAN:
-      ApplyOpen(who, Open(event.open()));
-      break;
-    case mjxproto::EVENT_TYPE_NEW_DORA:
-      AddNewDora();
-      break;
-    case mjxproto::EVENT_TYPE_RIICHI_SCORE_CHANGE:
-      RiichiScoreChange();
-      break;
-    case mjxproto::EVENT_TYPE_ABORTIVE_DRAW_NINE_TERMINALS:
-    case mjxproto::EVENT_TYPE_ABORTIVE_DRAW_FOUR_RIICHIS:
-    case mjxproto::EVENT_TYPE_ABORTIVE_DRAW_THREE_RONS:
-    case mjxproto::EVENT_TYPE_ABORTIVE_DRAW_FOUR_KANS:
-    case mjxproto::EVENT_TYPE_ABORTIVE_DRAW_FOUR_WINDS:
-    case mjxproto::EVENT_TYPE_EXHAUSTIVE_DRAW_NORMAL:
-    case mjxproto::EVENT_TYPE_EXHAUSTIVE_DRAW_NAGASHI_MANGAN:
-      NoWinner(event.type());
-      break;
+  // Update by events
+  std::queue<mjxproto::Action> actions;
+  int last_ron_target = -1;
+  int last_ron_target_tile = -1;
+  for (const auto &event : state.public_observation().events()) {
+    if (Any(event.type(),
+            {mjxproto::EVENT_TYPE_DISCARD, mjxproto::EVENT_TYPE_TSUMOGIRI,
+             mjxproto::EVENT_TYPE_ADDED_KAN})) {
+      last_ron_target = event.who();
+      last_ron_target_tile = event.tile();
+    }
+    if (event.type() == mjxproto::EVENT_TYPE_ABORTIVE_DRAW_THREE_RONS) {
+      assert(last_ron_target != -1);
+      assert(last_ron_target_tile != -1);
+      for (int i = 0; i < 4; ++i) {
+        if (i == last_ron_target) continue;
+        mjxproto::Action ron =
+            Action::CreateRon(AbsolutePos(i), Tile(last_ron_target_tile),
+                              state_.public_observation().game_id());
+        actions.push(ron);
+      }
+      continue;
+    }
+    std::optional<mjxproto::Action> action = Action::FromEvent(event);
+    if (action) actions.push(action.value());
   }
+
+  while (state.public_observation().events_size() >
+         state_.public_observation().events_size()) {
+    auto observations = CreateObservations();
+    std::unordered_set<PlayerId> is_action_set;
+    std::vector<mjxproto::Action> action_candidates;
+
+    // set action from next_action
+    while (true) {
+      if (actions.empty()) break;
+      mjxproto::Action next_action = actions.front();
+      bool should_continue = false;
+      for (const auto &[player_id, obs] : observations) {
+        if (is_action_set.count(player_id)) continue;
+        std::vector<mjxproto::Action> legal_actions = obs.legal_actions();
+        bool has_next_action =
+            std::count_if(legal_actions.begin(), legal_actions.end(),
+                          [&next_action](const mjxproto::Action &x) {
+                            return Action::Equal(x, next_action);
+                          });
+        if (has_next_action) {
+          action_candidates.push_back(next_action);
+          is_action_set.insert(player_id);
+          actions.pop();
+          should_continue = true;
+          break;
+        }
+      }
+      if (!should_continue) break;
+    }
+
+    // set no actions
+    for (const auto &[player_id, obs] : observations) {
+      if (is_action_set.count(player_id)) continue;
+      std::vector<mjxproto::Action> legal_actions = obs.legal_actions();
+      auto itr = std::find_if(legal_actions.begin(), legal_actions.end(),
+                              [](const mjxproto::Action &x) {
+                                return x.type() == mjxproto::ACTION_TYPE_NO;
+                              });
+      Assert(itr != legal_actions.end(),
+             "Legal actions should have No Action.\nExpected:\n" +
+                 ProtoToJson(state) + "\nActual:\n" + ToJson());
+      auto action_no = *itr;
+      action_candidates.push_back(action_no);
+    }
+
+    Assert(action_candidates.size() == observations.size(),
+           "Expected:\n" + ProtoToJson(state) + "\nActual:\n" + ToJson() +
+               "action_candidates.size():\n" +
+               std::to_string(action_candidates.size()) +
+               "\nobservations.size():\n" +
+               std::to_string(observations.size()));
+
+    Update(std::move(action_candidates));
+  }
+
+  Assert(google::protobuf::util::MessageDifferencer::Equals(state, proto()),
+         "Expected:\n" + ProtoToJson(state) + "\nActual:\n" + ToJson());
 }
 
-std::string State::ToJson() const {
-  std::string serialized;
-  auto status =
-      google::protobuf::util::MessageToJsonString(state_, &serialized);
-  Assert(status.ok());
-  return serialized;
-}
+std::string State::ToJson() const { return ProtoToJson(state_); }
 
 Tile State::Draw(AbsolutePos who) {
   if (TargetTile().has_value()) {
@@ -1717,5 +1744,12 @@ mjxproto::Observation State::observation(const PlayerId &player_id) const {
     auto obs = Observation(seat, state_);
     return obs.proto_;
   }
+}
+
+std::string State::ProtoToJson(const mjxproto::State &proto) {
+  std::string serialized;
+  auto status = google::protobuf::util::MessageToJsonString(proto, &serialized);
+  Assert(status.ok());
+  return serialized;
 }
 }  // namespace mjx::internal

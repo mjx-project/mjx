@@ -127,6 +127,7 @@ bool Action::IsValid(const mjxproto::Action& action) {
   if (who < 0 or 3 < who) return false;
   switch (type) {
     case mjxproto::ACTION_TYPE_DISCARD:
+    case mjxproto::ACTION_TYPE_TSUMOGIRI:
     case mjxproto::ACTION_TYPE_TSUMO:
     case mjxproto::ACTION_TYPE_RON:
       if (!(0 <= action.tile() && action.tile() < 136)) return false;
@@ -149,11 +150,25 @@ bool Action::IsValid(const mjxproto::Action& action) {
   }
   return true;
 }
+
 bool Action::Equal(const mjxproto::Action& lhs, const mjxproto::Action& rhs) {
-  return lhs.game_id() == rhs.game_id() and lhs.who() == rhs.who() and
-         lhs.type() == rhs.type() and lhs.tile() == rhs.tile() and
-         lhs.open() == rhs.open();
+  if (lhs.game_id() != rhs.game_id()) return false;
+  if (lhs.who() != rhs.who()) return false;
+  if (lhs.type() != rhs.type()) return false;
+  if (Any(lhs.type(),
+          {mjxproto::ACTION_TYPE_DISCARD, mjxproto::ACTION_TYPE_TSUMOGIRI,
+           mjxproto::ACTION_TYPE_TSUMO, mjxproto::ACTION_TYPE_RON})) {
+    if (!Tile(lhs.tile()).Equals(Tile(rhs.tile()))) return false;
+  }
+  if (Any(lhs.type(),
+          {mjxproto::ACTION_TYPE_CHI, mjxproto::ACTION_TYPE_PON,
+           mjxproto::ACTION_TYPE_CLOSED_KAN, mjxproto::ACTION_TYPE_ADDED_KAN,
+           mjxproto::ACTION_TYPE_OPEN_KAN})) {
+    if (!Open(lhs.open()).Equals(Open(rhs.open()))) return false;
+  }
+  return true;
 }
+
 std::uint8_t Action::Encode(const mjxproto::Action& action) {
   switch (action.type()) {
     case mjxproto::ACTION_TYPE_DISCARD: {
@@ -292,5 +307,65 @@ mjxproto::Action Action::Decode(
     }
   }
   assert(false);  // selected action is not found in possible action
+}
+
+std::optional<mjxproto::Action> Action::FromEvent(
+    const mjxproto::Event& event) {
+  mjxproto::Action proto;
+  if (event.type() == mjxproto::EVENT_TYPE_DISCARD) {
+    proto.set_type(mjxproto::ACTION_TYPE_DISCARD);
+    proto.set_who(event.who());
+    proto.set_tile(event.tile());
+  } else if (event.type() == mjxproto::EVENT_TYPE_TSUMOGIRI) {
+    proto.set_type(mjxproto::ACTION_TYPE_TSUMOGIRI);
+    proto.set_who(event.who());
+    proto.set_tile(event.tile());
+  } else if (event.type() == mjxproto::EVENT_TYPE_RIICHI) {
+    proto.set_type(mjxproto::ACTION_TYPE_RIICHI);
+    proto.set_who(event.who());
+  } else if (event.type() == mjxproto::EVENT_TYPE_TSUMO) {
+    proto.set_type(mjxproto::ACTION_TYPE_TSUMO);
+    proto.set_who(event.who());
+    proto.set_tile(event.tile());
+  } else if (event.type() == mjxproto::EVENT_TYPE_RON) {
+    proto.set_type(mjxproto::ACTION_TYPE_RON);
+    proto.set_who(event.who());
+    proto.set_tile(event.tile());
+  } else if (event.type() == mjxproto::EVENT_TYPE_CHI) {
+    proto.set_type(mjxproto::ACTION_TYPE_CHI);
+    proto.set_who(event.who());
+    proto.set_open(event.open());
+  } else if (event.type() == mjxproto::EVENT_TYPE_PON) {
+    proto.set_type(mjxproto::ACTION_TYPE_PON);
+    proto.set_who(event.who());
+    proto.set_open(event.open());
+  } else if (event.type() == mjxproto::EVENT_TYPE_CLOSED_KAN) {
+    proto.set_type(mjxproto::ACTION_TYPE_CLOSED_KAN);
+    proto.set_who(event.who());
+    proto.set_open(event.open());
+  } else if (event.type() == mjxproto::EVENT_TYPE_OPEN_KAN) {
+    proto.set_type(mjxproto::ACTION_TYPE_OPEN_KAN);
+    proto.set_who(event.who());
+    proto.set_open(event.open());
+  } else if (event.type() == mjxproto::EVENT_TYPE_ADDED_KAN) {
+    proto.set_type(mjxproto::ACTION_TYPE_ADDED_KAN);
+    proto.set_who(event.who());
+    proto.set_open(event.open());
+  } else if (event.type() ==
+             mjxproto::EVENT_TYPE_ABORTIVE_DRAW_NINE_TERMINALS) {
+    proto.set_type(mjxproto::ACTION_TYPE_ABORTIVE_DRAW_NINE_TERMINALS);
+    proto.set_who(event.who());
+  } else {
+    return std::nullopt;
+  }
+  assert(IsValid(proto));
+  return proto;
+}
+
+std::string Action::ProtoToJson(const mjxproto::Action& proto) {
+  std::string serialized;
+  auto status = google::protobuf::util::MessageToJsonString(proto, &serialized);
+  Assert(status.ok());
+  return serialized;
 }
 }  // namespace mjx::internal

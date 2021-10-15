@@ -85,9 +85,6 @@ class State {
   bool Equals(const State& other) const noexcept;
   bool CanReach(const State& other) const noexcept;
 
-  // TODO: make private
-  void UpdateByEvent(const mjxproto::Event& event);
-
   static bool CheckGameOver(int round, std::array<int, 4> tens,
                             AbsolutePos dealer, bool is_dealer_win_or_tenpai,
                             std::optional<mjxproto::EventType> no_winner_type =
@@ -162,6 +159,7 @@ class State {
   bool CanTsumo(AbsolutePos who) const;
 
   static mjxproto::State LoadJson(const std::string& json_str);
+  static std::string ProtoToJson(const mjxproto::State& proto);
 
   // protoのcurr_handを同期する。
   void SyncCurrHand(AbsolutePos who);
