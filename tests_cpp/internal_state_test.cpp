@@ -133,7 +133,8 @@ std::string SwapTiles(const std::string &json_str, Tile a, Tile b) {
       else if (curr_hand->closed_tiles(i) == b.Id())
         curr_hand->set_closed_tiles(i, a.Id());
     }
-    std::sort(curr_hand->mutable_closed_tiles()->begin(), curr_hand->mutable_closed_tiles()->end());
+    std::sort(curr_hand->mutable_closed_tiles()->begin(),
+              curr_hand->mutable_closed_tiles()->end());
 
     auto mpinfo = state.mutable_private_observations(j);
     for (int i = 0; i < mpinfo->draw_history_size(); ++i) {
@@ -989,7 +990,7 @@ std::string TruncateAfterFirstDraw(const std::string &json) {
 
   // doras, uradoras
   auto doras = state.mutable_public_observation()->mutable_dora_indicators();
-  doras->erase(doras->begin()+1, doras->end());
+  doras->erase(doras->begin() + 1, doras->end());
   auto uradoras = state.mutable_hidden_state()->mutable_ura_dora_indicators();
   uradoras->erase(uradoras->begin() + 1, uradoras->end());
 
@@ -997,7 +998,8 @@ std::string TruncateAfterFirstDraw(const std::string &json) {
   auto first_tsumo = state.hidden_state().wall().at(13 * 4);
   for (int i = 0; i < 4; ++i) {
     // draw_hist
-    auto draw_hist = state.mutable_private_observations(i)->mutable_draw_history();
+    auto draw_hist =
+        state.mutable_private_observations(i)->mutable_draw_history();
     draw_hist->erase(draw_hist->begin(), draw_hist->end());
     // curr_hand
     auto curr_hand = state.mutable_private_observations(i)->mutable_curr_hand();
@@ -1008,7 +1010,8 @@ std::string TruncateAfterFirstDraw(const std::string &json) {
       draw_hist->Add(first_tsumo);
       curr_hand->mutable_closed_tiles()->Add(first_tsumo);
     }
-    std::sort(curr_hand->mutable_closed_tiles()->begin(), curr_hand->mutable_closed_tiles()->end());
+    std::sort(curr_hand->mutable_closed_tiles()->begin(),
+              curr_hand->mutable_closed_tiles()->end());
   }
 
   std::string serialized;
