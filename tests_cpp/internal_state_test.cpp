@@ -116,7 +116,7 @@ std::string SwapTiles(const std::string &json_str, Tile a, Tile b) {
     else if (state.hidden_state().ura_dora_indicators(i) == b.Id())
       state.mutable_hidden_state()->set_ura_dora_indicators(i, a.Id());
   }
-  // init hand, draw_history
+  // init hand, curr hand, draw_history
   for (int j = 0; j < 4; ++j) {
     auto init_hand = state.mutable_private_observations(j)->mutable_init_hand();
     for (int i = 0; i < init_hand->closed_tiles_size(); ++i) {
@@ -125,6 +125,16 @@ std::string SwapTiles(const std::string &json_str, Tile a, Tile b) {
       else if (init_hand->closed_tiles(i) == b.Id())
         init_hand->set_closed_tiles(i, a.Id());
     }
+
+    auto curr_hand = state.mutable_private_observations(j)->mutable_curr_hand();
+    for (int i = 0; i < curr_hand->closed_tiles_size(); ++i) {
+      if (curr_hand->closed_tiles(i) == a.Id())
+        curr_hand->set_closed_tiles(i, b.Id());
+      else if (curr_hand->closed_tiles(i) == b.Id())
+        curr_hand->set_closed_tiles(i, a.Id());
+    }
+    std::sort(curr_hand->mutable_closed_tiles()->begin(), curr_hand->mutable_closed_tiles()->end());
+
     auto mpinfo = state.mutable_private_observations(j);
     for (int i = 0; i < mpinfo->draw_history_size(); ++i) {
       if (mpinfo->draw_history(i) == a.Id())
