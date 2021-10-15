@@ -260,10 +260,6 @@ mjxproto::State State::LoadJson(const std::string &json_str) {
 State::State(const std::string &json_str) : State(LoadJson(json_str)) {}
 
 State::State(const mjxproto::State &state) {
-  // mjxproto::State state = mjxproto::State();
-  // auto status = google::protobuf::util::JsonStringToMessage(json_str,
-  // &state); Assert(status.ok());
-
   // Set player ids
   state_.mutable_public_observation()->mutable_player_ids()->CopyFrom(
       state.public_observation().player_ids());
