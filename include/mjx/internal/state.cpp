@@ -1,8 +1,9 @@
-#include <queue>
 #include "mjx/internal/state.h"
 
 #include <google/protobuf/util/json_util.h>
 #include <google/protobuf/util/message_differencer.h>
+
+#include <queue>
 
 #include "mjx/internal/utils.h"
 
@@ -316,17 +317,18 @@ State::State(const mjxproto::State &state) {
     if (action) actions.push(action.value());
   }
 
-  while(state.public_observation().events_size() > state_.public_observation().events_size()) {
+  while (state.public_observation().events_size() >
+         state_.public_observation().events_size()) {
     auto observations = CreateObservations();
     std::unordered_set<PlayerId> is_action_set;
     std::vector<mjxproto::Action> action_candidates;
 
     // set action from next_action
     while (true) {
-      if(actions.empty()) break;
+      if (actions.empty()) break;
       mjxproto::Action next_action = actions.front();
       bool should_continue = false;
-      for (const auto& [player_id, obs]: observations) {
+      for (const auto &[player_id, obs] : observations) {
         if (is_action_set.count(player_id)) continue;
         std::vector<mjxproto::Action> legal_actions = obs.legal_actions();
         bool has_next_action =
@@ -346,30 +348,35 @@ State::State(const mjxproto::State &state) {
     }
 
     // set no actions
-    for (const auto& [player_id, obs]: observations) {
+    for (const auto &[player_id, obs] : observations) {
       if (is_action_set.count(player_id)) continue;
       std::vector<mjxproto::Action> legal_actions = obs.legal_actions();
       auto itr = std::find_if(legal_actions.begin(), legal_actions.end(),
-                                       [](const mjxproto::Action& x){ return x.type() == mjxproto::ACTION_TYPE_NO; });
+                              [](const mjxproto::Action &x) {
+                                return x.type() == mjxproto::ACTION_TYPE_NO;
+                              });
       Assert(itr != legal_actions.end(),
-               "Legal actions should have No Action.\nExpected:\n" + ProtoToJson(state) + "\nActual:\n" + ToJson());
+             "Legal actions should have No Action.\nExpected:\n" +
+                 ProtoToJson(state) + "\nActual:\n" + ToJson());
       auto action_no = *itr;
       action_candidates.push_back(action_no);
     }
 
     Assert(action_candidates.size() == observations.size(),
- "Expected:\n" + ProtoToJson(state) + "\nActual:\n" + ToJson()        + "action_candidates.size():\n" + std::to_string(action_candidates.size()) + "\nobservations.size():\n" + std::to_string(observations.size()));
+           "Expected:\n" + ProtoToJson(state) + "\nActual:\n" + ToJson() +
+               "action_candidates.size():\n" +
+               std::to_string(action_candidates.size()) +
+               "\nobservations.size():\n" +
+               std::to_string(observations.size()));
 
     Update(std::move(action_candidates));
   }
 
-  Assert(google::protobuf::util::MessageDifferencer::Equals(state, proto()), "Expected:\n" + ProtoToJson(state) + "\nActual:\n" + ToJson());
+  Assert(google::protobuf::util::MessageDifferencer::Equals(state, proto()),
+         "Expected:\n" + ProtoToJson(state) + "\nActual:\n" + ToJson());
 }
 
-
-std::string State::ToJson() const {
-  return ProtoToJson(state_);
-}
+std::string State::ToJson() const { return ProtoToJson(state_); }
 
 Tile State::Draw(AbsolutePos who) {
   if (TargetTile().has_value()) {
@@ -1725,8 +1732,7 @@ mjxproto::Observation State::observation(const PlayerId &player_id) const {
 
 std::string State::ProtoToJson(const mjxproto::State &proto) {
   std::string serialized;
-  auto status =
-      google::protobuf::util::MessageToJsonString(proto, &serialized);
+  auto status = google::protobuf::util::MessageToJsonString(proto, &serialized);
   Assert(status.ok());
   return serialized;
 }
