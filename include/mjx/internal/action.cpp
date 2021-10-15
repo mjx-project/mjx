@@ -293,4 +293,59 @@ mjxproto::Action Action::Decode(
   }
   assert(false);  // selected action is not found in possible action
 }
+
+std::optional<mjxproto::Action> Action::FromEvent(
+    const mjxproto::Event& event) {
+    mjxproto::Action proto;
+    if (event.type() == mjxproto::EVENT_TYPE_DISCARD) {
+      proto.set_type(mjxproto::ACTION_TYPE_DISCARD);
+      proto.set_who(event.who());
+      proto.set_tile(event.tile());
+    } else if (event.type() == mjxproto::EVENT_TYPE_TSUMOGIRI) {
+      proto.set_type(mjxproto::ACTION_TYPE_TSUMOGIRI);
+      proto.set_who(event.who());
+      proto.set_tile(event.tile());
+    } else if (event.type() == mjxproto::EVENT_TYPE_RIICHI) {
+      proto.set_type(mjxproto::ACTION_TYPE_RIICHI);
+      proto.set_who(event.who());
+    } else if (event.type() == mjxproto::EVENT_TYPE_TSUMO) {
+      proto.set_type(mjxproto::ACTION_TYPE_TSUMO);
+      proto.set_who(event.who());
+      proto.set_tile(event.tile());
+    } else if (event.type() == mjxproto::EVENT_TYPE_RON) {
+      proto.set_type(mjxproto::ACTION_TYPE_RON);
+      proto.set_who(event.who());
+      proto.set_tile(event.tile());
+    } else if (event.type() == mjxproto::EVENT_TYPE_CHI) {
+      proto.set_type(mjxproto::ACTION_TYPE_CHI);
+      proto.set_who(event.who());
+      proto.set_open(event.open());
+    } else if (event.type() == mjxproto::EVENT_TYPE_PON) {
+      proto.set_type(mjxproto::ACTION_TYPE_PON);
+      proto.set_who(event.who());
+      proto.set_open(event.open());
+    } else if (event.type() == mjxproto::EVENT_TYPE_CLOSED_KAN) {
+      proto.set_type(mjxproto::ACTION_TYPE_CLOSED_KAN);
+      proto.set_who(event.who());
+      proto.set_open(event.open());
+    } else if (event.type() == mjxproto::EVENT_TYPE_OPEN_KAN) {
+      proto.set_type(mjxproto::ACTION_TYPE_OPEN_KAN);
+      proto.set_who(event.who());
+      proto.set_open(event.open());
+    } else if (event.type() == mjxproto::EVENT_TYPE_ADDED_KAN) {
+      proto.set_type(mjxproto::ACTION_TYPE_ADDED_KAN);
+      proto.set_who(event.who());
+      proto.set_open(event.open());
+    } else if (event.type() ==
+               mjxproto::EVENT_TYPE_ABORTIVE_DRAW_NINE_TERMINALS) {
+      proto.set_type(mjxproto::ACTION_TYPE_ABORTIVE_DRAW_NINE_TERMINALS);
+      proto.set_who(event.who());
+    } else {
+      return std::nullopt;
+    }
+    assert(IsValid(proto));
+    return proto;
+  };
+
+}
 }  // namespace mjx::internal
