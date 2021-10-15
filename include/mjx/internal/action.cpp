@@ -346,4 +346,12 @@ std::optional<mjxproto::Action> Action::FromEvent(
     assert(IsValid(proto));
     return proto;
   }
+
+std::string Action::ProtoToJson(const mjxproto::Action& proto) {
+  std::string serialized;
+  auto status =
+      google::protobuf::util::MessageToJsonString(proto, &serialized);
+  Assert(status.ok());
+  return serialized;
+}
 }  // namespace mjx::internal
