@@ -1063,13 +1063,6 @@ bool BFSCheck(const std::string &init_json, const std::string &target_json) {
   return false;
 };
 
-TEST(internal_state, Constructor) {
-  const bool all_ok = ParallelTest([](const std::string &json) {
-    return json == State(json).ToJson();
-  });
-  EXPECT_TRUE(all_ok);
-}
-
 TEST(internal_state, StateTrans) {
   // ListUpAllActionCombinationsの動作確認
   auto json_before = GetLastJsonLine("upd-bef-ron3.json");
