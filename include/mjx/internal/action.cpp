@@ -345,7 +345,5 @@ std::optional<mjxproto::Action> Action::FromEvent(
     }
     assert(IsValid(proto));
     return proto;
-  };
-
-}
+  }
 }  // namespace mjx::internal
