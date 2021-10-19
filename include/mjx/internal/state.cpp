@@ -1752,4 +1752,10 @@ std::string State::ProtoToJson(const mjxproto::State &proto) {
   Assert(status.ok());
   return serialized;
 }
+
+std::vector<std::pair<mjxproto::Observation, mjxproto::Action>>
+State::past_decisions() const noexcept {
+  std::vector<std::pair<mjxproto::Observation, mjxproto::Action>> decisions;
+  return decisions;
+}
 }  // namespace mjx::internal
