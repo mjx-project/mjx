@@ -260,51 +260,7 @@ mjxproto::State State::LoadJson(const std::string &json_str) {
 State::State(const std::string &json_str) : State(LoadJson(json_str)) {}
 
 State::State(const mjxproto::State &state) {
-  // Set player ids
-  state_.mutable_public_observation()->mutable_player_ids()->CopyFrom(
-      state.public_observation().player_ids());
-  // Set scores
-  state_.mutable_public_observation()->mutable_init_score()->CopyFrom(
-      state.public_observation().init_score());
-  curr_score_.CopyFrom(state.public_observation().init_score());
-  // Set walls
-  auto wall_tiles = std::vector<Tile>();
-  for (auto tile_id : state.hidden_state().wall())
-    wall_tiles.emplace_back(Tile(tile_id));
-  wall_ = Wall(round(), wall_tiles);
-  state_.mutable_hidden_state()->mutable_wall()->CopyFrom(
-      state.hidden_state().wall());
-  // Set seed
-  state_.mutable_hidden_state()->set_game_seed(
-      state.hidden_state().game_seed());
-  // Set dora
-  state_.mutable_public_observation()->add_dora_indicators(
-      wall_.dora_indicators().front().Id());
-  state_.mutable_hidden_state()->add_ura_dora_indicators(
-      wall_.ura_dora_indicators().front().Id());
-  // Set init hands
-  for (int i = 0; i < 4; ++i) {
-    players_[i] =
-        Player{state_.public_observation().player_ids(i), AbsolutePos(i),
-               Hand(wall_.initial_hand_tiles(AbsolutePos(i)))};
-    state_.mutable_private_observations()->Add();
-    state_.mutable_private_observations(i)->set_who(i);
-    for (auto t : wall_.initial_hand_tiles(AbsolutePos(i))) {
-      state_.mutable_private_observations(i)
-          ->mutable_init_hand()
-          ->mutable_closed_tiles()
-          ->Add(t.Id());
-    }
-    // set game_id
-    state_.mutable_public_observation()->set_game_id(
-        state.public_observation().game_id());
-  }
-
-  // Initial draw from dealer
-  Draw(dealer());
-
-  // sync curr_hand
-  for (int i = 0; i < 4; ++i) SyncCurrHand(AbsolutePos(i));
+  SetInitState(state, *this);
 
   // Update by events
   std::queue<mjxproto::Action> actions;
@@ -1757,5 +1713,53 @@ std::vector<std::pair<mjxproto::Observation, mjxproto::Action>>
 State::past_decisions() const noexcept {
   std::vector<std::pair<mjxproto::Observation, mjxproto::Action>> decisions;
   return decisions;
+}
+
+void State::SetInitState(const mjxproto::State &proto, State &state) {
+  // Set player ids
+  state.state_.mutable_public_observation()->mutable_player_ids()->CopyFrom(
+      proto.public_observation().player_ids());
+  // Set scores
+  state.state_.mutable_public_observation()->mutable_init_score()->CopyFrom(
+      proto.public_observation().init_score());
+  state.curr_score_.CopyFrom(proto.public_observation().init_score());
+  // Set walls
+  auto wall_tiles = std::vector<Tile>();
+  for (auto tile_id : proto.hidden_state().wall())
+    wall_tiles.emplace_back(Tile(tile_id));
+  state.wall_ = Wall(state.round(), wall_tiles);
+  state.state_.mutable_hidden_state()->mutable_wall()->CopyFrom(
+      proto.hidden_state().wall());
+  // Set seed
+  state.state_.mutable_hidden_state()->set_game_seed(
+      proto.hidden_state().game_seed());
+  // Set dora
+  state.state_.mutable_public_observation()->add_dora_indicators(
+      state.wall_.dora_indicators().front().Id());
+  state.state_.mutable_hidden_state()->add_ura_dora_indicators(
+      state.wall_.ura_dora_indicators().front().Id());
+  // Set init hands
+  for (int i = 0; i < 4; ++i) {
+    state.players_[i] =
+        Player{state.state_.public_observation().player_ids(i), AbsolutePos(i),
+               Hand(state.wall_.initial_hand_tiles(AbsolutePos(i)))};
+    state.state_.mutable_private_observations()->Add();
+    state.state_.mutable_private_observations(i)->set_who(i);
+    for (auto t : state.wall_.initial_hand_tiles(AbsolutePos(i))) {
+      state.state_.mutable_private_observations(i)
+          ->mutable_init_hand()
+          ->mutable_closed_tiles()
+          ->Add(t.Id());
+    }
+    // set game_id
+    state.state_.mutable_public_observation()->set_game_id(
+        proto.public_observation().game_id());
+  }
+
+  // Initial draw from dealer
+  state.Draw(state.dealer());
+
+  // sync curr_hand
+  for (int i = 0; i < 4; ++i) state.SyncCurrHand(AbsolutePos(i));
 }
 }  // namespace mjx::internal

@@ -164,6 +164,9 @@ class State {
 
   // protoのcurr_handを同期する。
   void SyncCurrHand(AbsolutePos who);
+
+  // protobufから初期状態（親のツモの直後）を抽出して、stateへセットする
+  static void SetInitState(const mjxproto::State& proto, State& state);
 };
 }  // namespace mjx::internal
 
