@@ -65,13 +65,6 @@ def make_svg(
     filename: str,
     target_idx: Optional[int] = None,
 ) -> Drawing:
-    """Visualize State/Observation proto and save as svg file.
-
-    Args
-    ----
-      proto_data: State or observation proto
-      target_idx: the player you want to highlight
-    """
     assert filename.endswith(".svg")
 
     sample_data: MahjongTable
@@ -855,5 +848,12 @@ def save_svg(
     filename: str,
     target_idx: Optional[int] = None,
 ) -> None:
+    """Visualize State/Observation proto and save as svg file.
+
+    Args
+    ----
+      proto_data: State or observation proto
+      target_idx: the player you want to highlight
+    """
     dwg = make_svg(proto_data, filename, target_idx)
     dwg.save()
