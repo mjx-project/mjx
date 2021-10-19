@@ -8,6 +8,7 @@
 #include <random>
 #include <string>
 #include <utility>
+#include <queue>
 #include <vector>
 
 #include "mjx/internal/action.h"
@@ -167,6 +168,8 @@ class State {
 
   // protobufから初期状態（親のツモの直後）を抽出して、stateへセットする
   static void SetInitState(const mjxproto::State& proto, State& state);
+  // protoのEvent系列で見えているイベントをAction系列へ変換して返す（Noは含まない。三家和了はロンが３つ連なる）
+  static std::queue<mjxproto::Action> EventsToActions(const mjxproto::State& proto);
 };
 }  // namespace mjx::internal
 

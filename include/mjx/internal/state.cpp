@@ -3,8 +3,6 @@
 #include <google/protobuf/util/json_util.h>
 #include <google/protobuf/util/message_differencer.h>
 
-#include <queue>
-
 #include "mjx/internal/utils.h"
 
 namespace mjx::internal {
@@ -263,31 +261,7 @@ State::State(const mjxproto::State &state) {
   SetInitState(state, *this);
 
   // Update by events
-  std::queue<mjxproto::Action> actions;
-  int last_ron_target = -1;
-  int last_ron_target_tile = -1;
-  for (const auto &event : state.public_observation().events()) {
-    if (Any(event.type(),
-            {mjxproto::EVENT_TYPE_DISCARD, mjxproto::EVENT_TYPE_TSUMOGIRI,
-             mjxproto::EVENT_TYPE_ADDED_KAN})) {
-      last_ron_target = event.who();
-      last_ron_target_tile = event.tile();
-    }
-    if (event.type() == mjxproto::EVENT_TYPE_ABORTIVE_DRAW_THREE_RONS) {
-      assert(last_ron_target != -1);
-      assert(last_ron_target_tile != -1);
-      for (int i = 0; i < 4; ++i) {
-        if (i == last_ron_target) continue;
-        mjxproto::Action ron =
-            Action::CreateRon(AbsolutePos(i), Tile(last_ron_target_tile),
-                              state_.public_observation().game_id());
-        actions.push(ron);
-      }
-      continue;
-    }
-    std::optional<mjxproto::Action> action = Action::FromEvent(event);
-    if (action) actions.push(action.value());
-  }
+  std::queue<mjxproto::Action> actions = EventsToActions(state);
 
   while (state.public_observation().events_size() >
          state_.public_observation().events_size()) {
@@ -1761,5 +1735,35 @@ void State::SetInitState(const mjxproto::State &proto, State &state) {
 
   // sync curr_hand
   for (int i = 0; i < 4; ++i) state.SyncCurrHand(AbsolutePos(i));
+}
+
+std::queue<mjxproto::Action> State::EventsToActions(
+    const mjxproto::State &proto) {
+  std::queue<mjxproto::Action> actions;
+  int last_ron_target = -1;
+  int last_ron_target_tile = -1;
+  for (const auto &event : proto.public_observation().events()) {
+    if (Any(event.type(),
+            {mjxproto::EVENT_TYPE_DISCARD, mjxproto::EVENT_TYPE_TSUMOGIRI,
+             mjxproto::EVENT_TYPE_ADDED_KAN})) {
+      last_ron_target = event.who();
+      last_ron_target_tile = event.tile();
+    }
+    if (event.type() == mjxproto::EVENT_TYPE_ABORTIVE_DRAW_THREE_RONS) {
+      assert(last_ron_target != -1);
+      assert(last_ron_target_tile != -1);
+      for (int i = 0; i < 4; ++i) {
+        if (i == last_ron_target) continue;
+        mjxproto::Action ron =
+            Action::CreateRon(AbsolutePos(i), Tile(last_ron_target_tile),
+                              proto.public_observation().game_id());
+        actions.push(ron);
+      }
+      continue;
+    }
+    std::optional<mjxproto::Action> action = Action::FromEvent(event);
+    if (action) actions.push(action.value());
+  }
+  return actions;
 }
 }  // namespace mjx::internal
