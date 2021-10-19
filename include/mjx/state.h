@@ -2,8 +2,8 @@
 #define MJX_PROJECT_STATE_H
 
 #include "mjx/action.h"
-#include "mjx/observation.h"
 #include "mjx/internal/mjx.grpc.pb.h"
+#include "mjx/observation.h"
 
 namespace mjx {
 using PlayerId = std::string;  // identical over different games

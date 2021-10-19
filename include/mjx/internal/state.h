@@ -54,7 +54,7 @@ class State {
   State::ScoreInfo Next() const;
   mjxproto::Observation observation(const PlayerId& player_id) const;
   static std::vector<std::pair<mjxproto::Observation, mjxproto::Action>>
-  GeneratePastDecisions(const mjxproto::State & proto) noexcept;
+  GeneratePastDecisions(const mjxproto::State& proto) noexcept;
 
   static std::vector<PlayerId> ShufflePlayerIds(
       std::uint64_t game_seed, const std::vector<PlayerId>& player_ids);

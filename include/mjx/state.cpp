@@ -1,10 +1,11 @@
 #include "mjx/state.h"
-#include "mjx/internal/state.h"
 
 #include <google/protobuf/util/json_util.h>
 #include <google/protobuf/util/message_differencer.h>
 
 #include <utility>
+
+#include "mjx/internal/state.h"
 
 namespace mjx {
 mjx::State::State(mjxproto::State proto) : proto_(std::move(proto)) {}
@@ -37,7 +38,7 @@ std::vector<std::pair<Observation, Action>> State::past_decisions()
     const noexcept {
   std::vector<std::pair<Observation, Action>> decisions;
   auto proto_decisions = internal::State::GeneratePastDecisions(proto());
-  for (const auto& [obs, action]: proto_decisions) {
+  for (const auto& [obs, action] : proto_decisions) {
     decisions.emplace_back(Observation(obs), Action(action));
   }
   return decisions;

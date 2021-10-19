@@ -1627,7 +1627,7 @@ std::string State::ProtoToJson(const mjxproto::State &proto) {
 }
 
 std::vector<std::pair<mjxproto::Observation, mjxproto::Action>>
-State::GeneratePastDecisions(const mjxproto::State & proto) noexcept {
+State::GeneratePastDecisions(const mjxproto::State &proto) noexcept {
   State st;
   SetInitState(proto, st);
   std::queue<mjxproto::Action> actions = EventsToActions(proto);
