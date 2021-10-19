@@ -1737,15 +1737,6 @@ std::vector<PlayerId> State::ShufflePlayerIds(
   return ret;
 }
 
-mjxproto::Observation State::observation(const PlayerId &player_id) const {
-  for (int i = 0; i < 4; ++i) {
-    auto seat = AbsolutePos(i);
-    if (player(seat).player_id != player_id) continue;
-    auto obs = Observation(seat, state_);
-    return obs.proto_;
-  }
-}
-
 std::string State::ProtoToJson(const mjxproto::State &proto) {
   std::string serialized;
   auto status = google::protobuf::util::MessageToJsonString(proto, &serialized);
