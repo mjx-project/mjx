@@ -31,7 +31,8 @@ def dwg_add(dwg_p, dwg_g, pos, txt, rotate=False, transparent=False):
                     stroke=svgwrite.rgb(255, 255, 255, "%"),
                     fill="white",
                 ),
-                dwg_p.text("\U0001F006", insert=(0, 0), fill="black", opacity=opacity),
+                dwg_p.text("\U0001F006", insert=(0, 0),
+                           fill="black", opacity=opacity),
             ]
 
             for horizontal_tile in horizontal_tiles:
@@ -39,7 +40,8 @@ def dwg_add(dwg_p, dwg_g, pos, txt, rotate=False, transparent=False):
                 horizontal_tile.translate(pos)
                 dwg_g.add(horizontal_tile)
         else:
-            horizontal_tile = dwg_p.text(txt[0], insert=(0, 0), opacity=opacity)
+            horizontal_tile = dwg_p.text(
+                txt[0], insert=(0, 0), opacity=opacity)
             horizontal_tile.rotate(90, (0, 0))
             horizontal_tile.translate(pos)
             dwg_g.add(horizontal_tile)
@@ -55,7 +57,8 @@ def dwg_add(dwg_p, dwg_g, pos, txt, rotate=False, transparent=False):
                     opacity=opacity,
                 )
             )
-            dwg_g.add(dwg_p.text("\U0001F006", pos, fill="black", opacity=opacity))
+            dwg_g.add(dwg_p.text("\U0001F006", pos,
+                                 fill="black", opacity=opacity))
         else:
             dwg_g.add(dwg_p.text(txt[0], pos, opacity=opacity))
 
@@ -109,8 +112,10 @@ def _make_svg(
     is_riichi = [False, False, False, False]
 
     hands: List[List[List[Tuple[str, bool]]]] = [[], [], [], []]
-    open_tiles: List[List[Tuple[List[Tuple[str, bool]], FromWho, TileUnitType]]] = [[], [], [], []]
-    discards: List[List[Tuple[Tuple[str, bool], bool, bool, bool]]] = [[], [], [], []]
+    open_tiles: List[List[Tuple[List[Tuple[str, bool]],
+                                FromWho, TileUnitType]]] = [[], [], [], []]
+    discards: List[List[Tuple[Tuple[str, bool], bool, bool, bool]]] = [
+        [], [], [], []]
 
     for i in range(4):  # iは各プレイヤー(0-3)
         players[i] = dwg.g()
@@ -127,7 +132,8 @@ def _make_svg(
                     hands[i].append(
                         [
                             (
-                                "\U0001F02B" if not tile.is_open else get_tile_char(tile.id, True),
+                                "\U0001F02B" if not tile.is_open else get_tile_char(
+                                    tile.id, True),
                                 tile.id in red_hai,
                             )
                         ]
@@ -155,16 +161,19 @@ def _make_svg(
             ]:
                 open_tiles[i].append(
                     (
-                        [(get_tile_char(tile.id, True), tile.id in red_hai) for tile in t_u.tiles],
+                        [(get_tile_char(tile.id, True), tile.id in red_hai)
+                         for tile in t_u.tiles],
                         t_u.from_who,
                         t_u.tile_unit_type,
                     )
                 )
     dwg.add(dwg.rect(insert=(0, 0), size=(width, height)))
-    dwg.add(dwg.rect(insert=(1, 1), size=(width - 2, height - 2), fill="rgb(255,255,255)"))
+    dwg.add(dwg.rect(insert=(1, 1), size=(
+        width - 2, height - 2), fill="rgb(255,255,255)"))
 
     dwg.add(dwg.rect(insert=(278, 278), size=(244, 244)))
-    dwg.add(dwg.rect(insert=(279, 279), size=(242, 242), fill="rgb(255,255,255)"))
+    dwg.add(dwg.rect(insert=(279, 279), size=(
+        242, 242), fill="rgb(255,255,255)"))
 
     # board_info
     if sample_data.honba > 0:
@@ -173,28 +182,33 @@ def _make_svg(
             + str((sample_data.round - 1) % 4 + 1)
             + "局"
         )
-        dwg.add(dwg.text(round, (340, 360), style="font-size:24;font-family:serif;"))
+        dwg.add(dwg.text(round, (340, 360),
+                         style="font-size:24;font-family:serif;"))
         honba = str(sample_data.honba) + "本場"
-        dwg.add(dwg.text(honba, (400, 360), style="font-size:24;font-family:serif;"))
+        dwg.add(dwg.text(honba, (400, 360),
+                         style="font-size:24;font-family:serif;"))
     else:
         round = (
             get_wind_char((sample_data.round - 1) // 4, lang=1)
             + str((sample_data.round - 1) % 4 + 1)
             + "局"
         )
-        dwg.add(dwg.text(round, (368, 360), style="font-size:26;font-family:serif;"))
+        dwg.add(dwg.text(round, (368, 360),
+                         style="font-size:26;font-family:serif;"))
 
     # dora
     doras = [get_tile_char(tile, True) for tile in sample_data.doras]
     while len(doras) < 5:
         doras.append("\U0001F02B")
-    dwg.add(dwg.text("".join(doras), (337, 400), style="font-size:40;font-family:GL-MahjongTile;"))
+    dwg.add(dwg.text("".join(doras), (337, 400),
+                     style="font-size:40;font-family:GL-MahjongTile;"))
 
     # bou
     b64_1000_mini = base64.b64encode(
         read_binary(mjx.visualizer, "1000_mini.svg"),
     )
-    thousand_mini_img = dwg.image("data:image/svg+xml;base64," + b64_1000_mini.decode("ascii"))
+    thousand_mini_img = dwg.image(
+        "data:image/svg+xml;base64," + b64_1000_mini.decode("ascii"))
     thousand_mini_img.translate(335, 405)
     thousand_mini_img.scale(0.15)
     dwg.add(thousand_mini_img)
@@ -209,11 +223,13 @@ def _make_svg(
     b64_hundred_mini = base64.b64encode(
         read_binary(mjx.visualizer, "100_mini.svg"),
     )
-    hundred_mini_img = dwg.image("data:image/svg+xml;base64," + b64_hundred_mini.decode("ascii"))
+    hundred_mini_img = dwg.image(
+        "data:image/svg+xml;base64," + b64_hundred_mini.decode("ascii"))
     hundred_mini_img.translate(405, 405)
     hundred_mini_img.scale(0.15)
     dwg.add(hundred_mini_img)
-    dwg.add(dwg.text(f"×{sample_data.honba}", (425, 430), style="font-size:22;font-family:serif;"))
+    dwg.add(dwg.text(f"×{sample_data.honba}", (425, 430),
+                     style="font-size:22;font-family:serif;"))
 
     # yama_nokori
     wall_num = sample_data.wall_num
@@ -234,7 +250,8 @@ def _make_svg(
 
     for i in range(4):
         # wind
-        player_info[i].add(dwg.text(winds[i], (280, 515), style="font-size:30;font-family:serif;"))
+        player_info[i].add(dwg.text(winds[i], (280, 515),
+                                    style="font-size:30;font-family:serif;"))
 
         # score
         if len(scores[i]) > 6:
@@ -247,7 +264,8 @@ def _make_svg(
             )
         else:
             player_info[i].add(
-                dwg.text(scores[i], (370, 490), style="font-size:20;font-family:serif;")
+                dwg.text(scores[i], (370, 490),
+                         style="font-size:20;font-family:serif;")
             )
 
         # riichi_bou
@@ -255,7 +273,8 @@ def _make_svg(
             b64_thousand = base64.b64encode(
                 read_binary(mjx.visualizer, "1000.svg"),
             )
-            thousand_img = dwg.image("data:image/svg+xml;base64," + b64_thousand.decode("ascii"))
+            thousand_img = dwg.image(
+                "data:image/svg+xml;base64," + b64_thousand.decode("ascii"))
             thousand_img.translate(476, 485)
             thousand_img.scale(0.4)
             thousand_img.rotate(90)
@@ -309,7 +328,8 @@ def _make_svg(
                         dwg,
                         pai[i],
                         (
-                            304 + char_height - char_width + (j % 6) * char_width,
+                            304 + char_height - char_width +
+                            (j % 6) * char_width,
                             570 + (j // 6) * char_height,
                         ),
                         ["\U0001F02B", False],
@@ -356,7 +376,8 @@ def _make_svg(
                     dwg,
                     pai[i],
                     (
-                        left_margin + (len(hands[i]) + 1) * char_width + left_x + char_height,
+                        left_margin + (len(hands[i]) + 1) *
+                        char_width + left_x + char_height,
                         770,
                     ),
                     chi_txt[1],
@@ -397,7 +418,9 @@ def _make_svg(
                         dwg,
                         pai[i],
                         (
-                            left_margin + (len(hands[i]) + 1) * char_width + left_x + char_height,
+                            left_margin +
+                            (len(hands[i]) + 1) *
+                            char_width + left_x + char_height,
                             770,
                         ),
                         pon_txt[1],
@@ -435,7 +458,8 @@ def _make_svg(
                         dwg,
                         pai[i],
                         (
-                            left_margin + (len(hands[i]) + 1) * char_width + left_x,
+                            left_margin +
+                            (len(hands[i]) + 1) * char_width + left_x,
                             770,
                         ),
                         pon_txt[1],
@@ -474,7 +498,8 @@ def _make_svg(
                         dwg,
                         pai[i],
                         (
-                            left_margin + (len(hands[i]) + 1) * char_width + left_x,
+                            left_margin +
+                            (len(hands[i]) + 1) * char_width + left_x,
                             770,
                         ),
                         pon_txt[1],
@@ -483,7 +508,9 @@ def _make_svg(
                         dwg,
                         pai[i],
                         (
-                            left_margin + (len(hands[i]) + 1) * char_width + left_x + char_width,
+                            left_margin +
+                            (len(hands[i]) + 1) *
+                            char_width + left_x + char_width,
                             770,
                         ),
                         pon_txt[2],
@@ -496,7 +523,8 @@ def _make_svg(
                     dwg,
                     pai[i],
                     (
-                        left_margin + (len(hands[i]) + 1) * char_width + left_x,
+                        left_margin + (len(hands[i]) + 1) *
+                        char_width + left_x,
                         770,
                     ),
                     ["\U0001F02B", False],
@@ -505,7 +533,8 @@ def _make_svg(
                     dwg,
                     pai[i],
                     (
-                        left_margin + (len(hands[i]) + 1) * char_width + left_x + char_width,
+                        left_margin + (len(hands[i]) + 1) *
+                        char_width + left_x + char_width,
                         770,
                     ),
                     closed_kan_txt[1],
@@ -514,7 +543,8 @@ def _make_svg(
                     dwg,
                     pai[i],
                     (
-                        left_margin + (len(hands[i]) + 1) * char_width + left_x + char_width * 2,
+                        left_margin + (len(hands[i]) + 1) *
+                        char_width + left_x + char_width * 2,
                         770,
                     ),
                     closed_kan_txt[2],
@@ -523,7 +553,8 @@ def _make_svg(
                     dwg,
                     pai[i],
                     (
-                        left_margin + (len(hands[i]) + 1) * char_width + left_x + char_width * 3,
+                        left_margin + (len(hands[i]) + 1) *
+                        char_width + left_x + char_width * 3,
                         770,
                     ),
                     ["\U0001F02B", False],
@@ -550,7 +581,9 @@ def _make_svg(
                         dwg,
                         pai[i],
                         (
-                            left_margin + (len(hands[i]) + 1) * char_width + left_x + char_height,
+                            left_margin +
+                            (len(hands[i]) + 1) *
+                            char_width + left_x + char_height,
                             770,
                         ),
                         open_tile_kan_txt[1],
@@ -601,7 +634,8 @@ def _make_svg(
                         dwg,
                         pai[i],
                         (
-                            left_margin + (len(hands[i]) + 1) * char_width + left_x,
+                            left_margin +
+                            (len(hands[i]) + 1) * char_width + left_x,
                             770,
                         ),
                         open_tile_kan_txt[1],
@@ -652,7 +686,8 @@ def _make_svg(
                         dwg,
                         pai[i],
                         (
-                            left_margin + (len(hands[i]) + 1) * char_width + left_x,
+                            left_margin +
+                            (len(hands[i]) + 1) * char_width + left_x,
                             770,
                         ),
                         open_tile_kan_txt[1],
@@ -661,7 +696,9 @@ def _make_svg(
                         dwg,
                         pai[i],
                         (
-                            left_margin + (len(hands[i]) + 1) * char_width + left_x + char_width,
+                            left_margin +
+                            (len(hands[i]) + 1) *
+                            char_width + left_x + char_width,
                             770,
                         ),
                         open_tile_kan_txt[2],
@@ -714,7 +751,9 @@ def _make_svg(
                         dwg,
                         pai[i],
                         (
-                            left_margin + (len(hands[i]) + 1) * char_width + left_x + char_height,
+                            left_margin +
+                            (len(hands[i]) + 1) *
+                            char_width + left_x + char_height,
                             770,
                         ),
                         added_kan_txt[2],
@@ -766,7 +805,8 @@ def _make_svg(
                         dwg,
                         pai[i],
                         (
-                            left_margin + (len(hands[i]) + 1) * char_width + left_x,
+                            left_margin +
+                            (len(hands[i]) + 1) * char_width + left_x,
                             770,
                         ),
                         added_kan_txt[0],
@@ -818,7 +858,8 @@ def _make_svg(
                         dwg,
                         pai[i],
                         (
-                            left_margin + (len(hands[i]) + 1) * char_width + left_x,
+                            left_margin +
+                            (len(hands[i]) + 1) * char_width + left_x,
                             770,
                         ),
                         added_kan_txt[0],
@@ -827,7 +868,9 @@ def _make_svg(
                         dwg,
                         pai[i],
                         (
-                            left_margin + (len(hands[i]) + 1) * char_width + left_x + char_width,
+                            left_margin +
+                            (len(hands[i]) + 1) *
+                            char_width + left_x + char_width,
                             770,
                         ),
                         added_kan_txt[1],
@@ -841,6 +884,12 @@ def _make_svg(
 
     dwg.add(player_g)
     return dwg
+
+
+def svg_from_json(json_data: str, target_idx: int) -> str:
+    proto_data = MahjongTable.json_to_proto(json_data=json_data)
+    dwg = make_svg(proto_data, ".svg", target_idx)
+    return '<?xml version="1.0" encoding="utf-8" ?>\n' + dwg.tostring()
 
 
 def save_svg(
