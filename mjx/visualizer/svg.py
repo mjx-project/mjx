@@ -60,11 +60,11 @@ def dwg_add(dwg_p, dwg_g, pos, txt, rotate=False, transparent=False):
             dwg_g.add(dwg_p.text(txt[0], pos, opacity=opacity))
 
 
-def save_svg(
+def make_svg(
     proto_data: Union[mjxproto.State, mjxproto.Observation],
     filename: str,
     target_idx: Optional[int] = None,
-) -> None:
+) -> Drawing:
     """Visualize State/Observation proto and save as svg file.
 
     Args
@@ -847,4 +847,13 @@ def save_svg(
         player_g.add(players[i])
 
     dwg.add(player_g)
+    return dwg
+
+
+def save_svg(
+    proto_data: Union[mjxproto.State, mjxproto.Observation],
+    filename: str,
+    target_idx: Optional[int] = None,
+) -> None:
+    dwg = make_svg(proto_data, filename, target_idx)
     dwg.save()
