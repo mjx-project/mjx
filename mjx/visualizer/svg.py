@@ -60,7 +60,7 @@ def dwg_add(dwg_p, dwg_g, pos, txt, rotate=False, transparent=False):
             dwg_g.add(dwg_p.text(txt[0], pos, opacity=opacity))
 
 
-def make_svg(
+def _make_svg(
     proto_data: Union[mjxproto.State, mjxproto.Observation],
     filename: str,
     target_idx: Optional[int] = None,
@@ -855,5 +855,5 @@ def save_svg(
       proto_data: State or observation proto
       target_idx: the player you want to highlight
     """
-    dwg = make_svg(proto_data, filename, target_idx)
+    dwg = _make_svg(proto_data, filename, target_idx)
     dwg.save()
