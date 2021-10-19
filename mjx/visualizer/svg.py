@@ -60,18 +60,11 @@ def dwg_add(dwg_p, dwg_g, pos, txt, rotate=False, transparent=False):
             dwg_g.add(dwg_p.text(txt[0], pos, opacity=opacity))
 
 
-def save_svg(
+def _make_svg(
     proto_data: Union[mjxproto.State, mjxproto.Observation],
     filename: str,
     target_idx: Optional[int] = None,
-) -> None:
-    """Visualize State/Observation proto and save as svg file.
-
-    Args
-    ----
-      proto_data: State or observation proto
-      target_idx: the player you want to highlight
-    """
+) -> Drawing:
     assert filename.endswith(".svg")
 
     sample_data: MahjongTable
@@ -847,4 +840,20 @@ def save_svg(
         player_g.add(players[i])
 
     dwg.add(player_g)
+    return dwg
+
+
+def save_svg(
+    proto_data: Union[mjxproto.State, mjxproto.Observation],
+    filename: str,
+    target_idx: Optional[int] = None,
+) -> None:
+    """Visualize State/Observation proto and save as svg file.
+
+    Args
+    ----
+      proto_data: State or observation proto
+      target_idx: the player you want to highlight
+    """
+    dwg = _make_svg(proto_data, filename, target_idx)
     dwg.save()
