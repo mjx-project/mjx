@@ -5,6 +5,8 @@
 
 #include <utility>
 
+#include "mjx/internal/state.h"
+
 namespace mjx {
 mjx::State::State(mjxproto::State proto) : proto_(std::move(proto)) {}
 
@@ -30,5 +32,15 @@ bool State::operator==(const State& other) const noexcept {
 
 bool State::operator!=(const State& other) const noexcept {
   return !(*this == other);
+}
+
+std::vector<std::pair<Observation, Action>> State::past_decisions()
+    const noexcept {
+  std::vector<std::pair<Observation, Action>> decisions;
+  auto proto_decisions = internal::State::GeneratePastDecisions(proto());
+  for (const auto& [obs, action] : proto_decisions) {
+    decisions.emplace_back(Observation(obs), Action(action));
+  }
+  return decisions;
 }
 }  // namespace mjx

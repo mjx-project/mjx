@@ -30,3 +30,10 @@ TEST(state, op) {
   EXPECT_EQ(state1, state2);
   EXPECT_NE(state1, mjx::State());
 }
+
+TEST(state, past_decisions) {
+  auto state = mjx::State(sample_json);
+  auto past_decisions = state.past_decisions();
+  EXPECT_EQ(past_decisions.size(),
+            87);  // TODO: 87が正しい値かどうかは確認していない
+}

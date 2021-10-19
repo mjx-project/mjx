@@ -1145,3 +1145,19 @@ TEST(internal_state, GameId) {
   EXPECT_EQ(state1.proto().public_observation().game_id(),
             state3.proto().public_observation().game_id());
 }
+
+TEST(internal_state, GeneratePastDecisions) {
+  auto json = GetLastJsonLine("upd-aft-ron3.json");
+  State state(json);
+  auto past_decisions = state.GeneratePastDecisions(state.proto());
+  // for (const auto& [obs, action]: GeneratePastDecisions) {
+  //   std::cerr << Observation(obs).ToJson() << "\t" <<
+  //   Action::ProtoToJson(action) << std::endl;
+  // }
+  EXPECT_EQ(std::count_if(past_decisions.begin(), past_decisions.end(),
+                          [](const auto &x) {
+                            mjxproto::Action action = x.second;
+                            return action.type() == mjxproto::ACTION_TYPE_RON;
+                          }),
+            3);
+}
