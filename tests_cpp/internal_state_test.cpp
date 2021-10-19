@@ -1151,10 +1151,13 @@ TEST(internal_state, past_decisions) {
   State state(json);
   auto past_decisions = state.past_decisions();
   // for (const auto& [obs, action]: past_decisions) {
-  //   std::cerr << Observation(obs).ToJson() << "\t" << Action::ProtoToJson(action) << std::endl;
+  //   std::cerr << Observation(obs).ToJson() << "\t" <<
+  //   Action::ProtoToJson(action) << std::endl;
   // }
-  EXPECT_EQ(std::count_if(past_decisions.begin(), past_decisions.end(), [](const auto& x){
-    mjxproto::Action action = x.second;
-    return action.type() == mjxproto::ACTION_TYPE_RON;
-  }), 3);
+  EXPECT_EQ(std::count_if(past_decisions.begin(), past_decisions.end(),
+                          [](const auto &x) {
+                            mjxproto::Action action = x.second;
+                            return action.type() == mjxproto::ACTION_TYPE_RON;
+                          }),
+            3);
 }
