@@ -1,6 +1,8 @@
 #ifndef MJX_PROJECT_STATE_H
 #define MJX_PROJECT_STATE_H
 
+#include "mjx/action.h"
+#include "mjx/observation.h"
 #include "mjx/internal/mjx.grpc.pb.h"
 
 namespace mjx {
@@ -19,6 +21,7 @@ class State {
 
   // accessors
   const mjxproto::State& proto() const noexcept;
+  std::vector<std::pair<Observation, Action>> past_decisions() const noexcept;
 
  private:
   mjxproto::State proto_{};
