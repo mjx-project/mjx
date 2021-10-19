@@ -828,18 +828,27 @@ class GameBoardVisualizer:
 
         return "".join(board_info)
 
+    def get_text_width(self, text: str):
+        import unicodedata
+
+        text_counter: int = 0
+        for c in text:
+            if unicodedata.east_asian_width(c) in "FWA":
+                text_counter = text_counter + 2
+            else:
+                text_counter = text_counter + 1
+        return text_counter
+
     def show_by_text(self, table: MahjongTable) -> str:
         board_info = self.get_board_info(table)
         board_info = (
-            "#"
-            + "#" * len(board_info)
-            + "#\n"
+            "#" * (self.get_text_width(board_info) + 2)
+            + "\n"
             + "#"
             + board_info
             + "#\n"
-            + "#"
-            + "#" * len(board_info)
-            + "#\n"
+            + "#" * (self.get_text_width(board_info) + 2)
+            + "\n"
         )
 
         players_info = []
@@ -863,6 +872,8 @@ class GameBoardVisualizer:
             player_info.append("\n\n")
 
             opens = []
+            hand = ""
+            discards = ""
             for t_u in reversed(p.tile_units):
                 if t_u.tile_unit_type == TileUnitType.HAND:
                     hand = self.add_suffix(t_u)
@@ -947,6 +958,7 @@ class GameBoardVisualizer:
                 )
 
             opens = []
+            hand = ""
             for t_u in reversed(p.tile_units):
                 if t_u.tile_unit_type == TileUnitType.HAND:
                     hand = self.add_suffix(t_u, player_idx=i)
