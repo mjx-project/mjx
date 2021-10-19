@@ -167,6 +167,8 @@ def save_svg(
                         t_u.tile_unit_type,
                     )
                 )
+    dwg.add(dwg.rect(insert=(0, 0), size=(width, height)))
+    dwg.add(dwg.rect(insert=(2, 2), size=(width - 4, height - 4), fill="rgb(255,255,255)"))
 
     dwg.add(dwg.rect(insert=(278, 278), size=(244, 244)))
     dwg.add(dwg.rect(insert=(279, 279), size=(242, 242), fill="rgb(255,255,255)"))
