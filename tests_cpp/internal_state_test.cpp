@@ -1146,11 +1146,11 @@ TEST(internal_state, GameId) {
             state3.proto().public_observation().game_id());
 }
 
-TEST(internal_state, past_decisions) {
+TEST(internal_state, GeneratePastDecisions) {
   auto json = GetLastJsonLine("upd-aft-ron3.json");
   State state(json);
-  auto past_decisions = state.past_decisions();
-  // for (const auto& [obs, action]: past_decisions) {
+  auto past_decisions = state.GeneratePastDecisions(state.proto());
+  // for (const auto& [obs, action]: GeneratePastDecisions) {
   //   std::cerr << Observation(obs).ToJson() << "\t" <<
   //   Action::ProtoToJson(action) << std::endl;
   // }
