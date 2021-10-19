@@ -1628,7 +1628,13 @@ std::string State::ProtoToJson(const mjxproto::State &proto) {
 
 std::vector<std::pair<mjxproto::Observation, mjxproto::Action>>
 State::past_decisions() const noexcept {
-  std::vector<std::pair<mjxproto::Observation, mjxproto::Action>> decisions;
+  auto p = proto();
+  State st;
+  SetInitState(p, st);
+  std::queue<mjxproto::Action> actions = EventsToActions(p);
+  auto decisions = UpdateByActions(p, actions, st);
+  Assert(google::protobuf::util::MessageDifferencer::Equals(p, proto()),
+         "Expected:\n" + ProtoToJson(p) + "\nActual:\n" + st.ToJson());
   return decisions;
 }
 
