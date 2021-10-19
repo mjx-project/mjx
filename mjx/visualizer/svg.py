@@ -886,7 +886,7 @@ def _make_svg(
     return dwg
 
 
-def svg_from_json(json_data: str, target_idx: int) -> str:
+def svg_from_json(json_data: str, target_idx: Optional[int] = None) -> str:
     proto_data = MahjongTable.json_to_proto(json_data=json_data)
     dwg = _make_svg(proto_data, ".svg", target_idx)
     return '<?xml version="1.0" encoding="utf-8" ?>\n' + dwg.tostring()
