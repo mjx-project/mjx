@@ -170,6 +170,9 @@ class State {
   static void SetInitState(const mjxproto::State& proto, State& state);
   // protoのEvent系列で見えているイベントをAction系列へ変換して返す（Noは含まない。三家和了はロンが３つ連なる）
   static std::queue<mjxproto::Action> EventsToActions(const mjxproto::State& proto);
+  // stateがprotoと同じにものになるように、actionsからactionをpopしながらstateを更新する（actionsにはNoがないので、それらを補完する）
+  // 結果として現れたObservation, Actionのペアが返される
+  static std::vector<std::pair<mjxproto::Observation, mjxproto::Action>> UpdateByActions(const mjxproto::State& proto, std::queue<mjxproto::Action>& actions, State& state);
 };
 }  // namespace mjx::internal
 

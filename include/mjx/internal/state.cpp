@@ -259,65 +259,8 @@ State::State(const std::string &json_str) : State(LoadJson(json_str)) {}
 
 State::State(const mjxproto::State &state) {
   SetInitState(state, *this);
-
-  // Update by events
   std::queue<mjxproto::Action> actions = EventsToActions(state);
-
-  while (state.public_observation().events_size() >
-         state_.public_observation().events_size()) {
-    auto observations = CreateObservations();
-    std::unordered_set<PlayerId> is_action_set;
-    std::vector<mjxproto::Action> action_candidates;
-
-    // set action from next_action
-    while (true) {
-      if (actions.empty()) break;
-      mjxproto::Action next_action = actions.front();
-      bool should_continue = false;
-      for (const auto &[player_id, obs] : observations) {
-        if (is_action_set.count(player_id)) continue;
-        std::vector<mjxproto::Action> legal_actions = obs.legal_actions();
-        bool has_next_action =
-            std::count_if(legal_actions.begin(), legal_actions.end(),
-                          [&next_action](const mjxproto::Action &x) {
-                            return Action::Equal(x, next_action);
-                          });
-        if (has_next_action) {
-          action_candidates.push_back(next_action);
-          is_action_set.insert(player_id);
-          actions.pop();
-          should_continue = true;
-          break;
-        }
-      }
-      if (!should_continue) break;
-    }
-
-    // set no actions
-    for (const auto &[player_id, obs] : observations) {
-      if (is_action_set.count(player_id)) continue;
-      std::vector<mjxproto::Action> legal_actions = obs.legal_actions();
-      auto itr = std::find_if(legal_actions.begin(), legal_actions.end(),
-                              [](const mjxproto::Action &x) {
-                                return x.type() == mjxproto::ACTION_TYPE_NO;
-                              });
-      Assert(itr != legal_actions.end(),
-             "Legal actions should have No Action.\nExpected:\n" +
-                 ProtoToJson(state) + "\nActual:\n" + ToJson());
-      auto action_no = *itr;
-      action_candidates.push_back(action_no);
-    }
-
-    Assert(action_candidates.size() == observations.size(),
-           "Expected:\n" + ProtoToJson(state) + "\nActual:\n" + ToJson() +
-               "action_candidates.size():\n" +
-               std::to_string(action_candidates.size()) +
-               "\nobservations.size():\n" +
-               std::to_string(observations.size()));
-
-    Update(std::move(action_candidates));
-  }
-
+  UpdateByActions(state, actions, *this);
   Assert(google::protobuf::util::MessageDifferencer::Equals(state, proto()),
          "Expected:\n" + ProtoToJson(state) + "\nActual:\n" + ToJson());
 }
@@ -1765,5 +1708,71 @@ std::queue<mjxproto::Action> State::EventsToActions(
     if (action) actions.push(action.value());
   }
   return actions;
+}
+
+std::vector<std::pair<mjxproto::Observation, mjxproto::Action>>
+State::UpdateByActions(const mjxproto::State& proto, std::queue<mjxproto::Action> &actions, State &state) {
+  std::vector<std::pair<mjxproto::Observation, mjxproto::Action>> hist;
+
+  while (proto.public_observation().events_size() >
+         state.state_.public_observation().events_size()) {
+    auto observations = state.CreateObservations();
+    std::unordered_map<PlayerId, mjxproto::Action> action_candidates;
+
+    // set action from next_action
+    while (true) {
+      if (actions.empty()) break;
+      mjxproto::Action next_action = actions.front();
+      bool should_continue = false;
+      for (const auto &[player_id, obs] : observations) {
+        if (action_candidates.count(player_id)) continue;
+        std::vector<mjxproto::Action> legal_actions = obs.legal_actions();
+        bool has_next_action =
+            std::count_if(legal_actions.begin(), legal_actions.end(),
+                          [&next_action](const mjxproto::Action &x) {
+                            return Action::Equal(x, next_action);
+                          });
+        if (has_next_action) {
+          action_candidates[player_id] = next_action;
+          actions.pop();
+          should_continue = true;
+          break;
+        }
+      }
+      if (!should_continue) break;
+    }
+
+    // set no actions
+    for (const auto &[player_id, obs] : observations) {
+      if (action_candidates.count(player_id)) continue;
+      std::vector<mjxproto::Action> legal_actions = obs.legal_actions();
+      auto itr = std::find_if(legal_actions.begin(), legal_actions.end(),
+                              [](const mjxproto::Action &x) {
+                                return x.type() == mjxproto::ACTION_TYPE_NO;
+                              });
+      Assert(itr != legal_actions.end(),
+             "Legal actions should have No Action.\nExpected:\n" +
+             ProtoToJson(proto) + "\nActual:\n" + state.ToJson());
+      auto action_no = *itr;
+      action_candidates[player_id] = action_no;
+    }
+
+    Assert(action_candidates.size() == observations.size(),
+           "Expected:\n" + ProtoToJson(proto) + "\nActual:\n" + state.ToJson() +
+           "action_candidates.size():\n" +
+           std::to_string(action_candidates.size()) +
+           "\nobservations.size():\n" +
+           std::to_string(observations.size()));
+
+    std::vector<mjxproto::Action> action_vec;
+    for (const auto& [player_id, obs]: observations) {
+      auto action = action_candidates[player_id];
+      hist.emplace_back(obs.proto(), action);
+      action_vec.push_back(action);
+    }
+    state.Update(std::move(action_vec));
+  }
+
+  return hist;
 }
 }  // namespace mjx::internal
