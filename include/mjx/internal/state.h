@@ -5,10 +5,10 @@
 #include <boost/uuid/uuid.hpp>
 #include <boost/uuid/uuid_generators.hpp>
 #include <boost/uuid/uuid_io.hpp>
+#include <queue>
 #include <random>
 #include <string>
 #include <utility>
-#include <queue>
 #include <vector>
 
 #include "mjx/internal/action.h"
@@ -53,7 +53,8 @@ class State {
   GameResult result() const;
   State::ScoreInfo Next() const;
   mjxproto::Observation observation(const PlayerId& player_id) const;
-  [[nodiscard]] std::vector<std::pair<mjxproto::Observation, mjxproto::Action>> past_decisions() const noexcept;
+  [[nodiscard]] std::vector<std::pair<mjxproto::Observation, mjxproto::Action>>
+  past_decisions() const noexcept;
 
   static std::vector<PlayerId> ShufflePlayerIds(
       std::uint64_t game_seed, const std::vector<PlayerId>& player_ids);
@@ -169,10 +170,13 @@ class State {
   // protobufから初期状態（親のツモの直後）を抽出して、stateへセットする
   static void SetInitState(const mjxproto::State& proto, State& state);
   // protoのEvent系列で見えているイベントをAction系列へ変換して返す（Noは含まない。三家和了はロンが３つ連なる）
-  static std::queue<mjxproto::Action> EventsToActions(const mjxproto::State& proto);
+  static std::queue<mjxproto::Action> EventsToActions(
+      const mjxproto::State& proto);
   // stateがprotoと同じにものになるように、actionsからactionをpopしながらstateを更新する（actionsにはNoがないので、それらを補完する）
   // 結果として現れたObservation, Actionのペアが返される
-  static std::vector<std::pair<mjxproto::Observation, mjxproto::Action>> UpdateByActions(const mjxproto::State& proto, std::queue<mjxproto::Action>& actions, State& state);
+  static std::vector<std::pair<mjxproto::Observation, mjxproto::Action>>
+  UpdateByActions(const mjxproto::State& proto,
+                  std::queue<mjxproto::Action>& actions, State& state);
 };
 }  // namespace mjx::internal
 

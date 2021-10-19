@@ -1711,7 +1711,8 @@ std::queue<mjxproto::Action> State::EventsToActions(
 }
 
 std::vector<std::pair<mjxproto::Observation, mjxproto::Action>>
-State::UpdateByActions(const mjxproto::State& proto, std::queue<mjxproto::Action> &actions, State &state) {
+State::UpdateByActions(const mjxproto::State &proto,
+                       std::queue<mjxproto::Action> &actions, State &state) {
   std::vector<std::pair<mjxproto::Observation, mjxproto::Action>> hist;
 
   while (proto.public_observation().events_size() >
@@ -1752,20 +1753,20 @@ State::UpdateByActions(const mjxproto::State& proto, std::queue<mjxproto::Action
                               });
       Assert(itr != legal_actions.end(),
              "Legal actions should have No Action.\nExpected:\n" +
-             ProtoToJson(proto) + "\nActual:\n" + state.ToJson());
+                 ProtoToJson(proto) + "\nActual:\n" + state.ToJson());
       auto action_no = *itr;
       action_candidates[player_id] = action_no;
     }
 
     Assert(action_candidates.size() == observations.size(),
            "Expected:\n" + ProtoToJson(proto) + "\nActual:\n" + state.ToJson() +
-           "action_candidates.size():\n" +
-           std::to_string(action_candidates.size()) +
-           "\nobservations.size():\n" +
-           std::to_string(observations.size()));
+               "action_candidates.size():\n" +
+               std::to_string(action_candidates.size()) +
+               "\nobservations.size():\n" +
+               std::to_string(observations.size()));
 
     std::vector<mjxproto::Action> action_vec;
-    for (const auto& [player_id, obs]: observations) {
+    for (const auto &[player_id, obs] : observations) {
       auto action = action_candidates[player_id];
       hist.emplace_back(obs.proto(), action);
       action_vec.push_back(action);
