@@ -64,6 +64,7 @@ def _make_svg(
     proto_data: Union[mjxproto.State, mjxproto.Observation],
     filename: str,
     target_idx: Optional[int] = None,
+    show_name: bool = False,
 ) -> Drawing:
     assert filename.endswith(".svg")
 
@@ -237,6 +238,17 @@ def _make_svg(
     )
 
     for i in range(4):
+
+        # name
+        if show_name:
+            player_info[i].add(
+                dwg.text(
+                    sample_data.players[i].name,
+                    (10, 790),
+                    style="font-size:18px;font-family:serif;",
+                )
+            )
+
         # wind
         player_info[i].add(
             dwg.text(winds[i], (280, 515), style="font-size:30px;font-family:serif;")
@@ -849,10 +861,10 @@ def _make_svg(
     return dwg
 
 
-def to_svg(json_data: str, target_idx: Optional[int] = None) -> str:
+def to_svg(json_data: str, target_idx: Optional[int] = None, show_name: bool = False) -> str:
     proto_data = MahjongTable.json_to_proto(json_data=json_data)
-    dwg = _make_svg(proto_data, ".svg", target_idx)
-    return '<?xml version="1.0" encoding="utf-8" ?>\n' + dwg.tostring()
+    dwg = _make_svg(proto_data, ".svg", target_idx, show_name=show_name)
+    return dwg.tostring()
 
 
 def save_svg(
