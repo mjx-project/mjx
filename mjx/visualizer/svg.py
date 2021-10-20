@@ -114,7 +114,7 @@ def _make_svg(
 
     for i in range(4):  # iは各プレイヤー(0-3)
         players[i] = dwg.g()
-        pai[i] = dwg.g(style="font-size:50;font-family:GL-MahjongTile;")
+        pai[i] = dwg.g(style="font-size:50px;font-family:GL-MahjongTile;")
         player_info[i] = dwg.g()
 
         winds[i] = get_wind_char(sample_data.players[i].wind, lang=1)
@@ -173,22 +173,24 @@ def _make_svg(
             + str((sample_data.round - 1) % 4 + 1)
             + "局"
         )
-        dwg.add(dwg.text(round, (340, 360), style="font-size:24;font-family:serif;"))
+        dwg.add(dwg.text(round, (340, 360), style="font-size:24px;font-family:serif;"))
         honba = str(sample_data.honba) + "本場"
-        dwg.add(dwg.text(honba, (400, 360), style="font-size:24;font-family:serif;"))
+        dwg.add(dwg.text(honba, (400, 360), style="font-size:24px;font-family:serif;"))
     else:
         round = (
             get_wind_char((sample_data.round - 1) // 4, lang=1)
             + str((sample_data.round - 1) % 4 + 1)
             + "局"
         )
-        dwg.add(dwg.text(round, (368, 360), style="font-size:26;font-family:serif;"))
+        dwg.add(dwg.text(round, (368, 360), style="font-size:26px;font-family:serif;"))
 
     # dora
     doras = [get_tile_char(tile, True) for tile in sample_data.doras]
     while len(doras) < 5:
         doras.append("\U0001F02B")
-    dwg.add(dwg.text("".join(doras), (337, 400), style="font-size:40;font-family:GL-MahjongTile;"))
+    dwg.add(
+        dwg.text("".join(doras), (337, 400), style="font-size:40px;font-family:GL-MahjongTile;")
+    )
 
     # bou
     b64_1000_mini = base64.b64encode(
@@ -202,7 +204,7 @@ def _make_svg(
         dwg.text(
             f"×{sample_data.riichi}",
             (355, 430),
-            style="font-size:22;font-family:serif;",
+            style="font-size:22px;font-family:serif;",
         )
     )
 
@@ -213,7 +215,9 @@ def _make_svg(
     hundred_mini_img.translate(405, 405)
     hundred_mini_img.scale(0.15)
     dwg.add(hundred_mini_img)
-    dwg.add(dwg.text(f"×{sample_data.honba}", (425, 430), style="font-size:22;font-family:serif;"))
+    dwg.add(
+        dwg.text(f"×{sample_data.honba}", (425, 430), style="font-size:22px;font-family:serif;")
+    )
 
     # yama_nokori
     wall_num = sample_data.wall_num
@@ -221,20 +225,22 @@ def _make_svg(
         dwg.text(
             "\U0001F02B",
             (370, 465),
-            style="font-size:30;font-family:GL-MahjongTile;",
+            style="font-size:30px;font-family:GL-MahjongTile;",
         )
     )
     dwg.add(
         dwg.text(
             "×" + str(wall_num),
             (390, 463),
-            style="font-size:22;font-family:serif;",
+            style="font-size:22px;font-family:serif;",
         )
     )
 
     for i in range(4):
         # wind
-        player_info[i].add(dwg.text(winds[i], (280, 515), style="font-size:30;font-family:serif;"))
+        player_info[i].add(
+            dwg.text(winds[i], (280, 515), style="font-size:30px;font-family:serif;")
+        )
 
         # score
         if len(scores[i]) > 6:
@@ -242,12 +248,12 @@ def _make_svg(
                 dwg.text(
                     scores[i].replace("(", " ("),
                     (335, 490),
-                    style="font-size:20;font-family:serif;",
+                    style="font-size:20px;font-family:serif;",
                 )
             )
         else:
             player_info[i].add(
-                dwg.text(scores[i], (370, 490), style="font-size:20;font-family:serif;")
+                dwg.text(scores[i], (370, 490), style="font-size:20px;font-family:serif;")
             )
 
         # riichi_bou
