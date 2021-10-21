@@ -35,7 +35,4 @@
     "cmake.configureArgs": [
         "-DMJX_BUILD_TESTS=ON"
     ],
-    "cmake.buildArgs": [
-        "-DMJX_BUILD_TESTS=ON"
-    ]
 }
