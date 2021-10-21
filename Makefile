@@ -2,6 +2,7 @@ clean:
 	rm -rf venv
 	rm -rf examples/venv
 	rm -rf cmake-build-debug
+	rm -rf cmake-build-mjxdebug
 	rm -rf build
 	rm -rf docker-build
 	rm -rf dist
