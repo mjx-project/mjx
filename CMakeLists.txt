@@ -28,7 +28,7 @@ message(STATUS "MJX_BUILD_BOOST=${MJX_BUILD_BOOST}")
 if(MJX_BUILD_BOOST)
   include(${MJX_INCLUDE_DIR}/mjx/cmake/downloaded_boost.cmake)
 else()
-  find_package(Boost REQUIRED)
+  find_package(Boost REQUIRED SYSTEM)
 endif()
 message(STATUS "Include Boost_INCLUDE_DIRS=${Boost_INCLUDE_DIRS}")
 
