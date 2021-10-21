@@ -16,7 +16,7 @@ message(STATUS "MJX_INCLUDE_DIR=${MJX_INCLUDE_DIR}")
 
 option(MJX_BUILD_BOOST "Download and build Boost" OFF)
 option(MJX_BUILD_GRPC "Download and build gRPC" OFF)
-option(MJX_BUILD_TESTS "Build tests" ON)
+option(MJX_BUILD_TESTS "Build tests" OFF)
 option(MJX_BUILD_PYTHON "Build as Python library " OFF)
 
 ####################################################################################
