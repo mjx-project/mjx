@@ -31,5 +31,8 @@
         "--ignore-missing-imports"
     ],
     "python.pythonPath": "venv/bin/python3",
-    "python.terminal.activateEnvInCurrentTerminal": true
+    "python.terminal.activateEnvInCurrentTerminal": true,
+    "cmake.configureArgs": [
+        "-DMJX_BUILD_TESTS=ON"
+    ],
 }
