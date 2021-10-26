@@ -255,18 +255,11 @@ def _make_svg(
         )
 
         # score
-        if len(scores[i]) > 6:
-            player_info[i].add(
-                dwg.text(
-                    scores[i].replace("(", " ("),
-                    (335, 490),
-                    style="font-size:20px;font-family:serif;",
-                )
-            )
-        else:
-            player_info[i].add(
-                dwg.text(scores[i], (370, 490), style="font-size:20px;font-family:serif;")
-            )
+        scores[i] = scores[i].replace("(", " (")
+        score_x = width / 2 - len(scores[i]) / 2 * 11
+        player_info[i].add(
+            dwg.text(scores[i], (score_x, 490), style="font-size:20px;font-family:serif;")
+        )
 
         # riichi_bou
         if is_riichi[i]:
