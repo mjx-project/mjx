@@ -374,7 +374,7 @@ class MahjongTable:
                         table.players[i].tile_units = [
                             t_u
                             for t_u in table.players[i].tile_units
-                            if t_u.tile_unit_type == TileUnitType.DISCARD
+                            if t_u.tile_unit_type != TileUnitType.HAND
                         ]
 
                         table.players[i].tile_units.append(
@@ -384,14 +384,7 @@ class MahjongTable:
                                 [Tile(i, is_open=True) for i in win_data.hand.closed_tiles],
                             )
                         )
-                        for open in win_data.hand.opens:
-                            table.players[i].tile_units.append(
-                                TileUnit(
-                                    open_event_type(open),
-                                    open_from(open),
-                                    [Tile(i, is_open=True) for i in open_tile_ids(open)],
-                                )
-                            )
+
                     final_ten_changes[i] += win_data.ten_changes[i]
 
             # 複数人勝者が居た場合のために、後でまとめて点数移動を計算
@@ -409,7 +402,7 @@ class MahjongTable:
                         table.players[i].tile_units = [
                             t_u
                             for t_u in table.players[i].tile_units
-                            if t_u.tile_unit_type == TileUnitType.DISCARD
+                            if t_u.tile_unit_type != TileUnitType.HAND
                         ]
 
                         table.players[i].tile_units.append(
@@ -419,14 +412,6 @@ class MahjongTable:
                                 [Tile(i, is_open=True) for i in tenpai_data.hand.closed_tiles],
                             )
                         )
-                        for open in tenpai_data.hand.opens:
-                            table.players[i].tile_units.append(
-                                TileUnit(
-                                    open_event_type(open),
-                                    open_from(open),
-                                    [Tile(i, is_open=True) for i in open_tile_ids(open)],
-                                )
-                            )
 
             for i, p in enumerate(table.players):
                 delta = round_terminal.no_winner.ten_changes[i]
