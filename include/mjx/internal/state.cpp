@@ -261,8 +261,9 @@ State::State(const mjxproto::State &state) {
   SetInitState(state, *this);
   std::queue<mjxproto::Action> actions = EventsToActions(state);
   UpdateByActions(state, actions, *this);
-  Assert(google::protobuf::util::MessageDifferencer::Equals(state, proto()),
-         "Expected:\n" + ProtoToJson(state) + "\nActual:\n" + ToJson());
+  if (!google::protobuf::util::MessageDifferencer::Equals(state, proto())) {
+    std::cerr << "WARNING: restored state is different from the input:\n  Expected:\n  " + ProtoToJson(state) + "\n  Actual:  \n  " + ToJson() + "\n";
+  }
 }
 
 std::string State::ToJson() const { return ProtoToJson(state_); }
