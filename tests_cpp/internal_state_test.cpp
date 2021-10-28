@@ -998,8 +998,7 @@ std::string TruncateAfterFirstDraw(const std::string &json) {
   auto first_tsumo = state.hidden_state().wall().at(13 * 4);
   for (int i = 0; i < 4; ++i) {
     // draw_hist
-    auto draw_hist =
-        state.mutable_private_observations(i)->mutable_draws();
+    auto draw_hist = state.mutable_private_observations(i)->mutable_draws();
     draw_hist->erase(draw_hist->begin(), draw_hist->end());
     // curr_hand
     auto curr_hand = state.mutable_private_observations(i)->mutable_curr_hand();

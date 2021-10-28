@@ -294,8 +294,7 @@ Tile State::Draw(AbsolutePos who) {
 
   state_.mutable_public_observation()->mutable_events()->Add(
       Event::CreateDraw(who));
-  state_.mutable_private_observations(ToUType(who))
-      ->add_draws(draw.Id());
+  state_.mutable_private_observations(ToUType(who))->add_draws(draw.Id());
   SyncCurrHand(who);
 
   return draw;
@@ -1568,12 +1567,10 @@ bool State::CanReach(const State &other) const noexcept {
   // Drawがすべて現時点までは同じである必要がある (配牌は山が同じ時点で同じ）
   for (int i = 0; i < 4; ++i) {
     const auto &draws = state_.private_observations(i).draws();
-    const auto &other_draws =
-        other.state_.private_observations(i).draws();
+    const auto &other_draws = other.state_.private_observations(i).draws();
     if (draws.size() > other_draws.size()) return false;
     for (int j = 0; j < draws.size(); ++j)
-      if (!Tile(draws[j]).Equals(Tile(other_draws[j])))
-        return false;
+      if (!Tile(draws[j]).Equals(Tile(other_draws[j]))) return false;
   }
 
   // もしゲーム終了しているなら、Equalでない時点でダメ
