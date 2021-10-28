@@ -146,7 +146,7 @@ message Win {
   repeated uint32 ura_dora_indicators = 11;  // set if this player is under riichi
 }
 
-message NoWinner {
+message Draw {
   repeated TenpaiHand tenpais = 1;
   repeated int32 ten_changes = 2;  // Required for Tenhou mjlog.
 }
@@ -159,7 +159,7 @@ message TenpaiHand {
 message RoundTerminal {
   Score final_score = 1;
   repeated Win wins = 2;   // Empty if no one wins
-  NoWinner no_winner = 3;  // Empty if a winner exists
+  Draw draw = 3;  // Empty if a winner exists
   bool is_game_over = 4;
 }
 
