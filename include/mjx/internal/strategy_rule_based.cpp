@@ -39,7 +39,7 @@ mjxproto::Action StrategyRuleBased::TakeAction(
       {mjxproto::ACTION_TYPE_PON, 8},
       {mjxproto::ACTION_TYPE_OPEN_KAN, 9},
       {mjxproto::ACTION_TYPE_CHI, 10},
-      {mjxproto::ACTION_TYPE_NO, 11},
+      {mjxproto::ACTION_TYPE_PASS, 11},
   };
   std::sort(
       legal_actions.begin(), legal_actions.end(),
@@ -68,7 +68,7 @@ mjxproto::Action StrategyRuleBased::TakeAction(
            mjxproto::ACTION_TYPE_CHI})) {
     if (curr_hand.IsTenpai()) {
       selected = *legal_actions.rbegin();
-      Assert(selected.type() == mjxproto::ActionType::ACTION_TYPE_NO);
+      Assert(selected.type() == mjxproto::ActionType::ACTION_TYPE_PASS);
       return selected;
     }
   }
@@ -80,7 +80,7 @@ mjxproto::Action StrategyRuleBased::TakeAction(
     selected = *SelectRandomly(legal_actions.begin(), legal_actions.end(), mt);
     Assert(Any(selected.type(),
                {mjxproto::ACTION_TYPE_OPEN_KAN, mjxproto::ACTION_TYPE_PON,
-                mjxproto::ACTION_TYPE_CHI, mjxproto::ACTION_TYPE_NO}));
+                mjxproto::ACTION_TYPE_CHI, mjxproto::ACTION_TYPE_PASS}));
     return selected;
   }
 

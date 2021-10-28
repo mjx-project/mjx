@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 #include <mjx/action.h>
 
-const std::string sample_json = R"({"gameId":"xxx","type":"ACTION_TYPE_NO"})";
+const std::string sample_json = R"({"gameId":"xxx","type":"ACTION_TYPE_PASS"})";
 
 TEST(action, Action) {
   mjxproto::Action proto;

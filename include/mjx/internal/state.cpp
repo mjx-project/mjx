@@ -227,7 +227,7 @@ std::unordered_map<PlayerId, Observation> State::CreateObservations() const {
       for (const auto &[player_id, observation] : observations)
         for (const auto &legal_action : observation.legal_actions())
           Assert(Any(legal_action.type(),
-                     {mjxproto::ACTION_TYPE_RON, mjxproto::ACTION_TYPE_NO}));
+                     {mjxproto::ACTION_TYPE_RON, mjxproto::ACTION_TYPE_PASS}));
       return observations;
     }
     case mjxproto::EVENT_TYPE_TSUMO:
@@ -1123,7 +1123,7 @@ void State::Update(std::vector<mjxproto::Action> &&action_candidates) {
   // sort in order Ron > KanOpened > Pon > Chi > No
   auto action_type_priority = [](mjxproto::ActionType t) {
     switch (t) {
-      case mjxproto::ACTION_TYPE_NO:
+      case mjxproto::ACTION_TYPE_PASS:
         return 0;
       case mjxproto::ACTION_TYPE_CHI:
         return 1;
@@ -1146,7 +1146,7 @@ void State::Update(std::vector<mjxproto::Action> &&action_candidates) {
 
   if (!has_ron) {
     Assert(Any(action_candidates.front().type(),
-               {mjxproto::ACTION_TYPE_NO, mjxproto::ACTION_TYPE_CHI,
+               {mjxproto::ACTION_TYPE_PASS, mjxproto::ACTION_TYPE_CHI,
                 mjxproto::ACTION_TYPE_PON, mjxproto::ACTION_TYPE_OPEN_KAN}));
     Update(std::move(action_candidates.front()));
     return;
@@ -1333,7 +1333,7 @@ void State::Update(mjxproto::Action &&action) {
         Draw(who);
       }
       return;
-    case mjxproto::ACTION_TYPE_NO:
+    case mjxproto::ACTION_TYPE_PASS:
       Assert(Any(LastEvent().type(),
                  {mjxproto::EVENT_TYPE_TSUMOGIRI, mjxproto::EVENT_TYPE_DISCARD,
                   mjxproto::EVENT_TYPE_ADDED_KAN}));
@@ -1757,7 +1757,7 @@ State::UpdateByActions(const mjxproto::State &proto,
       std::vector<mjxproto::Action> legal_actions = obs.legal_actions();
       auto itr = std::find_if(legal_actions.begin(), legal_actions.end(),
                               [](const mjxproto::Action &x) {
-                                return x.type() == mjxproto::ACTION_TYPE_NO;
+                                return x.type() == mjxproto::ACTION_TYPE_PASS;
                               });
       Assert(itr != legal_actions.end(),
              "Legal actions should have No Action.\nExpected:\n" +
