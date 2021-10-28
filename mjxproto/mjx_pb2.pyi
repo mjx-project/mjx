@@ -55,7 +55,7 @@ class _ActionTypeEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._Enu
     ACTION_TYPE_RON = ActionType.V(10)
     """ロン Win by the discarded tile by other players"""
 
-    ACTION_TYPE_NO = ActionType.V(11)
+    ACTION_TYPE_PASS = ActionType.V(11)
     """Ignore the chi, pon, kan, and ron actions"""
 
     ACTION_TYPE_DUMMY = ActionType.V(99)
@@ -99,7 +99,7 @@ ACTION_TYPE_OPEN_KAN = ActionType.V(9)
 ACTION_TYPE_RON = ActionType.V(10)
 """ロン Win by the discarded tile by other players"""
 
-ACTION_TYPE_NO = ActionType.V(11)
+ACTION_TYPE_PASS = ActionType.V(11)
 """Ignore the chi, pon, kan, and ron actions"""
 
 ACTION_TYPE_DUMMY = ActionType.V(99)
@@ -254,7 +254,7 @@ class Score(google.protobuf.message.Message):
     """starts with 0 = 東1局"""
 
     honba: builtins.int = ...
-    """本場 (積み棒) honba incremets when draw (流局) happens"""
+    """本場 (積み棒) honba increments when draw (流局) happens"""
 
     riichi: builtins.int = ...
     """リーチ棒 riichi increments when some one declare riichi and is reset to zero when someone wins"""
@@ -285,7 +285,7 @@ class Event(google.protobuf.message.Message):
     """Publicly observable event, which include
 
       1. publicly observable and actually realized actions taken by all layers
-      2. publicly observable state transitions made by envionment
+      2. publicly observable state transitions made by environment
 
     Note that "No" action is **NOT** collected as event since it's not publicly observable.
     Also, "Chi" prevented by other player's "Pon/Ron" is also **NOT** collected in event_history.
@@ -635,7 +635,7 @@ class Action(google.protobuf.message.Message):
      CLOSED_KAN         No    Yes
      ADDED_KAN          No    Yes
      KYUSYU             No     No
-     NO                 No     No
+     PASS               No     No
      CHI                No    Yes
      PON                No    Yes
      OPEN_KAN           No    Yes
