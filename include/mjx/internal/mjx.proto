@@ -3,7 +3,7 @@ syntax = "proto3";
 package mjxproto;
 
 service Agent {
-  rpc TakeAction (Observation) returns (Action) {}
+  rpc Act (Observation) returns (Action) {}
 }
 
 enum ActionType {
