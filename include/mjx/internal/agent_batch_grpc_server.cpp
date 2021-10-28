@@ -26,7 +26,7 @@ AgentBatchGrpcServerImpl::~AgentBatchGrpcServerImpl() {
   thread_inference_.join();
 }
 
-grpc::Status AgentBatchGrpcServerImpl::TakeAction(
+grpc::Status AgentBatchGrpcServerImpl::Act(
     grpc::ServerContext *context, const mjxproto::Observation *request,
     mjxproto::Action *reply) {
   // Observationデータ追加

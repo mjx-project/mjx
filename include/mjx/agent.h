@@ -75,7 +75,7 @@ class AgentBatchGrpcServerImpl final : public mjxproto::Agent::Service {
       std::unordered_map<boost::uuids::uuid, mjx::Action,
                          boost::hash<boost::uuids::uuid>>& act_map);
   ~AgentBatchGrpcServerImpl() final;
-  grpc::Status TakeAction(grpc::ServerContext* context,
+  grpc::Status Act(grpc::ServerContext* context,
                           const mjxproto::Observation* request,
                           mjxproto::Action* reply) final;
 

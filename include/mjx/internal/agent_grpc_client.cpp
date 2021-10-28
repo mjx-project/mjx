@@ -15,7 +15,7 @@ mjxproto::Action AgentGrpcClient::TakeAction(Observation &&observation) const {
   const auto request_who = request.who();
   mjxproto::Action response;
   grpc::ClientContext context;
-  grpc::Status status = stub_->TakeAction(&context, request, &response);
+  grpc::Status status = stub_->Act(&context, request, &response);
   Assert(status.ok(), "Error code = " + std::to_string(status.error_code()) +
                           "\nError message = " + status.error_message() + "\n");
   const auto response_who = response.who();
