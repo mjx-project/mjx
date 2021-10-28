@@ -621,12 +621,11 @@ global___HiddenState = HiddenState
 
 class Action(google.protobuf.message.Message):
     DESCRIPTOR: google.protobuf.descriptor.Descriptor = ...
-    GAME_ID_FIELD_NUMBER: builtins.int
-    WHO_FIELD_NUMBER: builtins.int
     TYPE_FIELD_NUMBER: builtins.int
+    WHO_FIELD_NUMBER: builtins.int
     TILE_FIELD_NUMBER: builtins.int
     OPEN_FIELD_NUMBER: builtins.int
-    game_id: typing.Text = ...
+    type: global___ActionType.V = ...
     """                  tile   open
      DISCARD           Yes     No
      TSUMOGIRI         Yes     No
@@ -645,7 +644,6 @@ class Action(google.protobuf.message.Message):
     who: builtins.int = ...
     """0:起家, ..., 3:ラス親"""
 
-    type: global___ActionType.V = ...
     tile: builtins.int = ...
     """Indicates the tile id (0 ~ 135)"""
 
@@ -654,13 +652,12 @@ class Action(google.protobuf.message.Message):
 
     def __init__(self,
         *,
-        game_id : typing.Text = ...,
-        who : builtins.int = ...,
         type : global___ActionType.V = ...,
+        who : builtins.int = ...,
         tile : builtins.int = ...,
         open : builtins.int = ...,
         ) -> None: ...
-    def ClearField(self, field_name: typing_extensions.Literal["game_id",b"game_id","open",b"open","tile",b"tile","type",b"type","who",b"who"]) -> None: ...
+    def ClearField(self, field_name: typing_extensions.Literal["open",b"open","tile",b"tile","type",b"type","who",b"who"]) -> None: ...
 global___Action = Action
 
 class GameResult(google.protobuf.message.Message):
