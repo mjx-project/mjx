@@ -511,7 +511,7 @@ class Win(google.protobuf.message.Message):
     def ClearField(self, field_name: typing_extensions.Literal["fans",b"fans","from_who",b"from_who","fu",b"fu","hand",b"hand","ten",b"ten","ten_changes",b"ten_changes","ura_dora_indicators",b"ura_dora_indicators","who",b"who","win_tile",b"win_tile","yakumans",b"yakumans","yakus",b"yakus"]) -> None: ...
 global___Win = Win
 
-class NoWinner(google.protobuf.message.Message):
+class Draw(google.protobuf.message.Message):
     DESCRIPTOR: google.protobuf.descriptor.Descriptor = ...
     TENPAIS_FIELD_NUMBER: builtins.int
     TEN_CHANGES_FIELD_NUMBER: builtins.int
@@ -527,7 +527,7 @@ class NoWinner(google.protobuf.message.Message):
         ten_changes : typing.Optional[typing.Iterable[builtins.int]] = ...,
         ) -> None: ...
     def ClearField(self, field_name: typing_extensions.Literal["ten_changes",b"ten_changes","tenpais",b"tenpais"]) -> None: ...
-global___NoWinner = NoWinner
+global___Draw = Draw
 
 class TenpaiHand(google.protobuf.message.Message):
     DESCRIPTOR: google.protobuf.descriptor.Descriptor = ...
@@ -549,7 +549,7 @@ class RoundTerminal(google.protobuf.message.Message):
     DESCRIPTOR: google.protobuf.descriptor.Descriptor = ...
     FINAL_SCORE_FIELD_NUMBER: builtins.int
     WINS_FIELD_NUMBER: builtins.int
-    NO_WINNER_FIELD_NUMBER: builtins.int
+    DRAW_FIELD_NUMBER: builtins.int
     IS_GAME_OVER_FIELD_NUMBER: builtins.int
     @property
     def final_score(self) -> global___Score: ...
@@ -558,7 +558,7 @@ class RoundTerminal(google.protobuf.message.Message):
         """Empty if no one wins"""
         pass
     @property
-    def no_winner(self) -> global___NoWinner:
+    def draw(self) -> global___Draw:
         """Empty if a winner exists"""
         pass
     is_game_over: builtins.bool = ...
@@ -566,11 +566,11 @@ class RoundTerminal(google.protobuf.message.Message):
         *,
         final_score : typing.Optional[global___Score] = ...,
         wins : typing.Optional[typing.Iterable[global___Win]] = ...,
-        no_winner : typing.Optional[global___NoWinner] = ...,
+        draw : typing.Optional[global___Draw] = ...,
         is_game_over : builtins.bool = ...,
         ) -> None: ...
-    def HasField(self, field_name: typing_extensions.Literal["final_score",b"final_score","no_winner",b"no_winner"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing_extensions.Literal["final_score",b"final_score","is_game_over",b"is_game_over","no_winner",b"no_winner","wins",b"wins"]) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["draw",b"draw","final_score",b"final_score"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["draw",b"draw","final_score",b"final_score","is_game_over",b"is_game_over","wins",b"wins"]) -> None: ...
 global___RoundTerminal = RoundTerminal
 
 class State(google.protobuf.message.Message):
