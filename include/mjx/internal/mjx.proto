@@ -120,7 +120,7 @@ message Hand {
 message PrivateObservation {
   int32 who = 1; // 0:起家, ..., 3:ラス親
   Hand init_hand = 2;
-  repeated uint32 draw_history = 3;
+  repeated uint32 draws = 3;
   Hand curr_hand = 4;
 }
 
