@@ -17,8 +17,8 @@ class AgentGrpcServerImpl final : public mjxproto::Agent::Service {
   explicit AgentGrpcServerImpl(std::unique_ptr<Strategy> strategy);
   ~AgentGrpcServerImpl() final = default;
   grpc::Status Act(grpc::ServerContext* context,
-                          const mjxproto::Observation* request,
-                          mjxproto::Action* reply) final;
+                   const mjxproto::Observation* request,
+                   mjxproto::Action* reply) final;
 
  private:
   // Agent logic

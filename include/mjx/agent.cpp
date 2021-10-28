@@ -126,9 +126,9 @@ AgentBatchGrpcServerImpl::AgentBatchGrpcServerImpl(
 
 AgentBatchGrpcServerImpl::~AgentBatchGrpcServerImpl() {}
 
-grpc::Status AgentBatchGrpcServerImpl::Act(
-    grpc::ServerContext* context, const mjxproto::Observation* request,
-    mjxproto::Action* reply) {
+grpc::Status AgentBatchGrpcServerImpl::Act(grpc::ServerContext* context,
+                                           const mjxproto::Observation* request,
+                                           mjxproto::Action* reply) {
   // Observationデータ追加
   auto id = boost::uuids::random_generator()();
   {
