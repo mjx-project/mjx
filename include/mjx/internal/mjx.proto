@@ -21,7 +21,7 @@ enum ActionType {
   ACTION_TYPE_PON = 8;         // ポン
   ACTION_TYPE_OPEN_KAN = 9;    // 大明槓
   ACTION_TYPE_RON = 10;        // ロン Win by the discarded tile by other players
-  ACTION_TYPE_NO = 11;         // Ignore the chi, pon, kan, and ron actions
+  ACTION_TYPE_PASS = 11;         // Ignore the chi, pon, kan, and ron actions
 
   // Dummy used only to check connection and share round terminal information
   ACTION_TYPE_DUMMY = 99;
@@ -185,7 +185,7 @@ message Action {
   //  CLOSED_KAN         No    Yes
   //  ADDED_KAN          No    Yes
   //  KYUSYU             No     No
-  //  NO                 No     No
+  //  PASS               No     No
   //  CHI                No    Yes
   //  PON                No    Yes
   //  OPEN_KAN           No    Yes
