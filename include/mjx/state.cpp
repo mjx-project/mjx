@@ -12,7 +12,6 @@ mjx::State::State(mjxproto::State proto) : proto_(std::move(proto)) {}
 
 State::State(const std::string& json) {
   auto status = google::protobuf::util::JsonStringToMessage(json, &proto_);
-  if (!status.ok()) std::cerr << json << std::endl;
   assert(status.ok());
 }
 
