@@ -90,7 +90,7 @@ class State {
 
   static bool CheckGameOver(int round, std::array<int, 4> tens,
                             AbsolutePos dealer, bool is_dealer_win_or_tenpai,
-                            std::optional<mjxproto::EventType> no_winner_type =
+                            std::optional<mjxproto::EventType> draw_type =
                                 std::nullopt) noexcept;
 
  private:

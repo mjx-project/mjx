@@ -395,7 +395,7 @@ class MahjongTable:
                 )
 
         else:  # nowinner
-            for tenpai_data in round_terminal.no_winner.tenpais:
+            for tenpai_data in round_terminal.draw.tenpais:
                 for i in range(4):
                     if table.players[i].player_idx == tenpai_data.who:
                         # 手牌をround_terminalのもので上書き
@@ -414,7 +414,7 @@ class MahjongTable:
                         )
 
             for i, p in enumerate(table.players):
-                delta = round_terminal.no_winner.ten_changes[i]
+                delta = round_terminal.draw.ten_changes[i]
                 p.score = (
                     str(int(p.score) + delta) + ("(+" if delta > 0 else "(") + str(delta) + ")"
                 )

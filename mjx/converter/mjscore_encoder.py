@@ -264,7 +264,7 @@ non_dealer_tsumo_dict = {
     24000: "6000-12000",
     32000: "8000-16000",
 }
-no_winner_dict = {
+draw_dict = {
     mjxproto.EVENT_TYPE_EXHAUSTIVE_DRAW_NORMAL: "流局",
     mjxproto.EVENT_TYPE_ABORTIVE_DRAW_NINE_TERMINALS: "九種九牌",
     mjxproto.EVENT_TYPE_ABORTIVE_DRAW_FOUR_RIICHIS: "四家立直",
@@ -395,9 +395,9 @@ def _yaku_point_info(state: mjxproto.State, winner_num: int):
 
 def parse_terminal(state: mjxproto.State):
     if len(state.round_terminal.wins) == 0:  # あがった人がいない場合,# state.terminal.winsの長さは0
-        ten_changes = [i for i in state.round_terminal.no_winner.ten_changes]
+        ten_changes = [i for i in state.round_terminal.draw.ten_changes]
         if state.public_observation.events[-1].type == mjxproto.EVENT_TYPE_EXHAUSTIVE_DRAW_NORMAL:
-            if len(state.round_terminal.no_winner.tenpais) == 0:
+            if len(state.round_terminal.draw.tenpais) == 0:
                 return ["全員不聴"]
             else:
                 return ["流局", ten_changes]
@@ -407,7 +407,7 @@ def parse_terminal(state: mjxproto.State):
         ):
             # 流し満貫はten_changes も表示される。
             return ["流し満貫", ten_changes]
-        return [no_winner_dict[state.public_observation.events[-1].type]]
+        return [draw_dict[state.public_observation.events[-1].type]]
     else:
         terminal_info: List = ["和了"]
         for i in range(len(state.round_terminal.wins)):  # ダブロンに対応するために上がり者の数に応じてfor文を回すようにする。

@@ -218,11 +218,11 @@ class MjlogDecoder:
             elif key == "RYUUKYOKU":
                 reach_terminal = True
                 self.state.round_terminal.CopyFrom(
-                    MjlogDecoder.update_terminal_by_no_winner(
+                    MjlogDecoder.update_terminal_by_draw(
                         self.state.round_terminal, val, curr_hands
                     )
                 )
-                nowinner_type = MjlogDecoder.parse_no_winner_type(val)
+                nowinner_type = MjlogDecoder.parse_draw_type(val)
                 if nowinner_type == mjxproto.EVENT_TYPE_ABORTIVE_DRAW_NINE_TERMINALS:
                     event = mjxproto.Event(type=nowinner_type, who=self.last_drawer)
                 else:
@@ -305,20 +305,20 @@ class MjlogDecoder:
         return terminal
 
     @staticmethod
-    def update_terminal_by_no_winner(
+    def update_terminal_by_draw(
         terminal: mjxproto.RoundTerminal, val: Dict[str, str], hands: List[Hand]
     ) -> mjxproto.RoundTerminal:
         ba, riichi = [int(x) for x in val["ba"].split(",")]
-        terminal.no_winner.ten_changes[:] = [
+        terminal.draw.ten_changes[:] = [
             int(x) * 100 for i, x in enumerate(val["sc"].split(",")) if i % 2 == 1
         ]
         for i in range(4):
-            terminal.final_score.tens[i] += terminal.no_winner.ten_changes[i]
+            terminal.final_score.tens[i] += terminal.draw.ten_changes[i]
         for i in range(4):
             hai_key = "hai" + str(i)
             if hai_key not in val:
                 continue
-            terminal.no_winner.tenpais.append(
+            terminal.draw.tenpais.append(
                 mjxproto.TenpaiHand(
                     who=i,
                     hand=mjxproto.Hand(closed_tiles=hands[i].closed_tiles, opens=hands[i].opens),
@@ -370,7 +370,7 @@ class MjlogDecoder:
         return who, discard
 
     @staticmethod
-    def parse_no_winner_type(val: Dict[str, str]) -> mjxproto.EventTypeValue:
+    def parse_draw_type(val: Dict[str, str]) -> mjxproto.EventTypeValue:
         if "type" not in val:
             return mjxproto.EVENT_TYPE_EXHAUSTIVE_DRAW_NORMAL
         elif val["type"] == "yao9":

@@ -586,13 +586,13 @@ void State::NoWinner(mjxproto::EventType nowinner_type) {
       tenpai.mutable_hand()->CopyFrom(
           hand(AbsolutePos(LastEvent().who())).ToProto());
       state_.mutable_round_terminal()
-          ->mutable_no_winner()
+          ->mutable_draw()
           ->mutable_tenpais()
           ->Add(std::move(tenpai));
       state_.mutable_round_terminal()->mutable_final_score()->CopyFrom(
           curr_score_);
       for (int i = 0; i < 4; ++i)
-        state_.mutable_round_terminal()->mutable_no_winner()->add_ten_changes(
+        state_.mutable_round_terminal()->mutable_draw()->add_ten_changes(
             0);
       state_.mutable_public_observation()->mutable_events()->Add(
           Event::CreateAbortiveDrawNineTerminals(
@@ -605,7 +605,7 @@ void State::NoWinner(mjxproto::EventType nowinner_type) {
       state_.mutable_round_terminal()->mutable_final_score()->CopyFrom(
           curr_score_);
       for (int i = 0; i < 4; ++i)
-        state_.mutable_round_terminal()->mutable_no_winner()->add_ten_changes(
+        state_.mutable_round_terminal()->mutable_draw()->add_ten_changes(
             0);
       state_.mutable_public_observation()->mutable_events()->Add(
           Event::CreateAbortiveDrawFourWinds());
@@ -617,7 +617,7 @@ void State::NoWinner(mjxproto::EventType nowinner_type) {
       state_.mutable_round_terminal()->mutable_final_score()->CopyFrom(
           curr_score_);
       for (int i = 0; i < 4; ++i)
-        state_.mutable_round_terminal()->mutable_no_winner()->add_ten_changes(
+        state_.mutable_round_terminal()->mutable_draw()->add_ten_changes(
             0);
       state_.mutable_public_observation()->mutable_events()->Add(
           Event::CreateAbortiveDrawFourKans());
@@ -676,7 +676,7 @@ void State::NoWinner(mjxproto::EventType nowinner_type) {
       tenpai.set_who(ToUType(who));
       tenpai.mutable_hand()->CopyFrom(hand(who).ToProto());
       state_.mutable_round_terminal()
-          ->mutable_no_winner()
+          ->mutable_draw()
           ->mutable_tenpais()
           ->Add(std::move(tenpai));
     }
@@ -721,7 +721,7 @@ void State::NoWinner(mjxproto::EventType nowinner_type) {
 
   // apply ten moves
   for (int i = 0; i < 4; ++i) {
-    state_.mutable_round_terminal()->mutable_no_winner()->add_ten_changes(
+    state_.mutable_round_terminal()->mutable_draw()->add_ten_changes(
         ten_move[i]);
     curr_score_.set_tens(i, ten(AbsolutePos(i)) + ten_move[i]);
   }
@@ -760,11 +760,11 @@ bool State::IsGameOver() const {
             mjxproto::EVENT_TYPE_EXHAUSTIVE_DRAW_NORMAL,
             mjxproto::EVENT_TYPE_EXHAUSTIVE_DRAW_NAGASHI_MANGAN}) &&
        std::any_of(
-           state_.round_terminal().no_winner().tenpais().begin(),
-           state_.round_terminal().no_winner().tenpais().end(),
+           state_.round_terminal().draw().tenpais().begin(),
+           state_.round_terminal().draw().tenpais().end(),
            [&](const auto x) { return AbsolutePos(x.who()) == dealer(); }));
 
-  std::optional<mjxproto::EventType> no_winner_type;
+  std::optional<mjxproto::EventType> draw_type;
   if (!Any(last_event_type,
            {mjxproto::EVENT_TYPE_RON, mjxproto::EVENT_TYPE_TSUMO}) and
       Any(last_event_type,
@@ -774,20 +774,20 @@ bool State::IsGameOver() const {
            mjxproto::EVENT_TYPE_ABORTIVE_DRAW_FOUR_WINDS,
            mjxproto::EVENT_TYPE_EXHAUSTIVE_DRAW_NORMAL,
            mjxproto::EVENT_TYPE_EXHAUSTIVE_DRAW_NAGASHI_MANGAN})) {
-    no_winner_type = last_event_type;
+    draw_type = last_event_type;
   }
 
   return CheckGameOver(round(), tens(), dealer(), is_dealer_win_or_tenpai,
-                       no_winner_type);
+                       draw_type);
 }
 
 bool State::CheckGameOver(
     int round, std::array<int, 4> tens, AbsolutePos dealer,
     bool is_dealer_win_or_tenpai,
-    std::optional<mjxproto::EventType> no_winner_type) noexcept {
+    std::optional<mjxproto::EventType> draw_type) noexcept {
   // 途中流局の場合は連荘
-  if (no_winner_type.has_value() &&
-      Any(no_winner_type, {mjxproto::EVENT_TYPE_ABORTIVE_DRAW_NINE_TERMINALS,
+  if (draw_type.has_value() &&
+      Any(draw_type, {mjxproto::EVENT_TYPE_ABORTIVE_DRAW_NINE_TERMINALS,
                            mjxproto::EVENT_TYPE_ABORTIVE_DRAW_FOUR_RIICHIS,
                            mjxproto::EVENT_TYPE_ABORTIVE_DRAW_THREE_RONS,
                            mjxproto::EVENT_TYPE_ABORTIVE_DRAW_FOUR_KANS,
@@ -872,8 +872,8 @@ State::ScoreInfo State::Next() const {
            mjxproto::EVENT_TYPE_EXHAUSTIVE_DRAW_NAGASHI_MANGAN})) {
     // 途中流局や親テンパイで流局の場合は連荘
     bool is_dealer_tenpai = std::any_of(
-        state_.round_terminal().no_winner().tenpais().begin(),
-        state_.round_terminal().no_winner().tenpais().end(),
+        state_.round_terminal().draw().tenpais().begin(),
+        state_.round_terminal().draw().tenpais().end(),
         [&](const auto x) { return AbsolutePos(x.who()) == dealer(); });
     if (Any(LastEvent().type(),
             {mjxproto::EVENT_TYPE_ABORTIVE_DRAW_NINE_TERMINALS,
@@ -1496,12 +1496,12 @@ bool State::Equals(const State &other) const noexcept {
     if (!seq_eq(win.fans(), other_win.fans())) return false;
     if (!seq_eq(win.yakumans(), other_win.yakumans())) return false;
   }
-  const auto &no_winner = state_.round_terminal().no_winner();
-  const auto &other_no_winner = other.state_.round_terminal().no_winner();
-  if (no_winner.tenpais_size() != other_no_winner.tenpais_size()) return false;
-  for (int i = 0; i < no_winner.tenpais_size(); ++i) {
-    const auto &tenpai = no_winner.tenpais(i);
-    const auto &other_tenpai = other_no_winner.tenpais(i);
+  const auto &draw = state_.round_terminal().draw();
+  const auto &other_draw = other.state_.round_terminal().draw();
+  if (draw.tenpais_size() != other_draw.tenpais_size()) return false;
+  for (int i = 0; i < draw.tenpais_size(); ++i) {
+    const auto &tenpai = draw.tenpais(i);
+    const auto &other_tenpai = other_draw.tenpais(i);
     if (tenpai.who() != other_tenpai.who()) return false;
     if (!tiles_eq(tenpai.hand().closed_tiles(),
                   other_tenpai.hand().closed_tiles()))
@@ -1513,7 +1513,7 @@ bool State::Equals(const State &other) const noexcept {
                .Equals(Open(other_tenpai.hand().opens(j))))
         return false;
   }
-  if (!seq_eq(no_winner.ten_changes(), other_no_winner.ten_changes()))
+  if (!seq_eq(draw.ten_changes(), other_draw.ten_changes()))
     return false;
   if (state_.round_terminal().is_game_over() !=
       other.state_.round_terminal().is_game_over())
