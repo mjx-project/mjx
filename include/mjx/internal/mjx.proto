@@ -58,7 +58,7 @@ enum EventType {
 
 message Score {
   uint32 round = 1;         // starts with 0 = 東1局
-  uint32 honba = 2;         // 本場 (積み棒) honba incremets when draw (流局) happens
+  uint32 honba = 2;         // 本場 (積み棒) honba increments when draw (流局) happens
   uint32 riichi = 3;        // リーチ棒 riichi increments when some one declare riichi and is reset to zero when someone wins
   // Note that, as for the final score, riichi = 0 if someone wins (or at the end of game)
   repeated int32 tens = 4;  // Every player has 25000 when game starts. tens[0] is the ten of the first dealer player (起親)
@@ -69,7 +69,7 @@ message Event {
   // Publicly observable event, which include
   //
   //   1. publicly observable and actually realized actions taken by all layers
-  //   2. publicly observable state transitions made by envionment
+  //   2. publicly observable state transitions made by environment
   //
   // Note that "No" action is **NOT** collected as event since it's not publicly observable.
   // Also, "Chi" prevented by other player's "Pon/Ron" is also **NOT** collected in event_history.
