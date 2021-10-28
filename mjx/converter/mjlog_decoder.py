@@ -172,7 +172,7 @@ class MjlogDecoder:
         for key, val in kv[1:]:
             if key != "UN" and key[0] in ["T", "U", "V", "W"]:  # draw
                 who, draw = MjlogDecoder.parse_draw(key)
-                self.state.private_observations[int(who)].draw_history.append(draw)
+                self.state.private_observations[int(who)].draws.append(draw)
                 event = MjlogDecoder.make_draw_event(who)
                 curr_hands[int(who)].add(draw)
                 self.last_drawer, self.last_draw = who, draw

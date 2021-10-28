@@ -116,7 +116,7 @@ std::string SwapTiles(const std::string &json_str, Tile a, Tile b) {
     else if (state.hidden_state().ura_dora_indicators(i) == b.Id())
       state.mutable_hidden_state()->set_ura_dora_indicators(i, a.Id());
   }
-  // init hand, curr hand, draw_history
+  // init hand, curr hand, draws
   for (int j = 0; j < 4; ++j) {
     auto init_hand = state.mutable_private_observations(j)->mutable_init_hand();
     for (int i = 0; i < init_hand->closed_tiles_size(); ++i) {
@@ -137,11 +137,11 @@ std::string SwapTiles(const std::string &json_str, Tile a, Tile b) {
               curr_hand->mutable_closed_tiles()->end());
 
     auto mpinfo = state.mutable_private_observations(j);
-    for (int i = 0; i < mpinfo->draw_history_size(); ++i) {
-      if (mpinfo->draw_history(i) == a.Id())
-        mpinfo->set_draw_history(i, b.Id());
-      else if (mpinfo->draw_history(i) == b.Id())
-        mpinfo->set_draw_history(i, a.Id());
+    for (int i = 0; i < mpinfo->draws_size(); ++i) {
+      if (mpinfo->draws(i) == a.Id())
+        mpinfo->set_draws(i, b.Id());
+      else if (mpinfo->draws(i) == b.Id())
+        mpinfo->set_draws(i, a.Id());
     }
   }
   // event history
@@ -999,7 +999,7 @@ std::string TruncateAfterFirstDraw(const std::string &json) {
   for (int i = 0; i < 4; ++i) {
     // draw_hist
     auto draw_hist =
-        state.mutable_private_observations(i)->mutable_draw_history();
+        state.mutable_private_observations(i)->mutable_draws();
     draw_hist->erase(draw_hist->begin(), draw_hist->end());
     // curr_hand
     auto curr_hand = state.mutable_private_observations(i)->mutable_curr_hand();

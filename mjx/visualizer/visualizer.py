@@ -169,8 +169,8 @@ class MahjongTable:
         手牌の情報を読み込ませる関数
         """
         has_tsumotile = False
-        if private_observation.draw_history != [] and (
-            private_observation.draw_history[-1]
+        if private_observation.draws != [] and (
+            private_observation.draws[-1]
             in [id for id in private_observation.curr_hand.closed_tiles]
         ):
             has_tsumotile = True
@@ -183,9 +183,9 @@ class MahjongTable:
                     [
                         Tile(i, is_open=True)
                         for i in private_observation.curr_hand.closed_tiles
-                        if i != private_observation.draw_history[-1]
+                        if i != private_observation.draws[-1]
                     ]
-                    + [Tile(private_observation.draw_history[-1], is_open=True)],
+                    + [Tile(private_observation.draws[-1], is_open=True)],
                 )
             )
         else:

@@ -111,7 +111,7 @@ Hand Observation::current_hand() const {
     }
     if (event.who() != proto_.who()) continue;
     if (event.type() == mjxproto::EVENT_TYPE_DRAW) {
-      hand.Draw(Tile(proto_.private_observation().draw_history(draw_ix)));
+      hand.Draw(Tile(proto_.private_observation().draws(draw_ix)));
       draw_ix++;
     } else if (event.type() == mjxproto::EVENT_TYPE_RIICHI) {
       hand.Riichi(double_riichi);
@@ -212,7 +212,7 @@ std::vector<float> Observation::small_v0() const {
       auto event = *proto_.public_observation().events().rbegin();
       if (event.type() == mjxproto::EventType::EVENT_TYPE_DRAW) {
         return mjx::internal::Tile(
-            *proto_.private_observation().draw_history().rbegin());
+            *proto_.private_observation().draws().rbegin());
       } else {
         return std::nullopt;
       }

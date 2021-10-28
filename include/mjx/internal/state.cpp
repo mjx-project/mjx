@@ -295,7 +295,7 @@ Tile State::Draw(AbsolutePos who) {
   state_.mutable_public_observation()->mutable_events()->Add(
       Event::CreateDraw(who));
   state_.mutable_private_observations(ToUType(who))
-      ->add_draw_history(draw.Id());
+      ->add_draws(draw.Id());
   SyncCurrHand(who);
 
   return draw;
@@ -1268,7 +1268,7 @@ void State::Update(mjxproto::Action &&action) {
                      state_.round_terminal().wins().rbegin()->win_tile() &&
                  action.tile() ==
                      *state_.private_observations(static_cast<int>(who))
-                          .draw_history()
+                          .draws()
                           .rbegin(),
              "Tsumo winning tile in action should equal to win_tile in "
              "terminal.\naction.tile(): " +
@@ -1452,8 +1452,8 @@ bool State::Equals(const State &other) const noexcept {
             other.state_.private_observations(i).init_hand().closed_tiles()))
       return false;
   for (int i = 0; i < 4; ++i)
-    if (!tiles_eq(state_.private_observations(i).draw_history(),
-                  other.state_.private_observations(i).draw_history()))
+    if (!tiles_eq(state_.private_observations(i).draws(),
+                  other.state_.private_observations(i).draws()))
       return false;
   // EventHistory
   if (state_.public_observation().events_size() !=
@@ -1567,12 +1567,12 @@ bool State::CanReach(const State &other) const noexcept {
 
   // Drawがすべて現時点までは同じである必要がある (配牌は山が同じ時点で同じ）
   for (int i = 0; i < 4; ++i) {
-    const auto &draw_history = state_.private_observations(i).draw_history();
-    const auto &other_draw_history =
-        other.state_.private_observations(i).draw_history();
-    if (draw_history.size() > other_draw_history.size()) return false;
-    for (int j = 0; j < draw_history.size(); ++j)
-      if (!Tile(draw_history[j]).Equals(Tile(other_draw_history[j])))
+    const auto &draws = state_.private_observations(i).draws();
+    const auto &other_draws =
+        other.state_.private_observations(i).draws();
+    if (draws.size() > other_draws.size()) return false;
+    for (int j = 0; j < draws.size(); ++j)
+      if (!Tile(draws[j]).Equals(Tile(other_draws[j])))
         return false;
   }
 
