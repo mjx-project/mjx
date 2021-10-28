@@ -190,11 +190,10 @@ message Action {
   //  PON                No    Yes
   //  OPEN_KAN           No    Yes
   //  RON                Yes    No
-  string game_id = 1;
-  ActionType type = 2;
-  int32 who = 3;        // 0:起家, ..., 3:ラス親
-  uint32 tile = 4;      // Indicates the tile id (0 ~ 135)
-  uint32 open = 5;      // Each open (鳴き) is encoded by Tenhou format. See https://github.com/NegativeMjark/tenhou-log#meld-format 
+  ActionType type = 1;
+  int32 who = 2;        // 0:起家, ..., 3:ラス親
+  uint32 tile = 3;      // Indicates the tile id (0 ~ 135)
+  uint32 open = 4;      // Each open (鳴き) is encoded by Tenhou format. See https://github.com/NegativeMjark/tenhou-log#meld-format
 }
 
 message GameResult {
