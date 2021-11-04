@@ -3,7 +3,6 @@
 #include "mjx/internal/open.h"
 #include "mjx/internal/types.h"
 
-
 namespace mjx {
 
 mjxproto::EventType Open::EventType(std::uint16_t bits) {
@@ -24,7 +23,6 @@ mjxproto::EventType Open::EventType(std::uint16_t bits) {
     return mjxproto::EVENT_TYPE_ADDED_KAN;
   }
 }
-
 
 int Open::From(std::uint16_t bits) {
   return static_cast<int>(internal::Open(bits).From());
@@ -64,10 +62,11 @@ int Open::LastTile(std::uint16_t bits) {
 
 std::vector<int> Open::UndiscardableTileTypes(std::uint16_t bits) {
   std::vector<int> tile_types;
-  for (const internal::TileType& tt : internal::Open(bits).UndiscardableTileTypes()) {
+  for (const internal::TileType& tt :
+       internal::Open(bits).UndiscardableTileTypes()) {
     tile_types.push_back(static_cast<int>(tt));
   }
   return tile_types;
 }
 
-} // namespace mjx
+}  // namespace mjx

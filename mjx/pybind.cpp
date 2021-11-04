@@ -42,7 +42,7 @@ PYBIND11_MODULE(_mjx, m) {
       .def("last_tile", &mjx::Open::LastTile)
       .def("undiscardable_tile_types", &mjx::Open::UndiscardableTileTypes);
 
-py::class_<mjx::Observation>(m, "Observation")
+  py::class_<mjx::Observation>(m, "Observation")
       .def(py::init<std::string>())
       .def("to_json", &mjx::Observation::ToJson)
       .def("to_feature", &mjx::Observation::ToFeature)
