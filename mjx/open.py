@@ -4,8 +4,6 @@ from typing import List
 
 import _mjx  # type: ignore
 
-import mjxproto
-
 
 class Open:
     @classmethod
