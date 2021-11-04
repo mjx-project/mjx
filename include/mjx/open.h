@@ -6,7 +6,7 @@
 namespace mjx {
 class Open {
  public:
-  static mjxproto::EventType EventType(std::uint16_t bits);
+  static int EventType(std::uint16_t bits);
 
   static int From(
       std::uint16_t bits);  // In added kan, it's the opponent player from whom

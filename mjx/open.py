@@ -7,7 +7,7 @@ import mjxproto
 
 class Open:
     @classmethod
-    def event_type(cls, bit: int) -> mjxproto.EventType:
+    def event_type(cls, bit: int) -> int:
         return _mjx.Open.event_type(bit)
 
     @classmethod

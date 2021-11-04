@@ -5,22 +5,22 @@
 
 namespace mjx {
 
-mjxproto::EventType Open::EventType(std::uint16_t bits) {
+int Open::EventType(std::uint16_t bits) {
   auto open_type = internal::Open(bits).Type();
   if (open_type == internal::OpenType::kChi) {
-    return mjxproto::EVENT_TYPE_CHI;
+    return static_cast<int>(mjxproto::EVENT_TYPE_CHI);
   }
   if (open_type == internal::OpenType::kPon) {
-    return mjxproto::EVENT_TYPE_PON;
+    return static_cast<int>(mjxproto::EVENT_TYPE_PON);
   }
   if (open_type == internal::OpenType::kKanClosed) {
-    return mjxproto::EVENT_TYPE_CLOSED_KAN;
+    return static_cast<int>(mjxproto::EVENT_TYPE_CLOSED_KAN);
   }
   if (open_type == internal::OpenType::kKanOpened) {
-    return mjxproto::EVENT_TYPE_OPEN_KAN;
+    return static_cast<int>(mjxproto::EVENT_TYPE_OPEN_KAN);
   }
   if (open_type == internal::OpenType::kKanAdded) {
-    return mjxproto::EVENT_TYPE_ADDED_KAN;
+    return static_cast<int>(mjxproto::EVENT_TYPE_ADDED_KAN);
   }
 }
 
