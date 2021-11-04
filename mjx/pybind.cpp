@@ -1,4 +1,5 @@
 #include <mjx/env.h>
+#include <mjx/open.h>
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 
@@ -31,16 +32,15 @@ PYBIND11_MODULE(_mjx, m) {
       .def("to_idx", &mjx::Action::ToIdx);
 
   py::class_<mjx::Open>(m, "Open")
-      .def(py::init<std::string>())
-      .def("event_type", &mjx::Open::EventType)
-      .def("from", &mjx::Open::From)
-      .def("at", &mjx::Open::At)
-      .def("size", &mjx::Open::Size)
-      .def("tiles", &mjx::Open::Tiles)
-      .def("tiles_from_hand", &mjx::Open::TilesFromHand)
-      .def("stolen_tile", &mjx::Open::StolenTile)
-      .def("last_tile", &mjx::Open::LastTile)
-      .def("undiscardable_tile_types", &mjx::Open::UndiscardableTileTypes);
+      .def_static("event_type", &mjx::Open::EventType)
+      .def_static("from", &mjx::Open::From)
+      .def_static("at", &mjx::Open::At)
+      .def_static("size", &mjx::Open::Size)
+      .def_static("tiles", &mjx::Open::Tiles)
+      .def_static("tiles_from_hand", &mjx::Open::TilesFromHand)
+      .def_static("stolen_tile", &mjx::Open::StolenTile)
+      .def_static("last_tile", &mjx::Open::LastTile)
+      .def_static("undiscardable_tile_types", &mjx::Open::UndiscardableTileTypes);
 
   py::class_<mjx::Observation>(m, "Observation")
       .def(py::init<std::string>())
