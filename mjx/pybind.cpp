@@ -30,7 +30,19 @@ PYBIND11_MODULE(_mjx, m) {
       .def("to_json", &mjx::Action::ToJson)
       .def("to_idx", &mjx::Action::ToIdx);
 
-  py::class_<mjx::Observation>(m, "Observation")
+  py::class_<mjx::Open>(m, "Open")
+      .def(py::init<std::string>())
+      .def("event_type", &mjx::Open::EventType)
+      .def("from", &mjx::Open::From)
+      .def("at", &mjx::Open::At)
+      .def("size", &mjx::Open::Size)
+      .def("tiles", &mjx::Open::Tiles)
+      .def("tiles_from_hand", &mjx::Open::TilesFromHand)
+      .def("stolen_tile", &mjx::Open::StolenTile)
+      .def("last_tile", &mjx::Open::LastTile)
+      .def("undiscardable_tile_types", &mjx::Open::UndiscardableTileTypes);
+
+py::class_<mjx::Observation>(m, "Observation")
       .def(py::init<std::string>())
       .def("to_json", &mjx::Observation::ToJson)
       .def("to_feature", &mjx::Observation::ToFeature)
