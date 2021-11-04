@@ -33,7 +33,7 @@ PYBIND11_MODULE(_mjx, m) {
 
   py::class_<mjx::Open>(m, "Open")
       .def_static("event_type", &mjx::Open::EventType)
-      .def_static("from", &mjx::Open::From)
+      .def_static("steal_from", &mjx::Open::From)
       .def_static("at", &mjx::Open::At)
       .def_static("size", &mjx::Open::Size)
       .def_static("tiles", &mjx::Open::Tiles)
