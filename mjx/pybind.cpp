@@ -40,7 +40,8 @@ PYBIND11_MODULE(_mjx, m) {
       .def_static("tiles_from_hand", &mjx::Open::TilesFromHand)
       .def_static("stolen_tile", &mjx::Open::StolenTile)
       .def_static("last_tile", &mjx::Open::LastTile)
-      .def_static("undiscardable_tile_types", &mjx::Open::UndiscardableTileTypes);
+      .def_static("undiscardable_tile_types",
+                  &mjx::Open::UndiscardableTileTypes);
 
   py::class_<mjx::Observation>(m, "Observation")
       .def(py::init<std::string>())
