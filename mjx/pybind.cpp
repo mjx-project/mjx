@@ -1,4 +1,5 @@
 #include <mjx/env.h>
+#include <mjx/open.h>
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 
@@ -29,6 +30,18 @@ PYBIND11_MODULE(_mjx, m) {
       .def("select_from", &mjx::Action::SelectFrom)
       .def("to_json", &mjx::Action::ToJson)
       .def("to_idx", &mjx::Action::ToIdx);
+
+  py::class_<mjx::Open>(m, "Open")
+      .def_static("event_type", &mjx::Open::EventType)
+      .def_static("steal_from", &mjx::Open::From)
+      .def_static("at", &mjx::Open::At)
+      .def_static("size", &mjx::Open::Size)
+      .def_static("tiles", &mjx::Open::Tiles)
+      .def_static("tiles_from_hand", &mjx::Open::TilesFromHand)
+      .def_static("stolen_tile", &mjx::Open::StolenTile)
+      .def_static("last_tile", &mjx::Open::LastTile)
+      .def_static("undiscardable_tile_types",
+                  &mjx::Open::UndiscardableTileTypes);
 
   py::class_<mjx::Observation>(m, "Observation")
       .def(py::init<std::string>())

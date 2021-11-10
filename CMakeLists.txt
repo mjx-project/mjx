@@ -83,6 +83,8 @@ add_library(
   include/mjx/seed_generator.cpp
   include/mjx/hand.h
   include/mjx/hand.cpp
+  include/mjx/open.h
+  include/mjx/open.cpp
   include/mjx/env.h
   include/mjx/env.cpp
   include/mjx/internal/abstruct_hand.h
