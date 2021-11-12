@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="ja">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <!--<link href="static/css/style.css" rel="stylesheet">-->
+  <title>Mjx Visualizer</title>
+</head>
+
+<body style="display: block; text-align: center;">
+
+  <span id="svg">{{ svg | safe }}</span>
+
+  {% if choices|length > 0 %}
+  <form action="/" method="POST" enctype="multipart/form-data">
+    {% for choice in choices %}
+    <input type="radio" required id="r4" name="radio" value={{ loop.index-1 }}>
+    <label for="r3">{{choice}}</label>
+    {% endfor %}
+    <br>
+    <input type="submit" value="決定">
+  </form>
+  {% endif %}
+
+</body>
+
+</html>
