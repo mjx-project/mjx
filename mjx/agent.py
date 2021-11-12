@@ -10,7 +10,6 @@ from flask.views import View
 
 from mjx.action import Action
 from mjx.observation import Observation
-from mjx.visualizer.converter import action_type_ja
 from mjx.visualizer.selector import Selector
 from mjx.visualizer.svg import to_svg
 
