@@ -102,22 +102,4 @@ PYBIND11_MODULE(_mjx, m) {
       .def("done", &mjx::MjxEnv::Done)
       .def("rewards", &mjx::MjxEnv::Rewards)
       .def("state", &mjx::MjxEnv::state);
-
-  py::class_<mjx::RLlibMahjongEnv>(m, "RLlibMahjongEnv")
-      .def(py::init<>())
-      .def("reset", &mjx::RLlibMahjongEnv::Reset)
-      .def("step", &mjx::RLlibMahjongEnv::Step)
-      .def("seed", &mjx::RLlibMahjongEnv::Seed);
-
-  py::class_<mjx::PettingZooMahjongEnv>(m, "PettingZooMahjongEnv")
-      .def(py::init<>())
-      .def("last", &mjx::PettingZooMahjongEnv::Last)
-      .def("reset", &mjx::PettingZooMahjongEnv::Reset)
-      .def("step", &mjx::PettingZooMahjongEnv::Step)
-      .def("seed", &mjx::PettingZooMahjongEnv::Seed)
-      .def("observe", &mjx::PettingZooMahjongEnv::Observe)
-      .def("agents", &mjx::PettingZooMahjongEnv::agents)
-      .def("possible_agents", &mjx::PettingZooMahjongEnv::possible_agents)
-      .def("agent_selection", &mjx::PettingZooMahjongEnv::agent_selection)
-      .def("rewards", &mjx::PettingZooMahjongEnv::rewards);
 }
