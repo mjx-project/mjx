@@ -1107,9 +1107,6 @@ WinStateInfo State::win_state_info(AbsolutePos who) const {
 }
 
 void State::Update(std::vector<mjxproto::Action> &&action_candidates) {
-  Assert(!IsRoundOver(), "Update is called after round end: \n" + ToJson());
-  Assert(!action_candidates.empty());
-
   // set is_dummy_set_ at the end of game
   if (IsRoundOver() && IsGameOver()) {
     Assert(action_candidates.size() == 4);
@@ -1128,6 +1125,7 @@ void State::Update(std::vector<mjxproto::Action> &&action_candidates) {
                            });
   action_candidates.erase(it, action_candidates.end());
   Assert(action_candidates.size() <= 3);
+  Assert(!IsRoundOver(), "Update with non-dummy actions is called after round end: \n" + ToJson());
 
   if (action_candidates.empty()) return;
 
