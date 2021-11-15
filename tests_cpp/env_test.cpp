@@ -45,10 +45,8 @@ TEST(env, MjxEnv) {
   }
   EXPECT_TRUE(observations.empty());
   auto state = env.state();
-  auto player_ids =
-      state.proto().public_observation().player_ids();
-  auto tens =
-      state.proto().round_terminal().final_score().tens();
+  auto player_ids = state.proto().public_observation().player_ids();
+  auto tens = state.proto().round_terminal().final_score().tens();
   for (int i = 0; i < 4; ++i) {
     EXPECT_EQ(tens[i], expected_tens[player_ids[i]]);
   }

@@ -109,7 +109,6 @@ mjxproto::GameResult MjxEnv::GameResult() const noexcept {
   return game_result;
 }
 
-
 EnvRunner::EnvRunner(const std::unordered_map<PlayerId, Agent*>& agents,
                      SeedGenerator* seed_generator, int num_games,
                      int num_parallels, int show_interval,
