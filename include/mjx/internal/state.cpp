@@ -1125,7 +1125,9 @@ void State::Update(std::vector<mjxproto::Action> &&action_candidates) {
                            });
   action_candidates.erase(it, action_candidates.end());
   Assert(action_candidates.size() <= 3);
-  Assert(!IsRoundOver(), "Update with non-dummy actions is called after round end: \n" + ToJson());
+  Assert(
+      !IsRoundOver(),
+      "Update with non-dummy actions is called after round end: \n" + ToJson());
 
   if (action_candidates.empty()) return;
 
