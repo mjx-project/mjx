@@ -43,10 +43,12 @@ TEST(env, MjxEnv) {
       observations = env.Step(action_dict);
     }
   }
+  EXPECT_TRUE(observations.empty());
+  auto state = env.state();
   auto player_ids =
-      observations["player_0"].proto().public_observation().player_ids();
+      state.proto().public_observation().player_ids();
   auto tens =
-      observations["player_0"].proto().round_terminal().final_score().tens();
+      state.proto().round_terminal().final_score().tens();
   for (int i = 0; i < 4; ++i) {
     EXPECT_EQ(tens[i], expected_tens[player_ids[i]]);
   }
@@ -79,6 +81,7 @@ TEST(env, RLlibMahjongEnv) {
     }
     std::tie(observations, rewards, dones, infos) = env.Step(action_dict);
   }
+  EXPECT_TRUE(observations.empty());
   EXPECT_TRUE(dones.at("__all__"));
   auto player_ids =
       observations["player_0"].proto().public_observation().player_ids();
