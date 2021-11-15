@@ -1114,7 +1114,9 @@ void State::Update(std::vector<mjxproto::Action> &&action_candidates) {
   if (IsRoundOver() && IsGameOver()) {
     Assert(action_candidates.size() == 4);
     Assert(std::all_of(action_candidates.begin(), action_candidates.end(),
-                       [](mjxproto::Action &x){ return x.type() == mjxproto::ACTION_TYPE_DUMMY; }));
+                       [](mjxproto::Action &x) {
+                         return x.type() == mjxproto::ACTION_TYPE_DUMMY;
+                       }));
     is_dummy_set_ = true;
     return;
   }
