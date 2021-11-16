@@ -13,26 +13,25 @@
   <span id="svg">{{ svg | safe }}</span>
 
   {% if choices|length > 0 %}
-    {% if choices[0][0]=="ダミー" %}
-    <form action="/" method="POST" enctype="multipart/form-data">
-      {% for choice in choices %}
-      <button type="submit" name="choice" value=0>
-        次へ
-      </button>
-      {% endfor %}
-    </form>
-    {% else %}
-    <form action="/" method="POST" enctype="multipart/form-data">
-      {% for choice in choices %}
-      <button type="submit" name="choice" value={{ loop.index-1 }}>
-        <span>{{choice[0]}}</span>
-        <span class="MJFont">{{choice[1]}}</span>
-      </button>
-      {% endfor %}
-    </form>
-    {% endif %}
+  {% if choices[0][0]=="ダミー" %}
+  <form action="/" method="POST" enctype="multipart/form-data">
+    {% for choice in choices %}
+    <button type="submit" name="choice" value=0>
+      次へ
+    </button>
+    {% endfor %}
+  </form>
+  {% else %}
+  <form action="/" method="POST" enctype="multipart/form-data">
+    {% for choice in choices %}
+    <button id="button" type="submit" name="choice" value={{ choice[2] }}>
+      <span>{{choice[0]}}</span>
+      <span class="MJFont">{{choice[1]}}</span>
+    </button>
+    {% endfor %}
+  </form>
   {% endif %}
-
+  {% endif %}
 </body>
 
 </html>

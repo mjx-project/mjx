@@ -2,7 +2,6 @@ import random
 import threading
 import time
 from queue import Queue
-from re import split
 from typing import List, Optional
 
 import _mjx  # type: ignore
@@ -102,14 +101,11 @@ class ShowPages(View):
 
             action = ShowPages.observation.legal_actions()[int(action_idx)]
             ShowPages.q.put(action)
-            print("Flask:actionを返したので処理待ち中です")
             ShowPages.q.join()
 
-            print("Flask:observationを待っています")
             ShowPages.observation = ShowPages.q.get(block=True, timeout=None)
             ShowPages.q.task_done()
-            time.sleep(1.0)
-            print("Flask:observationを取得しました。表示します")
+            time.sleep(0.5)
 
             svg_str = to_svg(ShowPages.observation.to_json())
             choices = self.make_choices()
@@ -118,7 +114,7 @@ class ShowPages(View):
         else:  # リクエストが非POSTとなるのは初回の表示のみという想定
             ShowPages.observation = ShowPages.q.get(block=True, timeout=None)
             ShowPages.q.task_done()
-            time.sleep(1.0)
+            time.sleep(0.5)
 
             svg_str = to_svg(ShowPages.observation.to_json())
             choices = self.make_choices()
@@ -126,15 +122,23 @@ class ShowPages(View):
 
     def make_choices(self):
         assert ShowPages.observation is not None
-        legal_actions_proto = [
-            action.to_proto() for action in ShowPages.observation.legal_actions()
+        legal_actions_proto_ = [
+            [action.to_proto(), i]
+            for i, action in enumerate(ShowPages.observation.legal_actions())
         ]
-        choices1 = Selector.make_choices(legal_actions_proto, unicode=True, ja=True)
+        legal_actions_proto = sorted(legal_actions_proto_, key=lambda x: x[0].type)
+        choices_ = Selector.make_choices(
+            [x[0] for x in legal_actions_proto], unicode=True, ja=True
+        )
         choices = [
-            [choice_str.split("-")[0].split(":")[1], choice_str.split("-")[1]]
+            [
+                choice_str.split("-")[0].split(":")[1],
+                choice_str.split("-")[1],
+                legal_actions_proto[i][1],
+            ]
             if len(choice_str.split("-")) > 1
-            else [choice_str.split("-")[0].split(":")[1], ""]
-            for choice_str in choices1
+            else [choice_str.split("-")[0].split(":")[1], "", 0]
+            for i, choice_str in enumerate(choices_)
         ]
         return choices
 
@@ -155,16 +159,13 @@ class HumanControlAgentOnBrowser(Agent):  # type: ignore
 
     def act(self, observation: Observation) -> Action:
         assert isinstance(observation, Observation)
+        print("YOUR TURN")
         self.q.put(observation)
-        print("mjx:obervationを渡したので処理待ちです")
         self.q.join()
 
-        print("mjx:actionが渡されるのを待っています")
         action = self.q.get(block=True, timeout=None)
-        print("mjx:actionが渡されました")
         self.q.task_done()
         time.sleep(1.0)
-        print("mjx:actionを返しました。returnします")
         return action
 
     def flask(self, q):
