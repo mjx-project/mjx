@@ -13,7 +13,7 @@
   <span id="svg">{{ svg | safe }}</span>
 
   {% if choices|length > 0 %}
-  {% if choices[0][0]=="ダミー" %}
+  {% if choices[0]["type"]=="ダミー" %}
   <form action="/" method="POST" enctype="multipart/form-data">
     {% for choice in choices %}
     <button type="submit" name="choice" value=0>
