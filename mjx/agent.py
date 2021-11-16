@@ -105,7 +105,7 @@ class ShowPages(View):
 
             ShowPages.observation = ShowPages.q.get(block=True, timeout=None)
             ShowPages.q.task_done()
-            time.sleep(0.5)
+            # time.sleep(0.5)
 
             svg_str = to_svg(ShowPages.observation.to_json())
             choices = self.make_choices()
@@ -114,7 +114,7 @@ class ShowPages(View):
         else:  # リクエストが非POSTとなるのは初回の表示のみという想定
             ShowPages.observation = ShowPages.q.get(block=True, timeout=None)
             ShowPages.q.task_done()
-            time.sleep(0.5)
+            # time.sleep(0.5)
 
             svg_str = to_svg(ShowPages.observation.to_json())
             choices = self.make_choices()
@@ -131,13 +131,19 @@ class ShowPages(View):
             [x[0] for x in legal_actions_proto], unicode=True, ja=True
         )
         choices = [
-            [
-                choice_str.split("-")[0].split(":")[1],
-                choice_str.split("-")[1],
-                legal_actions_proto[i][1],
-            ]
-            if len(choice_str.split("-")) > 1
-            else [choice_str.split("-")[0].split(":")[1], "", 0]
+            (
+                {
+                    "type": choice_str.split("-")[0].split(":")[1],
+                    "char": choice_str.split("-")[1],
+                    "index": legal_actions_proto[i][1],
+                }
+                if len(choice_str.split("-")) > 1
+                else {
+                    "type": choice_str.split("-")[0].split(":")[1],
+                    "char": "",
+                    "index": legal_actions_proto[i][1],
+                }
+            )
             for i, choice_str in enumerate(choices_)
         ]
         return choices
