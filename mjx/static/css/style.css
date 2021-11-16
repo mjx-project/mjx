@@ -1,0 +1,30 @@
+@font-face {
+	font-family: "GL-MahjongTile";
+	src: url(GL-MahjongTile.ttf);
+}
+
+.MJFont{
+  font-family: "GL-MahjongTile";
+  font-size: 40px;
+}
+
+button {
+  -webkit-transition: all 0.3s ease;
+  -moz-transition: all 0.3s ease;
+  -o-transition: all 0.3s ease;
+  transition: all  0.3s ease;
+
+  position: relative;
+  display:  inline-block;
+  background-color:  white;
+  width: 200px;
+  margin: 10px;
+  padding: 10px;
+  box-sizing: border-box;
+  border: 2px solid;
+}
+
+button:hover{
+  background-color:  black;
+  color:white;
+}

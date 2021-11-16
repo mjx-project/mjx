@@ -2,6 +2,7 @@ import random
 import threading
 import time
 from queue import Queue
+from re import split
 from typing import List, Optional
 
 import _mjx  # type: ignore
@@ -96,7 +97,7 @@ class ShowPages(View):
     def dispatch_request(self):
         if False or request.method == "POST":
             assert ShowPages.observation is not None
-            action_idx = request.form.get("radio")
+            action_idx = request.form.get("choice")
             assert action_idx is not None
 
             action = ShowPages.observation.legal_actions()[int(action_idx)]
@@ -128,7 +129,13 @@ class ShowPages(View):
         legal_actions_proto = [
             action.to_proto() for action in ShowPages.observation.legal_actions()
         ]
-        choices = Selector.make_choices(legal_actions_proto, unicode=True, ja=True)
+        choices1 = Selector.make_choices(legal_actions_proto, unicode=True, ja=True)
+        choices = [
+            [choice_str.split("-")[0].split(":")[1], choice_str.split("-")[1]]
+            if len(choice_str.split("-")) > 1
+            else [choice_str.split("-")[0].split(":")[1], ""]
+            for choice_str in choices1
+        ]
         return choices
 
 
