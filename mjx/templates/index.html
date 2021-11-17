@@ -27,7 +27,7 @@
       {% else %}
       <form action="/" method="POST" enctype="multipart/form-data">
         {% for choice in choices %}
-        <button id="button" type="submit" name="choice" value={{ choice["index"] }}>
+        <button id={{"button"+ loop.index0|string }} type="submit" name="choice" value={{ choice["index"] }}>
           <span>{{choice["type"]}}</span>
           {% if choice["red"] %}
           <span class="MJFontR">{{choice["char"]}}</span>
@@ -41,6 +41,53 @@
       {% endif %}
     </div>
   </div>
+
+  <script>
+    var idx = 0;
+    var keydown_counters = [0, 0]
+    function focus_back() {
+      idx = (idx + {{ choices | length | tojson }} -1)% {{ choices | length | tojson }};
+      document.getElementById("button" + idx).focus();
+    };
+    function focus_forward() {
+      idx = (idx + 1) % {{ choices | length | tojson }};
+      document.getElementById("button" + idx).focus();
+    };
+
+    document.body.addEventListener('keydown',
+      event => {
+        switch (event.key) {
+          case 'ArrowUp':
+          case 'ArrowLeft':
+          case 'j':
+            keydown_counters[0]++;
+            if (keydown_counters[0] == 1) { focus_back(); }
+            break;
+          case 'ArrowDown':
+          case 'ArrowRight':
+          case 'k':
+            keydown_counters[1]++;
+            if (keydown_counters[1] == 1) { focus_forward(); }
+            break;
+        }
+      });
+    
+    document.body.addEventListener('keyup',
+      event => {
+        switch (event.key) {
+          case 'ArrowUp':
+          case 'ArrowLeft':
+          case 'j':
+            keydown_counters[0]=0;
+            break;
+          case 'ArrowDown':
+          case 'ArrowRight':
+          case 'k':
+            keydown_counters[1]=0;
+            break;
+        }
+      });
+  </script>
 </body>
 
 </html>

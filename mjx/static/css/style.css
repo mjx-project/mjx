@@ -53,6 +53,6 @@ button:hover{
   color:white;
 }
 
-.red{
-  color: red;
+button:focus{
+  outline: solid 5px black;
 }
