@@ -105,7 +105,5 @@ PYBIND11_MODULE(_mjx, m) {
       .def("state", &mjx::MjxEnv::state);
 
   py::class_<mjx::ShantenCalculator>(m, "ShantenCalculator")
-      .def_static("shanten_number", &mjx::ShantenCalculator::ShantenNumber)
-      .def_static("proceeding_tile_types",
-                  &mjx::ShantenCalculator::ProceedingTileTypes);
+      .def_static("shanten_number", &mjx::ShantenCalculator::ShantenNumber);
 }
