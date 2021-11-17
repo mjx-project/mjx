@@ -20,7 +20,7 @@ TEST(internal_shanten_calculator, normal) {
                        .Chi("m7,m8,m9")
                        .KanAdded("p1,p1,p1,p1"));
   EXPECT_EQ(mjx::ShantenCalculator::ShantenNumber(hand.ToArrayClosed(),
-                                             hand.Opens().size()),
+                                                  hand.Opens().size()),
             1);
 }
 
