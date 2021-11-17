@@ -65,13 +65,13 @@
           case 'ArrowLeft':
           case 'j':
             keydown_counters[0]++;
-            if (keydown_counters[0] == 1) { focus_back(); }
+            if (keydown_counters[0] == 1 || (keydown_counters[0] > 10 && keydown_counters[0]%3==0)) { focus_back(); }
             break;
           case 'ArrowDown':
           case 'ArrowRight':
           case 'k':
             keydown_counters[1]++;
-            if (keydown_counters[1] == 1) { focus_forward(); }
+            if (keydown_counters[1] == 1 || (keydown_counters[1] > 10 && keydown_counters[1]%3==0)) { focus_forward(); }
             break;
         }
       });
