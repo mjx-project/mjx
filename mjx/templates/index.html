@@ -26,7 +26,11 @@
     {% for choice in choices %}
     <button id="button" type="submit" name="choice" value={{ choice["index"] }}>
       <span>{{choice["type"]}}</span>
+      {% if choice["red"] %}
+      <span class="MJFontR">{{choice["char"]}}</span>
+      {% else %}
       <span class="MJFont">{{choice["char"]}}</span>
+      {% endif %}
     </button>
     {% endfor %}
   </form>

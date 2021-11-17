@@ -105,7 +105,7 @@ class ShowPages(View):
 
             ShowPages.observation = ShowPages.q.get(block=True, timeout=None)
             ShowPages.q.task_done()
-            # time.sleep(0.5)
+            time.sleep(1.0)
 
             svg_str = to_svg(ShowPages.observation.to_json())
             choices = self.make_choices()
@@ -114,7 +114,7 @@ class ShowPages(View):
         else:  # リクエストが非POSTとなるのは初回の表示のみという想定
             ShowPages.observation = ShowPages.q.get(block=True, timeout=None)
             ShowPages.q.task_done()
-            # time.sleep(0.5)
+            time.sleep(1.0)
 
             svg_str = to_svg(ShowPages.observation.to_json())
             choices = self.make_choices()
@@ -123,7 +123,7 @@ class ShowPages(View):
     def make_choices(self):
         assert ShowPages.observation is not None
         legal_actions_proto_ = [
-            [action.to_proto(), i]
+            [action.to_proto(), i, action.to_proto().tile in [16, 52, 88]]
             for i, action in enumerate(ShowPages.observation.legal_actions())
         ]
         legal_actions_proto = sorted(legal_actions_proto_, key=lambda x: x[0].type)
@@ -136,12 +136,14 @@ class ShowPages(View):
                     "type": choice_str.split("-")[0].split(":")[1],
                     "char": choice_str.split("-")[1],
                     "index": legal_actions_proto[i][1],
+                    "red": legal_actions_proto[i][2],
                 }
                 if len(choice_str.split("-")) > 1
                 else {
                     "type": choice_str.split("-")[0].split(":")[1],
                     "char": "",
                     "index": legal_actions_proto[i][1],
+                    "red": legal_actions_proto[i][2],
                 }
             )
             for i, choice_str in enumerate(choices_)
@@ -150,12 +152,8 @@ class ShowPages(View):
 
 
 class HumanControlAgentOnBrowser(Agent):  # type: ignore
-    def __init__(self, unicode: bool = False, rich: bool = False, ja: bool = False) -> None:
+    def __init__(self) -> None:
         super().__init__()
-        self.unicode: bool = unicode
-        self.ja: bool = ja
-        self.rich: bool = rich
-
         self.q = Queue()
 
         self.sub = threading.Thread(target=self.flask, args=(self.q,))

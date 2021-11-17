@@ -3,7 +3,18 @@
 	src: url(GL-MahjongTile.ttf);
 }
 
+body{
+  width: 800px;
+  margin: auto auto;
+}
+
 .MJFont{
+  font-family: "GL-MahjongTile";
+  font-size: 40px;
+}
+
+.MJFontR{
+  color: red;
   font-family: "GL-MahjongTile";
   font-size: 40px;
 }
@@ -17,14 +28,18 @@ button {
   position: relative;
   display:  inline-block;
   background-color:  white;
-  width: 200px;
+  width: auto;
   margin: 10px;
   padding: 10px;
   box-sizing: border-box;
-  border: 2px solid;
+  border: 1px solid;
 }
 
 button:hover{
   background-color:  black;
   color:white;
+}
+
+.red{
+  color: red;
 }
