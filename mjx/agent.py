@@ -52,6 +52,8 @@ class TsumogiriAgent(Agent):
 
     def act(self, observation: Observation) -> Action:
         legal_actions = observation.legal_actions()
+        if len(legal_actions) == 1:
+            return legal_actions[0]
         for action in legal_actions:
             if action.type in [ActionType.TSUMOGIRI, ActionType.PASS]:
                 return action
