@@ -77,15 +77,16 @@ TEST(internal_shanten_calculator, proceeding) {
 }
 
 TEST(internal_shanten_calculator, many_cases) {
-  // 事前にロードする
-  {
-    clock_t start = clock();
-    mjx::ShantenCalculator::shanten_cache();
-    clock_t end = clock();
-    const double time =
-        static_cast<double>(end - start) / CLOCKS_PER_SEC * 1000.0;
-    std::cout << "loading takes time " << time << "[ms]" << std::endl;
-  }
+  // make private
+  // // 事前にロードする
+  // {
+  //   clock_t start = clock();
+  //   mjx::ShantenCalculator::shanten_cache();
+  //   clock_t end = clock();
+  //   const double time =
+  //       static_cast<double>(end - start) / CLOCKS_PER_SEC * 1000.0;
+  //   std::cout << "loading takes time " << time << "[ms]" << std::endl;
+  // }
 
   for (const std::string& testcase :
        {std::string(TEST_RESOURCES_DIR) + "/shanten_testcases/p_hon_10000.txt",
