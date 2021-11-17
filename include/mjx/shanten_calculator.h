@@ -21,6 +21,7 @@ class ShantenCalculator {
       const std::array<uint8_t, 34>& count);
   [[nodiscard]] static std::bitset<34> ProceedingTileTypes(
       std::array<uint8_t, 34> hand, int num_opens);
+
  private:
   [[nodiscard]] static const mjx::internal::ShantenCache& shanten_cache();
 };

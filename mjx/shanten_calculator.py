@@ -1,7 +1,9 @@
 from collections import defaultdict
 
-import mjxproto
 import _mjx  # type: ignore
+
+import mjxproto
+
 
 class ShantenCalculator:
     @classmethod
@@ -23,4 +25,3 @@ class ShantenCalculator:
             tile_type_cnt[tile_type] += 1
 
         return _mjx.ShantenCalculator.proceeding_tile_types(tile_type_cnt, len(hand.opens))
-
