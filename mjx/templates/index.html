@@ -10,32 +10,37 @@
 
 <body style="display: block; text-align: center;">
 
-  <span id="svg">{{ svg | safe }}</span>
-
-  {% if choices|length > 0 %}
-  {% if choices[0]["type"]=="ダミー" %}
-  <form action="/" method="POST" enctype="multipart/form-data">
-    {% for choice in choices %}
-    <button type="submit" name="choice" value=0>
-      次へ
-    </button>
-    {% endfor %}
-  </form>
-  {% else %}
-  <form action="/" method="POST" enctype="multipart/form-data">
-    {% for choice in choices %}
-    <button id="button" type="submit" name="choice" value={{ choice["index"] }}>
-      <span>{{choice["type"]}}</span>
-      {% if choice["red"] %}
-      <span class="MJFontR">{{choice["char"]}}</span>
+  <div class="main">
+    <div class="left">
+      <span id="svg">{{ svg | safe }}</span>
+    </div>
+    <div class="right">
+      {% if choices|length > 0 %}
+      {% if choices[0]["type"]=="ダミー" %}
+      <form action="/" method="POST" enctype="multipart/form-data">
+        {% for choice in choices %}
+        <button type="submit" name="choice" value=0>
+          次へ
+        </button>
+        {% endfor %}
+      </form>
       {% else %}
-      <span class="MJFont">{{choice["char"]}}</span>
+      <form action="/" method="POST" enctype="multipart/form-data">
+        {% for choice in choices %}
+        <button id="button" type="submit" name="choice" value={{ choice["index"] }}>
+          <span>{{choice["type"]}}</span>
+          {% if choice["red"] %}
+          <span class="MJFontR">{{choice["char"]}}</span>
+          {% else %}
+          <span class="MJFont">{{choice["char"]}}</span>
+          {% endif %}
+        </button>
+        {% endfor %}
+      </form>
       {% endif %}
-    </button>
-    {% endfor %}
-  </form>
-  {% endif %}
-  {% endif %}
+      {% endif %}
+    </div>
+  </div>
 </body>
 
 </html>

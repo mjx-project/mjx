@@ -4,7 +4,8 @@
 }
 
 body{
-  width: 800px;
+  padding-top: 10px;
+  width: 1000px;
   margin: auto auto;
 }
 
@@ -19,6 +20,18 @@ body{
   font-size: 40px;
 }
 
+.main{
+  display: flex;
+ }
+.left{
+  width: 80%;
+  height: 100px;
+ }
+.right{
+  width: 20%;
+  height: 100px;
+ }
+
 button {
   -webkit-transition: all 0.3s ease;
   -moz-transition: all 0.3s ease;
@@ -28,8 +41,8 @@ button {
   position: relative;
   display:  inline-block;
   background-color:  white;
-  width: auto;
-  margin: 10px;
+  width: 100%;
+  margin: 0px 10px 10px 10px;
   padding: 10px;
   box-sizing: border-box;
   border: 1px solid;
