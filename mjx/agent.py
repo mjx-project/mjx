@@ -46,7 +46,7 @@ class RandomAgent(Agent):
         return random.choice(observation.legal_actions())
 
 
-class TsumogiriPlayer(Agent):
+class TsumogiriAgent(Agent):
     def __init__(self) -> None:
         super().__init__()
 
