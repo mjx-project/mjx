@@ -4,5 +4,6 @@ from mjx.env import MjxEnv, run
 from mjx.observation import Observation
 from mjx.open import Open
 from mjx.state import State
+from mjx.shanten_calculator import ShantenCalculator
 
-__all__ = ["Action", "Observation", "State", "MjxEnv", "Agent", "Open", "run"]
+__all__ = ["Action", "Observation", "State", "MjxEnv", "Agent", "Open", "run", "ShantenCalculator"]

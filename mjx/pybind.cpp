@@ -1,5 +1,6 @@
 #include <mjx/env.h>
 #include <mjx/open.h>
+#include <mjx/shanten_calculator.h>
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 
@@ -102,4 +103,8 @@ PYBIND11_MODULE(_mjx, m) {
       .def("done", &mjx::MjxEnv::Done)
       .def("rewards", &mjx::MjxEnv::Rewards)
       .def("state", &mjx::MjxEnv::state);
+
+  py::class_<mjx::ShantenCalculator>(m, "ShantenCalculator")
+      .def_static("shanten_number", &mjx::ShantenCalculator::ShantenNumber)
+      .def_static("proceeding_tile_types", &mjx::ShantenCalculator::ProceedingTileTypes);
 }

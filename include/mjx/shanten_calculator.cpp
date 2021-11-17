@@ -1,6 +1,6 @@
-#include "mjx/internal/shanten_calculator.h"
+#include "mjx/shanten_calculator.h"
 
-namespace mjx::internal {
+namespace mjx {
 int ShantenCalculator::ShantenNumber(const std::array<uint8_t, 34>& count,
                                      int num_opens) {
   if (num_opens == 0) {
@@ -11,8 +11,8 @@ int ShantenCalculator::ShantenNumber(const std::array<uint8_t, 34>& count,
   }
 }
 
-const ShantenCache& ShantenCalculator::shanten_cache() {
-  return ShantenCache::instance();
+const mjx::internal::ShantenCache& ShantenCalculator::shanten_cache() {
+  return mjx::internal::ShantenCache::instance();
 }
 
 int ShantenCalculator::ShantenNormal(const std::array<uint8_t, 34>& count,
@@ -94,4 +94,4 @@ std::bitset<34> ShantenCalculator::ProceedingTileTypes(
   }
   return proceeding;
 }
-}  // namespace mjx::internal
+}  // namespace mjx
