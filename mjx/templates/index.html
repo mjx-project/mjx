@@ -27,7 +27,11 @@
       {% else %}
       <form action="/" method="POST" enctype="multipart/form-data">
         {% for choice in choices %}
+        {% if loop.index0 == 0 %}
+        <button autofocus id={{"button"+ loop.index0|string }} type="submit" name="choice" value={{ choice["index"] }}>
+        {% else %}
         <button id={{"button"+ loop.index0|string }} type="submit" name="choice" value={{ choice["index"] }}>
+        {% endif %}
           <span>{{choice["type"]}}</span>
           {% if choice["red"] %}
           <span class="MJFontR">{{choice["char"]}}</span>
