@@ -6,6 +6,7 @@ import _mjx  # type: ignore
 from google.protobuf import json_format
 
 import mjxproto
+from mjx.const import ActionType
 
 
 class Action:
@@ -25,6 +26,10 @@ class Action:
         if not isinstance(other, Action):
             raise NotImplementedError
         raise NotImplementedError  # TODO: implement
+
+    @property
+    def type(self) -> ActionType:
+        return ActionType(self.to_proto().type)
 
     def to_json(self) -> str:
         assert self._cpp_obj is not None
