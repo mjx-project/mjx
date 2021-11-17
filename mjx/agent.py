@@ -4,6 +4,7 @@ from typing import List
 import _mjx  # type: ignore
 
 from mjx.action import Action
+from mjx.const import ActionType
 from mjx.observation import Observation
 from mjx.visualizer.selector import Selector
 
@@ -37,12 +38,26 @@ class Agent(_mjx.Agent):  # type: ignore
         return [action._cpp_obj for action in actions]
 
 
-class RandomAgent(Agent):  # type: ignore
+class RandomAgent(Agent):
     def __init__(self) -> None:
         super().__init__()
 
-    def act(self, observation: Observation) -> Action:  # type: ignore
+    def act(self, observation: Observation) -> Action:
         return random.choice(observation.legal_actions())
+
+
+class TsumogiriAgent(Agent):
+    def __init__(self) -> None:
+        super().__init__()
+
+    def act(self, observation: Observation) -> Action:
+        legal_actions = observation.legal_actions()
+        if len(legal_actions) == 1:
+            return legal_actions[0]
+        for action in legal_actions:
+            if action.type in [ActionType.TSUMOGIRI, ActionType.PASS]:
+                return action
+        assert False
 
 
 class RandomDebugAgent(Agent):
