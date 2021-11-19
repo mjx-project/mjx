@@ -39,3 +39,40 @@ class RelativePos(IntEnum):
 class SeedType(IntEnum):
     RANDOM = 0
     DUPLICATE = 1
+    
+
+class TileType(IntEnum):
+    kM1 = 0
+    kM2 = 1
+    kM3 = 2
+    kM4 = 3
+    kM5 = 4
+    kM6 = 5
+    kM7 = 6
+    kM8 = 7
+    kM9 = 8
+    kP1 = 9
+    kP2 = 10
+    kP3 = 11
+    kP4 = 12
+    kP5 = 13
+    kP6 = 14
+    kP7 = 15
+    kP8 = 16
+    kP9 = 17
+    kS1 = 18
+    kS2 = 19
+    kS3 = 20
+    kS4 = 21
+    kS5 = 22
+    kS6 = 23
+    kS7 = 24
+    kS8 = 25
+    kS9 = 26
+    kEW = 27
+    kSW = 28
+    kWW = 29
+    kNW = 30
+    kWD = 31
+    kGD = 32
+    kRD = 33

@@ -8,6 +8,7 @@ from google.protobuf import json_format
 
 import mjxproto
 from mjx.action import Action
+from mjx.hand import Hand
 from mjx.visualizer.svg import save_svg
 
 
@@ -28,6 +29,10 @@ class Observation:
         if not isinstance(other, Observation):
             raise NotImplementedError
         raise NotImplementedError  # TODO: implement
+
+    def curr_hand(self) -> Hand:
+        assert self._cpp_obj is not None
+        return Hand._from_cpp_obj(self._cpp_obj.curr_hand())  # type: ignore
 
     def legal_actions(self) -> List[Action]:
         assert self._cpp_obj is not None
