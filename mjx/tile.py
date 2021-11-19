@@ -1,7 +1,7 @@
-
 import _mjx  # type: ignore
 
 from mjx.const import TileType
+
 
 class Tile:
     def __init__(self, tid):
