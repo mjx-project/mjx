@@ -39,7 +39,7 @@ class RelativePos(IntEnum):
 class SeedType(IntEnum):
     RANDOM = 0
     DUPLICATE = 1
-    
+
 
 class TileType(IntEnum):
     kM1 = 0

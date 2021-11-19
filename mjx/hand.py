@@ -2,16 +2,15 @@ from __future__ import annotations
 
 from typing import List
 
+import _mjx  # type: ignore
 from google.protobuf import json_format
 
 import mjxproto
-import _mjx  # type: ignore
-
 from mjx.open import Open
 from mjx.tile import Tile
 
-class Hand:
 
+class Hand:
     def closed_tiles(self) -> List[Tile]:
         assert self._cpp_obj is not None
         return [Tile(tid) for tid in self.to_proto().closed_tiles]  # type: ignore
@@ -35,7 +34,6 @@ class Hand:
     def to_proto(self) -> mjxproto.Hand:
         assert self._cpp_obj is not None
         return json_format.Parse(self.to_json(), mjxproto.Hand())
-
 
     @classmethod
     def _from_cpp_obj(cls, cpp_obj: _mjx.Hand) -> Hand:  # type: ignore
