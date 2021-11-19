@@ -16,6 +16,7 @@ __all__ = [
     "Agent",
     "Open",
     "Hand",
+    "Tile",
     "run",
     "ActionType",
     "TileType",
