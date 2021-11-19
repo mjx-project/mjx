@@ -1,5 +1,5 @@
 #include <mjx/internal/hand.h>
-#include <mjx/internal/shanten_calculator.h>
+#include <mjx/shanten_calculator.h>
 
 #include <fstream>
 #include <sstream>
@@ -14,13 +14,13 @@ TEST(internal_shanten_calculator, normal) {
                          "p2", "p2", "ww", "ww"}))
           .ToArray();
 
-  EXPECT_EQ(ShantenCalculator::ShantenNumber(tiles, 0), 0);
+  EXPECT_EQ(mjx::ShantenCalculator::ShantenNumber(tiles, 0), 0);
 
   auto hand = Hand(HandParams("m1,m2,m3,m4,m9,rd,rd")
                        .Chi("m7,m8,m9")
                        .KanAdded("p1,p1,p1,p1"));
-  EXPECT_EQ(ShantenCalculator::ShantenNumber(hand.ToArrayClosed(),
-                                             hand.Opens().size()),
+  EXPECT_EQ(mjx::ShantenCalculator::ShantenNumber(hand.ToArrayClosed(),
+                                                  hand.Opens().size()),
             1);
 }
 
@@ -29,17 +29,17 @@ TEST(internal_shanten_calculator, thirteen_orphan) {
   tiles = Hand(Tile::Create({"m1", "m9", "p1", "p9", "s1", "s9", "ew", "sw",
                              "ww", "nw", "wd", "gd", "p4"}))
               .ToArray();
-  EXPECT_EQ(ShantenCalculator::ShantenThirteenOrphans(tiles), 1);
+  EXPECT_EQ(mjx::ShantenCalculator::ShantenThirteenOrphans(tiles), 1);
 
   tiles = Hand(Tile::Create({"m1", "m9", "p1", "p9", "s1", "s9", "ew", "sw",
                              "ww", "nw", "wd", "wd", "p4"}))
               .ToArray();
-  EXPECT_EQ(ShantenCalculator::ShantenThirteenOrphans(tiles), 1);
+  EXPECT_EQ(mjx::ShantenCalculator::ShantenThirteenOrphans(tiles), 1);
 
   tiles = Hand(Tile::Create({"m1", "m9", "p1", "p9", "s1", "s9", "ew", "sw",
                              "ww", "ww", "wd", "wd", "p4"}))
               .ToArray();
-  EXPECT_EQ(ShantenCalculator::ShantenThirteenOrphans(tiles), 2);
+  EXPECT_EQ(mjx::ShantenCalculator::ShantenThirteenOrphans(tiles), 2);
 }
 
 TEST(internal_shanten_calculator, seven_pairs) {
@@ -47,12 +47,12 @@ TEST(internal_shanten_calculator, seven_pairs) {
   tiles = Hand(Tile::Create({"m1", "m1", "m2", "m2", "p3", "p3", "p7", "p7",
                              "ew", "ew", "sw", "rd", "wd"}))
               .ToArray();
-  EXPECT_EQ(ShantenCalculator::ShantenSevenPairs(tiles), 1);
+  EXPECT_EQ(mjx::ShantenCalculator::ShantenSevenPairs(tiles), 1);
 
   tiles = Hand(Tile::Create({"m1", "m1", "m2", "m2", "p3", "p3", "p3", "p3",
                              "ew", "ew", "sw", "rd", "wd"}))
               .ToArray();
-  EXPECT_EQ(ShantenCalculator::ShantenSevenPairs(tiles), 2);
+  EXPECT_EQ(mjx::ShantenCalculator::ShantenSevenPairs(tiles), 2);
 }
 
 TEST(internal_shanten_calculator, proceeding) {
@@ -64,7 +64,7 @@ TEST(internal_shanten_calculator, proceeding) {
   for (auto t : Tile::Create({"m2", "m5", "m6", "m9", "s1", "s4"})) {
     proceeding.set(t.TypeUint());
   }
-  EXPECT_EQ(ShantenCalculator::ProceedingTileTypes(tiles, 0), proceeding);
+  EXPECT_EQ(mjx::ShantenCalculator::ProceedingTileTypes(tiles, 0), proceeding);
 
   tiles = Hand(Tile::Create({"m1", "m1", "m1", "m1", "m2", "m3", "m4", "m5",
                              "m6", "m7", "m8", "m9", "m9"}))
@@ -73,19 +73,20 @@ TEST(internal_shanten_calculator, proceeding) {
   for (auto t : Tile::Create(std::vector<std::string>{"m3", "m6", "m9"})) {
     proceeding.set(t.TypeUint());
   }
-  EXPECT_EQ(ShantenCalculator::ProceedingTileTypes(tiles, 0), proceeding);
+  EXPECT_EQ(mjx::ShantenCalculator::ProceedingTileTypes(tiles, 0), proceeding);
 }
 
 TEST(internal_shanten_calculator, many_cases) {
-  // 事前にロードする
-  {
-    clock_t start = clock();
-    ShantenCalculator::shanten_cache();
-    clock_t end = clock();
-    const double time =
-        static_cast<double>(end - start) / CLOCKS_PER_SEC * 1000.0;
-    std::cout << "loading takes time " << time << "[ms]" << std::endl;
-  }
+  // make private
+  // // 事前にロードする
+  // {
+  //   clock_t start = clock();
+  //   mjx::ShantenCalculator::shanten_cache();
+  //   clock_t end = clock();
+  //   const double time =
+  //       static_cast<double>(end - start) / CLOCKS_PER_SEC * 1000.0;
+  //   std::cout << "loading takes time " << time << "[ms]" << std::endl;
+  // }
 
   for (const std::string& testcase :
        {std::string(TEST_RESOURCES_DIR) + "/shanten_testcases/p_hon_10000.txt",
@@ -111,10 +112,10 @@ TEST(internal_shanten_calculator, many_cases) {
 
       int normal, thirteen_orphans, seven_pairs;
       ss >> normal >> thirteen_orphans >> seven_pairs;
-      EXPECT_EQ(ShantenCalculator::ShantenNormal(tiles, 0), normal);
-      EXPECT_EQ(ShantenCalculator::ShantenThirteenOrphans(tiles),
+      EXPECT_EQ(mjx::ShantenCalculator::ShantenNormal(tiles, 0), normal);
+      EXPECT_EQ(mjx::ShantenCalculator::ShantenThirteenOrphans(tiles),
                 thirteen_orphans);
-      EXPECT_EQ(ShantenCalculator::ShantenSevenPairs(tiles), seven_pairs);
+      EXPECT_EQ(mjx::ShantenCalculator::ShantenSevenPairs(tiles), seven_pairs);
     }
 
     clock_t end = clock();
