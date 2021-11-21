@@ -56,7 +56,7 @@ PYBIND11_MODULE(_mjx, m) {
       .def("to_json", &mjx::State::ToJson);
 
   py::class_<mjx::Hand>(m, "Hand")
-      .def(py::init<>())
+      .def(py::init<std::string>())
       .def("to_json", &mjx::Hand::ToJson)
       .def("is_tenpai", &mjx::Hand::IsTenpai)
       .def("shanten_number", &mjx::Hand::ShantenNumber);
