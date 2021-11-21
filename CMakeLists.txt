@@ -87,8 +87,6 @@ add_library(
   include/mjx/open.cpp
   include/mjx/env.h
   include/mjx/env.cpp
-  include/mjx/shanten_calculator.h
-  include/mjx/shanten_calculator.cpp
   include/mjx/internal/abstruct_hand.h
   include/mjx/internal/action.h
   include/mjx/internal/agent.h
@@ -107,6 +105,7 @@ add_library(
   include/mjx/internal/observation.h
   include/mjx/internal/open.h
   include/mjx/internal/shanten_cache.h
+  include/mjx/internal/shanten_calculator.h
   include/mjx/internal/state.h
   include/mjx/internal/strategy.h
   include/mjx/internal/strategy_rule_based.h
@@ -135,6 +134,7 @@ add_library(
   include/mjx/internal/observation.cpp
   include/mjx/internal/open.cpp
   include/mjx/internal/shanten_cache.cpp
+  include/mjx/internal/shanten_calculator.cpp
   include/mjx/internal/state.cpp
   include/mjx/internal/strategy_rule_based.cpp
   include/mjx/internal/tile.cpp

@@ -5,7 +5,7 @@
 
 #include <utility>
 
-#include "mjx/shanten_calculator.h"
+#include "mjx/internal/shanten_calculator.h"
 
 namespace mjx {
 Hand::Hand(mjxproto::Hand proto) : proto_(std::move(proto)) {}
@@ -44,12 +44,13 @@ std::array<uint8_t, 34> Hand::ClosedTiles() const noexcept {
 }
 
 bool Hand::IsTenpai() const {
-  return ShantenCalculator::ShantenNumber(ClosedTiles(), proto_.opens_size()) <=
-         0;
+  return mjx::internal::ShantenCalculator::ShantenNumber(
+             ClosedTiles(), proto_.opens_size()) <= 0;
 }
 
 int Hand::ShantenNumber() const {
-  return ShantenCalculator::ShantenNumber(ClosedTiles(), proto_.opens_size());
+  return mjx::internal::ShantenCalculator::ShantenNumber(ClosedTiles(),
+                                                         proto_.opens_size());
 }
 
 }  // namespace mjx
