@@ -1,6 +1,5 @@
 #include <mjx/env.h>
 #include <mjx/open.h>
-#include <mjx/shanten_calculator.h>
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 
@@ -57,7 +56,7 @@ PYBIND11_MODULE(_mjx, m) {
       .def("to_json", &mjx::State::ToJson);
 
   py::class_<mjx::Hand>(m, "Hand")
-      .def(py::init<>())
+      .def(py::init<std::string>())
       .def("to_json", &mjx::Hand::ToJson)
       .def("is_tenpai", &mjx::Hand::IsTenpai)
       .def("shanten_number", &mjx::Hand::ShantenNumber);
@@ -103,7 +102,4 @@ PYBIND11_MODULE(_mjx, m) {
       .def("done", &mjx::MjxEnv::Done)
       .def("rewards", &mjx::MjxEnv::Rewards)
       .def("state", &mjx::MjxEnv::state);
-
-  py::class_<mjx::ShantenCalculator>(m, "ShantenCalculator")
-      .def_static("shanten_number", &mjx::ShantenCalculator::ShantenNumber);
 }

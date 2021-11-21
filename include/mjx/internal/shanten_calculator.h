@@ -8,11 +8,12 @@
 #include "mjx/internal/shanten_cache.h"
 #include "mjx/internal/types.h"
 
-namespace mjx {
+namespace mjx::internal {
 class ShantenCalculator {
  public:
   [[nodiscard]] static int ShantenNumber(const std::array<uint8_t, 34>& count,
                                          int num_opens);
+  [[nodiscard]] static const ShantenCache& shanten_cache();
   [[nodiscard]] static int ShantenNormal(const std::array<uint8_t, 34>& count,
                                          int num_opens);
   [[nodiscard]] static int ShantenThirteenOrphans(
@@ -21,10 +22,7 @@ class ShantenCalculator {
       const std::array<uint8_t, 34>& count);
   [[nodiscard]] static std::bitset<34> ProceedingTileTypes(
       std::array<uint8_t, 34> hand, int num_opens);
-
- private:
-  [[nodiscard]] static const mjx::internal::ShantenCache& shanten_cache();
 };
-}  // namespace mjx
+}  // namespace mjx::internal
 
 #endif  // MAHJONG_SHANTEN_CALCULATOR_H
