@@ -1,5 +1,3 @@
-import _mjx  # type: ignore
-
 from mjx.const import TileType
 
 
