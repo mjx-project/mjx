@@ -30,8 +30,17 @@ def test_num():
 
 
 def test_is_red():
-    tile = mjx.Tile(0)
-    assert not tile.is_red()
     tile = mjx.Tile(16)
     assert tile.is_red()
     assert tile.num() == 5
+    tile = mjx.Tile(52)
+    assert tile.is_red()
+    assert tile.num() == 5
+    tile = mjx.Tile(88)
+    assert tile.is_red()
+    assert tile.num() == 5
+
+    tile = mjx.Tile(0)
+    assert not tile.is_red()
+    tile = mjx.Tile(135)
+    assert not tile.is_red()
