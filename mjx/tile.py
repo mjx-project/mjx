@@ -1,4 +1,3 @@
-from enum import IntEnum
 from typing import Optional
 
 from mjx.const import TileType
