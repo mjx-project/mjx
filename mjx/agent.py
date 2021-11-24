@@ -2,7 +2,7 @@ import random
 import threading
 import time
 from queue import Queue
-from typing import Dict, List, Optional, Tuple
+from typing import List, Optional, Tuple
 
 import _mjx  # type: ignore
 from flask import Flask, render_template, request
