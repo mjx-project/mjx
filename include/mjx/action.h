@@ -19,6 +19,8 @@ class Action {
 
   // accessors
   const mjxproto::Action& proto() const noexcept;
+  int type() const noexcept;
+  std::optional<int> tile() const noexcept;
 
  private:
   mjxproto::Action proto_{};

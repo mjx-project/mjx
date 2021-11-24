@@ -6,6 +6,7 @@
 #include <utility>
 
 #include "mjx/internal/shanten_calculator.h"
+#include "mjx/internal/utils.h"
 
 namespace mjx {
 Hand::Hand(mjxproto::Hand proto) : proto_(std::move(proto)) {}
@@ -51,6 +52,39 @@ bool Hand::IsTenpai() const {
 int Hand::ShantenNumber() const {
   return mjx::internal::ShantenCalculator::ShantenNumber(ClosedTiles(),
                                                          proto_.opens_size());
+}
+
+std::vector<int> Hand::EffectiveDrawTypes() const {
+  auto hand = ClosedTiles();
+  int num_opens = proto_.opens_size();
+  int shanten = internal::ShantenCalculator::ShantenNumber(hand, num_opens);
+  std::vector<int> effective_tile_types;
+  for (int i = 0; i < 34; ++i) {
+    if (hand[i] == 4) continue;
+    ++hand[i];
+    if (shanten > internal::ShantenCalculator::ShantenNumber(hand, num_opens)) {
+      effective_tile_types.push_back(i);
+    }
+    --hand[i];
+  }
+  return effective_tile_types;
+}
+
+std::vector<int> Hand::EffectiveDiscardTypes() const {
+  auto hand = ClosedTiles();
+  int num_opens = proto_.opens_size();
+  int shanten = internal::ShantenCalculator::ShantenNumber(hand, num_opens);
+  std::vector<int> effective_tile_types;
+  for (int i = 0; i < 34; ++i) {
+    if (hand[i] == 0) continue;
+    --hand[i];
+    if (shanten ==
+        internal::ShantenCalculator::ShantenNumber(hand, num_opens)) {
+      effective_tile_types.push_back(i);
+    }
+    ++hand[i];
+  }
+  return effective_tile_types;
 }
 
 }  // namespace mjx

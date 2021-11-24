@@ -29,7 +29,9 @@ PYBIND11_MODULE(_mjx, m) {
       .def(py::init<std::string>())
       .def("select_from", &mjx::Action::SelectFrom)
       .def("to_json", &mjx::Action::ToJson)
-      .def("to_idx", &mjx::Action::ToIdx);
+      .def("to_idx", &mjx::Action::ToIdx)
+      .def("type", &mjx::Action::type)
+      .def("tile", &mjx::Action::tile);
 
   py::class_<mjx::Open>(m, "Open")
       .def_static("event_type", &mjx::Open::EventType)
@@ -59,7 +61,9 @@ PYBIND11_MODULE(_mjx, m) {
       .def(py::init<std::string>())
       .def("to_json", &mjx::Hand::ToJson)
       .def("is_tenpai", &mjx::Hand::IsTenpai)
-      .def("shanten_number", &mjx::Hand::ShantenNumber);
+      .def("shanten_number", &mjx::Hand::ShantenNumber)
+      .def("effective_draw_types", &mjx::Hand::EffectiveDrawTypes)
+      .def("effective_discard_types", &mjx::Hand::EffectiveDiscardTypes);
 
   py::class_<mjx::Agent, PyAgent>(m, "Agent")
       .def(py::init<>())

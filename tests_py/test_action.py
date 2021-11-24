@@ -55,3 +55,16 @@ def test_type():
     assert action.type == ActionType.DISCARD
     assert action.type != 1
     assert action.type != ActionType.TSUMOGIRI
+
+
+def test_tile():
+    json_str = '{"gameId":"xxx","tile":10}'
+    action = mjx.Action(json_str)
+    tile = action.tile()
+    assert tile is not None
+    assert tile.id() == 10
+
+    json_str = '{"gameId":"xxx","who":1,"type":"ACTION_TYPE_CHI","open":30111}'
+    action = mjx.Action(json_str)
+    tile = action.tile()
+    assert tile is None

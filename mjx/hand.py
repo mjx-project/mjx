@@ -6,6 +6,7 @@ import _mjx  # type: ignore
 from google.protobuf import json_format
 
 import mjxproto
+from mjx.const import TileType
 from mjx.open import Open
 from mjx.tile import Tile
 
@@ -29,6 +30,12 @@ class Hand:
     def shanten_number(self) -> int:
         assert self._cpp_obj is not None  # type: ignore
         return self._cpp_obj.shanten_number()  # type: ignore
+
+    def effective_draw_types(self) -> List[TileType]:
+        return [TileType(i) for i in self._cpp_obj.effective_draw_types()]  # type: ignore
+
+    def effective_discard_types(self) -> List[TileType]:
+        return [TileType(i) for i in self._cpp_obj.effective_discard_types()]  # type: ignore
 
     def to_json(self) -> str:
         assert self._cpp_obj is not None  # type: ignore
