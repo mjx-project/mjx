@@ -81,18 +81,21 @@ class ShantenAgent(Agent):
             assert len(riichi_actions) == 1
             return riichi_actions[0]
 
-        # if it can apply ClosedKan/AddedKan, choose randomly
+        # if it can apply chi/pon/open-kan, choose randomly
+        steal_actions = [
+            a
+            for a in legal_actions
+            if a.type in [ActionType.CHI, ActionType.PON, ActionType, ActionType.OPEN_KAN]
+        ]
+        if len(steal_actions) >= 1:
+            return random.choice(steal_actions)
+
+        # if it can apply closed-kan or added-kan, choose randomly
         kan_actions = [
             a for a in legal_actions if a.type in [ActionType.CLOSED_KAN, ActionType.ADDED_KAN]
         ]
         if len(kan_actions) >= 1:
             return random.choice(kan_actions)
-
-        # ignore chi/pon/open-kan
-        pass_actions = [a for a in legal_actions if a.type == ActionType.PASS]
-        if len(pass_actions) >= 1:
-            assert len(pass_actions) == 1
-            return pass_actions[0]
 
         # discard an effective tile randomly
         legal_discards = [
