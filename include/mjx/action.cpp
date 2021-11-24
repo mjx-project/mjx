@@ -54,8 +54,8 @@ std::optional<int> Action::tile() const noexcept {
           {mjxproto::ACTION_TYPE_DISCARD, mjxproto::ACTION_TYPE_TSUMOGIRI,
            mjxproto::ACTION_TYPE_TSUMO, mjxproto::ACTION_TYPE_RON}))
     return proto_.tile();
-  else
-    assert(proto_.tile() == 0);
+
+  assert(proto_.tile() == 0);
   return std::nullopt;
 }
 }  // namespace mjx
