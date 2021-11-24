@@ -86,15 +86,21 @@ class ShantenAgent(Agent):
         if len(kan_actions) >= 1:
             return random.choice(kan_actions)
 
+        # ignore chi/pon/open-kan
+        pass_actions = [a for a in legal_actions if a.type == ActionType.PASS]
+        if len(pass_actions) >= 1:
+            return pass_actions[0]
+
         # discard an effective tile randomly
-        effective_tile_types = observation.curr_hand().effective_tile_types()
-        effective_discard_actions = [
-            a
-            for a in legal_actions
-            if a.type in [ActionType.DISCARD, ActionType.TSUMOGIRI]
-            and a.tile().type() in effective_tile_types
+        legal_discards = [
+            a for a in legal_actions if a.type in [ActionType.DISCARD, ActionType.TSUMOGIRI]
         ]
-        return random.choice(effective_discard_actions)
+        effective_tile_types = observation.curr_hand().effective_tile_types()
+        effective_discards = [a for a in legal_discards if a.tile().type() in effective_tile_types]
+        if len(effective_discards) > 0:
+            return random.choice(effective_discards)
+
+        return random.choice(legal_discards)
 
 
 class RandomDebugAgent(Agent):
