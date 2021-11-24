@@ -62,7 +62,7 @@ PYBIND11_MODULE(_mjx, m) {
       .def("shanten_number", &mjx::Hand::ShantenNumber)
       .def("effective_tile_types", &mjx::Hand::EffectiveTileTypes);
 
-py::class_<mjx::Agent, PyAgent>(m, "Agent")
+  py::class_<mjx::Agent, PyAgent>(m, "Agent")
       .def(py::init<>())
       .def("_act", &mjx::Agent::Act)
       .def("_act_batch", &mjx::Agent::ActBatch);
