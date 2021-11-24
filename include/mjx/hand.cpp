@@ -54,7 +54,7 @@ int Hand::ShantenNumber() const {
                                                          proto_.opens_size());
 }
 
-std::vector<int> Hand::EffectiveTileTypes() const {
+std::vector<int> Hand::EffectiveDrawTypes() const {
   auto hand = ClosedTiles();
   int num_opens = proto_.opens_size();
   int shanten = internal::ShantenCalculator::ShantenNumber(hand, num_opens);
