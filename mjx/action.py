@@ -30,17 +30,11 @@ class Action:
 
     @property
     def type(self) -> ActionType:
-        return ActionType(self.to_proto().type)
+        return ActionType(self._cpp_obj.type())  # type: ignore
 
     def tile(self) -> Optional[Tile]:
-        if self.type in [
-            ActionType.DISCARD,
-            ActionType.TSUMOGIRI,
-            ActionType.TUSMO,
-            ActionType.RON,
-        ]:
-            return Tile(self.to_proto().tile)
-        return None
+        t = self._cpp_obj.tile()  # type: ignore
+        return Tile(t) if t is not None else None
 
     def to_json(self) -> str:
         assert self._cpp_obj is not None
