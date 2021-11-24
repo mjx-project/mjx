@@ -31,8 +31,8 @@ class Hand:
         assert self._cpp_obj is not None  # type: ignore
         return self._cpp_obj.shanten_number()  # type: ignore
 
-    def effective_tile_types(self) -> List[TileType]:
-        return [TileType(i) for i in self._cpp_obj.effective_tile_types()]  # type: ignore
+    def effective_draw_types(self) -> List[TileType]:
+        return [TileType(i) for i in self._cpp_obj.effective_draw_types()]  # type: ignore
 
     def effective_discard_types(self) -> List[TileType]:
         return [TileType(i) for i in self._cpp_obj.effective_discard_types()]  # type: ignore
