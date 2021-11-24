@@ -78,7 +78,8 @@ std::vector<int> Hand::EffectiveDiscardTypes() const {
   for (int i = 0; i < 34; ++i) {
     if (hand[i] == 0) continue;
     --hand[i];
-    if (shanten == internal::ShantenCalculator::ShantenNumber(hand, num_opens)) {
+    if (shanten ==
+        internal::ShantenCalculator::ShantenNumber(hand, num_opens)) {
       effective_tile_types.push_back(i);
     }
     ++hand[i];
