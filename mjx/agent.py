@@ -72,11 +72,13 @@ class ShantenAgent(Agent):
         # if it can win, just win
         win_actions = [a for a in legal_actions if a.type in [ActionType.TUSMO, ActionType.RON]]
         if len(win_actions) >= 1:
+            assert len(win_actions) == 1
             return win_actions[0]
 
         # if it can declare riichi, just declar
         riichi_actions = [a for a in legal_actions if a.type == ActionType.RIICHI]
         if len(riichi_actions) >= 1:
+            assert len(riichi_actions) == 1
             return riichi_actions[0]
 
         # if it can apply ClosedKan/AddedKan, choose randomly
@@ -89,6 +91,7 @@ class ShantenAgent(Agent):
         # ignore chi/pon/open-kan
         pass_actions = [a for a in legal_actions if a.type == ActionType.PASS]
         if len(pass_actions) >= 1:
+            assert len(pass_actions) == 1
             return pass_actions[0]
 
         # discard an effective tile randomly
