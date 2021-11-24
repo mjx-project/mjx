@@ -7,6 +7,7 @@ from google.protobuf import json_format
 
 import mjxproto
 from mjx.const import ActionType
+from mjx.tile import Tile
 
 
 class Action:
@@ -30,6 +31,16 @@ class Action:
     @property
     def type(self) -> ActionType:
         return ActionType(self.to_proto().type)
+
+    def tile(self) -> Optional[Tile]:
+        if self.type in [
+            ActionType.DISCARD,
+            ActionType.TSUMOGIRI,
+            ActionType.TUSMO,
+            ActionType.RON,
+        ]:
+            return Tile(self.to_proto().tile)
+        return None
 
     def to_json(self) -> str:
         assert self._cpp_obj is not None
