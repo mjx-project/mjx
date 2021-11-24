@@ -16,32 +16,17 @@
     </div>
     <div class="right">
       {% if choices|length > 0 %}
-      {% if choices[0]["type"]=="ダミー" %}
       <form action="/" method="POST" enctype="multipart/form-data" onSubmit="disableSubmit(this)">
         {% for choice in choices %}
-        <button type="submit" name="choice" value=0>
-          次へ
-        </button>
-        {% endfor %}
-      </form>
-      {% else %}
-      <form action="/" method="POST" enctype="multipart/form-data" onSubmit="disableSubmit(this)">
-        {% for choice in choices %}
-        {% if loop.index0 == 0 %}
-        <button autofocus id={{"button"+ loop.index0|string }} type="submit" name="choice" value={{ choice["index"] }}>
-        {% else %}
-        <button id={{"button"+ loop.index0|string }} type="submit" name="choice" value={{ choice["index"] }}>
-        {% endif %}
-          <span>{{choice["type"]}}</span>
-          {% if choice["red"] %}
-          <span class="MJFontR">{{choice["char"]}}</span>
+          {% if loop.index0 == 0 %}
+            <button autofocus id={{"button"+ loop.index0|string }} type="submit" name="choice" value={{ choice["index"] }}>
           {% else %}
-          <span class="MJFont">{{choice["char"]}}</span>
+            <button id={{"button"+ loop.index0|string }} type="submit" name="choice" value={{ choice["index"] }}>
           {% endif %}
-        </button>
+          {{ choice["text"] | safe }}
+          </button>
         {% endfor %}
       </form>
-      {% endif %}
       {% endif %}
     </div>
   </div>
