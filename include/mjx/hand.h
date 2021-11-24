@@ -15,6 +15,7 @@ class Hand {
   std::string ToJson() const noexcept;
   bool IsTenpai() const;
   int ShantenNumber() const;
+  std::vector<int> EffectiveTileTypes() const;
 
   // accessors
   const mjxproto::Hand& proto() const noexcept;

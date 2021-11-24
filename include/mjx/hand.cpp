@@ -53,4 +53,20 @@ int Hand::ShantenNumber() const {
                                                          proto_.opens_size());
 }
 
+std::vector<int> Hand::EffectiveTileTypes() const {
+  auto hand = ClosedTiles();
+  int num_opens = proto_.opens_size();
+  int shanten = internal::ShantenCalculator::ShantenNumber(hand, num_opens);
+  std::vector<int> effective_tile_types;
+  for (int i = 0; i < 34; ++i) {
+    if (hand[i] == 4) continue;
+    ++hand[i];
+    if (shanten > internal::ShantenCalculator::ShantenNumber(hand, num_opens)) {
+      effective_tile_types.push_back(i);
+    }
+    --hand[i];
+  }
+  return effective_tile_types;
+}
+
 }  // namespace mjx
