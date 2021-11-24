@@ -138,7 +138,7 @@ class ShowPages(View):
         if action_proto.type == mjxproto.ActionType.ACTION_TYPE_DUMMY:
             return {"text": "<span>次へ</span>", "index": 0}
         elif action_proto.type == mjxproto.ActionType.ACTION_TYPE_NO:
-            return {"text": "<span>パス</span>", "index": 0}
+            return {"text": "<span>パス</span>", "index": i}
         elif action_proto.type in [
             mjxproto.ActionType.ACTION_TYPE_PON,
             mjxproto.ActionType.ACTION_TYPE_CHI,
