@@ -62,7 +62,7 @@ class TsumogiriAgent(Agent):
 
 class ShantenAgent(Agent):
     """A rule-based agent, which plays just to reduce the shanten-number.
-    The logic is basically intended to reproduce Mjai's ShantenPlayer logic.
+    The logic is basically intended to reproduce Mjai's ShantenPlayer.
 
     - Mjai https://github.com/gimite/mjai
     """
