@@ -107,8 +107,10 @@ class ShantenAgent(Agent):
         legal_discards = [
             a for a in legal_actions if a.type in [ActionType.DISCARD, ActionType.TSUMOGIRI]
         ]
-        effective_tile_types = observation.curr_hand().effective_tile_types()
-        effective_discards = [a for a in legal_discards if a.tile().type() in effective_tile_types]
+        effective_discard_types = observation.curr_hand().effective_discard_types()
+        effective_discards = [
+            a for a in legal_discards if a.tile().type() in effective_discard_types
+        ]
         if len(effective_discards) > 0:
             return random.choice(effective_discards)
 

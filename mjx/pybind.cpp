@@ -62,7 +62,8 @@ PYBIND11_MODULE(_mjx, m) {
       .def("to_json", &mjx::Hand::ToJson)
       .def("is_tenpai", &mjx::Hand::IsTenpai)
       .def("shanten_number", &mjx::Hand::ShantenNumber)
-      .def("effective_tile_types", &mjx::Hand::EffectiveTileTypes);
+      .def("effective_tile_types", &mjx::Hand::EffectiveTileTypes)
+      .def("effective_discard_types", &mjx::Hand::EffectiveDiscardTypes);
 
   py::class_<mjx::Agent, PyAgent>(m, "Agent")
       .def(py::init<>())

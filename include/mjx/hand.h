@@ -16,6 +16,7 @@ class Hand {
   bool IsTenpai() const;
   int ShantenNumber() const;
   std::vector<int> EffectiveTileTypes() const;
+  std::vector<int> EffectiveDiscardTypes() const;
 
   // accessors
   const mjxproto::Hand& proto() const noexcept;
