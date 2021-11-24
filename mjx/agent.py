@@ -11,7 +11,7 @@ from flask.views import View
 import mjxproto
 from mjx.action import Action
 from mjx.observation import Observation
-from mjx.visualizer.converter import action_type_en, action_type_ja, get_tile_char
+from mjx.visualizer.converter import action_type_ja, get_tile_char
 from mjx.visualizer.open_utils import open_tile_ids
 from mjx.visualizer.selector import Selector
 from mjx.visualizer.svg import to_svg
