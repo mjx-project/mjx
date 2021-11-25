@@ -19,6 +19,7 @@ class Hand {
   std::vector<int> EffectiveDiscardTypes() const;
   std::array<uint8_t, 34> ClosedTiles() const noexcept;
   std::vector<int> Opens() const;
+
  private:
   mjxproto::Hand proto_{};
 };

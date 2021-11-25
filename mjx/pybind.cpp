@@ -67,7 +67,7 @@ PYBIND11_MODULE(_mjx, m) {
       .def("closed_tiles", &mjx::Hand::ClosedTiles)
       .def("opens", &mjx::Hand::Opens);
 
-py::class_<mjx::Agent, PyAgent>(m, "Agent")
+  py::class_<mjx::Agent, PyAgent>(m, "Agent")
       .def(py::init<>())
       .def("_act", &mjx::Agent::Act)
       .def("_act_batch", &mjx::Agent::ActBatch);
