@@ -19,9 +19,13 @@ class Hand:
 
         self._cpp_obj = _mjx.Hand(hand_json)  # type: ignore
 
-    def closed_tiles(self) -> List[int]:
+    def closed_tiles(self) -> List[Tile]:
         assert self._cpp_obj is not None  # type: ignore
-        return self._cpp_obj.closed_tiles()  # type: ignore
+        return [Tile(tid) for tid in self._cpp_obj.closed_tiles()]  # type: ignore
+
+    def closed_tile_types(self) -> List[int]:
+        assert self._cpp_obj is not None  # type: ignore
+        return self._cpp_obj.closed_tile_types()  # type: ignore
 
     def opens(self) -> List[Open]:
         assert self._cpp_obj is not None  # type: ignore

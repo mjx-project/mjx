@@ -17,7 +17,8 @@ class Hand {
   int ShantenNumber() const;
   std::vector<int> EffectiveDrawTypes() const;
   std::vector<int> EffectiveDiscardTypes() const;
-  std::array<uint8_t, 34> ClosedTiles() const noexcept;
+  std::array<uint8_t, 34> ClosedTileTypes() const noexcept;
+  std::vector<int> ClosedTiles() const noexcept;
   std::vector<int> Opens() const;
 
   const mjxproto::Hand& proto() const noexcept;

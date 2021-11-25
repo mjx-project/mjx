@@ -65,6 +65,7 @@ PYBIND11_MODULE(_mjx, m) {
       .def("shanten_number", &mjx::Hand::ShantenNumber)
       .def("effective_draw_types", &mjx::Hand::EffectiveDrawTypes)
       .def("effective_discard_types", &mjx::Hand::EffectiveDiscardTypes)
+      .def("closed_tile_types", &mjx::Hand::ClosedTileTypes)
       .def("closed_tiles", &mjx::Hand::ClosedTiles)
       .def("opens", &mjx::Hand::Opens);
 
