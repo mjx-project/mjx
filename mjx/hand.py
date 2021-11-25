@@ -21,11 +21,11 @@ class Hand:
 
     def closed_tiles(self) -> List[Tile]:
         assert self._cpp_obj is not None  # type: ignore
-        return [Tile(tid) for tid in self.to_proto().closed_tiles]  # type: ignore
+        return [Tile(tid) for tid in self._cpp_obj.closed_tiles()]  # type: ignore
 
     def opens(self) -> List[Open]:
         assert self._cpp_obj is not None  # type: ignore
-        return [Open(bit) for bit in self.to_proto().opens]  # type: ignore
+        return [Open(bit) for bit in self._cpp_obj.opens()]  # type: ignore
 
     def shanten_number(self) -> int:
         assert self._cpp_obj is not None  # type: ignore

@@ -63,9 +63,11 @@ PYBIND11_MODULE(_mjx, m) {
       .def("is_tenpai", &mjx::Hand::IsTenpai)
       .def("shanten_number", &mjx::Hand::ShantenNumber)
       .def("effective_draw_types", &mjx::Hand::EffectiveDrawTypes)
-      .def("effective_discard_types", &mjx::Hand::EffectiveDiscardTypes);
+      .def("effective_discard_types", &mjx::Hand::EffectiveDiscardTypes)
+      .def("closed_tiles", &mjx::Hand::ClosedTiles)
+      .def("opens", &mjx::Hand::Opens);
 
-  py::class_<mjx::Agent, PyAgent>(m, "Agent")
+py::class_<mjx::Agent, PyAgent>(m, "Agent")
       .def(py::init<>())
       .def("_act", &mjx::Agent::Act)
       .def("_act_batch", &mjx::Agent::ActBatch);

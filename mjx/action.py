@@ -28,7 +28,6 @@ class Action:
             raise NotImplementedError
         raise NotImplementedError  # TODO: implement
 
-    @property
     def type(self) -> ActionType:
         return ActionType(self._cpp_obj.type())  # type: ignore
 

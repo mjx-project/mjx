@@ -16,8 +16,6 @@ Hand::Hand(const std::string& json) {
   assert(status.ok());
 }
 
-const mjxproto::Hand& mjx::Hand::proto() const noexcept { return proto_; }
-
 std::string mjx::Hand::ToJson() const noexcept {
   std::string serialized;
   auto status =
@@ -42,6 +40,13 @@ std::array<uint8_t, 34> Hand::ClosedTiles() const noexcept {
     ++closed_tiles[t >> 2];
   }
   return closed_tiles;
+}
+std::vector<int> Hand::Opens() const {
+  std::vector<int> opens;
+  for (auto o : proto_.opens()) {
+    opens.push_back(o);
+  }
+  return opens;
 }
 
 bool Hand::IsTenpai() const {

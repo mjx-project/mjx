@@ -17,12 +17,9 @@ class Hand {
   int ShantenNumber() const;
   std::vector<int> EffectiveDrawTypes() const;
   std::vector<int> EffectiveDiscardTypes() const;
-
-  // accessors
-  const mjxproto::Hand& proto() const noexcept;
-
- private:
   std::array<uint8_t, 34> ClosedTiles() const noexcept;
+  std::vector<int> Opens() const;
+ private:
   mjxproto::Hand proto_{};
 };
 }  // namespace mjx
