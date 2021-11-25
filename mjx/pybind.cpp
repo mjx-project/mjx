@@ -31,6 +31,7 @@ PYBIND11_MODULE(_mjx, m) {
       .def("to_json", &mjx::Action::ToJson)
       .def("to_idx", &mjx::Action::ToIdx)
       .def("type", &mjx::Action::type)
+      .def("_open", &mjx::Action::open)
       .def("tile", &mjx::Action::tile);
 
   py::class_<mjx::Open>(m, "Open")

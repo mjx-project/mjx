@@ -8,6 +8,7 @@ from google.protobuf import json_format
 import mjxproto
 from mjx.const import ActionType
 from mjx.tile import Tile
+from mjx.open import Open
 
 
 class Action:
@@ -27,6 +28,12 @@ class Action:
         if not isinstance(other, Action):
             raise NotImplementedError
         raise NotImplementedError  # TODO: implement
+
+    def _open(self) -> Optional[Open]:
+        o = self._cpp_obj._open()
+        if o is None:
+            return None
+        return Open(o)  # type: ignore
 
     def type(self) -> ActionType:
         return ActionType(self._cpp_obj.type())  # type: ignore
