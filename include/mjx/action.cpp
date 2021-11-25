@@ -61,10 +61,10 @@ std::optional<int> Action::tile() const noexcept {
 
 std::optional<int> Action::open() const noexcept {
   if (internal::Any(
-      type(),
-      {mjxproto::ACTION_TYPE_CHI, mjxproto::ACTION_TYPE_PON,
-       mjxproto::ACTION_TYPE_CLOSED_KAN, mjxproto::ACTION_TYPE_OPEN_KAN,
-       mjxproto::ACTION_TYPE_ADDED_KAN}))
+          type(),
+          {mjxproto::ACTION_TYPE_CHI, mjxproto::ACTION_TYPE_PON,
+           mjxproto::ACTION_TYPE_CLOSED_KAN, mjxproto::ACTION_TYPE_OPEN_KAN,
+           mjxproto::ACTION_TYPE_ADDED_KAN}))
     return proto_.open();
 
   assert(proto_.open() == 0);

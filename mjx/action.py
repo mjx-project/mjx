@@ -7,8 +7,8 @@ from google.protobuf import json_format
 
 import mjxproto
 from mjx.const import ActionType
-from mjx.tile import Tile
 from mjx.open import Open
+from mjx.tile import Tile
 
 
 class Action:
