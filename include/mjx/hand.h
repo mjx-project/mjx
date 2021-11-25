@@ -20,6 +20,8 @@ class Hand {
   std::array<uint8_t, 34> ClosedTiles() const noexcept;
   std::vector<int> Opens() const;
 
+  const mjxproto::Hand& proto() const noexcept;
+
  private:
   mjxproto::Hand proto_{};
 };

@@ -33,6 +33,8 @@ bool Hand::operator!=(const Hand& other) const noexcept {
   return !(*this == other);
 }
 
+const mjxproto::Hand& mjx::Hand::proto() const noexcept { return proto_; }
+
 std::array<uint8_t, 34> Hand::ClosedTiles() const noexcept {
   std::array<uint8_t, 34> closed_tiles{};
   closed_tiles.fill(0);
