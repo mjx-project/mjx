@@ -51,9 +51,7 @@ std::vector<Action> Observation::legal_actions() const noexcept {
   return actions;
 }
 
-int Observation::who() const noexcept {
-  return proto_.who();
-}
+int Observation::who() const noexcept { return proto_.who(); }
 
 std::vector<Event> Observation::events() const noexcept {
   std::vector<Event> events;

@@ -1,7 +1,8 @@
 #include <gtest/gtest.h>
 #include <mjx/event.h>
 
-const std::string sample_json = R"({"type":"EVENT_TYPE_TSUMOGIRI","who":1,"tile":3})";
+const std::string sample_json =
+    R"({"type":"EVENT_TYPE_TSUMOGIRI","who":1,"tile":3})";
 
 TEST(event, Event) {
   mjxproto::Event proto;

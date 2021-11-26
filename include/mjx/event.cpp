@@ -40,9 +40,8 @@ int Event::who() const noexcept { return proto_.who(); }
 
 std::optional<int> Event::tile() const noexcept {
   if (internal::Any(
-      type(),
-      {mjxproto::EVENT_TYPE_DISCARD, mjxproto::EVENT_TYPE_TSUMOGIRI,
-       mjxproto::EVENT_TYPE_TSUMO, mjxproto::EVENT_TYPE_RON}))
+          type(), {mjxproto::EVENT_TYPE_DISCARD, mjxproto::EVENT_TYPE_TSUMOGIRI,
+                   mjxproto::EVENT_TYPE_TSUMO, mjxproto::EVENT_TYPE_RON}))
     return proto_.tile();
 
   assert(proto_.tile() == 0);
@@ -50,11 +49,10 @@ std::optional<int> Event::tile() const noexcept {
 }
 
 std::optional<int> Event::open() const noexcept {
-  if (internal::Any(
-      type(),
-      {mjxproto::EVENT_TYPE_CHI, mjxproto::EVENT_TYPE_PON,
-       mjxproto::EVENT_TYPE_CLOSED_KAN, mjxproto::EVENT_TYPE_OPEN_KAN,
-       mjxproto::EVENT_TYPE_ADDED_KAN}))
+  if (internal::Any(type(), {mjxproto::EVENT_TYPE_CHI, mjxproto::EVENT_TYPE_PON,
+                             mjxproto::EVENT_TYPE_CLOSED_KAN,
+                             mjxproto::EVENT_TYPE_OPEN_KAN,
+                             mjxproto::EVENT_TYPE_ADDED_KAN}))
     return proto_.open();
 
   assert(proto_.open() == 0);
