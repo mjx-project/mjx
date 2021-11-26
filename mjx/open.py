@@ -2,10 +2,10 @@ from __future__ import annotations
 
 from typing import List
 
+import _mjx  # type: ignore
+
 from mjx.const import EventType
 from mjx.tile import Tile
-
-import _mjx  # type: ignore
 
 
 class Open:
