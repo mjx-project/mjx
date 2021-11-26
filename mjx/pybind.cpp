@@ -34,6 +34,14 @@ PYBIND11_MODULE(_mjx, m) {
       .def("_open", &mjx::Action::open)
       .def("tile", &mjx::Action::tile);
 
+  py::class_<mjx::Event>(m, "Event")
+      .def(py::init<std::string>())
+      .def("to_json", &mjx::Event::ToJson)
+      .def("who", &mjx::Event::who)
+      .def("type", &mjx::Event::type)
+      .def("_open", &mjx::Event::open)
+      .def("tile", &mjx::Event::tile);
+
   py::class_<mjx::Open>(m, "Open")
       .def_static("event_type", &mjx::Open::EventType)
       .def_static("steal_from", &mjx::Open::From)

@@ -2,6 +2,7 @@
 #define MJX_PROJECT_OBSERVATION_H
 
 #include "mjx/action.h"
+#include "mjx/event.h"
 #include "mjx/hand.h"
 #include "mjx/internal/mjx.grpc.pb.h"
 
@@ -22,6 +23,8 @@ class Observation {
   Hand curr_hand() const noexcept;
   std::vector<Action> legal_actions() const noexcept;
   std::vector<int> action_mask() const noexcept;
+  int who() const noexcept;
+  std::vector<Event> events() const noexcept;
 
  private:
   mjxproto::Observation proto_{};
