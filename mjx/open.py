@@ -4,7 +4,7 @@ from typing import List
 
 import _mjx  # type: ignore
 
-from mjx.const import EventType
+from mjx.const import EventType, TileType
 from mjx.tile import Tile
 
 
@@ -36,5 +36,5 @@ class Open:
     def last_tile(self) -> Tile:
         return Tile(_mjx.Open.last_tile(self.bit))
 
-    def undiscardable_tile_types(self) -> List[Tile]:
-        return [Tile(t) for t in _mjx.Open.undiscardable_tile_types(self.bit)]
+    def undiscardable_tile_types(self) -> List[TileType]:
+        return [TileType(t) for t in _mjx.Open.undiscardable_tile_types(self.bit)]
