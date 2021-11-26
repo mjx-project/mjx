@@ -8,6 +8,7 @@ from google.protobuf import json_format
 
 import mjxproto
 from mjx.action import Action
+from mjx.event import Event
 from mjx.hand import Hand
 from mjx.visualizer.svg import save_svg
 
@@ -37,6 +38,10 @@ class Observation:
     def legal_actions(self) -> List[Action]:
         assert self._cpp_obj is not None
         return [Action._from_cpp_obj(cpp_obj) for cpp_obj in self._cpp_obj.legal_actions()]  # type: ignore
+
+    def events(self) -> List[Event]:
+        assert self._cpp_obj is not None
+        return [Event._from_cpp_obj(cpp_obj) for cpp_obj in self._cpp_obj.events()]  # type: ignore
 
     def action_mask(self, dtype=np.float32) -> np.ndarray:
         assert self._cpp_obj is not None
