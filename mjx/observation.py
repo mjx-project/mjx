@@ -31,6 +31,10 @@ class Observation:
             raise NotImplementedError
         raise NotImplementedError  # TODO: implement
 
+    def who(self) -> int:
+        assert self._cpp_obj is not None
+        return self._cpp_obj.who()  # type: ignore
+
     def curr_hand(self) -> Hand:
         assert self._cpp_obj is not None
         return Hand._from_cpp_obj(self._cpp_obj.curr_hand())  # type: ignore
