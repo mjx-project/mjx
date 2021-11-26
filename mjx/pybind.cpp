@@ -60,6 +60,7 @@ PYBIND11_MODULE(_mjx, m) {
       .def("to_feature", &mjx::Observation::ToFeature)
       .def("legal_actions", &mjx::Observation::legal_actions)
       .def("events", &mjx::Observation::events)
+      .def("draw_history", &mjx::Observation::draw_history)
       .def("who", &mjx::Observation::who)
       .def("action_mask", &mjx::Observation::action_mask)
       .def("curr_hand", &mjx::Observation::curr_hand);

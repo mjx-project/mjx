@@ -10,6 +10,7 @@ import mjxproto
 from mjx.action import Action
 from mjx.event import Event
 from mjx.hand import Hand
+from mjx.tile import Tile
 from mjx.visualizer.svg import save_svg
 
 
@@ -46,6 +47,10 @@ class Observation:
     def events(self) -> List[Event]:
         assert self._cpp_obj is not None
         return [Event._from_cpp_obj(cpp_obj) for cpp_obj in self._cpp_obj.events()]  # type: ignore
+
+    def draw_history(self) -> List[Tile]:
+        assert self._cpp_obj is not None
+        return [Tile(t) for t in self._cpp_obj.draw_history()]  # type: ignore
 
     def action_mask(self, dtype=np.float32) -> np.ndarray:
         assert self._cpp_obj is not None

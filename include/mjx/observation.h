@@ -25,6 +25,7 @@ class Observation {
   std::vector<int> action_mask() const noexcept;
   int who() const noexcept;
   std::vector<Event> events() const noexcept;
+  std::vector<int> draw_history() const noexcept;
 
  private:
   mjxproto::Observation proto_{};

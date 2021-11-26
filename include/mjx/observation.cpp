@@ -61,6 +61,14 @@ std::vector<Event> Observation::events() const noexcept {
   return events;
 }
 
+std::vector<int> Observation::draw_history() const noexcept {
+  std::vector<int> draw;
+  for (int t : proto_.private_observation().draw_history()) {
+    draw.push_back(t);
+  }
+  return draw;
+}
+
 std::vector<int> Observation::action_mask() const noexcept {
   auto proto_legal_actions = proto_.legal_actions();
   assert(!proto_legal_actions.empty());
