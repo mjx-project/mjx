@@ -76,7 +76,7 @@ class ShantenAgent(Agent):
             return legal_actions[0]
 
         # if it can win, just win
-        win_actions = [a for a in legal_actions if a.type() in [ActionType.TUSMO, ActionType.RON]]
+        win_actions = [a for a in legal_actions if a.type() in [ActionType.TSUMO, ActionType.RON]]
         if len(win_actions) >= 1:
             assert len(win_actions) == 1
             return win_actions[0]
