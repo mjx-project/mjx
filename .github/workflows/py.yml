@@ -34,7 +34,7 @@ jobs:
         with:
           path: |
             external
-          key: external-${{ hashFiles('include/mjx/cmake/*') }}-${{ matrix.platform }}-v0
+          key: external-${{ hashFiles('include/mjx/cmake/*') }}-${{ matrix.platform }}-v1
 
       - name: Add requirements
         run: python -m pip install --upgrade wheel setuptools
