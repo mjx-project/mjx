@@ -55,7 +55,7 @@ class TsumogiriAgent(Agent):
         if len(legal_actions) == 1:
             return legal_actions[0]
         for action in legal_actions:
-            if action.type in [ActionType.TSUMOGIRI, ActionType.PASS]:
+            if action.type() in [ActionType.TSUMOGIRI, ActionType.PASS]:
                 return action
         assert False
 
@@ -76,13 +76,13 @@ class ShantenAgent(Agent):
             return legal_actions[0]
 
         # if it can win, just win
-        win_actions = [a for a in legal_actions if a.type in [ActionType.TUSMO, ActionType.RON]]
+        win_actions = [a for a in legal_actions if a.type() in [ActionType.TUSMO, ActionType.RON]]
         if len(win_actions) >= 1:
             assert len(win_actions) == 1
             return win_actions[0]
 
         # if it can declare riichi, just declar riichi
-        riichi_actions = [a for a in legal_actions if a.type == ActionType.RIICHI]
+        riichi_actions = [a for a in legal_actions if a.type() == ActionType.RIICHI]
         if len(riichi_actions) >= 1:
             assert len(riichi_actions) == 1
             return riichi_actions[0]
@@ -91,21 +91,21 @@ class ShantenAgent(Agent):
         steal_actions = [
             a
             for a in legal_actions
-            if a.type in [ActionType.CHI, ActionType.PON, ActionType, ActionType.OPEN_KAN]
+            if a.type() in [ActionType.CHI, ActionType.PON, ActionType, ActionType.OPEN_KAN]
         ]
         if len(steal_actions) >= 1:
             return random.choice(steal_actions)
 
         # if it can apply closed-kan/added-kan, choose randomly
         kan_actions = [
-            a for a in legal_actions if a.type in [ActionType.CLOSED_KAN, ActionType.ADDED_KAN]
+            a for a in legal_actions if a.type() in [ActionType.CLOSED_KAN, ActionType.ADDED_KAN]
         ]
         if len(kan_actions) >= 1:
             return random.choice(kan_actions)
 
         # discard an effective tile randomly
         legal_discards = [
-            a for a in legal_actions if a.type in [ActionType.DISCARD, ActionType.TSUMOGIRI]
+            a for a in legal_actions if a.type() in [ActionType.DISCARD, ActionType.TSUMOGIRI]
         ]
         effective_discard_types = observation.curr_hand().effective_discard_types()
         effective_discards = [
