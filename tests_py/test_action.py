@@ -51,10 +51,10 @@ def test_from_proto():
 def test_type():
     json_str = '{"gameId":"xxx","tile":10}'
     action = mjx.Action(json_str)
-    assert action.type == 0
-    assert action.type == ActionType.DISCARD
-    assert action.type != 1
-    assert action.type != ActionType.TSUMOGIRI
+    assert action.type() == 0
+    assert action.type() == ActionType.DISCARD
+    assert action.type() != 1
+    assert action.type() != ActionType.TSUMOGIRI
 
 
 def test_tile():

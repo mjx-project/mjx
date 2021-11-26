@@ -41,3 +41,8 @@ def test_effective_discard_types():
 def test_closed_tiles():
     hand = mjx.Hand(sample_json)
     assert len(hand.closed_tiles()) == 13
+
+
+def test_closed_tile_types():
+    hand = mjx.Hand(sample_json)
+    assert len(hand.closed_tile_types()) == 34

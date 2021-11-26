@@ -16,8 +16,6 @@ Hand::Hand(const std::string& json) {
   assert(status.ok());
 }
 
-const mjxproto::Hand& mjx::Hand::proto() const noexcept { return proto_; }
-
 std::string mjx::Hand::ToJson() const noexcept {
   std::string serialized;
   auto status =
@@ -35,27 +33,45 @@ bool Hand::operator!=(const Hand& other) const noexcept {
   return !(*this == other);
 }
 
-std::array<uint8_t, 34> Hand::ClosedTiles() const noexcept {
-  std::array<uint8_t, 34> closed_tiles{};
-  closed_tiles.fill(0);
+const mjxproto::Hand& mjx::Hand::proto() const noexcept { return proto_; }
+
+std::array<uint8_t, 34> Hand::ClosedTileTypes() const noexcept {
+  std::array<uint8_t, 34> closed_tile_types{};
+  closed_tile_types.fill(0);
   for (auto t : proto_.closed_tiles()) {
-    ++closed_tiles[t >> 2];
+    ++closed_tile_types[t >> 2];
+  }
+  return closed_tile_types;
+}
+
+std::vector<int> Hand::ClosedTiles() const noexcept {
+  std::vector<int> closed_tiles{};
+  for (auto t : proto_.closed_tiles()) {
+    closed_tiles.push_back(t);
   }
   return closed_tiles;
 }
 
+std::vector<int> Hand::Opens() const {
+  std::vector<int> opens;
+  for (auto o : proto_.opens()) {
+    opens.push_back(o);
+  }
+  return opens;
+}
+
 bool Hand::IsTenpai() const {
   return mjx::internal::ShantenCalculator::ShantenNumber(
-             ClosedTiles(), proto_.opens_size()) <= 0;
+             ClosedTileTypes(), proto_.opens_size()) <= 0;
 }
 
 int Hand::ShantenNumber() const {
-  return mjx::internal::ShantenCalculator::ShantenNumber(ClosedTiles(),
+  return mjx::internal::ShantenCalculator::ShantenNumber(ClosedTileTypes(),
                                                          proto_.opens_size());
 }
 
 std::vector<int> Hand::EffectiveDrawTypes() const {
-  auto hand = ClosedTiles();
+  auto hand = ClosedTileTypes();
   int num_opens = proto_.opens_size();
   int shanten = internal::ShantenCalculator::ShantenNumber(hand, num_opens);
   std::vector<int> effective_tile_types;
@@ -71,7 +87,7 @@ std::vector<int> Hand::EffectiveDrawTypes() const {
 }
 
 std::vector<int> Hand::EffectiveDiscardTypes() const {
-  auto hand = ClosedTiles();
+  auto hand = ClosedTileTypes();
   int num_opens = proto_.opens_size();
   int shanten = internal::ShantenCalculator::ShantenNumber(hand, num_opens);
   std::vector<int> effective_tile_types;

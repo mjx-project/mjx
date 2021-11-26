@@ -10,7 +10,7 @@ class ActionType(IntEnum):
     RIICHI = mjxproto.ACTION_TYPE_RIICHI
     CLOSED_KAN = mjxproto.ACTION_TYPE_CLOSED_KAN
     ADDED_KAN = mjxproto.ACTION_TYPE_ADDED_KAN
-    TUSMO = mjxproto.ACTION_TYPE_TSUMO
+    TSUMO = mjxproto.ACTION_TYPE_TSUMO
     ABORTIVE_DRAW_NINE_TERMINALS = mjxproto.ACTION_TYPE_ABORTIVE_DRAW_NINE_TERMINALS  # 九種九牌
     # After other's discard
     CHI = mjxproto.ACTION_TYPE_CHI
