@@ -38,6 +38,9 @@ class Event:
     def type(self) -> EventType:
         return EventType(self._cpp_obj.type())  # type: ignore
 
+    def who(self) -> int:
+        return self._cpp_obj.who()  # type: ignore
+
     def tile(self) -> Optional[Tile]:
         t = self._cpp_obj.tile()  # type: ignore
         return Tile(t) if t is not None else None
