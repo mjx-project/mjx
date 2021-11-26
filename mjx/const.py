@@ -21,6 +21,7 @@ class ActionType(IntEnum):
     # Dummy used only to check connection and share round terminal information
     DUMMY = mjxproto.ACTION_TYPE_DUMMY
 
+
 class EventType(IntEnum):
     # Publicly observable actions
     DISCARD = mjxproto.EVENT_TYPE_DISCARD
@@ -45,6 +46,7 @@ class EventType(IntEnum):
     ABORTIVE_DRAW_FOUR_WINDS = mjxproto.EVENT_TYPE_ABORTIVE_DRAW_FOUR_WINDS  # 四風連打
     ABORTIVE_DRAW_NORMAL = mjxproto.EVENT_TYPE_EXHAUSTIVE_DRAW_NORMAL  # 通常流局
     ABORTIVE_DRAW_NAGASHI_MANGAN = mjxproto.EVENT_TYPE_EXHAUSTIVE_DRAW_NAGASHI_MANGAN  # 流し満貫
+
 
 class AbsolutePos(IntEnum):
     INIT_EAST = 0
