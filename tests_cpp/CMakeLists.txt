@@ -28,6 +28,7 @@ endif()
 add_executable(
   mjx_tests_cpp
   action_test.cpp
+  event_test.cpp
   env_test.cpp
   hand_test.cpp
   observation_test.cpp

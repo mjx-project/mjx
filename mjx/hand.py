@@ -23,9 +23,9 @@ class Hand:
         assert self._cpp_obj is not None  # type: ignore
         return [Tile(tid) for tid in self._cpp_obj.closed_tiles()]  # type: ignore
 
-    def closed_tile_types(self) -> List[int]:
+    def closed_tile_types(self) -> List[TileType]:
         assert self._cpp_obj is not None  # type: ignore
-        return self._cpp_obj.closed_tile_types()  # type: ignore
+        return [TileType(tt) for tt in self._cpp_obj.closed_tile_types()]  # type: ignore
 
     def opens(self) -> List[Open]:
         assert self._cpp_obj is not None  # type: ignore

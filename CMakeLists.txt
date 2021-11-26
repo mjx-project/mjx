@@ -73,6 +73,8 @@ add_library(
   mjx STATIC
   include/mjx/action.h
   include/mjx/action.cpp
+  include/mjx/event.h
+  include/mjx/event.cpp
   include/mjx/agent.h
   include/mjx/agent.cpp
   include/mjx/observation.h
