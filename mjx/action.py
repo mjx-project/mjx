@@ -20,14 +20,12 @@ class Action:
         self._cpp_obj = _mjx.Action(action_json)  # type: ignore
 
     def __eq__(self, other: object) -> bool:
-        if not isinstance(other, Action):
-            raise NotImplementedError
-        raise NotImplementedError  # TODO: implement
+        assert isinstance(other, Action)
+        return self._cpp_obj == other._cpp_obj
 
     def __ne__(self, other: object) -> bool:
-        if not isinstance(other, Action):
-            raise NotImplementedError
-        raise NotImplementedError  # TODO: implement
+        assert isinstance(other, Action)
+        return self._cpp_obj != other._cpp_obj
 
     def _open(self) -> Optional[Open]:
         o = self._cpp_obj._open()

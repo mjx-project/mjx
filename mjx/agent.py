@@ -1,10 +1,11 @@
 import random
-from typing import List
+from typing import Dict, List
 
 import _mjx  # type: ignore
 
 from mjx.action import Action
 from mjx.const import ActionType
+from mjx.env import MjxEnv
 from mjx.observation import Observation
 from mjx.visualizer.selector import Selector
 
@@ -153,3 +154,16 @@ class HumanControlAgent(Agent):  # type: ignore
         return Selector.select_from_proto(
             observation.to_proto(), unicode=self.unicode, rich=self.rich, ja=self.ja
         )
+
+
+def validate_agent(agent: Agent, n_games=1, use_batch=False):
+    env = MjxEnv()
+    for i in range(n_games):
+        obs_dict: Dict[str, Observation] = env.reset()
+        while not env.done():
+            action_dict: Dict[str, Action] = {}
+            for player_id, obs in obs_dict.items():
+                action = agent.act_batch([obs])[0] if use_batch else agent.act(obs)
+                assert action in obs.legal_actions()
+                action_dict[player_id] = action
+            obs_dict = env.step(action_dict)

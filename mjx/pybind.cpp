@@ -2,6 +2,7 @@
 #include <mjx/open.h>
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
+#include <pybind11/operators.h>
 
 namespace py = pybind11;
 
@@ -32,7 +33,9 @@ PYBIND11_MODULE(_mjx, m) {
       .def("to_idx", &mjx::Action::ToIdx)
       .def("type", &mjx::Action::type)
       .def("_open", &mjx::Action::open)
-      .def("tile", &mjx::Action::tile);
+      .def("tile", &mjx::Action::tile)
+      .def(py::self == py::self)
+      .def(py::self != py::self);
 
   py::class_<mjx::Event>(m, "Event")
       .def(py::init<std::string>())
