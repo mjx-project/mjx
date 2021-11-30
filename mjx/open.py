@@ -4,40 +4,37 @@ from typing import List
 
 import _mjx  # type: ignore
 
+from mjx.const import EventType, TileType
+from mjx.tile import Tile
+
 
 class Open:
-    @classmethod
-    def event_type(cls, bit: int) -> int:
-        return _mjx.Open.event_type(bit)
+    def __init__(self, bit: int):
+        self.bit = bit
 
-    @classmethod
-    def steal_from(cls, bit: int) -> int:
-        return _mjx.Open.steal_from(bit)
+    def event_type(self) -> EventType:
+        return _mjx.Open.event_type(self.bit)
 
-    @classmethod
-    def at(cls, bit: int, i: int) -> int:
-        return _mjx.Open.at(bit, i)
+    def steal_from(self) -> int:
+        return _mjx.Open.steal_from(self.bit)
 
-    @classmethod
-    def size(cls, bit: int) -> int:
-        return _mjx.Open.size(bit)
+    def at(self, i: int) -> Tile:
+        return Tile(_mjx.Open.at(self.bit, i))
 
-    @classmethod
-    def tiles(cls, bit: int) -> List[int]:
-        return _mjx.Open.tiles(bit)
+    def size(self) -> int:
+        return _mjx.Open.size(self.bit)
 
-    @classmethod
-    def tiles_from_hand(cls, bit: int) -> List[int]:
-        return _mjx.Open.tiles_from_hand(bit)
+    def tiles(self) -> List[Tile]:
+        return [Tile(t) for t in _mjx.Open.tiles(self.bit)]
 
-    @classmethod
-    def stolen_tile(cls, bit: int) -> int:
-        return _mjx.Open.stolen_tile(bit)
+    def tiles_from_hand(self) -> List[Tile]:
+        return [Tile(t) for t in _mjx.Open.tiles_from_hand(self.bit)]
 
-    @classmethod
-    def last_tile(cls, bit: int) -> int:
-        return _mjx.Open.last_tile(bit)
+    def stolen_tile(self) -> Tile:
+        return Tile(_mjx.Open.stolen_tile(self.bit))
 
-    @classmethod
-    def undiscardable_tile_types(cls, bit: int) -> List[int]:
-        return _mjx.Open.undiscardable_tile_types(bit)
+    def last_tile(self) -> Tile:
+        return Tile(_mjx.Open.last_tile(self.bit))
+
+    def undiscardable_tile_types(self) -> List[TileType]:
+        return [TileType(t) for t in _mjx.Open.undiscardable_tile_types(self.bit)]

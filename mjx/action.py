@@ -6,6 +6,9 @@ import _mjx  # type: ignore
 from google.protobuf import json_format
 
 import mjxproto
+from mjx.const import ActionType
+from mjx.open import Open
+from mjx.tile import Tile
 
 
 class Action:
@@ -17,14 +20,25 @@ class Action:
         self._cpp_obj = _mjx.Action(action_json)  # type: ignore
 
     def __eq__(self, other: object) -> bool:
-        if not isinstance(other, Action):
-            raise NotImplementedError
-        raise NotImplementedError  # TODO: implement
+        assert isinstance(other, Action)
+        return self._cpp_obj == other._cpp_obj
 
     def __ne__(self, other: object) -> bool:
-        if not isinstance(other, Action):
-            raise NotImplementedError
-        raise NotImplementedError  # TODO: implement
+        assert isinstance(other, Action)
+        return self._cpp_obj != other._cpp_obj
+
+    def _open(self) -> Optional[Open]:
+        o = self._cpp_obj._open()
+        if o is None:
+            return None
+        return Open(o)  # type: ignore
+
+    def type(self) -> ActionType:
+        return ActionType(self._cpp_obj.type())  # type: ignore
+
+    def tile(self) -> Optional[Tile]:
+        t = self._cpp_obj.tile()  # type: ignore
+        return Tile(t) if t is not None else None
 
     def to_json(self) -> str:
         assert self._cpp_obj is not None

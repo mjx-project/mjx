@@ -2,14 +2,16 @@ import random
 import threading
 import time
 from queue import Queue
-from typing import List, Optional, Tuple
+from typing import Dict, List, Optional, Tuple
 
 import _mjx  # type: ignore
-from flask import Flask, redirect, render_template, request, session, url_for
+from flask import Flask, redirect, render_template, request, url_for
 from flask.views import MethodView, View
 
 import mjxproto
 from mjx.action import Action
+from mjx.const import ActionType
+from mjx.env import MjxEnv
 from mjx.observation import Observation
 from mjx.visualizer.converter import action_type_ja, get_tile_char
 from mjx.visualizer.open_utils import open_tile_ids
@@ -46,12 +48,84 @@ class Agent(_mjx.Agent):  # type: ignore
         return [action._cpp_obj for action in actions]
 
 
-class RandomAgent(Agent):  # type: ignore
+class RandomAgent(Agent):
     def __init__(self) -> None:
         super().__init__()
 
-    def act(self, observation: Observation) -> Action:  # type: ignore
+    def act(self, observation: Observation) -> Action:
         return random.choice(observation.legal_actions())
+
+
+class TsumogiriAgent(Agent):
+    def __init__(self) -> None:
+        super().__init__()
+
+    def act(self, observation: Observation) -> Action:
+        legal_actions = observation.legal_actions()
+        if len(legal_actions) == 1:
+            return legal_actions[0]
+        for action in legal_actions:
+            if action.type() in [ActionType.TSUMOGIRI, ActionType.PASS]:
+                return action
+        assert False
+
+
+class ShantenAgent(Agent):
+    """A rule-based agent, which plays just to reduce the shanten-number.
+    The logic is basically intended to reproduce Mjai's ShantenPlayer.
+
+    - Mjai https://github.com/gimite/mjai
+    """
+
+    def __init__(self) -> None:
+        super().__init__()
+
+    def act(self, observation: Observation) -> Action:
+        legal_actions = observation.legal_actions()
+        if len(legal_actions) == 1:
+            return legal_actions[0]
+
+        # if it can win, just win
+        win_actions = [a for a in legal_actions if a.type() in [ActionType.TSUMO, ActionType.RON]]
+        if len(win_actions) >= 1:
+            assert len(win_actions) == 1
+            return win_actions[0]
+
+        # if it can declare riichi, just declar riichi
+        riichi_actions = [a for a in legal_actions if a.type() == ActionType.RIICHI]
+        if len(riichi_actions) >= 1:
+            assert len(riichi_actions) == 1
+            return riichi_actions[0]
+
+        # if it can apply chi/pon/open-kan, choose randomly
+        steal_actions = [
+            a
+            for a in legal_actions
+            if a.type() in [ActionType.CHI, ActionType.PON, ActionType, ActionType.OPEN_KAN]
+        ]
+        if len(steal_actions) >= 1:
+            return random.choice(steal_actions)
+
+        # if it can apply closed-kan/added-kan, choose randomly
+        kan_actions = [
+            a for a in legal_actions if a.type() in [ActionType.CLOSED_KAN, ActionType.ADDED_KAN]
+        ]
+        if len(kan_actions) >= 1:
+            return random.choice(kan_actions)
+
+        # discard an effective tile randomly
+        legal_discards = [
+            a for a in legal_actions if a.type() in [ActionType.DISCARD, ActionType.TSUMOGIRI]
+        ]
+        effective_discard_types = observation.curr_hand().effective_discard_types()
+        effective_discards = [
+            a for a in legal_discards if a.tile().type() in effective_discard_types
+        ]
+        if len(effective_discards) > 0:
+            return random.choice(effective_discards)
+
+        # if no effective tile exists, discard randomly
+        return random.choice(legal_discards)
 
 
 class RandomDebugAgent(Agent):
@@ -215,3 +289,16 @@ class HumanControlAgentOnBrowser(Agent):  # type: ignore
         app.add_url_rule("/post/", view_func=page2.as_view("post"))
 
         app.run()
+
+
+def validate_agent(agent: Agent, n_games=1, use_batch=False):
+    env = MjxEnv()
+    for i in range(n_games):
+        obs_dict: Dict[str, Observation] = env.reset()
+        while not env.done():
+            action_dict: Dict[str, Action] = {}
+            for player_id, obs in obs_dict.items():
+                action = agent.act_batch([obs])[0] if use_batch else agent.act(obs)
+                assert action in obs.legal_actions()
+                action_dict[player_id] = action
+            obs_dict = env.step(action_dict)

@@ -46,6 +46,7 @@ class State {
   explicit State(const mjxproto::State& state);
   bool IsRoundOver() const;
   bool IsGameOver() const;
+  bool IsDummySet() const;
   void Update(std::vector<mjxproto::Action>&& action_candidates);
   std::unordered_map<PlayerId, Observation> CreateObservations() const;
   std::string ToJson() const;
@@ -119,6 +120,8 @@ class State {
     std::vector<Open> opens;
     std::optional<Tile> win_tile;
   };
+
+  bool is_dummy_set_ = false;
 
   // protos
   mjxproto::State state_;

@@ -28,7 +28,6 @@ int ShantenCache::Require(const std::vector<uint8_t>& count, int sets,
 }
 
 void ShantenCache::LoadCache() {
-  std::cerr << "ShantenCache::LoadCache: start" << std::endl;
   std::stringstream ifs;
   ifs << shanten_cache_str;
   std::string line;
@@ -41,6 +40,5 @@ void ShantenCache::LoadCache() {
     cache_.push_back(c);
   }
   assert(cache_.size() == 1953125);
-  std::cerr << "ShantenCache::LoadCache: end" << std::endl;
 }
 }  // namespace mjx::internal

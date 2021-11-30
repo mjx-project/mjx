@@ -1,4 +1,5 @@
 clean:
+	rm -rf .cache
 	rm -rf venv
 	rm -rf examples/venv
 	rm -rf cmake-build-debug
@@ -14,9 +15,7 @@ clean:
 	rm -rf external/*-build
 	rm -rf external/*-subbuild
 	rm -rf tests_cpp/external/*-build
-	rm -rf tests_cpp/external/*-subbuild
-	rm -rf .pytest_cache
-	rm -rf __pycache__ 
+	rm -rf tests_cpp/external/*-subbuild rm -rf .pytest_cache rm -rf __pycache__ 
 	rm -rf mjx/__pycache__
 	rm -rf mjx/converter/__pycache__
 	rm -rf mjx/visualizer/__pycache__

@@ -1,5 +1,6 @@
 #include <mjx/env.h>
 #include <mjx/open.h>
+#include <pybind11/operators.h>
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 
@@ -29,7 +30,20 @@ PYBIND11_MODULE(_mjx, m) {
       .def(py::init<std::string>())
       .def("select_from", &mjx::Action::SelectFrom)
       .def("to_json", &mjx::Action::ToJson)
-      .def("to_idx", &mjx::Action::ToIdx);
+      .def("to_idx", &mjx::Action::ToIdx)
+      .def("type", &mjx::Action::type)
+      .def("_open", &mjx::Action::open)
+      .def("tile", &mjx::Action::tile)
+      .def(py::self == py::self)
+      .def(py::self != py::self);
+
+  py::class_<mjx::Event>(m, "Event")
+      .def(py::init<std::string>())
+      .def("to_json", &mjx::Event::ToJson)
+      .def("who", &mjx::Event::who)
+      .def("type", &mjx::Event::type)
+      .def("_open", &mjx::Event::open)
+      .def("tile", &mjx::Event::tile);
 
   py::class_<mjx::Open>(m, "Open")
       .def_static("event_type", &mjx::Open::EventType)
@@ -48,6 +62,9 @@ PYBIND11_MODULE(_mjx, m) {
       .def("to_json", &mjx::Observation::ToJson)
       .def("to_feature", &mjx::Observation::ToFeature)
       .def("legal_actions", &mjx::Observation::legal_actions)
+      .def("events", &mjx::Observation::events)
+      .def("draw_history", &mjx::Observation::draw_history)
+      .def("who", &mjx::Observation::who)
       .def("action_mask", &mjx::Observation::action_mask)
       .def("curr_hand", &mjx::Observation::curr_hand);
 
@@ -56,10 +73,15 @@ PYBIND11_MODULE(_mjx, m) {
       .def("to_json", &mjx::State::ToJson);
 
   py::class_<mjx::Hand>(m, "Hand")
-      .def(py::init<>())
+      .def(py::init<std::string>())
       .def("to_json", &mjx::Hand::ToJson)
       .def("is_tenpai", &mjx::Hand::IsTenpai)
-      .def("shanten_number", &mjx::Hand::ShantenNumber);
+      .def("shanten_number", &mjx::Hand::ShantenNumber)
+      .def("effective_draw_types", &mjx::Hand::EffectiveDrawTypes)
+      .def("effective_discard_types", &mjx::Hand::EffectiveDiscardTypes)
+      .def("closed_tile_types", &mjx::Hand::ClosedTileTypes)
+      .def("closed_tiles", &mjx::Hand::ClosedTiles)
+      .def("opens", &mjx::Hand::Opens);
 
   py::class_<mjx::Agent, PyAgent>(m, "Agent")
       .def(py::init<>())
@@ -102,22 +124,4 @@ PYBIND11_MODULE(_mjx, m) {
       .def("done", &mjx::MjxEnv::Done)
       .def("rewards", &mjx::MjxEnv::Rewards)
       .def("state", &mjx::MjxEnv::state);
-
-  py::class_<mjx::RLlibMahjongEnv>(m, "RLlibMahjongEnv")
-      .def(py::init<>())
-      .def("reset", &mjx::RLlibMahjongEnv::Reset)
-      .def("step", &mjx::RLlibMahjongEnv::Step)
-      .def("seed", &mjx::RLlibMahjongEnv::Seed);
-
-  py::class_<mjx::PettingZooMahjongEnv>(m, "PettingZooMahjongEnv")
-      .def(py::init<>())
-      .def("last", &mjx::PettingZooMahjongEnv::Last)
-      .def("reset", &mjx::PettingZooMahjongEnv::Reset)
-      .def("step", &mjx::PettingZooMahjongEnv::Step)
-      .def("seed", &mjx::PettingZooMahjongEnv::Seed)
-      .def("observe", &mjx::PettingZooMahjongEnv::Observe)
-      .def("agents", &mjx::PettingZooMahjongEnv::agents)
-      .def("possible_agents", &mjx::PettingZooMahjongEnv::possible_agents)
-      .def("agent_selection", &mjx::PettingZooMahjongEnv::agent_selection)
-      .def("rewards", &mjx::PettingZooMahjongEnv::rewards);
 }

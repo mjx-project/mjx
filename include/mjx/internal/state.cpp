@@ -129,6 +129,11 @@ GameResult State::result() const {
 }
 
 std::unordered_map<PlayerId, Observation> State::CreateObservations() const {
+  // Is already dummy is sent at the game of the end, return empty map
+  if (IsRoundOver() && IsGameOver() && IsDummySet()) {
+    return {};
+  }
+
   // At the round end, sync round terminal information to each player
   if (IsRoundOver()) {
     std::unordered_map<PlayerId, Observation> observations;
@@ -1102,8 +1107,16 @@ WinStateInfo State::win_state_info(AbsolutePos who) const {
 }
 
 void State::Update(std::vector<mjxproto::Action> &&action_candidates) {
-  Assert(!IsRoundOver(), "Update is called after round end: \n" + ToJson());
-  Assert(!action_candidates.empty());
+  // set is_dummy_set_ at the end of game
+  if (IsRoundOver() && IsGameOver()) {
+    Assert(action_candidates.size() == 4);
+    Assert(std::all_of(action_candidates.begin(), action_candidates.end(),
+                       [](mjxproto::Action &x) {
+                         return x.type() == mjxproto::ACTION_TYPE_DUMMY;
+                       }));
+    is_dummy_set_ = true;
+    return;
+  }
 
   // filter all dummy actions
   auto it = std::remove_if(action_candidates.begin(), action_candidates.end(),
@@ -1112,6 +1125,9 @@ void State::Update(std::vector<mjxproto::Action> &&action_candidates) {
                            });
   action_candidates.erase(it, action_candidates.end());
   Assert(action_candidates.size() <= 3);
+  Assert(
+      !IsRoundOver(),
+      "Update with non-dummy actions is called after round end: \n" + ToJson());
 
   if (action_candidates.empty()) return;
 
@@ -1784,4 +1800,5 @@ State::UpdateByActions(const mjxproto::State &proto,
 
   return hist;
 }
+bool State::IsDummySet() const { return is_dummy_set_; }
 }  // namespace mjx::internal

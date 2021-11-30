@@ -15,12 +15,15 @@ class Hand {
   std::string ToJson() const noexcept;
   bool IsTenpai() const;
   int ShantenNumber() const;
+  std::vector<int> EffectiveDrawTypes() const;
+  std::vector<int> EffectiveDiscardTypes() const;
+  std::array<uint8_t, 34> ClosedTileTypes() const noexcept;
+  std::vector<int> ClosedTiles() const noexcept;
+  std::vector<int> Opens() const;
 
-  // accessors
   const mjxproto::Hand& proto() const noexcept;
 
  private:
-  std::array<uint8_t, 34> ClosedTiles() const noexcept;
   mjxproto::Hand proto_{};
 };
 }  // namespace mjx
