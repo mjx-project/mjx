@@ -54,5 +54,6 @@ button:hover{
 }
 
 button:focus{
-  outline: solid 5px black;
+  background-color:  black;
+  color:white;
 }

@@ -135,7 +135,7 @@ class ShowPage(View):
     def make_choice(cls, action_proto: mjxproto.Action, i: int):
         red_hai = [16, 52, 88]
         if action_proto.type == mjxproto.ActionType.ACTION_TYPE_DUMMY:
-            return {"text": "<span>次へ</span>", "index": 0}
+            return {"text": "<span>次へ</span>", "index": i}
         elif action_proto.type == mjxproto.ActionType.ACTION_TYPE_NO:
             return {"text": "<span>パス</span>", "index": i}
         elif action_proto.type in [
