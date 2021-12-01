@@ -5,7 +5,7 @@ from queue import Queue
 from typing import Dict, List, Optional, Tuple
 
 import _mjx  # type: ignore
-from flask import Flask, render_template, request
+from flask import Flask, render_template
 from flask.views import View
 
 import mjxproto
@@ -165,52 +165,35 @@ class HumanControlAgent(Agent):  # type: ignore
         )
 
 
-class ShowPages(View):
+class ShowPage(View):
     q: Queue
     methods = ["GET", "POST"]
     observation: Optional[Observation] = None
 
     def dispatch_request(self):
-        if False or request.method == "POST":
-            assert ShowPages.observation is not None
-            action_idx = request.form.get("choice")
-            assert action_idx is not None
+        if ShowPage.observation is None:
+            ShowPage.observation = ShowPage.q.get(block=True, timeout=None)
+            ShowPage.q.task_done()
 
-            action = ShowPages.observation.legal_actions()[int(action_idx)]
-            ShowPages.q.put(action)
-            ShowPages.q.join()
+        svg_str = to_svg(ShowPage.observation.to_json())
+        choices = ShowPage.make_choices(ShowPage.observation)
+        return render_template("index.html", svg=svg_str, choices=choices)
 
-            ShowPages.observation = ShowPages.q.get(block=True, timeout=None)
-            ShowPages.q.task_done()
-            time.sleep(1.0)
-
-            svg_str = to_svg(ShowPages.observation.to_json())
-            choices = self.make_choices()
-            return render_template("index.html", svg=svg_str, choices=choices)
-
-        else:  # リクエストが非POSTとなるのは初回の表示のみという想定
-            ShowPages.observation = ShowPages.q.get(block=True, timeout=None)
-            ShowPages.q.task_done()
-            time.sleep(1.0)
-
-            svg_str = to_svg(ShowPages.observation.to_json())
-            choices = self.make_choices()
-            return render_template("index.html", svg=svg_str, choices=choices)
-
-    def make_choices(self):
-        assert ShowPages.observation is not None
+    @classmethod
+    def make_choices(cls, observation):
+        assert observation is not None
         legal_actions_proto_ = [
-            (action.to_proto(), i)
-            for i, action in enumerate(ShowPages.observation.legal_actions())
+            (action.to_proto(), i) for i, action in enumerate(observation.legal_actions())
         ]
-        legal_actions_proto = self.sort_legal_actions(legal_actions_proto_)
-        choices = [self.make_choice(choice_[0], choice_[1]) for choice_ in legal_actions_proto]
+        legal_actions_proto = cls.sort_legal_actions(legal_actions_proto_)
+        choices = [cls.make_choice(choice_[0], choice_[1]) for choice_ in legal_actions_proto]
         return choices
 
-    def make_choice(self, action_proto: mjxproto.Action, i: int):
+    @classmethod
+    def make_choice(cls, action_proto: mjxproto.Action, i: int):
         red_hai = [16, 52, 88]
         if action_proto.type == mjxproto.ActionType.ACTION_TYPE_DUMMY:
-            return {"text": "<span>次へ</span>", "index": 0}
+            return {"text": "<span>次へ</span>", "index": i}
         elif action_proto.type == mjxproto.ActionType.ACTION_TYPE_NO:
             return {"text": "<span>パス</span>", "index": i}
         elif action_proto.type in [
@@ -245,7 +228,8 @@ class ShowPages(View):
                 text += text_
             return {"text": text, "index": i}
 
-    def sort_legal_actions(self, legal_actions_proto: List[Tuple[mjxproto.Action, int]]):
+    @classmethod
+    def sort_legal_actions(cls, legal_actions_proto: List[Tuple[mjxproto.Action, int]]):
         """
         ツモ切りを先頭に持ってくるための専用ソート
         """
@@ -277,14 +261,14 @@ class HumanControlAgentOnBrowser(Agent):  # type: ignore
 
         action = self.q.get(block=True, timeout=None)
         self.q.task_done()
-        time.sleep(1.0)
         return action
 
     def flask(self, q):
-        page = ShowPages()
-        ShowPages.q = q
+        page1 = ShowPage()
+        ShowPage.q = q
         app = Flask(__name__)
-        app.add_url_rule("/", view_func=page.as_view("show"))
+        app.config["SECRET_KEY"] = "8888"
+        app.add_url_rule("/", view_func=page1.as_view("show"))
         app.run()
 
 
