@@ -2,6 +2,7 @@ from google.protobuf import json_format
 
 import mjx
 import mjxproto
+from mjx.const import ActionType
 
 
 def test_Action():
@@ -45,3 +46,25 @@ def test_from_proto():
     action = mjx.Action(json_str)
     proto_action = action.to_proto()
     mjx.Action.from_proto(proto_action).to_json() == json_str
+
+
+def test_type():
+    json_str = '{"gameId":"xxx","tile":10}'
+    action = mjx.Action(json_str)
+    assert action.type() == 0
+    assert action.type() == ActionType.DISCARD
+    assert action.type() != 1
+    assert action.type() != ActionType.TSUMOGIRI
+
+
+def test_tile():
+    json_str = '{"gameId":"xxx","tile":10}'
+    action = mjx.Action(json_str)
+    tile = action.tile()
+    assert tile is not None
+    assert tile.id() == 10
+
+    json_str = '{"gameId":"xxx","who":1,"type":"ACTION_TYPE_CHI","open":30111}'
+    action = mjx.Action(json_str)
+    tile = action.tile()
+    assert tile is None

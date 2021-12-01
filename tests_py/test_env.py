@@ -71,6 +71,8 @@ def test_MjxEnv():
         for agent, obs in obs_dict.items():
             action_dict[agent] = random_agent.act(obs)
         obs_dict = env.step(action_dict)
+    assert len(action_dict) == 4  # four dummies
+    assert obs_dict == {}
     rewards = env.rewards()
 
     assert len(rewards) == 4
@@ -79,7 +81,7 @@ def test_MjxEnv():
     assert rewards["player_2"] == 45
     assert rewards["player_3"] == -135
 
-    # test specifing daler order
+    # test specifying dealer order
     obs_dict = env.reset(1234, ["player_3", "player_1", "player_2", "player_0"])
     assert len(obs_dict) == 1
     assert "player_3" in obs_dict

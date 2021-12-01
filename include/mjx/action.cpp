@@ -45,4 +45,29 @@ Action Action::SelectFrom(int action_idx,
 }
 
 int Action::ToIdx() const noexcept { return internal::Action::Encode(proto_); }
+
+int Action::type() const noexcept { return proto_.type(); }
+
+std::optional<int> Action::tile() const noexcept {
+  if (internal::Any(
+          type(),
+          {mjxproto::ACTION_TYPE_DISCARD, mjxproto::ACTION_TYPE_TSUMOGIRI,
+           mjxproto::ACTION_TYPE_TSUMO, mjxproto::ACTION_TYPE_RON}))
+    return proto_.tile();
+
+  assert(proto_.tile() == 0);
+  return std::nullopt;
+}
+
+std::optional<int> Action::open() const noexcept {
+  if (internal::Any(
+          type(),
+          {mjxproto::ACTION_TYPE_CHI, mjxproto::ACTION_TYPE_PON,
+           mjxproto::ACTION_TYPE_CLOSED_KAN, mjxproto::ACTION_TYPE_OPEN_KAN,
+           mjxproto::ACTION_TYPE_ADDED_KAN}))
+    return proto_.open();
+
+  assert(proto_.open() == 0);
+  return std::nullopt;
+}
 }  // namespace mjx
