@@ -27,7 +27,7 @@ class Action:
         assert isinstance(other, Action)
         return self._cpp_obj != other._cpp_obj
 
-    def _open(self) -> Optional[Open]:
+    def open(self) -> Optional[Open]:
         o = self._cpp_obj._open()
         if o is None:
             return None
