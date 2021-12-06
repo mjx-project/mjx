@@ -76,6 +76,8 @@ def test_MjxEnv():
     assert len(obs_dict) == 4
     for _, obs in obs_dict.items():
         assert len(obs.legal_actions()) == 0
+    assert env.done("game")
+    assert env.done("round")
     rewards = env.rewards()
 
     assert len(rewards) == 4
@@ -113,6 +115,8 @@ def testMjxEnvRoundDone():
         for agent, obs in obs_dict.items():
             action_dict[agent] = random_agent.act(obs)
         obs_dict = env.step(action_dict)
+    assert not env.done("game")
+    assert env.done("round")
     assert len(action_dict) == 4  # four dummies
     # 東2局 or 1本場
     round, honba = get_round_and_honba(env)

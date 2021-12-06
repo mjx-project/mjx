@@ -83,6 +83,7 @@ bool MjxEnv::Done(const std::string& done_type) const noexcept {
     return state_.IsRoundOver() && state_.IsGameOver() && state_.IsDummySet();
   } else {
     assert(done_type == "round");
+    if (Done("game")) return true;
     return is_round_end_;
   }
 }
