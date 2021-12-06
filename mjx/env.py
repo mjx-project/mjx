@@ -28,16 +28,12 @@ class MjxEnv:
         cpp_obs_dict: Dict[str, _mjx.Observation] = self._env.step(cpp_action_dict)  # type: ignore
         return {k: Observation._from_cpp_obj(v) for k, v in cpp_obs_dict.items()}
 
-    def done(self, done_type="game") -> bool:
+    def done(self, done_type: str = "game") -> bool:
         assert done_type in (
             "game",
             "round",
         ), f'Wrong done_type: it must be "game" or "round" but got {done_type}.'
-        if done_type == "game":
-            return self._env.done()
-        elif done_type == "round":
-            raise NotImplementedError
-        assert False
+        return self._env.done(done_type)
 
     def rewards(self) -> Dict[str, int]:
         return self._env.rewards()

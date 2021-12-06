@@ -1114,8 +1114,8 @@ WinStateInfo State::win_state_info(AbsolutePos who) const {
 }
 
 void State::Update(std::vector<mjxproto::Action> &&action_candidates) {
-  // set is_dummy_set_ at the end of game
-  if (IsRoundOver() && IsGameOver()) {
+  // set is_dummy_set_ at the end of each round
+  if (IsRoundOver() && ! is_dummy_set_) {
     Assert(action_candidates.size() == 4);
     Assert(std::all_of(action_candidates.begin(), action_candidates.end(),
                        [](mjxproto::Action &x) {
