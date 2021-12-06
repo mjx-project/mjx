@@ -92,3 +92,26 @@ def test_MjxEnv():
     obs_dict = env.reset(1234)
     assert len(obs_dict) == 1
     assert "player_2" in obs_dict
+
+
+def testMjxEnvRoundDone():
+    random_agent = mjx.agent.RandomDebugAgent()
+
+    random.seed(1234)
+    env = mjx.env.MjxEnv()
+    obs_dict = env.reset(1234)
+    state_proto = env.state.to_proto()
+    round = state_proto.public_observation.init_score.round
+    honba = state_proto.public_observation.init_score.honba
+    assert round == 0 and honba == 0
+    while not env.done(done_type="round"):
+        action_dict = {}
+        for agent, obs in obs_dict.items():
+            action_dict[agent] = random_agent.act(obs)
+        obs_dict = env.step(action_dict)
+    assert len(action_dict) == 4  # four dummies
+    # 東2局 or 1本場
+    state_proto = env.state.to_proto()
+    round = state_proto.public_observation.init_score.round
+    honba = state_proto.public_observation.init_score.honba
+    assert round == 1 or honba == 1
