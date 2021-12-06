@@ -129,9 +129,16 @@ GameResult State::result() const {
 }
 
 std::unordered_map<PlayerId, Observation> State::CreateObservations() const {
-  // Is already dummy is sent at the game of the end, return empty map
+  // Is already dummy is sent at the game of the end, return obs with empty
+  // legal actions
   if (IsRoundOver() && IsGameOver() && IsDummySet()) {
-    return {};
+    std::unordered_map<PlayerId, Observation> observations;
+    for (int i = 0; i < 4; ++i) {
+      auto who = AbsolutePos(i);
+      auto observation = Observation(who, state_);
+      observations[player(who).player_id] = std::move(observation);
+    }
+    return observations;
   }
 
   // At the round end, sync round terminal information to each player
