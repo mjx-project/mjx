@@ -129,7 +129,8 @@ GameResult State::result() const {
 }
 
 std::unordered_map<PlayerId, Observation> State::CreateObservations() const {
-  // Is already dummy is sent at the game of the end, return obs with empty legal actions
+  // Is already dummy is sent at the game of the end, return obs with empty
+  // legal actions
   if (IsRoundOver() && IsGameOver() && IsDummySet()) {
     std::unordered_map<PlayerId, Observation> observations;
     for (int i = 0; i < 4; ++i) {
