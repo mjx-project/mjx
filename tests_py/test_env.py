@@ -97,21 +97,23 @@ def test_MjxEnv():
 def testMjxEnvRoundDone():
     random_agent = mjx.agent.RandomDebugAgent()
 
+    def get_round_and_honba(env):
+        state_proto = env.state.to_proto()
+        round = state_proto.public_observation.init_score.round
+        honba = state_proto.public_observation.init_score.honba
+        return round, honba
+
     random.seed(1234)
     env = mjx.env.MjxEnv()
     obs_dict = env.reset(1234)
-    state_proto = env.state.to_proto()
-    round = state_proto.public_observation.init_score.round
-    honba = state_proto.public_observation.init_score.honba
-    assert round == 0 and honba == 0
     while not env.done(done_type="round"):
+        round, honba = get_round_and_honba(env)
+        assert round == 0 and honba == 0
         action_dict = {}
         for agent, obs in obs_dict.items():
             action_dict[agent] = random_agent.act(obs)
         obs_dict = env.step(action_dict)
     assert len(action_dict) == 4  # four dummies
     # 東2局 or 1本場
-    state_proto = env.state.to_proto()
-    round = state_proto.public_observation.init_score.round
-    honba = state_proto.public_observation.init_score.honba
+    round, honba = get_round_and_honba(env)
     assert round == 1 or honba == 1
