@@ -64,7 +64,7 @@ std::unordered_map<PlayerId, Observation> MjxEnv::Step(
 }
 
 bool MjxEnv::Done(const std::string& done_type) const noexcept {
-  assert(internal::Any(done_type, {"game", "round"}));
+  assert(internal::Any(done_type, {"game", "hand"}));
   if (done_type == "game") {
     if (state_.IsRoundOver() && state_.IsGameOver()) {
       if (state_.IsDummySet()) return false;
@@ -73,7 +73,7 @@ bool MjxEnv::Done(const std::string& done_type) const noexcept {
       return false;
     }
   } else {
-    assert(done_type == "round");
+    assert(done_type == "hand");
     return state_.IsRoundOver();
   }
 }
