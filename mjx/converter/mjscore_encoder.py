@@ -141,17 +141,17 @@ def parse_discards(events, abs_pos: int):
     return discards
 
 
-# プレイヤーごとにmjscore形式のdraw_historyを返す。
-def parse_draw_history(draw_history, events, abs_pos):
+# プレイヤーごとにmjscore形式のdrawsを返す。
+def parse_draws(draws, events, abs_pos):
     """
     - mjscoreでは引いた牌のリストにチーやポンなどのアクションが含まれている
-    - mjxprotoの　draw_historyでは単に飛ばされていて、eventの方に情報がある
+    - mjxprotoの　drawsでは単に飛ばされていて、eventの方に情報がある
 
     方針
     1. チーポンも含めたdiscardsを作成
-    2. draw_historyの方で直前の捨て牌の直後にアクションを挿入
+    2. drawsの方で直前の捨て牌の直後にアクションを挿入
     """
-    draw_history = _change_tiles_fmt(draw_history)
+    draws = _change_tiles_fmt(draws)
     discards = []
     actions = []  #
     for i, event in enumerate(events):
@@ -175,8 +175,8 @@ def parse_draw_history(draw_history, events, abs_pos):
     for i, action in enumerate(actions):
         # 捨て牌でのactionのindex同じ順にdrawにアクションを挿入すれば良い
         action_index = discards.index(action) - i
-        draw_history.insert(action_index, _change_action_format(action))
-    return draw_history
+        draws.insert(action_index, _change_action_format(action))
+    return draws
 
 
 yaku_list = [
@@ -264,7 +264,7 @@ non_dealer_tsumo_dict = {
     24000: "6000-12000",
     32000: "8000-16000",
 }
-no_winner_dict = {
+draw_dict = {
     mjxproto.EVENT_TYPE_EXHAUSTIVE_DRAW_NORMAL: "流局",
     mjxproto.EVENT_TYPE_ABORTIVE_DRAW_NINE_TERMINALS: "九種九牌",
     mjxproto.EVENT_TYPE_ABORTIVE_DRAW_FOUR_RIICHIS: "四家立直",
@@ -395,9 +395,9 @@ def _yaku_point_info(state: mjxproto.State, winner_num: int):
 
 def parse_terminal(state: mjxproto.State):
     if len(state.round_terminal.wins) == 0:  # あがった人がいない場合,# state.terminal.winsの長さは0
-        ten_changes = [i for i in state.round_terminal.no_winner.ten_changes]
+        ten_changes = [i for i in state.round_terminal.draw.ten_changes]
         if state.public_observation.events[-1].type == mjxproto.EVENT_TYPE_EXHAUSTIVE_DRAW_NORMAL:
-            if len(state.round_terminal.no_winner.tenpais) == 0:
+            if len(state.round_terminal.draw.tenpais) == 0:
                 return ["全員不聴"]
             else:
                 return ["流局", ten_changes]
@@ -407,7 +407,7 @@ def parse_terminal(state: mjxproto.State):
         ):
             # 流し満貫はten_changes も表示される。
             return ["流し満貫", ten_changes]
-        return [no_winner_dict[state.public_observation.events[-1].type]]
+        return [draw_dict[state.public_observation.events[-1].type]]
     else:
         terminal_info: List = ["和了"]
         for i in range(len(state.round_terminal.wins)):  # ダブロンに対応するために上がり者の数に応じてfor文を回すようにする。
@@ -452,8 +452,8 @@ def mjxproto_to_mjscore(state: mjxproto.State) -> str:
             )
         )
         log.append(
-            parse_draw_history(
-                state.private_observations[abs_pos].draw_history,
+            parse_draws(
+                state.private_observations[abs_pos].draws,
                 state.public_observation.events,
                 abs_pos,
             )

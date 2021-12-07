@@ -12,9 +12,9 @@ namespace mjx::internal {
 AgentGrpcServerImpl::AgentGrpcServerImpl(std::unique_ptr<Strategy> strategy)
     : strategy_(std::move(strategy)) {}
 
-grpc::Status AgentGrpcServerImpl::TakeAction(
-    grpc::ServerContext *context, const mjxproto::Observation *request,
-    mjxproto::Action *reply) {
+grpc::Status AgentGrpcServerImpl::Act(grpc::ServerContext *context,
+                                      const mjxproto::Observation *request,
+                                      mjxproto::Action *reply) {
   reply->CopyFrom(strategy_->TakeAction(Observation(*request)));
   return grpc::Status::OK;
 }

@@ -238,7 +238,7 @@ action_type_en = {
     ActionType.ACTION_TYPE_PON: "PON",
     ActionType.ACTION_TYPE_OPEN_KAN: "OPEN_KAN",
     ActionType.ACTION_TYPE_RON: "RON",
-    ActionType.ACTION_TYPE_NO: "PASS",
+    ActionType.ACTION_TYPE_PASS: "PASS",
     ActionType.ACTION_TYPE_DUMMY: "DUMMY",
 }
 
@@ -254,7 +254,7 @@ action_type_ja = {
     ActionType.ACTION_TYPE_PON: "ポン",
     ActionType.ACTION_TYPE_OPEN_KAN: "明槓",
     ActionType.ACTION_TYPE_RON: "ロン",
-    ActionType.ACTION_TYPE_NO: "パス",
+    ActionType.ACTION_TYPE_PASS: "パス",
     ActionType.ACTION_TYPE_DUMMY: "ダミー",
 }
 

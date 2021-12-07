@@ -57,7 +57,7 @@ class Selector:
 
     @classmethod
     def make_choice(cls, action, i, unicode, ja) -> str:
-        if action.type == ActionType.ACTION_TYPE_NO:
+        if action.type == ActionType.ACTION_TYPE_PASS:
             return (
                 str(i) + ":" + (action_type_ja[action.type] if ja else action_type_en[action.type])
             )

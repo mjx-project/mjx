@@ -19,45 +19,89 @@ class _ActionType:
 class _ActionTypeEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._EnumTypeWrapper[_ActionType.V], builtins.type):
     DESCRIPTOR: google.protobuf.descriptor.EnumDescriptor = ...
     ACTION_TYPE_DISCARD = ActionType.V(0)
-    """After draw"""
+    """After draw
+    打牌
+    """
 
     ACTION_TYPE_TSUMOGIRI = ActionType.V(1)
+    """ツモ切り Just discard the drawn tile"""
+
     ACTION_TYPE_RIICHI = ActionType.V(2)
+    """リーチ"""
+
     ACTION_TYPE_CLOSED_KAN = ActionType.V(3)
+    """暗槓"""
+
     ACTION_TYPE_ADDED_KAN = ActionType.V(4)
+    """加槓"""
+
     ACTION_TYPE_TSUMO = ActionType.V(5)
+    """ツモ Win by the drawn tile"""
+
     ACTION_TYPE_ABORTIVE_DRAW_NINE_TERMINALS = ActionType.V(6)
     """九種九牌"""
 
     ACTION_TYPE_CHI = ActionType.V(7)
-    """After other's discard"""
+    """After other's discard
+    チー
+    """
 
     ACTION_TYPE_PON = ActionType.V(8)
+    """ポン"""
+
     ACTION_TYPE_OPEN_KAN = ActionType.V(9)
+    """大明槓"""
+
     ACTION_TYPE_RON = ActionType.V(10)
-    ACTION_TYPE_NO = ActionType.V(11)
+    """ロン Win by the discarded tile by other players"""
+
+    ACTION_TYPE_PASS = ActionType.V(11)
+    """Ignore the chi, pon, kan, and ron actions"""
+
     ACTION_TYPE_DUMMY = ActionType.V(99)
     """Dummy used only to check connection and share round terminal information"""
 
 
 ACTION_TYPE_DISCARD = ActionType.V(0)
-"""After draw"""
+"""After draw
+打牌
+"""
 
 ACTION_TYPE_TSUMOGIRI = ActionType.V(1)
+"""ツモ切り Just discard the drawn tile"""
+
 ACTION_TYPE_RIICHI = ActionType.V(2)
+"""リーチ"""
+
 ACTION_TYPE_CLOSED_KAN = ActionType.V(3)
+"""暗槓"""
+
 ACTION_TYPE_ADDED_KAN = ActionType.V(4)
+"""加槓"""
+
 ACTION_TYPE_TSUMO = ActionType.V(5)
+"""ツモ Win by the drawn tile"""
+
 ACTION_TYPE_ABORTIVE_DRAW_NINE_TERMINALS = ActionType.V(6)
 """九種九牌"""
 
 ACTION_TYPE_CHI = ActionType.V(7)
-"""After other's discard"""
+"""After other's discard
+チー
+"""
 
 ACTION_TYPE_PON = ActionType.V(8)
+"""ポン"""
+
 ACTION_TYPE_OPEN_KAN = ActionType.V(9)
+"""大明槓"""
+
 ACTION_TYPE_RON = ActionType.V(10)
-ACTION_TYPE_NO = ActionType.V(11)
+"""ロン Win by the discarded tile by other players"""
+
+ACTION_TYPE_PASS = ActionType.V(11)
+"""Ignore the chi, pon, kan, and ron actions"""
+
 ACTION_TYPE_DUMMY = ActionType.V(99)
 """Dummy used only to check connection and share round terminal information"""
 
@@ -71,29 +115,52 @@ class _EventType:
 class _EventTypeEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._EnumTypeWrapper[_EventType.V], builtins.type):
     DESCRIPTOR: google.protobuf.descriptor.EnumDescriptor = ...
     EVENT_TYPE_DISCARD = EventType.V(0)
-    """Publicly observable actions"""
+    """Publicly observable actions
+    打牌
+    """
 
     EVENT_TYPE_TSUMOGIRI = EventType.V(1)
-    """ツモ切り, Tsumogiri"""
+    """ツモ切り Just discard the drawn tile"""
 
     EVENT_TYPE_RIICHI = EventType.V(2)
+    """リーチ"""
+
     EVENT_TYPE_CLOSED_KAN = EventType.V(3)
+    """暗槓"""
+
     EVENT_TYPE_ADDED_KAN = EventType.V(4)
+    """加槓"""
+
     EVENT_TYPE_TSUMO = EventType.V(5)
+    """ツモ Win by the drawn tile"""
+
     EVENT_TYPE_ABORTIVE_DRAW_NINE_TERMINALS = EventType.V(6)
+    """九種九牌"""
+
     EVENT_TYPE_CHI = EventType.V(7)
+    """チー"""
+
     EVENT_TYPE_PON = EventType.V(8)
+    """ポン"""
+
     EVENT_TYPE_OPEN_KAN = EventType.V(9)
+    """大明槓"""
+
     EVENT_TYPE_RON = EventType.V(10)
+    """ロン Win by the discarded tile by other players"""
+
     EVENT_TYPE_DRAW = EventType.V(12)
-    """State transitions made by environment. There is no decision making by players.
-    11 is skipped for the consistency to ActionType
+    """11 is skipped for the consistency to ActionType
+
+    State transitions made by environment. There is no decision making by players.
     """
 
     EVENT_TYPE_RIICHI_SCORE_CHANGE = EventType.V(13)
     EVENT_TYPE_NEW_DORA = EventType.V(14)
     EVENT_TYPE_ABORTIVE_DRAW_FOUR_RIICHIS = EventType.V(15)
-    """四家立直"""
+    """流局 (draw) The round ends with no winner
+    四家立直
+    """
 
     EVENT_TYPE_ABORTIVE_DRAW_THREE_RONS = EventType.V(16)
     """三家和了"""
@@ -112,29 +179,52 @@ class _EventTypeEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._Enum
 
 
 EVENT_TYPE_DISCARD = EventType.V(0)
-"""Publicly observable actions"""
+"""Publicly observable actions
+打牌
+"""
 
 EVENT_TYPE_TSUMOGIRI = EventType.V(1)
-"""ツモ切り, Tsumogiri"""
+"""ツモ切り Just discard the drawn tile"""
 
 EVENT_TYPE_RIICHI = EventType.V(2)
+"""リーチ"""
+
 EVENT_TYPE_CLOSED_KAN = EventType.V(3)
+"""暗槓"""
+
 EVENT_TYPE_ADDED_KAN = EventType.V(4)
+"""加槓"""
+
 EVENT_TYPE_TSUMO = EventType.V(5)
+"""ツモ Win by the drawn tile"""
+
 EVENT_TYPE_ABORTIVE_DRAW_NINE_TERMINALS = EventType.V(6)
+"""九種九牌"""
+
 EVENT_TYPE_CHI = EventType.V(7)
+"""チー"""
+
 EVENT_TYPE_PON = EventType.V(8)
+"""ポン"""
+
 EVENT_TYPE_OPEN_KAN = EventType.V(9)
+"""大明槓"""
+
 EVENT_TYPE_RON = EventType.V(10)
+"""ロン Win by the discarded tile by other players"""
+
 EVENT_TYPE_DRAW = EventType.V(12)
-"""State transitions made by environment. There is no decision making by players.
-11 is skipped for the consistency to ActionType
+"""11 is skipped for the consistency to ActionType
+
+State transitions made by environment. There is no decision making by players.
 """
 
 EVENT_TYPE_RIICHI_SCORE_CHANGE = EventType.V(13)
 EVENT_TYPE_NEW_DORA = EventType.V(14)
 EVENT_TYPE_ABORTIVE_DRAW_FOUR_RIICHIS = EventType.V(15)
-"""四家立直"""
+"""流局 (draw) The round ends with no winner
+四家立直
+"""
 
 EVENT_TYPE_ABORTIVE_DRAW_THREE_RONS = EventType.V(16)
 """三家和了"""
@@ -161,13 +251,19 @@ class Score(google.protobuf.message.Message):
     RIICHI_FIELD_NUMBER: builtins.int
     TENS_FIELD_NUMBER: builtins.int
     round: builtins.int = ...
+    """starts with 0 = 東1局"""
+
     honba: builtins.int = ...
+    """本場 (積み棒) honba increments when draw (流局) happens"""
+
     riichi: builtins.int = ...
-    """For final score, riichi = 0 if someone wins (or at the end of game)"""
+    """リーチ棒 riichi increments when some one declare riichi and is reset to zero when someone wins"""
 
     @property
     def tens(self) -> google.protobuf.internal.containers.RepeatedScalarFieldContainer[builtins.int]:
-        """Following rule holds for all rounds: sum(score.ten) + score.riichi * 1000 == 100000"""
+        """Note that, as for the final score, riichi = 0 if someone wins (or at the end of game)
+        Every player has 25000 when game starts. tens[0] is the ten of the first dealer player (起親)
+        """
         pass
     def __init__(self,
         *,
@@ -189,7 +285,7 @@ class Event(google.protobuf.message.Message):
     """Publicly observable event, which include
 
       1. publicly observable and actually realized actions taken by all layers
-      2. publicly observable state transitions made by envionment
+      2. publicly observable state transitions made by environment
 
     Note that "No" action is **NOT** collected as event since it's not publicly observable.
     Also, "Chi" prevented by other player's "Pon/Ron" is also **NOT** collected in event_history.
@@ -221,8 +317,14 @@ class Event(google.protobuf.message.Message):
     """
 
     who: builtins.int = ...
+    """0:起家, ..., 3:ラス親"""
+
     tile: builtins.int = ...
+    """Indicates the tile id (0 ~ 135)"""
+
     open: builtins.int = ...
+    """Each open (鳴き) is encoded by Tenhou format. See https://github.com/NegativeMjark/tenhou-log#meld-format"""
+
     def __init__(self,
         *,
         type : global___EventType.V = ...,
@@ -272,7 +374,9 @@ class Hand(google.protobuf.message.Message):
     CLOSED_TILES_FIELD_NUMBER: builtins.int
     OPENS_FIELD_NUMBER: builtins.int
     @property
-    def closed_tiles(self) -> google.protobuf.internal.containers.RepeatedScalarFieldContainer[builtins.int]: ...
+    def closed_tiles(self) -> google.protobuf.internal.containers.RepeatedScalarFieldContainer[builtins.int]:
+        """Private (hidden) tiles in player's hand"""
+        pass
     @property
     def opens(self) -> google.protobuf.internal.containers.RepeatedScalarFieldContainer[builtins.int]:
         """[1st open, 2nd open, ...]"""
@@ -289,24 +393,26 @@ class PrivateObservation(google.protobuf.message.Message):
     DESCRIPTOR: google.protobuf.descriptor.Descriptor = ...
     WHO_FIELD_NUMBER: builtins.int
     INIT_HAND_FIELD_NUMBER: builtins.int
-    DRAW_HISTORY_FIELD_NUMBER: builtins.int
+    DRAWS_FIELD_NUMBER: builtins.int
     CURR_HAND_FIELD_NUMBER: builtins.int
     who: builtins.int = ...
+    """0:起家, ..., 3:ラス親"""
+
     @property
     def init_hand(self) -> global___Hand: ...
     @property
-    def draw_history(self) -> google.protobuf.internal.containers.RepeatedScalarFieldContainer[builtins.int]: ...
+    def draws(self) -> google.protobuf.internal.containers.RepeatedScalarFieldContainer[builtins.int]: ...
     @property
     def curr_hand(self) -> global___Hand: ...
     def __init__(self,
         *,
         who : builtins.int = ...,
         init_hand : typing.Optional[global___Hand] = ...,
-        draw_history : typing.Optional[typing.Iterable[builtins.int]] = ...,
+        draws : typing.Optional[typing.Iterable[builtins.int]] = ...,
         curr_hand : typing.Optional[global___Hand] = ...,
         ) -> None: ...
     def HasField(self, field_name: typing_extensions.Literal["curr_hand",b"curr_hand","init_hand",b"init_hand"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing_extensions.Literal["curr_hand",b"curr_hand","draw_history",b"draw_history","init_hand",b"init_hand","who",b"who"]) -> None: ...
+    def ClearField(self, field_name: typing_extensions.Literal["curr_hand",b"curr_hand","draws",b"draws","init_hand",b"init_hand","who",b"who"]) -> None: ...
 global___PrivateObservation = PrivateObservation
 
 class Observation(google.protobuf.message.Message):
@@ -317,6 +423,8 @@ class Observation(google.protobuf.message.Message):
     ROUND_TERMINAL_FIELD_NUMBER: builtins.int
     LEGAL_ACTIONS_FIELD_NUMBER: builtins.int
     who: builtins.int = ...
+    """0:起家, ..., 3:ラス親"""
+
     @property
     def public_observation(self) -> global___PublicObservation: ...
     @property
@@ -351,22 +459,36 @@ class Win(google.protobuf.message.Message):
     YAKUMANS_FIELD_NUMBER: builtins.int
     URA_DORA_INDICATORS_FIELD_NUMBER: builtins.int
     who: builtins.int = ...
+    """0:起家, ..., 3:ラス親"""
+
     from_who: builtins.int = ...
+    """0:起家, ..., 3:ラス親"""
+
     @property
     def hand(self) -> global___Hand: ...
     win_tile: builtins.int = ...
     fu: builtins.int = ...
+    """符"""
+
     ten: builtins.int = ...
+    """点"""
+
     @property
     def ten_changes(self) -> google.protobuf.internal.containers.RepeatedScalarFieldContainer[builtins.int]:
         """Required for Tenhou mjlog."""
         pass
     @property
-    def yakus(self) -> google.protobuf.internal.containers.RepeatedScalarFieldContainer[builtins.int]: ...
+    def yakus(self) -> google.protobuf.internal.containers.RepeatedScalarFieldContainer[builtins.int]:
+        """役"""
+        pass
     @property
-    def fans(self) -> google.protobuf.internal.containers.RepeatedScalarFieldContainer[builtins.int]: ...
+    def fans(self) -> google.protobuf.internal.containers.RepeatedScalarFieldContainer[builtins.int]:
+        """翻"""
+        pass
     @property
-    def yakumans(self) -> google.protobuf.internal.containers.RepeatedScalarFieldContainer[builtins.int]: ...
+    def yakumans(self) -> google.protobuf.internal.containers.RepeatedScalarFieldContainer[builtins.int]:
+        """役満タイプ"""
+        pass
     @property
     def ura_dora_indicators(self) -> google.protobuf.internal.containers.RepeatedScalarFieldContainer[builtins.int]:
         """set if this player is under riichi"""
@@ -389,7 +511,7 @@ class Win(google.protobuf.message.Message):
     def ClearField(self, field_name: typing_extensions.Literal["fans",b"fans","from_who",b"from_who","fu",b"fu","hand",b"hand","ten",b"ten","ten_changes",b"ten_changes","ura_dora_indicators",b"ura_dora_indicators","who",b"who","win_tile",b"win_tile","yakumans",b"yakumans","yakus",b"yakus"]) -> None: ...
 global___Win = Win
 
-class NoWinner(google.protobuf.message.Message):
+class Draw(google.protobuf.message.Message):
     DESCRIPTOR: google.protobuf.descriptor.Descriptor = ...
     TENPAIS_FIELD_NUMBER: builtins.int
     TEN_CHANGES_FIELD_NUMBER: builtins.int
@@ -405,7 +527,7 @@ class NoWinner(google.protobuf.message.Message):
         ten_changes : typing.Optional[typing.Iterable[builtins.int]] = ...,
         ) -> None: ...
     def ClearField(self, field_name: typing_extensions.Literal["ten_changes",b"ten_changes","tenpais",b"tenpais"]) -> None: ...
-global___NoWinner = NoWinner
+global___Draw = Draw
 
 class TenpaiHand(google.protobuf.message.Message):
     DESCRIPTOR: google.protobuf.descriptor.Descriptor = ...
@@ -427,7 +549,7 @@ class RoundTerminal(google.protobuf.message.Message):
     DESCRIPTOR: google.protobuf.descriptor.Descriptor = ...
     FINAL_SCORE_FIELD_NUMBER: builtins.int
     WINS_FIELD_NUMBER: builtins.int
-    NO_WINNER_FIELD_NUMBER: builtins.int
+    DRAW_FIELD_NUMBER: builtins.int
     IS_GAME_OVER_FIELD_NUMBER: builtins.int
     @property
     def final_score(self) -> global___Score: ...
@@ -436,7 +558,7 @@ class RoundTerminal(google.protobuf.message.Message):
         """Empty if no one wins"""
         pass
     @property
-    def no_winner(self) -> global___NoWinner:
+    def draw(self) -> global___Draw:
         """Empty if a winner exists"""
         pass
     is_game_over: builtins.bool = ...
@@ -444,11 +566,11 @@ class RoundTerminal(google.protobuf.message.Message):
         *,
         final_score : typing.Optional[global___Score] = ...,
         wins : typing.Optional[typing.Iterable[global___Win]] = ...,
-        no_winner : typing.Optional[global___NoWinner] = ...,
+        draw : typing.Optional[global___Draw] = ...,
         is_game_over : builtins.bool = ...,
         ) -> None: ...
-    def HasField(self, field_name: typing_extensions.Literal["final_score",b"final_score","no_winner",b"no_winner"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing_extensions.Literal["final_score",b"final_score","is_game_over",b"is_game_over","no_winner",b"no_winner","wins",b"wins"]) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["draw",b"draw","final_score",b"final_score"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["draw",b"draw","final_score",b"final_score","is_game_over",b"is_game_over","wins",b"wins"]) -> None: ...
 global___RoundTerminal = RoundTerminal
 
 class State(google.protobuf.message.Message):
@@ -499,12 +621,11 @@ global___HiddenState = HiddenState
 
 class Action(google.protobuf.message.Message):
     DESCRIPTOR: google.protobuf.descriptor.Descriptor = ...
-    GAME_ID_FIELD_NUMBER: builtins.int
-    WHO_FIELD_NUMBER: builtins.int
     TYPE_FIELD_NUMBER: builtins.int
+    WHO_FIELD_NUMBER: builtins.int
     TILE_FIELD_NUMBER: builtins.int
     OPEN_FIELD_NUMBER: builtins.int
-    game_id: typing.Text = ...
+    type: global___ActionType.V = ...
     """                  tile   open
      DISCARD           Yes     No
      TSUMOGIRI         Yes     No
@@ -513,7 +634,7 @@ class Action(google.protobuf.message.Message):
      CLOSED_KAN         No    Yes
      ADDED_KAN          No    Yes
      KYUSYU             No     No
-     NO                 No     No
+     PASS               No     No
      CHI                No    Yes
      PON                No    Yes
      OPEN_KAN           No    Yes
@@ -521,18 +642,22 @@ class Action(google.protobuf.message.Message):
     """
 
     who: builtins.int = ...
-    type: global___ActionType.V = ...
+    """0:起家, ..., 3:ラス親"""
+
     tile: builtins.int = ...
+    """Indicates the tile id (0 ~ 135)"""
+
     open: builtins.int = ...
+    """Each open (鳴き) is encoded by Tenhou format. See https://github.com/NegativeMjark/tenhou-log#meld-format"""
+
     def __init__(self,
         *,
-        game_id : typing.Text = ...,
-        who : builtins.int = ...,
         type : global___ActionType.V = ...,
+        who : builtins.int = ...,
         tile : builtins.int = ...,
         open : builtins.int = ...,
         ) -> None: ...
-    def ClearField(self, field_name: typing_extensions.Literal["game_id",b"game_id","open",b"open","tile",b"tile","type",b"type","who",b"who"]) -> None: ...
+    def ClearField(self, field_name: typing_extensions.Literal["open",b"open","tile",b"tile","type",b"type","who",b"who"]) -> None: ...
 global___Action = Action
 
 class GameResult(google.protobuf.message.Message):

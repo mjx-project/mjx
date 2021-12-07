@@ -3,66 +3,73 @@ syntax = "proto3";
 package mjxproto;
 
 service Agent {
-  rpc TakeAction (Observation) returns (Action) {}
+  rpc Act (Observation) returns (Action) {}
 }
 
 enum ActionType {
   // After draw
-  ACTION_TYPE_DISCARD = 0;
-  ACTION_TYPE_TSUMOGIRI = 1;
-  ACTION_TYPE_RIICHI = 2;
-  ACTION_TYPE_CLOSED_KAN = 3;
-  ACTION_TYPE_ADDED_KAN = 4;
-  ACTION_TYPE_TSUMO = 5;
+  ACTION_TYPE_DISCARD = 0;     // 打牌
+  ACTION_TYPE_TSUMOGIRI = 1;   // ツモ切り Just discard the drawn tile
+  ACTION_TYPE_RIICHI = 2;      // リーチ
+  ACTION_TYPE_CLOSED_KAN = 3;  // 暗槓
+  ACTION_TYPE_ADDED_KAN = 4;   // 加槓 
+  ACTION_TYPE_TSUMO = 5;       // ツモ Win by the drawn tile
   ACTION_TYPE_ABORTIVE_DRAW_NINE_TERMINALS = 6;  // 九種九牌
+
   // After other's discard
-  ACTION_TYPE_CHI = 7;
-  ACTION_TYPE_PON = 8;
-  ACTION_TYPE_OPEN_KAN = 9;
-  ACTION_TYPE_RON = 10;
-  ACTION_TYPE_NO = 11;
+  ACTION_TYPE_CHI = 7;         // チー
+  ACTION_TYPE_PON = 8;         // ポン
+  ACTION_TYPE_OPEN_KAN = 9;    // 大明槓
+  ACTION_TYPE_RON = 10;        // ロン Win by the discarded tile by other players
+  ACTION_TYPE_PASS = 11;         // Ignore the chi, pon, kan, and ron actions
+
   // Dummy used only to check connection and share round terminal information
   ACTION_TYPE_DUMMY = 99;
 }
 
 enum EventType {
   // Publicly observable actions
-  EVENT_TYPE_DISCARD = 0;
-  EVENT_TYPE_TSUMOGIRI = 1;  // ツモ切り, Tsumogiri
-  EVENT_TYPE_RIICHI = 2;
-  EVENT_TYPE_CLOSED_KAN = 3;
-  EVENT_TYPE_ADDED_KAN = 4;
-  EVENT_TYPE_TSUMO = 5;
-  EVENT_TYPE_ABORTIVE_DRAW_NINE_TERMINALS = 6;
-  EVENT_TYPE_CHI = 7;
-  EVENT_TYPE_PON = 8;
-  EVENT_TYPE_OPEN_KAN = 9;
-  EVENT_TYPE_RON = 10;
-  // State transitions made by environment. There is no decision making by players.
+  EVENT_TYPE_DISCARD = 0;     // 打牌
+  EVENT_TYPE_TSUMOGIRI = 1;   // ツモ切り Just discard the drawn tile
+  EVENT_TYPE_RIICHI = 2;      // リーチ
+  EVENT_TYPE_CLOSED_KAN = 3;  // 暗槓
+  EVENT_TYPE_ADDED_KAN = 4;   // 加槓 
+  EVENT_TYPE_TSUMO = 5;       // ツモ Win by the drawn tile
+  EVENT_TYPE_ABORTIVE_DRAW_NINE_TERMINALS = 6;  // 九種九牌
+  EVENT_TYPE_CHI = 7;         // チー
+  EVENT_TYPE_PON = 8;         // ポン
+  EVENT_TYPE_OPEN_KAN = 9;    // 大明槓
+  EVENT_TYPE_RON = 10;        // ロン Win by the discarded tile by other players
   // 11 is skipped for the consistency to ActionType
+
+  // State transitions made by environment. There is no decision making by players.
   EVENT_TYPE_DRAW = 12;
   EVENT_TYPE_RIICHI_SCORE_CHANGE = 13;
   EVENT_TYPE_NEW_DORA = 14;
-  EVENT_TYPE_ABORTIVE_DRAW_FOUR_RIICHIS = 15;  // 四家立直
-  EVENT_TYPE_ABORTIVE_DRAW_THREE_RONS = 16;  // 三家和了
-  EVENT_TYPE_ABORTIVE_DRAW_FOUR_KANS = 17;  // 四槓散了
-  EVENT_TYPE_ABORTIVE_DRAW_FOUR_WINDS = 18;  // 四風連打
-  EVENT_TYPE_EXHAUSTIVE_DRAW_NORMAL = 19;  // 通常流局
+
+  // 流局 (draw) The round ends with no winner
+  EVENT_TYPE_ABORTIVE_DRAW_FOUR_RIICHIS = 15;      // 四家立直
+  EVENT_TYPE_ABORTIVE_DRAW_THREE_RONS = 16;        // 三家和了
+  EVENT_TYPE_ABORTIVE_DRAW_FOUR_KANS = 17;         // 四槓散了
+  EVENT_TYPE_ABORTIVE_DRAW_FOUR_WINDS = 18;        // 四風連打
+  EVENT_TYPE_EXHAUSTIVE_DRAW_NORMAL = 19;          // 通常流局
   EVENT_TYPE_EXHAUSTIVE_DRAW_NAGASHI_MANGAN = 20;  // 流し満貫
 }
 
 message Score {
-  uint32 round = 1;
-  uint32 honba = 2;
-  uint32 riichi = 3;  // For final score, riichi = 0 if someone wins (or at the end of game)
-  repeated int32 tens = 4;  // Following rule holds for all rounds: sum(score.ten) + score.riichi * 1000 == 100000
+  uint32 round = 1;         // starts with 0 = 東1局
+  uint32 honba = 2;         // 本場 (積み棒) honba increments when draw (流局) happens
+  uint32 riichi = 3;        // リーチ棒 riichi increments when some one declare riichi and is reset to zero when someone wins
+  // Note that, as for the final score, riichi = 0 if someone wins (or at the end of game)
+  repeated int32 tens = 4;  // Every player has 25000 when game starts. tens[0] is the ten of the first dealer player (起親)
+  // Note that the following rule holds for all rounds: sum(score.ten) + score.riichi * 1000 == 100000
 }
 
 message Event {
   // Publicly observable event, which include
   //
   //   1. publicly observable and actually realized actions taken by all layers
-  //   2. publicly observable state transitions made by envionment
+  //   2. publicly observable state transitions made by environment
   //
   // Note that "No" action is **NOT** collected as event since it's not publicly observable.
   // Also, "Chi" prevented by other player's "Pon/Ron" is also **NOT** collected in event_history.
@@ -92,33 +99,33 @@ message Event {
   // 19. EXHAUSTIVE_DRAW_NORMAL          No      No      No
   // 20. EXHAUSTIVE_DRAW_NAGASHI_MANGAN  No      No      No
   EventType type = 1;
-  int32 who = 2;
-  uint32 tile = 3;
-  uint32 open = 4;
+  int32 who = 2;       // 0:起家, ..., 3:ラス親
+  uint32 tile = 3;     // Indicates the tile id (0 ~ 135)
+  uint32 open = 4;     // Each open (鳴き) is encoded by Tenhou format. See https://github.com/NegativeMjark/tenhou-log#meld-format 
 }
 
 message PublicObservation {
   string game_id = 1;
-  repeated string player_ids = 2;  // Sorted by the dealer order (起家, ..., ラス親)
-  Score init_score = 3;  // public info
+  repeated string player_ids = 2;       // Sorted by the dealer order (起家, ..., ラス親)
+  Score init_score = 3;                 // public info
   repeated uint32 dora_indicators = 4;  // len(dora_indicators) = 1 + # of Kan
   repeated Event events = 5;
 }
 
 message Hand {
-  repeated uint32 closed_tiles = 1;
-  repeated uint32 opens = 2;  // [1st open, 2nd open, ...]
+  repeated uint32 closed_tiles = 1;  // Private (hidden) tiles in player's hand
+  repeated uint32 opens = 2;         // [1st open, 2nd open, ...]
 }
 
 message PrivateObservation {
-  int32 who = 1;
+  int32 who = 1; // 0:起家, ..., 3:ラス親
   Hand init_hand = 2;
-  repeated uint32 draw_history = 3;
+  repeated uint32 draws = 3;
   Hand curr_hand = 4;
 }
 
 message Observation {
-  int32 who = 1;
+  int32 who = 1; // 0:起家, ..., 3:ラス親
   PublicObservation public_observation = 2;
   PrivateObservation private_observation = 3;
   RoundTerminal round_terminal = 4;
@@ -126,20 +133,20 @@ message Observation {
 }
 
 message Win {
-  int32 who = 1;
-  int32 from_who = 2;
+  int32 who = 1;                   // 0:起家, ..., 3:ラス親
+  int32 from_who = 2;              // 0:起家, ..., 3:ラス親
   Hand hand = 3;
   uint32 win_tile = 4;
-  uint32 fu = 5;
-  uint32 ten = 6;
+  uint32 fu = 5;                   // 符
+  uint32 ten = 6;                  // 点
   repeated int32 ten_changes = 7;  // Required for Tenhou mjlog.
-  repeated uint32 yakus = 8;
-  repeated uint32 fans = 9;
-  repeated uint32 yakumans = 10;
+  repeated uint32 yakus = 8;       // 役
+  repeated uint32 fans = 9;        // 翻
+  repeated uint32 yakumans = 10;   // 役満タイプ
   repeated uint32 ura_dora_indicators = 11;  // set if this player is under riichi
 }
 
-message NoWinner {
+message Draw {
   repeated TenpaiHand tenpais = 1;
   repeated int32 ten_changes = 2;  // Required for Tenhou mjlog.
 }
@@ -152,7 +159,7 @@ message TenpaiHand {
 message RoundTerminal {
   Score final_score = 1;
   repeated Win wins = 2;   // Empty if no one wins
-  NoWinner no_winner = 3;  // Empty if a winner exists
+  Draw draw = 3;  // Empty if a winner exists
   bool is_game_over = 4;
 }
 
@@ -178,21 +185,20 @@ message Action {
   //  CLOSED_KAN         No    Yes
   //  ADDED_KAN          No    Yes
   //  KYUSYU             No     No
-  //  NO                 No     No
+  //  PASS               No     No
   //  CHI                No    Yes
   //  PON                No    Yes
   //  OPEN_KAN           No    Yes
   //  RON                Yes    No
-  string game_id = 1;
-  int32 who = 2;
-  ActionType type = 3;
-  uint32 tile = 4;
-  uint32 open = 5;
+  ActionType type = 1;
+  int32 who = 2;        // 0:起家, ..., 3:ラス親
+  uint32 tile = 3;      // Indicates the tile id (0 ~ 135)
+  uint32 open = 4;      // Each open (鳴き) is encoded by Tenhou format. See https://github.com/NegativeMjark/tenhou-log#meld-format
 }
 
 message GameResult {
   uint64 game_seed = 1;
-  repeated string player_ids = 2;  // Sorted by the dealer order (起家, ..., ラス親)
+  repeated string player_ids = 2;   // Sorted by the dealer order (起家, ..., ラス親)
   map<string, int32> tens = 3;
   map<string, int32> rankings = 4;  // ranking in {1, 2, 3, 4}
 }

@@ -14,8 +14,8 @@ class AgentStub(object):
         Args:
             channel: A grpc.Channel.
         """
-        self.TakeAction = channel.unary_unary(
-                '/mjxproto.Agent/TakeAction',
+        self.Act = channel.unary_unary(
+                '/mjxproto.Agent/Act',
                 request_serializer=mjx__pb2.Observation.SerializeToString,
                 response_deserializer=mjx__pb2.Action.FromString,
                 )
@@ -24,7 +24,7 @@ class AgentStub(object):
 class AgentServicer(object):
     """Missing associated documentation comment in .proto file."""
 
-    def TakeAction(self, request, context):
+    def Act(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
@@ -33,8 +33,8 @@ class AgentServicer(object):
 
 def add_AgentServicer_to_server(servicer, server):
     rpc_method_handlers = {
-            'TakeAction': grpc.unary_unary_rpc_method_handler(
-                    servicer.TakeAction,
+            'Act': grpc.unary_unary_rpc_method_handler(
+                    servicer.Act,
                     request_deserializer=mjx__pb2.Observation.FromString,
                     response_serializer=mjx__pb2.Action.SerializeToString,
             ),
@@ -49,7 +49,7 @@ class Agent(object):
     """Missing associated documentation comment in .proto file."""
 
     @staticmethod
-    def TakeAction(request,
+    def Act(request,
             target,
             options=(),
             channel_credentials=None,
@@ -59,7 +59,7 @@ class Agent(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/mjxproto.Agent/TakeAction',
+        return grpc.experimental.unary_unary(request, target, '/mjxproto.Agent/Act',
             mjx__pb2.Observation.SerializeToString,
             mjx__pb2.Action.FromString,
             options, channel_credentials,

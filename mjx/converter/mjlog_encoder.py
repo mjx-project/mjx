@@ -75,7 +75,7 @@ class MjlogEncoder:
                 who_ix = int(event.who)
                 who = MjlogEncoder._encode_absolute_pos_for_draw(event.who)
                 assert event.tile == 0  # default
-                draw = state.private_observations[who_ix].draw_history[draw_ixs[who_ix]]
+                draw = state.private_observations[who_ix].draws[draw_ixs[who_ix]]
                 draw_ixs[who_ix] += 1
                 ret += f"<{who}{draw}/>"
             elif event.type in [
@@ -118,7 +118,7 @@ class MjlogEncoder:
 
         if state.HasField("round_terminal"):
             if len(state.round_terminal.wins) == 0:
-                ret += MjlogEncoder.update_by_no_winner(state, curr_score)
+                ret += MjlogEncoder.update_by_draw(state, curr_score)
             else:
                 # NOTE: ダブロン時、winsは上家から順になっている必要がある
                 for win in state.round_terminal.wins:
@@ -147,7 +147,7 @@ class MjlogEncoder:
         return ret
 
     @staticmethod
-    def update_by_no_winner(state: mjxproto.State, curr_score: mjxproto.Score):
+    def update_by_draw(state: mjxproto.State, curr_score: mjxproto.Score):
         ret = "<RYUUKYOKU "
         if (
             state.public_observation.events[-1].type
@@ -183,11 +183,11 @@ class MjlogEncoder:
         sc = []
         for i in range(4):
             sc.append(curr_score.tens[i] // 100)
-            change = state.round_terminal.no_winner.ten_changes[i]
+            change = state.round_terminal.draw.ten_changes[i]
             sc.append(change // 100)
             curr_score.tens[i] += change
         ret += f'sc="{",".join([str(x) for x in sc])}" '
-        for tenpai in state.round_terminal.no_winner.tenpais:
+        for tenpai in state.round_terminal.draw.tenpais:
             closed_tiles = ",".join([str(x) for x in tenpai.hand.closed_tiles])
             ret += f'hai{tenpai.who}="{closed_tiles}" '
         if state.round_terminal.is_game_over:

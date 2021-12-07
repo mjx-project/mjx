@@ -109,7 +109,7 @@ Action GrpcAgent::Act(const Observation& observation) const noexcept {
   const mjxproto::Observation& request = observation.proto();
   mjxproto::Action response;
   grpc::ClientContext context;
-  grpc::Status status = stub_->TakeAction(&context, request, &response);
+  grpc::Status status = stub_->Act(&context, request, &response);
   assert(status.ok());
   return Action(response);
 }
@@ -126,9 +126,9 @@ AgentBatchGrpcServerImpl::AgentBatchGrpcServerImpl(
 
 AgentBatchGrpcServerImpl::~AgentBatchGrpcServerImpl() {}
 
-grpc::Status AgentBatchGrpcServerImpl::TakeAction(
-    grpc::ServerContext* context, const mjxproto::Observation* request,
-    mjxproto::Action* reply) {
+grpc::Status AgentBatchGrpcServerImpl::Act(grpc::ServerContext* context,
+                                           const mjxproto::Observation* request,
+                                           mjxproto::Action* reply) {
   // Observationデータ追加
   auto id = boost::uuids::random_generator()();
   {

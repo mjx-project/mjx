@@ -89,10 +89,10 @@ class State {
   bool Equals(const State& other) const noexcept;
   bool CanReach(const State& other) const noexcept;
 
-  static bool CheckGameOver(int round, std::array<int, 4> tens,
-                            AbsolutePos dealer, bool is_dealer_win_or_tenpai,
-                            std::optional<mjxproto::EventType> no_winner_type =
-                                std::nullopt) noexcept;
+  static bool CheckGameOver(
+      int round, std::array<int, 4> tens, AbsolutePos dealer,
+      bool is_dealer_win_or_tenpai,
+      std::optional<mjxproto::EventType> draw_type = std::nullopt) noexcept;
 
  private:
   explicit State(std::vector<PlayerId> player_ids,  // 起家, ..., ラス親

@@ -25,9 +25,9 @@ class AgentBatchGrpcServerImpl final : public mjxproto::Agent::Service {
   explicit AgentBatchGrpcServerImpl(std::unique_ptr<Strategy> strategy,
                                     int batch_size = 8, int wait_ms = 0);
   ~AgentBatchGrpcServerImpl() final;
-  grpc::Status TakeAction(grpc::ServerContext* context,
-                          const mjxproto::Observation* request,
-                          mjxproto::Action* reply) final;
+  grpc::Status Act(grpc::ServerContext* context,
+                   const mjxproto::Observation* request,
+                   mjxproto::Action* reply) final;
 
  private:
   struct ObservationInfo {

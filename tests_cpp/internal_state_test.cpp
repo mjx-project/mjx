@@ -116,7 +116,7 @@ std::string SwapTiles(const std::string &json_str, Tile a, Tile b) {
     else if (state.hidden_state().ura_dora_indicators(i) == b.Id())
       state.mutable_hidden_state()->set_ura_dora_indicators(i, a.Id());
   }
-  // init hand, curr hand, draw_history
+  // init hand, curr hand, draws
   for (int j = 0; j < 4; ++j) {
     auto init_hand = state.mutable_private_observations(j)->mutable_init_hand();
     for (int i = 0; i < init_hand->closed_tiles_size(); ++i) {
@@ -137,11 +137,11 @@ std::string SwapTiles(const std::string &json_str, Tile a, Tile b) {
               curr_hand->mutable_closed_tiles()->end());
 
     auto mpinfo = state.mutable_private_observations(j);
-    for (int i = 0; i < mpinfo->draw_history_size(); ++i) {
-      if (mpinfo->draw_history(i) == a.Id())
-        mpinfo->set_draw_history(i, b.Id());
-      else if (mpinfo->draw_history(i) == b.Id())
-        mpinfo->set_draw_history(i, a.Id());
+    for (int i = 0; i < mpinfo->draws_size(); ++i) {
+      if (mpinfo->draws(i) == a.Id())
+        mpinfo->set_draws(i, b.Id());
+      else if (mpinfo->draws(i) == b.Id())
+        mpinfo->set_draws(i, a.Id());
     }
   }
   // event history
@@ -388,7 +388,7 @@ TEST(internal_state, CreateObservation) {
   EXPECT_TRUE(observations.find("超ヒモリロ") != observations.end());
   observation = observations["超ヒモリロ"];
   EXPECT_TRUE(ActionTypeCheck(
-      {mjxproto::ACTION_TYPE_CHI, mjxproto::ACTION_TYPE_NO}, observation));
+      {mjxproto::ACTION_TYPE_CHI, mjxproto::ACTION_TYPE_PASS}, observation));
   EXPECT_EQ(observation.legal_actions().front().open(), 42031);
 
   // 14. Discardした後、ロン可能なプレイヤーがいる場合にはロンが入る
@@ -399,7 +399,7 @@ TEST(internal_state, CreateObservation) {
   EXPECT_TRUE(observations.find("うきでん") != observations.end());
   observation = observations["うきでん"];
   EXPECT_TRUE(ActionTypeCheck(
-      {mjxproto::ACTION_TYPE_RON, mjxproto::ACTION_TYPE_NO}, observation));
+      {mjxproto::ACTION_TYPE_RON, mjxproto::ACTION_TYPE_PASS}, observation));
 
   // 15. DiscardDrawnTile => (8) Chi, Pon and KanOpened
 
@@ -481,7 +481,7 @@ TEST(internal_state, Update) {
   observations = state_before.CreateObservations();
   observation = observations["うきでん"];
   EXPECT_TRUE(ActionTypeCheck(
-      {mjxproto::ACTION_TYPE_RON, mjxproto::ACTION_TYPE_NO}, observation));
+      {mjxproto::ACTION_TYPE_RON, mjxproto::ACTION_TYPE_PASS}, observation));
   actions = {Action::CreateNo(AbsolutePos::kInitWest)};
   state_before.Update(std::move(actions));
   // NoはEventとして追加はされないので、Jsonとしては状態は変わっていないが、CreateObservationの返り値が変わってくる
@@ -509,7 +509,7 @@ TEST(internal_state, Update) {
   observations = state_before.CreateObservations();
   observation = observations["超ヒモリロ"];
   EXPECT_TRUE(ActionTypeCheck(
-      {mjxproto::ACTION_TYPE_CHI, mjxproto::ACTION_TYPE_NO}, observation));
+      {mjxproto::ACTION_TYPE_CHI, mjxproto::ACTION_TYPE_PASS}, observation));
   actions = {Action::CreateNo(AbsolutePos::kInitNorth)};
   state_before.Update(std::move(actions));
   // NoはEventとして追加はされないので、Jsonとしては状態は変わっていないが、CreateObservationの返り値が変わってくる
@@ -740,7 +740,7 @@ TEST(internal_state, Update) {
   EXPECT_TRUE(observations.find("ぺんぎんさん") != observations.end());
   observation = observations["ぺんぎんさん"];
   EXPECT_TRUE(ActionTypeCheck(
-      {mjxproto::ACTION_TYPE_NO, mjxproto::ACTION_TYPE_RON}, observation));
+      {mjxproto::ACTION_TYPE_PASS, mjxproto::ACTION_TYPE_RON}, observation));
 
   actions = {Action::CreateNo(AbsolutePos::kInitSouth)};
   state_before.Update(std::move(actions));
@@ -801,7 +801,7 @@ TEST(internal_state, Update) {
   EXPECT_EQ(observations.size(), 1);
   observation = observations.begin()->second;
   EXPECT_TRUE(ActionTypeCheck(
-      {mjxproto::ACTION_TYPE_RON, mjxproto::ACTION_TYPE_NO}, observation));
+      {mjxproto::ACTION_TYPE_RON, mjxproto::ACTION_TYPE_PASS}, observation));
   actions = {Action::CreateNo(observation.who())};
   state_before.Update(std::move(actions));
   // Discard 2m
@@ -943,7 +943,7 @@ std::vector<std::vector<mjxproto::Action>> ListUpAllActionCombinations(
         case mjxproto::ACTION_TYPE_RIICHI:
           actions_per_player.push_back(Action::CreateRiichi(who));
           break;
-        case mjxproto::ACTION_TYPE_NO:
+        case mjxproto::ACTION_TYPE_PASS:
           actions_per_player.push_back(Action::CreateNo(who));
           break;
         case mjxproto::ACTION_TYPE_ABORTIVE_DRAW_NINE_TERMINALS:
@@ -998,8 +998,7 @@ std::string TruncateAfterFirstDraw(const std::string &json) {
   auto first_tsumo = state.hidden_state().wall().at(13 * 4);
   for (int i = 0; i < 4; ++i) {
     // draw_hist
-    auto draw_hist =
-        state.mutable_private_observations(i)->mutable_draw_history();
+    auto draw_hist = state.mutable_private_observations(i)->mutable_draws();
     draw_hist->erase(draw_hist->begin(), draw_hist->end());
     // curr_hand
     auto curr_hand = state.mutable_private_observations(i)->mutable_curr_hand();
