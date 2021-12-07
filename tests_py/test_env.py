@@ -71,10 +71,12 @@ def test_MjxEnv():
         for agent, obs in obs_dict.items():
             action_dict[agent] = random_agent.act(obs)
         obs_dict = env.step(action_dict)
-    assert len(action_dict) == 4  # four dummies
-    assert obs_dict == {}
     assert env.done("game")
     assert env.done("round")
+    assert len(obs_dict) == 4
+    for _, obs in obs_dict.items():
+        assert len(obs.legal_actions()) == 0
+        assert obs.legal_actions()[0].type() == mjx.ActionType.DUMMY
     rewards = env.rewards()
 
     assert len(rewards) == 4
@@ -82,6 +84,16 @@ def test_MjxEnv():
     assert rewards["player_1"] == 0
     assert rewards["player_2"] == 45
     assert rewards["player_3"] == -135
+
+    # if take dummy actions after done
+    action_dict = {}
+    for agent, obs in obs_dict.items():
+        action_dict[agent] = random_agent.act(obs)
+    obs_dict = env.step(action_dict)
+    assert obs_dict == {}
+    # TODO: assertion error
+    env.rewards()
+    assert not env.done()
 
     # test specifying dealer order
     obs_dict = env.reset(1234, ["player_3", "player_1", "player_2", "player_0"])
@@ -96,25 +108,23 @@ def test_MjxEnv():
 def testMjxEnvRoundDone():
     random_agent = mjx.agent.RandomDebugAgent()
 
-    def get_round_and_honba(env):
-        state_proto = env.state.to_proto()
-        round = state_proto.public_observation.init_score.round
-        honba = state_proto.public_observation.init_score.honba
-        return round, honba
+    # def get_round_and_honba(env):
+    #     state_proto = env.state.to_proto()
+    #     round = state_proto.public_observation.init_score.round
+    #     honba = state_proto.public_observation.init_score.honba
+    #     return round, honba
 
     random.seed(1234)
     env = mjx.env.MjxEnv()
     obs_dict = env.reset(1234)
     while not env.done(done_type="round"):
-        round, honba = get_round_and_honba(env)
-        assert round == 0 and honba == 0
         action_dict = {}
         for agent, obs in obs_dict.items():
             action_dict[agent] = random_agent.act(obs)
         obs_dict = env.step(action_dict)
     assert not env.done("game")
     assert env.done("round")
-    assert len(action_dict) == 4  # four dummies
-    # 東2局 or 1本場
-    round, honba = get_round_and_honba(env)
-    assert round == 1 or honba == 1
+    assert len(obs_dict) == 4
+    for _, obs in obs_dict.items():
+        assert len(obs.legal_actions()) == 0
+        assert obs.legal_actions()[0].type() == mjx.ActionType.DUMMY
