@@ -19,7 +19,7 @@ class MjxEnv {
           std::nullopt) noexcept;
   std::unordered_map<PlayerId, Observation> Step(
       const std::unordered_map<PlayerId, mjx::Action>& action_dict) noexcept;
-  bool Done(const std::string & done_type = "game") const noexcept;
+  bool Done(const std::string& done_type = "game") const noexcept;
   std::unordered_map<PlayerId, int> Rewards()
       const noexcept;  // TDOO: reward type
   mjxproto::GameResult GameResult() const noexcept;

@@ -63,7 +63,7 @@ std::unordered_map<PlayerId, Observation> MjxEnv::Step(
   return Observe();
 }
 
-bool MjxEnv::Done(const std::string & done_type) const noexcept {
+bool MjxEnv::Done(const std::string& done_type) const noexcept {
   assert(internal::Any(done_type, {"game", "round"}));
   if (done_type == "game") {
     if (state_.IsRoundOver() && state_.IsGameOver()) {
@@ -86,7 +86,8 @@ const std::vector<PlayerId>& MjxEnv::player_ids() const noexcept {
 
 std::unordered_map<PlayerId, int> MjxEnv::Rewards() const noexcept {
   std::unordered_map<PlayerId, int> rewards;
-  if (state_.IsRoundOver() && state_.IsGameOver() && state_.IsDummySet()) return rewards;
+  if (state_.IsRoundOver() && state_.IsGameOver() && state_.IsDummySet())
+    return rewards;
   if (!Done()) {
     for (const auto& player_id : player_ids_) {
       rewards[player_id] = 0;
