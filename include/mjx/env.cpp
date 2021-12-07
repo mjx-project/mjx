@@ -48,44 +48,23 @@ std::unordered_map<PlayerId, Observation> MjxEnv::Observe() const noexcept {
 std::unordered_map<PlayerId, Observation> MjxEnv::Step(
     const std::unordered_map<PlayerId, mjx::Action>& action_dict) noexcept {
   std::unordered_map<PlayerId, Observation> observations;
-  is_round_end_ = false;
+
+  if (state_.IsRoundOver() && !state_.IsGameOver()) {
+    auto next_state_info = state_.Next();
+    state_ = mjx::internal::State(next_state_info);
+    return Observe();
+  }
 
   std::vector<mjxproto::Action> actions;
   actions.reserve(action_dict.size());
   for (const auto& [player_id, action] : action_dict)
     actions.push_back(action.proto());
   state_.Update(std::move(actions));
-
-  if (state_.IsRoundOver() && state_.IsDummySet() && !state_.IsGameOver()) {
-    auto next_state_info = state_.Next();
-    state_ = mjx::internal::State(next_state_info);
-    is_round_end_ = true;
-  }
-
   return Observe();
 }
 
-bool MjxEnv::Done(const std::string& done_type) const noexcept {
-  // @Round End
-  // obs, r, done = obs.step(last_action)
-  // 1st round, 0.0, False
-  // obs, r, done = obs.step(dummies)
-  // 2nd round, +1, True
-
-  // @Game End
-  // obs, r, done = obs.step(last_action)
-  // last round, 0.0, False
-  // obs, r, done = obs.step(dummies)
-  // last round, +90, True
-
-  assert(internal::Any(done_type, {"game", "round"}));
-  if (done_type == "game") {
-    return state_.IsRoundOver() && state_.IsGameOver() && state_.IsDummySet();
-  } else {
-    assert(done_type == "round");
-    if (Done("game")) return true;
-    return is_round_end_;
-  }
+bool MjxEnv::Done() const noexcept {
+  return state_.IsRoundOver() && state_.IsGameOver() && state_.IsDummySet();
 }
 
 State MjxEnv::state() const noexcept { return State(state_.proto()); }

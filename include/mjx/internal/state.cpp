@@ -129,16 +129,9 @@ GameResult State::result() const {
 }
 
 std::unordered_map<PlayerId, Observation> State::CreateObservations() const {
-  // Is already dummy is sent at the game of the end, return obs with empty
-  // legal actions
+  // Is already dummy is sent at the game of the end, return empty map
   if (IsRoundOver() && IsGameOver() && IsDummySet()) {
-    std::unordered_map<PlayerId, Observation> observations;
-    for (int i = 0; i < 4; ++i) {
-      auto who = AbsolutePos(i);
-      auto observation = Observation(who, state_);
-      observations[player(who).player_id] = std::move(observation);
-    }
-    return observations;
+    return {};
   }
 
   // At the round end, sync round terminal information to each player
@@ -1114,8 +1107,8 @@ WinStateInfo State::win_state_info(AbsolutePos who) const {
 }
 
 void State::Update(std::vector<mjxproto::Action> &&action_candidates) {
-  // set is_dummy_set_ at the end of each round
-  if (IsRoundOver() && ! is_dummy_set_) {
+  // set is_dummy_set_ at the end of game
+  if (IsRoundOver() && IsGameOver()) {
     Assert(action_candidates.size() == 4);
     Assert(std::all_of(action_candidates.begin(), action_candidates.end(),
                        [](mjxproto::Action &x) {
