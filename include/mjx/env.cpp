@@ -74,6 +74,8 @@ bool MjxEnv::Done(const std::string& done_type) const noexcept {
     }
   } else {
     assert(done_type == "hand");
+    if (state_.IsRoundOver() && state_.IsGameOver() && state_.IsDummySet())
+      return false;
     return state_.IsRoundOver();
   }
 }
