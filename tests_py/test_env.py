@@ -95,14 +95,24 @@ def test_MjxEnv():
     assert rewards["player_3"] == -135
 
     # if dummy actions are taken after done("game")
+    # 基本的にはdone("game")がTrueになったらresetを呼ぶ想定
+    # done("game")がtrueになってdummyをstepで呼んだ後の値は使われる想定ではないが
+    # 今の定義は、他のdone("hand")がtrueになってdummyをstepに渡した直後との整合性を取るため、
+    # rewardは全て0で、doneもすべてFalse
+    # ただ、done()やrewards()が呼ばれたらexceptionを投げるように変更するかもしれない
     action_dict = {}
     for agent, obs in obs_dict.items():
         action_dict[agent] = random_agent.act(obs)
     assert len(action_dict) == 4
     obs_dict = env.step(action_dict)
     assert obs_dict == {}
-    # TODO: raise exceptions
-    # assert env.rewards() == {}
+    # TODO: raise exceptions or print warning to ask user to call reset
+    rewards = env.rewards()
+    assert len(rewards) == 4
+    assert rewards["player_0"] == 0
+    assert rewards["player_1"] == 0
+    assert rewards["player_2"] == 0
+    assert rewards["player_3"] == 0
     assert not env.done()  # done == Trueとなるタイミングは各局一度だけ
     assert not env.done("hand")  # done == Trueとなるタイミングは各局一度だけ
 
