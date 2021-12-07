@@ -71,6 +71,15 @@ def test_MjxEnv():
         for agent, obs in obs_dict.items():
             action_dict[agent] = random_agent.act(obs)
         obs_dict = env.step(action_dict)
+    # MjxEnvのDone周りの挙動についての仕様は
+    # https://github.com/mjx-project/mjx/pull/1055
+    # を参考
+    # 基本的な考えとしては
+    #  - Dummyアクションは情報共有のためにあるので、Dummyを含む
+    #    Obsが返ってくるタイミングで、doneがtrue, non-zero rewardsが得られる
+    #  - Dummyアクションを取ると、次の局に進む（オーラス）は空obsが返ってくる
+    #  - ユーザ側から見れば、doneがtrueのタイミングでobsやrewardsにアクセスすれば、
+    #    終局時の情報が得られる
     assert env.done("game")
     assert env.done("round")
     assert len(obs_dict) == 4
@@ -85,16 +94,15 @@ def test_MjxEnv():
     assert rewards["player_2"] == 45
     assert rewards["player_3"] == -135
 
-    # if take dummy actions after done
+    # if dummy actions are taken after done("game")
     action_dict = {}
     for agent, obs in obs_dict.items():
         action_dict[agent] = random_agent.act(obs)
     assert len(action_dict) == 4
     obs_dict = env.step(action_dict)
     assert obs_dict == {}
-    # TODO: assertion error
-    env.rewards()
-    assert not env.done()
+    assert env.rewards() == {}
+    assert not env.done()  # done == Trueとなるタイミングは各局一度だけ
 
     # test specifying dealer order
     obs_dict = env.reset(1234, ["player_3", "player_1", "player_2", "player_0"])
