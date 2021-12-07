@@ -35,7 +35,7 @@ class MjxEnv:
         assert done_type in (
             "game",
             "hand",
-        ), f'Wrong done_type: it must be "game" or "hand" but got {done_type}.'
+        ), f'Wrong done_type: it must be "game" or "hand" but got "{done_type}".'
         return self._env.done(done_type)
 
     def rewards(self, reward_type: str = "game_tenhou_7dan") -> Dict[str, int]:

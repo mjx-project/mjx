@@ -81,7 +81,7 @@ def test_MjxEnv():
     #  - ユーザ側から見れば、doneがtrueのタイミングでobsやrewardsにアクセスすれば、
     #    終局時の情報が得られる
     assert env.done("game")
-    assert env.done("round")
+    assert env.done("hand")
     assert len(obs_dict) == 4
     for _, obs in obs_dict.items():
         assert len(obs.legal_actions()) == 1
@@ -103,6 +103,7 @@ def test_MjxEnv():
     assert obs_dict == {}
     assert env.rewards() == {}
     assert not env.done()  # done == Trueとなるタイミングは各局一度だけ
+    assert not env.done("hand")  # done == Trueとなるタイミングは各局一度だけ
 
     # test specifying dealer order
     obs_dict = env.reset(1234, ["player_3", "player_1", "player_2", "player_0"])
@@ -119,13 +120,13 @@ def testMjxEnvRoundDone():
     random.seed(1234)
     env = mjx.env.MjxEnv()
     obs_dict = env.reset(1234)
-    while not env.done(done_type="round"):
+    while not env.done(done_type="hand"):
         action_dict = {}
         for agent, obs in obs_dict.items():
             action_dict[agent] = random_agent.act(obs)
         obs_dict = env.step(action_dict)
     assert not env.done("game")
-    assert env.done("round")
+    assert env.done("hand")
     assert len(obs_dict) == 4
     for _, obs in obs_dict.items():
         assert len(obs.legal_actions()) == 1
