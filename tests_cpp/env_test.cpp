@@ -43,7 +43,7 @@ TEST(env, MjxEnv) {
       observations = env.Step(action_dict);
     }
   }
-  EXPECT_TRUE(observations.size() == 4);  // four obs with empty legal actions
+  EXPECT_TRUE(observations.empty());
   auto state = env.state();
   auto player_ids = state.proto().public_observation().player_ids();
   auto tens = state.proto().round_terminal().final_score().tens();

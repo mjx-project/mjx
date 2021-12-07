@@ -72,10 +72,7 @@ def test_MjxEnv():
             action_dict[agent] = random_agent.act(obs)
         obs_dict = env.step(action_dict)
     assert len(action_dict) == 4  # four dummies
-    # four obs with empty legal actions
-    assert len(obs_dict) == 4
-    for _, obs in obs_dict.items():
-        assert len(obs.legal_actions()) == 0
+    assert obs_dict == {}
     rewards = env.rewards()
 
     assert len(rewards) == 4
