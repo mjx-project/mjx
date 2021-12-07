@@ -35,18 +35,16 @@ class MjxEnv:
         assert done_type in (
             "game",
             "hand",
-        ), f'Wrong done_type: it must be "game" or "hand" but got "{done_type}".'
+        ), f'Wrong done_type: "{done_type}".'
         return self._env.done(done_type)
 
     def rewards(self, reward_type: str = "game_tenhou_7dan") -> Dict[str, int]:
         assert reward_type in (
             "game_tenhou_7dan",
             "hand_win",
-            "hand_ten_diff",
-        )
-        return self._env.rewards()
+        ), f'Wrong reward_type: "{reward_type}".'
+        return self._env.rewards(reward_type)
 
-    @property
     def state(self) -> State:
         return State._from_cpp_obj(self._env.state())
 
