@@ -89,6 +89,7 @@ def test_MjxEnv():
     action_dict = {}
     for agent, obs in obs_dict.items():
         action_dict[agent] = random_agent.act(obs)
+    assert len(action_dict) == 4
     obs_dict = env.step(action_dict)
     assert obs_dict == {}
     # TODO: assertion error
@@ -107,13 +108,6 @@ def test_MjxEnv():
 
 def testMjxEnvRoundDone():
     random_agent = mjx.agent.RandomDebugAgent()
-
-    # def get_round_and_honba(env):
-    #     state_proto = env.state.to_proto()
-    #     round = state_proto.public_observation.init_score.round
-    #     honba = state_proto.public_observation.init_score.honba
-    #     return round, honba
-
     random.seed(1234)
     env = mjx.env.MjxEnv()
     obs_dict = env.reset(1234)
