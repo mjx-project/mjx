@@ -86,7 +86,8 @@ const std::vector<PlayerId>& MjxEnv::player_ids() const noexcept {
   return player_ids_;
 }
 
-std::unordered_map<PlayerId, int> MjxEnv::Rewards(const std::string& reward_type) const noexcept {
+std::unordered_map<PlayerId, int> MjxEnv::Rewards(
+    const std::string& reward_type) const noexcept {
   std::unordered_map<PlayerId, int> rewards;
   for (const auto& player_id : player_ids_) {
     rewards[player_id] = 0;
@@ -94,19 +95,19 @@ std::unordered_map<PlayerId, int> MjxEnv::Rewards(const std::string& reward_type
 
   assert(internal::Any(reward_type, {"game_tenhou_7dan", "hand_win"}));
   if (reward_type == "game_tenhou_7dan") {
-      if (!Done()) return rewards;
-      auto game_result = GameResult();
-      const std::map<int, int> reward_map = {{1, 90}, {2, 45}, {3, 0}, {4, -135}};
-      const auto& ranking_dict = game_result.rankings();
-      for (const auto& [player_id, ranking] : ranking_dict) {
-        rewards[player_id] = reward_map.at(ranking);
-      }
+    if (!Done()) return rewards;
+    auto game_result = GameResult();
+    const std::map<int, int> reward_map = {{1, 90}, {2, 45}, {3, 0}, {4, -135}};
+    const auto& ranking_dict = game_result.rankings();
+    for (const auto& [player_id, ranking] : ranking_dict) {
+      rewards[player_id] = reward_map.at(ranking);
+    }
   } else if (reward_type == "hand_win") {
-      if (!Done("hand")) rewards;
-      auto state_proto = state_.proto();
-      auto& wins = state_proto.round_terminal().wins();
-      auto& players = state_proto.public_observation().player_ids();
-      for (const auto& win: wins) rewards[players[win.who()]] = 1;
+    if (!Done("hand")) rewards;
+    auto state_proto = state_.proto();
+    auto& wins = state_proto.round_terminal().wins();
+    auto& players = state_proto.public_observation().player_ids();
+    for (const auto& win : wins) rewards[players[win.who()]] = 1;
   } else {
     assert(false);
   }
