@@ -75,7 +75,7 @@ def test_MjxEnv():
     assert env.done("round")
     assert len(obs_dict) == 4
     for _, obs in obs_dict.items():
-        assert len(obs.legal_actions()) == 0
+        assert len(obs.legal_actions()) == 1
         assert obs.legal_actions()[0].type() == mjx.ActionType.DUMMY
     rewards = env.rewards()
 
@@ -126,5 +126,5 @@ def testMjxEnvRoundDone():
     assert env.done("round")
     assert len(obs_dict) == 4
     for _, obs in obs_dict.items():
-        assert len(obs.legal_actions()) == 0
+        assert len(obs.legal_actions()) == 1
         assert obs.legal_actions()[0].type() == mjx.ActionType.DUMMY
