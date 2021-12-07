@@ -29,6 +29,9 @@ class MjxEnv:
         return {k: Observation._from_cpp_obj(v) for k, v in cpp_obs_dict.items()}
 
     def done(self, done_type: str = "game") -> bool:
+        """When done() returns true, the corresponding observations and rewards have
+        the terminal information of the game (or round).
+        """
         assert done_type in (
             "game",
             "round",
