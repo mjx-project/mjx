@@ -71,6 +71,14 @@ def test_MjxEnv():
         for agent, obs in obs_dict.items():
             action_dict[agent] = random_agent.act(obs)
         obs_dict = env.step(action_dict)
+        if not env.done():
+            rewards = env.rewards()
+            assert len(rewards) == 4
+            assert rewards["player_0"] == 0
+            assert rewards["player_1"] == 0
+            assert rewards["player_2"] == 0
+            assert rewards["player_3"] == 0
+
     # MjxEnvのDone周りの挙動についての仕様は
     # https://github.com/mjx-project/mjx/pull/1055
     # を参考
