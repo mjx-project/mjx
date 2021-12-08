@@ -64,15 +64,36 @@ def test_MjxEnv():
 
     assert len(obs_dict) == 1
     assert "player_2" in obs_dict
-    assert env.state.to_proto().hidden_state.wall[:5] == [24, 3, 87, 124, 97]
+    assert env.state().to_proto().hidden_state.wall[:5] == [24, 3, 87, 124, 97]
 
     while not env.done():
         action_dict = {}
         for agent, obs in obs_dict.items():
             action_dict[agent] = random_agent.act(obs)
         obs_dict = env.step(action_dict)
-    assert len(action_dict) == 4  # four dummies
-    assert obs_dict == {}
+        if not env.done():
+            rewards = env.rewards()
+            assert len(rewards) == 4
+            assert rewards["player_0"] == 0
+            assert rewards["player_1"] == 0
+            assert rewards["player_2"] == 0
+            assert rewards["player_3"] == 0
+
+    # MjxEnvのDone周りの挙動についての仕様は
+    # https://github.com/mjx-project/mjx/pull/1055
+    # を参考
+    # 基本的な考えとしては
+    #  - Dummyアクションは情報共有のためにあるので、Dummyを含む
+    #    Obsが返ってくるタイミングで、doneがtrue, non-zero rewardsが得られる
+    #  - Dummyアクションを取ると、次の局に進む（オーラス）は空obsが返ってくる
+    #  - ユーザ側から見れば、doneがtrueのタイミングでobsやrewardsにアクセスすれば、
+    #    終局時の情報が得られる
+    assert env.done("game")
+    assert env.done("hand")
+    assert len(obs_dict) == 4
+    for _, obs in obs_dict.items():
+        assert len(obs.legal_actions()) == 1
+        assert obs.legal_actions()[0].type() == mjx.ActionType.DUMMY
     rewards = env.rewards()
 
     assert len(rewards) == 4
@@ -80,6 +101,28 @@ def test_MjxEnv():
     assert rewards["player_1"] == 0
     assert rewards["player_2"] == 45
     assert rewards["player_3"] == -135
+
+    # if dummy actions are taken after done("game")
+    # 基本的にはdone("game")がTrueになったらresetを呼ぶ想定
+    # done("game")がtrueになってdummyをstepで呼んだ後の値は使われる想定ではないが
+    # 今の定義は、他のdone("hand")がtrueになってdummyをstepに渡した直後との整合性を取るため、
+    # rewardは全て0で、doneもすべてFalse
+    # ただ、done()やrewards()が呼ばれたらexceptionを投げるように変更するかもしれない
+    action_dict = {}
+    for agent, obs in obs_dict.items():
+        action_dict[agent] = random_agent.act(obs)
+    assert len(action_dict) == 4
+    obs_dict = env.step(action_dict)
+    assert obs_dict == {}
+    # TODO: raise exceptions or print warning to ask user to call reset
+    rewards = env.rewards()
+    assert len(rewards) == 4
+    assert rewards["player_0"] == 0
+    assert rewards["player_1"] == 0
+    assert rewards["player_2"] == 0
+    assert rewards["player_3"] == 0
+    assert not env.done()  # done == Trueとなるタイミングは各局一度だけ
+    assert not env.done("hand")  # done == Trueとなるタイミングは各局一度だけ
 
     # test specifying dealer order
     obs_dict = env.reset(1234, ["player_3", "player_1", "player_2", "player_0"])
@@ -89,3 +132,47 @@ def test_MjxEnv():
     obs_dict = env.reset(1234)
     assert len(obs_dict) == 1
     assert "player_2" in obs_dict
+
+
+def testMjxEnvRewardsHandWin():
+    random_agent = mjx.agent.RuleBasedAgent()
+    random.seed(1234)
+    env = mjx.env.MjxEnv()
+    obs_dict = env.reset(1234)
+    while not env.done("hand"):
+        action_dict = {}
+        for agent, obs in obs_dict.items():
+            action_dict[agent] = random_agent.act(obs)
+        obs_dict = env.step(action_dict)
+        if not env.done("hand"):
+            rewards = env.rewards("hand_win")
+            assert len(rewards) == 4
+            assert rewards["player_0"] == 0
+            assert rewards["player_1"] == 0
+            assert rewards["player_2"] == 0
+            assert rewards["player_3"] == 0
+
+    rewards = env.rewards("hand_win")
+    assert len(rewards) == 4
+    assert rewards["player_0"] == 0, env.state().to_json()
+    assert rewards["player_1"] == 0, env.state().to_json()
+    assert rewards["player_2"] == 0, env.state().to_json()
+    assert rewards["player_3"] == 1, env.state().to_json()
+
+
+def testMjxEnvRoundDone():
+    random_agent = mjx.agent.RandomDebugAgent()
+    random.seed(1234)
+    env = mjx.env.MjxEnv()
+    obs_dict = env.reset(1234)
+    while not env.done(done_type="hand"):
+        action_dict = {}
+        for agent, obs in obs_dict.items():
+            action_dict[agent] = random_agent.act(obs)
+        obs_dict = env.step(action_dict)
+    assert not env.done("game")
+    assert env.done("hand")
+    assert len(obs_dict) == 4
+    for _, obs in obs_dict.items():
+        assert len(obs.legal_actions()) == 1
+        assert obs.legal_actions()[0].type() == mjx.ActionType.DUMMY

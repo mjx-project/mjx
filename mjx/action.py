@@ -54,7 +54,7 @@ class Action:
 
     @classmethod
     def select_from(cls, idx: int, legal_actions: List[Action]) -> Action:
-        return _mjx.Action.select_from(idx, [a._cpp_obj for a in legal_actions])  # type: ignore
+        return Action._from_cpp_obj(_mjx.Action.select_from(idx, [a._cpp_obj for a in legal_actions]))  # type: ignore
 
     @classmethod
     def from_proto(cls, proto: mjxproto.Action) -> Action:

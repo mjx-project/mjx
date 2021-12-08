@@ -28,13 +28,23 @@ class MjxEnv:
         cpp_obs_dict: Dict[str, _mjx.Observation] = self._env.step(cpp_action_dict)  # type: ignore
         return {k: Observation._from_cpp_obj(v) for k, v in cpp_obs_dict.items()}
 
-    def done(self) -> bool:
-        return self._env.done()
+    def done(self, done_type: str = "game") -> bool:
+        """When done() returns true, the corresponding observations and rewards have
+        the terminal information of the game (or round).
+        """
+        assert done_type in (
+            "game",
+            "hand",
+        ), f'Wrong done_type: "{done_type}".'
+        return self._env.done(done_type)
 
-    def rewards(self) -> Dict[str, int]:
-        return self._env.rewards()
+    def rewards(self, reward_type: str = "game_tenhou_7dan") -> Dict[str, int]:
+        assert reward_type in (
+            "game_tenhou_7dan",
+            "hand_win",
+        ), f'Wrong reward_type: "{reward_type}".'
+        return self._env.rewards(reward_type)
 
-    @property
     def state(self) -> State:
         return State._from_cpp_obj(self._env.state())
 
