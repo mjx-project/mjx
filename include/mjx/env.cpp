@@ -103,7 +103,7 @@ std::unordered_map<PlayerId, int> MjxEnv::Rewards(
       rewards[player_id] = reward_map.at(ranking);
     }
   } else if (reward_type == "hand_win") {
-    if (!Done("hand")) rewards;
+    if (!Done("hand")) return rewards;
     auto state_proto = state_.proto();
     auto& wins = state_proto.round_terminal().wins();
     auto& players = state_proto.public_observation().player_ids();
