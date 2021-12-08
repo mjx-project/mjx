@@ -185,7 +185,6 @@ class HumanControlAgentOnBrowser(Agent):  # type: ignore
         page1 = ShowPage()
         ShowPage.q = q
         app = Flask(__name__)
-        app.config["SECRET_KEY"] = "8888"
         app.add_url_rule("/", view_func=page1.as_view("show"))
         app.run()
 
