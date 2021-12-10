@@ -70,7 +70,8 @@ PYBIND11_MODULE(_mjx, m) {
 
   py::class_<mjx::State>(m, "State")
       .def(py::init<std::string>())
-      .def("to_json", &mjx::State::ToJson);
+      .def("to_json", &mjx::State::ToJson)
+      .def("past_decisions", &mjx::State::past_decisions);
 
   py::class_<mjx::Hand>(m, "Hand")
       .def(py::init<std::string>())

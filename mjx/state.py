@@ -1,12 +1,14 @@
 from __future__ import annotations
 
-from typing import Optional
+from typing import Optional, List, Tuple
 
 import _mjx  # type: ignore
 from google.protobuf import json_format
 
 import mjxproto
 from mjx.visualizer.svg import save_svg
+from mjx.action import Action
+from mjx.observation import Observation
 
 
 class State:
@@ -34,6 +36,9 @@ class State:
     def to_proto(self) -> mjxproto.State:
         assert self._cpp_obj is not None
         return json_format.Parse(self.to_json(), mjxproto.State())
+
+    def past_decisions(self) -> List[Tuple[Observation, Action]]:
+        return [(Observation(obs), Action(act)) for obs, act in self._cpp_obj.past_decisions()]
 
     def save_svg(self, filename: str, view_idx: int = 0):
         assert filename.endswith(".svg")
