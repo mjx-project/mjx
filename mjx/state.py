@@ -38,7 +38,10 @@ class State:
         return json_format.Parse(self.to_json(), mjxproto.State())
 
     def past_decisions(self) -> List[Tuple[Observation, Action]]:
-        return [(Observation._from_cpp_obj(obs), Action._from_cpp_obj(act)) for obs, act in self._cpp_obj.past_decisions()]
+        return [
+            (Observation._from_cpp_obj(obs), Action._from_cpp_obj(act))
+            for obs, act in self._cpp_obj.past_decisions()
+        ]
 
     def save_svg(self, filename: str, view_idx: int = 0):
         assert filename.endswith(".svg")
