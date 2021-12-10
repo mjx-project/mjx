@@ -176,7 +176,7 @@ class HumanControlAgentOnBrowser(Agent):  # type: ignore
         print("YOUR TURN")
         self.q.put(observation)
         self.q.join()
-
+        time.sleep(0.1)
         action = self.q.get(block=True, timeout=None)
         self.q.task_done()
         return action

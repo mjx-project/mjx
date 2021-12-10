@@ -1,3 +1,4 @@
+import time
 from queue import Queue
 from typing import List, Optional, Tuple
 
@@ -24,6 +25,7 @@ class ShowPage(View):
             action = ShowPage.observation.legal_actions()[int(action_idx)]
             ShowPage.q.put(action)
             ShowPage.q.join()
+            time.sleep(0.1)
 
         ShowPage.observation = ShowPage.q.get(block=True, timeout=None)
         ShowPage.q.task_done()
