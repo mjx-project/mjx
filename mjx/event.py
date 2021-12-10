@@ -29,7 +29,7 @@ class Event:
             raise NotImplementedError
         raise NotImplementedError  # TODO: implement
 
-    def _open(self) -> Optional[Open]:
+    def open(self) -> Optional[Open]:
         o = self._cpp_obj._open()
         if o is None:
             return None
