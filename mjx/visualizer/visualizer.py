@@ -82,6 +82,8 @@ class Player:
         self.is_declared_riichi: bool = False
         self.name: str = ""
         self.draw_now: bool = False
+        self.tsumo_id: int = -1
+        self.ron_id: int = -1
 
 
 class MahjongTable:
@@ -170,6 +172,8 @@ class MahjongTable:
         MahjongTableのデータに、
         手牌の情報を読み込ませる関数
         """
+        p = table.players[who]
+
         has_tsumotile = False
         if private_observation.draw_history != [] and (
             private_observation.draw_history[-1]
@@ -177,8 +181,8 @@ class MahjongTable:
         ):
             has_tsumotile = True
 
-        if table.players[who].draw_now and has_tsumotile:
-            table.players[who].tile_units.append(
+        if p.draw_now and has_tsumotile:
+            p.tile_units.append(
                 TileUnit(
                     TileUnitType.HAND,
                     FromWho.NONE,
@@ -193,13 +197,21 @@ class MahjongTable:
                 )
             )
         else:
-            table.players[who].tile_units.append(
+            p.tile_units.append(
                 TileUnit(
                     TileUnitType.HAND,
                     FromWho.NONE,
                     [Tile(i, is_open=True) for i in private_observation.curr_hand.closed_tiles],
                 )
             )
+
+        hand = [_hand for _hand in p.tile_units if _hand.tile_unit_type == TileUnitType.HAND][0]
+        tsumo = [tile for tile in hand.tiles if tile.id == p.tsumo_id]
+        if len(tsumo) > 0:
+            tsumo[0].is_highlighting = True
+        ron = [tile for tile in hand.tiles if tile.id == p.ron_id]
+        if len(ron) > 0:
+            ron[0].is_highlighting = True
 
         return table
 
@@ -225,60 +237,75 @@ class MahjongTable:
 
             p.draw_now = eve.type == EventType.EVENT_TYPE_DRAW
 
-            if eve.type == EventType.EVENT_TYPE_DISCARD:
-                for t_u in p.tile_units:
-                    if t_u.tile_unit_type == TileUnitType.DISCARD:
-                        if p.riichi_now:
-                            t_u.tiles.append(
-                                Tile(
-                                    eve.tile,
-                                    is_open=True,
-                                    with_riichi=True,
-                                )
-                            )
-                            p.riichi_now = False
-                        else:
-                            t_u.tiles.append(
-                                Tile(
-                                    eve.tile,
-                                    is_open=True,
-                                )
-                            )
-                        if i == len(public_observation.events) - 1:
-                            t_u.tiles[-1].is_highlighting = True
+            if eve.type == EventType.EVENT_TYPE_TSUMO:
+                p.tsumo_id = eve.tile
 
-            if eve.type == EventType.EVENT_TYPE_TSUMOGIRI:
-                for t_u in p.tile_units:
-                    if t_u.tile_unit_type == TileUnitType.DISCARD:
-                        if p.riichi_now:
-                            t_u.tiles.append(
-                                Tile(
-                                    eve.tile,
-                                    is_open=True,
-                                    is_tsumogiri=True,
-                                    with_riichi=True,
-                                )
-                            )
-                            p.riichi_now = False
-                        else:
-                            t_u.tiles.append(Tile(eve.tile, is_open=True, is_tsumogiri=True))
+            elif eve.type == EventType.EVENT_TYPE_DISCARD:
+                discard = [
+                    _discard
+                    for _discard in p.tile_units
+                    if _discard.tile_unit_type == TileUnitType.DISCARD
+                ][0]
 
-            if eve.type == EventType.EVENT_TYPE_RIICHI:
+                if p.riichi_now:
+                    discard.tiles.append(
+                        Tile(
+                            eve.tile,
+                            is_open=True,
+                            with_riichi=True,
+                        )
+                    )
+                    p.riichi_now = False
+                else:
+                    discard.tiles.append(
+                        Tile(
+                            eve.tile,
+                            is_open=True,
+                        )
+                    )
+                if i == len(public_observation.events) - 1:
+                    discard.tiles[-1].is_highlighting = True
+
+            elif eve.type == EventType.EVENT_TYPE_TSUMOGIRI:
+                discard = [
+                    _discard
+                    for _discard in p.tile_units
+                    if _discard.tile_unit_type == TileUnitType.DISCARD
+                ][0]
+
+                if p.riichi_now:
+                    discard.tiles.append(
+                        Tile(
+                            eve.tile,
+                            is_open=True,
+                            is_tsumogiri=True,
+                            with_riichi=True,
+                        )
+                    )
+                    p.riichi_now = False
+                else:
+                    discard.tiles.append(Tile(eve.tile, is_open=True, is_tsumogiri=True))
+
+            elif eve.type == EventType.EVENT_TYPE_RIICHI:
                 p.riichi_now = True
 
-            if eve.type == EventType.EVENT_TYPE_RIICHI_SCORE_CHANGE:
+            elif eve.type == EventType.EVENT_TYPE_RIICHI_SCORE_CHANGE:
                 table.riichi += 1
                 p.is_declared_riichi = True
                 p.score = str(int(p.score) - 1000)
 
-            if eve.type == EventType.EVENT_TYPE_RON:
+            elif eve.type == EventType.EVENT_TYPE_RON:
+                p.ron_id = eve.tile
                 if public_observation.events[i - 1].type != EventType.EVENT_TYPE_RON:
-                    p = table.players[public_observation.events[i - 1].who]
-                    for t_u in p.tile_units:
-                        if t_u.tile_unit_type == TileUnitType.DISCARD:
-                            t_u.tiles[-1].is_transparent = True
+                    _p = table.players[public_observation.events[i - 1].who]
+                    discard = [
+                        _discard
+                        for _discard in _p.tile_units
+                        if _discard.tile_unit_type == TileUnitType.DISCARD
+                    ][0]
+                    discard.tiles[-1].is_transparent = True
 
-            if eve.type in [
+            elif eve.type in [
                 EventType.EVENT_TYPE_CHI,
                 EventType.EVENT_TYPE_PON,
                 EventType.EVENT_TYPE_CLOSED_KAN,
@@ -308,6 +335,8 @@ class MahjongTable:
                             [Tile(i, is_open=True) for i in open_tile_ids(eve.open)],
                         )
                     )
+                    if i == len(public_observation.events) - 1:
+                        p.tile_units[-1].tiles[0].is_highlighting = True
 
                 # 鳴かれた牌を透明にする処理
                 if eve.type in [
@@ -333,7 +362,15 @@ class MahjongTable:
                                 TileUnit(
                                     open_event_type(eve.open),
                                     open_from(eve.open),
-                                    [Tile(p_from_t_u.tiles[-1].id, is_open=True)]
+                                    [
+                                        Tile(
+                                            p_from_t_u.tiles[-1].id,
+                                            is_open=True,
+                                            highlighting=(
+                                                i == len(public_observation.events) - 1
+                                            ),  # 最新のアクションならハイライト
+                                        )
+                                    ]
                                     + [
                                         Tile(i, is_open=True)
                                         for i in open_tile_ids(eve.open)

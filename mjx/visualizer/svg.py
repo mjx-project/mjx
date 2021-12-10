@@ -31,7 +31,21 @@ def dwg_add(
     if transparent:
         opacity = 0.5
 
+    highlight_fill = "#ff8c00"
+    highlight_opacity = 0.5
+
     if rotate:
+        """if highliting:
+        highlighted_tile = dwg_p.text(
+            "\U0001F02B",
+            insert=(0, 0),
+            fill=highlight_fill,
+            opacity=highlight_opacity,
+        )
+        highlighted_tile.rotate(90, (0, 0))
+        highlighted_tile.translate(pos)
+        dwg_g.add(highlighted_tile)"""
+
         if is_red:
             horizontal_tiles = [
                 dwg_p.text(txt[0], insert=(0, 0), fill="red", opacity=opacity),
@@ -57,16 +71,27 @@ def dwg_add(
 
         if highliting:
             highlighted_tile = dwg_p.text(
-                "\U0001F02B",
+                "\U0001F006",
                 insert=(0, 0),
-                fill="red",
-                opacity=0.3,
+                stroke=svgwrite.rgb(255, 140, 0, "%"),
+                fill=highlight_fill,
+                opacity=highlight_opacity,
             )
             highlighted_tile.rotate(90, (0, 0))
             highlighted_tile.translate(pos)
             dwg_g.add(highlighted_tile)
 
     else:
+        """if highliting:
+        dwg_g.add(
+            dwg_p.text(
+                "\U0001F02B",
+                pos,
+                fill=highlight_fill,
+                opacity=highlight_opacity,
+            )
+        )"""
+
         if is_red:
             dwg_g.add(dwg_p.text(txt[0], pos, fill="red", opacity=opacity))
             dwg_g.add(
@@ -85,10 +110,11 @@ def dwg_add(
         if highliting:
             dwg_g.add(
                 dwg_p.text(
-                    "\U0001F02B",
+                    "\U0001F006",
                     pos,
-                    fill="red",
-                    opacity=0.3,
+                    stroke=svgwrite.rgb(255, 140, 0, "%"),
+                    fill=highlight_fill,
+                    opacity=highlight_opacity,
                 )
             )
 
@@ -98,6 +124,7 @@ def _make_svg(
     filename: str,
     target_idx: Optional[int] = None,
     show_name: bool = False,
+    highlight_last_event: bool = False,
 ) -> Drawing:
     assert filename.endswith(".svg")
 
@@ -312,7 +339,7 @@ def _make_svg(
                 pai[i],
                 (left_margin + j * char_width, 770),
                 hand_txt,
-                highliting=hand[2].is_highlighting,
+                highliting=hand[2].is_highlighting and highlight_last_event,
             )
 
         # discard
@@ -328,7 +355,7 @@ def _make_svg(
                     discard_txt,
                     rotate=True,
                     transparent=discard[2].is_transparent,  # 鳴かれた
-                    highliting=discard[2].is_highlighting,
+                    highliting=discard[2].is_highlighting and highlight_last_event,
                 )
 
                 if discard[2].is_tsumogiri:
@@ -339,7 +366,7 @@ def _make_svg(
                         "\U0001F02B",
                         rotate=True,
                         transparent=discard[2].is_transparent,
-                        highliting=discard[2].is_highlighting,
+                        highliting=discard[2].is_highlighting and highlight_last_event,
                     )
 
             elif (riichi_idx < j) and (j // 6 == riichi_idx // 6):
@@ -352,7 +379,7 @@ def _make_svg(
                     ),
                     discard_txt,
                     transparent=discard[2].is_transparent,
-                    highliting=discard[2].is_highlighting,
+                    highliting=discard[2].is_highlighting and highlight_last_event,
                 )
 
                 if discard[2].is_tsumogiri:
@@ -365,7 +392,7 @@ def _make_svg(
                         ),
                         "\U0001F02B",
                         transparent=discard[2].is_transparent,
-                        highliting=discard[2].is_highlighting,
+                        highliting=discard[2].is_highlighting and highlight_last_event,
                     )
             else:
                 dwg_add(
@@ -374,7 +401,7 @@ def _make_svg(
                     (304 + (j % 6) * char_width, 570 + (j // 6) * char_height),
                     discard_txt,
                     transparent=discard[2].is_transparent,
-                    highliting=discard[2].is_highlighting,
+                    highliting=discard[2].is_highlighting and highlight_last_event,
                 )
 
                 if discard[2].is_tsumogiri:
@@ -384,7 +411,7 @@ def _make_svg(
                         (304 + (j % 6) * char_width, 570 + (j // 6) * char_height),
                         "\U0001F02B",
                         transparent=discard[2].is_transparent,
-                        highliting=discard[2].is_highlighting,
+                        highliting=discard[2].is_highlighting and highlight_last_event,
                     )
 
         num_of_tehai = len(hands[i]) + len(open_tiles[i]) * 3
@@ -392,7 +419,7 @@ def _make_svg(
 
         for open_tile in open_tiles[i]:
             if open_tile[2] == TileUnitType.CHI:
-                chi_txt = open_tile[0]
+                chi = open_tile[0]
                 dwg_add(
                     dwg,
                     pai[i],
@@ -403,8 +430,9 @@ def _make_svg(
                         - (len(hands[i]) + 1) * char_width  # 手牌の分のずれ
                         - left_x,  # 他の鳴き牌の分のずれ
                     ),
-                    chi_txt[0][0],
+                    chi[0][0],
                     rotate=True,
+                    highliting=chi[0][2].is_highlighting and highlight_last_event,
                 )
                 dwg_add(
                     dwg,
@@ -413,7 +441,7 @@ def _make_svg(
                         left_margin + (len(hands[i]) + 1) * char_width + left_x + char_height,
                         770,
                     ),
-                    chi_txt[1][0],
+                    chi[1][0],
                 )
                 dwg_add(
                     dwg,
@@ -426,13 +454,13 @@ def _make_svg(
                         + char_width,
                         770,
                     ),
-                    chi_txt[2][0],
+                    chi[2][0],
                 )
 
                 left_x += char_width * 2 + char_height
 
             elif open_tile[2] == TileUnitType.PON:
-                pon_txt = open_tile[0]
+                pon = open_tile[0]
                 if open_tile[1] == FromWho.LEFT:
                     dwg_add(
                         dwg,
@@ -444,8 +472,9 @@ def _make_svg(
                             - (len(hands[i]) + 1) * char_width  # 手牌の分のずれ
                             - left_x,
                         ),
-                        pon_txt[0][0],
+                        pon[0][0],
                         rotate=True,
+                        highliting=pon[0][2].is_highlighting and highlight_last_event,
                     )
                     dwg_add(
                         dwg,
@@ -454,7 +483,7 @@ def _make_svg(
                             left_margin + (len(hands[i]) + 1) * char_width + left_x + char_height,
                             770,
                         ),
-                        pon_txt[1][0],
+                        pon[1][0],
                     )
                     dwg_add(
                         dwg,
@@ -467,7 +496,7 @@ def _make_svg(
                             + char_width,
                             770,
                         ),
-                        pon_txt[2][0],
+                        pon[2][0],
                     )
 
                 elif open_tile[1] == FromWho.MID:
@@ -482,8 +511,9 @@ def _make_svg(
                             - left_x
                             - char_width,  # 1つ目の牌の分のずれ
                         ),
-                        pon_txt[0][0],
+                        pon[0][0],
                         rotate=True,
+                        highliting=pon[0][2].is_highlighting and highlight_last_event,
                     )
                     dwg_add(
                         dwg,
@@ -492,7 +522,7 @@ def _make_svg(
                             left_margin + (len(hands[i]) + 1) * char_width + left_x,
                             770,
                         ),
-                        pon_txt[1][0],
+                        pon[1][0],
                     )
                     dwg_add(
                         dwg,
@@ -505,7 +535,7 @@ def _make_svg(
                             + char_width,
                             770,
                         ),
-                        pon_txt[2][0],
+                        pon[2][0],
                     )
 
                 elif open_tile[1] == FromWho.RIGHT:
@@ -521,8 +551,9 @@ def _make_svg(
                             - char_width  # 1つ目の牌の分のずれ
                             - char_width,  # 2つ目の牌の分のずれ
                         ),
-                        pon_txt[0][0],
+                        pon[0][0],
                         rotate=True,
+                        highliting=pon[0][2].is_highlighting and highlight_last_event,
                     )
                     dwg_add(
                         dwg,
@@ -531,7 +562,7 @@ def _make_svg(
                             left_margin + (len(hands[i]) + 1) * char_width + left_x,
                             770,
                         ),
-                        pon_txt[1][0],
+                        pon[1][0],
                     )
                     dwg_add(
                         dwg,
@@ -540,7 +571,7 @@ def _make_svg(
                             left_margin + (len(hands[i]) + 1) * char_width + left_x + char_width,
                             770,
                         ),
-                        pon_txt[2][0],
+                        pon[2][0],
                     )
                 left_x += char_width * 2 + char_height
 
@@ -599,6 +630,7 @@ def _make_svg(
                         ),
                         open_tile_kan[0][0],
                         rotate=True,
+                        highliting=open_tile_kan[0][2].is_highlighting and highlight_last_event,
                     )
                     dwg_add(
                         dwg,
@@ -648,8 +680,9 @@ def _make_svg(
                             - left_x
                             - char_width,
                         ),
-                        open_tile_kan[0][0],
+                        txt=open_tile_kan[0][0],
                         rotate=True,
+                        highliting=open_tile_kan[0][2].is_highlighting and highlight_last_event,
                     )
                     dwg_add(
                         dwg,
@@ -699,8 +732,9 @@ def _make_svg(
                             - left_x
                             - char_width * 3,
                         ),
-                        open_tile_kan[0][0],
+                        txt=open_tile_kan[0][0],
                         rotate=True,
+                        highliting=open_tile_kan[0][2].is_highlighting and highlight_last_event,
                     )
                     dwg_add(
                         dwg,
@@ -748,7 +782,7 @@ def _make_svg(
                             - (len(hands[i]) + 1) * char_width  # 手牌の分のずれ
                             - left_x,
                         ),
-                        added_kan[0][0],
+                        txt=added_kan[0][0],
                         rotate=True,
                     )
                     dwg_add(
@@ -763,6 +797,7 @@ def _make_svg(
                         ),
                         added_kan[1][0],
                         rotate=True,
+                        highliting=added_kan[0][2].is_highlighting and highlight_last_event,
                     )
                     dwg_add(
                         dwg,
@@ -815,6 +850,7 @@ def _make_svg(
                         ),
                         added_kan[2][0],
                         rotate=True,
+                        highliting=added_kan[0][2].is_highlighting and highlight_last_event,
                     )
                     dwg_add(
                         dwg,
@@ -867,6 +903,7 @@ def _make_svg(
                         ),
                         added_kan[3][0],
                         rotate=True,
+                        highliting=added_kan[0][2].is_highlighting and highlight_last_event,
                     )
                     dwg_add(
                         dwg,
@@ -907,6 +944,7 @@ def save_svg(
     proto_data: Union[mjxproto.State, mjxproto.Observation],
     filename: str,
     target_idx: Optional[int] = None,
+    highlight_last_event: bool = True,
 ) -> None:
     """Visualize State/Observation proto and save as svg file.
 
@@ -915,5 +953,5 @@ def save_svg(
       proto_data: State or observation proto
       target_idx: the player you want to highlight
     """
-    dwg = _make_svg(proto_data, filename, target_idx)
+    dwg = _make_svg(proto_data, filename, target_idx, highlight_last_event=highlight_last_event)
     dwg.save()
