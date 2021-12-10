@@ -1,14 +1,14 @@
 from __future__ import annotations
 
-from typing import Optional, List, Tuple
+from typing import List, Optional, Tuple
 
 import _mjx  # type: ignore
 from google.protobuf import json_format
 
 import mjxproto
-from mjx.visualizer.svg import save_svg
 from mjx.action import Action
 from mjx.observation import Observation
+from mjx.visualizer.svg import save_svg
 
 
 class State:
