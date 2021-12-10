@@ -10,19 +10,29 @@ import mjxproto
 from mjx.visualizer.visualizer import (
     FromWho,
     MahjongTable,
+    Tile,
     TileUnitType,
     get_tile_char,
     get_wind_char,
 )
 
 
-def dwg_add(dwg_p, dwg_g, pos, txt, rotate=False, transparent=False):
+def dwg_add(
+    dwg_p,
+    dwg_g,
+    pos,
+    txt: str,
+    rotate: bool = False,
+    is_red: bool = False,
+    transparent: bool = False,
+    highliting: bool = False,
+):
     opacity = 1.0
     if transparent:
         opacity = 0.5
 
     if rotate:
-        if txt[1]:
+        if is_red:
             horizontal_tiles = [
                 dwg_p.text(txt[0], insert=(0, 0), fill="red", opacity=opacity),
                 dwg_p.text(
@@ -38,13 +48,26 @@ def dwg_add(dwg_p, dwg_g, pos, txt, rotate=False, transparent=False):
                 horizontal_tile.rotate(90, (0, 0))
                 horizontal_tile.translate(pos)
                 dwg_g.add(horizontal_tile)
+
         else:
             horizontal_tile = dwg_p.text(txt[0], insert=(0, 0), opacity=opacity)
             horizontal_tile.rotate(90, (0, 0))
             horizontal_tile.translate(pos)
             dwg_g.add(horizontal_tile)
+
+        if highliting:
+            highlighted_tile = dwg_p.text(
+                "\U0001F02B",
+                insert=(0, 0),
+                fill="red",
+                opacity=0.3,
+            )
+            highlighted_tile.rotate(90, (0, 0))
+            highlighted_tile.translate(pos)
+            dwg_g.add(highlighted_tile)
+
     else:
-        if txt[1]:
+        if is_red:
             dwg_g.add(dwg_p.text(txt[0], pos, fill="red", opacity=opacity))
             dwg_g.add(
                 dwg_p.text(
@@ -58,6 +81,16 @@ def dwg_add(dwg_p, dwg_g, pos, txt, rotate=False, transparent=False):
             dwg_g.add(dwg_p.text("\U0001F006", pos, fill="black", opacity=opacity))
         else:
             dwg_g.add(dwg_p.text(txt[0], pos, opacity=opacity))
+
+        if highliting:
+            dwg_g.add(
+                dwg_p.text(
+                    "\U0001F02B",
+                    pos,
+                    fill="red",
+                    opacity=0.3,
+                )
+            )
 
 
 def _make_svg(
@@ -109,9 +142,15 @@ def _make_svg(
     scores: List[str] = ["", "", "", ""]
     is_riichi = [False, False, False, False]
 
-    hands: List[List[List[Tuple[str, bool]]]] = [[], [], [], []]
-    open_tiles: List[List[Tuple[List[Tuple[str, bool]], FromWho, TileUnitType]]] = [[], [], [], []]
-    discards: List[List[Tuple[Tuple[str, bool], bool, bool, bool]]] = [[], [], [], []]
+    # Tuple[char, is_red, Tile]
+    hands: List[List[Tuple[str, bool, Tile]]] = [[], [], [], []]
+    open_tiles: List[List[Tuple[List[Tuple[str, bool, Tile]], FromWho, TileUnitType]]] = [
+        [],
+        [],
+        [],
+        [],
+    ]
+    discards: List[List[Tuple[str, bool, Tile]]] = [[], [], [], []]
 
     for i in range(4):  # iは各プレイヤー(0-3)
         players[i] = dwg.g()
@@ -126,27 +165,16 @@ def _make_svg(
             if t_u.tile_unit_type == TileUnitType.HAND:
                 for tile in t_u.tiles:
                     hands[i].append(
-                        [
-                            (
-                                "\U0001F02B" if not tile.is_open else get_tile_char(tile.id, True),
-                                tile.id in red_hai,
-                            )
-                        ]
+                        (
+                            "\U0001F02B" if not tile.is_open else get_tile_char(tile.id, True),
+                            tile.id in red_hai,
+                            tile,
+                        )
                     )
 
             if t_u.tile_unit_type == TileUnitType.DISCARD:
                 for tile in t_u.tiles:
-                    discards[i].append(
-                        (
-                            (
-                                get_tile_char(tile.id, True),
-                                tile.id in red_hai,
-                            ),
-                            tile.with_riichi,
-                            tile.is_tsumogiri,
-                            tile.is_transparent,
-                        )
-                    )
+                    discards[i].append((get_tile_char(tile.id, True), tile.id in red_hai, tile))
             if t_u.tile_unit_type in [
                 TileUnitType.CHI,
                 TileUnitType.PON,
@@ -156,7 +184,10 @@ def _make_svg(
             ]:
                 open_tiles[i].append(
                     (
-                        [(get_tile_char(tile.id, True), tile.id in red_hai) for tile in t_u.tiles],
+                        [
+                            (get_tile_char(tile.id, True), tile.id in red_hai, tile)
+                            for tile in t_u.tiles
+                        ],
                         t_u.from_who,
                         t_u.tile_unit_type,
                     )
@@ -276,7 +307,13 @@ def _make_svg(
         # hand
         for j, hand in enumerate(hands[i]):
             hand_txt = hand[0]
-            dwg_add(dwg, pai[i], (left_margin + j * char_width, 770), hand_txt)
+            dwg_add(
+                dwg,
+                pai[i],
+                (left_margin + j * char_width, 770),
+                hand_txt,
+                highliting=hand[2].is_highlighting,
+            )
 
         # discard
         riichi_idx = 100000
@@ -290,17 +327,19 @@ def _make_svg(
                     (535 + (j // 6) * char_height, -307 - (j % 6) * char_width),
                     discard_txt,
                     rotate=True,
-                    transparent=discard[3],  # 鳴かれた
+                    transparent=discard[2].is_transparent,  # 鳴かれた
+                    highliting=discard[2].is_highlighting,
                 )
 
-                if discard[2]:  # tsumogiri
+                if discard[2].is_tsumogiri:
                     dwg_add(
                         dwg,
                         pai[i],
                         (535 + (j // 6) * char_height, -307 - (j % 6) * char_width),
-                        ["\U0001F02B", False],
+                        "\U0001F02B",
                         rotate=True,
-                        transparent=discard[3],
+                        transparent=discard[2].is_transparent,
+                        highliting=discard[2].is_highlighting,
                     )
 
             elif (riichi_idx < j) and (j // 6 == riichi_idx // 6):
@@ -312,10 +351,11 @@ def _make_svg(
                         570 + (j // 6) * char_height,
                     ),
                     discard_txt,
-                    transparent=discard[3],
+                    transparent=discard[2].is_transparent,
+                    highliting=discard[2].is_highlighting,
                 )
 
-                if discard[2]:
+                if discard[2].is_tsumogiri:
                     dwg_add(
                         dwg,
                         pai[i],
@@ -323,8 +363,9 @@ def _make_svg(
                             304 + char_height - char_width + (j % 6) * char_width,
                             570 + (j // 6) * char_height,
                         ),
-                        ["\U0001F02B", False],
-                        transparent=discard[3],
+                        "\U0001F02B",
+                        transparent=discard[2].is_transparent,
+                        highliting=discard[2].is_highlighting,
                     )
             else:
                 dwg_add(
@@ -332,16 +373,18 @@ def _make_svg(
                     pai[i],
                     (304 + (j % 6) * char_width, 570 + (j // 6) * char_height),
                     discard_txt,
-                    transparent=discard[3],
+                    transparent=discard[2].is_transparent,
+                    highliting=discard[2].is_highlighting,
                 )
 
-                if discard[2]:
+                if discard[2].is_tsumogiri:
                     dwg_add(
                         dwg,
                         pai[i],
                         (304 + (j % 6) * char_width, 570 + (j // 6) * char_height),
-                        ["\U0001F02B", False],
-                        transparent=discard[3],
+                        "\U0001F02B",
+                        transparent=discard[2].is_transparent,
+                        highliting=discard[2].is_highlighting,
                     )
 
         num_of_tehai = len(hands[i]) + len(open_tiles[i]) * 3
@@ -360,7 +403,7 @@ def _make_svg(
                         - (len(hands[i]) + 1) * char_width  # 手牌の分のずれ
                         - left_x,  # 他の鳴き牌の分のずれ
                     ),
-                    chi_txt[0],
+                    chi_txt[0][0],
                     rotate=True,
                 )
                 dwg_add(
@@ -370,7 +413,7 @@ def _make_svg(
                         left_margin + (len(hands[i]) + 1) * char_width + left_x + char_height,
                         770,
                     ),
-                    chi_txt[1],
+                    chi_txt[1][0],
                 )
                 dwg_add(
                     dwg,
@@ -383,7 +426,7 @@ def _make_svg(
                         + char_width,
                         770,
                     ),
-                    chi_txt[2],
+                    chi_txt[2][0],
                 )
 
                 left_x += char_width * 2 + char_height
@@ -401,7 +444,7 @@ def _make_svg(
                             - (len(hands[i]) + 1) * char_width  # 手牌の分のずれ
                             - left_x,
                         ),
-                        pon_txt[0],
+                        pon_txt[0][0],
                         rotate=True,
                     )
                     dwg_add(
@@ -411,7 +454,7 @@ def _make_svg(
                             left_margin + (len(hands[i]) + 1) * char_width + left_x + char_height,
                             770,
                         ),
-                        pon_txt[1],
+                        pon_txt[1][0],
                     )
                     dwg_add(
                         dwg,
@@ -424,7 +467,7 @@ def _make_svg(
                             + char_width,
                             770,
                         ),
-                        pon_txt[2],
+                        pon_txt[2][0],
                     )
 
                 elif open_tile[1] == FromWho.MID:
@@ -439,7 +482,7 @@ def _make_svg(
                             - left_x
                             - char_width,  # 1つ目の牌の分のずれ
                         ),
-                        pon_txt[0],
+                        pon_txt[0][0],
                         rotate=True,
                     )
                     dwg_add(
@@ -449,7 +492,7 @@ def _make_svg(
                             left_margin + (len(hands[i]) + 1) * char_width + left_x,
                             770,
                         ),
-                        pon_txt[1],
+                        pon_txt[1][0],
                     )
                     dwg_add(
                         dwg,
@@ -462,7 +505,7 @@ def _make_svg(
                             + char_width,
                             770,
                         ),
-                        pon_txt[2],
+                        pon_txt[2][0],
                     )
 
                 elif open_tile[1] == FromWho.RIGHT:
@@ -478,7 +521,7 @@ def _make_svg(
                             - char_width  # 1つ目の牌の分のずれ
                             - char_width,  # 2つ目の牌の分のずれ
                         ),
-                        pon_txt[0],
+                        pon_txt[0][0],
                         rotate=True,
                     )
                     dwg_add(
@@ -488,7 +531,7 @@ def _make_svg(
                             left_margin + (len(hands[i]) + 1) * char_width + left_x,
                             770,
                         ),
-                        pon_txt[1],
+                        pon_txt[1][0],
                     )
                     dwg_add(
                         dwg,
@@ -497,7 +540,7 @@ def _make_svg(
                             left_margin + (len(hands[i]) + 1) * char_width + left_x + char_width,
                             770,
                         ),
-                        pon_txt[2],
+                        pon_txt[2][0],
                     )
                 left_x += char_width * 2 + char_height
 
@@ -510,7 +553,7 @@ def _make_svg(
                         left_margin + (len(hands[i]) + 1) * char_width + left_x,
                         770,
                     ),
-                    ["\U0001F02B", False],
+                    "\U0001F02B",
                 )
                 dwg_add(
                     dwg,
@@ -519,7 +562,7 @@ def _make_svg(
                         left_margin + (len(hands[i]) + 1) * char_width + left_x + char_width,
                         770,
                     ),
-                    closed_kan_txt[1],
+                    closed_kan_txt[1][0],
                 )
                 dwg_add(
                     dwg,
@@ -528,7 +571,7 @@ def _make_svg(
                         left_margin + (len(hands[i]) + 1) * char_width + left_x + char_width * 2,
                         770,
                     ),
-                    closed_kan_txt[2],
+                    closed_kan_txt[2][0],
                 )
                 dwg_add(
                     dwg,
@@ -537,12 +580,12 @@ def _make_svg(
                         left_margin + (len(hands[i]) + 1) * char_width + left_x + char_width * 3,
                         770,
                     ),
-                    ["\U0001F02B", False],
+                    "\U0001F02B",
                 )
                 left_x += char_width * 4
 
             elif open_tile[2] == TileUnitType.OPEN_KAN:
-                open_tile_kan_txt = open_tile[0]
+                open_tile_kan = open_tile[0]
                 if open_tile[1] == FromWho.LEFT:
                     dwg_add(
                         dwg,
@@ -554,7 +597,7 @@ def _make_svg(
                             - (len(hands[i]) + 1) * char_width  # 手牌の分のずれ
                             - left_x,
                         ),
-                        open_tile_kan_txt[0],
+                        open_tile_kan[0][0],
                         rotate=True,
                     )
                     dwg_add(
@@ -564,7 +607,7 @@ def _make_svg(
                             left_margin + (len(hands[i]) + 1) * char_width + left_x + char_height,
                             770,
                         ),
-                        open_tile_kan_txt[1],
+                        open_tile_kan[1][0],
                     )
                     dwg_add(
                         dwg,
@@ -577,7 +620,7 @@ def _make_svg(
                             + char_width,
                             770,
                         ),
-                        open_tile_kan_txt[2],
+                        open_tile_kan[2][0],
                     )
                     dwg_add(
                         dwg,
@@ -590,7 +633,7 @@ def _make_svg(
                             + char_width * 2,
                             770,
                         ),
-                        open_tile_kan_txt[3],
+                        open_tile_kan[3][0],
                     )
 
                 elif open_tile[1] == FromWho.MID:
@@ -605,7 +648,7 @@ def _make_svg(
                             - left_x
                             - char_width,
                         ),
-                        open_tile_kan_txt[0],
+                        open_tile_kan[0][0],
                         rotate=True,
                     )
                     dwg_add(
@@ -615,7 +658,7 @@ def _make_svg(
                             left_margin + (len(hands[i]) + 1) * char_width + left_x,
                             770,
                         ),
-                        open_tile_kan_txt[1],
+                        open_tile_kan[1][0],
                     )
                     dwg_add(
                         dwg,
@@ -628,7 +671,7 @@ def _make_svg(
                             + char_width,
                             770,
                         ),
-                        open_tile_kan_txt[2],
+                        open_tile_kan[2][0],
                     )
                     dwg_add(
                         dwg,
@@ -641,7 +684,7 @@ def _make_svg(
                             + char_width * 2,
                             770,
                         ),
-                        open_tile_kan_txt[3],
+                        open_tile_kan[3][0],
                     )
 
                 elif open_tile[1] == FromWho.RIGHT:
@@ -656,7 +699,7 @@ def _make_svg(
                             - left_x
                             - char_width * 3,
                         ),
-                        open_tile_kan_txt[0],
+                        open_tile_kan[0][0],
                         rotate=True,
                     )
                     dwg_add(
@@ -666,7 +709,7 @@ def _make_svg(
                             left_margin + (len(hands[i]) + 1) * char_width + left_x,
                             770,
                         ),
-                        open_tile_kan_txt[1],
+                        open_tile_kan[1][0],
                     )
                     dwg_add(
                         dwg,
@@ -675,7 +718,7 @@ def _make_svg(
                             left_margin + (len(hands[i]) + 1) * char_width + left_x + char_width,
                             770,
                         ),
-                        open_tile_kan_txt[2],
+                        open_tile_kan[2][0],
                     )
                     dwg_add(
                         dwg,
@@ -688,12 +731,12 @@ def _make_svg(
                             + char_width * 2,
                             770,
                         ),
-                        open_tile_kan_txt[3],
+                        open_tile_kan[3][0],
                     )
                 left_x += char_width * 3 + char_height
 
             elif open_tile[2] == TileUnitType.ADDED_KAN:
-                added_kan_txt = open_tile[0]
+                added_kan = open_tile[0]
                 if open_tile[1] == FromWho.LEFT:
                     dwg_add(
                         dwg,
@@ -705,7 +748,7 @@ def _make_svg(
                             - (len(hands[i]) + 1) * char_width  # 手牌の分のずれ
                             - left_x,
                         ),
-                        added_kan_txt[0],
+                        added_kan[0][0],
                         rotate=True,
                     )
                     dwg_add(
@@ -718,7 +761,7 @@ def _make_svg(
                             - (len(hands[i]) + 1) * char_width  # 手牌の分のずれ
                             - left_x,
                         ),
-                        added_kan_txt[1],
+                        added_kan[1][0],
                         rotate=True,
                     )
                     dwg_add(
@@ -728,7 +771,7 @@ def _make_svg(
                             left_margin + (len(hands[i]) + 1) * char_width + left_x + char_height,
                             770,
                         ),
-                        added_kan_txt[2],
+                        added_kan[2][0],
                     )
                     dwg_add(
                         dwg,
@@ -741,7 +784,7 @@ def _make_svg(
                             + char_width,
                             770,
                         ),
-                        added_kan_txt[3],
+                        added_kan[3][0],
                     )
 
                 elif open_tile[1] == FromWho.MID:
@@ -756,7 +799,7 @@ def _make_svg(
                             - left_x
                             - char_width,
                         ),
-                        added_kan_txt[1],
+                        added_kan[1][0],
                         rotate=True,
                     )
                     dwg_add(
@@ -770,7 +813,7 @@ def _make_svg(
                             - left_x
                             - char_width,
                         ),
-                        added_kan_txt[2],
+                        added_kan[2][0],
                         rotate=True,
                     )
                     dwg_add(
@@ -780,7 +823,7 @@ def _make_svg(
                             left_margin + (len(hands[i]) + 1) * char_width + left_x,
                             770,
                         ),
-                        added_kan_txt[0],
+                        added_kan[0][0],
                     )
                     dwg_add(
                         dwg,
@@ -793,7 +836,7 @@ def _make_svg(
                             + char_width,
                             770,
                         ),
-                        added_kan_txt[3],
+                        added_kan[3][0],
                     )
 
                 elif open_tile[1] == FromWho.RIGHT:
@@ -808,7 +851,7 @@ def _make_svg(
                             - left_x
                             - char_width * 2,
                         ),
-                        added_kan_txt[2],
+                        added_kan[2][0],
                         rotate=True,
                     )
                     dwg_add(
@@ -822,7 +865,7 @@ def _make_svg(
                             - left_x
                             - char_width * 2,
                         ),
-                        added_kan_txt[3],
+                        added_kan[3][0],
                         rotate=True,
                     )
                     dwg_add(
@@ -832,7 +875,7 @@ def _make_svg(
                             left_margin + (len(hands[i]) + 1) * char_width + left_x,
                             770,
                         ),
-                        added_kan_txt[0],
+                        added_kan[0][0],
                     )
                     dwg_add(
                         dwg,
@@ -841,7 +884,7 @@ def _make_svg(
                             left_margin + (len(hands[i]) + 1) * char_width + left_x + char_width,
                             770,
                         ),
-                        added_kan_txt[1],
+                        added_kan[1][0],
                     )
                 left_x += char_width * 2 + char_height
 

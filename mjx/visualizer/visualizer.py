@@ -43,12 +43,14 @@ class Tile:
         is_open: bool = False,
         is_tsumogiri: bool = False,
         with_riichi: bool = False,
+        highlighting: bool = False,
     ):
         self.id = tile_id
         self.is_open: bool = is_open
         self.is_tsumogiri: bool = is_tsumogiri
         self.with_riichi: bool = with_riichi
         self.is_transparent: bool = False  # 鳴かれた牌は透明にして河に表示
+        self.is_highlighting: bool = highlighting  # 最後のアクションをハイライト表示
         self.char: str
 
 
@@ -185,7 +187,9 @@ class MahjongTable:
                         for i in private_observation.curr_hand.closed_tiles
                         if i != private_observation.draw_history[-1]
                     ]
-                    + [Tile(private_observation.draw_history[-1], is_open=True)],
+                    + [
+                        Tile(private_observation.draw_history[-1], is_open=True, highlighting=True)
+                    ],
                 )
             )
         else:
@@ -237,9 +241,11 @@ class MahjongTable:
                             t_u.tiles.append(
                                 Tile(
                                     eve.tile,
-                                    True,
+                                    is_open=True,
                                 )
                             )
+                        if i == len(public_observation.events) - 1:
+                            t_u.tiles[-1].is_highlighting = True
 
             if eve.type == EventType.EVENT_TYPE_TSUMOGIRI:
                 for t_u in p.tile_units:
