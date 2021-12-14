@@ -31,21 +31,11 @@ def dwg_add(
     if transparent:
         opacity = 0.5
 
-    highlight_fill = "#ff8c00"
-    highlight_opacity = 0.5
+    highlight_fill = "black"
+    highlight_opacity = 1.0
+    highlight_stroke_width = 2.0
 
     if rotate:
-        """if highliting:
-        highlighted_tile = dwg_p.text(
-            "\U0001F02B",
-            insert=(0, 0),
-            fill=highlight_fill,
-            opacity=highlight_opacity,
-        )
-        highlighted_tile.rotate(90, (0, 0))
-        highlighted_tile.translate(pos)
-        dwg_g.add(highlighted_tile)"""
-
         if is_red:
             horizontal_tiles = [
                 dwg_p.text(txt[0], insert=(0, 0), fill="red", opacity=opacity),
@@ -73,7 +63,8 @@ def dwg_add(
             highlighted_tile = dwg_p.text(
                 "\U0001F006",
                 insert=(0, 0),
-                stroke=svgwrite.rgb(255, 140, 0, "%"),
+                stroke=svgwrite.rgb(0, 0, 0, "%"),
+                stroke_width=highlight_stroke_width,
                 fill=highlight_fill,
                 opacity=highlight_opacity,
             )
@@ -82,16 +73,6 @@ def dwg_add(
             dwg_g.add(highlighted_tile)
 
     else:
-        """if highliting:
-        dwg_g.add(
-            dwg_p.text(
-                "\U0001F02B",
-                pos,
-                fill=highlight_fill,
-                opacity=highlight_opacity,
-            )
-        )"""
-
         if is_red:
             dwg_g.add(dwg_p.text(txt[0], pos, fill="red", opacity=opacity))
             dwg_g.add(
@@ -112,7 +93,8 @@ def dwg_add(
                 dwg_p.text(
                     "\U0001F006",
                     pos,
-                    stroke=svgwrite.rgb(255, 140, 0, "%"),
+                    stroke=svgwrite.rgb(0, 0, 0, "%"),  # 255,140,0
+                    stroke_width=highlight_stroke_width,
                     fill=highlight_fill,
                     opacity=highlight_opacity,
                 )
@@ -250,6 +232,17 @@ def _make_svg(
     dwg.add(
         dwg.text("".join(doras), (337, 400), style="font-size:40px;font-family:GL-MahjongTile;")
     )
+    for i, dora in enumerate(sample_data.doras):
+        if dora == sample_data.new_dora:
+            dwg.add(
+                dwg.text(
+                    "\U0001F006",
+                    (337 + i * 25.6, 400),
+                    style="font-size:40px;font-family:GL-MahjongTile;",
+                    stroke=svgwrite.rgb(0, 0, 0, "%"),
+                    stroke_width=2.0,
+                )
+            )
 
     # bou
     b64_1000_mini = base64.b64encode(
@@ -346,7 +339,7 @@ def _make_svg(
         riichi_idx = 100000
         for j, discard in enumerate(discards[i]):
             discard_txt = discard[0]
-            if discard[1]:  # riichi
+            if discard[2].with_riichi:  # riichi
                 riichi_idx = j
                 dwg_add(
                     dwg,
@@ -354,6 +347,7 @@ def _make_svg(
                     (535 + (j // 6) * char_height, -307 - (j % 6) * char_width),
                     discard_txt,
                     rotate=True,
+                    is_red=discard[1],
                     transparent=discard[2].is_transparent,  # 鳴かれた
                     highliting=discard[2].is_highlighting and highlight_last_event,
                 )
@@ -378,6 +372,7 @@ def _make_svg(
                         570 + (j // 6) * char_height,
                     ),
                     discard_txt,
+                    is_red=discard[1],
                     transparent=discard[2].is_transparent,
                     highliting=discard[2].is_highlighting and highlight_last_event,
                 )
@@ -400,6 +395,7 @@ def _make_svg(
                     pai[i],
                     (304 + (j % 6) * char_width, 570 + (j // 6) * char_height),
                     discard_txt,
+                    is_red=discard[1],
                     transparent=discard[2].is_transparent,
                     highliting=discard[2].is_highlighting and highlight_last_event,
                 )
@@ -432,6 +428,7 @@ def _make_svg(
                     ),
                     chi[0][0],
                     rotate=True,
+                    is_red=chi[0][1],
                     highliting=chi[0][2].is_highlighting and highlight_last_event,
                 )
                 dwg_add(
@@ -442,6 +439,8 @@ def _make_svg(
                         770,
                     ),
                     chi[1][0],
+                    is_red=chi[1][1],
+                    highliting=chi[0][2].is_highlighting and highlight_last_event,
                 )
                 dwg_add(
                     dwg,
@@ -455,6 +454,8 @@ def _make_svg(
                         770,
                     ),
                     chi[2][0],
+                    is_red=chi[2][1],
+                    highliting=chi[0][2].is_highlighting and highlight_last_event,
                 )
 
                 left_x += char_width * 2 + char_height
@@ -474,6 +475,7 @@ def _make_svg(
                         ),
                         pon[0][0],
                         rotate=True,
+                        is_red=pon[0][1],
                         highliting=pon[0][2].is_highlighting and highlight_last_event,
                     )
                     dwg_add(
@@ -484,6 +486,8 @@ def _make_svg(
                             770,
                         ),
                         pon[1][0],
+                        is_red=pon[1][1],
+                        highliting=pon[0][2].is_highlighting and highlight_last_event,
                     )
                     dwg_add(
                         dwg,
@@ -497,6 +501,8 @@ def _make_svg(
                             770,
                         ),
                         pon[2][0],
+                        is_red=pon[2][1],
+                        highliting=pon[0][2].is_highlighting and highlight_last_event,
                     )
 
                 elif open_tile[1] == FromWho.MID:
@@ -513,6 +519,7 @@ def _make_svg(
                         ),
                         pon[0][0],
                         rotate=True,
+                        is_red=pon[0][1],
                         highliting=pon[0][2].is_highlighting and highlight_last_event,
                     )
                     dwg_add(
@@ -523,6 +530,8 @@ def _make_svg(
                             770,
                         ),
                         pon[1][0],
+                        is_red=pon[1][1],
+                        highliting=pon[0][2].is_highlighting and highlight_last_event,
                     )
                     dwg_add(
                         dwg,
@@ -536,6 +545,8 @@ def _make_svg(
                             770,
                         ),
                         pon[2][0],
+                        is_red=pon[2][1],
+                        highliting=pon[0][2].is_highlighting and highlight_last_event,
                     )
 
                 elif open_tile[1] == FromWho.RIGHT:
@@ -553,6 +564,7 @@ def _make_svg(
                         ),
                         pon[0][0],
                         rotate=True,
+                        is_red=pon[0][1],
                         highliting=pon[0][2].is_highlighting and highlight_last_event,
                     )
                     dwg_add(
@@ -563,6 +575,8 @@ def _make_svg(
                             770,
                         ),
                         pon[1][0],
+                        is_red=pon[1][1],
+                        highliting=pon[0][2].is_highlighting and highlight_last_event,
                     )
                     dwg_add(
                         dwg,
@@ -572,11 +586,13 @@ def _make_svg(
                             770,
                         ),
                         pon[2][0],
+                        is_red=pon[2][1],
+                        highliting=pon[0][2].is_highlighting and highlight_last_event,
                     )
                 left_x += char_width * 2 + char_height
 
             elif open_tile[2] == TileUnitType.CLOSED_KAN:
-                closed_kan_txt = open_tile[0]
+                closed_kan = open_tile[0]
                 dwg_add(
                     dwg,
                     pai[i],
@@ -585,6 +601,7 @@ def _make_svg(
                         770,
                     ),
                     "\U0001F02B",
+                    highliting=closed_kan[0][2].is_highlighting and highlight_last_event,
                 )
                 dwg_add(
                     dwg,
@@ -593,7 +610,9 @@ def _make_svg(
                         left_margin + (len(hands[i]) + 1) * char_width + left_x + char_width,
                         770,
                     ),
-                    closed_kan_txt[1][0],
+                    closed_kan[1][0],
+                    is_red=closed_kan[1][1],
+                    highliting=closed_kan[0][2].is_highlighting and highlight_last_event,
                 )
                 dwg_add(
                     dwg,
@@ -602,7 +621,9 @@ def _make_svg(
                         left_margin + (len(hands[i]) + 1) * char_width + left_x + char_width * 2,
                         770,
                     ),
-                    closed_kan_txt[2][0],
+                    closed_kan[2][0],
+                    is_red=closed_kan[2][1],
+                    highliting=closed_kan[0][2].is_highlighting and highlight_last_event,
                 )
                 dwg_add(
                     dwg,
@@ -612,6 +633,7 @@ def _make_svg(
                         770,
                     ),
                     "\U0001F02B",
+                    highliting=closed_kan[0][2].is_highlighting and highlight_last_event,
                 )
                 left_x += char_width * 4
 
@@ -630,6 +652,7 @@ def _make_svg(
                         ),
                         open_tile_kan[0][0],
                         rotate=True,
+                        is_red=open_tile_kan[0][1],
                         highliting=open_tile_kan[0][2].is_highlighting and highlight_last_event,
                     )
                     dwg_add(
@@ -640,6 +663,8 @@ def _make_svg(
                             770,
                         ),
                         open_tile_kan[1][0],
+                        is_red=open_tile_kan[1][1],
+                        highliting=open_tile_kan[0][2].is_highlighting and highlight_last_event,
                     )
                     dwg_add(
                         dwg,
@@ -653,6 +678,8 @@ def _make_svg(
                             770,
                         ),
                         open_tile_kan[2][0],
+                        is_red=open_tile_kan[2][1],
+                        highliting=open_tile_kan[0][2].is_highlighting and highlight_last_event,
                     )
                     dwg_add(
                         dwg,
@@ -666,6 +693,8 @@ def _make_svg(
                             770,
                         ),
                         open_tile_kan[3][0],
+                        is_red=open_tile_kan[3][1],
+                        highliting=open_tile_kan[0][2].is_highlighting and highlight_last_event,
                     )
 
                 elif open_tile[1] == FromWho.MID:
@@ -682,6 +711,7 @@ def _make_svg(
                         ),
                         txt=open_tile_kan[0][0],
                         rotate=True,
+                        is_red=open_tile_kan[0][1],
                         highliting=open_tile_kan[0][2].is_highlighting and highlight_last_event,
                     )
                     dwg_add(
@@ -692,6 +722,8 @@ def _make_svg(
                             770,
                         ),
                         open_tile_kan[1][0],
+                        is_red=open_tile_kan[1][1],
+                        highliting=open_tile_kan[0][2].is_highlighting and highlight_last_event,
                     )
                     dwg_add(
                         dwg,
@@ -705,6 +737,8 @@ def _make_svg(
                             770,
                         ),
                         open_tile_kan[2][0],
+                        is_red=open_tile_kan[2][1],
+                        highliting=open_tile_kan[0][2].is_highlighting and highlight_last_event,
                     )
                     dwg_add(
                         dwg,
@@ -718,6 +752,8 @@ def _make_svg(
                             770,
                         ),
                         open_tile_kan[3][0],
+                        is_red=open_tile_kan[3][1],
+                        highliting=open_tile_kan[0][2].is_highlighting and highlight_last_event,
                     )
 
                 elif open_tile[1] == FromWho.RIGHT:
@@ -734,6 +770,7 @@ def _make_svg(
                         ),
                         txt=open_tile_kan[0][0],
                         rotate=True,
+                        is_red=open_tile_kan[0][1],
                         highliting=open_tile_kan[0][2].is_highlighting and highlight_last_event,
                     )
                     dwg_add(
@@ -744,6 +781,8 @@ def _make_svg(
                             770,
                         ),
                         open_tile_kan[1][0],
+                        is_red=open_tile_kan[1][1],
+                        highliting=open_tile_kan[0][2].is_highlighting and highlight_last_event,
                     )
                     dwg_add(
                         dwg,
@@ -753,6 +792,8 @@ def _make_svg(
                             770,
                         ),
                         open_tile_kan[2][0],
+                        is_red=open_tile_kan[2][1],
+                        highliting=open_tile_kan[0][2].is_highlighting and highlight_last_event,
                     )
                     dwg_add(
                         dwg,
@@ -766,6 +807,8 @@ def _make_svg(
                             770,
                         ),
                         open_tile_kan[3][0],
+                        is_red=open_tile_kan[3][1],
+                        highliting=open_tile_kan[0][2].is_highlighting and highlight_last_event,
                     )
                 left_x += char_width * 3 + char_height
 
@@ -784,6 +827,8 @@ def _make_svg(
                         ),
                         txt=added_kan[0][0],
                         rotate=True,
+                        is_red=added_kan[0][1],
+                        highliting=added_kan[0][2].is_highlighting and highlight_last_event,
                     )
                     dwg_add(
                         dwg,
@@ -797,6 +842,7 @@ def _make_svg(
                         ),
                         added_kan[1][0],
                         rotate=True,
+                        is_red=added_kan[1][1],
                         highliting=added_kan[0][2].is_highlighting and highlight_last_event,
                     )
                     dwg_add(
@@ -807,6 +853,8 @@ def _make_svg(
                             770,
                         ),
                         added_kan[2][0],
+                        is_red=added_kan[2][1],
+                        highliting=added_kan[0][2].is_highlighting and highlight_last_event,
                     )
                     dwg_add(
                         dwg,
@@ -820,6 +868,8 @@ def _make_svg(
                             770,
                         ),
                         added_kan[3][0],
+                        is_red=added_kan[3][1],
+                        highliting=added_kan[0][2].is_highlighting and highlight_last_event,
                     )
 
                 elif open_tile[1] == FromWho.MID:
@@ -836,6 +886,8 @@ def _make_svg(
                         ),
                         added_kan[1][0],
                         rotate=True,
+                        is_red=added_kan[1][1],
+                        highliting=added_kan[0][2].is_highlighting and highlight_last_event,
                     )
                     dwg_add(
                         dwg,
@@ -850,6 +902,7 @@ def _make_svg(
                         ),
                         added_kan[2][0],
                         rotate=True,
+                        is_red=added_kan[2][1],
                         highliting=added_kan[0][2].is_highlighting and highlight_last_event,
                     )
                     dwg_add(
@@ -860,6 +913,8 @@ def _make_svg(
                             770,
                         ),
                         added_kan[0][0],
+                        is_red=added_kan[0][1],
+                        highliting=added_kan[0][2].is_highlighting and highlight_last_event,
                     )
                     dwg_add(
                         dwg,
@@ -873,6 +928,8 @@ def _make_svg(
                             770,
                         ),
                         added_kan[3][0],
+                        is_red=added_kan[3][1],
+                        highliting=added_kan[0][2].is_highlighting and highlight_last_event,
                     )
 
                 elif open_tile[1] == FromWho.RIGHT:
@@ -889,6 +946,8 @@ def _make_svg(
                         ),
                         added_kan[2][0],
                         rotate=True,
+                        is_red=added_kan[2][1],
+                        highliting=added_kan[0][2].is_highlighting and highlight_last_event,
                     )
                     dwg_add(
                         dwg,
@@ -903,6 +962,7 @@ def _make_svg(
                         ),
                         added_kan[3][0],
                         rotate=True,
+                        is_red=added_kan[3][1],
                         highliting=added_kan[0][2].is_highlighting and highlight_last_event,
                     )
                     dwg_add(
@@ -913,6 +973,8 @@ def _make_svg(
                             770,
                         ),
                         added_kan[0][0],
+                        is_red=added_kan[0][1],
+                        highliting=added_kan[0][2].is_highlighting and highlight_last_event,
                     )
                     dwg_add(
                         dwg,
@@ -922,6 +984,8 @@ def _make_svg(
                             770,
                         ),
                         added_kan[1][0],
+                        is_red=added_kan[1][1],
+                        highliting=added_kan[0][2].is_highlighting and highlight_last_event,
                     )
                 left_x += char_width * 2 + char_height
 
