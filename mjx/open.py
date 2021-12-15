@@ -4,7 +4,7 @@ from typing import List
 
 import _mjx  # type: ignore
 
-from mjx.const import EventType, TileType
+from mjx.const import EventType, RelativePlayerIdx, TileType
 from mjx.tile import Tile
 
 
@@ -15,8 +15,8 @@ class Open:
     def event_type(self) -> EventType:
         return _mjx.Open.event_type(self.bit)
 
-    def steal_from(self) -> int:
-        return _mjx.Open.steal_from(self.bit)
+    def steal_from(self) -> RelativePlayerIdx:
+        return RelativePlayerIdx(_mjx.Open.steal_from(self.bit))
 
     def at(self, i: int) -> Tile:
         return Tile(_mjx.Open.at(self.bit, i))
