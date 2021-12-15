@@ -3,8 +3,8 @@ from typing import List
 import inquirer
 
 from mjx.action import Action
+from mjx.open import Open
 from mjx.visualizer.converter import action_type_en, action_type_ja, get_tile_char
-from mjx.visualizer.open_utils import open_tile_ids
 from mjx.visualizer.visualizer import GameBoardVisualizer, GameVisualConfig, MahjongTable
 from mjxproto import Observation
 from mjxproto.mjx_pb2 import ActionType
@@ -70,12 +70,14 @@ class Selector:
             ActionType.ACTION_TYPE_ADDED_KAN,
             ActionType.ACTION_TYPE_RON,
         ]:
+            open_data = Open(action.open)
+            open_tile_ids = [tile.id() for tile in open_data.tiles()]
             return (
                 str(i)
                 + ":"
                 + (action_type_ja[action.type] if ja else action_type_en[action.type])
                 + "-"
-                + " ".join([get_tile_char(id, unicode) for id in open_tile_ids(action.open)])
+                + " ".join([get_tile_char(id, unicode) for id in open_tile_ids])
             )
 
         else:
