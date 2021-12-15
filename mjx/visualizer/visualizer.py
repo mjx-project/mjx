@@ -82,8 +82,7 @@ class Player:
         self.is_declared_riichi: bool = False
         self.name: str = ""
         self.draw_now: bool = False
-        self.tsumo_tile_id: int = -1
-        self.ron_tile_id: int = -1
+        self.win_tile_id: int = -1
 
 
 class MahjongTable:
@@ -230,10 +229,7 @@ class MahjongTable:
 
             p.draw_now = eve.type == EventType.EVENT_TYPE_DRAW
 
-            if eve.type == EventType.EVENT_TYPE_TSUMO:
-                p.tsumo_tile_id = eve.tile
-
-            elif eve.type == EventType.EVENT_TYPE_DISCARD:
+            if eve.type == EventType.EVENT_TYPE_DISCARD:
                 discard = [
                     _discard
                     for _discard in p.tile_units
@@ -298,7 +294,6 @@ class MahjongTable:
                     discard.tiles[-1].is_highlighting = True
 
             elif eve.type == EventType.EVENT_TYPE_RON:
-                p.ron_tile_id = eve.tile
                 if public_observation.events[i - 1].type != EventType.EVENT_TYPE_RON:
                     _p = table.players[public_observation.events[i - 1].who]
                     discard = [
@@ -389,13 +384,16 @@ class MahjongTable:
         if len(public_observation.events) == 0:
             return table
 
-        if public_observation.events[-1].type in [
+        last_event = public_observation.events[-1]
+
+        if last_event.type in [
             EventType.EVENT_TYPE_TSUMO,
             EventType.EVENT_TYPE_RON,
         ]:
             table.result = "win"
-            table.event_info = public_observation.events[-1].type
-        elif public_observation.events[-1].type in [
+            table.event_info = last_event.type
+            table.players[last_event.who].win_tile_id = last_event.tile
+        elif last_event.type in [
             EventType.EVENT_TYPE_ABORTIVE_DRAW_NINE_TERMINALS,
             EventType.EVENT_TYPE_ABORTIVE_DRAW_FOUR_RIICHIS,
             EventType.EVENT_TYPE_ABORTIVE_DRAW_THREE_RONS,
@@ -405,7 +403,13 @@ class MahjongTable:
             EventType.EVENT_TYPE_EXHAUSTIVE_DRAW_NAGASHI_MANGAN,
         ]:
             table.result = "nowinner"
-            table.event_info = public_observation.events[-1].type
+            table.event_info = last_event.type
+            discard = [
+                _discard
+                for _discard in table.players[public_observation.events[-2].who].tile_units
+                if _discard.tile_unit_type == TileUnitType.DISCARD
+            ][0]
+            discard.tiles[-1].is_highlighting = True
 
         return table
 
@@ -431,7 +435,7 @@ class MahjongTable:
                                     Tile(
                                         i,
                                         is_open=True,
-                                        highlighting=(i == p.ron_tile_id or i == p.tsumo_tile_id),
+                                        highlighting=(i == p.win_tile_id),
                                     )
                                     for i in win_data.hand.closed_tiles
                                 ],
