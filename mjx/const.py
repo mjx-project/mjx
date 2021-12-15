@@ -105,7 +105,7 @@ class TileType(IntEnum):
 
 
 class RelativePlayerIdx(IntEnum):
-    SELF = 0    # 自家
-    RIGHT = 1   # 下家
+    SELF = 0  # 自家
+    RIGHT = 1  # 下家
     CENTER = 2  # 対面
-    LEFT = 3    # 上家
+    LEFT = 3  # 上家

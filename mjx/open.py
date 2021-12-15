@@ -4,7 +4,7 @@ from typing import List
 
 import _mjx  # type: ignore
 
-from mjx.const import EventType, TileType, RelativePlayerIdx
+from mjx.const import EventType, RelativePlayerIdx, TileType
 from mjx.tile import Tile
 
 
