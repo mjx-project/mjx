@@ -13,17 +13,10 @@ from rich.text import Text
 
 import mjxproto
 from mjx.action import Action
-from mjx.visualizer.converter import (
-    FromWho,
-    TileUnitType,
-    get_event_type,
-    get_modifier,
-    get_tile_char,
-    get_wind_char,
-)
-from mjxproto import EventType
-
-from .open_utils import open_event_type, open_from, open_tile_ids
+from mjx.const import EventType, RelativePlayerIdx
+from mjx.open import Open
+from mjx.tile import Tile as _Tile
+from mjx.visualizer.converter import get_event_type, get_modifier, get_tile_char, get_wind_char
 
 
 @dataclass
@@ -36,7 +29,7 @@ class GameVisualConfig:
     show_name: bool = True
 
 
-class Tile:
+class Tile(_Tile):
     def __init__(
         self,
         tile_id: int,
@@ -45,24 +38,24 @@ class Tile:
         with_riichi: bool = False,
         highlighting: bool = False,
     ):
-        self.id = tile_id
-        self.is_open: bool = is_open
-        self.is_tsumogiri: bool = is_tsumogiri
-        self.with_riichi: bool = with_riichi
+        super().__init__(tile_id)
+        self.visual_char: str = "error"  # 実際に表示するときの文字列（裏向き含む）
+        self.is_open: bool = is_open  # 表向きか（自分の手牌以外は基本的に裏）
+        self.is_tsumogiri: bool = is_tsumogiri  # ツモ切り表示にするかどうか
+        self.with_riichi: bool = with_riichi  # 横向きにするかどうか
         self.is_transparent: bool = False  # 鳴かれた牌は透明にして河に表示
         self.is_highlighting: bool = highlighting  # 最後のアクションをハイライト表示
-        self.char: str
 
 
 class TileUnit:
     def __init__(
         self,
-        tiles_type: TileUnitType,
-        from_who: FromWho,
+        tiles_type: EventType,
+        from_who: Optional[RelativePlayerIdx],
         tiles: List[Tile],
     ):
-        self.tile_unit_type: TileUnitType = tiles_type
-        self.from_who: FromWho = from_who
+        self.tile_unit_type: EventType = tiles_type
+        self.from_who: Optional[RelativePlayerIdx] = from_who
         self.tiles: List[Tile] = tiles
 
 
@@ -73,8 +66,8 @@ class Player:
         self.score: str = ""
         self.tile_units: List[TileUnit] = [
             TileUnit(
-                TileUnitType.DISCARD,
-                FromWho.NONE,
+                EventType.DISCARD,
+                None,
                 [],
             )
         ]
@@ -100,7 +93,7 @@ class MahjongTable:
         self.doras: List[int] = []
         self.uradoras: List[int] = []
         self.result: str = ""
-        self.event_info: Optional[EventType.V] = None
+        self.event_info: Optional[EventType] = None
         self.legal_actions: List[Action] = []
         self.new_dora: int = -1
 
@@ -117,10 +110,10 @@ class MahjongTable:
             hand = ""
             open = []
             for tile_unit in p.tile_units:
-                if tile_unit.tile_unit_type == TileUnitType.HAND:
+                if tile_unit.tile_unit_type == EventType.DRAW:
                     num_of_tiles += len(tile_unit.tiles)
                     hand = " ".join([str(tile.id) for tile in tile_unit.tiles])
-                elif tile_unit.tile_unit_type != TileUnitType.DISCARD:
+                elif tile_unit.tile_unit_type != EventType.DISCARD:
                     num_of_tiles += 3
                     open.append(" ".join([str(tile.id) for tile in tile_unit.tiles]))
 
@@ -184,8 +177,8 @@ class MahjongTable:
         if p.draw_now and has_tsumotile:
             p.tile_units.append(
                 TileUnit(
-                    TileUnitType.HAND,
-                    FromWho.NONE,
+                    EventType.DRAW,
+                    None,
                     [
                         Tile(i, is_open=True)
                         for i in private_observation.curr_hand.closed_tiles
@@ -199,8 +192,8 @@ class MahjongTable:
         else:
             p.tile_units.append(
                 TileUnit(
-                    TileUnitType.HAND,
-                    FromWho.NONE,
+                    EventType.DRAW,
+                    None,
                     [Tile(i, is_open=True) for i in private_observation.curr_hand.closed_tiles],
                 )
             )
@@ -227,13 +220,13 @@ class MahjongTable:
         for i, eve in enumerate(public_observation.events):
             p = table.players[eve.who]
 
-            p.draw_now = eve.type == EventType.EVENT_TYPE_DRAW
+            p.draw_now = eve.type == EventType.DRAW
 
-            if eve.type == EventType.EVENT_TYPE_DISCARD:
+            if eve.type == EventType.DISCARD:
                 discard = [
                     _discard
                     for _discard in p.tile_units
-                    if _discard.tile_unit_type == TileUnitType.DISCARD
+                    if _discard.tile_unit_type == EventType.DISCARD
                 ][0]
 
                 if p.riichi_now:
@@ -255,11 +248,11 @@ class MahjongTable:
                 if i == len(public_observation.events) - 1:
                     discard.tiles[-1].is_highlighting = True
 
-            elif eve.type == EventType.EVENT_TYPE_TSUMOGIRI:
+            elif eve.type == EventType.TSUMOGIRI:
                 discard = [
                     _discard
                     for _discard in p.tile_units
-                    if _discard.tile_unit_type == TileUnitType.DISCARD
+                    if _discard.tile_unit_type == EventType.DISCARD
                 ][0]
 
                 if p.riichi_now:
@@ -278,10 +271,10 @@ class MahjongTable:
                 if i == len(public_observation.events) - 1:
                     discard.tiles[-1].is_highlighting = True
 
-            elif eve.type == EventType.EVENT_TYPE_RIICHI:
+            elif eve.type == EventType.RIICHI:
                 p.riichi_now = True
 
-            elif eve.type == EventType.EVENT_TYPE_RIICHI_SCORE_CHANGE:
+            elif eve.type == EventType.RIICHI_SCORE_CHANGE:
                 table.riichi += 1
                 p.is_declared_riichi = True
                 p.score = str(int(p.score) - 1000)
@@ -289,48 +282,51 @@ class MahjongTable:
                     discard = [
                         _discard
                         for _discard in p.tile_units
-                        if _discard.tile_unit_type == TileUnitType.DISCARD
+                        if _discard.tile_unit_type == EventType.DISCARD
                     ][0]
                     discard.tiles[-1].is_highlighting = True
 
-            elif eve.type == EventType.EVENT_TYPE_RON:
-                if public_observation.events[i - 1].type != EventType.EVENT_TYPE_RON:
+            elif eve.type == EventType.RON:
+                if public_observation.events[i - 1].type != EventType.RON:
                     _p = table.players[public_observation.events[i - 1].who]
                     discard = [
                         _discard
                         for _discard in _p.tile_units
-                        if _discard.tile_unit_type == TileUnitType.DISCARD
+                        if _discard.tile_unit_type == EventType.DISCARD
                     ][0]
                     discard.tiles[-1].is_transparent = True
 
             elif eve.type in [
-                EventType.EVENT_TYPE_CHI,
-                EventType.EVENT_TYPE_PON,
-                EventType.EVENT_TYPE_CLOSED_KAN,
-                EventType.EVENT_TYPE_ADDED_KAN,
-                EventType.EVENT_TYPE_OPEN_KAN,
+                EventType.CHI,
+                EventType.PON,
+                EventType.CLOSED_KAN,
+                EventType.ADDED_KAN,
+                EventType.OPEN_KAN,
             ]:
-                if eve.type == EventType.EVENT_TYPE_ADDED_KAN:
+                open_data = Open(eve.open)
+                open_tiles = open_data.tiles()
+
+                if eve.type == EventType.ADDED_KAN:
                     # added_kanのときにすでに存在するポンを取り除く処理
                     p.tile_units = [
                         t_u
                         for t_u in p.tile_units
                         if (
-                            t_u.tile_unit_type != TileUnitType.PON
-                            or t_u.tiles[0].id // 4 != open_tile_ids(eve.open)[0] // 4
+                            t_u.tile_unit_type != EventType.PON
+                            or t_u.tiles[0].id() // 4 != open_tiles[0].id() // 4
                         )
                     ]
 
                 # 鳴き牌を追加する処理
                 if eve.type in [
-                    EventType.EVENT_TYPE_CLOSED_KAN,
-                    EventType.EVENT_TYPE_ADDED_KAN,
+                    EventType.CLOSED_KAN,
+                    EventType.ADDED_KAN,
                 ]:
                     p.tile_units.append(
                         TileUnit(
-                            open_event_type(eve.open),
-                            open_from(eve.open),
-                            [Tile(i, is_open=True) for i in open_tile_ids(eve.open)],
+                            open_data.event_type(),
+                            open_data.steal_from(),
+                            [Tile(i.id(), is_open=True) for i in open_tiles],
                         )
                     )
                     if i == len(public_observation.events) - 1:
@@ -338,31 +334,31 @@ class MahjongTable:
 
                 # 鳴かれた牌を透明にする処理
                 if eve.type in [
-                    EventType.EVENT_TYPE_CHI,
-                    EventType.EVENT_TYPE_PON,
-                    EventType.EVENT_TYPE_OPEN_KAN,
+                    EventType.CHI,
+                    EventType.PON,
+                    EventType.OPEN_KAN,
                 ]:
                     idx_from = p.player_idx
-                    if open_from(eve.open) == FromWho.LEFT:
+                    if open_data.steal_from() == RelativePlayerIdx.LEFT:
                         idx_from = (p.player_idx + 3) % 4
-                    elif open_from(eve.open) == FromWho.MID:
+                    elif open_data.steal_from() == RelativePlayerIdx.CENTER:
                         idx_from = (p.player_idx + 2) % 4
-                    elif open_from(eve.open) == FromWho.RIGHT:
+                    elif open_data.steal_from() == RelativePlayerIdx.RIGHT:
                         idx_from = (p.player_idx + 1) % 4
 
                     p_from = table.players[idx_from]
                     for p_from_t_u in p_from.tile_units:
-                        if p_from_t_u.tile_unit_type == TileUnitType.DISCARD:
+                        if p_from_t_u.tile_unit_type == EventType.DISCARD:
                             p_from_t_u.tiles[-1].is_transparent = True
 
                             # 鳴き牌を追加する処理
                             p.tile_units.append(
                                 TileUnit(
-                                    open_event_type(eve.open),
-                                    open_from(eve.open),
+                                    open_data.event_type(),
+                                    open_data.steal_from(),
                                     [
                                         Tile(
-                                            p_from_t_u.tiles[-1].id,
+                                            p_from_t_u.tiles[-1].id(),
                                             is_open=True,
                                             highlighting=(
                                                 i == len(public_observation.events) - 1
@@ -370,15 +366,15 @@ class MahjongTable:
                                         )
                                     ]
                                     + [
-                                        Tile(i, is_open=True)
-                                        for i in open_tile_ids(eve.open)
-                                        if i != p_from_t_u.tiles[-1].id
+                                        Tile(i.id(), is_open=True)
+                                        for i in open_tiles
+                                        if i != p_from_t_u.tiles[-1].id()
                                     ],
                                 )
                             )
-                            assert p.tile_units[-1].tiles[0].id == p_from_t_u.tiles[-1].id
+                            assert p.tile_units[-1].tiles[0].id() == p_from_t_u.tiles[-1].id()
 
-            elif eve.type == EventType.EVENT_TYPE_NEW_DORA:
+            elif eve.type == EventType.NEW_DORA:
                 table.new_dora = eve.tile
 
         if len(public_observation.events) == 0:
@@ -387,27 +383,27 @@ class MahjongTable:
         last_event = public_observation.events[-1]
 
         if last_event.type in [
-            EventType.EVENT_TYPE_TSUMO,
-            EventType.EVENT_TYPE_RON,
+            EventType.TSUMO,
+            EventType.RON,
         ]:
             table.result = "win"
             table.event_info = last_event.type
             table.players[last_event.who].win_tile_id = last_event.tile
         elif last_event.type in [
-            EventType.EVENT_TYPE_ABORTIVE_DRAW_NINE_TERMINALS,
-            EventType.EVENT_TYPE_ABORTIVE_DRAW_FOUR_RIICHIS,
-            EventType.EVENT_TYPE_ABORTIVE_DRAW_THREE_RONS,
-            EventType.EVENT_TYPE_ABORTIVE_DRAW_FOUR_KANS,
-            EventType.EVENT_TYPE_ABORTIVE_DRAW_FOUR_WINDS,
-            EventType.EVENT_TYPE_EXHAUSTIVE_DRAW_NORMAL,
-            EventType.EVENT_TYPE_EXHAUSTIVE_DRAW_NAGASHI_MANGAN,
+            EventType.ABORTIVE_DRAW_NINE_TERMINALS,
+            EventType.ABORTIVE_DRAW_FOUR_RIICHIS,
+            EventType.ABORTIVE_DRAW_THREE_RONS,
+            EventType.ABORTIVE_DRAW_FOUR_KANS,
+            EventType.ABORTIVE_DRAW_FOUR_WINDS,
+            EventType.ABORTIVE_DRAW_NORMAL,
+            EventType.ABORTIVE_DRAW_NAGASHI_MANGAN,
         ]:
             table.result = "nowinner"
             table.event_info = last_event.type
             discard = [
                 _discard
                 for _discard in table.players[public_observation.events[-2].who].tile_units
-                if _discard.tile_unit_type == TileUnitType.DISCARD
+                if _discard.tile_unit_type == EventType.DISCARD
             ][0]
             discard.tiles[-1].is_highlighting = True
 
@@ -424,13 +420,13 @@ class MahjongTable:
                     if p.player_idx == win_data.who:
                         # 手牌をround_terminalのもので上書き
                         p.tile_units = [
-                            t_u for t_u in p.tile_units if t_u.tile_unit_type != TileUnitType.HAND
+                            t_u for t_u in p.tile_units if t_u.tile_unit_type != EventType.DRAW
                         ]
 
                         p.tile_units.append(
                             TileUnit(
-                                TileUnitType.HAND,
-                                FromWho.NONE,
+                                EventType.DRAW,
+                                None,
                                 [
                                     Tile(
                                         i,
@@ -459,13 +455,13 @@ class MahjongTable:
                         table.players[i].tile_units = [
                             t_u
                             for t_u in table.players[i].tile_units
-                            if t_u.tile_unit_type != TileUnitType.HAND
+                            if t_u.tile_unit_type != EventType.DRAW
                         ]
 
                         table.players[i].tile_units.append(
                             TileUnit(
-                                TileUnitType.HAND,
-                                FromWho.NONE,
+                                EventType.DRAW,
+                                None,
                                 [Tile(i, is_open=True) for i in tenpai_data.hand.closed_tiles],
                             )
                         )
@@ -494,15 +490,15 @@ class MahjongTable:
                 hands_num = 13
                 for t_u in p.tile_units:
                     if t_u.tile_unit_type not in [
-                        TileUnitType.DISCARD,
-                        TileUnitType.HAND,
+                        EventType.DISCARD,
+                        EventType.DRAW,
                     ]:
                         hands_num -= 3
 
                 p.tile_units.append(
                     TileUnit(
-                        TileUnitType.HAND,
-                        FromWho.NONE,
+                        EventType.DRAW,
+                        None,
                         [Tile(i, is_open=False) for i in range(hands_num)],
                     )
                 )
@@ -656,34 +652,34 @@ class GameBoardVisualizer:
 
         for tile in tile_unit.tiles:
             if not tile.is_open:
-                tile.char = "\U0001F02B" if self.config.uni else "#"
+                tile.visual_char = "\U0001F02B" if self.config.uni else "#"
             else:
-                tile.char = get_tile_char(tile.id, self.config.uni)
+                tile.visual_char = get_tile_char(tile.id(), self.config.uni)
             if tile.is_tsumogiri:
                 if tile.with_riichi:
-                    if self.config.uni and tile.char != "\U0001F004\uFE0E":
-                        tile.char += " *r"
+                    if self.config.uni and tile.visual_char != "\U0001F004\uFE0E":
+                        tile.visual_char += " *r"
                     else:
-                        tile.char += "*r"
+                        tile.visual_char += "*r"
                 else:
-                    if self.config.uni and tile.char != "\U0001F004\uFE0E":
-                        tile.char += " *"
+                    if self.config.uni and tile.visual_char != "\U0001F004\uFE0E":
+                        tile.visual_char += " *"
                     else:
-                        tile.char += "*"
+                        tile.visual_char += "*"
             elif tile.with_riichi:
-                if self.config.uni and tile.char != "\U0001F004\uFE0E":
-                    tile.char += " r"
+                if self.config.uni and tile.visual_char != "\U0001F004\uFE0E":
+                    tile.visual_char += " r"
                 else:
-                    tile.char += "r"
+                    tile.visual_char += "r"
 
         if self.config.rich:
-            if tile_unit.tile_unit_type == TileUnitType.DISCARD:
+            if tile_unit.tile_unit_type == EventType.DISCARD:
                 discards = [
-                    tile.char
+                    tile.visual_char
                     + (
                         ""
                         if (
-                            tile.char == "\U0001F004\uFE0E"
+                            tile.visual_char == "\U0001F004\uFE0E"
                             or (tile.is_tsumogiri and tile.with_riichi)
                         )
                         else " "
@@ -708,7 +704,8 @@ class GameBoardVisualizer:
                     + "\n"
                     + "\n".join(
                         [
-                            (" " if tile.char == "\U0001F004\uFE0E" else "") + tile.char
+                            (" " if tile.visual_char == "\U0001F004\uFE0E" else "")
+                            + tile.visual_char
                             for tile in tile_unit.tiles
                         ]
                     )
@@ -716,21 +713,26 @@ class GameBoardVisualizer:
                 )
                 return tiles
             elif player_idx == 2:
-                if tile_unit.tile_unit_type == TileUnitType.HAND:
+                if tile_unit.tile_unit_type == EventType.DRAW:
                     tiles = "".join(
                         [
-                            tile.char + ("" if tile.char == "\U0001F004\uFE0E" else " ")
+                            tile.visual_char
+                            + ("" if tile.visual_char == "\U0001F004\uFE0E" else " ")
                             for tile in tile_unit.tiles
                         ]
                     )
                     return tiles
                 tiles = get_modifier(tile_unit.from_who, tile_unit.tile_unit_type) + "".join(
                     [
-                        tile.char
-                        + ("" if (not self.config.uni or tile.char == "\U0001F004\uFE0E") else " ")
+                        tile.visual_char
+                        + (
+                            ""
+                            if (not self.config.uni or tile.visual_char == "\U0001F004\uFE0E")
+                            else " "
+                        )
                         for tile in sorted(
                             tile_unit.tiles,
-                            key=lambda x: x.id,
+                            key=lambda x: x.id(),
                             reverse=True,
                         )
                     ]
@@ -741,7 +743,8 @@ class GameBoardVisualizer:
                     "\n"
                     + "\n".join(
                         [
-                            (" " if tile.char == "\U0001F004\uFE0E" else "") + tile.char
+                            (" " if tile.visual_char == "\U0001F004\uFE0E" else "")
+                            + tile.visual_char
                             for tile in tile_unit.tiles
                         ]
                     )
@@ -751,10 +754,11 @@ class GameBoardVisualizer:
                 )
                 return tiles
             else:
-                if tile_unit.tile_unit_type == TileUnitType.HAND:
+                if tile_unit.tile_unit_type == EventType.DRAW:
                     tiles = "".join(
                         [
-                            tile.char + ("" if tile.char == "\U0001F004\uFE0E" else " ")
+                            tile.visual_char
+                            + ("" if tile.visual_char == "\U0001F004\uFE0E" else " ")
                             for tile in tile_unit.tiles
                         ]
                     )
@@ -762,10 +766,10 @@ class GameBoardVisualizer:
                 tiles = (
                     "".join(
                         [
-                            tile.char
+                            tile.visual_char
                             + (
                                 ""
-                                if (not self.config.uni or tile.char == "\U0001F004\uFE0E")
+                                if (not self.config.uni or tile.visual_char == "\U0001F004\uFE0E")
                                 else " "
                             )
                             for tile in tile_unit.tiles
@@ -776,21 +780,21 @@ class GameBoardVisualizer:
                 )
                 return tiles
         else:  # not rich
-            if tile_unit.tile_unit_type == TileUnitType.HAND:
+            if tile_unit.tile_unit_type == EventType.DRAW:
                 tiles = "".join(
                     [
-                        tile.char + ("" if tile.char == "\U0001F004\uFE0E" else " ")
+                        tile.visual_char + ("" if tile.visual_char == "\U0001F004\uFE0E" else " ")
                         for tile in tile_unit.tiles
                     ]
                 )
                 return tiles
-            if tile_unit.tile_unit_type == TileUnitType.DISCARD:
+            if tile_unit.tile_unit_type == EventType.DISCARD:
                 discards = [
-                    tile.char
+                    tile.visual_char
                     + (
                         ""
                         if (
-                            tile.char == "\U0001F004\uFE0E"
+                            tile.visual_char == "\U0001F004\uFE0E"
                             or (tile.is_tsumogiri and tile.with_riichi)
                         )
                         else " "
@@ -810,16 +814,20 @@ class GameBoardVisualizer:
                 return tiles
 
             if tile_unit.tile_unit_type in [
-                TileUnitType.CHI,
-                TileUnitType.PON,
-                TileUnitType.CLOSED_KAN,
-                TileUnitType.OPEN_KAN,
-                TileUnitType.ADDED_KAN,
+                EventType.CHI,
+                EventType.PON,
+                EventType.CLOSED_KAN,
+                EventType.OPEN_KAN,
+                EventType.ADDED_KAN,
             ]:
                 tiles = "".join(
                     [
-                        tile.char
-                        + ("" if (not self.config.uni or tile.char == "\U0001F004\uFE0E") else " ")
+                        tile.visual_char
+                        + (
+                            ""
+                            if (not self.config.uni or tile.visual_char == "\U0001F004\uFE0E")
+                            else " "
+                        )
                         for tile in tile_unit.tiles
                     ]
                 ) + get_modifier(tile_unit.from_who, tile_unit.tile_unit_type)
@@ -917,9 +925,9 @@ class GameBoardVisualizer:
             hand = ""
             discards = ""
             for t_u in reversed(p.tile_units):
-                if t_u.tile_unit_type == TileUnitType.HAND:
+                if t_u.tile_unit_type == EventType.DRAW:
                     hand = self.add_suffix(t_u)
-                elif t_u.tile_unit_type == TileUnitType.DISCARD:
+                elif t_u.tile_unit_type == EventType.DISCARD:
                     discards = self.add_suffix(t_u)
                 else:
                     opens.append(self.add_suffix(t_u))
@@ -1001,10 +1009,11 @@ class GameBoardVisualizer:
 
             opens = []
             hand = ""
+            discards = ""
             for t_u in reversed(p.tile_units):
-                if t_u.tile_unit_type == TileUnitType.HAND:
+                if t_u.tile_unit_type == EventType.DRAW:
                     hand = self.add_suffix(t_u, player_idx=i)
-                elif t_u.tile_unit_type == TileUnitType.DISCARD:
+                elif t_u.tile_unit_type == EventType.DISCARD:
                     discards = self.add_suffix(t_u, player_idx=i)
                 else:
                     opens.append(self.add_suffix(t_u, player_idx=i))

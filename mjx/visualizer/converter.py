@@ -1,27 +1,9 @@
 from __future__ import annotations
 
-from enum import Enum
+from typing import Optional
 
-from mjxproto import ActionType, EventType
-
-
-class TileUnitType(Enum):
-    HAND = 0
-    CHI = 1
-    PON = 2
-    CLOSED_KAN = 3
-    OPEN_KAN = 4
-    ADDED_KAN = 5
-    DISCARD = 6
-
-
-class FromWho(Enum):
-    NONE = 0
-    RIGHT = 1
-    MID = 2
-    LEFT = 3
-    SELF = 4
-
+from mjx.const import EventType, RelativePlayerIdx
+from mjxproto import ActionType
 
 to_char = [
     "m1",
@@ -109,17 +91,16 @@ to_wind_char = [
 ]
 
 to_modifier = {
-    FromWho.NONE: "",
-    FromWho.RIGHT: "R",  # Right
-    FromWho.MID: "M",  # Mid
-    FromWho.LEFT: "L",  # Left
-    FromWho.SELF: "S",  # Self(kan closed)
+    RelativePlayerIdx.RIGHT: "R",  # Right
+    RelativePlayerIdx.CENTER: "C",  # Center
+    RelativePlayerIdx.LEFT: "L",  # Left
+    RelativePlayerIdx.SELF: "S",  # Self(kan closed)
 }
 
 to_modifier_add_kan = {
-    FromWho.RIGHT: "R(Add)",  # Right(kan added)
-    FromWho.MID: "M(Add)",  # Mid(kan added)
-    FromWho.LEFT: "L(Add)",  # Left(kan added)
+    RelativePlayerIdx.RIGHT: "R(Add)",  # Right(kan added)
+    RelativePlayerIdx.CENTER: "C(Add)",  # Center(kan added)
+    RelativePlayerIdx.LEFT: "L(Add)",  # Left(kan added)
 }
 
 yaku_list = [
@@ -181,49 +162,49 @@ yaku_list = [
 ]
 
 event_type_en = {
-    EventType.EVENT_TYPE_DISCARD: "DISCARD",
-    EventType.EVENT_TYPE_TSUMOGIRI: "TSUMOGIRI",
-    EventType.EVENT_TYPE_RIICHI: "RIICHI",
-    EventType.EVENT_TYPE_CLOSED_KAN: "CLOSED_KAN",
-    EventType.EVENT_TYPE_ADDED_KAN: "ADDED_KAN",
-    EventType.EVENT_TYPE_TSUMO: "TSUMO",
-    EventType.EVENT_TYPE_ABORTIVE_DRAW_NINE_TERMINALS: "ABORTIVE_DRAW_NINE_TERMINALS",
-    EventType.EVENT_TYPE_CHI: "CHI",
-    EventType.EVENT_TYPE_PON: "PON",
-    EventType.EVENT_TYPE_OPEN_KAN: "OPEN_KAN",
-    EventType.EVENT_TYPE_RON: "RON",
-    EventType.EVENT_TYPE_DRAW: "DRAW",
-    EventType.EVENT_TYPE_RIICHI_SCORE_CHANGE: "RIICHI_SCORE_CHANGE",
-    EventType.EVENT_TYPE_NEW_DORA: "NEW_DORA",
-    EventType.EVENT_TYPE_ABORTIVE_DRAW_FOUR_RIICHIS: "ABORTIVE_DRAW_FOUR_RIICHIS",
-    EventType.EVENT_TYPE_ABORTIVE_DRAW_THREE_RONS: "ABORTIVE_DRAW_THREE_RONS",
-    EventType.EVENT_TYPE_ABORTIVE_DRAW_FOUR_KANS: "ABORTIVE_DRAW_FOUR_KANS",
-    EventType.EVENT_TYPE_ABORTIVE_DRAW_FOUR_WINDS: "ABORTIVE_DRAW_FOUR_WINDS",
-    EventType.EVENT_TYPE_EXHAUSTIVE_DRAW_NORMAL: "EXHAUSTIVE_DRAW_NORMAL",
-    EventType.EVENT_TYPE_EXHAUSTIVE_DRAW_NAGASHI_MANGAN: "EXHAUSTIVE_DRAW_NAGASHI_MANGAN",
+    EventType.DISCARD: "DISCARD",
+    EventType.TSUMOGIRI: "TSUMOGIRI",
+    EventType.RIICHI: "RIICHI",
+    EventType.CLOSED_KAN: "CLOSED_KAN",
+    EventType.ADDED_KAN: "ADDED_KAN",
+    EventType.TSUMO: "TSUMO",
+    EventType.ABORTIVE_DRAW_NINE_TERMINALS: "ABORTIVE_DRAW_NINE_TERMINALS",
+    EventType.CHI: "CHI",
+    EventType.PON: "PON",
+    EventType.OPEN_KAN: "OPEN_KAN",
+    EventType.RON: "RON",
+    EventType.DRAW: "DRAW",
+    EventType.RIICHI_SCORE_CHANGE: "RIICHI_SCORE_CHANGE",
+    EventType.NEW_DORA: "NEW_DORA",
+    EventType.ABORTIVE_DRAW_FOUR_RIICHIS: "ABORTIVE_DRAW_FOUR_RIICHIS",
+    EventType.ABORTIVE_DRAW_THREE_RONS: "ABORTIVE_DRAW_THREE_RONS",
+    EventType.ABORTIVE_DRAW_FOUR_KANS: "ABORTIVE_DRAW_FOUR_KANS",
+    EventType.ABORTIVE_DRAW_FOUR_WINDS: "ABORTIVE_DRAW_FOUR_WINDS",
+    EventType.ABORTIVE_DRAW_NORMAL: "ABORTIVE_DRAW_NORMAL",
+    EventType.ABORTIVE_DRAW_NAGASHI_MANGAN: "ABORTIVE_DRAW_NAGASHI_MANGAN",
 }
 
 event_type_ja = {
-    EventType.EVENT_TYPE_DISCARD: "打牌",
-    EventType.EVENT_TYPE_TSUMOGIRI: "ツモ切り",
-    EventType.EVENT_TYPE_RIICHI: "リーチ",
-    EventType.EVENT_TYPE_CLOSED_KAN: "暗槓",
-    EventType.EVENT_TYPE_ADDED_KAN: "加槓",
-    EventType.EVENT_TYPE_TSUMO: "ツモ",
-    EventType.EVENT_TYPE_ABORTIVE_DRAW_NINE_TERMINALS: "九種九牌",
-    EventType.EVENT_TYPE_CHI: "チー",
-    EventType.EVENT_TYPE_PON: "ポン",
-    EventType.EVENT_TYPE_OPEN_KAN: "大明槓",
-    EventType.EVENT_TYPE_RON: "ロン",
-    EventType.EVENT_TYPE_DRAW: "引き分け",
-    EventType.EVENT_TYPE_RIICHI_SCORE_CHANGE: "リーチ（スコア変動）",
-    EventType.EVENT_TYPE_NEW_DORA: "新ドラ",
-    EventType.EVENT_TYPE_ABORTIVE_DRAW_FOUR_RIICHIS: "四家立直",
-    EventType.EVENT_TYPE_ABORTIVE_DRAW_THREE_RONS: "三家和了",
-    EventType.EVENT_TYPE_ABORTIVE_DRAW_FOUR_KANS: "四槓散了",
-    EventType.EVENT_TYPE_ABORTIVE_DRAW_FOUR_WINDS: "四風連打",
-    EventType.EVENT_TYPE_EXHAUSTIVE_DRAW_NORMAL: "流局",
-    EventType.EVENT_TYPE_EXHAUSTIVE_DRAW_NAGASHI_MANGAN: "流し満貫",
+    EventType.DISCARD: "打牌",
+    EventType.TSUMOGIRI: "ツモ切り",
+    EventType.RIICHI: "リーチ",
+    EventType.CLOSED_KAN: "暗槓",
+    EventType.ADDED_KAN: "加槓",
+    EventType.TSUMO: "ツモ",
+    EventType.ABORTIVE_DRAW_NINE_TERMINALS: "九種九牌",
+    EventType.CHI: "チー",
+    EventType.PON: "ポン",
+    EventType.OPEN_KAN: "大明槓",
+    EventType.RON: "ロン",
+    EventType.DRAW: "引き分け",
+    EventType.RIICHI_SCORE_CHANGE: "リーチ（スコア変動）",
+    EventType.NEW_DORA: "新ドラ",
+    EventType.ABORTIVE_DRAW_FOUR_RIICHIS: "四家立直",
+    EventType.ABORTIVE_DRAW_THREE_RONS: "三家和了",
+    EventType.ABORTIVE_DRAW_FOUR_KANS: "四槓散了",
+    EventType.ABORTIVE_DRAW_FOUR_WINDS: "四風連打",
+    EventType.ABORTIVE_DRAW_NORMAL: "流局",
+    EventType.ABORTIVE_DRAW_NAGASHI_MANGAN: "流し満貫",
 }
 
 action_type_en = {
@@ -277,8 +258,10 @@ def get_wind_char(wind: int, lang: int = 0) -> str:
         return " "
 
 
-def get_modifier(from_who: FromWho, tile_unit_type: TileUnitType) -> str:
-    if tile_unit_type == TileUnitType.ADDED_KAN:
+def get_modifier(from_who: Optional[RelativePlayerIdx], tile_unit_type: EventType) -> str:
+    if from_who is None:
+        return ""
+    if tile_unit_type == EventType.ADDED_KAN:
         return to_modifier_add_kan[from_who]
     else:
         return to_modifier[from_who]
@@ -288,7 +271,7 @@ def get_yaku(yaku: int) -> str:
     return yaku_list[yaku]
 
 
-def get_event_type(last_event: EventType.V, lang: int) -> str:
+def get_event_type(last_event: EventType, lang: int) -> str:
     if lang == 0:
         return event_type_en[last_event]
     else:

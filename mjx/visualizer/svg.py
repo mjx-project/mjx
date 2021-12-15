@@ -7,14 +7,9 @@ from svgwrite.drawing import Drawing
 
 import mjx.visualizer
 import mjxproto
-from mjx.visualizer.visualizer import (
-    FromWho,
-    MahjongTable,
-    Tile,
-    TileUnitType,
-    get_tile_char,
-    get_wind_char,
-)
+from mjx.const import EventType as TileUnitType
+from mjx.const import RelativePlayerIdx
+from mjx.visualizer.visualizer import MahjongTable, Tile, get_tile_char, get_wind_char
 
 
 def dwg_add(
@@ -153,7 +148,9 @@ def _make_svg(
 
     # Tuple[char, is_red, Tile]
     hands: List[List[Tuple[str, bool, Tile]]] = [[], [], [], []]
-    open_tiles: List[List[Tuple[List[Tuple[str, bool, Tile]], FromWho, TileUnitType]]] = [
+    open_tiles: List[
+        List[Tuple[List[Tuple[str, bool, Tile]], Optional[RelativePlayerIdx], TileUnitType]]
+    ] = [
         [],
         [],
         [],
@@ -171,11 +168,11 @@ def _make_svg(
         is_riichi[i] = sample_data.players[i].is_declared_riichi
 
         for t_u in reversed(sample_data.players[i].tile_units):
-            if t_u.tile_unit_type == TileUnitType.HAND:
+            if t_u.tile_unit_type == TileUnitType.DRAW:
                 for tile in t_u.tiles:
                     hands[i].append(
                         (
-                            "\U0001F02B" if not tile.is_open else get_tile_char(tile.id, True),
+                            "\U0001F02B" if not tile.is_open else get_tile_char(tile.id(), True),
                             tile.id in red_hai,
                             tile,
                         )
@@ -183,7 +180,7 @@ def _make_svg(
 
             if t_u.tile_unit_type == TileUnitType.DISCARD:
                 for tile in t_u.tiles:
-                    discards[i].append((get_tile_char(tile.id, True), tile.id in red_hai, tile))
+                    discards[i].append((get_tile_char(tile.id(), True), tile.id in red_hai, tile))
             if t_u.tile_unit_type in [
                 TileUnitType.CHI,
                 TileUnitType.PON,
@@ -194,7 +191,7 @@ def _make_svg(
                 open_tiles[i].append(
                     (
                         [
-                            (get_tile_char(tile.id, True), tile.id in red_hai, tile)
+                            (get_tile_char(tile.id(), True), tile.id in red_hai, tile)
                             for tile in t_u.tiles
                         ],
                         t_u.from_who,
@@ -462,7 +459,7 @@ def _make_svg(
 
             elif open_tile[2] == TileUnitType.PON:
                 pon = open_tile[0]
-                if open_tile[1] == FromWho.LEFT:
+                if open_tile[1] == RelativePlayerIdx.LEFT:
                     dwg_add(
                         dwg,
                         pai[i],
@@ -505,7 +502,7 @@ def _make_svg(
                         highliting=pon[0][2].is_highlighting and highlight_last_event,
                     )
 
-                elif open_tile[1] == FromWho.MID:
+                elif open_tile[1] == RelativePlayerIdx.CENTER:
                     dwg_add(
                         dwg,
                         pai[i],
@@ -549,7 +546,7 @@ def _make_svg(
                         highliting=pon[0][2].is_highlighting and highlight_last_event,
                     )
 
-                elif open_tile[1] == FromWho.RIGHT:
+                elif open_tile[1] == RelativePlayerIdx.RIGHT:
                     dwg_add(
                         dwg,
                         pai[i],
@@ -639,7 +636,7 @@ def _make_svg(
 
             elif open_tile[2] == TileUnitType.OPEN_KAN:
                 open_tile_kan = open_tile[0]
-                if open_tile[1] == FromWho.LEFT:
+                if open_tile[1] == RelativePlayerIdx.LEFT:
                     dwg_add(
                         dwg,
                         pai[i],
@@ -697,7 +694,7 @@ def _make_svg(
                         highliting=open_tile_kan[0][2].is_highlighting and highlight_last_event,
                     )
 
-                elif open_tile[1] == FromWho.MID:
+                elif open_tile[1] == RelativePlayerIdx.CENTER:
                     dwg_add(
                         dwg,
                         pai[i],
@@ -756,7 +753,7 @@ def _make_svg(
                         highliting=open_tile_kan[0][2].is_highlighting and highlight_last_event,
                     )
 
-                elif open_tile[1] == FromWho.RIGHT:
+                elif open_tile[1] == RelativePlayerIdx.RIGHT:
                     dwg_add(
                         dwg,
                         pai[i],
@@ -814,7 +811,7 @@ def _make_svg(
 
             elif open_tile[2] == TileUnitType.ADDED_KAN:
                 added_kan = open_tile[0]
-                if open_tile[1] == FromWho.LEFT:
+                if open_tile[1] == RelativePlayerIdx.LEFT:
                     dwg_add(
                         dwg,
                         pai[i],
@@ -872,7 +869,7 @@ def _make_svg(
                         highliting=added_kan[0][2].is_highlighting and highlight_last_event,
                     )
 
-                elif open_tile[1] == FromWho.MID:
+                elif open_tile[1] == RelativePlayerIdx.CENTER:
                     dwg_add(
                         dwg,
                         pai[i],
@@ -932,7 +929,7 @@ def _make_svg(
                         highliting=added_kan[0][2].is_highlighting and highlight_last_event,
                     )
 
-                elif open_tile[1] == FromWho.RIGHT:
+                elif open_tile[1] == RelativePlayerIdx.RIGHT:
                     dwg_add(
                         dwg,
                         pai[i],
