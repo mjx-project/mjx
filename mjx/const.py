@@ -102,3 +102,10 @@ class TileType(IntEnum):
     WD = 31
     GD = 32
     RD = 33
+
+
+class RelativePlayerIdx(IntEnum):
+    SELF = 0    # 自家
+    RIGHT = 1   # 下家
+    CENTER = 2  # 対面
+    LEFT = 3    # 上家
