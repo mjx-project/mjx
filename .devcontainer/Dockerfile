@@ -14,7 +14,9 @@ RUN apt-get update && apt-get install -y \
   libtool \
   pkg-config \
   unzip \
-  git-lfs
+  git-lfs \
+  python3.9 \
+  python3.9-venv
 
 # install gRPC
 RUN cd / && \
@@ -49,19 +51,3 @@ RUN cd /tmp && \
   make install && \
   ldconfig && \
   rm -rf /tmp/googletest
-
-# install python
-ARG PY_VERSION=3.9
-COPY requirements.txt /tmp/requirements.txt
-COPY requirements-dev.txt /tmp/requirements-dev.txt
-RUN curl -o ~/miniconda.sh https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh && \
-     chmod +x ~/miniconda.sh && \
-     ~/miniconda.sh -b -p /opt/conda && \
-     rm ~/miniconda.sh && \
-     /opt/conda/bin/conda install -y python=${PY_VERSION} && \
-     /opt/conda/bin/conda clean -ya && \
-     /opt/conda/bin/python3 -m pip install -r /tmp/requirements.txt && \
-     /opt/conda/bin/python3 -m pip install -r /tmp/requirements-dev.txt && \
-     rm /tmp/requirements.txt /tmp/requirements-dev.txt 
-
-ENV PATH /opt/conda/bin:$PATH
