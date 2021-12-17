@@ -53,6 +53,10 @@ std::vector<Action> Observation::legal_actions() const noexcept {
 
 int Observation::who() const noexcept { return proto_.who(); }
 
+int Observation::dealer() const noexcept {
+  return proto_.public_observation().init_score().round() % 4;
+}
+
 std::vector<Event> Observation::events() const noexcept {
   std::vector<Event> events;
   for (const auto& e : proto_.public_observation().events()) {

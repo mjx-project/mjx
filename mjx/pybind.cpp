@@ -65,6 +65,7 @@ PYBIND11_MODULE(_mjx, m) {
       .def("events", &mjx::Observation::events)
       .def("draw_history", &mjx::Observation::draw_history)
       .def("who", &mjx::Observation::who)
+      .def("dealer", &mjx::Observation::dealer)
       .def("action_mask", &mjx::Observation::action_mask)
       .def("curr_hand", &mjx::Observation::curr_hand);
 
