@@ -24,6 +24,7 @@ class Observation {
   std::vector<Action> legal_actions() const noexcept;
   std::vector<int> action_mask() const noexcept;
   int who() const noexcept;
+  int dealer() const noexcept;
   std::vector<Event> events() const noexcept;
   std::vector<int> draw_history() const noexcept;
 

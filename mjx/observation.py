@@ -36,6 +36,10 @@ class Observation:
         assert self._cpp_obj is not None
         return self._cpp_obj.who()  # type: ignore
 
+    def dealer(self) -> int:
+        assert self._cpp_obj is not None
+        return self._cpp_obj.dealer()  # type: ignore
+
     def curr_hand(self) -> Hand:
         assert self._cpp_obj is not None
         return Hand._from_cpp_obj(self._cpp_obj.curr_hand())  # type: ignore
