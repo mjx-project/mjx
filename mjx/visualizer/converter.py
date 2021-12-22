@@ -90,17 +90,11 @@ to_wind_char = [
     "北",
 ]
 
-to_modifier = {
+to_relative_player_idx = {
     RelativePlayerIdx.RIGHT: "R",  # Right
     RelativePlayerIdx.CENTER: "C",  # Center
     RelativePlayerIdx.LEFT: "L",  # Left
     RelativePlayerIdx.SELF: "S",  # Self(kan closed)
-}
-
-to_modifier_add_kan = {
-    RelativePlayerIdx.RIGHT: "R(Add)",  # Right(kan added)
-    RelativePlayerIdx.CENTER: "C(Add)",  # Center(kan added)
-    RelativePlayerIdx.LEFT: "L(Add)",  # Left(kan added)
 }
 
 yaku_list = [
@@ -262,9 +256,9 @@ def get_modifier(from_who: Optional[RelativePlayerIdx], tile_unit_type: EventTyp
     if from_who is None:
         return ""
     if tile_unit_type == EventType.ADDED_KAN:
-        return to_modifier_add_kan[from_who]
+        return to_relative_player_idx[from_who] + "(Add)"
     else:
-        return to_modifier[from_who]
+        return to_relative_player_idx[from_who]
 
 
 def get_yaku(yaku: int) -> str:

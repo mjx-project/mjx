@@ -89,7 +89,7 @@ class MahjongTable:
         self.round: int = 0
         self.honba: int = 0
         self.my_idx: int = 0  # The player you want to show.
-        self.wall_num: int = 134
+        self.wall_num: int = 136
         self.doras: List[int] = []
         self.uradoras: List[int] = []
         self.result: str = ""
