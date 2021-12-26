@@ -5,8 +5,8 @@
 
 #include <utility>
 
-#include "mjx/internal/types.h"
 #include "mjx/internal/observation.h"
+#include "mjx/internal/types.h"
 
 namespace mjx {
 Observation::Observation(mjxproto::Observation proto)
@@ -77,7 +77,8 @@ std::vector<int> Observation::draw_history() const noexcept {
 std::vector<int> Observation::doras() const noexcept {
   std::vector<int> doras;
   for (auto t : proto_.public_observation().dora_indicators()) {
-    doras.push_back(ToUType(internal::IndicatorToDora(internal::Tile(t).Type())));
+    doras.push_back(
+        ToUType(internal::IndicatorToDora(internal::Tile(t).Type())));
   }
   return doras;
 }

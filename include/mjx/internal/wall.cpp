@@ -4,8 +4,8 @@
 #include <boost/random/uniform_int_distribution.hpp>
 #include <cassert>
 
-#include "mjx/internal/utils.h"
 #include "mjx/internal/types.h"
+#include "mjx/internal/utils.h"
 
 namespace mjx::internal {
 Wall::Wall(std::uint64_t round, std::uint64_t honba, std::uint64_t game_seed)

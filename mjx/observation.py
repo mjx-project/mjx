@@ -8,10 +8,10 @@ from google.protobuf import json_format
 
 import mjxproto
 from mjx.action import Action
+from mjx.const import TileType
 from mjx.event import Event
 from mjx.hand import Hand
 from mjx.tile import Tile
-from mjx.const import TileType
 from mjx.visualizer.svg import save_svg
 
 
