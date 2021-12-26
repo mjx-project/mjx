@@ -11,6 +11,7 @@ from mjx.action import Action
 from mjx.event import Event
 from mjx.hand import Hand
 from mjx.tile import Tile
+from mjx.const import TileType
 from mjx.visualizer.svg import save_svg
 
 
@@ -39,6 +40,10 @@ class Observation:
     def dealer(self) -> int:
         assert self._cpp_obj is not None
         return self._cpp_obj.dealer()  # type: ignore
+
+    def doras(self) -> List[TileType]:
+        assert self._cpp_obj is not None
+        return self._cpp_obj.doras()  # type: ignore
 
     def curr_hand(self) -> Hand:
         assert self._cpp_obj is not None

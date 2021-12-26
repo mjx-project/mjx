@@ -113,4 +113,21 @@ bool IsSameWind(TileType tile_type, Wind wind) {
   if (tile_type == TileType::kNW && wind == Wind::kNorth) return true;
   return false;
 }
+
+TileType IndicatorToDora(TileType dora_indicator) {
+  switch (dora_indicator) {
+    case TileType::kM9:
+      return TileType::kM1;
+    case TileType::kP9:
+      return TileType::kP1;
+    case TileType::kS9:
+      return TileType::kS1;
+    case TileType::kNW:
+      return TileType::kEW;
+    case TileType::kRD:
+      return TileType::kWD;
+    default:
+      return TileType(ToUType(dora_indicator) + 1);
+  }
+}
 }  // namespace mjx::internal

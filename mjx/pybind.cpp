@@ -67,6 +67,7 @@ PYBIND11_MODULE(_mjx, m) {
       .def("who", &mjx::Observation::who)
       .def("dealer", &mjx::Observation::dealer)
       .def("action_mask", &mjx::Observation::action_mask)
+      .def("doras", &mjx::Observation::doras)
       .def("curr_hand", &mjx::Observation::curr_hand);
 
   py::class_<mjx::State>(m, "State")
