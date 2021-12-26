@@ -264,6 +264,7 @@ Wind ToSeatWind(AbsolutePos who, AbsolutePos dealer);
 mjxproto::EventType OpenTypeToEventType(OpenType open_type);
 mjxproto::ActionType OpenTypeToActionType(OpenType open_type);
 bool IsSameWind(TileType tile_type, Wind wind);
+TileType IndicatorToDora(TileType tile_type);
 }  // namespace mjx::internal
 
 #endif  // MAHJONG_TYPES_H

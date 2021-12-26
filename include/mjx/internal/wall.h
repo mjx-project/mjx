@@ -51,8 +51,6 @@ class Wall {
   int draw_ix_ = 52;
   int num_kan_draw_ = 0;
   int num_kan_dora_ = 0;
-
-  static TileType IndicatorToDora(Tile dora_indicator);
 };
 }  // namespace mjx::internal
 

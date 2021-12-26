@@ -4,6 +4,7 @@
 #include <boost/random/uniform_int_distribution.hpp>
 #include <cassert>
 
+#include "mjx/internal/types.h"
 #include "mjx/internal/utils.h"
 
 namespace mjx::internal {
@@ -86,33 +87,16 @@ std::vector<Tile> Wall::ura_dora_indicators() const {
 
 const std::vector<Tile> &Wall::tiles() const { return tiles_; }
 
-TileType Wall::IndicatorToDora(Tile dora_indicator) {
-  switch (dora_indicator.Type()) {
-    case TileType::kM9:
-      return TileType::kM1;
-    case TileType::kP9:
-      return TileType::kP1;
-    case TileType::kS9:
-      return TileType::kS1;
-    case TileType::kNW:
-      return TileType::kEW;
-    case TileType::kRD:
-      return TileType::kWD;
-    default:
-      return TileType(ToUType(dora_indicator.Type()) + 1);
-  }
-}
-
 TileTypeCount Wall::dora_count() const {
   std::map<TileType, int> counter;
-  for (const auto &t : dora_indicators()) counter[Wall::IndicatorToDora(t)]++;
+  for (const auto &t : dora_indicators()) counter[IndicatorToDora(t.Type())]++;
   return counter;
 }
 
 TileTypeCount Wall::ura_dora_count() const {
   std::map<TileType, int> counter;
   for (const auto &t : ura_dora_indicators())
-    counter[Wall::IndicatorToDora(t)]++;
+    counter[IndicatorToDora(t.Type())]++;
   return counter;
 }
 

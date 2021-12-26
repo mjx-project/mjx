@@ -12,143 +12,145 @@ import typing_extensions
 
 DESCRIPTOR: google.protobuf.descriptor.FileDescriptor = ...
 
-class ActionType(_ActionType, metaclass=_ActionTypeEnumTypeWrapper):
-    pass
 class _ActionType:
-    V = typing.NewType('V', builtins.int)
-class _ActionTypeEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._EnumTypeWrapper[_ActionType.V], builtins.type):
+    ValueType = typing.NewType('ValueType', builtins.int)
+    V: typing_extensions.TypeAlias = ValueType
+class _ActionTypeEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._EnumTypeWrapper[_ActionType.ValueType], builtins.type):
     DESCRIPTOR: google.protobuf.descriptor.EnumDescriptor = ...
-    ACTION_TYPE_DISCARD = ActionType.V(0)
+    ACTION_TYPE_DISCARD: ActionType.ValueType = ...  # 0
     """After draw"""
 
-    ACTION_TYPE_TSUMOGIRI = ActionType.V(1)
-    ACTION_TYPE_RIICHI = ActionType.V(2)
-    ACTION_TYPE_CLOSED_KAN = ActionType.V(3)
-    ACTION_TYPE_ADDED_KAN = ActionType.V(4)
-    ACTION_TYPE_TSUMO = ActionType.V(5)
-    ACTION_TYPE_ABORTIVE_DRAW_NINE_TERMINALS = ActionType.V(6)
+    ACTION_TYPE_TSUMOGIRI: ActionType.ValueType = ...  # 1
+    ACTION_TYPE_RIICHI: ActionType.ValueType = ...  # 2
+    ACTION_TYPE_CLOSED_KAN: ActionType.ValueType = ...  # 3
+    ACTION_TYPE_ADDED_KAN: ActionType.ValueType = ...  # 4
+    ACTION_TYPE_TSUMO: ActionType.ValueType = ...  # 5
+    ACTION_TYPE_ABORTIVE_DRAW_NINE_TERMINALS: ActionType.ValueType = ...  # 6
     """九種九牌"""
 
-    ACTION_TYPE_CHI = ActionType.V(7)
+    ACTION_TYPE_CHI: ActionType.ValueType = ...  # 7
     """After other's discard"""
 
-    ACTION_TYPE_PON = ActionType.V(8)
-    ACTION_TYPE_OPEN_KAN = ActionType.V(9)
-    ACTION_TYPE_RON = ActionType.V(10)
-    ACTION_TYPE_NO = ActionType.V(11)
-    ACTION_TYPE_DUMMY = ActionType.V(99)
+    ACTION_TYPE_PON: ActionType.ValueType = ...  # 8
+    ACTION_TYPE_OPEN_KAN: ActionType.ValueType = ...  # 9
+    ACTION_TYPE_RON: ActionType.ValueType = ...  # 10
+    ACTION_TYPE_NO: ActionType.ValueType = ...  # 11
+    ACTION_TYPE_DUMMY: ActionType.ValueType = ...  # 99
     """Dummy used only to check connection and share round terminal information"""
 
+class ActionType(_ActionType, metaclass=_ActionTypeEnumTypeWrapper):
+    pass
 
-ACTION_TYPE_DISCARD = ActionType.V(0)
+ACTION_TYPE_DISCARD: ActionType.ValueType = ...  # 0
 """After draw"""
 
-ACTION_TYPE_TSUMOGIRI = ActionType.V(1)
-ACTION_TYPE_RIICHI = ActionType.V(2)
-ACTION_TYPE_CLOSED_KAN = ActionType.V(3)
-ACTION_TYPE_ADDED_KAN = ActionType.V(4)
-ACTION_TYPE_TSUMO = ActionType.V(5)
-ACTION_TYPE_ABORTIVE_DRAW_NINE_TERMINALS = ActionType.V(6)
+ACTION_TYPE_TSUMOGIRI: ActionType.ValueType = ...  # 1
+ACTION_TYPE_RIICHI: ActionType.ValueType = ...  # 2
+ACTION_TYPE_CLOSED_KAN: ActionType.ValueType = ...  # 3
+ACTION_TYPE_ADDED_KAN: ActionType.ValueType = ...  # 4
+ACTION_TYPE_TSUMO: ActionType.ValueType = ...  # 5
+ACTION_TYPE_ABORTIVE_DRAW_NINE_TERMINALS: ActionType.ValueType = ...  # 6
 """九種九牌"""
 
-ACTION_TYPE_CHI = ActionType.V(7)
+ACTION_TYPE_CHI: ActionType.ValueType = ...  # 7
 """After other's discard"""
 
-ACTION_TYPE_PON = ActionType.V(8)
-ACTION_TYPE_OPEN_KAN = ActionType.V(9)
-ACTION_TYPE_RON = ActionType.V(10)
-ACTION_TYPE_NO = ActionType.V(11)
-ACTION_TYPE_DUMMY = ActionType.V(99)
+ACTION_TYPE_PON: ActionType.ValueType = ...  # 8
+ACTION_TYPE_OPEN_KAN: ActionType.ValueType = ...  # 9
+ACTION_TYPE_RON: ActionType.ValueType = ...  # 10
+ACTION_TYPE_NO: ActionType.ValueType = ...  # 11
+ACTION_TYPE_DUMMY: ActionType.ValueType = ...  # 99
 """Dummy used only to check connection and share round terminal information"""
 
 global___ActionType = ActionType
 
 
-class EventType(_EventType, metaclass=_EventTypeEnumTypeWrapper):
-    pass
 class _EventType:
-    V = typing.NewType('V', builtins.int)
-class _EventTypeEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._EnumTypeWrapper[_EventType.V], builtins.type):
+    ValueType = typing.NewType('ValueType', builtins.int)
+    V: typing_extensions.TypeAlias = ValueType
+class _EventTypeEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._EnumTypeWrapper[_EventType.ValueType], builtins.type):
     DESCRIPTOR: google.protobuf.descriptor.EnumDescriptor = ...
-    EVENT_TYPE_DISCARD = EventType.V(0)
+    EVENT_TYPE_DISCARD: EventType.ValueType = ...  # 0
     """Publicly observable actions"""
 
-    EVENT_TYPE_TSUMOGIRI = EventType.V(1)
+    EVENT_TYPE_TSUMOGIRI: EventType.ValueType = ...  # 1
     """ツモ切り, Tsumogiri"""
 
-    EVENT_TYPE_RIICHI = EventType.V(2)
-    EVENT_TYPE_CLOSED_KAN = EventType.V(3)
-    EVENT_TYPE_ADDED_KAN = EventType.V(4)
-    EVENT_TYPE_TSUMO = EventType.V(5)
-    EVENT_TYPE_ABORTIVE_DRAW_NINE_TERMINALS = EventType.V(6)
-    EVENT_TYPE_CHI = EventType.V(7)
-    EVENT_TYPE_PON = EventType.V(8)
-    EVENT_TYPE_OPEN_KAN = EventType.V(9)
-    EVENT_TYPE_RON = EventType.V(10)
-    EVENT_TYPE_DRAW = EventType.V(12)
+    EVENT_TYPE_RIICHI: EventType.ValueType = ...  # 2
+    EVENT_TYPE_CLOSED_KAN: EventType.ValueType = ...  # 3
+    EVENT_TYPE_ADDED_KAN: EventType.ValueType = ...  # 4
+    EVENT_TYPE_TSUMO: EventType.ValueType = ...  # 5
+    EVENT_TYPE_ABORTIVE_DRAW_NINE_TERMINALS: EventType.ValueType = ...  # 6
+    EVENT_TYPE_CHI: EventType.ValueType = ...  # 7
+    EVENT_TYPE_PON: EventType.ValueType = ...  # 8
+    EVENT_TYPE_OPEN_KAN: EventType.ValueType = ...  # 9
+    EVENT_TYPE_RON: EventType.ValueType = ...  # 10
+    EVENT_TYPE_DRAW: EventType.ValueType = ...  # 12
     """State transitions made by environment. There is no decision making by players.
     11 is skipped for the consistency to ActionType
     """
 
-    EVENT_TYPE_RIICHI_SCORE_CHANGE = EventType.V(13)
-    EVENT_TYPE_NEW_DORA = EventType.V(14)
-    EVENT_TYPE_ABORTIVE_DRAW_FOUR_RIICHIS = EventType.V(15)
+    EVENT_TYPE_RIICHI_SCORE_CHANGE: EventType.ValueType = ...  # 13
+    EVENT_TYPE_NEW_DORA: EventType.ValueType = ...  # 14
+    EVENT_TYPE_ABORTIVE_DRAW_FOUR_RIICHIS: EventType.ValueType = ...  # 15
     """四家立直"""
 
-    EVENT_TYPE_ABORTIVE_DRAW_THREE_RONS = EventType.V(16)
+    EVENT_TYPE_ABORTIVE_DRAW_THREE_RONS: EventType.ValueType = ...  # 16
     """三家和了"""
 
-    EVENT_TYPE_ABORTIVE_DRAW_FOUR_KANS = EventType.V(17)
+    EVENT_TYPE_ABORTIVE_DRAW_FOUR_KANS: EventType.ValueType = ...  # 17
     """四槓散了"""
 
-    EVENT_TYPE_ABORTIVE_DRAW_FOUR_WINDS = EventType.V(18)
+    EVENT_TYPE_ABORTIVE_DRAW_FOUR_WINDS: EventType.ValueType = ...  # 18
     """四風連打"""
 
-    EVENT_TYPE_EXHAUSTIVE_DRAW_NORMAL = EventType.V(19)
+    EVENT_TYPE_EXHAUSTIVE_DRAW_NORMAL: EventType.ValueType = ...  # 19
     """通常流局"""
 
-    EVENT_TYPE_EXHAUSTIVE_DRAW_NAGASHI_MANGAN = EventType.V(20)
+    EVENT_TYPE_EXHAUSTIVE_DRAW_NAGASHI_MANGAN: EventType.ValueType = ...  # 20
     """流し満貫"""
 
+class EventType(_EventType, metaclass=_EventTypeEnumTypeWrapper):
+    pass
 
-EVENT_TYPE_DISCARD = EventType.V(0)
+EVENT_TYPE_DISCARD: EventType.ValueType = ...  # 0
 """Publicly observable actions"""
 
-EVENT_TYPE_TSUMOGIRI = EventType.V(1)
+EVENT_TYPE_TSUMOGIRI: EventType.ValueType = ...  # 1
 """ツモ切り, Tsumogiri"""
 
-EVENT_TYPE_RIICHI = EventType.V(2)
-EVENT_TYPE_CLOSED_KAN = EventType.V(3)
-EVENT_TYPE_ADDED_KAN = EventType.V(4)
-EVENT_TYPE_TSUMO = EventType.V(5)
-EVENT_TYPE_ABORTIVE_DRAW_NINE_TERMINALS = EventType.V(6)
-EVENT_TYPE_CHI = EventType.V(7)
-EVENT_TYPE_PON = EventType.V(8)
-EVENT_TYPE_OPEN_KAN = EventType.V(9)
-EVENT_TYPE_RON = EventType.V(10)
-EVENT_TYPE_DRAW = EventType.V(12)
+EVENT_TYPE_RIICHI: EventType.ValueType = ...  # 2
+EVENT_TYPE_CLOSED_KAN: EventType.ValueType = ...  # 3
+EVENT_TYPE_ADDED_KAN: EventType.ValueType = ...  # 4
+EVENT_TYPE_TSUMO: EventType.ValueType = ...  # 5
+EVENT_TYPE_ABORTIVE_DRAW_NINE_TERMINALS: EventType.ValueType = ...  # 6
+EVENT_TYPE_CHI: EventType.ValueType = ...  # 7
+EVENT_TYPE_PON: EventType.ValueType = ...  # 8
+EVENT_TYPE_OPEN_KAN: EventType.ValueType = ...  # 9
+EVENT_TYPE_RON: EventType.ValueType = ...  # 10
+EVENT_TYPE_DRAW: EventType.ValueType = ...  # 12
 """State transitions made by environment. There is no decision making by players.
 11 is skipped for the consistency to ActionType
 """
 
-EVENT_TYPE_RIICHI_SCORE_CHANGE = EventType.V(13)
-EVENT_TYPE_NEW_DORA = EventType.V(14)
-EVENT_TYPE_ABORTIVE_DRAW_FOUR_RIICHIS = EventType.V(15)
+EVENT_TYPE_RIICHI_SCORE_CHANGE: EventType.ValueType = ...  # 13
+EVENT_TYPE_NEW_DORA: EventType.ValueType = ...  # 14
+EVENT_TYPE_ABORTIVE_DRAW_FOUR_RIICHIS: EventType.ValueType = ...  # 15
 """四家立直"""
 
-EVENT_TYPE_ABORTIVE_DRAW_THREE_RONS = EventType.V(16)
+EVENT_TYPE_ABORTIVE_DRAW_THREE_RONS: EventType.ValueType = ...  # 16
 """三家和了"""
 
-EVENT_TYPE_ABORTIVE_DRAW_FOUR_KANS = EventType.V(17)
+EVENT_TYPE_ABORTIVE_DRAW_FOUR_KANS: EventType.ValueType = ...  # 17
 """四槓散了"""
 
-EVENT_TYPE_ABORTIVE_DRAW_FOUR_WINDS = EventType.V(18)
+EVENT_TYPE_ABORTIVE_DRAW_FOUR_WINDS: EventType.ValueType = ...  # 18
 """四風連打"""
 
-EVENT_TYPE_EXHAUSTIVE_DRAW_NORMAL = EventType.V(19)
+EVENT_TYPE_EXHAUSTIVE_DRAW_NORMAL: EventType.ValueType = ...  # 19
 """通常流局"""
 
-EVENT_TYPE_EXHAUSTIVE_DRAW_NAGASHI_MANGAN = EventType.V(20)
+EVENT_TYPE_EXHAUSTIVE_DRAW_NAGASHI_MANGAN: EventType.ValueType = ...  # 20
 """流し満貫"""
 
 global___EventType = EventType
@@ -185,7 +187,7 @@ class Event(google.protobuf.message.Message):
     WHO_FIELD_NUMBER: builtins.int
     TILE_FIELD_NUMBER: builtins.int
     OPEN_FIELD_NUMBER: builtins.int
-    type: global___EventType.V = ...
+    type: global___EventType.ValueType = ...
     """Publicly observable event, which include
 
       1. publicly observable and actually realized actions taken by all layers
@@ -225,7 +227,7 @@ class Event(google.protobuf.message.Message):
     open: builtins.int = ...
     def __init__(self,
         *,
-        type : global___EventType.V = ...,
+        type : global___EventType.ValueType = ...,
         who : builtins.int = ...,
         tile : builtins.int = ...,
         open : builtins.int = ...,
@@ -521,14 +523,14 @@ class Action(google.protobuf.message.Message):
     """
 
     who: builtins.int = ...
-    type: global___ActionType.V = ...
+    type: global___ActionType.ValueType = ...
     tile: builtins.int = ...
     open: builtins.int = ...
     def __init__(self,
         *,
         game_id : typing.Text = ...,
         who : builtins.int = ...,
-        type : global___ActionType.V = ...,
+        type : global___ActionType.ValueType = ...,
         tile : builtins.int = ...,
         open : builtins.int = ...,
         ) -> None: ...
