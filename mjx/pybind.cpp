@@ -69,6 +69,7 @@ PYBIND11_MODULE(_mjx, m) {
       .def("action_mask", &mjx::Observation::action_mask)
       .def("doras", &mjx::Observation::doras)
       .def("kyotaku", &mjx::Observation::kyotaku)
+      .def("tens", &mjx::Observation::tens)
       .def("curr_hand", &mjx::Observation::curr_hand);
 
   py::class_<mjx::State>(m, "State")

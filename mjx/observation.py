@@ -69,6 +69,26 @@ class Observation:
         assert self._cpp_obj is not None
         return self._cpp_obj.kyotaku()
 
+    def tens(self) -> List[int]:
+        assert self._cpp_obj is not None
+        return self._cpp_obj.tens()
+
+    def ranks(self) -> List[int]:
+        assert self._cpp_obj is not None
+        tens = self.tens()
+        order = list(range(4))
+        order.sort(key=lambda i: tens[i] - i)
+        order.reverse()
+        ret = [0] * 4
+        for i, p in enumerate(order):
+            ret[p] = i
+
+        # e.g tens = [20000, 35000, 35000, 10000]
+        #     => order = [1, 2, 0, 3]
+        #        ret   = [2, 0, 1, 3]
+
+        return ret
+
     def to_json(self) -> str:
         assert self._cpp_obj is not None
         return self._cpp_obj.to_json()  # type: ignore
