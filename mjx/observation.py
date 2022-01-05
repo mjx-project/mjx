@@ -65,6 +65,10 @@ class Observation:
         assert self._cpp_obj is not None
         return np.array(self._cpp_obj.action_mask(), dtype=dtype)  # type: ignore
 
+    def kyotaku(self) -> int:
+        assert self._cpp_obj is not None
+        return self._cpp_obj.kyotaku()
+
     def to_json(self) -> str:
         assert self._cpp_obj is not None
         return self._cpp_obj.to_json()  # type: ignore
