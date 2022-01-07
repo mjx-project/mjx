@@ -89,6 +89,11 @@ class Observation:
 
         return ret
 
+    def round(self) -> int:
+        # 東一局:0, ..., 南四局:7, ...
+        assert self._cpp_obj is not None
+        return self._cpp_obj.round()
+
     def to_json(self) -> str:
         assert self._cpp_obj is not None
         return self._cpp_obj.to_json()  # type: ignore

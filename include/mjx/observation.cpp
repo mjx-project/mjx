@@ -114,4 +114,8 @@ std::vector<int> Observation::tens() const noexcept {
   }
   return tens;
 }
+
+int Observation::round() const noexcept {
+  return proto_.public_observation().init_score().round();
+}
 }  // namespace mjx
