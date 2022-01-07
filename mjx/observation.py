@@ -69,6 +69,10 @@ class Observation:
         assert self._cpp_obj is not None
         return self._cpp_obj.kyotaku()
 
+    def honba(self) -> int:
+        assert self._cpp_obj is not None
+        return self._cpp_obj.honba()
+
     def tens(self) -> List[int]:
         assert self._cpp_obj is not None
         return self._cpp_obj.tens()

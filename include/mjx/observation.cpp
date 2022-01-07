@@ -102,6 +102,10 @@ int Observation::kyotaku() const noexcept {
   return proto_.public_observation().init_score().riichi();
 }
 
+int Observation::honba() const noexcept {
+  return proto_.public_observation().init_score().honba();
+}
+
 std::vector<int> Observation::tens() const noexcept {
   std::vector<int> tens;
   for (auto t : proto_.public_observation().init_score().tens()) {
