@@ -73,7 +73,7 @@ class Observation:
         assert self._cpp_obj is not None
         return self._cpp_obj.tens()
 
-    def ranks(self) -> List[int]:
+    def rankings(self) -> List[int]:
         assert self._cpp_obj is not None
         tens = self.tens()
         order = list(range(4))
