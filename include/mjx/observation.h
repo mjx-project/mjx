@@ -28,6 +28,7 @@ class Observation {
   std::vector<Event> events() const noexcept;
   std::vector<int> draw_history() const noexcept;
   std::vector<int> doras() const noexcept;
+  int kyotaku() const noexcept;
 
  private:
   mjxproto::Observation proto_{};

@@ -97,4 +97,8 @@ std::vector<int> Observation::action_mask() const noexcept {
 Hand Observation::curr_hand() const noexcept {
   return Hand{proto_.private_observation().curr_hand()};
 }
+
+int Observation::kyotaku() const noexcept {
+  return proto_.public_observation().init_score().riichi();
+}
 }  // namespace mjx
