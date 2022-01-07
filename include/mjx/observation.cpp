@@ -101,4 +101,25 @@ Hand Observation::curr_hand() const noexcept {
 int Observation::kyotaku() const noexcept {
   return proto_.public_observation().init_score().riichi();
 }
+
+int Observation::honba() const noexcept {
+  return proto_.public_observation().init_score().honba();
+}
+
+std::vector<int> Observation::tens() const noexcept {
+  std::vector<int> tens;
+  for (auto t : proto_.public_observation().init_score().tens()) {
+    tens.push_back(t);
+  }
+  for (auto e : proto_.public_observation().events()) {
+    if (e.type() == mjxproto::EVENT_TYPE_RIICHI_SCORE_CHANGE) {
+      tens[e.who()] -= 1000;
+    }
+  }
+  return tens;
+}
+
+int Observation::round() const noexcept {
+  return proto_.public_observation().init_score().round();
+}
 }  // namespace mjx
