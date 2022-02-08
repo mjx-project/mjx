@@ -18,7 +18,7 @@ class Observation {
   std::string ToJson() const noexcept;
   std::vector<float> ToFeature(const std::string& version) const noexcept;
 
-  static std::string AddLegalActions(std::string obs_json);
+  static std::string AddLegalActions(const std::string &obs_json);
 
   // accessors
   const mjxproto::Observation& proto() const noexcept;
