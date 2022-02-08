@@ -1813,6 +1813,17 @@ bool State::IsDummySet() const { return is_dummy_set_; }
 
 std::vector<mjxproto::Action> State::LegalActions(
     const mjxproto::Observation &observation) {
-  return std::vector<mjxproto::Action>();
+  auto legal_actions = std::vector<mjxproto::Action>();
+  auto who = AbsolutePos(observation.who());
+
+  // Dummy action at the round terminal
+  if (IsRoundOver(observation.public_observation())) {
+      legal_actions.push_back(
+        Action::CreateDummy(who, observation.public_observation().game_id())
+      );
+    return legal_actions;
+  }
+
+  return legal_actions;
 }
 }  // namespace mjx::internal
