@@ -1803,4 +1803,9 @@ State::UpdateByActions(const mjxproto::State &proto,
   return hist;
 }
 bool State::IsDummySet() const { return is_dummy_set_; }
+
+std::vector<mjxproto::Action> State::LegalAction(
+    const mjxproto::Observation &observation) {
+  return std::vector<mjxproto::Action>();
+}
 }  // namespace mjx::internal

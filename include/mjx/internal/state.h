@@ -154,6 +154,7 @@ class State {
   CreateStealAndRonObservation() const;
   [[nodiscard]] std::pair<HandInfo, WinScore> EvalWinHand(
       AbsolutePos who) const noexcept;
+  [[nodiscard]] static std::vector<mjxproto::Action> LegalAction(const mjxproto::Observation& observation);
 
   // utils
   bool IsFourKanNoWinner() const noexcept;
