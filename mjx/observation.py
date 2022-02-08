@@ -115,6 +115,7 @@ class Observation:
 
     @staticmethod
     def add_legal_actions(obs_json: str) -> str:
+        # TODO: assert that no legal action is set
         return _mjx.Observation.add_legal_actions(obs_json)
 
     @classmethod
