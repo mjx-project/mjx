@@ -1163,16 +1163,22 @@ TEST(internal_state, GeneratePastDecisions) {
 }
 
 TEST(internal_state, LegalActions) {
+  // Test with resources
+  int wrong_cnt = 0;
   auto data_from_tenhou = LoadJson("first-example.json");
   for (const auto &json : data_from_tenhou) {
     const auto state = State(json);
-    auto observations = state.CreateObservations();
-    for (const auto &[p, obs] : observations) {
-      auto legal_actions_original = obs.legal_actions();
-      mjxproto::Observation obs_proto = obs.proto();
+    auto past_decisions = State::GeneratePastDecisions(state.proto());
+    for (auto [obs_proto, a] : past_decisions) {
+      auto legal_actions_original = Observation(obs_proto).legal_actions();
       obs_proto.clear_legal_actions();
+      EXPECT_NE(legal_actions_original.size(), 0);
+      EXPECT_EQ(obs_proto.legal_actions_size(), 0);
       auto legal_actions_restored = State::LegalActions(obs_proto);
-      EXPECT_EQ(legal_actions_original.size(), legal_actions_restored.size());
+      if (legal_actions_original.size() != legal_actions_restored.size()) wrong_cnt++;
     }
   }
+  EXPECT_EQ(wrong_cnt, 0);
+
+  // Test with simulators
 }
