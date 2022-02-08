@@ -45,6 +45,7 @@ class State {
   explicit State(const std::string& json_str);
   explicit State(const mjxproto::State& state);
   bool IsRoundOver() const;
+  static bool IsRoundOver(const mjxproto::PublicObservation& public_observation);
   bool IsGameOver() const;
   bool IsDummySet() const;
   void Update(std::vector<mjxproto::Action>&& action_candidates);

@@ -65,8 +65,17 @@ State::State(std::vector<PlayerId> player_ids, std::uint64_t game_seed,
 }
 
 bool State::IsRoundOver() const {
-  if (!HasLastEvent()) return false;
-  switch (LastEvent().type()) {
+  bool is_round_over = IsRoundOver(state_.public_observation());
+  if (is_round_over) Assert(state_.has_round_terminal(),
+           "Round terminal should be set but not: \n" + ToJson());
+  return is_round_over;
+}
+
+bool State::IsRoundOver(const mjxproto::PublicObservation &public_observation) {
+  bool has_last_event = !public_observation.events().empty();
+  if (!has_last_event) return false;
+  auto last_event_type = public_observation.events().rbegin()->type();
+  switch (last_event_type) {
     case mjxproto::EVENT_TYPE_TSUMO:
     case mjxproto::EVENT_TYPE_RON:
     case mjxproto::EVENT_TYPE_ABORTIVE_DRAW_NINE_TERMINALS:
@@ -76,8 +85,6 @@ bool State::IsRoundOver() const {
     case mjxproto::EVENT_TYPE_ABORTIVE_DRAW_FOUR_WINDS:
     case mjxproto::EVENT_TYPE_EXHAUSTIVE_DRAW_NORMAL:
     case mjxproto::EVENT_TYPE_EXHAUSTIVE_DRAW_NAGASHI_MANGAN:
-      Assert(state_.has_round_terminal(),
-             "Round terminal should be set but not: \n" + ToJson());
       return true;
     default:
       return false;
