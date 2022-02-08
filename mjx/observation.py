@@ -115,7 +115,7 @@ class Observation:
 
     @staticmethod
     def add_legal_actions(obs_json: str) -> str:
-        return obs_json
+        return _mjx.Observation.add_legal_actions(obs_json)
 
     @classmethod
     def from_proto(cls, proto: mjxproto.Observation) -> Observation:
