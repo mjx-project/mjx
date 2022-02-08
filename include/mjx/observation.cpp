@@ -6,8 +6,8 @@
 #include <utility>
 
 #include "mjx/internal/observation.h"
-#include "mjx/internal/types.h"
 #include "mjx/internal/state.h"
+#include "mjx/internal/types.h"
 
 namespace mjx {
 Observation::Observation(mjxproto::Observation proto)
@@ -128,7 +128,7 @@ std::string Observation::AddLegalActions(std::string obs_json) {
   auto obs = Observation(obs_json);
   mjxproto::Observation obs_proto = obs.proto();
   auto legal_actions = mjx::internal::State::LegalActions(obs_proto);
-  for (auto a: legal_actions) {
+  for (auto a : legal_actions) {
     obs_proto.mutable_legal_actions()->Add(std::move(a));
   }
   return Observation(obs_proto).ToJson();
