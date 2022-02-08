@@ -1167,7 +1167,7 @@ TEST(internal_state, LegalActions) {
   for (const auto &json : data_from_tenhou) {
     const auto state = State(json);
     auto observations = state.CreateObservations();
-    for (const auto& [p, obs]: observations) {
+    for (const auto &[p, obs] : observations) {
       auto legal_actions_original = obs.legal_actions();
       mjxproto::Observation obs_proto = obs.proto();
       obs_proto.clear_legal_actions();

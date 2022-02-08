@@ -94,7 +94,8 @@ class State {
                             std::optional<mjxproto::EventType> no_winner_type =
                                 std::nullopt) noexcept;
 
-  [[nodiscard]] static std::vector<mjxproto::Action> LegalActions(const mjxproto::Observation& observation);
+  [[nodiscard]] static std::vector<mjxproto::Action> LegalActions(
+      const mjxproto::Observation& observation);
 
  private:
   explicit State(std::vector<PlayerId> player_ids,  // 起家, ..., ラス親
