@@ -1161,3 +1161,18 @@ TEST(internal_state, GeneratePastDecisions) {
                           }),
             3);
 }
+
+TEST(internal_state, LegalActions) {
+  auto data_from_tenhou = LoadJson("first-example.json");
+  for (const auto &json : data_from_tenhou) {
+    const auto state = State(json);
+    auto observations = state.CreateObservations();
+    for (const auto& [p, obs]: observations) {
+      auto legal_actions_original = obs.legal_actions();
+      mjxproto::Observation obs_proto = obs.proto();
+      obs_proto.clear_legal_actions();
+      auto legal_actions_restored = State::LegalActions(obs_proto);
+      EXPECT_EQ(legal_actions_original.size(), legal_actions_restored.size());
+    }
+  }
+}

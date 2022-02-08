@@ -1804,7 +1804,7 @@ State::UpdateByActions(const mjxproto::State &proto,
 }
 bool State::IsDummySet() const { return is_dummy_set_; }
 
-std::vector<mjxproto::Action> State::LegalAction(
+std::vector<mjxproto::Action> State::LegalActions(
     const mjxproto::Observation &observation) {
   return std::vector<mjxproto::Action>();
 }

@@ -94,6 +94,8 @@ class State {
                             std::optional<mjxproto::EventType> no_winner_type =
                                 std::nullopt) noexcept;
 
+  [[nodiscard]] static std::vector<mjxproto::Action> LegalActions(const mjxproto::Observation& observation);
+
  private:
   explicit State(std::vector<PlayerId> player_ids,  // 起家, ..., ラス親
                  std::uint64_t game_seed = 0, int round = 0, int honba = 0,
@@ -154,7 +156,6 @@ class State {
   CreateStealAndRonObservation() const;
   [[nodiscard]] std::pair<HandInfo, WinScore> EvalWinHand(
       AbsolutePos who) const noexcept;
-  [[nodiscard]] static std::vector<mjxproto::Action> LegalAction(const mjxproto::Observation& observation);
 
   // utils
   bool IsFourKanNoWinner() const noexcept;
