@@ -1814,16 +1814,52 @@ bool State::IsDummySet() const { return is_dummy_set_; }
 
 std::vector<mjxproto::Action> State::LegalActions(
     const mjxproto::Observation &observation) {
-  auto legal_actions = std::vector<mjxproto::Action>();
+  auto obs = Observation(observation);
   auto who = AbsolutePos(observation.who());
+  Assert(observation.public_observation().events_size() > 0, "Events must not be empty.");
+  const auto& last_event = *observation.public_observation().events().rbegin();
+  auto last_event_type = last_event.type();
+  auto hand = obs.current_hand();
+  const auto& game_id = observation.public_observation().game_id();
 
   // Dummy action at the round terminal
   if (IsRoundOver(observation.public_observation())) {
-    legal_actions.push_back(
-        Action::CreateDummy(who, observation.public_observation().game_id()));
-    return legal_actions;
+    obs.add_legal_action(Action::CreateDummy(who, game_id));
+    return obs.legal_actions();
   }
 
-  return legal_actions;
+  if (who == AbsolutePos(last_event.who())) {
+    switch (last_event_type) {
+      case mjxproto::EVENT_TYPE_DRAW: {
+        // Discard and tsumogiri
+        obs.add_legal_actions(Action::CreateDiscardsAndTsumogiri(
+            who, hand.PossibleDiscards(), game_id));
+      }
+      case mjxproto::EVENT_TYPE_DISCARD:
+      case mjxproto::EVENT_TYPE_TSUMOGIRI:
+      case mjxproto::EVENT_TYPE_RIICHI:
+      case mjxproto::EVENT_TYPE_CLOSED_KAN:
+      case mjxproto::EVENT_TYPE_ADDED_KAN:
+      case mjxproto::EVENT_TYPE_TSUMO:
+      case mjxproto::EVENT_TYPE_ABORTIVE_DRAW_NINE_TERMINALS:
+      case mjxproto::EVENT_TYPE_CHI:
+      case mjxproto::EVENT_TYPE_PON:
+      case mjxproto::EVENT_TYPE_OPEN_KAN:
+      case mjxproto::EVENT_TYPE_RON:
+      case mjxproto::EVENT_TYPE_RIICHI_SCORE_CHANGE:
+      case mjxproto::EVENT_TYPE_NEW_DORA:
+      case mjxproto::EVENT_TYPE_ABORTIVE_DRAW_FOUR_RIICHIS:
+      case mjxproto::EVENT_TYPE_ABORTIVE_DRAW_THREE_RONS:
+      case mjxproto::EVENT_TYPE_ABORTIVE_DRAW_FOUR_KANS:
+      case mjxproto::EVENT_TYPE_ABORTIVE_DRAW_FOUR_WINDS:
+      case mjxproto::EVENT_TYPE_EXHAUSTIVE_DRAW_NORMAL:
+      case mjxproto::EVENT_TYPE_EXHAUSTIVE_DRAW_NAGASHI_MANGAN:
+        break;
+    }
+  } else {
+
+  }
+
+  return obs.legal_actions();
 }
 }  // namespace mjx::internal
