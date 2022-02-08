@@ -124,7 +124,7 @@ int Observation::round() const noexcept {
   return proto_.public_observation().init_score().round();
 }
 
-std::string Observation::AddLegalActions(const std::string &obs_json) {
+std::string Observation::AddLegalActions(const std::string& obs_json) {
   auto obs = Observation(obs_json);
   mjxproto::Observation obs_proto = obs.proto();
   auto legal_actions = mjx::internal::State::LegalActions(obs_proto);

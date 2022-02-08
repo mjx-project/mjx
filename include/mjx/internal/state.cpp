@@ -1816,11 +1816,12 @@ std::vector<mjxproto::Action> State::LegalActions(
     const mjxproto::Observation &observation) {
   auto obs = Observation(observation);
   auto who = AbsolutePos(observation.who());
-  Assert(observation.public_observation().events_size() > 0, "Events must not be empty.");
-  const auto& last_event = *observation.public_observation().events().rbegin();
+  Assert(observation.public_observation().events_size() > 0,
+         "Events must not be empty.");
+  const auto &last_event = *observation.public_observation().events().rbegin();
   auto last_event_type = last_event.type();
   auto hand = obs.current_hand();
-  const auto& game_id = observation.public_observation().game_id();
+  const auto &game_id = observation.public_observation().game_id();
 
   // Dummy action at the round terminal
   if (IsRoundOver(observation.public_observation())) {
@@ -1857,7 +1858,6 @@ std::vector<mjxproto::Action> State::LegalActions(
         break;
     }
   } else {
-
   }
 
   return obs.legal_actions();

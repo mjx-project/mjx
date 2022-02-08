@@ -1175,7 +1175,8 @@ TEST(internal_state, LegalActions) {
       EXPECT_NE(legal_actions_original.size(), 0);
       EXPECT_EQ(obs_proto.legal_actions_size(), 0);
       auto legal_actions_restored = State::LegalActions(obs_proto);
-      if (legal_actions_original.size() != legal_actions_restored.size()) wrong_cnt++;
+      if (legal_actions_original.size() != legal_actions_restored.size())
+        wrong_cnt++;
     }
   }
   EXPECT_EQ(wrong_cnt, 0);
