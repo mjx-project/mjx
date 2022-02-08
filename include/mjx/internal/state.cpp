@@ -66,7 +66,8 @@ State::State(std::vector<PlayerId> player_ids, std::uint64_t game_seed,
 
 bool State::IsRoundOver() const {
   bool is_round_over = IsRoundOver(state_.public_observation());
-  if (is_round_over) Assert(state_.has_round_terminal(),
+  if (is_round_over)
+    Assert(state_.has_round_terminal(),
            "Round terminal should be set but not: \n" + ToJson());
   return is_round_over;
 }
@@ -1818,9 +1819,8 @@ std::vector<mjxproto::Action> State::LegalActions(
 
   // Dummy action at the round terminal
   if (IsRoundOver(observation.public_observation())) {
-      legal_actions.push_back(
-        Action::CreateDummy(who, observation.public_observation().game_id())
-      );
+    legal_actions.push_back(
+        Action::CreateDummy(who, observation.public_observation().game_id()));
     return legal_actions;
   }
 
