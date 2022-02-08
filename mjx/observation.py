@@ -113,6 +113,10 @@ class Observation:
         observation = self.to_proto()
         save_svg(observation, filename, view_idx)
 
+    @staticmethod
+    def add_legal_actions(obs_json: str) -> str:
+        return obs_json
+
     @classmethod
     def from_proto(cls, proto: mjxproto.Observation) -> Observation:
         return Observation(json_format.MessageToJson(proto))
