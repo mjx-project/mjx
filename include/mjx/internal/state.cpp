@@ -1864,27 +1864,27 @@ std::vector<mjxproto::Action> State::LegalActions(
     }
   } else {
     switch (last_event_type) {
-    case mjxproto::EVENT_TYPE_DRAW:
-    case mjxproto::EVENT_TYPE_DISCARD:
-    case mjxproto::EVENT_TYPE_TSUMOGIRI:
-    case mjxproto::EVENT_TYPE_RIICHI:
-    case mjxproto::EVENT_TYPE_CLOSED_KAN:
-    case mjxproto::EVENT_TYPE_ADDED_KAN:
-    case mjxproto::EVENT_TYPE_TSUMO:
-    case mjxproto::EVENT_TYPE_ABORTIVE_DRAW_NINE_TERMINALS:
-    case mjxproto::EVENT_TYPE_CHI:
-    case mjxproto::EVENT_TYPE_PON:
-    case mjxproto::EVENT_TYPE_OPEN_KAN:
-    case mjxproto::EVENT_TYPE_RON:
-    case mjxproto::EVENT_TYPE_RIICHI_SCORE_CHANGE:
-    case mjxproto::EVENT_TYPE_NEW_DORA:
-    case mjxproto::EVENT_TYPE_ABORTIVE_DRAW_FOUR_RIICHIS:
-    case mjxproto::EVENT_TYPE_ABORTIVE_DRAW_THREE_RONS:
-    case mjxproto::EVENT_TYPE_ABORTIVE_DRAW_FOUR_KANS:
-    case mjxproto::EVENT_TYPE_ABORTIVE_DRAW_FOUR_WINDS:
-    case mjxproto::EVENT_TYPE_EXHAUSTIVE_DRAW_NORMAL:
-    case mjxproto::EVENT_TYPE_EXHAUSTIVE_DRAW_NAGASHI_MANGAN:
-      break;
+      case mjxproto::EVENT_TYPE_DRAW:
+      case mjxproto::EVENT_TYPE_DISCARD:
+      case mjxproto::EVENT_TYPE_TSUMOGIRI:
+      case mjxproto::EVENT_TYPE_RIICHI:
+      case mjxproto::EVENT_TYPE_CLOSED_KAN:
+      case mjxproto::EVENT_TYPE_ADDED_KAN:
+      case mjxproto::EVENT_TYPE_TSUMO:
+      case mjxproto::EVENT_TYPE_ABORTIVE_DRAW_NINE_TERMINALS:
+      case mjxproto::EVENT_TYPE_CHI:
+      case mjxproto::EVENT_TYPE_PON:
+      case mjxproto::EVENT_TYPE_OPEN_KAN:
+      case mjxproto::EVENT_TYPE_RON:
+      case mjxproto::EVENT_TYPE_RIICHI_SCORE_CHANGE:
+      case mjxproto::EVENT_TYPE_NEW_DORA:
+      case mjxproto::EVENT_TYPE_ABORTIVE_DRAW_FOUR_RIICHIS:
+      case mjxproto::EVENT_TYPE_ABORTIVE_DRAW_THREE_RONS:
+      case mjxproto::EVENT_TYPE_ABORTIVE_DRAW_FOUR_KANS:
+      case mjxproto::EVENT_TYPE_ABORTIVE_DRAW_FOUR_WINDS:
+      case mjxproto::EVENT_TYPE_EXHAUSTIVE_DRAW_NORMAL:
+      case mjxproto::EVENT_TYPE_EXHAUSTIVE_DRAW_NAGASHI_MANGAN:
+        break;
     }
   }
   return obs.legal_actions();
