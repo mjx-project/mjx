@@ -1031,19 +1031,7 @@ int State::RequireKanDora() const {
 }
 
 bool State::RequireKanDraw() const {
-  for (auto it = state_.public_observation().events().rbegin();
-       it != state_.public_observation().events().rend(); ++it) {
-    const auto &event = *it;
-    switch (event.type()) {
-      case mjxproto::EventType::EVENT_TYPE_DRAW:
-        return false;
-      case mjxproto::EventType::EVENT_TYPE_ADDED_KAN:
-      case mjxproto::EventType::EVENT_TYPE_CLOSED_KAN:
-      case mjxproto::EventType::EVENT_TYPE_OPEN_KAN:
-        return true;
-    }
-  }
-  return false;
+  return RequireKanDraw(state_.public_observation());
 }
 
 bool State::RequireRiichiScoreChange() const {
@@ -1892,5 +1880,34 @@ std::vector<mjxproto::Action> State::LegalActions(
     }
   }
   return obs.legal_actions();
+}
+
+bool State::HasDrawLeft(const mjxproto::PublicObservation &public_observation) {
+  const auto& events = public_observation.events();
+  int draw_ix = 52;
+  int num_kan_draw = 0;
+  for (const auto& e: events) {
+    if (e.type() != mjxproto::EVENT_TYPE_DRAW) continue;
+    if (RequireKanDraw(public_observation)) num_kan_draw++;
+    else draw_ix++;
+  }
+  return draw_ix + num_kan_draw < 122;
+}
+
+bool State::RequireKanDraw(
+    const mjxproto::PublicObservation &public_observation) {
+  for (auto it = public_observation.events().rbegin();
+       it != public_observation.events().rend(); ++it) {
+    const auto &event = *it;
+    switch (event.type()) {
+      case mjxproto::EventType::EVENT_TYPE_DRAW:
+        return false;
+      case mjxproto::EventType::EVENT_TYPE_ADDED_KAN:
+      case mjxproto::EventType::EVENT_TYPE_CLOSED_KAN:
+      case mjxproto::EventType::EVENT_TYPE_OPEN_KAN:
+        return true;
+    }
+  }
+  return false;
 }
 }  // namespace mjx::internal

@@ -185,6 +185,10 @@ class State {
   static std::vector<std::pair<mjxproto::Observation, mjxproto::Action>>
   UpdateByActions(const mjxproto::State& proto,
                   std::queue<mjxproto::Action>& actions, State& state);
+
+  // wall_.HasDrawLeftと同じ結果を返す想定・ただしeventをなめるので遅い
+  [[nodiscard]] static bool HasDrawLeft(const mjxproto::PublicObservation& public_observation);
+  [[nodiscard]] static bool RequireKanDraw(const mjxproto::PublicObservation& public_observation);
 };
 }  // namespace mjx::internal
 
