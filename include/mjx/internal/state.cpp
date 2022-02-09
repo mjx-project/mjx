@@ -1921,9 +1921,9 @@ bool State::CanRon(AbsolutePos who, const mjxproto::Observation &observation) {
   const auto &last_event = *observation.public_observation().events().rbegin();
 
   if (!Any(last_event.type(),
-           {mjxproto::EVENT_TYPE_DISCARD,
-            mjxproto::EVENT_TYPE_DISCARD,
-            mjxproto::EVENT_TYPE_ADDED_KAN})) return false;
+           {mjxproto::EVENT_TYPE_DISCARD, mjxproto::EVENT_TYPE_DISCARD,
+            mjxproto::EVENT_TYPE_ADDED_KAN}))
+    return false;
   if (!hand.IsTenpai()) return false;
 
   // set machi
@@ -1967,8 +1967,7 @@ bool State::CanRon(AbsolutePos who, const mjxproto::Observation &observation) {
 
   auto seat_wind = ToSeatWind(who, dealer(observation.public_observation()));
   auto win_state_info = WinStateInfo(
-      seat_wind,
-      prevalent_wind(observation.public_observation()),
+      seat_wind, prevalent_wind(observation.public_observation()),
       !HasDrawLeft(observation.public_observation()),
       false,  // TODO: is_ippatsu
       false,  // TODO: is_first_tsumo
@@ -1976,10 +1975,10 @@ bool State::CanRon(AbsolutePos who, const mjxproto::Observation &observation) {
       //     (Any(LastEvent().type(),
       //          {mjxproto::EVENT_TYPE_DRAW, mjxproto::EVENT_TYPE_TSUMO})),
       seat_wind == Wind::kEast,
-      false, // TODO IsRobbingKan(),
-      {}, // dora type count
-      {}  // ura dora type count
-      );
+      false,  // TODO IsRobbingKan(),
+      {},     // dora type count
+      {}      // ura dora type count
+  );
   const auto target_tile = Tile(last_event.tile());
   return YakuEvaluator::CanWin(
       WinInfo(std::move(win_state_info), hand.win_info()).Ron(target_tile));
@@ -2002,12 +2001,14 @@ std::optional<Tile> State::TargetTile(
   return std::nullopt;
 }
 
-AbsolutePos State::dealer(const mjxproto::PublicObservation &public_observation) {
+AbsolutePos State::dealer(
+    const mjxproto::PublicObservation &public_observation) {
   return AbsolutePos(public_observation.init_score().round() % 4);
 }
 
 Wind State::prevalent_wind(
     const mjxproto::PublicObservation &public_observation) {
-  return Wind(public_observation.init_score().round() / 4);;
+  return Wind(public_observation.init_score().round() / 4);
+  ;
 }
 }  // namespace mjx::internal
