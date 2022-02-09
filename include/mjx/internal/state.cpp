@@ -1856,12 +1856,25 @@ std::vector<mjxproto::Action> State::LegalActions(
     }
   } else {
     switch (last_event_type) {
-      case mjxproto::EVENT_TYPE_DRAW:
       case mjxproto::EVENT_TYPE_DISCARD:
-      case mjxproto::EVENT_TYPE_TSUMOGIRI:
+      case mjxproto::EVENT_TYPE_TSUMOGIRI: {
+        auto tile = Tile(last_event.tile());
+        // Ron
+        if (CanRon(who, observation)) {
+          obs.add_legal_action(Action::CreateRon(who, tile, game_id));
+        }
+        break;
+      }
+      case mjxproto::EVENT_TYPE_ADDED_KAN: {
+        auto tile = Open(last_event.open()).LastTile();
+        if (CanRon(who, observation)) {
+          obs.add_legal_action(Action::CreateRon(who, tile, game_id));
+        }
+        break;
+      }
+      case mjxproto::EVENT_TYPE_DRAW:
       case mjxproto::EVENT_TYPE_RIICHI:
       case mjxproto::EVENT_TYPE_CLOSED_KAN:
-      case mjxproto::EVENT_TYPE_ADDED_KAN:
       case mjxproto::EVENT_TYPE_TSUMO:
       case mjxproto::EVENT_TYPE_ABORTIVE_DRAW_NINE_TERMINALS:
       case mjxproto::EVENT_TYPE_CHI:
@@ -1909,5 +1922,36 @@ bool State::RequireKanDraw(
     }
   }
   return false;
+}
+
+bool State::CanRon(AbsolutePos who, const mjxproto::Observation &observation) {
+  auto obs = Observation(observation);
+  auto hand = obs.current_hand();
+  const auto &events = observation.public_observation().events();
+
+  if (!hand.IsTenpai()) return false;
+
+  // set machi
+  std::bitset<34> machi;
+  for (auto tile_type :
+       WinHandCache::instance().Machi(hand.ClosedTileTypes())) {
+    machi.set(ToUType(tile_type));
+  }
+
+  // set discards
+  std::bitset<34> discards;
+  for (const auto& e: events) {
+    if (!Any(e.type(), {mjxproto::EVENT_TYPE_DISCARD, mjxproto::EVENT_TYPE_TSUMOGIRI})) continue;
+     discards.set(Tile(e.tile()).TypeUint());
+  }
+
+  // フリテン
+  if ((machi & discards).any()) return false;
+
+  auto win_state_info = WinStateInfo();  // TODO: set true values
+  const auto &last_event = *observation.public_observation().events().rbegin();
+  const auto target_tile = Tile(last_event.tile());
+  return YakuEvaluator::CanWin(
+      WinInfo(std::move(win_state_info), hand.win_info()).Ron(target_tile));
 }
 }  // namespace mjx::internal
