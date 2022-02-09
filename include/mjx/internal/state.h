@@ -187,10 +187,13 @@ class State {
                   std::queue<mjxproto::Action>& actions, State& state);
 
   // wall_.HasDrawLeftと同じ結果を返す想定・ただしeventをなめるので遅い
-  [[nodiscard]] static bool HasDrawLeft(const mjxproto::PublicObservation& public_observation);
-  [[nodiscard]] static bool RequireKanDraw(const mjxproto::PublicObservation& public_observation);
+  [[nodiscard]] static bool HasDrawLeft(
+      const mjxproto::PublicObservation& public_observation);
+  [[nodiscard]] static bool RequireKanDraw(
+      const mjxproto::PublicObservation& public_observation);
   // CanRonと同じ結果を返す想定・ただしフリテン判定などの際にeventをなめるので遅い
-  [[nodiscard]] static bool CanRon(AbsolutePos who, const mjxproto::Observation& observation);
+  [[nodiscard]] static bool CanRon(AbsolutePos who,
+                                   const mjxproto::Observation& observation);
 };
 }  // namespace mjx::internal
 

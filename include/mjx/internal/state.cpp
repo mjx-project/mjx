@@ -1896,13 +1896,15 @@ std::vector<mjxproto::Action> State::LegalActions(
 }
 
 bool State::HasDrawLeft(const mjxproto::PublicObservation &public_observation) {
-  const auto& events = public_observation.events();
+  const auto &events = public_observation.events();
   int draw_ix = 52;
   int num_kan_draw = 0;
-  for (const auto& e: events) {
+  for (const auto &e : events) {
     if (e.type() != mjxproto::EVENT_TYPE_DRAW) continue;
-    if (RequireKanDraw(public_observation)) num_kan_draw++;
-    else draw_ix++;
+    if (RequireKanDraw(public_observation))
+      num_kan_draw++;
+    else
+      draw_ix++;
   }
   return draw_ix + num_kan_draw < 122;
 }
@@ -1940,9 +1942,11 @@ bool State::CanRon(AbsolutePos who, const mjxproto::Observation &observation) {
 
   // set discards
   std::bitset<34> discards;
-  for (const auto& e: events) {
-    if (!Any(e.type(), {mjxproto::EVENT_TYPE_DISCARD, mjxproto::EVENT_TYPE_TSUMOGIRI})) continue;
-     discards.set(Tile(e.tile()).TypeUint());
+  for (const auto &e : events) {
+    if (!Any(e.type(),
+             {mjxproto::EVENT_TYPE_DISCARD, mjxproto::EVENT_TYPE_TSUMOGIRI}))
+      continue;
+    discards.set(Tile(e.tile()).TypeUint());
   }
 
   // フリテン
