@@ -1948,7 +1948,7 @@ bool State::CanRon(AbsolutePos who, const mjxproto::Observation &observation) {
 }
 
 std::optional<Tile> State::TargetTile(
-    const mjxproto::PublicObservation& public_observation) {
+    const mjxproto::PublicObservation &public_observation) {
   for (auto it = public_observation.events().rbegin();
        it != public_observation.events().rend(); ++it) {
     const auto &event = *it;
