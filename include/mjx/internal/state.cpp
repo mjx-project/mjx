@@ -1976,8 +1976,8 @@ bool State::CanRon(AbsolutePos who, const mjxproto::Observation &observation) {
       //          {mjxproto::EVENT_TYPE_DRAW, mjxproto::EVENT_TYPE_TSUMO})),
       seat_wind == Wind::kEast,
       false,  // TODO IsRobbingKan(),
-      {},            // dora type count 和了れるかどうかだけなのでドラは関係ない
-      {}      // ura dora type count 和了れるかどうかだけなのでドラは関係ない
+      {},  // dora type count 和了れるかどうかだけなのでドラは関係ない
+      {}  // ura dora type count 和了れるかどうかだけなのでドラは関係ない
   );
   const auto target_tile = Tile(last_event.tile());
   return YakuEvaluator::CanWin(
