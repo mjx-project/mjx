@@ -196,6 +196,8 @@ class State {
                                    const mjxproto::Observation& observation);
   [[nodiscard]] static std::optional<Tile> TargetTile(
       const mjxproto::PublicObservation& public_observation);
+  [[nodiscard]] static AbsolutePos dealer(const mjxproto::PublicObservation& public_observation);
+  [[nodiscard]] static Wind prevalent_wind(const mjxproto::PublicObservation& public_observation);
 };
 }  // namespace mjx::internal
 

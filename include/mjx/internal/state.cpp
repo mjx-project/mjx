@@ -1965,7 +1965,21 @@ bool State::CanRon(AbsolutePos who, const mjxproto::Observation &observation) {
   if ((machi & discards).any()) return false;
   if ((machi & missed_tiles).any()) return false;
 
-  auto win_state_info = WinStateInfo();  // TODO: set true values
+  auto seat_wind = ToSeatWind(who, dealer(observation.public_observation()));
+  auto win_state_info = WinStateInfo(
+      seat_wind,
+      prevalent_wind(observation.public_observation()),
+      !HasDrawLeft(observation.public_observation()),
+      false,  // TODO: is_ippatsu
+      false,  // TODO: is_first_tsumo
+      // IsFirstTurnWithoutOpen() && AbsolutePos(LastEvent().who()) == who &&
+      //     (Any(LastEvent().type(),
+      //          {mjxproto::EVENT_TYPE_DRAW, mjxproto::EVENT_TYPE_TSUMO})),
+      seat_wind == Wind::kEast,
+      false, // TODO IsRobbingKan(),
+      {}, // dora type count
+      {}  // ura dora type count
+      );
   const auto target_tile = Tile(last_event.tile());
   return YakuEvaluator::CanWin(
       WinInfo(std::move(win_state_info), hand.win_info()).Ron(target_tile));
@@ -1986,5 +2000,14 @@ std::optional<Tile> State::TargetTile(
     }
   }
   return std::nullopt;
+}
+
+AbsolutePos State::dealer(const mjxproto::PublicObservation &public_observation) {
+  return AbsolutePos(public_observation.init_score().round() % 4);
+}
+
+Wind State::prevalent_wind(
+    const mjxproto::PublicObservation &public_observation) {
+  return Wind(public_observation.init_score().round() / 4);;
 }
 }  // namespace mjx::internal
