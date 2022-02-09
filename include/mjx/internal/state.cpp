@@ -940,19 +940,7 @@ const mjxproto::Event &State::LastEvent() const {
 
 // Ronされる対象の牌
 std::optional<Tile> State::TargetTile() const {
-  for (auto it = state_.public_observation().events().rbegin();
-       it != state_.public_observation().events().rend(); ++it) {
-    const auto &event = *it;
-
-    if (event.type() == mjxproto::EventType::EVENT_TYPE_DISCARD or
-        event.type() == mjxproto::EventType::EVENT_TYPE_TSUMOGIRI) {
-      return Tile(event.tile());
-    }
-    if (event.type() == mjxproto::EventType::EVENT_TYPE_ADDED_KAN) {
-      return Open(event.open()).LastTile();
-    }
-  }
-  return std::nullopt;
+  return TargetTile(state_.public_observation());
 }
 
 bool State::IsFirstTurnWithoutOpen() const {
@@ -1957,5 +1945,22 @@ bool State::CanRon(AbsolutePos who, const mjxproto::Observation &observation) {
   const auto target_tile = Tile(last_event.tile());
   return YakuEvaluator::CanWin(
       WinInfo(std::move(win_state_info), hand.win_info()).Ron(target_tile));
+}
+
+std::optional<Tile> State::TargetTile(
+    const mjxproto::PublicObservation& public_observation) {
+  for (auto it = public_observation.events().rbegin();
+       it != public_observation.events().rend(); ++it) {
+    const auto &event = *it;
+
+    if (event.type() == mjxproto::EventType::EVENT_TYPE_DISCARD or
+        event.type() == mjxproto::EventType::EVENT_TYPE_TSUMOGIRI) {
+      return Tile(event.tile());
+    }
+    if (event.type() == mjxproto::EventType::EVENT_TYPE_ADDED_KAN) {
+      return Open(event.open()).LastTile();
+    }
+  }
+  return std::nullopt;
 }
 }  // namespace mjx::internal

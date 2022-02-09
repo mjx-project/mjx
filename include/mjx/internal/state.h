@@ -194,6 +194,7 @@ class State {
   // CanRonと同じ結果を返す想定・ただしフリテン判定などの際にeventをなめるので遅い
   [[nodiscard]] static bool CanRon(AbsolutePos who,
                                    const mjxproto::Observation& observation);
+  [[nodiscard]] static std::optional<Tile> TargetTile(const mjxproto::PublicObservation &public_observation);
 };
 }  // namespace mjx::internal
 
