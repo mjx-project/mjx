@@ -1928,17 +1928,37 @@ bool State::CanRon(AbsolutePos who, const mjxproto::Observation &observation) {
     machi.set(ToUType(tile_type));
   }
 
-  // set discards
+  // set missed_tiles and discards
+  std::bitset<34> missed_tiles;
   std::bitset<34> discards;
   for (const auto &e : events) {
-    if (!Any(e.type(),
-             {mjxproto::EVENT_TYPE_DISCARD, mjxproto::EVENT_TYPE_TSUMOGIRI}))
-      continue;
-    discards.set(Tile(e.tile()).TypeUint());
+    switch (e.type()) {
+      case mjxproto::EVENT_TYPE_DISCARD:
+      case mjxproto::EVENT_TYPE_TSUMOGIRI: {
+        auto tile = Tile(e.tile());
+        missed_tiles.set(tile.TypeUint());
+        if (who == AbsolutePos(e.who())) discards.set(tile.TypeUint());
+        break;
+      }
+      case mjxproto::EVENT_TYPE_DRAW: {
+        if (who == AbsolutePos(e.who()) && !hand.IsUnderRiichi())
+          missed_tiles.reset();  // フリテン解除
+        break;
+      }
+      case mjxproto::EVENT_TYPE_CHI:
+      case mjxproto::EVENT_TYPE_PON:
+      case mjxproto::EVENT_TYPE_CLOSED_KAN:
+      case mjxproto::EVENT_TYPE_ADDED_KAN:
+      case mjxproto::EVENT_TYPE_OPEN_KAN: {
+        if (who == AbsolutePos(e.who())) missed_tiles.reset();  // フリテン解除
+        break;
+      }
+    }
   }
 
   // フリテン
   if ((machi & discards).any()) return false;
+  if ((machi & missed_tiles).any()) return false;
 
   auto win_state_info = WinStateInfo();  // TODO: set true values
   const auto &last_event = *observation.public_observation().events().rbegin();
