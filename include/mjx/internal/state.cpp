@@ -1827,7 +1827,8 @@ std::vector<mjxproto::Action> State::LegalActions(
         }
         // Chi, Pon, and AddedKan
         if (!HasDrawLeft(observation.public_observation())) break;
-        if(IsFourKanNoWinner(observation.public_observation())) break;  // if 四槓散了直前の捨て牌, only ron
+        if (IsFourKanNoWinner(observation.public_observation()))
+          break;  // if 四槓散了直前の捨て牌, only ron
         auto relative_pos = ToRelativePos(who, AbsolutePos(last_event.who()));
         auto possible_opens =
             hand.PossibleOpensAfterOthersDiscard(tile, relative_pos);
@@ -1862,7 +1863,8 @@ std::vector<mjxproto::Action> State::LegalActions(
       case mjxproto::EVENT_TYPE_EXHAUSTIVE_DRAW_NAGASHI_MANGAN:
         break;
     }
-    if (obs.has_legal_action()) obs.add_legal_action(Action::CreateNo(who, game_id));
+    if (obs.has_legal_action())
+      obs.add_legal_action(Action::CreateNo(who, game_id));
   }
   return obs.legal_actions();
 }
@@ -2052,7 +2054,7 @@ bool State::IsRobbingKan(
 
 bool State::IsFirstTurnWithoutOpen(
     const mjxproto::PublicObservation &public_observation) {
-  const auto& events = public_observation.events();
+  const auto &events = public_observation.events();
   for (const auto &event : events) {
     switch (event.type()) {
       case mjxproto::EVENT_TYPE_CHI:
@@ -2064,8 +2066,7 @@ bool State::IsFirstTurnWithoutOpen(
       case mjxproto::EVENT_TYPE_DISCARD:
       case mjxproto::EVENT_TYPE_TSUMOGIRI:
         if (ToSeatWind(static_cast<AbsolutePos>(event.who()),
-                       dealer(public_observation)) ==
-            Wind::kNorth) {
+                       dealer(public_observation)) == Wind::kNorth) {
           return false;
         }
     }
@@ -2078,10 +2079,10 @@ bool State::IsFourKanNoWinner(
   const auto &events = public_observation.events();
   int num_total_kans = 0;
   std::unordered_set<int> kan_players;
-  for (const auto& e: events) {
-    if (Any(e.type(), {mjxproto::EVENT_TYPE_ADDED_KAN,
-                       mjxproto::EVENT_TYPE_CLOSED_KAN,
-                       mjxproto::EVENT_TYPE_OPEN_KAN})) {
+  for (const auto &e : events) {
+    if (Any(e.type(),
+            {mjxproto::EVENT_TYPE_ADDED_KAN, mjxproto::EVENT_TYPE_CLOSED_KAN,
+             mjxproto::EVENT_TYPE_OPEN_KAN})) {
       num_total_kans++;
       kan_players.insert(e.who());
     }
