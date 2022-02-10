@@ -944,23 +944,7 @@ std::optional<Tile> State::TargetTile() const {
 }
 
 bool State::IsFirstTurnWithoutOpen() const {
-  for (const auto &event : state_.public_observation().events()) {
-    switch (event.type()) {
-      case mjxproto::EVENT_TYPE_CHI:
-      case mjxproto::EVENT_TYPE_PON:
-      case mjxproto::EVENT_TYPE_CLOSED_KAN:
-      case mjxproto::EVENT_TYPE_OPEN_KAN:
-      case mjxproto::EVENT_TYPE_ADDED_KAN:
-        return false;
-      case mjxproto::EVENT_TYPE_DISCARD:
-      case mjxproto::EVENT_TYPE_TSUMOGIRI:
-        if (ToSeatWind(static_cast<AbsolutePos>(event.who()), dealer()) ==
-            Wind::kNorth) {
-          return false;
-        }
-    }
-  }
-  return true;
+  return IsFirstTurnWithoutOpen(state_.public_observation());
 }
 
 bool State::IsFourWinds() const {
@@ -1960,10 +1944,10 @@ bool State::CanRon(AbsolutePos who, const mjxproto::Observation &observation) {
       seat_wind, prevalent_wind(observation.public_observation()),
       !HasDrawLeft(observation.public_observation()),
       IsIppatsu(who, observation.public_observation()),
-      false,  // TODO: is_first_tsumo
-      // IsFirstTurnWithoutOpen() && AbsolutePos(LastEvent().who()) == who &&
-      //     (Any(LastEvent().type(),
-      //          {mjxproto::EVENT_TYPE_DRAW, mjxproto::EVENT_TYPE_TSUMO})),
+      IsFirstTurnWithoutOpen(observation.public_observation()) &&
+          AbsolutePos(last_event.who()) == who &&
+          (Any(last_event.type(),
+               {mjxproto::EVENT_TYPE_DRAW, mjxproto::EVENT_TYPE_TSUMO})),
       seat_wind == Wind::kEast, IsRobbingKan(observation.public_observation()),
       {},  // dora type count 和了れるかどうかだけなのでドラは関係ない
       {}  // ura dora type count 和了れるかどうかだけなのでドラは関係ない
@@ -2054,5 +2038,28 @@ bool State::IsRobbingKan(
     }
   }
   return false;
+}
+
+bool State::IsFirstTurnWithoutOpen(
+    const mjxproto::PublicObservation &public_observation) {
+  const auto& events = public_observation.events();
+  for (const auto &event : events) {
+    switch (event.type()) {
+      case mjxproto::EVENT_TYPE_CHI:
+      case mjxproto::EVENT_TYPE_PON:
+      case mjxproto::EVENT_TYPE_CLOSED_KAN:
+      case mjxproto::EVENT_TYPE_OPEN_KAN:
+      case mjxproto::EVENT_TYPE_ADDED_KAN:
+        return false;
+      case mjxproto::EVENT_TYPE_DISCARD:
+      case mjxproto::EVENT_TYPE_TSUMOGIRI:
+        if (ToSeatWind(static_cast<AbsolutePos>(event.who()),
+                       dealer(public_observation)) ==
+            Wind::kNorth) {
+          return false;
+        }
+    }
+  }
+  return true;
 }
 }  // namespace mjx::internal

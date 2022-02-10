@@ -204,6 +204,8 @@ class State {
       AbsolutePos who, const mjxproto::PublicObservation& public_observation);
   [[nodiscard]] static bool IsRobbingKan(
       const mjxproto::PublicObservation& public_observation);
+  [[nodiscard]] static bool IsFirstTurnWithoutOpen(
+      const mjxproto::PublicObservation& public_observation);
 };
 }  // namespace mjx::internal
 
