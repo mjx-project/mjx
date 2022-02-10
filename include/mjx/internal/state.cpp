@@ -988,17 +988,7 @@ bool State::IsFourWinds() const {
 }
 
 bool State::IsRobbingKan() const {
-  for (auto it = state_.public_observation().events().rbegin();
-       it != state_.public_observation().events().rend(); ++it) {
-    const auto &event = *it;
-    if (event.type() == mjxproto::EventType::EVENT_TYPE_DRAW) {
-      return false;
-    }
-    if (event.type() == mjxproto::EventType::EVENT_TYPE_ADDED_KAN) {
-      return true;
-    }
-  }
-  return false;
+  return IsRobbingKan(state_.public_observation());
 }
 
 int State::RequireKanDora() const {
@@ -1975,7 +1965,7 @@ bool State::CanRon(AbsolutePos who, const mjxproto::Observation &observation) {
       //     (Any(LastEvent().type(),
       //          {mjxproto::EVENT_TYPE_DRAW, mjxproto::EVENT_TYPE_TSUMO})),
       seat_wind == Wind::kEast,
-      false,  // TODO IsRobbingKan(),
+      IsRobbingKan(observation.public_observation()),
       {},  // dora type count 和了れるかどうかだけなのでドラは関係ない
       {}  // ura dora type count 和了れるかどうかだけなのでドラは関係ない
   );
@@ -2050,5 +2040,20 @@ bool State::IsIppatsu(AbsolutePos who,
     prev_event_type = e.type();
   }
   return is_ippatsu_[ToUType(who)];
+}
+
+bool State::IsRobbingKan(
+    const mjxproto::PublicObservation &public_observation) {
+  for (auto it = public_observation.events().rbegin();
+       it != public_observation.events().rend(); ++it) {
+    const auto &event = *it;
+    if (event.type() == mjxproto::EventType::EVENT_TYPE_DRAW) {
+      return false;
+    }
+    if (event.type() == mjxproto::EventType::EVENT_TYPE_ADDED_KAN) {
+      return true;
+    }
+  }
+  return false;
 }
 }  // namespace mjx::internal
