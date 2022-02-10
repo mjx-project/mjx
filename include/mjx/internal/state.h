@@ -200,6 +200,8 @@ class State {
       const mjxproto::PublicObservation& public_observation);
   [[nodiscard]] static Wind prevalent_wind(
       const mjxproto::PublicObservation& public_observation);
+  [[nodiscard]] static bool IsIppatsu(AbsolutePos who,
+                                      const mjxproto::PublicObservation& public_observation);
 };
 }  // namespace mjx::internal
 

@@ -1969,7 +1969,7 @@ bool State::CanRon(AbsolutePos who, const mjxproto::Observation &observation) {
   auto win_state_info = WinStateInfo(
       seat_wind, prevalent_wind(observation.public_observation()),
       !HasDrawLeft(observation.public_observation()),
-      false,  // TODO: is_ippatsu
+      IsIppatsu(who, observation.public_observation()),
       false,  // TODO: is_first_tsumo
       // IsFirstTurnWithoutOpen() && AbsolutePos(LastEvent().who()) == who &&
       //     (Any(LastEvent().type(),
@@ -2010,5 +2010,45 @@ Wind State::prevalent_wind(
     const mjxproto::PublicObservation &public_observation) {
   return Wind(public_observation.init_score().round() / 4);
   ;
+}
+
+bool State::IsIppatsu(AbsolutePos who,
+                      const mjxproto::PublicObservation &public_observation) {
+  std::vector<bool> is_ippatsu_ = {false, false, false, false};
+  const auto& events = public_observation.events();
+  std::optional<mjxproto::EventType> prev_event_type = std::nullopt;
+  for (const auto& e: events) {
+    switch (e.type()) {
+      case mjxproto::EVENT_TYPE_RIICHI_SCORE_CHANGE: {
+        is_ippatsu_[e.who()] = true;
+      }
+      case mjxproto::EVENT_TYPE_DISCARD:
+      case mjxproto::EVENT_TYPE_TSUMOGIRI: {
+        is_ippatsu_[e.who()] = false;
+        break;
+      }
+      case mjxproto::EVENT_TYPE_ADDED_KAN: {
+        is_ippatsu_[e.who()] = false;
+        break;
+      }
+      case mjxproto::EVENT_TYPE_CHI:
+      case mjxproto::EVENT_TYPE_PON:
+      case mjxproto::EVENT_TYPE_CLOSED_KAN:
+      case mjxproto::EVENT_TYPE_OPEN_KAN: {
+        for (int i = 0; i < 4; ++i) is_ippatsu_[i] = false;
+        break;
+      }
+      // 加槓=>槍槓=>Noのときの一発消し
+      case mjxproto::EVENT_TYPE_DRAW: {
+        if (prev_event_type.has_value() &&
+            prev_event_type.value() == mjxproto::EVENT_TYPE_ADDED_KAN) {
+          for (int i = 0; i < 4; ++i) is_ippatsu_[i] = false;
+        }
+        break;
+      }
+    }
+    prev_event_type = e.type();
+  }
+  return is_ippatsu_[ToUType(who)];
 }
 }  // namespace mjx::internal
