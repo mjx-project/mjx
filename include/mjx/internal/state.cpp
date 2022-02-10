@@ -1825,9 +1825,18 @@ std::vector<mjxproto::Action> State::LegalActions(
         if (CanRon(who, observation)) {
           obs.add_legal_action(Action::CreateRon(who, tile, game_id));
         }
+        // Chi, Pon, and AddedKan
+        if (!HasDrawLeft(observation.public_observation())) break;
+        if(IsFourKanNoWinner(observation.public_observation())) break;  // if 四槓散了直前の捨て牌, only ron
+        auto relative_pos = ToRelativePos(who, AbsolutePos(last_event.who()));
+        auto possible_opens =
+            hand.PossibleOpensAfterOthersDiscard(tile, relative_pos);
+        for (const auto &possible_open : possible_opens)
+          obs.add_legal_action(Action::CreateOpen(who, possible_open, game_id));
         break;
       }
       case mjxproto::EVENT_TYPE_ADDED_KAN: {
+        // 槍槓
         auto tile = Open(last_event.open()).LastTile();
         if (CanRon(who, observation)) {
           obs.add_legal_action(Action::CreateRon(who, tile, game_id));
@@ -1853,6 +1862,7 @@ std::vector<mjxproto::Action> State::LegalActions(
       case mjxproto::EVENT_TYPE_EXHAUSTIVE_DRAW_NAGASHI_MANGAN:
         break;
     }
+    if (obs.has_legal_action()) obs.add_legal_action(Action::CreateNo(who, game_id));
   }
   return obs.legal_actions();
 }
@@ -2061,5 +2071,21 @@ bool State::IsFirstTurnWithoutOpen(
     }
   }
   return true;
+}
+
+bool State::IsFourKanNoWinner(
+    const mjxproto::PublicObservation &public_observation) {
+  const auto &events = public_observation.events();
+  int num_total_kans = 0;
+  std::unordered_set<int> kan_players;
+  for (const auto& e: events) {
+    if (Any(e.type(), {mjxproto::EVENT_TYPE_ADDED_KAN,
+                       mjxproto::EVENT_TYPE_CLOSED_KAN,
+                       mjxproto::EVENT_TYPE_OPEN_KAN})) {
+      num_total_kans++;
+      kan_players.insert(e.who());
+    }
+  }
+  return num_total_kans == 4 && kan_players.size() > 1;
 }
 }  // namespace mjx::internal
