@@ -2015,9 +2015,9 @@ Wind State::prevalent_wind(
 bool State::IsIppatsu(AbsolutePos who,
                       const mjxproto::PublicObservation &public_observation) {
   std::vector<bool> is_ippatsu_ = {false, false, false, false};
-  const auto& events = public_observation.events();
+  const auto &events = public_observation.events();
   std::optional<mjxproto::EventType> prev_event_type = std::nullopt;
-  for (const auto& e: events) {
+  for (const auto &e : events) {
     switch (e.type()) {
       case mjxproto::EVENT_TYPE_RIICHI_SCORE_CHANGE: {
         is_ippatsu_[e.who()] = true;
