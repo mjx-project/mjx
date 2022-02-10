@@ -1964,8 +1964,7 @@ bool State::CanRon(AbsolutePos who, const mjxproto::Observation &observation) {
       // IsFirstTurnWithoutOpen() && AbsolutePos(LastEvent().who()) == who &&
       //     (Any(LastEvent().type(),
       //          {mjxproto::EVENT_TYPE_DRAW, mjxproto::EVENT_TYPE_TSUMO})),
-      seat_wind == Wind::kEast,
-      IsRobbingKan(observation.public_observation()),
+      seat_wind == Wind::kEast, IsRobbingKan(observation.public_observation()),
       {},  // dora type count 和了れるかどうかだけなのでドラは関係ない
       {}  // ura dora type count 和了れるかどうかだけなのでドラは関係ない
   );
