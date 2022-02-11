@@ -1782,10 +1782,16 @@ std::vector<mjxproto::Action> State::LegalActions(
   if (who == AbsolutePos(last_event.who())) {
     switch (last_event_type) {
       case mjxproto::EVENT_TYPE_DRAW: {
+        // Tsumo
+        Tile drawn_tile = Tile(last_event.tile());
+        if (hand.IsCompleted() && CanTsumo(who, observation))
+          obs.add_legal_action(Action::CreateTsumo(who, drawn_tile, game_id));
+
         // Riichi
         if (CanRiichi(who, observation)) {
           obs.add_legal_action(Action::CreateRiichi(who, game_id));
         }
+
         // Discard and tsumogiri
         obs.add_legal_actions(Action::CreateDiscardsAndTsumogiri(
             who, hand.PossibleDiscards(), game_id));
@@ -2103,5 +2109,28 @@ bool State::CanRiichi(AbsolutePos who,
   auto ten =
       observation.public_observation().init_score().tens(ToUType(obs.who()));
   return hand.CanRiichi(ten);
+}
+
+bool State::CanTsumo(AbsolutePos who, const mjxproto::Observation &observation) {
+  auto obs = Observation(observation);
+  auto hand = obs.current_hand();
+  const auto &events = observation.public_observation().events();
+  const auto &last_event = *observation.public_observation().events().rbegin();
+  auto seat_wind = ToSeatWind(who, dealer(observation.public_observation()));
+
+  // TODO: duplicated. see CanRon
+  auto win_state_info = WinStateInfo(
+      seat_wind, prevalent_wind(observation.public_observation()),
+      !HasDrawLeft(observation.public_observation()),
+      IsIppatsu(who, observation.public_observation()),
+      IsFirstTurnWithoutOpen(observation.public_observation()) &&
+          AbsolutePos(last_event.who()) == who &&
+          (Any(last_event.type(),
+               {mjxproto::EVENT_TYPE_DRAW, mjxproto::EVENT_TYPE_TSUMO})),
+      seat_wind == Wind::kEast, IsRobbingKan(observation.public_observation()),
+      {},  // dora type count 和了れるかどうかだけなのでドラは関係ない
+      {}  // ura dora type count 和了れるかどうかだけなのでドラは関係ない
+  );
+  return YakuEvaluator::CanWin(WinInfo(std::move(win_state_info), hand.win_info()));
 }
 }  // namespace mjx::internal

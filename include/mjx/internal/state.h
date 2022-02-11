@@ -196,6 +196,8 @@ class State {
       const mjxproto::PublicObservation& public_observation);
   [[nodiscard]] static bool CanRon(AbsolutePos who,
                                    const mjxproto::Observation& observation);
+  [[nodiscard]] static bool CanTsumo(AbsolutePos who,
+                                     const mjxproto::Observation& observation);
   [[nodiscard]] static std::optional<Tile> TargetTile(
       const mjxproto::PublicObservation& public_observation);
   [[nodiscard]] static AbsolutePos dealer(
