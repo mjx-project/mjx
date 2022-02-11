@@ -1782,6 +1782,10 @@ std::vector<mjxproto::Action> State::LegalActions(
   if (who == AbsolutePos(last_event.who())) {
     switch (last_event_type) {
       case mjxproto::EVENT_TYPE_DRAW: {
+        // Riichi
+        if (CanRiichi(who, observation)) {
+          obs.add_legal_action(Action::CreateRiichi(who, game_id));
+        }
         // Discard and tsumogiri
         obs.add_legal_actions(Action::CreateDiscardsAndTsumogiri(
             who, hand.PossibleDiscards(), game_id));
@@ -2088,5 +2092,15 @@ bool State::IsFourKanNoWinner(
     }
   }
   return num_total_kans == 4 && kan_players.size() > 1;
+}
+
+bool State::CanRiichi(AbsolutePos who,
+                      const mjxproto::Observation &observation) {
+  auto obs = Observation(observation);
+  auto hand = obs.current_hand();
+  if (hand.IsUnderRiichi()) return false;
+  if (!HasDrawLeft(observation.public_observation())) return false;
+  auto ten = observation.public_observation().init_score().tens(ToUType(obs.who()));
+  return hand.CanRiichi(ten);
 }
 }  // namespace mjx::internal

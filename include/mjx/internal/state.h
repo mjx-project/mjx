@@ -186,12 +186,13 @@ class State {
   UpdateByActions(const mjxproto::State& proto,
                   std::queue<mjxproto::Action>& actions, State& state);
 
-  // wall_.HasDrawLeftと同じ結果を返す想定・ただしeventをなめるので遅い
+  // 次のブロックは主にObservationだけからでもlegal actionを生成できるようにするための機能
+  // internal::Stateの内部状態を使わずに同じ計算をしている想定
+  // ただし、eventsをなめるので遅かったりする
   [[nodiscard]] static bool HasDrawLeft(
       const mjxproto::PublicObservation& public_observation);
   [[nodiscard]] static bool RequireKanDraw(
       const mjxproto::PublicObservation& public_observation);
-  // CanRonと同じ結果を返す想定・ただしフリテン判定などの際にeventをなめるので遅い
   [[nodiscard]] static bool CanRon(AbsolutePos who,
                                    const mjxproto::Observation& observation);
   [[nodiscard]] static std::optional<Tile> TargetTile(
@@ -208,6 +209,7 @@ class State {
       const mjxproto::PublicObservation& public_observation);
   [[nodiscard]] static bool IsFourKanNoWinner(
       const mjxproto::PublicObservation& public_observation);
+  [[nodiscard]] static bool CanRiichi(AbsolutePos who, const mjxproto::Observation& observation);
 };
 }  // namespace mjx::internal
 
