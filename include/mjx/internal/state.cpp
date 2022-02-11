@@ -1782,6 +1782,10 @@ std::vector<mjxproto::Action> State::LegalActions(
   if (who == AbsolutePos(last_event.who())) {
     switch (last_event_type) {
       case mjxproto::EVENT_TYPE_DRAW: {
+        // NineTiles
+        if (IsFirstTurnWithoutOpen(observation.public_observation()) && hand.CanNineTiles())
+          obs.add_legal_action(Action::CreateNineTiles(who, game_id));
+
         // Tsumo
         Tile drawn_tile = Tile(last_event.tile());
         if (hand.IsCompleted() && CanTsumo(who, observation))
