@@ -20,7 +20,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   syntax='proto3',
   serialized_options=None,
   create_key=_descriptor._internal_create_key,
-  serialized_pb=b'\n\tmjx.proto\x12\x08mjxproto\"C\n\x05Score\x12\r\n\x05round\x18\x01 \x01(\r\x12\r\n\x05honba\x18\x02 \x01(\r\x12\x0e\n\x06riichi\x18\x03 \x01(\r\x12\x0c\n\x04tens\x18\x04 \x03(\x05\"S\n\x05\x45vent\x12!\n\x04type\x18\x01 \x01(\x0e\x32\x13.mjxproto.EventType\x12\x0b\n\x03who\x18\x02 \x01(\x05\x12\x0c\n\x04tile\x18\x03 \x01(\r\x12\x0c\n\x04open\x18\x04 \x01(\r\"\x97\x01\n\x11PublicObservation\x12\x0f\n\x07game_id\x18\x01 \x01(\t\x12\x12\n\nplayer_ids\x18\x02 \x03(\t\x12#\n\ninit_score\x18\x03 \x01(\x0b\x32\x0f.mjxproto.Score\x12\x17\n\x0f\x64ora_indicators\x18\x04 \x03(\r\x12\x1f\n\x06\x65vents\x18\x05 \x03(\x0b\x32\x0f.mjxproto.Event\"+\n\x04Hand\x12\x14\n\x0c\x63losed_tiles\x18\x01 \x03(\r\x12\r\n\x05opens\x18\x02 \x03(\r\"}\n\x12PrivateObservation\x12\x0b\n\x03who\x18\x01 \x01(\x05\x12!\n\tinit_hand\x18\x02 \x01(\x0b\x32\x0e.mjxproto.Hand\x12\x14\n\x0c\x64raw_history\x18\x03 \x03(\r\x12!\n\tcurr_hand\x18\x04 \x01(\x0b\x32\x0e.mjxproto.Hand\"\xe8\x01\n\x0bObservation\x12\x0b\n\x03who\x18\x01 \x01(\x05\x12\x37\n\x12public_observation\x18\x02 \x01(\x0b\x32\x1b.mjxproto.PublicObservation\x12\x39\n\x13private_observation\x18\x03 \x01(\x0b\x32\x1c.mjxproto.PrivateObservation\x12/\n\x0eround_terminal\x18\x04 \x01(\x0b\x32\x17.mjxproto.RoundTerminal\x12\'\n\rlegal_actions\x18\x05 \x03(\x0b\x32\x10.mjxproto.Action\"\xce\x01\n\x03Win\x12\x0b\n\x03who\x18\x01 \x01(\x05\x12\x10\n\x08\x66rom_who\x18\x02 \x01(\x05\x12\x1c\n\x04hand\x18\x03 \x01(\x0b\x32\x0e.mjxproto.Hand\x12\x10\n\x08win_tile\x18\x04 \x01(\r\x12\n\n\x02\x66u\x18\x05 \x01(\r\x12\x0b\n\x03ten\x18\x06 \x01(\r\x12\x13\n\x0bten_changes\x18\x07 \x03(\x05\x12\r\n\x05yakus\x18\x08 \x03(\r\x12\x0c\n\x04\x66\x61ns\x18\t \x03(\r\x12\x10\n\x08yakumans\x18\n \x03(\r\x12\x1b\n\x13ura_dora_indicators\x18\x0b \x03(\r\"F\n\x08NoWinner\x12%\n\x07tenpais\x18\x01 \x03(\x0b\x32\x14.mjxproto.TenpaiHand\x12\x13\n\x0bten_changes\x18\x02 \x03(\x05\"7\n\nTenpaiHand\x12\x0b\n\x03who\x18\x01 \x01(\x05\x12\x1c\n\x04hand\x18\x02 \x01(\x0b\x32\x0e.mjxproto.Hand\"\x8f\x01\n\rRoundTerminal\x12$\n\x0b\x66inal_score\x18\x01 \x01(\x0b\x32\x0f.mjxproto.Score\x12\x1b\n\x04wins\x18\x02 \x03(\x0b\x32\r.mjxproto.Win\x12%\n\tno_winner\x18\x03 \x01(\x0b\x32\x12.mjxproto.NoWinner\x12\x14\n\x0cis_game_over\x18\x04 \x01(\x08\"\xda\x01\n\x05State\x12+\n\x0chidden_state\x18\x01 \x01(\x0b\x32\x15.mjxproto.HiddenState\x12\x37\n\x12public_observation\x18\x02 \x01(\x0b\x32\x1b.mjxproto.PublicObservation\x12:\n\x14private_observations\x18\x03 \x03(\x0b\x32\x1c.mjxproto.PrivateObservation\x12/\n\x0eround_terminal\x18\x04 \x01(\x0b\x32\x17.mjxproto.RoundTerminal\"K\n\x0bHiddenState\x12\x11\n\tgame_seed\x18\x01 \x01(\x04\x12\x0c\n\x04wall\x18\x02 \x03(\r\x12\x1b\n\x13ura_dora_indicators\x18\x03 \x03(\r\"f\n\x06\x41\x63tion\x12\x0f\n\x07game_id\x18\x01 \x01(\t\x12\x0b\n\x03who\x18\x02 \x01(\x05\x12\"\n\x04type\x18\x03 \x01(\x0e\x32\x14.mjxproto.ActionType\x12\x0c\n\x04tile\x18\x04 \x01(\r\x12\x0c\n\x04open\x18\x05 \x01(\r\"\xf5\x01\n\nGameResult\x12\x11\n\tgame_seed\x18\x01 \x01(\x04\x12\x12\n\nplayer_ids\x18\x02 \x03(\t\x12,\n\x04tens\x18\x03 \x03(\x0b\x32\x1e.mjxproto.GameResult.TensEntry\x12\x34\n\x08rankings\x18\x04 \x03(\x0b\x32\".mjxproto.GameResult.RankingsEntry\x1a+\n\tTensEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\x05:\x02\x38\x01\x1a/\n\rRankingsEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\x05:\x02\x38\x01*\xd8\x02\n\nActionType\x12\x17\n\x13\x41\x43TION_TYPE_DISCARD\x10\x00\x12\x19\n\x15\x41\x43TION_TYPE_TSUMOGIRI\x10\x01\x12\x16\n\x12\x41\x43TION_TYPE_RIICHI\x10\x02\x12\x1a\n\x16\x41\x43TION_TYPE_CLOSED_KAN\x10\x03\x12\x19\n\x15\x41\x43TION_TYPE_ADDED_KAN\x10\x04\x12\x15\n\x11\x41\x43TION_TYPE_TSUMO\x10\x05\x12,\n(ACTION_TYPE_ABORTIVE_DRAW_NINE_TERMINALS\x10\x06\x12\x13\n\x0f\x41\x43TION_TYPE_CHI\x10\x07\x12\x13\n\x0f\x41\x43TION_TYPE_PON\x10\x08\x12\x18\n\x14\x41\x43TION_TYPE_OPEN_KAN\x10\t\x12\x13\n\x0f\x41\x43TION_TYPE_RON\x10\n\x12\x12\n\x0e\x41\x43TION_TYPE_NO\x10\x0b\x12\x15\n\x11\x41\x43TION_TYPE_DUMMY\x10\x63*\xee\x04\n\tEventType\x12\x16\n\x12\x45VENT_TYPE_DISCARD\x10\x00\x12\x18\n\x14\x45VENT_TYPE_TSUMOGIRI\x10\x01\x12\x15\n\x11\x45VENT_TYPE_RIICHI\x10\x02\x12\x19\n\x15\x45VENT_TYPE_CLOSED_KAN\x10\x03\x12\x18\n\x14\x45VENT_TYPE_ADDED_KAN\x10\x04\x12\x14\n\x10\x45VENT_TYPE_TSUMO\x10\x05\x12+\n\'EVENT_TYPE_ABORTIVE_DRAW_NINE_TERMINALS\x10\x06\x12\x12\n\x0e\x45VENT_TYPE_CHI\x10\x07\x12\x12\n\x0e\x45VENT_TYPE_PON\x10\x08\x12\x17\n\x13\x45VENT_TYPE_OPEN_KAN\x10\t\x12\x12\n\x0e\x45VENT_TYPE_RON\x10\n\x12\x13\n\x0f\x45VENT_TYPE_DRAW\x10\x0c\x12\"\n\x1e\x45VENT_TYPE_RIICHI_SCORE_CHANGE\x10\r\x12\x17\n\x13\x45VENT_TYPE_NEW_DORA\x10\x0e\x12)\n%EVENT_TYPE_ABORTIVE_DRAW_FOUR_RIICHIS\x10\x0f\x12\'\n#EVENT_TYPE_ABORTIVE_DRAW_THREE_RONS\x10\x10\x12&\n\"EVENT_TYPE_ABORTIVE_DRAW_FOUR_KANS\x10\x11\x12\'\n#EVENT_TYPE_ABORTIVE_DRAW_FOUR_WINDS\x10\x12\x12%\n!EVENT_TYPE_EXHAUSTIVE_DRAW_NORMAL\x10\x13\x12-\n)EVENT_TYPE_EXHAUSTIVE_DRAW_NAGASHI_MANGAN\x10\x14\x32@\n\x05\x41gent\x12\x37\n\nTakeAction\x12\x15.mjxproto.Observation\x1a\x10.mjxproto.Action\"\x00\x62\x06proto3'
+  serialized_pb=b'\n\tmjx.proto\x12\x08mjxproto\"C\n\x05Score\x12\r\n\x05round\x18\x01 \x01(\r\x12\r\n\x05honba\x18\x02 \x01(\r\x12\x0e\n\x06riichi\x18\x03 \x01(\r\x12\x0c\n\x04tens\x18\x04 \x03(\x05\"S\n\x05\x45vent\x12!\n\x04type\x18\x01 \x01(\x0e\x32\x13.mjxproto.EventType\x12\x0b\n\x03who\x18\x02 \x01(\x05\x12\x0c\n\x04tile\x18\x03 \x01(\r\x12\x0c\n\x04open\x18\x04 \x01(\r\"\x97\x01\n\x11PublicObservation\x12\x0f\n\x07game_id\x18\x01 \x01(\t\x12\x12\n\nplayer_ids\x18\x02 \x03(\t\x12#\n\ninit_score\x18\x03 \x01(\x0b\x32\x0f.mjxproto.Score\x12\x17\n\x0f\x64ora_indicators\x18\x04 \x03(\r\x12\x1f\n\x06\x65vents\x18\x05 \x03(\x0b\x32\x0f.mjxproto.Event\"+\n\x04Hand\x12\x14\n\x0c\x63losed_tiles\x18\x01 \x03(\r\x12\r\n\x05opens\x18\x02 \x03(\r\"}\n\x12PrivateObservation\x12\x0b\n\x03who\x18\x01 \x01(\x05\x12!\n\tinit_hand\x18\x02 \x01(\x0b\x32\x0e.mjxproto.Hand\x12\x14\n\x0c\x64raw_history\x18\x03 \x03(\r\x12!\n\tcurr_hand\x18\x04 \x01(\x0b\x32\x0e.mjxproto.Hand\"\xe8\x01\n\x0bObservation\x12\x0b\n\x03who\x18\x01 \x01(\x05\x12\x37\n\x12public_observation\x18\x02 \x01(\x0b\x32\x1b.mjxproto.PublicObservation\x12\x39\n\x13private_observation\x18\x03 \x01(\x0b\x32\x1c.mjxproto.PrivateObservation\x12/\n\x0eround_terminal\x18\x04 \x01(\x0b\x32\x17.mjxproto.RoundTerminal\x12\'\n\rlegal_actions\x18\x05 \x03(\x0b\x32\x10.mjxproto.Action\"\xce\x01\n\x03Win\x12\x0b\n\x03who\x18\x01 \x01(\x05\x12\x10\n\x08\x66rom_who\x18\x02 \x01(\x05\x12\x1c\n\x04hand\x18\x03 \x01(\x0b\x32\x0e.mjxproto.Hand\x12\x10\n\x08win_tile\x18\x04 \x01(\r\x12\n\n\x02\x66u\x18\x05 \x01(\r\x12\x0b\n\x03ten\x18\x06 \x01(\r\x12\x13\n\x0bten_changes\x18\x07 \x03(\x05\x12\r\n\x05yakus\x18\x08 \x03(\r\x12\x0c\n\x04\x66\x61ns\x18\t \x03(\r\x12\x10\n\x08yakumans\x18\n \x03(\r\x12\x1b\n\x13ura_dora_indicators\x18\x0b \x03(\r\"F\n\x08NoWinner\x12%\n\x07tenpais\x18\x01 \x03(\x0b\x32\x14.mjxproto.TenpaiHand\x12\x13\n\x0bten_changes\x18\x02 \x03(\x05\"7\n\nTenpaiHand\x12\x0b\n\x03who\x18\x01 \x01(\x05\x12\x1c\n\x04hand\x18\x02 \x01(\x0b\x32\x0e.mjxproto.Hand\"\x8f\x01\n\rRoundTerminal\x12$\n\x0b\x66inal_score\x18\x01 \x01(\x0b\x32\x0f.mjxproto.Score\x12\x1b\n\x04wins\x18\x02 \x03(\x0b\x32\r.mjxproto.Win\x12%\n\tno_winner\x18\x03 \x01(\x0b\x32\x12.mjxproto.NoWinner\x12\x14\n\x0cis_game_over\x18\x04 \x01(\x08\"\xda\x01\n\x05State\x12+\n\x0chidden_state\x18\x01 \x01(\x0b\x32\x15.mjxproto.HiddenState\x12\x37\n\x12public_observation\x18\x02 \x01(\x0b\x32\x1b.mjxproto.PublicObservation\x12:\n\x14private_observations\x18\x03 \x03(\x0b\x32\x1c.mjxproto.PrivateObservation\x12/\n\x0eround_terminal\x18\x04 \x01(\x0b\x32\x17.mjxproto.RoundTerminal\"K\n\x0bHiddenState\x12\x11\n\tgame_seed\x18\x01 \x01(\x04\x12\x0c\n\x04wall\x18\x02 \x03(\r\x12\x1b\n\x13ura_dora_indicators\x18\x03 \x03(\r\"U\n\x06\x41\x63tion\x12\"\n\x04type\x18\x01 \x01(\x0e\x32\x14.mjxproto.ActionType\x12\x0b\n\x03who\x18\x02 \x01(\x05\x12\x0c\n\x04tile\x18\x03 \x01(\r\x12\x0c\n\x04open\x18\x04 \x01(\r\"\xf5\x01\n\nGameResult\x12\x11\n\tgame_seed\x18\x01 \x01(\x04\x12\x12\n\nplayer_ids\x18\x02 \x03(\t\x12,\n\x04tens\x18\x03 \x03(\x0b\x32\x1e.mjxproto.GameResult.TensEntry\x12\x34\n\x08rankings\x18\x04 \x03(\x0b\x32\".mjxproto.GameResult.RankingsEntry\x1a+\n\tTensEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\x05:\x02\x38\x01\x1a/\n\rRankingsEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\x05:\x02\x38\x01*\xd8\x02\n\nActionType\x12\x17\n\x13\x41\x43TION_TYPE_DISCARD\x10\x00\x12\x19\n\x15\x41\x43TION_TYPE_TSUMOGIRI\x10\x01\x12\x16\n\x12\x41\x43TION_TYPE_RIICHI\x10\x02\x12\x1a\n\x16\x41\x43TION_TYPE_CLOSED_KAN\x10\x03\x12\x19\n\x15\x41\x43TION_TYPE_ADDED_KAN\x10\x04\x12\x15\n\x11\x41\x43TION_TYPE_TSUMO\x10\x05\x12,\n(ACTION_TYPE_ABORTIVE_DRAW_NINE_TERMINALS\x10\x06\x12\x13\n\x0f\x41\x43TION_TYPE_CHI\x10\x07\x12\x13\n\x0f\x41\x43TION_TYPE_PON\x10\x08\x12\x18\n\x14\x41\x43TION_TYPE_OPEN_KAN\x10\t\x12\x13\n\x0f\x41\x43TION_TYPE_RON\x10\n\x12\x12\n\x0e\x41\x43TION_TYPE_NO\x10\x0b\x12\x15\n\x11\x41\x43TION_TYPE_DUMMY\x10\x63*\xee\x04\n\tEventType\x12\x16\n\x12\x45VENT_TYPE_DISCARD\x10\x00\x12\x18\n\x14\x45VENT_TYPE_TSUMOGIRI\x10\x01\x12\x15\n\x11\x45VENT_TYPE_RIICHI\x10\x02\x12\x19\n\x15\x45VENT_TYPE_CLOSED_KAN\x10\x03\x12\x18\n\x14\x45VENT_TYPE_ADDED_KAN\x10\x04\x12\x14\n\x10\x45VENT_TYPE_TSUMO\x10\x05\x12+\n\'EVENT_TYPE_ABORTIVE_DRAW_NINE_TERMINALS\x10\x06\x12\x12\n\x0e\x45VENT_TYPE_CHI\x10\x07\x12\x12\n\x0e\x45VENT_TYPE_PON\x10\x08\x12\x17\n\x13\x45VENT_TYPE_OPEN_KAN\x10\t\x12\x12\n\x0e\x45VENT_TYPE_RON\x10\n\x12\x13\n\x0f\x45VENT_TYPE_DRAW\x10\x0c\x12\"\n\x1e\x45VENT_TYPE_RIICHI_SCORE_CHANGE\x10\r\x12\x17\n\x13\x45VENT_TYPE_NEW_DORA\x10\x0e\x12)\n%EVENT_TYPE_ABORTIVE_DRAW_FOUR_RIICHIS\x10\x0f\x12\'\n#EVENT_TYPE_ABORTIVE_DRAW_THREE_RONS\x10\x10\x12&\n\"EVENT_TYPE_ABORTIVE_DRAW_FOUR_KANS\x10\x11\x12\'\n#EVENT_TYPE_ABORTIVE_DRAW_FOUR_WINDS\x10\x12\x12%\n!EVENT_TYPE_EXHAUSTIVE_DRAW_NORMAL\x10\x13\x12-\n)EVENT_TYPE_EXHAUSTIVE_DRAW_NAGASHI_MANGAN\x10\x14\x32@\n\x05\x41gent\x12\x37\n\nTakeAction\x12\x15.mjxproto.Observation\x1a\x10.mjxproto.Action\"\x00\x62\x06proto3'
 )
 
 _ACTIONTYPE = _descriptor.EnumDescriptor(
@@ -98,8 +98,8 @@ _ACTIONTYPE = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   serialized_options=None,
-  serialized_start=1873,
-  serialized_end=2217,
+  serialized_start=1856,
+  serialized_end=2200,
 )
 _sym_db.RegisterEnumDescriptor(_ACTIONTYPE)
 
@@ -214,8 +214,8 @@ _EVENTTYPE = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   serialized_options=None,
-  serialized_start=2220,
-  serialized_end=2842,
+  serialized_start=2203,
+  serialized_end=2825,
 )
 _sym_db.RegisterEnumDescriptor(_EVENTTYPE)
 
@@ -915,9 +915,9 @@ _ACTION = _descriptor.Descriptor(
   create_key=_descriptor._internal_create_key,
   fields=[
     _descriptor.FieldDescriptor(
-      name='game_id', full_name='mjxproto.Action.game_id', index=0,
-      number=1, type=9, cpp_type=9, label=1,
-      has_default_value=False, default_value=b"".decode('utf-8'),
+      name='type', full_name='mjxproto.Action.type', index=0,
+      number=1, type=14, cpp_type=8, label=1,
+      has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
@@ -929,22 +929,15 @@ _ACTION = _descriptor.Descriptor(
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='type', full_name='mjxproto.Action.type', index=2,
-      number=3, type=14, cpp_type=8, label=1,
+      name='tile', full_name='mjxproto.Action.tile', index=2,
+      number=3, type=13, cpp_type=3, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='tile', full_name='mjxproto.Action.tile', index=3,
+      name='open', full_name='mjxproto.Action.open', index=3,
       number=4, type=13, cpp_type=3, label=1,
-      has_default_value=False, default_value=0,
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-    _descriptor.FieldDescriptor(
-      name='open', full_name='mjxproto.Action.open', index=4,
-      number=5, type=13, cpp_type=3, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
@@ -962,7 +955,7 @@ _ACTION = _descriptor.Descriptor(
   oneofs=[
   ],
   serialized_start=1520,
-  serialized_end=1622,
+  serialized_end=1605,
 )
 
 
@@ -1000,8 +993,8 @@ _GAMERESULT_TENSENTRY = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1778,
-  serialized_end=1821,
+  serialized_start=1761,
+  serialized_end=1804,
 )
 
 _GAMERESULT_RANKINGSENTRY = _descriptor.Descriptor(
@@ -1038,8 +1031,8 @@ _GAMERESULT_RANKINGSENTRY = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1823,
-  serialized_end=1870,
+  serialized_start=1806,
+  serialized_end=1853,
 )
 
 _GAMERESULT = _descriptor.Descriptor(
@@ -1090,8 +1083,8 @@ _GAMERESULT = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1625,
-  serialized_end=1870,
+  serialized_start=1608,
+  serialized_end=1853,
 )
 
 _EVENT.fields_by_name['type'].enum_type = _EVENTTYPE
@@ -1261,8 +1254,8 @@ _AGENT = _descriptor.ServiceDescriptor(
   index=0,
   serialized_options=None,
   create_key=_descriptor._internal_create_key,
-  serialized_start=2844,
-  serialized_end=2908,
+  serialized_start=2827,
+  serialized_end=2891,
   methods=[
   _descriptor.MethodDescriptor(
     name='TakeAction',
