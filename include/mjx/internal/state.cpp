@@ -1893,16 +1893,20 @@ std::vector<mjxproto::Action> State::LegalActions(
 
 bool State::HasDrawLeft(const mjxproto::PublicObservation &public_observation) {
   const auto &events = public_observation.events();
-  int draw_ix = 52;
-  int num_kan_draw = 0;
+  int num_draw = 0;
   for (const auto &e : events) {
-    if (e.type() != mjxproto::EVENT_TYPE_DRAW) continue;
-    if (RequireKanDraw(public_observation))
-      num_kan_draw++;
-    else
-      draw_ix++;
+    if (e.type() == mjxproto::EVENT_TYPE_DRAW) num_draw++;
   }
-  return draw_ix + num_kan_draw < 122;
+  return 52 + num_draw < 122;
+}
+
+bool State::HasNextDrawLeft(const mjxproto::PublicObservation &public_observation) {
+  const auto &events = public_observation.events();
+  int num_draws = 0;
+  for (const auto &e : events) {
+    if (e.type() == mjxproto::EVENT_TYPE_DRAW) num_draws++;
+  }
+  return 52 + num_draws <= 118;
 }
 
 bool State::RequireKanDraw(
@@ -2128,7 +2132,7 @@ bool State::CanRiichi(AbsolutePos who,
   auto obs = Observation(observation);
   auto hand = obs.current_hand();
   if (hand.IsUnderRiichi()) return false;
-  if (!HasDrawLeft(observation.public_observation())) return false;
+  if (!HasNextDrawLeft(observation.public_observation())) return false;
   auto ten =
       observation.public_observation().init_score().tens(ToUType(obs.who()));
   return hand.CanRiichi(ten);

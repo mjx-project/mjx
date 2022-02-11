@@ -192,6 +192,8 @@ class State {
   // ただし、eventsをなめるので遅かったりする
   [[nodiscard]] static bool HasDrawLeft(
       const mjxproto::PublicObservation& public_observation);
+  [[nodiscard]] static bool HasNextDrawLeft(
+      const mjxproto::PublicObservation& public_observation);
   [[nodiscard]] static bool RequireKanDraw(
       const mjxproto::PublicObservation& public_observation);
   [[nodiscard]] static bool CanRon(AbsolutePos who,
