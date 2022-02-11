@@ -1783,7 +1783,7 @@ std::vector<mjxproto::Action> State::LegalActions(
           obs.add_legal_action(Action::CreateNineTiles(who, game_id));
 
         // Tsumo
-        Tile drawn_tile = Tile(last_event.tile());
+        Tile drawn_tile = Tile(hand.LastTileAdded().value());
         if (hand.IsCompleted() && CanTsumo(who, observation))
           obs.add_legal_action(Action::CreateTsumo(who, drawn_tile, game_id));
 

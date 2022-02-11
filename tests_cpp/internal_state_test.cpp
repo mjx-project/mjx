@@ -1193,7 +1193,7 @@ TEST(internal_state, LegalActions) {
         wrong_cnt++;
         std::cerr << "Original: " << legal_actions_original.size() << std::endl;
         std::cerr << obs_original.ToJson() << std::endl;
-        std::cerr << "Restored:" << legal_actions_restored.size() << std::endl;
+        std::cerr << "Restored: " << legal_actions_restored.size() << std::endl;
         auto o = Observation(obs_cleared);
         o.add_legal_actions(legal_actions_restored);
         std::cerr << o.ToJson() << std::endl;
