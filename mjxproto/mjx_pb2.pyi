@@ -501,12 +501,11 @@ global___HiddenState = HiddenState
 
 class Action(google.protobuf.message.Message):
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
-    GAME_ID_FIELD_NUMBER: builtins.int
-    WHO_FIELD_NUMBER: builtins.int
     TYPE_FIELD_NUMBER: builtins.int
+    WHO_FIELD_NUMBER: builtins.int
     TILE_FIELD_NUMBER: builtins.int
     OPEN_FIELD_NUMBER: builtins.int
-    game_id: typing.Text
+    type: global___ActionType.ValueType
     """                  tile   open
      DISCARD           Yes     No
      TSUMOGIRI         Yes     No
@@ -523,18 +522,22 @@ class Action(google.protobuf.message.Message):
     """
 
     who: builtins.int
-    type: global___ActionType.ValueType
+    """0:起家, ..., 3:ラス親"""
+
     tile: builtins.int
+    """Indicates the tile id (0 ~ 135)"""
+
     open: builtins.int
+    """Each open (鳴き) is encoded by Tenhou format. See https://github.com/NegativeMjark/tenhou-log#meld-format"""
+
     def __init__(self,
         *,
-        game_id: typing.Text = ...,
-        who: builtins.int = ...,
         type: global___ActionType.ValueType = ...,
+        who: builtins.int = ...,
         tile: builtins.int = ...,
         open: builtins.int = ...,
         ) -> None: ...
-    def ClearField(self, field_name: typing_extensions.Literal["game_id",b"game_id","open",b"open","tile",b"tile","type",b"type","who",b"who"]) -> None: ...
+    def ClearField(self, field_name: typing_extensions.Literal["open",b"open","tile",b"tile","type",b"type","who",b"who"]) -> None: ...
 global___Action = Action
 
 class GameResult(google.protobuf.message.Message):
