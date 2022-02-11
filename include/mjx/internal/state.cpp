@@ -2111,7 +2111,8 @@ bool State::CanRiichi(AbsolutePos who,
   return hand.CanRiichi(ten);
 }
 
-bool State::CanTsumo(AbsolutePos who, const mjxproto::Observation &observation) {
+bool State::CanTsumo(AbsolutePos who,
+                     const mjxproto::Observation &observation) {
   auto obs = Observation(observation);
   auto hand = obs.current_hand();
   const auto &events = observation.public_observation().events();
@@ -2131,6 +2132,7 @@ bool State::CanTsumo(AbsolutePos who, const mjxproto::Observation &observation) 
       {},  // dora type count 和了れるかどうかだけなのでドラは関係ない
       {}  // ura dora type count 和了れるかどうかだけなのでドラは関係ない
   );
-  return YakuEvaluator::CanWin(WinInfo(std::move(win_state_info), hand.win_info()));
+  return YakuEvaluator::CanWin(
+      WinInfo(std::move(win_state_info), hand.win_info()));
 }
 }  // namespace mjx::internal
