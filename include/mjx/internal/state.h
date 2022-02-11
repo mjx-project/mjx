@@ -186,7 +186,8 @@ class State {
   UpdateByActions(const mjxproto::State& proto,
                   std::queue<mjxproto::Action>& actions, State& state);
 
-  // 次のブロックは主にObservationだけからでもlegal actionを生成できるようにするための機能
+  // 次のブロックは主にObservationだけからでもlegal
+  // actionを生成できるようにするための機能
   // internal::Stateの内部状態を使わずに同じ計算をしている想定
   // ただし、eventsをなめるので遅かったりする
   [[nodiscard]] static bool HasDrawLeft(
@@ -209,7 +210,8 @@ class State {
       const mjxproto::PublicObservation& public_observation);
   [[nodiscard]] static bool IsFourKanNoWinner(
       const mjxproto::PublicObservation& public_observation);
-  [[nodiscard]] static bool CanRiichi(AbsolutePos who, const mjxproto::Observation& observation);
+  [[nodiscard]] static bool CanRiichi(AbsolutePos who,
+                                      const mjxproto::Observation& observation);
 };
 }  // namespace mjx::internal
 

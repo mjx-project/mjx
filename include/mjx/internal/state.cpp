@@ -2100,7 +2100,8 @@ bool State::CanRiichi(AbsolutePos who,
   auto hand = obs.current_hand();
   if (hand.IsUnderRiichi()) return false;
   if (!HasDrawLeft(observation.public_observation())) return false;
-  auto ten = observation.public_observation().init_score().tens(ToUType(obs.who()));
+  auto ten =
+      observation.public_observation().init_score().tens(ToUType(obs.who()));
   return hand.CanRiichi(ten);
 }
 }  // namespace mjx::internal
