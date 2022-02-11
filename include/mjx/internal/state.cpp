@@ -1783,7 +1783,8 @@ std::vector<mjxproto::Action> State::LegalActions(
     switch (last_event_type) {
       case mjxproto::EVENT_TYPE_DRAW: {
         // NineTiles
-        if (IsFirstTurnWithoutOpen(observation.public_observation()) && hand.CanNineTiles())
+        if (IsFirstTurnWithoutOpen(observation.public_observation()) &&
+            hand.CanNineTiles())
           obs.add_legal_action(Action::CreateNineTiles(who, game_id));
 
         // Tsumo
