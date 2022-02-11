@@ -1960,7 +1960,8 @@ bool State::CanRon(AbsolutePos who, const mjxproto::Observation &observation) {
       }
       case mjxproto::EVENT_TYPE_DRAW: {
         // フリテン解除
-        if (who == AbsolutePos(e.who()) && !is_under_riichi) missed_tiles.reset();
+        if (who == AbsolutePos(e.who()) && !is_under_riichi)
+          missed_tiles.reset();
         break;
       }
       case mjxproto::EVENT_TYPE_CHI:

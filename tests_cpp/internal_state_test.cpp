@@ -1162,13 +1162,13 @@ TEST(internal_state, GeneratePastDecisions) {
             3);
 }
 
-bool legal_actions_equals(const std::vector<mjxproto::Action>& legal_actions1,
-                          const std::vector<mjxproto::Action>& legal_actions2) {
+bool legal_actions_equals(const std::vector<mjxproto::Action> &legal_actions1,
+                          const std::vector<mjxproto::Action> &legal_actions2) {
   if (legal_actions1.size() != legal_actions2.size()) return false;
   for (int i = 0; i < legal_actions1.size(); ++i) {
     bool ok = google::protobuf::util::MessageDifferencer::Equals(
         legal_actions1.at(i), legal_actions2.at(i));
-    if(!ok) return false;
+    if (!ok) return false;
   }
   return true;
 }
@@ -1188,7 +1188,8 @@ TEST(internal_state, LegalActions) {
       EXPECT_NE(legal_actions_original.size(), 0);
       EXPECT_EQ(obs_cleared.legal_actions_size(), 0);
       auto legal_actions_restored = State::LegalActions(obs_cleared);
-      if (!legal_actions_equals(legal_actions_original, legal_actions_restored)) {
+      if (!legal_actions_equals(legal_actions_original,
+                                legal_actions_restored)) {
         wrong_cnt++;
         std::cerr << "Original: " << legal_actions_original.size() << std::endl;
         std::cerr << obs_original.ToJson() << std::endl;
