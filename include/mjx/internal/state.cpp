@@ -1900,7 +1900,8 @@ bool State::HasDrawLeft(const mjxproto::PublicObservation &public_observation) {
   return 52 + num_draw < 122;
 }
 
-bool State::HasNextDrawLeft(const mjxproto::PublicObservation &public_observation) {
+bool State::HasNextDrawLeft(
+    const mjxproto::PublicObservation &public_observation) {
   const auto &events = public_observation.events();
   int num_draws = 0;
   for (const auto &e : events) {
