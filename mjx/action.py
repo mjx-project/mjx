@@ -54,6 +54,7 @@ class Action:
 
     @classmethod
     def select_from(cls, idx: int, legal_actions: List[Action]) -> Action:
+        assert [idx in [action.to_idx() for action in legal_actions]]
         return Action._from_cpp_obj(_mjx.Action.select_from(idx, [a._cpp_obj for a in legal_actions]))  # type: ignore
 
     @classmethod
