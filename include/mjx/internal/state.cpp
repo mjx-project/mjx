@@ -1929,7 +1929,7 @@ bool State::CanRon(AbsolutePos who, const mjxproto::Observation &observation) {
   const auto &last_event = *observation.public_observation().events().rbegin();
 
   if (!Any(last_event.type(),
-           {mjxproto::EVENT_TYPE_DISCARD, mjxproto::EVENT_TYPE_DISCARD,
+           {mjxproto::EVENT_TYPE_DISCARD, mjxproto::EVENT_TYPE_TSUMOGIRI,
             mjxproto::EVENT_TYPE_ADDED_KAN}))
     return false;
   if (!hand.IsTenpai()) return false;
@@ -1944,18 +1944,23 @@ bool State::CanRon(AbsolutePos who, const mjxproto::Observation &observation) {
   // set missed_tiles and discards
   std::bitset<34> missed_tiles;
   std::bitset<34> discards;
-  for (const auto &e : events) {
+  for (auto it = events.begin(); it != events.end(); ++it) {
+    const auto &e = *it;
+    auto last_it = events.end();
+    --last_it;
+    bool is_under_riichi = false;
     switch (e.type()) {
       case mjxproto::EVENT_TYPE_DISCARD:
       case mjxproto::EVENT_TYPE_TSUMOGIRI: {
         auto tile = Tile(e.tile());
-        missed_tiles.set(tile.TypeUint());
         if (who == AbsolutePos(e.who())) discards.set(tile.TypeUint());
+        // フリテン設定 ロン牌はフリテン判定しない
+        if (it != last_it) missed_tiles.set(tile.TypeUint());
         break;
       }
       case mjxproto::EVENT_TYPE_DRAW: {
-        if (who == AbsolutePos(e.who()) && !hand.IsUnderRiichi())
-          missed_tiles.reset();  // フリテン解除
+        // フリテン解除
+        if (who == AbsolutePos(e.who()) && !is_under_riichi) missed_tiles.reset();
         break;
       }
       case mjxproto::EVENT_TYPE_CHI:
@@ -1965,6 +1970,11 @@ bool State::CanRon(AbsolutePos who, const mjxproto::Observation &observation) {
       case mjxproto::EVENT_TYPE_OPEN_KAN: {
         if (who == AbsolutePos(e.who())) missed_tiles.reset();  // フリテン解除
         break;
+      }
+      case mjxproto::EVENT_TYPE_RIICHI: {
+        if (who == AbsolutePos(e.who())) {
+          is_under_riichi = true;
+        }
       }
     }
   }
