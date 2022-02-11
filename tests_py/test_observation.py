@@ -49,8 +49,6 @@ def test_from_proto():
 
 
 def test_add_legal_actions():
-    original_json = '{"publicObservation":{"playerIds":["player_2","player_1","player_0","player_3"],"initScore":{"tens":[25000,25000,25000,25000]},"doraIndicators":[101],"events":[{"type":"EVENT_TYPE_DRAW"}]},"privateObservation":{"initHand":{"closedTiles":[24,3,87,124,37,42,58,134,92,82,122,18,117]},"drawHistory":[79],"currHand":{"closedTiles":[3,18,24,37,42,58,79,82,87,92,117,122,124,134]}},"legalActions":[{"gameId":"6edf5fb1-bf0f-4eab-9d65-64b0a1cdb8aa","tile":3},{"gameId":"6edf5fb1-bf0f-4eab-9d65-64b0a1cdb8aa","tile":18},{"gameId":"6edf5fb1-bf0f-4eab-9d65-64b0a1cdb8aa","tile":24},{"gameId":"6edf5fb1-bf0f-4eab-9d65-64b0a1cdb8aa","tile":37},{"gameId":"6edf5fb1-bf0f-4eab-9d65-64b0a1cdb8aa","tile":42},{"gameId":"6edf5fb1-bf0f-4eab-9d65-64b0a1cdb8aa","tile":58},{"gameId":"6edf5fb1-bf0f-4eab-9d65-64b0a1cdb8aa","type":"ACTION_TYPE_TSUMOGIRI","tile":79},{"gameId":"6edf5fb1-bf0f-4eab-9d65-64b0a1cdb8aa","tile":82},{"gameId":"6edf5fb1-bf0f-4eab-9d65-64b0a1cdb8aa","tile":87},{"gameId":"6edf5fb1-bf0f-4eab-9d65-64b0a1cdb8aa","tile":92},{"gameId":"6edf5fb1-bf0f-4eab-9d65-64b0a1cdb8aa","tile":117},{"gameId":"6edf5fb1-bf0f-4eab-9d65-64b0a1cdb8aa","tile":122},{"gameId":"6edf5fb1-bf0f-4eab-9d65-64b0a1cdb8aa","tile":124},{"gameId":"6edf5fb1-bf0f-4eab-9d65-64b0a1cdb8aa","tile":134}]}'
     json_wo_legal_actions = '{"publicObservation":{"playerIds":["player_2","player_1","player_0","player_3"],"initScore":{"tens":[25000,25000,25000,25000]},"doraIndicators":[101],"events":[{"type":"EVENT_TYPE_DRAW"}]},"privateObservation":{"initHand":{"closedTiles":[24,3,87,124,37,42,58,134,92,82,122,18,117]},"drawHistory":[79],"currHand":{"closedTiles":[3,18,24,37,42,58,79,82,87,92,117,122,124,134]}}}'
     json_restored = mjx.Observation.add_legal_actions(json_wo_legal_actions)
-    # print(json_restored)
-    assert original_json == json_restored
+    assert json_str == json_restored
