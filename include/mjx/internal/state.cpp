@@ -1787,6 +1787,17 @@ std::vector<mjxproto::Action> State::LegalActions(
         if (hand.IsCompleted() && CanTsumo(who, observation))
           obs.add_legal_action(Action::CreateTsumo(who, drawn_tile, game_id));
 
+        // Kan
+        if (auto possible_kans = hand.PossibleOpensAfterDraw();
+            !possible_kans.empty() &&
+            !IsFourKanNoWinner(observation.public_observation())) {  // TODO:
+                                     // 四槓散了かのチェックは5回目のカンをできないようにするためだが、正しいのか確認
+                                     // #701
+          for (const auto possible_kan : possible_kans) {
+            obs.add_legal_action(Action::CreateOpen(who, possible_kan, game_id));
+          }
+        }
+
         // Riichi
         if (CanRiichi(who, observation)) {
           obs.add_legal_action(Action::CreateRiichi(who, game_id));
