@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="ja">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+  <title>Mjx Visualizer</title>
+</head>
+
+<body style="display: block; text-align: center;">
+
+  <div class="main">
+    <div class="left">
+      <span id="svg">{{ svg | safe }}</span>
+    </div>
+    <div class="right">
+      {% if choices|length > 0 %}
+      <form action="/" method="POST" enctype="multipart/form-data" onSubmit="disableSubmit(this)">
+        {% for choice in choices %}
+          {% if loop.index0 == 0 %}
+            <button autofocus id={{"button"+ loop.index0|string }} type="submit" name="choice" value={{ choice["index"] }}>
+          {% else %}
+            <button id={{"button"+ loop.index0|string }} type="submit" name="choice" value={{ choice["index"] }}>
+          {% endif %}
+          {{ choice["text"] | safe }}
+          </button>
+        {% endfor %}
+      </form>
+      {% endif %}
+    </div>
+  </div>
+
+  <script>
+    var idx = 0;
+    var keydown_counters = [0, 0]
+    function focus_back() {
+      idx = (idx + {{ choices | length | tojson }} -1) % {{ choices | length | tojson }};
+      document.getElementById("button" + idx).focus();
+    };
+    function focus_forward() {
+      idx = (idx + 1) % {{ choices | length | tojson }};
+      document.getElementById("button" + idx).focus();
+    };
+
+    document.body.addEventListener("keydown",
+      event => {
+        switch (event.key) {
+          case "ArrowUp":
+          case "ArrowLeft":
+          case "j":
+            keydown_counters[0]++;
+            if (keydown_counters[0] == 1 || (keydown_counters[0] > 10 && keydown_counters[0]%3==0)) { focus_back(); }
+            break;
+          case "ArrowDown":
+          case "ArrowRight":
+          case "k":
+            keydown_counters[1]++;
+            if (keydown_counters[1] == 1 || (keydown_counters[1] > 10 && keydown_counters[1]%3==0)) { focus_forward(); }
+            break;
+        }
+      });
+    
+    document.body.addEventListener("keyup",
+      event => {
+        switch (event.key) {
+          case "ArrowUp":
+          case "ArrowLeft":
+          case "j":
+            keydown_counters[0]=0;
+            break;
+          case "ArrowDown":
+          case "ArrowRight":
+          case "k":
+            keydown_counters[1]=0;
+            break;
+        }
+      });
+    
+    function disableSubmit(form) {
+      submitted=true;
+      var elements = form.elements;
+      for (var i = 0; i < elements.length; i++) {
+        if (elements[i].type == "submit") {
+          elements[i].style.display ="none";//disableだと送信データが空になった
+        }
+      }
+      return true;
+    }
+  </script>
+</body>
+
+</html>

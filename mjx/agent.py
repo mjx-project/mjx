@@ -1,13 +1,18 @@
 import random
+import threading
+import time
+from queue import Queue
 from typing import Dict, List
 
 import _mjx  # type: ignore
+from flask import Flask
 
 from mjx.action import Action
 from mjx.const import ActionType
 from mjx.env import MjxEnv
 from mjx.observation import Observation
 from mjx.visualizer.selector import Selector
+from mjx.visualizer.view import ShowPage
 
 
 class Agent(_mjx.Agent):  # type: ignore
@@ -154,6 +159,34 @@ class HumanControlAgent(Agent):  # type: ignore
         return Selector.select_from_proto(
             observation.to_proto(), unicode=self.unicode, rich=self.rich, ja=self.ja
         )
+
+
+class HumanControlAgentOnBrowser(Agent):  # type: ignore
+    def __init__(self) -> None:
+        super().__init__()
+        self.q = Queue()
+
+        self.sub = threading.Thread(target=self.flask, args=(self.q,))
+        self.sub.setDaemon(True)
+        self.sub.start()
+        time.sleep(2.0)
+
+    def act(self, observation: Observation) -> Action:
+        assert isinstance(observation, Observation)
+        print("YOUR TURN")
+        self.q.put(observation)
+        self.q.join()
+        time.sleep(0.1)
+        action = self.q.get(block=True, timeout=None)
+        self.q.task_done()
+        return action
+
+    def flask(self, q):
+        page1 = ShowPage()
+        ShowPage.q = q
+        app = Flask(__name__)
+        app.add_url_rule("/", view_func=page1.as_view("show"))
+        app.run()
 
 
 def validate_agent(agent: Agent, n_games=1, use_batch=False):

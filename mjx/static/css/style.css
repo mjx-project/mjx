@@ -1,0 +1,59 @@
+@font-face {
+	font-family: "GL-MahjongTile";
+	src: url(GL-MahjongTile.ttf);
+}
+
+body{
+  padding-top: 10px;
+  width: 1000px;
+  margin: auto auto;
+}
+
+.MJFont{
+  font-family: "GL-MahjongTile";
+  font-size: 40px;
+}
+
+.MJFontR{
+  color: red;
+  font-family: "GL-MahjongTile";
+  font-size: 40px;
+}
+
+.main{
+  display: flex;
+ }
+.left{
+  width: 80%;
+  height: 100px;
+ }
+.right{
+  width: 20%;
+  height: 100px;
+ }
+
+button {
+  -webkit-transition: all 0.3s ease;
+  -moz-transition: all 0.3s ease;
+  -o-transition: all 0.3s ease;
+  transition: all  0.3s ease;
+
+  position: relative;
+  display:  inline-block;
+  background-color:  white;
+  width: 100%;
+  margin: 0px 5px 10px 10px;
+  padding: 2px;
+  box-sizing: border-box;
+  border: 1px solid;
+}
+
+button:hover{
+  background-color:  black;
+  color:white;
+}
+
+button:focus{
+  background-color:  black;
+  color:white;
+}
