@@ -1933,10 +1933,8 @@ bool State::CanRon(AbsolutePos who, const mjxproto::Observation &observation) {
   const auto &events = observation.public_observation().events();
   const auto &last_event = *observation.public_observation().events().rbegin();
 
-  if (!Any(last_event.type(),
-           {mjxproto::EVENT_TYPE_DISCARD, mjxproto::EVENT_TYPE_TSUMOGIRI,
-            mjxproto::EVENT_TYPE_ADDED_KAN}))
-    return false;
+  const auto target_tile = TargetTile(observation.public_observation());
+  if (!target_tile.has_value()) return false;
   if (!hand.IsTenpai()) return false;
 
   // set machi
@@ -1981,6 +1979,7 @@ bool State::CanRon(AbsolutePos who, const mjxproto::Observation &observation) {
         if (who == AbsolutePos(e.who())) {
           is_under_riichi = true;
         }
+        break;
       }
     }
   }
@@ -2002,9 +2001,8 @@ bool State::CanRon(AbsolutePos who, const mjxproto::Observation &observation) {
       {},  // dora type count 和了れるかどうかだけなのでドラは関係ない
       {}  // ura dora type count 和了れるかどうかだけなのでドラは関係ない
   );
-  const auto target_tile = Tile(last_event.tile());
   return YakuEvaluator::CanWin(
-      WinInfo(std::move(win_state_info), hand.win_info()).Ron(target_tile));
+      WinInfo(std::move(win_state_info), hand.win_info()).Ron(target_tile.value()));
 }
 
 std::optional<Tile> State::TargetTile(
