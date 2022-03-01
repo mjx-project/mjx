@@ -5,7 +5,7 @@
 #include "mjx/internal/yaku_evaluator.h"
 
 namespace mjx::internal {
-Observation::Observation(const mjxproto::Observation& proto) : proto_(proto) {}
+Observation::Observation(const mjxproto::Observation &proto) : proto_(proto) {}
 
 std::vector<mjxproto::Action> Observation::legal_actions() const {
   std::vector<mjxproto::Action> ret;
@@ -17,7 +17,7 @@ std::vector<mjxproto::Action> Observation::legal_actions() const {
 
 std::vector<std::pair<Tile, bool>> Observation::possible_discards() const {
   std::vector<std::pair<Tile, bool>> ret;
-  for (const auto& legal_action : proto_.legal_actions()) {
+  for (const auto &legal_action : proto_.legal_actions()) {
     if (!Any(legal_action.type(),
              {mjxproto::ActionType::ACTION_TYPE_DISCARD,
               mjxproto::ActionType::ACTION_TYPE_TSUMOGIRI}))
@@ -26,25 +26,25 @@ std::vector<std::pair<Tile, bool>> Observation::possible_discards() const {
                      legal_action.type() == mjxproto::ACTION_TYPE_TSUMOGIRI);
   }
   Assert(std::count_if(ret.begin(), ret.end(),
-                       [](const auto& x) { return x.second; }) <= 1,
+                       [](const auto &x) { return x.second; }) <= 1,
          "# of tsumogiri should be <= 1");
   return ret;
 }
 
 AbsolutePos Observation::who() const { return AbsolutePos(proto_.who()); }
 
-void Observation::add_legal_action(mjxproto::Action&& legal_action) {
+void Observation::add_legal_action(mjxproto::Action &&legal_action) {
   proto_.mutable_legal_actions()->Add(std::move(legal_action));
 }
 
 void Observation::add_legal_actions(
-    const std::vector<mjxproto::Action>& legal_actions) {
+    const std::vector<mjxproto::Action> &legal_actions) {
   for (auto legal_action : legal_actions) {
     add_legal_action(std::move(legal_action));
   }
 }
 
-Observation::Observation(AbsolutePos who, const mjxproto::State& state) {
+Observation::Observation(AbsolutePos who, const mjxproto::State &state) {
   proto_.mutable_public_observation()->mutable_player_ids()->CopyFrom(
       state.public_observation().player_ids());
   proto_.mutable_public_observation()->mutable_init_score()->CopyFrom(
@@ -75,7 +75,7 @@ std::string Observation::ToJson() const {
   return serialized;
 }
 
-const mjxproto::Observation& Observation::proto() const { return proto_; }
+const mjxproto::Observation &Observation::proto() const { return proto_; }
 
 Hand Observation::initial_hand() const {
   std::vector<Tile> tiles;
@@ -92,7 +92,7 @@ Hand Observation::current_hand() const {
   Hand hand = Hand(tiles);
   int draw_ix = 0;
   bool double_riichi = true;
-  for (const auto& event : proto_.public_observation().events()) {
+  for (const auto &event : proto_.public_observation().events()) {
     // check double_riichi
     if (double_riichi) {
       if (Any(event.type(),
@@ -137,7 +137,7 @@ Hand Observation::current_hand() const {
 
 std::vector<mjxproto::Event> Observation::EventHistory() const {
   std::vector<mjxproto::Event> events;
-  for (const auto& event : proto_.public_observation().events()) {
+  for (const auto &event : proto_.public_observation().events()) {
     events.emplace_back(event);
   }
   return events;
@@ -362,7 +362,8 @@ std::vector<mjxproto::Action> Observation::GenerateLegalActions(
   return obs.legal_actions();
 }
 
-bool Observation::HasDrawLeft(const mjxproto::PublicObservation &public_observation) {
+bool Observation::HasDrawLeft(
+    const mjxproto::PublicObservation &public_observation) {
   const auto &events = public_observation.events();
   int num_draw = 0;
   for (const auto &e : events) {
@@ -398,7 +399,8 @@ bool Observation::RequireKanDraw(
   return false;
 }
 
-bool Observation::CanRon(AbsolutePos who, const mjxproto::Observation &observation) {
+bool Observation::CanRon(AbsolutePos who,
+                         const mjxproto::Observation &observation) {
   auto obs = Observation(observation);
   auto hand = obs.current_hand();
   const auto &events = observation.public_observation().events();
@@ -505,8 +507,8 @@ Wind Observation::prevalent_wind(
   ;
 }
 
-bool Observation::IsIppatsu(AbsolutePos who,
-                      const mjxproto::PublicObservation &public_observation) {
+bool Observation::IsIppatsu(
+    AbsolutePos who, const mjxproto::PublicObservation &public_observation) {
   std::vector<bool> is_ippatsu_ = {false, false, false, false};
   const auto &events = public_observation.events();
   std::optional<mjxproto::EventType> prev_event_type = std::nullopt;
@@ -599,7 +601,7 @@ bool Observation::IsFourKanNoWinner(
 }
 
 bool Observation::CanRiichi(AbsolutePos who,
-                      const mjxproto::Observation &observation) {
+                            const mjxproto::Observation &observation) {
   auto obs = Observation(observation);
   auto hand = obs.current_hand();
   if (hand.IsUnderRiichi()) return false;
@@ -610,7 +612,7 @@ bool Observation::CanRiichi(AbsolutePos who,
 }
 
 bool Observation::CanTsumo(AbsolutePos who,
-                     const mjxproto::Observation &observation) {
+                           const mjxproto::Observation &observation) {
   auto obs = Observation(observation);
   auto hand = obs.current_hand();
   const auto &events = observation.public_observation().events();

@@ -30,7 +30,8 @@ class Observation {
 
   [[nodiscard]] std::vector<float> ToFeature(std::string version) const;
 
-  [[nodiscard]] static std::vector<mjxproto::Action> GenerateLegalActions(const mjxproto::Observation &observation);
+  [[nodiscard]] static std::vector<mjxproto::Action> GenerateLegalActions(
+      const mjxproto::Observation& observation);
 
  private:
   // TODO: remove friends and use proto()
@@ -38,7 +39,6 @@ class Observation {
   mjxproto::Observation proto_ = mjxproto::Observation{};
 
   [[nodiscard]] std::vector<float> small_v0() const;
-
 
   // 次のブロックは主にObservationだけからでもlegal
   // actionを生成できるようにするための機能
