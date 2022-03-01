@@ -72,7 +72,8 @@ PYBIND11_MODULE(_mjx, m) {
       .def("honba", &mjx::Observation::honba)
       .def("tens", &mjx::Observation::tens)
       .def("round", &mjx::Observation::round)
-      .def("curr_hand", &mjx::Observation::curr_hand);
+      .def("curr_hand", &mjx::Observation::curr_hand)
+      .def_static("add_legal_actions", &mjx::Observation::AddLegalActions);
 
   py::class_<mjx::State>(m, "State")
       .def(py::init<std::string>())

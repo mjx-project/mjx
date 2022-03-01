@@ -30,12 +30,48 @@ class Observation {
 
   [[nodiscard]] std::vector<float> ToFeature(std::string version) const;
 
+  [[nodiscard]] static std::vector<mjxproto::Action> GenerateLegalActions(
+      const mjxproto::Observation& observation);
+
  private:
   // TODO: remove friends and use proto()
   friend class State;
   mjxproto::Observation proto_ = mjxproto::Observation{};
 
   [[nodiscard]] std::vector<float> small_v0() const;
+
+  // 次のブロックは主にObservationだけからでもlegal
+  // actionを生成できるようにするための機能
+  // internal::Stateの内部状態を使わずに同じ計算をしている想定
+  // ただし、eventsをなめるので遅かったりする
+  [[nodiscard]] static bool HasDrawLeft(
+      const mjxproto::PublicObservation& public_observation);
+  [[nodiscard]] static bool HasNextDrawLeft(
+      const mjxproto::PublicObservation& public_observation);
+  [[nodiscard]] static bool RequireKanDraw(
+      const mjxproto::PublicObservation& public_observation);
+  [[nodiscard]] static bool CanRon(AbsolutePos who,
+                                   const mjxproto::Observation& observation);
+  [[nodiscard]] static bool CanTsumo(AbsolutePos who,
+                                     const mjxproto::Observation& observation);
+  [[nodiscard]] static std::optional<Tile> TargetTile(
+      const mjxproto::PublicObservation& public_observation);
+  [[nodiscard]] static AbsolutePos dealer(
+      const mjxproto::PublicObservation& public_observation);
+  [[nodiscard]] static Wind prevalent_wind(
+      const mjxproto::PublicObservation& public_observation);
+  [[nodiscard]] static bool IsIppatsu(
+      AbsolutePos who, const mjxproto::PublicObservation& public_observation);
+  [[nodiscard]] static bool IsRobbingKan(
+      const mjxproto::PublicObservation& public_observation);
+  [[nodiscard]] static bool IsFirstTurnWithoutOpen(
+      const mjxproto::PublicObservation& public_observation);
+  [[nodiscard]] static bool IsFourKanNoWinner(
+      const mjxproto::PublicObservation& public_observation);
+  [[nodiscard]] static bool CanRiichi(AbsolutePos who,
+                                      const mjxproto::Observation& observation);
+  [[nodiscard]] static bool IsRoundOver(
+      const mjxproto::PublicObservation& public_observation);
 };
 }  // namespace mjx::internal
 

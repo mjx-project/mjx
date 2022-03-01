@@ -46,3 +46,9 @@ def test_from_proto():
     obs = mjx.Observation(json_str)
     proto_obs = obs.to_proto()
     mjx.Observation.from_proto(proto_obs).to_json() == json_str
+
+
+def test_add_legal_actions():
+    json_wo_legal_actions = '{"publicObservation":{"playerIds":["player_2","player_1","player_0","player_3"],"initScore":{"tens":[25000,25000,25000,25000]},"doraIndicators":[101],"events":[{"type":"EVENT_TYPE_DRAW"}]},"privateObservation":{"initHand":{"closedTiles":[24,3,87,124,37,42,58,134,92,82,122,18,117]},"drawHistory":[79],"currHand":{"closedTiles":[3,18,24,37,42,58,79,82,87,92,117,122,124,134]}}}'
+    json_restored = mjx.Observation.add_legal_actions(json_wo_legal_actions)
+    assert json_str == json_restored

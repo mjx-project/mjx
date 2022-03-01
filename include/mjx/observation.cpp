@@ -6,6 +6,7 @@
 #include <utility>
 
 #include "mjx/internal/observation.h"
+#include "mjx/internal/state.h"
 #include "mjx/internal/types.h"
 
 namespace mjx {
@@ -121,5 +122,16 @@ std::vector<int> Observation::tens() const noexcept {
 
 int Observation::round() const noexcept {
   return proto_.public_observation().init_score().round();
+}
+
+std::string Observation::AddLegalActions(const std::string& obs_json) {
+  auto obs = Observation(obs_json);
+  mjxproto::Observation obs_proto = obs.proto();
+  auto legal_actions =
+      mjx::internal::Observation::GenerateLegalActions(obs_proto);
+  for (auto a : legal_actions) {
+    obs_proto.mutable_legal_actions()->Add(std::move(a));
+  }
+  return Observation(obs_proto).ToJson();
 }
 }  // namespace mjx

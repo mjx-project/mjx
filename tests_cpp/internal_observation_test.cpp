@@ -6,6 +6,7 @@
 #include <fstream>
 
 #include "gtest/gtest.h"
+#include "utils.cpp"
 
 using namespace mjx::internal;
 
@@ -109,4 +110,49 @@ TEST(internal_observation, current_hand) {
       state = State(next_state_info);
     }
   }
+}
+
+bool legal_actions_equals(const std::vector<mjxproto::Action> &legal_actions1,
+                          const std::vector<mjxproto::Action> &legal_actions2) {
+  if (legal_actions1.size() != legal_actions2.size()) return false;
+  for (int i = 0; i < legal_actions1.size(); ++i) {
+    bool ok = google::protobuf::util::MessageDifferencer::Equals(
+        legal_actions1.at(i), legal_actions2.at(i));
+    if (!ok) return false;
+  }
+  return true;
+}
+
+TEST(internal_state, LegalActions) {
+  // Test with resources
+  const bool all_ok = ParallelTest([](const std::string &json) {
+    bool all_ok = true;
+    const auto state = State(json);
+    auto past_decisions = State::GeneratePastDecisions(state.proto());
+    for (auto [obs_proto, a] : past_decisions) {
+      auto obs_original = Observation(obs_proto);
+      auto legal_actions_original = obs_original.legal_actions();
+      mjxproto::Observation obs_cleared = obs_proto;
+      obs_cleared.clear_legal_actions();
+      EXPECT_NE(legal_actions_original.size(), 0);
+      EXPECT_EQ(obs_cleared.legal_actions_size(), 0);
+      auto legal_actions_restored =
+          Observation::GenerateLegalActions(obs_cleared);
+      bool ok =
+          legal_actions_equals(legal_actions_original, legal_actions_restored);
+      all_ok = all_ok && ok;
+      if (!ok) {
+        std::cerr << "Original: " << legal_actions_original.size() << std::endl;
+        std::cerr << obs_original.ToJson() << std::endl;
+        std::cerr << "Restored: " << legal_actions_restored.size() << std::endl;
+        auto o = Observation(obs_cleared);
+        o.add_legal_actions(legal_actions_restored);
+        std::cerr << o.ToJson() << std::endl;
+      }
+    }
+    return all_ok;
+  });
+  EXPECT_TRUE(all_ok);
+
+  // Test with simulators
 }
