@@ -173,7 +173,6 @@ mjxproto::Action FindPossibleAction(mjxproto::ActionType action_type,
   Assert(false);
 }
 
-
 TEST(internal_state, ToJson) {
   // From https://tenhou.net/0/?log=2011020417gm-00a9-0000-b67fcaa3&tw=1
   // w/o terminal state
