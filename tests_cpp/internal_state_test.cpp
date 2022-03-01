@@ -1187,7 +1187,8 @@ TEST(internal_state, LegalActions) {
       EXPECT_NE(legal_actions_original.size(), 0);
       EXPECT_EQ(obs_cleared.legal_actions_size(), 0);
       auto legal_actions_restored = State::LegalActions(obs_cleared);
-      bool ok = legal_actions_equals(legal_actions_original, legal_actions_restored);
+      bool ok =
+          legal_actions_equals(legal_actions_original, legal_actions_restored);
       all_ok = all_ok && ok;
       if (!ok) {
         std::cerr << "Original: " << legal_actions_original.size() << std::endl;
