@@ -152,7 +152,7 @@ setup(
     ext_modules=[CMakeExtension("_mjx")],
     entry_points={"console_scripts": "mjx = mjx.main:main"},
     zip_safe=False,
-    install_requires=parse_requirements('requirements.txt', session='hack'),
+    install_reqs=parse_requirements('requirements.txt', session='hack'),
     extras_require={"test": ["pytest"]},
     include_package_data=True,
 )
