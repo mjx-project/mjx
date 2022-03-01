@@ -71,7 +71,7 @@ class Observation {
   [[nodiscard]] static bool CanRiichi(AbsolutePos who,
                                       const mjxproto::Observation& observation);
   [[nodiscard]] static bool IsRoundOver(
-      const mjxproto::PublicObservation& public_observation)
+      const mjxproto::PublicObservation& public_observation);
 };
 }  // namespace mjx::internal
 

@@ -8,6 +8,7 @@
 #include <thread>
 
 #include "gtest/gtest.h"
+#include "utils.cpp"
 
 using namespace mjx::internal;
 
@@ -172,75 +173,6 @@ mjxproto::Action FindPossibleAction(mjxproto::ActionType action_type,
   Assert(false);
 }
 
-template <typename F>
-bool ParallelTest(F &&f) {
-  static std::mutex mtx_;
-  int total_cnt = 0;
-  int failure_cnt = 0;
-
-  auto Check = [&total_cnt, &failure_cnt, &f](int begin, int end,
-                                              const auto &jsons) {
-    // {
-    //     std::lock_guard<std::mutex> lock(mtx_);
-    //     std::cerr << std::this_thread::get_id() << " " << begin << " " << end
-    //     << std::endl;
-    // }
-    int curr = begin;
-    while (curr < end) {
-      const auto &[json, filename] = jsons[curr];
-      bool ok = f(json);
-      {
-        std::lock_guard<std::mutex> lock(mtx_);
-        total_cnt++;
-        if (!ok) {
-          failure_cnt++;
-          std::cerr << filename << std::endl;
-        }
-        if (total_cnt % 1000 == 0)
-          std::cerr << "# failure = " << failure_cnt << "/" << total_cnt << " ("
-                    << 100.0 * failure_cnt / total_cnt << " %)" << std::endl;
-      }
-      curr++;
-    }
-  };
-
-  const auto thread_count = std::thread::hardware_concurrency();
-  std::vector<std::thread> threads;
-  std::vector<std::pair<std::string, std::string>> jsons;
-  std::string json_path = std::string(TEST_RESOURCES_DIR) + "/json";
-
-  auto Run = [&]() {
-    const int json_size = jsons.size();
-    const int size_per = json_size / thread_count;
-    for (int i = 0; i < thread_count; ++i) {
-      const int start_ix = i * size_per;
-      const int end_ix =
-          (i == thread_count - 1) ? json_size : (i + 1) * size_per;
-      threads.emplace_back(Check, start_ix, end_ix, jsons);
-    }
-    for (auto &t : threads) t.join();
-    threads.clear();
-    jsons.clear();
-  };
-
-  if (!json_path.empty())
-    for (const auto &filename :
-         std::filesystem::directory_iterator(json_path)) {
-      std::ifstream ifs(filename.path().string(), std::ios::in);
-      while (!ifs.eof()) {
-        std::string json;
-        std::getline(ifs, json);
-        if (json.empty()) continue;
-        jsons.emplace_back(std::move(json), filename.path().string());
-      }
-      if (jsons.size() > 1000) Run();
-    }
-  Run();
-
-  std::cerr << "# failure = " << failure_cnt << "/" << total_cnt << " ("
-            << 100.0 * failure_cnt / total_cnt << " %)" << std::endl;
-  return failure_cnt == 0;
-}
 
 TEST(internal_state, ToJson) {
   // From https://tenhou.net/0/?log=2011020417gm-00a9-0000-b67fcaa3&tw=1
@@ -1160,48 +1092,4 @@ TEST(internal_state, GeneratePastDecisions) {
                             return action.type() == mjxproto::ACTION_TYPE_RON;
                           }),
             3);
-}
-
-bool legal_actions_equals(const std::vector<mjxproto::Action> &legal_actions1,
-                          const std::vector<mjxproto::Action> &legal_actions2) {
-  if (legal_actions1.size() != legal_actions2.size()) return false;
-  for (int i = 0; i < legal_actions1.size(); ++i) {
-    bool ok = google::protobuf::util::MessageDifferencer::Equals(
-        legal_actions1.at(i), legal_actions2.at(i));
-    if (!ok) return false;
-  }
-  return true;
-}
-
-TEST(internal_state, LegalActions) {
-  // Test with resources
-  const bool all_ok = ParallelTest([](const std::string &json) {
-    bool all_ok = true;
-    const auto state = State(json);
-    auto past_decisions = State::GeneratePastDecisions(state.proto());
-    for (auto [obs_proto, a] : past_decisions) {
-      auto obs_original = Observation(obs_proto);
-      auto legal_actions_original = obs_original.legal_actions();
-      mjxproto::Observation obs_cleared = obs_proto;
-      obs_cleared.clear_legal_actions();
-      EXPECT_NE(legal_actions_original.size(), 0);
-      EXPECT_EQ(obs_cleared.legal_actions_size(), 0);
-      auto legal_actions_restored = State::LegalActions(obs_cleared);
-      bool ok =
-          legal_actions_equals(legal_actions_original, legal_actions_restored);
-      all_ok = all_ok && ok;
-      if (!ok) {
-        std::cerr << "Original: " << legal_actions_original.size() << std::endl;
-        std::cerr << obs_original.ToJson() << std::endl;
-        std::cerr << "Restored: " << legal_actions_restored.size() << std::endl;
-        auto o = Observation(obs_cleared);
-        o.add_legal_actions(legal_actions_restored);
-        std::cerr << o.ToJson() << std::endl;
-      }
-    }
-    return all_ok;
-  });
-  EXPECT_TRUE(all_ok);
-
-  // Test with simulators
 }
