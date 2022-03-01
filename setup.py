@@ -10,6 +10,7 @@ import sys
 
 from setuptools import Extension, find_packages, setup
 from setuptools.command.build_ext import build_ext
+from pip.req import parse_requirements
 
 # Convert distutils Windows platform specifiers to CMake -A arguments
 PLAT_TO_CMAKE = {
@@ -147,18 +148,7 @@ setup(
     ext_modules=[CMakeExtension("_mjx")],
     entry_points={"console_scripts": "mjx = mjx.main:main"},
     zip_safe=False,
-    install_requires=[
-        "click==8.0.1",
-        "google==3.0.0",
-        "protobuf==3.17.3",
-        "grpcio==1.39.0",
-        "rich==10.9.0",
-        "numpy",
-        "pillow",
-        "svgwrite",
-        "inquirer",
-        "tenhou_wall_reproducer",
-    ],
+    install_requires=parse_requirements('requirements.txt', session='hack'),
     extras_require={"test": ["pytest"]},
     include_package_data=True,
 )
