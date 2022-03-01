@@ -43,8 +43,8 @@ jobs:
         run: CMAKE_BUILD_PARALLEL_LEVEL=4 && python3 setup.py sdist && python3 setup.py install
       
       - name: Test
-        run:  python3 -m pip install -r requirements.txt && python3 -m pip install -r requirements-dev.txt && make py-test
+        run: python3 -m pip install pytest && make py-test
 
       - name: Run check
-        run: make py-check
+        run: python3 -m pip install -r requirements-dev.txt && make py-check
 

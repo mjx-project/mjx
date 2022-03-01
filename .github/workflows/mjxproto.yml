@@ -15,8 +15,7 @@ jobs:
     - name: pip install 
       run: |
         python3 -m pip install --upgrade pip
-        python3 -m pip install -r requirements.txt
-        python3 -m pip install -r requirements-dev.txt
+        python3 -m pip install grpcio grpcio-tools mypy-protobuf
     - name: make mjxproto
       run: |
         python3 -m grpc_tools.protoc -I include/mjx/internal --python_out=./mjxproto/ --grpc_python_out=./mjxproto/ --mypy_out=./mjxproto/ mjx.proto
