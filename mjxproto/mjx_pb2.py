@@ -4,7 +4,6 @@
 """Generated protocol buffer code."""
 from google.protobuf.internal import enum_type_wrapper
 from google.protobuf import descriptor as _descriptor
-from google.protobuf import descriptor_pool as _descriptor_pool
 from google.protobuf import message as _message
 from google.protobuf import reflection as _reflection
 from google.protobuf import symbol_database as _symbol_database
@@ -15,11 +14,211 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\tmjx.proto\x12\x08mjxproto\"C\n\x05Score\x12\r\n\x05round\x18\x01 \x01(\r\x12\r\n\x05honba\x18\x02 \x01(\r\x12\x0e\n\x06riichi\x18\x03 \x01(\r\x12\x0c\n\x04tens\x18\x04 \x03(\x05\"S\n\x05\x45vent\x12!\n\x04type\x18\x01 \x01(\x0e\x32\x13.mjxproto.EventType\x12\x0b\n\x03who\x18\x02 \x01(\x05\x12\x0c\n\x04tile\x18\x03 \x01(\r\x12\x0c\n\x04open\x18\x04 \x01(\r\"\x97\x01\n\x11PublicObservation\x12\x0f\n\x07game_id\x18\x01 \x01(\t\x12\x12\n\nplayer_ids\x18\x02 \x03(\t\x12#\n\ninit_score\x18\x03 \x01(\x0b\x32\x0f.mjxproto.Score\x12\x17\n\x0f\x64ora_indicators\x18\x04 \x03(\r\x12\x1f\n\x06\x65vents\x18\x05 \x03(\x0b\x32\x0f.mjxproto.Event\"+\n\x04Hand\x12\x14\n\x0c\x63losed_tiles\x18\x01 \x03(\r\x12\r\n\x05opens\x18\x02 \x03(\r\"}\n\x12PrivateObservation\x12\x0b\n\x03who\x18\x01 \x01(\x05\x12!\n\tinit_hand\x18\x02 \x01(\x0b\x32\x0e.mjxproto.Hand\x12\x14\n\x0c\x64raw_history\x18\x03 \x03(\r\x12!\n\tcurr_hand\x18\x04 \x01(\x0b\x32\x0e.mjxproto.Hand\"\xe8\x01\n\x0bObservation\x12\x0b\n\x03who\x18\x01 \x01(\x05\x12\x37\n\x12public_observation\x18\x02 \x01(\x0b\x32\x1b.mjxproto.PublicObservation\x12\x39\n\x13private_observation\x18\x03 \x01(\x0b\x32\x1c.mjxproto.PrivateObservation\x12/\n\x0eround_terminal\x18\x04 \x01(\x0b\x32\x17.mjxproto.RoundTerminal\x12\'\n\rlegal_actions\x18\x05 \x03(\x0b\x32\x10.mjxproto.Action\"\xce\x01\n\x03Win\x12\x0b\n\x03who\x18\x01 \x01(\x05\x12\x10\n\x08\x66rom_who\x18\x02 \x01(\x05\x12\x1c\n\x04hand\x18\x03 \x01(\x0b\x32\x0e.mjxproto.Hand\x12\x10\n\x08win_tile\x18\x04 \x01(\r\x12\n\n\x02\x66u\x18\x05 \x01(\r\x12\x0b\n\x03ten\x18\x06 \x01(\r\x12\x13\n\x0bten_changes\x18\x07 \x03(\x05\x12\r\n\x05yakus\x18\x08 \x03(\r\x12\x0c\n\x04\x66\x61ns\x18\t \x03(\r\x12\x10\n\x08yakumans\x18\n \x03(\r\x12\x1b\n\x13ura_dora_indicators\x18\x0b \x03(\r\"F\n\x08NoWinner\x12%\n\x07tenpais\x18\x01 \x03(\x0b\x32\x14.mjxproto.TenpaiHand\x12\x13\n\x0bten_changes\x18\x02 \x03(\x05\"7\n\nTenpaiHand\x12\x0b\n\x03who\x18\x01 \x01(\x05\x12\x1c\n\x04hand\x18\x02 \x01(\x0b\x32\x0e.mjxproto.Hand\"\x8f\x01\n\rRoundTerminal\x12$\n\x0b\x66inal_score\x18\x01 \x01(\x0b\x32\x0f.mjxproto.Score\x12\x1b\n\x04wins\x18\x02 \x03(\x0b\x32\r.mjxproto.Win\x12%\n\tno_winner\x18\x03 \x01(\x0b\x32\x12.mjxproto.NoWinner\x12\x14\n\x0cis_game_over\x18\x04 \x01(\x08\"\xda\x01\n\x05State\x12+\n\x0chidden_state\x18\x01 \x01(\x0b\x32\x15.mjxproto.HiddenState\x12\x37\n\x12public_observation\x18\x02 \x01(\x0b\x32\x1b.mjxproto.PublicObservation\x12:\n\x14private_observations\x18\x03 \x03(\x0b\x32\x1c.mjxproto.PrivateObservation\x12/\n\x0eround_terminal\x18\x04 \x01(\x0b\x32\x17.mjxproto.RoundTerminal\"K\n\x0bHiddenState\x12\x11\n\tgame_seed\x18\x01 \x01(\x04\x12\x0c\n\x04wall\x18\x02 \x03(\r\x12\x1b\n\x13ura_dora_indicators\x18\x03 \x03(\r\"U\n\x06\x41\x63tion\x12\"\n\x04type\x18\x01 \x01(\x0e\x32\x14.mjxproto.ActionType\x12\x0b\n\x03who\x18\x02 \x01(\x05\x12\x0c\n\x04tile\x18\x03 \x01(\r\x12\x0c\n\x04open\x18\x04 \x01(\r\"\xf5\x01\n\nGameResult\x12\x11\n\tgame_seed\x18\x01 \x01(\x04\x12\x12\n\nplayer_ids\x18\x02 \x03(\t\x12,\n\x04tens\x18\x03 \x03(\x0b\x32\x1e.mjxproto.GameResult.TensEntry\x12\x34\n\x08rankings\x18\x04 \x03(\x0b\x32\".mjxproto.GameResult.RankingsEntry\x1a+\n\tTensEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\x05:\x02\x38\x01\x1a/\n\rRankingsEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\x05:\x02\x38\x01*\xd8\x02\n\nActionType\x12\x17\n\x13\x41\x43TION_TYPE_DISCARD\x10\x00\x12\x19\n\x15\x41\x43TION_TYPE_TSUMOGIRI\x10\x01\x12\x16\n\x12\x41\x43TION_TYPE_RIICHI\x10\x02\x12\x1a\n\x16\x41\x43TION_TYPE_CLOSED_KAN\x10\x03\x12\x19\n\x15\x41\x43TION_TYPE_ADDED_KAN\x10\x04\x12\x15\n\x11\x41\x43TION_TYPE_TSUMO\x10\x05\x12,\n(ACTION_TYPE_ABORTIVE_DRAW_NINE_TERMINALS\x10\x06\x12\x13\n\x0f\x41\x43TION_TYPE_CHI\x10\x07\x12\x13\n\x0f\x41\x43TION_TYPE_PON\x10\x08\x12\x18\n\x14\x41\x43TION_TYPE_OPEN_KAN\x10\t\x12\x13\n\x0f\x41\x43TION_TYPE_RON\x10\n\x12\x12\n\x0e\x41\x43TION_TYPE_NO\x10\x0b\x12\x15\n\x11\x41\x43TION_TYPE_DUMMY\x10\x63*\xee\x04\n\tEventType\x12\x16\n\x12\x45VENT_TYPE_DISCARD\x10\x00\x12\x18\n\x14\x45VENT_TYPE_TSUMOGIRI\x10\x01\x12\x15\n\x11\x45VENT_TYPE_RIICHI\x10\x02\x12\x19\n\x15\x45VENT_TYPE_CLOSED_KAN\x10\x03\x12\x18\n\x14\x45VENT_TYPE_ADDED_KAN\x10\x04\x12\x14\n\x10\x45VENT_TYPE_TSUMO\x10\x05\x12+\n\'EVENT_TYPE_ABORTIVE_DRAW_NINE_TERMINALS\x10\x06\x12\x12\n\x0e\x45VENT_TYPE_CHI\x10\x07\x12\x12\n\x0e\x45VENT_TYPE_PON\x10\x08\x12\x17\n\x13\x45VENT_TYPE_OPEN_KAN\x10\t\x12\x12\n\x0e\x45VENT_TYPE_RON\x10\n\x12\x13\n\x0f\x45VENT_TYPE_DRAW\x10\x0c\x12\"\n\x1e\x45VENT_TYPE_RIICHI_SCORE_CHANGE\x10\r\x12\x17\n\x13\x45VENT_TYPE_NEW_DORA\x10\x0e\x12)\n%EVENT_TYPE_ABORTIVE_DRAW_FOUR_RIICHIS\x10\x0f\x12\'\n#EVENT_TYPE_ABORTIVE_DRAW_THREE_RONS\x10\x10\x12&\n\"EVENT_TYPE_ABORTIVE_DRAW_FOUR_KANS\x10\x11\x12\'\n#EVENT_TYPE_ABORTIVE_DRAW_FOUR_WINDS\x10\x12\x12%\n!EVENT_TYPE_EXHAUSTIVE_DRAW_NORMAL\x10\x13\x12-\n)EVENT_TYPE_EXHAUSTIVE_DRAW_NAGASHI_MANGAN\x10\x14\x32@\n\x05\x41gent\x12\x37\n\nTakeAction\x12\x15.mjxproto.Observation\x1a\x10.mjxproto.Action\"\x00\x62\x06proto3')
+DESCRIPTOR = _descriptor.FileDescriptor(
+  name='mjx.proto',
+  package='mjxproto',
+  syntax='proto3',
+  serialized_options=None,
+  create_key=_descriptor._internal_create_key,
+  serialized_pb=b'\n\tmjx.proto\x12\x08mjxproto\"C\n\x05Score\x12\r\n\x05round\x18\x01 \x01(\r\x12\r\n\x05honba\x18\x02 \x01(\r\x12\x0e\n\x06riichi\x18\x03 \x01(\r\x12\x0c\n\x04tens\x18\x04 \x03(\x05\"S\n\x05\x45vent\x12!\n\x04type\x18\x01 \x01(\x0e\x32\x13.mjxproto.EventType\x12\x0b\n\x03who\x18\x02 \x01(\x05\x12\x0c\n\x04tile\x18\x03 \x01(\r\x12\x0c\n\x04open\x18\x04 \x01(\r\"\x97\x01\n\x11PublicObservation\x12\x0f\n\x07game_id\x18\x01 \x01(\t\x12\x12\n\nplayer_ids\x18\x02 \x03(\t\x12#\n\ninit_score\x18\x03 \x01(\x0b\x32\x0f.mjxproto.Score\x12\x17\n\x0f\x64ora_indicators\x18\x04 \x03(\r\x12\x1f\n\x06\x65vents\x18\x05 \x03(\x0b\x32\x0f.mjxproto.Event\"+\n\x04Hand\x12\x14\n\x0c\x63losed_tiles\x18\x01 \x03(\r\x12\r\n\x05opens\x18\x02 \x03(\r\"}\n\x12PrivateObservation\x12\x0b\n\x03who\x18\x01 \x01(\x05\x12!\n\tinit_hand\x18\x02 \x01(\x0b\x32\x0e.mjxproto.Hand\x12\x14\n\x0c\x64raw_history\x18\x03 \x03(\r\x12!\n\tcurr_hand\x18\x04 \x01(\x0b\x32\x0e.mjxproto.Hand\"\xe8\x01\n\x0bObservation\x12\x0b\n\x03who\x18\x01 \x01(\x05\x12\x37\n\x12public_observation\x18\x02 \x01(\x0b\x32\x1b.mjxproto.PublicObservation\x12\x39\n\x13private_observation\x18\x03 \x01(\x0b\x32\x1c.mjxproto.PrivateObservation\x12/\n\x0eround_terminal\x18\x04 \x01(\x0b\x32\x17.mjxproto.RoundTerminal\x12\'\n\rlegal_actions\x18\x05 \x03(\x0b\x32\x10.mjxproto.Action\"\xce\x01\n\x03Win\x12\x0b\n\x03who\x18\x01 \x01(\x05\x12\x10\n\x08\x66rom_who\x18\x02 \x01(\x05\x12\x1c\n\x04hand\x18\x03 \x01(\x0b\x32\x0e.mjxproto.Hand\x12\x10\n\x08win_tile\x18\x04 \x01(\r\x12\n\n\x02\x66u\x18\x05 \x01(\r\x12\x0b\n\x03ten\x18\x06 \x01(\r\x12\x13\n\x0bten_changes\x18\x07 \x03(\x05\x12\r\n\x05yakus\x18\x08 \x03(\r\x12\x0c\n\x04\x66\x61ns\x18\t \x03(\r\x12\x10\n\x08yakumans\x18\n \x03(\r\x12\x1b\n\x13ura_dora_indicators\x18\x0b \x03(\r\"F\n\x08NoWinner\x12%\n\x07tenpais\x18\x01 \x03(\x0b\x32\x14.mjxproto.TenpaiHand\x12\x13\n\x0bten_changes\x18\x02 \x03(\x05\"7\n\nTenpaiHand\x12\x0b\n\x03who\x18\x01 \x01(\x05\x12\x1c\n\x04hand\x18\x02 \x01(\x0b\x32\x0e.mjxproto.Hand\"\x8f\x01\n\rRoundTerminal\x12$\n\x0b\x66inal_score\x18\x01 \x01(\x0b\x32\x0f.mjxproto.Score\x12\x1b\n\x04wins\x18\x02 \x03(\x0b\x32\r.mjxproto.Win\x12%\n\tno_winner\x18\x03 \x01(\x0b\x32\x12.mjxproto.NoWinner\x12\x14\n\x0cis_game_over\x18\x04 \x01(\x08\"\xda\x01\n\x05State\x12+\n\x0chidden_state\x18\x01 \x01(\x0b\x32\x15.mjxproto.HiddenState\x12\x37\n\x12public_observation\x18\x02 \x01(\x0b\x32\x1b.mjxproto.PublicObservation\x12:\n\x14private_observations\x18\x03 \x03(\x0b\x32\x1c.mjxproto.PrivateObservation\x12/\n\x0eround_terminal\x18\x04 \x01(\x0b\x32\x17.mjxproto.RoundTerminal\"K\n\x0bHiddenState\x12\x11\n\tgame_seed\x18\x01 \x01(\x04\x12\x0c\n\x04wall\x18\x02 \x03(\r\x12\x1b\n\x13ura_dora_indicators\x18\x03 \x03(\r\"U\n\x06\x41\x63tion\x12\"\n\x04type\x18\x01 \x01(\x0e\x32\x14.mjxproto.ActionType\x12\x0b\n\x03who\x18\x02 \x01(\x05\x12\x0c\n\x04tile\x18\x03 \x01(\r\x12\x0c\n\x04open\x18\x04 \x01(\r\"\xf5\x01\n\nGameResult\x12\x11\n\tgame_seed\x18\x01 \x01(\x04\x12\x12\n\nplayer_ids\x18\x02 \x03(\t\x12,\n\x04tens\x18\x03 \x03(\x0b\x32\x1e.mjxproto.GameResult.TensEntry\x12\x34\n\x08rankings\x18\x04 \x03(\x0b\x32\".mjxproto.GameResult.RankingsEntry\x1a+\n\tTensEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\x05:\x02\x38\x01\x1a/\n\rRankingsEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\x05:\x02\x38\x01*\xd8\x02\n\nActionType\x12\x17\n\x13\x41\x43TION_TYPE_DISCARD\x10\x00\x12\x19\n\x15\x41\x43TION_TYPE_TSUMOGIRI\x10\x01\x12\x16\n\x12\x41\x43TION_TYPE_RIICHI\x10\x02\x12\x1a\n\x16\x41\x43TION_TYPE_CLOSED_KAN\x10\x03\x12\x19\n\x15\x41\x43TION_TYPE_ADDED_KAN\x10\x04\x12\x15\n\x11\x41\x43TION_TYPE_TSUMO\x10\x05\x12,\n(ACTION_TYPE_ABORTIVE_DRAW_NINE_TERMINALS\x10\x06\x12\x13\n\x0f\x41\x43TION_TYPE_CHI\x10\x07\x12\x13\n\x0f\x41\x43TION_TYPE_PON\x10\x08\x12\x18\n\x14\x41\x43TION_TYPE_OPEN_KAN\x10\t\x12\x13\n\x0f\x41\x43TION_TYPE_RON\x10\n\x12\x12\n\x0e\x41\x43TION_TYPE_NO\x10\x0b\x12\x15\n\x11\x41\x43TION_TYPE_DUMMY\x10\x63*\xee\x04\n\tEventType\x12\x16\n\x12\x45VENT_TYPE_DISCARD\x10\x00\x12\x18\n\x14\x45VENT_TYPE_TSUMOGIRI\x10\x01\x12\x15\n\x11\x45VENT_TYPE_RIICHI\x10\x02\x12\x19\n\x15\x45VENT_TYPE_CLOSED_KAN\x10\x03\x12\x18\n\x14\x45VENT_TYPE_ADDED_KAN\x10\x04\x12\x14\n\x10\x45VENT_TYPE_TSUMO\x10\x05\x12+\n\'EVENT_TYPE_ABORTIVE_DRAW_NINE_TERMINALS\x10\x06\x12\x12\n\x0e\x45VENT_TYPE_CHI\x10\x07\x12\x12\n\x0e\x45VENT_TYPE_PON\x10\x08\x12\x17\n\x13\x45VENT_TYPE_OPEN_KAN\x10\t\x12\x12\n\x0e\x45VENT_TYPE_RON\x10\n\x12\x13\n\x0f\x45VENT_TYPE_DRAW\x10\x0c\x12\"\n\x1e\x45VENT_TYPE_RIICHI_SCORE_CHANGE\x10\r\x12\x17\n\x13\x45VENT_TYPE_NEW_DORA\x10\x0e\x12)\n%EVENT_TYPE_ABORTIVE_DRAW_FOUR_RIICHIS\x10\x0f\x12\'\n#EVENT_TYPE_ABORTIVE_DRAW_THREE_RONS\x10\x10\x12&\n\"EVENT_TYPE_ABORTIVE_DRAW_FOUR_KANS\x10\x11\x12\'\n#EVENT_TYPE_ABORTIVE_DRAW_FOUR_WINDS\x10\x12\x12%\n!EVENT_TYPE_EXHAUSTIVE_DRAW_NORMAL\x10\x13\x12-\n)EVENT_TYPE_EXHAUSTIVE_DRAW_NAGASHI_MANGAN\x10\x14\x32@\n\x05\x41gent\x12\x37\n\nTakeAction\x12\x15.mjxproto.Observation\x1a\x10.mjxproto.Action\"\x00\x62\x06proto3'
+)
 
-_ACTIONTYPE = DESCRIPTOR.enum_types_by_name['ActionType']
+_ACTIONTYPE = _descriptor.EnumDescriptor(
+  name='ActionType',
+  full_name='mjxproto.ActionType',
+  filename=None,
+  file=DESCRIPTOR,
+  create_key=_descriptor._internal_create_key,
+  values=[
+    _descriptor.EnumValueDescriptor(
+      name='ACTION_TYPE_DISCARD', index=0, number=0,
+      serialized_options=None,
+      type=None,
+      create_key=_descriptor._internal_create_key),
+    _descriptor.EnumValueDescriptor(
+      name='ACTION_TYPE_TSUMOGIRI', index=1, number=1,
+      serialized_options=None,
+      type=None,
+      create_key=_descriptor._internal_create_key),
+    _descriptor.EnumValueDescriptor(
+      name='ACTION_TYPE_RIICHI', index=2, number=2,
+      serialized_options=None,
+      type=None,
+      create_key=_descriptor._internal_create_key),
+    _descriptor.EnumValueDescriptor(
+      name='ACTION_TYPE_CLOSED_KAN', index=3, number=3,
+      serialized_options=None,
+      type=None,
+      create_key=_descriptor._internal_create_key),
+    _descriptor.EnumValueDescriptor(
+      name='ACTION_TYPE_ADDED_KAN', index=4, number=4,
+      serialized_options=None,
+      type=None,
+      create_key=_descriptor._internal_create_key),
+    _descriptor.EnumValueDescriptor(
+      name='ACTION_TYPE_TSUMO', index=5, number=5,
+      serialized_options=None,
+      type=None,
+      create_key=_descriptor._internal_create_key),
+    _descriptor.EnumValueDescriptor(
+      name='ACTION_TYPE_ABORTIVE_DRAW_NINE_TERMINALS', index=6, number=6,
+      serialized_options=None,
+      type=None,
+      create_key=_descriptor._internal_create_key),
+    _descriptor.EnumValueDescriptor(
+      name='ACTION_TYPE_CHI', index=7, number=7,
+      serialized_options=None,
+      type=None,
+      create_key=_descriptor._internal_create_key),
+    _descriptor.EnumValueDescriptor(
+      name='ACTION_TYPE_PON', index=8, number=8,
+      serialized_options=None,
+      type=None,
+      create_key=_descriptor._internal_create_key),
+    _descriptor.EnumValueDescriptor(
+      name='ACTION_TYPE_OPEN_KAN', index=9, number=9,
+      serialized_options=None,
+      type=None,
+      create_key=_descriptor._internal_create_key),
+    _descriptor.EnumValueDescriptor(
+      name='ACTION_TYPE_RON', index=10, number=10,
+      serialized_options=None,
+      type=None,
+      create_key=_descriptor._internal_create_key),
+    _descriptor.EnumValueDescriptor(
+      name='ACTION_TYPE_NO', index=11, number=11,
+      serialized_options=None,
+      type=None,
+      create_key=_descriptor._internal_create_key),
+    _descriptor.EnumValueDescriptor(
+      name='ACTION_TYPE_DUMMY', index=12, number=99,
+      serialized_options=None,
+      type=None,
+      create_key=_descriptor._internal_create_key),
+  ],
+  containing_type=None,
+  serialized_options=None,
+  serialized_start=1856,
+  serialized_end=2200,
+)
+_sym_db.RegisterEnumDescriptor(_ACTIONTYPE)
+
 ActionType = enum_type_wrapper.EnumTypeWrapper(_ACTIONTYPE)
-_EVENTTYPE = DESCRIPTOR.enum_types_by_name['EventType']
+_EVENTTYPE = _descriptor.EnumDescriptor(
+  name='EventType',
+  full_name='mjxproto.EventType',
+  filename=None,
+  file=DESCRIPTOR,
+  create_key=_descriptor._internal_create_key,
+  values=[
+    _descriptor.EnumValueDescriptor(
+      name='EVENT_TYPE_DISCARD', index=0, number=0,
+      serialized_options=None,
+      type=None,
+      create_key=_descriptor._internal_create_key),
+    _descriptor.EnumValueDescriptor(
+      name='EVENT_TYPE_TSUMOGIRI', index=1, number=1,
+      serialized_options=None,
+      type=None,
+      create_key=_descriptor._internal_create_key),
+    _descriptor.EnumValueDescriptor(
+      name='EVENT_TYPE_RIICHI', index=2, number=2,
+      serialized_options=None,
+      type=None,
+      create_key=_descriptor._internal_create_key),
+    _descriptor.EnumValueDescriptor(
+      name='EVENT_TYPE_CLOSED_KAN', index=3, number=3,
+      serialized_options=None,
+      type=None,
+      create_key=_descriptor._internal_create_key),
+    _descriptor.EnumValueDescriptor(
+      name='EVENT_TYPE_ADDED_KAN', index=4, number=4,
+      serialized_options=None,
+      type=None,
+      create_key=_descriptor._internal_create_key),
+    _descriptor.EnumValueDescriptor(
+      name='EVENT_TYPE_TSUMO', index=5, number=5,
+      serialized_options=None,
+      type=None,
+      create_key=_descriptor._internal_create_key),
+    _descriptor.EnumValueDescriptor(
+      name='EVENT_TYPE_ABORTIVE_DRAW_NINE_TERMINALS', index=6, number=6,
+      serialized_options=None,
+      type=None,
+      create_key=_descriptor._internal_create_key),
+    _descriptor.EnumValueDescriptor(
+      name='EVENT_TYPE_CHI', index=7, number=7,
+      serialized_options=None,
+      type=None,
+      create_key=_descriptor._internal_create_key),
+    _descriptor.EnumValueDescriptor(
+      name='EVENT_TYPE_PON', index=8, number=8,
+      serialized_options=None,
+      type=None,
+      create_key=_descriptor._internal_create_key),
+    _descriptor.EnumValueDescriptor(
+      name='EVENT_TYPE_OPEN_KAN', index=9, number=9,
+      serialized_options=None,
+      type=None,
+      create_key=_descriptor._internal_create_key),
+    _descriptor.EnumValueDescriptor(
+      name='EVENT_TYPE_RON', index=10, number=10,
+      serialized_options=None,
+      type=None,
+      create_key=_descriptor._internal_create_key),
+    _descriptor.EnumValueDescriptor(
+      name='EVENT_TYPE_DRAW', index=11, number=12,
+      serialized_options=None,
+      type=None,
+      create_key=_descriptor._internal_create_key),
+    _descriptor.EnumValueDescriptor(
+      name='EVENT_TYPE_RIICHI_SCORE_CHANGE', index=12, number=13,
+      serialized_options=None,
+      type=None,
+      create_key=_descriptor._internal_create_key),
+    _descriptor.EnumValueDescriptor(
+      name='EVENT_TYPE_NEW_DORA', index=13, number=14,
+      serialized_options=None,
+      type=None,
+      create_key=_descriptor._internal_create_key),
+    _descriptor.EnumValueDescriptor(
+      name='EVENT_TYPE_ABORTIVE_DRAW_FOUR_RIICHIS', index=14, number=15,
+      serialized_options=None,
+      type=None,
+      create_key=_descriptor._internal_create_key),
+    _descriptor.EnumValueDescriptor(
+      name='EVENT_TYPE_ABORTIVE_DRAW_THREE_RONS', index=15, number=16,
+      serialized_options=None,
+      type=None,
+      create_key=_descriptor._internal_create_key),
+    _descriptor.EnumValueDescriptor(
+      name='EVENT_TYPE_ABORTIVE_DRAW_FOUR_KANS', index=16, number=17,
+      serialized_options=None,
+      type=None,
+      create_key=_descriptor._internal_create_key),
+    _descriptor.EnumValueDescriptor(
+      name='EVENT_TYPE_ABORTIVE_DRAW_FOUR_WINDS', index=17, number=18,
+      serialized_options=None,
+      type=None,
+      create_key=_descriptor._internal_create_key),
+    _descriptor.EnumValueDescriptor(
+      name='EVENT_TYPE_EXHAUSTIVE_DRAW_NORMAL', index=18, number=19,
+      serialized_options=None,
+      type=None,
+      create_key=_descriptor._internal_create_key),
+    _descriptor.EnumValueDescriptor(
+      name='EVENT_TYPE_EXHAUSTIVE_DRAW_NAGASHI_MANGAN', index=19, number=20,
+      serialized_options=None,
+      type=None,
+      create_key=_descriptor._internal_create_key),
+  ],
+  containing_type=None,
+  serialized_options=None,
+  serialized_start=2203,
+  serialized_end=2825,
+)
+_sym_db.RegisterEnumDescriptor(_EVENTTYPE)
+
 EventType = enum_type_wrapper.EnumTypeWrapper(_EVENTTYPE)
 ACTION_TYPE_DISCARD = 0
 ACTION_TYPE_TSUMOGIRI = 1
@@ -56,22 +255,880 @@ EVENT_TYPE_EXHAUSTIVE_DRAW_NORMAL = 19
 EVENT_TYPE_EXHAUSTIVE_DRAW_NAGASHI_MANGAN = 20
 
 
-_SCORE = DESCRIPTOR.message_types_by_name['Score']
-_EVENT = DESCRIPTOR.message_types_by_name['Event']
-_PUBLICOBSERVATION = DESCRIPTOR.message_types_by_name['PublicObservation']
-_HAND = DESCRIPTOR.message_types_by_name['Hand']
-_PRIVATEOBSERVATION = DESCRIPTOR.message_types_by_name['PrivateObservation']
-_OBSERVATION = DESCRIPTOR.message_types_by_name['Observation']
-_WIN = DESCRIPTOR.message_types_by_name['Win']
-_NOWINNER = DESCRIPTOR.message_types_by_name['NoWinner']
-_TENPAIHAND = DESCRIPTOR.message_types_by_name['TenpaiHand']
-_ROUNDTERMINAL = DESCRIPTOR.message_types_by_name['RoundTerminal']
-_STATE = DESCRIPTOR.message_types_by_name['State']
-_HIDDENSTATE = DESCRIPTOR.message_types_by_name['HiddenState']
-_ACTION = DESCRIPTOR.message_types_by_name['Action']
-_GAMERESULT = DESCRIPTOR.message_types_by_name['GameResult']
-_GAMERESULT_TENSENTRY = _GAMERESULT.nested_types_by_name['TensEntry']
-_GAMERESULT_RANKINGSENTRY = _GAMERESULT.nested_types_by_name['RankingsEntry']
+
+_SCORE = _descriptor.Descriptor(
+  name='Score',
+  full_name='mjxproto.Score',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  create_key=_descriptor._internal_create_key,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='round', full_name='mjxproto.Score.round', index=0,
+      number=1, type=13, cpp_type=3, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='honba', full_name='mjxproto.Score.honba', index=1,
+      number=2, type=13, cpp_type=3, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='riichi', full_name='mjxproto.Score.riichi', index=2,
+      number=3, type=13, cpp_type=3, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='tens', full_name='mjxproto.Score.tens', index=3,
+      number=4, type=5, cpp_type=1, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=23,
+  serialized_end=90,
+)
+
+
+_EVENT = _descriptor.Descriptor(
+  name='Event',
+  full_name='mjxproto.Event',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  create_key=_descriptor._internal_create_key,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='type', full_name='mjxproto.Event.type', index=0,
+      number=1, type=14, cpp_type=8, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='who', full_name='mjxproto.Event.who', index=1,
+      number=2, type=5, cpp_type=1, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='tile', full_name='mjxproto.Event.tile', index=2,
+      number=3, type=13, cpp_type=3, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='open', full_name='mjxproto.Event.open', index=3,
+      number=4, type=13, cpp_type=3, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=92,
+  serialized_end=175,
+)
+
+
+_PUBLICOBSERVATION = _descriptor.Descriptor(
+  name='PublicObservation',
+  full_name='mjxproto.PublicObservation',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  create_key=_descriptor._internal_create_key,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='game_id', full_name='mjxproto.PublicObservation.game_id', index=0,
+      number=1, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=b"".decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='player_ids', full_name='mjxproto.PublicObservation.player_ids', index=1,
+      number=2, type=9, cpp_type=9, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='init_score', full_name='mjxproto.PublicObservation.init_score', index=2,
+      number=3, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='dora_indicators', full_name='mjxproto.PublicObservation.dora_indicators', index=3,
+      number=4, type=13, cpp_type=3, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='events', full_name='mjxproto.PublicObservation.events', index=4,
+      number=5, type=11, cpp_type=10, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=178,
+  serialized_end=329,
+)
+
+
+_HAND = _descriptor.Descriptor(
+  name='Hand',
+  full_name='mjxproto.Hand',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  create_key=_descriptor._internal_create_key,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='closed_tiles', full_name='mjxproto.Hand.closed_tiles', index=0,
+      number=1, type=13, cpp_type=3, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='opens', full_name='mjxproto.Hand.opens', index=1,
+      number=2, type=13, cpp_type=3, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=331,
+  serialized_end=374,
+)
+
+
+_PRIVATEOBSERVATION = _descriptor.Descriptor(
+  name='PrivateObservation',
+  full_name='mjxproto.PrivateObservation',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  create_key=_descriptor._internal_create_key,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='who', full_name='mjxproto.PrivateObservation.who', index=0,
+      number=1, type=5, cpp_type=1, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='init_hand', full_name='mjxproto.PrivateObservation.init_hand', index=1,
+      number=2, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='draw_history', full_name='mjxproto.PrivateObservation.draw_history', index=2,
+      number=3, type=13, cpp_type=3, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='curr_hand', full_name='mjxproto.PrivateObservation.curr_hand', index=3,
+      number=4, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=376,
+  serialized_end=501,
+)
+
+
+_OBSERVATION = _descriptor.Descriptor(
+  name='Observation',
+  full_name='mjxproto.Observation',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  create_key=_descriptor._internal_create_key,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='who', full_name='mjxproto.Observation.who', index=0,
+      number=1, type=5, cpp_type=1, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='public_observation', full_name='mjxproto.Observation.public_observation', index=1,
+      number=2, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='private_observation', full_name='mjxproto.Observation.private_observation', index=2,
+      number=3, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='round_terminal', full_name='mjxproto.Observation.round_terminal', index=3,
+      number=4, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='legal_actions', full_name='mjxproto.Observation.legal_actions', index=4,
+      number=5, type=11, cpp_type=10, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=504,
+  serialized_end=736,
+)
+
+
+_WIN = _descriptor.Descriptor(
+  name='Win',
+  full_name='mjxproto.Win',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  create_key=_descriptor._internal_create_key,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='who', full_name='mjxproto.Win.who', index=0,
+      number=1, type=5, cpp_type=1, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='from_who', full_name='mjxproto.Win.from_who', index=1,
+      number=2, type=5, cpp_type=1, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='hand', full_name='mjxproto.Win.hand', index=2,
+      number=3, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='win_tile', full_name='mjxproto.Win.win_tile', index=3,
+      number=4, type=13, cpp_type=3, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='fu', full_name='mjxproto.Win.fu', index=4,
+      number=5, type=13, cpp_type=3, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='ten', full_name='mjxproto.Win.ten', index=5,
+      number=6, type=13, cpp_type=3, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='ten_changes', full_name='mjxproto.Win.ten_changes', index=6,
+      number=7, type=5, cpp_type=1, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='yakus', full_name='mjxproto.Win.yakus', index=7,
+      number=8, type=13, cpp_type=3, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='fans', full_name='mjxproto.Win.fans', index=8,
+      number=9, type=13, cpp_type=3, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='yakumans', full_name='mjxproto.Win.yakumans', index=9,
+      number=10, type=13, cpp_type=3, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='ura_dora_indicators', full_name='mjxproto.Win.ura_dora_indicators', index=10,
+      number=11, type=13, cpp_type=3, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=739,
+  serialized_end=945,
+)
+
+
+_NOWINNER = _descriptor.Descriptor(
+  name='NoWinner',
+  full_name='mjxproto.NoWinner',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  create_key=_descriptor._internal_create_key,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='tenpais', full_name='mjxproto.NoWinner.tenpais', index=0,
+      number=1, type=11, cpp_type=10, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='ten_changes', full_name='mjxproto.NoWinner.ten_changes', index=1,
+      number=2, type=5, cpp_type=1, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=947,
+  serialized_end=1017,
+)
+
+
+_TENPAIHAND = _descriptor.Descriptor(
+  name='TenpaiHand',
+  full_name='mjxproto.TenpaiHand',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  create_key=_descriptor._internal_create_key,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='who', full_name='mjxproto.TenpaiHand.who', index=0,
+      number=1, type=5, cpp_type=1, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='hand', full_name='mjxproto.TenpaiHand.hand', index=1,
+      number=2, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=1019,
+  serialized_end=1074,
+)
+
+
+_ROUNDTERMINAL = _descriptor.Descriptor(
+  name='RoundTerminal',
+  full_name='mjxproto.RoundTerminal',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  create_key=_descriptor._internal_create_key,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='final_score', full_name='mjxproto.RoundTerminal.final_score', index=0,
+      number=1, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='wins', full_name='mjxproto.RoundTerminal.wins', index=1,
+      number=2, type=11, cpp_type=10, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='no_winner', full_name='mjxproto.RoundTerminal.no_winner', index=2,
+      number=3, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='is_game_over', full_name='mjxproto.RoundTerminal.is_game_over', index=3,
+      number=4, type=8, cpp_type=7, label=1,
+      has_default_value=False, default_value=False,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=1077,
+  serialized_end=1220,
+)
+
+
+_STATE = _descriptor.Descriptor(
+  name='State',
+  full_name='mjxproto.State',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  create_key=_descriptor._internal_create_key,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='hidden_state', full_name='mjxproto.State.hidden_state', index=0,
+      number=1, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='public_observation', full_name='mjxproto.State.public_observation', index=1,
+      number=2, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='private_observations', full_name='mjxproto.State.private_observations', index=2,
+      number=3, type=11, cpp_type=10, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='round_terminal', full_name='mjxproto.State.round_terminal', index=3,
+      number=4, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=1223,
+  serialized_end=1441,
+)
+
+
+_HIDDENSTATE = _descriptor.Descriptor(
+  name='HiddenState',
+  full_name='mjxproto.HiddenState',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  create_key=_descriptor._internal_create_key,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='game_seed', full_name='mjxproto.HiddenState.game_seed', index=0,
+      number=1, type=4, cpp_type=4, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='wall', full_name='mjxproto.HiddenState.wall', index=1,
+      number=2, type=13, cpp_type=3, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='ura_dora_indicators', full_name='mjxproto.HiddenState.ura_dora_indicators', index=2,
+      number=3, type=13, cpp_type=3, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=1443,
+  serialized_end=1518,
+)
+
+
+_ACTION = _descriptor.Descriptor(
+  name='Action',
+  full_name='mjxproto.Action',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  create_key=_descriptor._internal_create_key,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='type', full_name='mjxproto.Action.type', index=0,
+      number=1, type=14, cpp_type=8, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='who', full_name='mjxproto.Action.who', index=1,
+      number=2, type=5, cpp_type=1, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='tile', full_name='mjxproto.Action.tile', index=2,
+      number=3, type=13, cpp_type=3, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='open', full_name='mjxproto.Action.open', index=3,
+      number=4, type=13, cpp_type=3, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=1520,
+  serialized_end=1605,
+)
+
+
+_GAMERESULT_TENSENTRY = _descriptor.Descriptor(
+  name='TensEntry',
+  full_name='mjxproto.GameResult.TensEntry',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  create_key=_descriptor._internal_create_key,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='key', full_name='mjxproto.GameResult.TensEntry.key', index=0,
+      number=1, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=b"".decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='value', full_name='mjxproto.GameResult.TensEntry.value', index=1,
+      number=2, type=5, cpp_type=1, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=b'8\001',
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=1761,
+  serialized_end=1804,
+)
+
+_GAMERESULT_RANKINGSENTRY = _descriptor.Descriptor(
+  name='RankingsEntry',
+  full_name='mjxproto.GameResult.RankingsEntry',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  create_key=_descriptor._internal_create_key,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='key', full_name='mjxproto.GameResult.RankingsEntry.key', index=0,
+      number=1, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=b"".decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='value', full_name='mjxproto.GameResult.RankingsEntry.value', index=1,
+      number=2, type=5, cpp_type=1, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=b'8\001',
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=1806,
+  serialized_end=1853,
+)
+
+_GAMERESULT = _descriptor.Descriptor(
+  name='GameResult',
+  full_name='mjxproto.GameResult',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  create_key=_descriptor._internal_create_key,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='game_seed', full_name='mjxproto.GameResult.game_seed', index=0,
+      number=1, type=4, cpp_type=4, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='player_ids', full_name='mjxproto.GameResult.player_ids', index=1,
+      number=2, type=9, cpp_type=9, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='tens', full_name='mjxproto.GameResult.tens', index=2,
+      number=3, type=11, cpp_type=10, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='rankings', full_name='mjxproto.GameResult.rankings', index=3,
+      number=4, type=11, cpp_type=10, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+  ],
+  extensions=[
+  ],
+  nested_types=[_GAMERESULT_TENSENTRY, _GAMERESULT_RANKINGSENTRY, ],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=1608,
+  serialized_end=1853,
+)
+
+_EVENT.fields_by_name['type'].enum_type = _EVENTTYPE
+_PUBLICOBSERVATION.fields_by_name['init_score'].message_type = _SCORE
+_PUBLICOBSERVATION.fields_by_name['events'].message_type = _EVENT
+_PRIVATEOBSERVATION.fields_by_name['init_hand'].message_type = _HAND
+_PRIVATEOBSERVATION.fields_by_name['curr_hand'].message_type = _HAND
+_OBSERVATION.fields_by_name['public_observation'].message_type = _PUBLICOBSERVATION
+_OBSERVATION.fields_by_name['private_observation'].message_type = _PRIVATEOBSERVATION
+_OBSERVATION.fields_by_name['round_terminal'].message_type = _ROUNDTERMINAL
+_OBSERVATION.fields_by_name['legal_actions'].message_type = _ACTION
+_WIN.fields_by_name['hand'].message_type = _HAND
+_NOWINNER.fields_by_name['tenpais'].message_type = _TENPAIHAND
+_TENPAIHAND.fields_by_name['hand'].message_type = _HAND
+_ROUNDTERMINAL.fields_by_name['final_score'].message_type = _SCORE
+_ROUNDTERMINAL.fields_by_name['wins'].message_type = _WIN
+_ROUNDTERMINAL.fields_by_name['no_winner'].message_type = _NOWINNER
+_STATE.fields_by_name['hidden_state'].message_type = _HIDDENSTATE
+_STATE.fields_by_name['public_observation'].message_type = _PUBLICOBSERVATION
+_STATE.fields_by_name['private_observations'].message_type = _PRIVATEOBSERVATION
+_STATE.fields_by_name['round_terminal'].message_type = _ROUNDTERMINAL
+_ACTION.fields_by_name['type'].enum_type = _ACTIONTYPE
+_GAMERESULT_TENSENTRY.containing_type = _GAMERESULT
+_GAMERESULT_RANKINGSENTRY.containing_type = _GAMERESULT
+_GAMERESULT.fields_by_name['tens'].message_type = _GAMERESULT_TENSENTRY
+_GAMERESULT.fields_by_name['rankings'].message_type = _GAMERESULT_RANKINGSENTRY
+DESCRIPTOR.message_types_by_name['Score'] = _SCORE
+DESCRIPTOR.message_types_by_name['Event'] = _EVENT
+DESCRIPTOR.message_types_by_name['PublicObservation'] = _PUBLICOBSERVATION
+DESCRIPTOR.message_types_by_name['Hand'] = _HAND
+DESCRIPTOR.message_types_by_name['PrivateObservation'] = _PRIVATEOBSERVATION
+DESCRIPTOR.message_types_by_name['Observation'] = _OBSERVATION
+DESCRIPTOR.message_types_by_name['Win'] = _WIN
+DESCRIPTOR.message_types_by_name['NoWinner'] = _NOWINNER
+DESCRIPTOR.message_types_by_name['TenpaiHand'] = _TENPAIHAND
+DESCRIPTOR.message_types_by_name['RoundTerminal'] = _ROUNDTERMINAL
+DESCRIPTOR.message_types_by_name['State'] = _STATE
+DESCRIPTOR.message_types_by_name['HiddenState'] = _HIDDENSTATE
+DESCRIPTOR.message_types_by_name['Action'] = _ACTION
+DESCRIPTOR.message_types_by_name['GameResult'] = _GAMERESULT
+DESCRIPTOR.enum_types_by_name['ActionType'] = _ACTIONTYPE
+DESCRIPTOR.enum_types_by_name['EventType'] = _EVENTTYPE
+_sym_db.RegisterFileDescriptor(DESCRIPTOR)
+
 Score = _reflection.GeneratedProtocolMessageType('Score', (_message.Message,), {
   'DESCRIPTOR' : _SCORE,
   '__module__' : 'mjx_pb2'
@@ -186,50 +1243,33 @@ _sym_db.RegisterMessage(GameResult)
 _sym_db.RegisterMessage(GameResult.TensEntry)
 _sym_db.RegisterMessage(GameResult.RankingsEntry)
 
-_AGENT = DESCRIPTOR.services_by_name['Agent']
-if _descriptor._USE_C_DESCRIPTORS == False:
 
-  DESCRIPTOR._options = None
-  _GAMERESULT_TENSENTRY._options = None
-  _GAMERESULT_TENSENTRY._serialized_options = b'8\001'
-  _GAMERESULT_RANKINGSENTRY._options = None
-  _GAMERESULT_RANKINGSENTRY._serialized_options = b'8\001'
-  _ACTIONTYPE._serialized_start=1856
-  _ACTIONTYPE._serialized_end=2200
-  _EVENTTYPE._serialized_start=2203
-  _EVENTTYPE._serialized_end=2825
-  _SCORE._serialized_start=23
-  _SCORE._serialized_end=90
-  _EVENT._serialized_start=92
-  _EVENT._serialized_end=175
-  _PUBLICOBSERVATION._serialized_start=178
-  _PUBLICOBSERVATION._serialized_end=329
-  _HAND._serialized_start=331
-  _HAND._serialized_end=374
-  _PRIVATEOBSERVATION._serialized_start=376
-  _PRIVATEOBSERVATION._serialized_end=501
-  _OBSERVATION._serialized_start=504
-  _OBSERVATION._serialized_end=736
-  _WIN._serialized_start=739
-  _WIN._serialized_end=945
-  _NOWINNER._serialized_start=947
-  _NOWINNER._serialized_end=1017
-  _TENPAIHAND._serialized_start=1019
-  _TENPAIHAND._serialized_end=1074
-  _ROUNDTERMINAL._serialized_start=1077
-  _ROUNDTERMINAL._serialized_end=1220
-  _STATE._serialized_start=1223
-  _STATE._serialized_end=1441
-  _HIDDENSTATE._serialized_start=1443
-  _HIDDENSTATE._serialized_end=1518
-  _ACTION._serialized_start=1520
-  _ACTION._serialized_end=1605
-  _GAMERESULT._serialized_start=1608
-  _GAMERESULT._serialized_end=1853
-  _GAMERESULT_TENSENTRY._serialized_start=1761
-  _GAMERESULT_TENSENTRY._serialized_end=1804
-  _GAMERESULT_RANKINGSENTRY._serialized_start=1806
-  _GAMERESULT_RANKINGSENTRY._serialized_end=1853
-  _AGENT._serialized_start=2827
-  _AGENT._serialized_end=2891
+_GAMERESULT_TENSENTRY._options = None
+_GAMERESULT_RANKINGSENTRY._options = None
+
+_AGENT = _descriptor.ServiceDescriptor(
+  name='Agent',
+  full_name='mjxproto.Agent',
+  file=DESCRIPTOR,
+  index=0,
+  serialized_options=None,
+  create_key=_descriptor._internal_create_key,
+  serialized_start=2827,
+  serialized_end=2891,
+  methods=[
+  _descriptor.MethodDescriptor(
+    name='TakeAction',
+    full_name='mjxproto.Agent.TakeAction',
+    index=0,
+    containing_service=None,
+    input_type=_OBSERVATION,
+    output_type=_ACTION,
+    serialized_options=None,
+    create_key=_descriptor._internal_create_key,
+  ),
+])
+_sym_db.RegisterServiceDescriptor(_AGENT)
+
+DESCRIPTOR.services_by_name['Agent'] = _AGENT
+
 # @@protoc_insertion_point(module_scope)
