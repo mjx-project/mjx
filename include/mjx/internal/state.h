@@ -45,8 +45,6 @@ class State {
   explicit State(const std::string& json_str);
   explicit State(const mjxproto::State& state);
   bool IsRoundOver() const;
-  static bool IsRoundOver(
-      const mjxproto::PublicObservation& public_observation);
   bool IsGameOver() const;
   bool IsDummySet() const;
   void Update(std::vector<mjxproto::Action>&& action_candidates);
@@ -95,9 +93,6 @@ class State {
                             AbsolutePos dealer, bool is_dealer_win_or_tenpai,
                             std::optional<mjxproto::EventType> no_winner_type =
                                 std::nullopt) noexcept;
-
-  [[nodiscard]] static std::vector<mjxproto::Action> LegalActions(
-      const mjxproto::Observation& observation);
 
  private:
   explicit State(std::vector<PlayerId> player_ids,  // 起家, ..., ラス親
@@ -185,37 +180,6 @@ class State {
   static std::vector<std::pair<mjxproto::Observation, mjxproto::Action>>
   UpdateByActions(const mjxproto::State& proto,
                   std::queue<mjxproto::Action>& actions, State& state);
-
-  // 次のブロックは主にObservationだけからでもlegal
-  // actionを生成できるようにするための機能
-  // internal::Stateの内部状態を使わずに同じ計算をしている想定
-  // ただし、eventsをなめるので遅かったりする
-  [[nodiscard]] static bool HasDrawLeft(
-      const mjxproto::PublicObservation& public_observation);
-  [[nodiscard]] static bool HasNextDrawLeft(
-      const mjxproto::PublicObservation& public_observation);
-  [[nodiscard]] static bool RequireKanDraw(
-      const mjxproto::PublicObservation& public_observation);
-  [[nodiscard]] static bool CanRon(AbsolutePos who,
-                                   const mjxproto::Observation& observation);
-  [[nodiscard]] static bool CanTsumo(AbsolutePos who,
-                                     const mjxproto::Observation& observation);
-  [[nodiscard]] static std::optional<Tile> TargetTile(
-      const mjxproto::PublicObservation& public_observation);
-  [[nodiscard]] static AbsolutePos dealer(
-      const mjxproto::PublicObservation& public_observation);
-  [[nodiscard]] static Wind prevalent_wind(
-      const mjxproto::PublicObservation& public_observation);
-  [[nodiscard]] static bool IsIppatsu(
-      AbsolutePos who, const mjxproto::PublicObservation& public_observation);
-  [[nodiscard]] static bool IsRobbingKan(
-      const mjxproto::PublicObservation& public_observation);
-  [[nodiscard]] static bool IsFirstTurnWithoutOpen(
-      const mjxproto::PublicObservation& public_observation);
-  [[nodiscard]] static bool IsFourKanNoWinner(
-      const mjxproto::PublicObservation& public_observation);
-  [[nodiscard]] static bool CanRiichi(AbsolutePos who,
-                                      const mjxproto::Observation& observation);
 };
 }  // namespace mjx::internal
 
