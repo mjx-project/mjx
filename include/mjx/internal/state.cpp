@@ -2002,7 +2002,8 @@ bool State::CanRon(AbsolutePos who, const mjxproto::Observation &observation) {
       {}  // ura dora type count 和了れるかどうかだけなのでドラは関係ない
   );
   return YakuEvaluator::CanWin(
-      WinInfo(std::move(win_state_info), hand.win_info()).Ron(target_tile.value()));
+      WinInfo(std::move(win_state_info), hand.win_info())
+          .Ron(target_tile.value()));
 }
 
 std::optional<Tile> State::TargetTile(
