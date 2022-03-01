@@ -10,7 +10,11 @@ import sys
 
 from setuptools import Extension, find_packages, setup
 from setuptools.command.build_ext import build_ext
-from pip.req import parse_requirements
+# TODO: fix me
+try:  # pip >= 10
+    from pip._internal.req import parse_requirements
+except ImportError:
+    from pip.req import parse_requirements
 
 # Convert distutils Windows platform specifiers to CMake -A arguments
 PLAT_TO_CMAKE = {
