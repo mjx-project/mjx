@@ -230,7 +230,7 @@ def _make_svg(
         dwg.text("".join(doras), (337, 400), style="font-size:40px;font-family:GL-MahjongTile;")
     )
     for i, dora in enumerate(sample_data.doras):
-        if dora == sample_data.new_dora:
+        if dora == sample_data.new_dora and highlight_last_event:
             dwg.add(
                 dwg.text(
                     "\U0001F006",
