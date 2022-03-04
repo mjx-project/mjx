@@ -376,7 +376,7 @@ class MahjongTable:
 
             elif eve.type == EventType.NEW_DORA:
                 table.new_dora = eve.tile
-            
+
             if eve.type != EventType.NEW_DORA:
                 table.new_dora = None
 
