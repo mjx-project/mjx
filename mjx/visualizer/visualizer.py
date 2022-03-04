@@ -95,7 +95,7 @@ class MahjongTable:
         self.result: str = ""
         self.event_info: Optional[EventType] = None
         self.legal_actions: List[Action] = []
-        self.new_dora: int = -1
+        self.new_dora: Optional[int] = None
 
     def get_wall_num(self) -> int:
         all = 136 - 14
@@ -368,7 +368,7 @@ class MahjongTable:
                                     + [
                                         Tile(i.id(), is_open=True)
                                         for i in open_tiles
-                                        if i != p_from_t_u.tiles[-1].id()
+                                        if i.id() != p_from_t_u.tiles[-1].id()
                                     ],
                                 )
                             )
@@ -376,6 +376,9 @@ class MahjongTable:
 
             elif eve.type == EventType.NEW_DORA:
                 table.new_dora = eve.tile
+
+            if eve.type != EventType.NEW_DORA:
+                table.new_dora = None
 
         if len(public_observation.events) == 0:
             return table
