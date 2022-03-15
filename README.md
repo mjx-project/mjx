@@ -1,6 +1,10 @@
 [![ci](https://github.com/mjx-project/mjx/actions/workflows/ci.yml/badge.svg)](https://github.com/mjx-project/mjx/actions/workflows/ci.yml)
 
-# Mjx
+<p align="center">
+<img src="icons/1500w/png/color1/1-1_p1500.png" alt="mjx" width="150"/>
+<p align="center">
+<img src="icons/1500w/png/color1/3_p1500.png" alt="mjx" width="75"/>
+</p>
 
 ## Requirements
 
