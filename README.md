@@ -1,5 +1,7 @@
 [![ci](https://github.com/mjx-project/mjx/actions/workflows/ci.yml/badge.svg)](https://github.com/mjx-project/mjx/actions/workflows/ci.yml)
 
+![](icons/1500w/png/color1/2-1_p1500.png)
+
 # Mjx
 
 ## Requirements
