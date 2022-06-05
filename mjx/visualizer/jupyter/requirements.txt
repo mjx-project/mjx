@@ -1,0 +1,4 @@
+mjx
+jupyter
+black
+isort
