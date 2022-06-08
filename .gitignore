@@ -20,3 +20,4 @@ mjx-py/.vscode/*
 dist
 .pytest_cache
 .cache
+.ipynb_checkpoints

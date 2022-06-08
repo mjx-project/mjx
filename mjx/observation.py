@@ -12,7 +12,7 @@ from mjx.const import TileType
 from mjx.event import Event
 from mjx.hand import Hand
 from mjx.tile import Tile
-from mjx.visualizer.svg import save_svg
+from mjx.visualizer.svg import save_svg, show_svg
 
 
 class Observation:
@@ -112,6 +112,12 @@ class Observation:
 
         observation = self.to_proto()
         save_svg(observation, filename, view_idx)
+
+    def show(self, view_idx: Optional[int] = None) -> None:
+        assert view_idx is None or 0 <= view_idx < 4
+
+        observation = self.to_proto()
+        show_svg(observation, view_idx)
 
     @staticmethod
     def add_legal_actions(obs_json: str) -> str:

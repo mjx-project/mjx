@@ -3,6 +3,7 @@ from importlib.resources import read_binary
 from typing import List, Optional, Tuple, Union
 
 import svgwrite
+from IPython.display import SVG, display
 from svgwrite.drawing import Drawing
 
 import mjx.visualizer
@@ -1016,3 +1017,13 @@ def save_svg(
     """
     dwg = _make_svg(proto_data, filename, target_idx, highlight_last_event=highlight_last_event)
     dwg.save()
+
+
+def show_svg(
+    proto_data: Union[mjxproto.State, mjxproto.Observation],
+    target_idx: Optional[int] = None,
+    highlight_last_event: bool = True,
+) -> None:
+    filename = "temp.svg"
+    save_svg(proto_data, filename, target_idx, highlight_last_event)
+    display(SVG(filename=filename))
