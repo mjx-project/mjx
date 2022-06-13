@@ -3,7 +3,7 @@ from importlib.resources import read_binary
 from typing import List, Optional, Tuple, Union
 
 import svgwrite
-from IPython.display import SVG, display
+from IPython.display import display_svg
 from svgwrite.drawing import Drawing
 
 import mjx.visualizer
@@ -1025,5 +1025,5 @@ def show_svg(
     highlight_last_event: bool = True,
 ) -> None:
     filename = "temp.svg"
-    save_svg(proto_data, filename, target_idx, highlight_last_event)
-    display(SVG(filename=filename))
+    dwg = _make_svg(proto_data, filename, target_idx, highlight_last_event=highlight_last_event)
+    display_svg(dwg.tostring(), raw=True)
