@@ -1,4 +1,0 @@
-mjx
-jupyter
-black
-isort
