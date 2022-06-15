@@ -8,7 +8,7 @@ from google.protobuf import json_format
 import mjxproto
 from mjx.action import Action
 from mjx.observation import Observation
-from mjx.visualizer.svg import save_svg
+from mjx.visualizer.svg import save_svg, show_svg
 
 
 class State:
@@ -49,6 +49,12 @@ class State:
 
         observation = self.to_proto()
         save_svg(observation, filename, view_idx)
+
+    def show(self, view_idx: Optional[int] = None) -> None:
+        assert view_idx is None or 0 <= view_idx < 4
+
+        observation = self.to_proto()
+        show_svg(observation, view_idx)
 
     @classmethod
     def from_proto(cls, proto: mjxproto.State) -> State:

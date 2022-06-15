@@ -8,3 +8,5 @@ pillow
 svgwrite
 tenhou_wall_reproducer
 inquirer
+matplotlib
+ipython

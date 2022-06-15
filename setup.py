@@ -158,6 +158,7 @@ setup(
         "svgwrite",
         "inquirer",
         "tenhou_wall_reproducer",
+        "ipython",
     ],
     extras_require={"test": ["pytest"]},
     include_package_data=True,
