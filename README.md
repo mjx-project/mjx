@@ -12,6 +12,21 @@
 - `MacOS 10.15` or later <!-- <filesystem> requires macos-10.15 -->
 - `Python >= 3.7` <!-- importlib requires 3.7 -->
 
+## Example
+
+```py
+from mjx import MjxEnv
+from mjx.agent import RandomAgent
+
+agent = RandomAgent()
+env = MjxEnv()
+player_id, observation = env.reset()
+while not env.done():
+    action = agent.act(observation)
+    player_id, observation = env.step(action)
+rewards = env.rewards()
+```
+
 ## Visualization
 
 Available at https://mjx-visualizer.an.r.appspot.com/
