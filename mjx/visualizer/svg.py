@@ -996,15 +996,19 @@ def _make_svg(
     return dwg
 
 
-def to_svg(json_data: str, target_idx: Optional[int] = None, show_name: bool = False) -> str:
-    proto_data = MahjongTable.json_to_proto(json_data=json_data)
-    dwg = _make_svg(proto_data, ".svg", target_idx, show_name=show_name)
+def to_svg(
+    proto_data: Union[mjxproto.State, mjxproto.Observation],
+    filename: str = "tenm.svg",
+    target_idx: Optional[int] = None,
+    highlight_last_event: bool = True,
+) -> None:
+    dwg = _make_svg(proto_data, filename, target_idx, highlight_last_event=highlight_last_event)
     return dwg.tostring()
 
 
 def save_svg(
     proto_data: Union[mjxproto.State, mjxproto.Observation],
-    filename: str,
+    filename: str = "tenm.svg",
     target_idx: Optional[int] = None,
     highlight_last_event: bool = True,
 ) -> None:
@@ -1021,9 +1025,16 @@ def save_svg(
 
 def show_svg(
     proto_data: Union[mjxproto.State, mjxproto.Observation],
+    filename: str = "tenm.svg",
     target_idx: Optional[int] = None,
     highlight_last_event: bool = True,
 ) -> None:
-    filename = "temp.svg"
+    import sys
+
     dwg = _make_svg(proto_data, filename, target_idx, highlight_last_event=highlight_last_event)
-    display_svg(dwg.tostring(), raw=True)
+
+    if "ipykernel" in sys.modules:
+        # Jupyter Notebook
+        display_svg(dwg.tostring(), raw=True)
+    else:
+        sys.stdout.write("This function only works in Jupyter Notebook.")

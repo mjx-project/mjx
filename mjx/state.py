@@ -8,7 +8,7 @@ from google.protobuf import json_format
 import mjxproto
 from mjx.action import Action
 from mjx.observation import Observation
-from mjx.visualizer.svg import save_svg, show_svg
+from mjx.visualizer.svg import save_svg, show_svg, to_svg
 
 
 class State:
@@ -18,6 +18,12 @@ class State:
             return
 
         self._cpp_obj = _mjx.State(state_json)  # type: ignore
+
+    def _repr_html_(self, view_idx: Optional[int] = None) -> None:
+        assert view_idx is None or 0 <= view_idx < 4
+
+        observation = self.to_proto()
+        return to_svg(observation, target_idx=view_idx)
 
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, State):
@@ -54,7 +60,7 @@ class State:
         assert view_idx is None or 0 <= view_idx < 4
 
         observation = self.to_proto()
-        show_svg(observation, view_idx)
+        show_svg(observation, target_idx=view_idx)
 
     @classmethod
     def from_proto(cls, proto: mjxproto.State) -> State:
