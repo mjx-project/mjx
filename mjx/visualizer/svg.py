@@ -1008,7 +1008,7 @@ def to_svg(
 
 def save_svg(
     proto_data: Union[mjxproto.State, mjxproto.Observation],
-    filename: str = "tenm.svg",
+    filename: str = "tenp.svg",
     target_idx: Optional[int] = None,
     highlight_last_event: bool = True,
 ) -> None:
