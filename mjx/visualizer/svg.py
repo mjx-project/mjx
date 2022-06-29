@@ -99,12 +99,10 @@ def dwg_add(
 
 def _make_svg(
     proto_data: Union[mjxproto.State, mjxproto.Observation],
-    filename: str,
     target_idx: Optional[int] = None,
     show_name: bool = False,
     highlight_last_event: bool = False,
 ) -> Drawing:
-    assert filename.endswith(".svg")
 
     sample_data: MahjongTable
     if isinstance(proto_data, mjxproto.Observation):
@@ -127,7 +125,7 @@ def _make_svg(
     sample_data.players.sort(key=lambda x: (x.player_idx - target_idx) % 4)
 
     dwg = svgwrite.Drawing(
-        filename,
+        "temp.svg",  # ファイル名は"saveas()"で指定する
         (width, height),
         debug=True,
     )
@@ -996,15 +994,18 @@ def _make_svg(
     return dwg
 
 
-def to_svg(json_data: str, target_idx: Optional[int] = None, show_name: bool = False) -> str:
-    proto_data = MahjongTable.json_to_proto(json_data=json_data)
-    dwg = _make_svg(proto_data, ".svg", target_idx, show_name=show_name)
+def to_svg(
+    proto_data: Union[mjxproto.State, mjxproto.Observation],
+    target_idx: Optional[int] = None,
+    highlight_last_event: bool = True,
+) -> None:
+    dwg = _make_svg(proto_data, target_idx, highlight_last_event=highlight_last_event)
     return dwg.tostring()
 
 
 def save_svg(
     proto_data: Union[mjxproto.State, mjxproto.Observation],
-    filename: str,
+    filename: str = "temp.svg",
     target_idx: Optional[int] = None,
     highlight_last_event: bool = True,
 ) -> None:
@@ -1015,8 +1016,8 @@ def save_svg(
       proto_data: State or observation proto
       target_idx: the player you want to highlight
     """
-    dwg = _make_svg(proto_data, filename, target_idx, highlight_last_event=highlight_last_event)
-    dwg.save()
+    dwg = _make_svg(proto_data, target_idx, highlight_last_event=highlight_last_event)
+    dwg.saveas(filename=filename)
 
 
 def show_svg(
@@ -1024,6 +1025,12 @@ def show_svg(
     target_idx: Optional[int] = None,
     highlight_last_event: bool = True,
 ) -> None:
-    filename = "temp.svg"
-    dwg = _make_svg(proto_data, filename, target_idx, highlight_last_event=highlight_last_event)
-    display_svg(dwg.tostring(), raw=True)
+    import sys
+
+    dwg = _make_svg(proto_data, target_idx, highlight_last_event=highlight_last_event)
+
+    if "ipykernel" in sys.modules:
+        # Jupyter Notebook
+        display_svg(dwg.tostring(), raw=True)
+    else:
+        sys.stdout.write("This function only works in Jupyter Notebook.")
