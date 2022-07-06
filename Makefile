@@ -65,27 +65,4 @@ py-check:
 	flake8 --config pyproject.toml --ignore E203,E501,W503 mjx # tests_py examples scripts
 	# mypy --config pyproject.toml mjx
 
-cli-test:
-	echo "From mjlog => mjxproto"
-	cat tests_cpp/resources/mjlog/*.mjlog | mjx convert --to-mjxproto --verbose | wc -l
-	cat tests_cpp/resources/mjlog/*.mjlog | mjx convert --to-mjxproto --compress --verbose | wc -l
-	cat tests_cpp/resources/mjlog/*.mjlog | mjx convert --to-mjxproto-raw --verbose | wc -l
-	mkdir -p tests_cpp/resources/mjxproto
-	mjx convert tests_cpp/resources/mjlog tests_cpp/resources/mjxproto --to-mjxproto --verbose && cat tests_cpp/resources/mjxproto/* | wc -l
-	rm -rf tests_cpp/resources/mjxproto/*.json
-	mjx convert tests_cpp/resources/mjlog tests_cpp/resources/mjxproto --to-mjxproto --compress --verbose && cat tests_cpp/resources/mjxproto/* | wc -l
-	rm tests_cpp/resources/mjxproto/*.json
-	mjx convert tests_cpp/resources/mjlog tests_cpp/resources/mjxproto --to-mjxproto-raw --verbose && cat tests_cpp/resources/mjxproto/* | wc -l
-	echo "From mjxproto => mjlog_recovered"
-	cat tests_cpp/resources/mjxproto/*.json | mjx convert --to-mjlog --verbose | wc -l
-	mkdir -p tests_cpp/resources/mjlog_recovered
-	mjx convert tests_cpp/resources/mjxproto tests_cpp/resources/mjlog_recovered --to-mjlog --verbose && cat tests_cpp/resources/mjlog_recovered/* | wc -l
-	echo "Check diff"
-	python3 mjx/utils/diff.py tests_cpp/resources/mjlog tests_cpp/resources/mjlog_recovered
-	echo "Clean up"
-	rm -rf tests_cpp/resources/mjxproto
-	rm -rf tests_cpp/resources/mjlog_recovered
-	git checkout -- tests_cpp/resources
-
-
-.PHONY: clean cpp-build cpp-test cpp-fmt py-fmt py-check py-test cli-test
+.PHONY: clean cpp-build cpp-test cpp-fmt py-fmt py-check py-test
