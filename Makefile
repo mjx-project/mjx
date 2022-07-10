@@ -43,7 +43,7 @@ cpp-fmt:
 	clang-format -i tests_cpp/*.cpp
 	clang-format -i scripts/*.cpp
 
-dist: setup.py include/mjx/* include/mjx/internal/* mjx/* mjx/converter/* mjx/visualizer/* include/mjx/internal/mjx.proto
+dist: setup.py include/mjx/* include/mjx/internal/* mjx/* mjx/visualizer/* include/mjx/internal/mjx.proto
 	which python3
 	git submodule update --init
 	export MJX_BUILD_BOOST=OFF && export MJX_BUILD_GRPC=OFF && python3 setup.py sdist && python3 setup.py install
