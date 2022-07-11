@@ -152,6 +152,7 @@ add_library(
 target_include_directories(mjx PUBLIC ${Boost_INCLUDE_DIRS} ${MJX_INCLUDE_DIR})
 target_link_libraries(mjx PUBLIC ${_REFLECTION} ${_GRPC_GRPCPP} ${_PROTOBUF_LIBPROTOBUF})
 target_compile_definitions(mjx PUBLIC WIN_CACHE_DIR="${MJX_INCLUDE_DIR}/mjx/cache")
+target_compile_features(mjx PUBLIC cxx_std_17)
 
 ####################################################################################
 # Build cache generators
