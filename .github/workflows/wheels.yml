@@ -5,6 +5,7 @@
 name: Wheels
 
 on:
+  push:
   release:
     types:
       - published
@@ -65,7 +66,7 @@ jobs:
         # universal2 arch raises this error:
         # CMake Error at mjx/external/grpc-src/third_party/boringssl-with-bazel/CMakeLists.txt:52 (message): Universal binaries not supported.
         # TODO: support Apple Silicon
-        CIBW_ARCHS_MACOS: x86_64  #  auto universal2
+        CIBW_ARCHS_MACOS: x86_64 arm64 #  auto universal2
         CIBW_TEST_SKIP: "*universal2:arm64"
         CIBW_TEST_EXTRAS: test
         CIBW_TEST_COMMAND: python3 -m pytest {project}/tests_py --import-mode=importlib 
