@@ -157,7 +157,6 @@ setup(
         "pillow",
         "svgwrite",
         "inquirer",
-        "tenhou_wall_reproducer",
         "ipython",
     ],
     extras_require={"test": ["pytest"]},
