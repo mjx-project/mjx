@@ -5,6 +5,7 @@
 name: Wheels
 
 on:
+  push:
   release:
     types:
       - published
@@ -40,7 +41,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, macos-latest]  #  [ubuntu-latest, windows-latest, macos-latest]
+        os: [ubuntu-latest, macos-latest, windows-latest]  #  [ubuntu-latest, windows-latest, macos-latest]
 
     steps:
     - uses: actions/checkout@v2
@@ -60,7 +61,7 @@ jobs:
         # https://cibuildwheel.readthedocs.io/en/stable/cpp_standards/#manylinux1-and-c14
         MACOSX_DEPLOYMENT_TARGET: "10.15"  # <filesystem> requires 10.15
         CIBW_BUILD: cp39-*  # cp37-* cp38-* cp39-* importlib.resources requires >= 3.7 
-        CIBW_SKIP: pp* cp27-win* cp35-* cp36-* cp37-* cp38-* *win*
+        CIBW_SKIP: pp* cp27-win* cp35-* cp36-* cp37-* cp38-* 
         # https://cibuildwheel.readthedocs.io/en/stable/options/#archs
         # universal2 arch raises this error:
         # CMake Error at mjx/external/grpc-src/third_party/boringssl-with-bazel/CMakeLists.txt:52 (message): Universal binaries not supported.
