@@ -14,9 +14,7 @@ message(STATUS "MJX_INCLUDE_DIR=${MJX_INCLUDE_DIR}")
 
 ####################################################################################
 # Options
-####################################################################################
-
-option(MJX_BUILD_BOOST "Download and build Boost" OFF)
+#################################################################################### option(MJX_BUILD_BOOST "Download and build Boost" OFF)
 option(MJX_BUILD_GRPC "Download and build gRPC" OFF)
 option(MJX_BUILD_TESTS "Build tests" OFF)
 option(MJX_BUILD_PYTHON "Build as Python library " OFF)
@@ -155,7 +153,7 @@ target_include_directories(mjx PUBLIC ${Boost_INCLUDE_DIRS} ${MJX_INCLUDE_DIR})
 target_link_libraries(mjx PUBLIC ${_REFLECTION} ${_GRPC_GRPCPP} ${_PROTOBUF_LIBPROTOBUF})
 target_compile_definitions(mjx PUBLIC WIN_CACHE_DIR="${MJX_INCLUDE_DIR}/mjx/cache")
 target_compile_features(mjx PUBLIC cxx_std_17)
-target_compile_options(mjx PUBLIC "/std:c++l7")
+target_compile_options(mjx PUBLIC "/std:c++17")
 
 ####################################################################################
 # Build cache generators
@@ -185,5 +183,5 @@ if(MJX_BUILD_PYTHON)
   target_include_directories(_mjx PRIVATE ${MJX_INCLUDE_DIR})
   target_link_libraries(_mjx PRIVATE mjx)
   target_compile_features(_mjx PUBLIC cxx_std_17)
-  target_compile_options(_mjx PUBLIC "/std:c++l7")
+  target_compile_options(_mjx PUBLIC "/std:c++17")
 endif()
