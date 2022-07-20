@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import itertools
 from typing import List, Optional
 
 import _mjx  # type: ignore
@@ -8,11 +9,13 @@ from google.protobuf import json_format
 
 import mjxproto
 from mjx.action import Action
-from mjx.const import TileType
+from mjx.const import EventType, TileType
 from mjx.event import Event
 from mjx.hand import Hand
+from mjx.open import Open
 from mjx.tile import Tile
 from mjx.visualizer.svg import save_svg, show_svg, to_svg
+from mjx.visualizer.visualizer import MahjongTable
 
 
 class Observation:
@@ -124,6 +127,79 @@ class Observation:
 
         observation = self.to_proto()
         show_svg(observation, target_idx=view_idx)
+
+    def get_feature(self):
+        proto = self.to_proto()
+        mj_table = MahjongTable.from_proto(proto)
+        feature = np.empty((111, 34), dtype=bool)
+
+        closed_tiles_ = list(
+            filter(
+                lambda tile_unit: tile_unit.tile_unit_type == EventType.DRAW,
+                mj_table.players[0].tile_units,
+            )
+        )[0]
+        # closed_tiles = proto.private_observation.curr_hand.closed_tiles
+        closed_tiles_id = [tile.id() for tile in closed_tiles_.tiles]
+        closed_tiles_type = [id // 4 for id in closed_tiles_id]
+
+        for i in range(34):  # i:tiletype 0~33
+            in_hand = closed_tiles_type.count(i)
+            feature[0][i] = in_hand > 0
+            feature[1][i] = in_hand > 1
+            feature[2][i] = in_hand > 2
+            feature[3][i] = in_hand == 4
+
+            # TODO [4]
+
+            feature[5][i] = i in [4, 13, 22] and (
+                i * 34 in closed_tiles_id
+                or i * 34 + 1 in closed_tiles_id
+                or i * 34 + 2 in closed_tiles_id
+                or i * 34 + 3 in closed_tiles_id
+            )
+
+            for j in range(4):
+                _calling_of_player_j = self._calling_of_player_i(i, j, mj_table)
+                for k in range(6):
+                    feature[6 + j * 6 + k][i] = _calling_of_player_j[k]
+
+        for j in range(29):
+            print(feature[j][0])
+
+    def _calling_of_player_i(self, tile_type: int, player_id: int, mj_table: MahjongTable):
+        feature = [False] * 6
+        tile_units = mj_table.players[player_id].tile_units
+        open_tile_units = list(
+            filter(
+                lambda tile_unit: tile_unit.tile_unit_type != EventType.DRAW
+                and tile_unit.tile_unit_type != EventType.DISCARD,
+                tile_units,
+            )
+        )
+        open_tiles_id_ = [
+            [tile.id() for tile in open_tile_unit.tiles] for open_tile_unit in open_tile_units
+        ]
+        open_tiles_id = list(itertools.chain.from_iterable(open_tiles_id_))
+        open_tiles_type = [id // 4 for id in open_tiles_id]
+
+        in_furo = open_tiles_type.count(tile_type)
+        feature[0] = in_furo > 0
+        feature[1] = in_furo > 1
+        feature[2] = in_furo > 2
+        feature[3] = in_furo == 4
+
+        stolen_tiles = [open_tile_unit.tiles[0].id() // 4 for open_tile_unit in open_tile_units]
+        feature[4] = tile_type in stolen_tiles
+
+        feature[5] = tile_type in [4, 13, 22] and (
+            tile_type * 34 in open_tiles_id
+            or tile_type * 34 + 1 in open_tiles_id
+            or tile_type * 34 + 2 in open_tiles_id
+            or tile_type * 34 + 3 in open_tiles_id
+        )
+
+        return feature
 
     @staticmethod
     def add_legal_actions(obs_json: str) -> str:
