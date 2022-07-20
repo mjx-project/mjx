@@ -143,14 +143,12 @@ class Observation:
 
         for tiletype in range(34):  # tiletype: 0~33
 
-            # 0-5
+            # 0-3,5
             in_hand = closed_tiles_type.count(tiletype)
             feature[0][tiletype] = in_hand > 0
             feature[1][tiletype] = in_hand > 1
             feature[2][tiletype] = in_hand > 2
             feature[3][tiletype] = in_hand == 4
-
-            # TODO [4]
 
             feature[5][tiletype] = tiletype in [4, 13, 22] and (
                 tiletype * 34 in closed_tiles_id
@@ -165,7 +163,7 @@ class Observation:
                 for k in range(6):
                     feature[6 + j * 6 + k][tiletype] = _calling_of_player_j[k]
 
-            # 30-69
+            # 30-69,4
             for j in range(4):
                 _discarded_tiles_from_player_j = self._discarded_tiles_from_player_i(
                     tiletype, j, mj_table
@@ -173,12 +171,21 @@ class Observation:
                 for k in range(10):
                     feature[30 + j * 10 + k][tiletype] = _discarded_tiles_from_player_j[k]
 
+            feature[4][tiletype] = feature[30][tiletype]
+
             # 70-79
             for j in range(len(mj_table.doras)):
                 feature[70 + j][tiletype] = (mj_table.doras[j] - 1) // 4 == tiletype
                 feature[74 + j][tiletype] = (mj_table.doras[j]) // 4 == tiletype
             feature[78][tiletype] = [27, 28][mj_table.round] == tiletype  # 27=EW,28=SW
             feature[79][tiletype] = [27, 28, 29, 30][mj_table.players[0].wind] == tiletype
+
+            # TODO 80
+
+            # 81-92
+            feature[81][tiletype] = feature[0][tiletype]
+            # TODO 82-92
+            # LegalActionを用いた方が楽
 
         return feature
 
