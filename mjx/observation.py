@@ -12,7 +12,6 @@ from mjx.action import Action
 from mjx.const import EventType, TileType
 from mjx.event import Event
 from mjx.hand import Hand
-from mjx.open import Open
 from mjx.tile import Tile
 from mjx.visualizer.svg import save_svg, show_svg, to_svg
 from mjx.visualizer.visualizer import MahjongTable
@@ -129,9 +128,9 @@ class Observation:
         show_svg(observation, target_idx=view_idx)
 
     def get_feature(self):
+        feature = np.empty((111, 34), dtype=bool)
         proto = self.to_proto()
         mj_table = MahjongTable.from_proto(proto)
-        feature = np.empty((111, 34), dtype=bool)
 
         closed_tiles_ = list(
             filter(
@@ -139,11 +138,12 @@ class Observation:
                 mj_table.players[0].tile_units,
             )
         )[0]
-        # closed_tiles = proto.private_observation.curr_hand.closed_tiles
         closed_tiles_id = [tile.id() for tile in closed_tiles_.tiles]
         closed_tiles_type = [id // 4 for id in closed_tiles_id]
 
         for i in range(34):  # i:tiletype 0~33
+
+            # 0-5
             in_hand = closed_tiles_type.count(i)
             feature[0][i] = in_hand > 0
             feature[1][i] = in_hand > 1
@@ -159,12 +159,20 @@ class Observation:
                 or i * 34 + 3 in closed_tiles_id
             )
 
+            # 6-29
             for j in range(4):
                 _calling_of_player_j = self._calling_of_player_i(i, j, mj_table)
                 for k in range(6):
                     feature[6 + j * 6 + k][i] = _calling_of_player_j[k]
 
-        for j in range(29):
+            # 30-69
+            for j in range(4):
+                _discarded_tiles_from_player_j = self._discarded_tiles_from_player_i(
+                    i, j, mj_table
+                )
+                for k in range(10):
+                    feature[30 + j * 10 + k][i] = _discarded_tiles_from_player_j[k]
+        for j in range(30, 50):
             print(feature[j][0])
 
     def _calling_of_player_i(self, tile_type: int, player_id: int, mj_table: MahjongTable):
@@ -197,6 +205,47 @@ class Observation:
             or tile_type * 34 + 1 in open_tiles_id
             or tile_type * 34 + 2 in open_tiles_id
             or tile_type * 34 + 3 in open_tiles_id
+        )
+
+        return feature
+
+    def _discarded_tiles_from_player_i(
+        self, tile_type: int, player_id: int, mj_table: MahjongTable
+    ):
+        feature = [False] * 10
+        tile_units = mj_table.players[player_id].tile_units
+        discard_tile_unit = list(
+            filter(
+                lambda tile_unit: tile_unit.tile_unit_type == EventType.DISCARD,
+                tile_units,
+            )
+        )[0]
+        discard_tiles_id = [tile.id() for tile in discard_tile_unit.tiles]
+        discard_tiles_type = [id // 4 for id in discard_tiles_id]
+
+        tile_in_discard = list(
+            filter(
+                lambda tile: tile.id() // 4 == tile_type,
+                discard_tile_unit.tiles,
+            )
+        )
+
+        in_discard = discard_tiles_type.count(tile_type)
+        feature[0] = in_discard > 0
+        feature[1] = in_discard > 1
+        feature[2] = in_discard > 2
+        feature[3] = in_discard == 4
+
+        for j in range(len(tile_in_discard)):
+            feature[4 + j] = not tile_in_discard[j].is_tsumogiri
+            if tile_in_discard[j].with_riichi:
+                feature[9] = True
+
+        feature[8] = tile_type in [4, 13, 22] and (
+            tile_type * 34 in discard_tiles_id
+            or tile_type * 34 + 1 in discard_tiles_id
+            or tile_type * 34 + 2 in discard_tiles_id
+            or tile_type * 34 + 3 in discard_tiles_id
         )
 
         return feature
