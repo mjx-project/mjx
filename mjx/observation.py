@@ -180,7 +180,7 @@ class Observation:
             feature[78][tiletype] = [27, 28][mj_table.round] == tiletype  # 27=EW,28=SW
             feature[79][tiletype] = [27, 28, 29, 30][mj_table.players[0].wind] == tiletype
 
-        print(feature[79][27])  # True
+        return feature
 
     def _calling_of_player_i(self, tile_type: int, player_id: int, mj_table: MahjongTable):
         feature = [False] * 6
