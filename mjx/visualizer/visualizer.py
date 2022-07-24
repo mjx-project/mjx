@@ -96,6 +96,7 @@ class MahjongTable:
         self.event_info: Optional[EventType] = None
         self.legal_actions: List[Action] = []
         self.new_dora: Optional[int] = None
+        self.latest_tile: Optional[int] = None
 
     def get_wall_num(self) -> int:
         all = 136 - 14
@@ -189,6 +190,7 @@ class MahjongTable:
                     ],
                 )
             )
+            table.latest_tile = private_observation.draw_history[-1]
         else:
             p.tile_units.append(
                 TileUnit(
@@ -247,6 +249,7 @@ class MahjongTable:
                     )
                 if i == len(public_observation.events) - 1:
                     discard.tiles[-1].is_highlighting = True
+                    table.latest_tile = discard.tiles[-1].id()
 
             elif eve.type == EventType.TSUMOGIRI:
                 discard = [
@@ -270,6 +273,7 @@ class MahjongTable:
 
                 if i == len(public_observation.events) - 1:
                     discard.tiles[-1].is_highlighting = True
+                    table.latest_tile = discard.tiles[-1].id()
 
             elif eve.type == EventType.RIICHI:
                 p.riichi_now = True
@@ -285,6 +289,7 @@ class MahjongTable:
                         if _discard.tile_unit_type == EventType.DISCARD
                     ][0]
                     discard.tiles[-1].is_highlighting = True
+                    table.latest_tile = discard.tiles[-1].id()
 
             elif eve.type == EventType.RON:
                 if public_observation.events[i - 1].type != EventType.RON:
@@ -295,6 +300,7 @@ class MahjongTable:
                         if _discard.tile_unit_type == EventType.DISCARD
                     ][0]
                     discard.tiles[-1].is_transparent = True
+                    table.latest_tile = discard.tiles[-1].id()
 
             elif eve.type in [
                 EventType.CHI,
@@ -331,6 +337,7 @@ class MahjongTable:
                     )
                     if i == len(public_observation.events) - 1:
                         p.tile_units[-1].tiles[0].is_highlighting = True
+                        table.latest_tile = p.tile_units[-1].tiles[0].id()
 
                 # 鳴かれた牌を透明にする処理
                 if eve.type in [
@@ -409,6 +416,7 @@ class MahjongTable:
                 if _discard.tile_unit_type == EventType.DISCARD
             ][0]
             discard.tiles[-1].is_highlighting = True
+            table.latest_tile = discard.tiles[-1].id()
 
         return table
 

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import itertools
+from tkinter.messagebox import NO
 from typing import List, Optional
 
 import _mjx  # type: ignore
@@ -127,7 +128,7 @@ class Observation:
         observation = self.to_proto()
         show_svg(observation, target_idx=view_idx)
 
-    def get_feature(self):
+    def get_feature(self) -> np.ndarray:
         feature = np.full((93, 34), False, dtype=bool)
         proto = self.to_proto()
         mj_table = MahjongTable.from_proto(proto)
@@ -175,12 +176,16 @@ class Observation:
 
             # 70-79
             for j in range(len(mj_table.doras)):
-                feature[70 + j][tiletype] = (mj_table.doras[j] - 1) // 4 == tiletype
+                feature[70 + j][tiletype] = (mj_table.doras[j]) // 4 - 1 == tiletype
                 feature[74 + j][tiletype] = (mj_table.doras[j]) // 4 == tiletype
-            feature[78][tiletype] = [27, 28][mj_table.round] == tiletype  # 27=EW,28=SW
+            feature[78][tiletype] = [27, 28][
+                mj_table.round - 1
+            ] == tiletype  # 27=EW,28=SW,roundは1or2
             feature[79][tiletype] = [27, 28, 29, 30][mj_table.players[0].wind] == tiletype
 
-            # TODO 80
+            # 80
+            if mj_table.latest_tile is not None:
+                feature[80][tiletype] = mj_table.latest_tile // 4 == tiletype
 
             # 81
             feature[81][tiletype] = feature[0][tiletype]
@@ -293,46 +298,55 @@ class Observation:
             legal_actions = obs.legal_actions()
 
         for action in legal_actions:
-            feature[0] = (
+            if (
                 action.type() == ActionType.PON
                 and action.tile() is not None
                 and action.tile().type() == tile_type
-            )
-            feature[1] = (
+            ):
+                feature[0] = True
+            if (
                 action.type() == ActionType.CLOSED_KAN
                 and action.tile() is not None
                 and action.tile().type() == tile_type
-            )
-            feature[2] = (
+            ):
+                feature[1] = True
+            if (
                 action.type() == ActionType.OPEN_KAN
                 and action.tile() is not None
                 and action.tile().type() == tile_type
-            )
-            feature[3] = (
+            ):
+                feature[2] = True
+            if (
                 action.type() == ActionType.ADDED_KAN
                 and action.tile() is not None
                 and action.tile().type() == tile_type
-            )
-            feature[4] = (
+            ):
+                feature[3] = True
+            if (
                 action.type() == ActionType.RIICHI
                 and action.tile() is not None
                 and action.tile().type() == tile_type
-            )
-            feature[5] = (
+            ):
+                feature[4] = True
+            if (
                 action.type() == ActionType.RON
                 and action.tile() is not None
                 and action.tile().type() == tile_type
-            )
-            feature[6] = (
+            ):
+                feature[5] = True
+            if (
                 action.type() == ActionType.TSUMO
                 and action.tile() is not None
                 and action.tile().type() == tile_type
-            )
-            feature[7] = (
+            ):
+                feature[6] = True
+            if (
                 action.type() == ActionType.ABORTIVE_DRAW_NINE_TERMINALS
                 and action.tile() is not None
                 and action.tile().type() == tile_type
-            )
+            ):
+                feature[7] = True
+
         return feature
 
     @staticmethod
