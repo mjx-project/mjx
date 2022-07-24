@@ -9,7 +9,7 @@ from google.protobuf import json_format
 
 import mjxproto
 from mjx.action import Action
-from mjx.const import EventType, TileType
+from mjx.const import ActionType, EventType, TileType
 from mjx.event import Event
 from mjx.hand import Hand
 from mjx.tile import Tile
@@ -128,7 +128,7 @@ class Observation:
         show_svg(observation, target_idx=view_idx)
 
     def get_feature(self):
-        feature = np.full((111, 34), False, dtype=bool)
+        feature = np.full((93, 34), False, dtype=bool)
         proto = self.to_proto()
         mj_table = MahjongTable.from_proto(proto)
 
@@ -182,10 +182,30 @@ class Observation:
 
             # TODO 80
 
-            # 81-92
+            # 81
             feature[81][tiletype] = feature[0][tiletype]
-            # TODO 82-92
-            # LegalActionを用いた方が楽
+
+            # 82-84
+            if tiletype <= 26:
+                if tiletype % 9 < 7:
+                    feature[81][tiletype] = (
+                        tiletype + 1 in closed_tiles_type and tiletype + 2 in closed_tiles_type
+                    )
+                if 0 < tiletype % 9 < 8:
+                    feature[82][tiletype] = (
+                        tiletype - 1 in closed_tiles_type and tiletype + 1 in closed_tiles_type
+                    )
+                if 1 < tiletype % 9:
+                    feature[83][tiletype] = (
+                        tiletype - 2 in closed_tiles_type and tiletype - 1 in closed_tiles_type
+                    )
+
+            # 85-92
+            _information_for_available_actions = self._information_for_available_actions(
+                tiletype, proto
+            )
+            for j in range(len(_information_for_available_actions)):
+                feature[85 + j][tiletype] = _information_for_available_actions[j]
 
         return feature
 
@@ -262,6 +282,57 @@ class Observation:
             or tile_type * 34 + 3 in discard_tiles_id
         )
 
+        return feature
+
+    def _information_for_available_actions(self, tile_type: int, proto):
+        feature = [False] * 8
+        obs = Observation.from_proto(proto)
+        try:
+            legal_actions = Observation(obs.add_legal_actions(obs.to_json())).legal_actions()
+        except AssertionError:
+            legal_actions = obs.legal_actions()
+
+        for action in legal_actions:
+            feature[0] = (
+                action.type() == ActionType.PON
+                and action.tile() is not None
+                and action.tile().type() == tile_type
+            )
+            feature[1] = (
+                action.type() == ActionType.CLOSED_KAN
+                and action.tile() is not None
+                and action.tile().type() == tile_type
+            )
+            feature[2] = (
+                action.type() == ActionType.OPEN_KAN
+                and action.tile() is not None
+                and action.tile().type() == tile_type
+            )
+            feature[3] = (
+                action.type() == ActionType.ADDED_KAN
+                and action.tile() is not None
+                and action.tile().type() == tile_type
+            )
+            feature[4] = (
+                action.type() == ActionType.RIICHI
+                and action.tile() is not None
+                and action.tile().type() == tile_type
+            )
+            feature[5] = (
+                action.type() == ActionType.RON
+                and action.tile() is not None
+                and action.tile().type() == tile_type
+            )
+            feature[6] = (
+                action.type() == ActionType.TSUMO
+                and action.tile() is not None
+                and action.tile().type() == tile_type
+            )
+            feature[7] = (
+                action.type() == ActionType.ABORTIVE_DRAW_NINE_TERMINALS
+                and action.tile() is not None
+                and action.tile().type() == tile_type
+            )
         return feature
 
     @staticmethod
