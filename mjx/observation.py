@@ -159,14 +159,16 @@ class Observation:
 
             # 6-29
             for j in range(4):
-                _calling_of_player_j = self._calling_of_player_i(tiletype, j, mj_table)
+                player_id = (self.who() + j) % 4
+                _calling_of_player_j = self._calling_of_player_i(tiletype, player_id, mj_table)
                 for k in range(6):
                     feature[6 + j * 6 + k][tiletype] = _calling_of_player_j[k]
 
             # 30-69,4
             for j in range(4):
+                player_id = (self.who() + j) % 4
                 _discarded_tiles_from_player_j = self._discarded_tiles_from_player_i(
-                    tiletype, j, mj_table
+                    tiletype, player_id, mj_table
                 )
                 for k in range(10):
                     feature[30 + j * 10 + k][tiletype] = _discarded_tiles_from_player_j[k]
