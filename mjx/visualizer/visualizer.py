@@ -415,8 +415,9 @@ class MahjongTable:
                 for _discard in table.players[public_observation.events[-2].who].tile_units
                 if _discard.tile_unit_type == EventType.DISCARD
             ][0]
-            discard.tiles[-1].is_highlighting = True
-            table.latest_tile = discard.tiles[-1].id()
+            if len(discard.tiles) > 0:
+                discard.tiles[-1].is_highlighting = True
+                table.latest_tile = discard.tiles[-1].id()
 
         return table
 

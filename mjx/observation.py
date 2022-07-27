@@ -135,7 +135,7 @@ class Observation:
         closed_tiles_ = list(
             filter(
                 lambda tile_unit: tile_unit.tile_unit_type == EventType.DRAW,
-                mj_table.players[0].tile_units,
+                mj_table.players[self.who()].tile_units,
             )
         )[0]
         closed_tiles_id = [tile.id() for tile in closed_tiles_.tiles]
@@ -178,8 +178,8 @@ class Observation:
                 feature[70 + j][tiletype] = (mj_table.doras[j]) // 4 - 1 == tiletype
                 feature[74 + j][tiletype] = (mj_table.doras[j]) // 4 == tiletype
             feature[78][tiletype] = [27, 28][
-                mj_table.round - 1
-            ] == tiletype  # 27=EW,28=SW,roundは1or2
+                (mj_table.round - 1) // 4
+            ] == tiletype  # 27=EW,28=SW,roundは1,2,3,..
             feature[79][tiletype] = [27, 28, 29, 30][mj_table.players[0].wind] == tiletype
 
             # 80
