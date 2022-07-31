@@ -1,4 +1,27 @@
-from mjx import Observation
+import mjxproto
+from mjx import Observation, State
+
+
+def state2obs(state_json: str, who: int) -> Observation:
+    state = State(state_json)
+    state_proto = state.to_proto()
+    observation_proto = mjxproto.Observation()
+    # who
+    observation_proto.who = who
+
+    # public
+    observation_proto.public_observation.CopyFrom(state_proto.public_observation)
+
+    # private
+    observation_proto.private_observation.CopyFrom(state_proto.private_observations[who])
+
+    # round_terminal
+    observation_proto.round_terminal.CopyFrom(state_proto.round_terminal)
+
+    observation = Observation(
+        Observation.add_legal_actions(Observation.from_proto(observation_proto).to_json())
+    )
+    return observation
 
 
 def test_self_wind():
@@ -91,3 +114,53 @@ def test_riichi():
     obs = Observation(json_str)
     feature = obs.get_feature()
     assert feature[59][14]
+
+
+def test_three_tiles():
+    json_str = '{"who":1,"publicObservation":{"playerIds":["player_1","player_2","player_0","player_3"],"initScore":{"tens":[25000,25000,25000,25000]},"doraIndicators":[6],"events":[{"type":"EVENT_TYPE_DRAW"},{"tile":27},{"type":"EVENT_TYPE_CHI","who":1,"open":16631},{"who":1,"tile":41},{"type":"EVENT_TYPE_DRAW","who":2},{"who":2,"tile":131},{"type":"EVENT_TYPE_DRAW","who":3},{"who":3,"tile":120},{"type":"EVENT_TYPE_DRAW"},{"tile":35},{"type":"EVENT_TYPE_DRAW","who":1},{"who":1,"tile":107},{"type":"EVENT_TYPE_DRAW","who":2},{"who":2,"tile":74},{"type":"EVENT_TYPE_DRAW","who":3},{"who":3,"tile":46},{"type":"EVENT_TYPE_DRAW"},{"tile":127},{"type":"EVENT_TYPE_DRAW","who":1},{"who":1,"tile":4},{"type":"EVENT_TYPE_DRAW","who":2},{"who":2,"tile":28},{"type":"EVENT_TYPE_DRAW","who":3},{"type":"EVENT_TYPE_TSUMOGIRI","who":3,"tile":1},{"type":"EVENT_TYPE_DRAW"},{"tile":75},{"type":"EVENT_TYPE_CHI","who":1,"open":43263},{"who":1,"tile":16},{"type":"EVENT_TYPE_DRAW","who":2},{"who":2,"tile":63},{"type":"EVENT_TYPE_DRAW","who":3},{"who":3,"tile":2},{"type":"EVENT_TYPE_DRAW"},{"tile":94},{"type":"EVENT_TYPE_DRAW","who":1},{"who":1,"tile":82},{"type":"EVENT_TYPE_DRAW","who":2},{"who":2,"tile":117},{"type":"EVENT_TYPE_DRAW","who":3},{"who":3,"tile":62},{"type":"EVENT_TYPE_DRAW"},{"tile":31},{"type":"EVENT_TYPE_DRAW","who":1},{"who":1,"tile":129},{"type":"EVENT_TYPE_DRAW","who":2},{"who":2,"tile":135},{"type":"EVENT_TYPE_DRAW","who":3},{"who":3,"tile":36},{"type":"EVENT_TYPE_DRAW"},{"tile":80},{"type":"EVENT_TYPE_DRAW","who":1},{"who":1,"tile":14},{"type":"EVENT_TYPE_DRAW","who":2},{"who":2,"tile":126},{"type":"EVENT_TYPE_DRAW","who":3},{"who":3,"tile":21},{"type":"EVENT_TYPE_DRAW"},{"tile":57},{"type":"EVENT_TYPE_DRAW","who":1},{"who":1,"tile":64},{"type":"EVENT_TYPE_DRAW","who":2},{"type":"EVENT_TYPE_TSUMOGIRI","who":2,"tile":130},{"type":"EVENT_TYPE_DRAW","who":3},{"who":3,"tile":47},{"type":"EVENT_TYPE_DRAW"},{"tile":110},{"type":"EVENT_TYPE_DRAW","who":1},{"who":1,"tile":66},{"type":"EVENT_TYPE_DRAW","who":2},{"type":"EVENT_TYPE_TSUMOGIRI","who":2,"tile":70},{"type":"EVENT_TYPE_DRAW","who":3},{"who":3,"tile":92},{"type":"EVENT_TYPE_DRAW"},{"tile":105},{"type":"EVENT_TYPE_DRAW","who":1}]},"privateObservation":{"who":1,"initHand":{"closedTiles":[81,107,79,82,41,99,4,14,22,97,29,66,129]},"drawHistory":[16,39,64,122,30,98,119,15],"currHand":{"closedTiles":[15,30,39,97,98,99,119,122],"opens":[16631,43263]}},"legalActions":[{"type":"ACTION_TYPE_TSUMOGIRI","who":1,"tile":15},{"who":1,"tile":30},{"who":1,"tile":39},{"who":1,"tile":97},{"who":1,"tile":119},{"who":1,"tile":122}]}'
+    obs = Observation(json_str)
+    feature = obs.get_feature()
+    assert feature[2][23]
+
+
+def test_kyuuhai():
+    json_str = '{"hiddenState":{"wall":[2,75,111,69,33,114,64,113,30,4,92,55,73,36,21,1,128,11,115,57,25,90,108,50,80,96,132,26,10,17,60,87,51,119,47,35,83,3,41,107,13,86,133,37,103,6,82,116,123,120,40,52,101,18,61,23,77,67,27,131,135,31,0,112,29,121,93,78,104,19,38,79,24,12,105,68,118,65,66,22,70,34,91,122,97,46,130,39,71,43,129,127,32,9,14,16,98,88,48,58,85,54,81,15,102,7,42,53,76,117,89,95,59,44,126,72,124,20,94,110,45,109,100,125,5,106,134,62,56,63,8,84,74,99,49,28],"uraDoraIndicators":[84]},"publicObservation":{"playerIds":["エリカ","ヤキン","ASAPIN","ちくき"],"initScore":{"round":3,"honba":1,"tens":[12000,16000,30100,41900]},"doraIndicators":[8],"events":[{"type":"EVENT_TYPE_DRAW","who":3}]},"privateObservations":[{"initHand":{"closedTiles":[33,114,64,113,25,90,108,50,83,3,41,107,120]},"currHand":{"closedTiles":[3,25,33,41,50,64,83,90,107,108,113,114,120]}},{"who":1,"initHand":{"closedTiles":[30,4,92,55,80,96,132,26,13,86,133,37,40]},"currHand":{"closedTiles":[4,13,26,30,37,40,55,80,86,92,96,132,133]}},{"who":2,"initHand":{"closedTiles":[73,36,21,1,10,17,60,87,103,6,82,116,52]},"currHand":{"closedTiles":[1,6,10,17,21,36,52,60,73,82,87,103,116]}},{"who":3,"initHand":{"closedTiles":[2,75,111,69,128,11,115,57,51,119,47,35,123]},"drawHistory":[101],"currHand":{"closedTiles":[2,11,35,47,51,57,69,75,101,111,115,119,123,128]}}]}'
+    obs = state2obs(json_str, 3)
+    feature = obs.get_feature()
+    val = [
+        True,
+        False,
+        True,
+        False,
+        False,
+        False,
+        False,
+        False,
+        True,
+        False,
+        False,
+        True,
+        True,
+        False,
+        True,
+        False,
+        False,
+        True,
+        True,
+        False,
+        False,
+        False,
+        False,
+        False,
+        False,
+        True,
+        False,
+        True,
+        True,
+        True,
+        True,
+        False,
+        True,
+        False,
+    ]
+    assert all(feature[92] == val)
