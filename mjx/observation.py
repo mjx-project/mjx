@@ -212,6 +212,7 @@ class Observation:
             )
             for j in range(len(_information_for_available_actions)):
                 feature[85 + j][tiletype] = _information_for_available_actions[j]
+            feature[92][tiletype] = feature[92][tiletype] and feature[0][tiletype]
 
         return feature
 
@@ -341,11 +342,7 @@ class Observation:
                 and action.tile().type() == tile_type
             ):
                 feature[6] = True
-            if (
-                action.type() == ActionType.ABORTIVE_DRAW_NINE_TERMINALS
-                and action.tile() is not None
-                and action.tile().type() == tile_type
-            ):
+            if action.type() == ActionType.ABORTIVE_DRAW_NINE_TERMINALS:
                 feature[7] = True
 
         return feature
