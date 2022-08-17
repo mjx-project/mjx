@@ -143,13 +143,24 @@ class Observation:
 
         for tiletype in range(34):  # tiletype: 0~33
 
-            # 0-3,5
+            # 0-5
             in_hand = closed_tiles_type.count(tiletype)
             feature[0][tiletype] = in_hand > 0
             feature[1][tiletype] = in_hand > 1
             feature[2][tiletype] = in_hand > 2
             feature[3][tiletype] = in_hand == 4
 
+            for event in proto.public_observation.events:
+                if (
+                    (
+                        event.type == mjxproto.EVENT_TYPE_DISCARD
+                        or event.type == mjxproto.EVENT_TYPE_TSUMOGIRI
+                    )
+                    and event.who == proto.who
+                    and event.tile // 4 == tiletype
+                ):
+                    feature[4][tiletype] = True
+                    break
             feature[5][tiletype] = tiletype in [4, 13, 22] and (
                 tiletype * 34 in closed_tiles_id
                 or tiletype * 34 + 1 in closed_tiles_id
@@ -164,7 +175,7 @@ class Observation:
                 for k in range(6):
                     feature[6 + j * 6 + k][tiletype] = _calling_of_player_j[k]
 
-            # 30-69,4
+            # 30-69
             for j in range(4):
                 player_id = (self.who() + j) % 4
                 _discarded_tiles_from_player_j = self._discarded_tiles_from_player_i(
@@ -173,13 +184,11 @@ class Observation:
                 for k in range(10):
                     feature[30 + j * 10 + k][tiletype] = _discarded_tiles_from_player_j[k]
 
-            feature[4][tiletype] = feature[30][tiletype]
-
             # 70-79
             for j in range(len(mj_table.doras)):
                 feature[70 + j][tiletype] = (mj_table.doras[j]) // 4 - 1 == tiletype
                 feature[74 + j][tiletype] = (mj_table.doras[j]) // 4 == tiletype
-            feature[78][tiletype] = [27, 28][
+            feature[78][tiletype] = [27, 28, 29, 30][
                 (mj_table.round - 1) // 4
             ] == tiletype  # 27=EW,28=SW,roundは1,2,3,..
             feature[79][tiletype] = [27, 28, 29, 30][mj_table.players[0].wind] == tiletype
@@ -187,9 +196,6 @@ class Observation:
             # 80
             if mj_table.latest_tile is not None:
                 feature[80][tiletype] = mj_table.latest_tile // 4 == tiletype
-
-            # 81
-            feature[81][tiletype] = feature[0][tiletype]
 
             # 82-84
             if tiletype <= 26:
@@ -206,13 +212,14 @@ class Observation:
                         tiletype - 2 in closed_tiles_type and tiletype - 1 in closed_tiles_type
                     )
 
-            # 85-92
+            # 85-92,81
             _information_for_available_actions = self._information_for_available_actions(
                 tiletype, proto
             )
-            for j in range(len(_information_for_available_actions)):
+            for j in range(len(_information_for_available_actions) - 1):
                 feature[85 + j][tiletype] = _information_for_available_actions[j]
             feature[92][tiletype] = feature[92][tiletype] and feature[0][tiletype]
+            feature[81][tiletype] = _information_for_available_actions[8]
 
         return feature
 
@@ -292,7 +299,7 @@ class Observation:
         return feature
 
     def _information_for_available_actions(self, tile_type: int, proto):
-        feature = [False] * 8
+        feature = [False] * (8 + 1)  # 最後の1は81番用
         obs = Observation.from_proto(proto)
         try:
             legal_actions = Observation(obs.add_legal_actions(obs.to_json())).legal_actions()
@@ -344,7 +351,12 @@ class Observation:
                 feature[6] = True
             if action.type() == ActionType.ABORTIVE_DRAW_NINE_TERMINALS:
                 feature[7] = True
-
+            if (
+                action.type() == ActionType.DISCARD
+                and action.tile() is not None
+                and action.tile().type() == tile_type
+            ):
+                feature[8] = True
         return feature
 
     @staticmethod
