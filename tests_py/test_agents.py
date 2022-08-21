@@ -1,4 +1,4 @@
-from mjx.agent import (
+from mjx.agents import (
     RandomAgent,
     RandomDebugAgent,
     RuleBasedAgent,
