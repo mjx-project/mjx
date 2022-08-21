@@ -8,6 +8,7 @@ import re
 import subprocess
 import sys
 
+from pathlib import Path
 from setuptools import Extension, find_packages, setup
 from setuptools.command.build_ext import build_ext
 
@@ -129,15 +130,19 @@ class CMakeBuild(build_ext):
         subprocess.check_call(["cmake", "--build", "."] + build_args, cwd=self.build_temp)
 
 
+this_directory = Path(__file__).parent
+long_description = (this_directory / "README.md").read_text()
+
 # The information here can also be placed in setup.cfg - better separation of
 # logic and declaration, and simpler if you include description/version in a file.
 setup(
     name="mjx",
-    version="0.0.7",
+    version="0.0.9",
     author="Mjx Project Team",
     author_email="koyamada-s@sys.i.kyoto-u.ac.jp",
     description="",
-    long_description="",
+    long_description=long_description,
+    long_description_content_type='text/markdown',
     packages=find_packages("."),
     package_dir={"": "."},
     package_data={"mjx": ["visualizer/*.svg", "visualizer/GL-MahjongTile.ttf"]},
