@@ -2,7 +2,7 @@ import random
 
 import _mjx
 
-import mjx.agents
+import mjx.agentss
 import mjx.env
 
 
@@ -56,7 +56,7 @@ def test_DuplicateRandomSeedGenerator():
 
 
 def test_MjxEnv():
-    random_agent = mjx.agent.RandomDebugAgent()
+    random_agent = mjx.agents.RandomDebugAgent()
 
     random.seed(1234)
     env = mjx.env.MjxEnv()
@@ -135,7 +135,7 @@ def test_MjxEnv():
 
 
 def testMjxEnvRewardsHandWin():
-    random_agent = mjx.agent.RuleBasedAgent()
+    random_agent = mjx.agents.RuleBasedAgent()
     random.seed(1234)
     env = mjx.env.MjxEnv()
     obs_dict = env.reset(1234)
@@ -161,7 +161,7 @@ def testMjxEnvRewardsHandWin():
 
 
 def testMjxEnvRoundDone():
-    random_agent = mjx.agent.RandomDebugAgent()
+    random_agent = mjx.agents.RandomDebugAgent()
     random.seed(1234)
     env = mjx.env.MjxEnv()
     obs_dict = env.reset(1234)
