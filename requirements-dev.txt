@@ -7,3 +7,5 @@ flake8
 mypy
 mypy-protobuf
 types-protobuf
+matplotlib
+ipython
