@@ -145,7 +145,7 @@ std::vector<mjxproto::Event> Observation::EventHistory() const {
 }
 
 std::vector<std::vector<int>> Observation::ToFeaturesSmallV0() const {
-  int N = 10;
+  int N = 16;
   std::vector<std::vector<int>> feature(N);
   for (int i = 0; i < N; ++i) feature[i] = std::vector<int>();
 
