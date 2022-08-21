@@ -21,12 +21,12 @@ def test_visualizer():
             if show:
                 board_visualizer.print(mahjong_table)
 
-    board_visualizer = GameBoardVisualizer(GameVisualConfig(rich=True))
-    for file in files:
-        proto_data_list = MahjongTable.load_proto_data(file)
-        for proto_data in proto_data_list:
-            mahjong_table = MahjongTable.from_proto(proto_data)
-            assert isinstance(mahjong_table, MahjongTable)
-            assert 4 == len(mahjong_table.players)
-            if show:
-                board_visualizer.print(mahjong_table)
+    # board_visualizer = GameBoardVisualizer(GameVisualConfig(rich=True))
+    # for file in files:
+    #     proto_data_list = MahjongTable.load_proto_data(file)
+    #     for proto_data in proto_data_list:
+    #         mahjong_table = MahjongTable.from_proto(proto_data)
+    #         assert isinstance(mahjong_table, MahjongTable)
+    #         assert 4 == len(mahjong_table.players)
+    #         if show:
+    #             board_visualizer.print(mahjong_table)
