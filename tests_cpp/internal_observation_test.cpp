@@ -31,6 +31,8 @@ TEST(internal_observation, hand) {
             "m4,m5,m6,p1,p5,p9,p9,s1,s2,s3,s4,ww,wd");
   EXPECT_EQ(observation.current_hand().ToString(),
             "m5,m6,m7,p9,p9,s1,s2,s3,s4,s5,s6,[ww,ww,ww]");
+
+  EXPECT_EQ(observation.ToFeaturesSmallV0().size(), 16);
 }
 
 TEST(internal_observation, current_hand) {
