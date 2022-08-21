@@ -39,7 +39,7 @@ bool Observation::operator!=(const Observation& other) const noexcept {
   return !(*this == other);
 }
 
-std::vector<std::vector<int>> Observation::ToFeatures2D (
+std::vector<std::vector<int>> Observation::ToFeatures2D(
     const std::string& version) const noexcept {
   auto obs = internal::Observation(proto_);
   assert(version == "mjx-small-v0");

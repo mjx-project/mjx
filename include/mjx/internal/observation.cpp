@@ -1,10 +1,9 @@
 #include "mjx/internal/observation.h"
 
+#include "mjx/hand.h"
 #include "mjx/internal/mjx.grpc.pb.h"
 #include "mjx/internal/utils.h"
 #include "mjx/internal/yaku_evaluator.h"
-
-#include "mjx/hand.h"
 
 namespace mjx::internal {
 Observation::Observation(const mjxproto::Observation &proto) : proto_(proto) {}
@@ -152,7 +151,7 @@ std::vector<std::vector<int>> Observation::ToFeaturesSmallV0() const {
 
   // Hand information (ix 0 ~ 11)
   {
-    // conut tiles in hand, closed hand, and open hand 
+    // conut tiles in hand, closed hand, and open hand
     std::vector<int> all(34);
     std::vector<int> closed(34);
     std::vector<int> open(34);
@@ -161,33 +160,30 @@ std::vector<std::vector<int>> Observation::ToFeaturesSmallV0() const {
       ++all[Tile(t).TypeUint()];
     }
     // count tiles in the open hand
-    for (auto o: proto_.private_observation().curr_hand().opens()) {
+    for (auto o : proto_.private_observation().curr_hand().opens()) {
       for (auto t : Open(o).Tiles()) {
         ++open[Tile(t).TypeUint()];
         ++all[Tile(t).TypeUint()];
       }
-    }   
+    }
 
     // set ix 0 - 3 (all)
     int start_ix = 0;
-    for (int t = 0; t < 34; ++t) 
-      for (int i = start_ix; i < start_ix + all[t]; ++i) 
-        feature[i][t] = 1;
+    for (int t = 0; t < 34; ++t)
+      for (int i = start_ix; i < start_ix + all[t]; ++i) feature[i][t] = 1;
     // set ix 4 - 7 (closed)
     start_ix = 4;
-    for (int t = 0; t < 34; ++t) 
-      for (int i = start_ix; i < start_ix + closed[t]; ++i) 
-        feature[i][t] = 1;
+    for (int t = 0; t < 34; ++t)
+      for (int i = start_ix; i < start_ix + closed[t]; ++i) feature[i][t] = 1;
     // set ix 8 - 11 (open)
     start_ix = 8;
-    for (int t = 0; t < 34; ++t) 
-      for (int i = start_ix; i < start_ix + open[t]; ++i) 
-        feature[i][t] = 1;
+    for (int t = 0; t < 34; ++t)
+      for (int i = start_ix; i < start_ix + open[t]; ++i) feature[i][t] = 1;
   }
 
   // Shanten information (ix 12, 13)
   {
-    // 
+    //
     auto hand = mjx::Hand(proto_.private_observation().curr_hand());
     auto effective_discards = hand.EffectiveDiscardTypes();
     auto effective_draws = hand.EffectiveDrawTypes();
