@@ -2,7 +2,7 @@ import random
 
 import _mjx
 
-import mjx.agent
+import mjx.agents
 import mjx.env
 
 
