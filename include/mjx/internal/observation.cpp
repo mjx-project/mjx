@@ -146,8 +146,7 @@ std::vector<mjxproto::Event> Observation::EventHistory() const {
 
 std::vector<std::vector<int>> Observation::ToFeaturesSmallV0() const {
   int N = 16;
-  std::vector<std::vector<int>> feature(N);
-  for (int i = 0; i < N; ++i) feature[i] = std::vector<int>(34);
+  std::vector<std::vector<int>> feature(N, std::vector<int>(34, 0));
 
   // Hand information (ix 0 ~ 11)
   {
@@ -187,10 +186,8 @@ std::vector<std::vector<int>> Observation::ToFeaturesSmallV0() const {
     auto hand = mjx::Hand(proto_.private_observation().curr_hand());
     auto effective_discards = hand.EffectiveDiscardTypes();
     auto effective_draws = hand.EffectiveDrawTypes();
-    for (int t = 0; t < 34; ++t) {
-      feature[12][t] = effective_discards[t];
-      feature[13][t] = effective_draws[t];
-    }
+    for (const int t: effective_discards) feature[12][t] = 1;
+    for (const int t: effective_draws) feature[13][t] = 1;
   }
 
   // last discarded tile (ix 14)
