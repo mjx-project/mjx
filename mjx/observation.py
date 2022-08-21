@@ -127,7 +127,7 @@ class Observation:
         observation = self.to_proto()
         show_svg(observation, target_idx=view_idx)
 
-    def get_feature(self) -> np.ndarray:
+    def _get_han22_features(self) -> np.ndarray:
         feature = np.full((93, 34), False, dtype=bool)
         proto = self.to_proto()
         mj_table = MahjongTable.from_proto(proto)
@@ -161,6 +161,7 @@ class Observation:
                 ):
                     feature[4][tiletype] = True
                     break
+
             feature[5][tiletype] = tiletype in [4, 13, 22] and (
                 tiletype * 34 in closed_tiles_id
                 or tiletype * 34 + 1 in closed_tiles_id
