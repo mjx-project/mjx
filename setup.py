@@ -150,10 +150,8 @@ setup(
     cmdclass={"build_ext": CMakeBuild},
     # TODO: remove MJX_DIR (by removing cache?)
     ext_modules=[CMakeExtension("_mjx")],
-    entry_points={"console_scripts": "mjx = mjx.main:main"},
     zip_safe=False,
     install_requires=[
-        "click==8.0.1",
         "google==3.0.0",
         "protobuf==3.17.3",
         "grpcio==1.39.0",
