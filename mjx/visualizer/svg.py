@@ -3,7 +3,6 @@ from importlib.resources import read_binary
 from typing import List, Optional, Tuple, Union
 
 import svgwrite
-from IPython.display import display_svg
 from svgwrite.drawing import Drawing
 
 import mjx.visualizer
@@ -1031,6 +1030,8 @@ def show_svg(
 
     if "ipykernel" in sys.modules:
         # Jupyter Notebook
+        from IPython.display import display_svg
+
         display_svg(dwg.tostring(), raw=True)
     else:
         sys.stdout.write("This function only works in Jupyter Notebook.")

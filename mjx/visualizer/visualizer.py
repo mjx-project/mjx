@@ -6,10 +6,6 @@ from dataclasses import dataclass
 from typing import List, Optional, Union
 
 from google.protobuf import json_format
-from rich.console import Console
-from rich.layout import Layout
-from rich.panel import Panel
-from rich.text import Text
 
 import mjxproto
 from mjx.action import Action
@@ -562,6 +558,8 @@ class GameBoardVisualizer:
         self.config = config
 
     def get_layout(self):
+        from rich.layout import Layout
+
         layout = Layout()
         if self.config.show_name:
             layout.split_column(
@@ -955,6 +953,10 @@ class GameBoardVisualizer:
         return board_info + "".join(players_info)
 
     def show_by_rich(self, table: MahjongTable) -> None:
+        from rich.console import Console
+        from rich.panel import Panel
+        from rich.text import Text
+
         layout = self.get_layout()
 
         layout["info"].update(
