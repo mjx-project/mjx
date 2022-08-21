@@ -5,4 +5,3 @@ numpy
 pillow
 svgwrite
 inquirer
-rich
