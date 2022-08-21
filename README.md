@@ -16,17 +16,15 @@
 
 ```py
 from mjx import MjxEnv
-from mjx.agent import RandomAgent
+from mjx.agents import RandomAgent
 
 agent = RandomAgent()
 env = MjxEnv()
-player_id, observation = env.reset()
+obs_dict = env.reset()
 while not env.done():
-    action = agent.act(observation)
-    player_id, observation = env.step(action)
-rewards = env.rewards()
+    actions = {player_id: agent.act(obs)
+            for player_id, obs in obs_dict.items()}
+    obs_dict = env.step(actions)
+returns = env.rewards()
 ```
 
-## Visualization
-
-Available at https://mjx-visualizer.an.r.appspot.com/
