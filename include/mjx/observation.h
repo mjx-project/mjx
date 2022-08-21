@@ -16,7 +16,7 @@ class Observation {
   bool operator!=(const Observation& other) const noexcept;
 
   std::string ToJson() const noexcept;
-  std::vector<float> ToFeature(const std::string& version) const noexcept;
+  std::vector<std::vector<int>> ToFeatures2D(const std::string& version) const noexcept;
 
   static std::string AddLegalActions(const std::string& obs_json);
 

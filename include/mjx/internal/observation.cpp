@@ -4,6 +4,8 @@
 #include "mjx/internal/utils.h"
 #include "mjx/internal/yaku_evaluator.h"
 
+#include "mjx/hand.h"
+
 namespace mjx::internal {
 Observation::Observation(const mjxproto::Observation &proto) : proto_(proto) {}
 
@@ -143,49 +145,60 @@ std::vector<mjxproto::Event> Observation::EventHistory() const {
   return events;
 }
 
-std::vector<float> Observation::ToFeature(std::string version) const {
-  if (version == "small_v0") {
-    return small_v0();
-  }
-  Assert(false, "invalid version");
-}
+std::vector<std::vector<int>> Observation::ToFeaturesSmallV0() const {
+  int N = 10;
+  std::vector<std::vector<int>> feature(N);
+  for (int i = 0; i < N; ++i) feature[i] = std::vector<int>();
 
-std::vector<float> Observation::small_v0() const {
-  std::vector<float> feature;
+  // Hand information (ix 0 ~ 11)
   {
-    // closed hand
-    std::vector<float> tmp(4 * 34);
-    std::vector<int> hand(34);
+    // conut tiles in hand, closed hand, and open hand 
+    std::vector<int> all(34);
+    std::vector<int> closed(34);
+    std::vector<int> open(34);
     for (auto t : proto_.private_observation().curr_hand().closed_tiles()) {
-      ++hand[Tile(t).TypeUint()];
+      ++closed[Tile(t).TypeUint()];
+      ++all[Tile(t).TypeUint()];
     }
-    for (int i = 0; i < 34; ++i) {
-      for (int j = 0; j < hand[i]; ++j) {
-        tmp[j * 34 + i] = 1;
+    // count tiles in the open hand
+    for (auto o: proto_.private_observation().curr_hand().opens()) {
+      for (auto t : Open(o).Tiles()) {
+        ++open[Tile(t).TypeUint()];
+        ++all[Tile(t).TypeUint()];
       }
-    }
-    std::copy(tmp.begin(), tmp.end(), std::back_inserter(feature));
-  }
-  {
-    // opened
-    std::vector<float> tmp(4 * 34);
-    std::vector<int> hand(34);
-    for (auto open : proto_.private_observation().curr_hand().opens()) {
-      for (auto t : Open(open).Tiles()) {
-        ++hand[Tile(t).TypeUint()];
-      }
-    }
-    for (int i = 0; i < 34; ++i) {
-      for (int j = 0; j < hand[i]; ++j) {
-        tmp[j * 34 + i] = 1;
-      }
-    }
-    std::copy(tmp.begin(), tmp.end(), std::back_inserter(feature));
-  }
-  {
-    // last discarded tile
-    std::vector<float> tmp(34);
+    }   
 
+    // set ix 0 - 3 (all)
+    int start_ix = 0;
+    for (int t = 0; t < 34; ++t) 
+      for (int i = start_ix; i < start_ix + all[t]; ++i) 
+        feature[i][t] = 1;
+    // set ix 4 - 7 (closed)
+    start_ix = 4;
+    for (int t = 0; t < 34; ++t) 
+      for (int i = start_ix; i < start_ix + closed[t]; ++i) 
+        feature[i][t] = 1;
+    // set ix 8 - 11 (open)
+    start_ix = 8;
+    for (int t = 0; t < 34; ++t) 
+      for (int i = start_ix; i < start_ix + open[t]; ++i) 
+        feature[i][t] = 1;
+  }
+
+  // Shanten information (ix 12, 13)
+  {
+    // 
+    auto hand = mjx::Hand(proto_.private_observation().curr_hand());
+    auto effective_discards = hand.EffectiveDiscardTypes();
+    auto effective_draws = hand.EffectiveDrawTypes();
+    for (int t = 0; t < 34; ++t) {
+      feature[12][t] = effective_discards[t];
+      feature[13][t] = effective_draws[t];
+    }
+  }
+
+  // last discarded tile (ix 14)
+  {
     auto target_tile = [&]() -> std::optional<mjx::internal::Tile> {
       if (proto_.public_observation().events().empty()) return std::nullopt;
       auto event = *proto_.public_observation().events().rbegin();
@@ -200,14 +213,12 @@ std::vector<float> Observation::small_v0() const {
     }();
 
     if (target_tile.has_value()) {
-      tmp[target_tile.value().TypeUint()] = 1;
+      feature[14][target_tile.value().TypeUint()] = 1;
     }
-    std::copy(tmp.begin(), tmp.end(), std::back_inserter(feature));
   }
-  {
-    // last drawed tile
-    std::vector<float> tmp(34);
 
+  // last drawn tile (ix 15)
+  {
     auto drawed_tile = [&]() -> std::optional<mjx::internal::Tile> {
       if (proto_.public_observation().events().empty()) return std::nullopt;
       auto event = *proto_.public_observation().events().rbegin();
@@ -220,9 +231,8 @@ std::vector<float> Observation::small_v0() const {
     }();
 
     if (drawed_tile.has_value()) {
-      tmp[drawed_tile.value().TypeUint()] = 1;
+      feature[15][drawed_tile.value().TypeUint()] = 1;
     }
-    std::copy(tmp.begin(), tmp.end(), std::back_inserter(feature));
   }
 
   return feature;
