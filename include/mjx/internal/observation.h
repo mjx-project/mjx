@@ -39,6 +39,7 @@ class Observation {
   mjxproto::Observation proto_ = mjxproto::Observation{};
 
   [[nodiscard]] std::vector<float> small_v0() const;
+  [[nodiscard]] std::vector<float> han22() const;
 
   // 次のブロックは主にObservationだけからでもlegal
   // actionを生成できるようにするための機能

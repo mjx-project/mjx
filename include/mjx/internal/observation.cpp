@@ -146,6 +146,8 @@ std::vector<mjxproto::Event> Observation::EventHistory() const {
 std::vector<float> Observation::ToFeature(std::string version) const {
   if (version == "small_v0") {
     return small_v0();
+  } else if (version == "han22") {
+    return han22();
   }
   Assert(false, "invalid version");
 }
@@ -226,6 +228,51 @@ std::vector<float> Observation::small_v0() const {
   }
 
   return feature;
+}
+
+std::vector<float> Observation::han22() const {
+  std::vector<std::vector<float>> feature(93, std::vector<float>(34));
+  const int num_tile_type = 34;
+
+  // closed hand
+  {
+    std::vector<int> count_tile_in_hand(num_tile_type);  // 0-3
+
+    for (auto t : proto_.private_observation().curr_hand().closed_tiles()) {
+      int tile_type = Tile(t).TypeUint();
+      feature[count_tile_in_hand[tile_type]][tile_type]++;
+      count_tile_in_hand[tile_type]++;
+
+      if (Tile(t).IsRedFive()) {
+        feature[5][tile_type]++;
+      }
+    }
+  }
+
+  // opens
+  {
+    std::vector<int> count_tile_in_opens(num_tile_type);  // 0-3
+    const int opens_offset = 6;
+
+    for (auto open : proto_.private_observation().curr_hand().opens()) {
+      for (auto t : Open(open).Tiles()) {
+        int tile_type = Tile(t).TypeUint();
+        feature[opens_offset + count_tile_in_opens[tile_type]][tile_type]++;
+        count_tile_in_opens[tile_type]++;
+
+        if (Tile(t).IsRedFive()) {
+          feature[opens_offset + 5][tile_type]++;
+        }
+      }
+    }
+  }
+
+  /*
+  for (int tile_type = 0; tile_type < num_tile_type; tile_type++)
+  {
+
+  }
+  */
 }
 
 std::vector<mjxproto::Action> Observation::GenerateLegalActions(
