@@ -1,5 +1,5 @@
 from mjx.action import Action
-from mjx.agent import Agent
+from mjx.agents import Agent
 from mjx.const import ActionType, EventType, TileType
 from mjx.env import MjxEnv, run
 from mjx.event import Event
