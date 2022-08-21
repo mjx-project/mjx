@@ -186,8 +186,8 @@ std::vector<std::vector<int>> Observation::ToFeaturesSmallV0() const {
     auto hand = mjx::Hand(proto_.private_observation().curr_hand());
     auto effective_discards = hand.EffectiveDiscardTypes();
     auto effective_draws = hand.EffectiveDrawTypes();
-    for (const int t: effective_discards) feature[12][t] = 1;
-    for (const int t: effective_draws) feature[13][t] = 1;
+    for (const int t : effective_discards) feature[12][t] = 1;
+    for (const int t : effective_draws) feature[13][t] = 1;
   }
 
   // last discarded tile (ix 14)
