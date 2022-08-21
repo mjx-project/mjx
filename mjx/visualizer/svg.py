@@ -1031,6 +1031,7 @@ def show_svg(
     if "ipykernel" in sys.modules:
         # Jupyter Notebook
         from IPython.display import display_svg
+
         display_svg(dwg.tostring(), raw=True)
     else:
         sys.stdout.write("This function only works in Jupyter Notebook.")
