@@ -134,7 +134,8 @@ class Observation:
             return feature
 
         assert self._cpp_obj is not None
-        feature = self._cpp_obj.to_features_2d(feature_name)  # type: ignore
+        # TODO: use ndarray in C++ side
+        feature = np.array(self._cpp_obj.to_features_2d(feature_name), dtype=np.int32)  # type: ignore
         return feature
 
     def _get_han22_features(self) -> np.ndarray:
