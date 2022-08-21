@@ -127,6 +127,15 @@ class Observation:
         observation = self.to_proto()
         show_svg(observation, target_idx=view_idx)
 
+    def to_features(self, feature_name: str = "small_v0"):
+        if feature_name == "han22":
+            feature = self._get_han22_features()
+            return feature
+
+        assert self._cpp_obj is not None
+        feature = self._cpp_obj.to_feature(feature_name)  # type: ignore
+        return feature
+
     def _get_han22_features(self) -> np.ndarray:
         feature = np.full((93, 34), False, dtype=bool)
         proto = self.to_proto()
