@@ -444,7 +444,6 @@ std::vector<std::vector<int>> Observation::ToFeaturesHan22V0() const {
     }
   }
 
-
   return feature;
 }
 
