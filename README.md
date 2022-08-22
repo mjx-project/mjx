@@ -21,9 +21,9 @@ agent = mjx.RandomAgent()
 env = mjx.MjxEnv()
 obs_dict = env.reset()
 while not env.done():
-    actions = {player_id: agent.act(obs)
-            for player_id, obs in obs_dict.items()}
-    obs_dict = env.step(actions)
+  actions = {player_id: agent.act(obs)
+    for player_id, obs in obs_dict.items()}
+  obs_dict = env.step(actions)
 returns = env.rewards()
 ```
 
@@ -40,12 +40,14 @@ import random
 import mjx
 
 class RandomAgent(mjx.Agent):
-    def __init__(self):
-        super().__init__()
+  def __init__(self):
+    super().__init__()
 
-    # When you use neural network models you may want to infer actions by batch
-    def act_batch(self, observations):
-        return [random.choice(observation.legal_actions()) for obs in observations]
+  # When you use neural network models
+  # you may want to infer actions by batch
+  def act_batch(self, observations):
+    return [random.choice(observation.legal_actions()) 
+      for obs in observations]
 
 
 agent = RandomAgent()
