@@ -51,12 +51,15 @@ class MjxEnv:
 def run(
     agent_addresses: Dict[str, str],
     num_games: int,
-    num_parallels: int,
+    num_parallels: Optional[int] = None,  # default = # cpus
     show_interval: int = 100,
     states_save_dir: Optional[str] = None,
-    results_save_file: Optional[str] = None,
     seed_type: str = "random",
 ):
+    if num_parallels is None:
+        import multiprocessing
+
+        num_parallels = multiprocessing.cpu_count()
     assert len(agent_addresses) == 4
     assert num_games >= 1
     assert num_parallels >= 1
@@ -73,4 +76,5 @@ def run(
     else:
         assert False, f"Wrong seed_type: {seed_type}"
 
+    results_save_file: Optional[str] = None  # TODO: fix
     _mjx.EnvRunner(agents, seed_generator, num_games, num_parallels, show_interval, states_save_dir, results_save_file)  # type: ignore
