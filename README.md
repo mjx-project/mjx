@@ -15,13 +15,15 @@
 </p>
 
 # Features
+Mjx is a Japanese Mahjong (riichi Mahjong) simulator.
+Mjx works as a game server as [Mjai](https://github.com/gimite/mjai), a popular Mahjong simulator, to evaluate Mahjong AIs but have additional features:
 
-* :zap: **Fast.** 100x faster than [Mjai](https://github.com/gimite/mjai), a popular Mahjong simulator.
-* :mahjong: **Exact [Tenhou](https://tenhou.net/) compatibility.** Mjx is validated with numerous Tenhou game logs.
-* :robot: **Gym-like API.** 
-* :loop: **Easy distributed computing** for large-scale RL and evaluation with [gRPC](https://github.com/grpc/grpc).
-* :left_right_arrow: **[Mjai](https://github.com/gimite/mjai) compatible.** See [mjx_mjai_translater](https://github.com/mjx-project/mjx_mjai_translater).
-* :sunrise_over_mountains: **Beautiful visualization** 
+* **Fast.** (100x faster than [Mjai](https://github.com/gimite/mjai), a popular Mahjong simulator)
+* **Exact [Tenhou](https://tenhou.net/) compatibility**  (Mjx is validated with numerous Tenhou game logs)
+* **Gym-like API** 
+* **Easy distributed computing** (available for large-scale RL and evaluation thanks to [gRPC](https://github.com/grpc/grpc))
+* **[Mjai](https://github.com/gimite/mjai) compatible** ([mjx_mjai_translater](https://github.com/mjx-project/mjx_mjai_translater))
+* **Beautiful visualization** 
 
 <p align="center"> 
 <img src="obs.png" alt="mjx" width="300"/>
@@ -29,7 +31,7 @@
 
 # Quick start
 
-:blue_book: [Google colab](https://colab.research.google.com/drive/1m1wOT_K2YFtuV6IO7VgWk4ilVhTKqRFU?usp=sharing)
+[Google colab](https://colab.research.google.com/drive/1m1wOT_K2YFtuV6IO7VgWk4ilVhTKqRFU?usp=sharing)
 
 # Install
 
@@ -93,12 +95,8 @@ import mjx
 
 host="127.0.0.1:8080"
 
-mjx.run({
-    "player_0": host,
-    "player_1": host,
-    "player_2": host,
-    "player_3": host
-  },
+mjx.run(
+  {f"player_{i}": host for i in range(4)},
   num_games=1000,
   num_parallels=16
 )
