@@ -65,7 +65,7 @@ class Observation:
         assert self._cpp_obj is not None
         return [Event._from_cpp_obj(cpp_obj) for cpp_obj in self._cpp_obj.events()]  # type: ignore
 
-    def draw_history(self) -> List[Tile]:
+    def draws(self) -> List[Tile]:
         assert self._cpp_obj is not None
         return [Tile(t) for t in self._cpp_obj.draw_history()]  # type: ignore
 
