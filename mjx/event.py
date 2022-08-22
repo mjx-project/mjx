@@ -6,7 +6,7 @@ import _mjx  # type: ignore
 from google.protobuf import json_format
 
 import mjxproto
-from mjx.const import EventType
+from mjx.const import EventType, PlayerIdx
 from mjx.open import Open
 from mjx.tile import Tile
 
@@ -38,7 +38,7 @@ class Event:
     def type(self) -> EventType:
         return EventType(self._cpp_obj.type())  # type: ignore
 
-    def who(self) -> int:
+    def who(self) -> PlayerIdx:
         return self._cpp_obj.who()  # type: ignore
 
     def tile(self) -> Optional[Tile]:

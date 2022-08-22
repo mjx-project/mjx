@@ -6,7 +6,7 @@ import _mjx  # type: ignore
 from google.protobuf import json_format
 
 import mjxproto
-from mjx.const import ActionType
+from mjx.const import ActionType, PlayerIdx
 from mjx.open import Open
 from mjx.tile import Tile
 
@@ -26,6 +26,10 @@ class Action:
     def __ne__(self, other: object) -> bool:
         assert isinstance(other, Action)
         return self._cpp_obj != other._cpp_obj
+
+    def who(self) -> PlayerIdx:
+        # TODO: remove to_proto()
+        return PlayerIdx(self.to_proto().who)
 
     def open(self) -> Optional[Open]:
         o = self._cpp_obj._open()

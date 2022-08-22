@@ -9,7 +9,7 @@ from google.protobuf import json_format
 
 import mjxproto
 from mjx.action import Action
-from mjx.const import ActionType, EventType, TileType
+from mjx.const import ActionType, EventType, PlayerIdx, TileType
 from mjx.event import Event
 from mjx.hand import Hand
 from mjx.tile import Tile
@@ -41,11 +41,11 @@ class Observation:
             raise NotImplementedError
         raise NotImplementedError  # TODO: implement
 
-    def who(self) -> int:
+    def who(self) -> PlayerIdx:
         assert self._cpp_obj is not None
         return self._cpp_obj.who()  # type: ignore
 
-    def dealer(self) -> int:
+    def dealer(self) -> PlayerIdx:
         assert self._cpp_obj is not None
         return self._cpp_obj.dealer()  # type: ignore
 

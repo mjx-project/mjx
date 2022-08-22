@@ -56,7 +56,7 @@ def run(
     show_interval: int = 100,
     states_save_dir: Optional[str] = None,
     results_save_file: Optional[str] = None,
-    seed_type: SeedType = SeedType.RANDOM,
+    seed_type: str = "random",
 ):
     assert len(agent_addresses) == 4
     assert num_games >= 1
@@ -67,11 +67,11 @@ def run(
     agents = {k: _mjx.GrpcAgent(addr) for k, addr in agent_addresses.items()}  # type: ignore
 
     # define seed geenrators
-    if seed_type == SeedType.RANDOM:
+    if seed_type == "random":
         seed_generator = _mjx.RandomSeedGenerator(list(agent_addresses.keys()))  # type: ignore
-    elif seed_type == SeedType.DUPLICATE:
+    elif seed_type == "duplicate":
         seed_generator = _mjx.DuplicateRandomSeedGenerator(list(agent_addresses.keys()))  # type: ignore
     else:
-        raise NotImplementedError()
+        assert False, f"Wrong seed_type: {seed_type}"
 
     _mjx.EnvRunner(agents, seed_generator, num_games, num_parallels, show_interval, states_save_dir, results_save_file)  # type: ignore
