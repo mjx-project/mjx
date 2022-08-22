@@ -25,11 +25,9 @@ class Observation:
 
         self._cpp_obj = _mjx.Observation(obs_json)  # type: ignore
 
-    def _repr_html_(self, view_idx: Optional[int] = None) -> None:
-        assert view_idx is None or 0 <= view_idx < 4
-
+    def _repr_html_(self) -> None:
         observation = self.to_proto()
-        return to_svg(observation, target_idx=view_idx)
+        return to_svg(observation, target_idx=None)
 
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, Observation):
@@ -105,7 +103,7 @@ class Observation:
         observation = self.to_proto()
         save_svg(observation, filename, view_idx)
 
-    def show(self, view_idx: Optional[int] = None) -> None:
+    def show_svg(self, view_idx: Optional[int] = None) -> None:
         assert view_idx is None or 0 <= view_idx < 4
 
         observation = self.to_proto()
