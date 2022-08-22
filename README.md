@@ -16,24 +16,20 @@
 
 # Features
 
-* **Fast** :zap:
-  * 100x faster than [Mjai](https://github.com/gimite/mjai), a popular Mahjong simulator
-* **Exact [Tenhou](https://tenhou.net/) compatibility** :mahjong:
-  * Validated with numerous Tenhou game logs
-* **Gym-like API** :robot:
-* **Easy distributed computing** :loop:
-  - For large-scale RL and evaluation, Mjx supports distributed computing with [gRPC](https://github.com/grpc/grpc).
-* [Mjai](https://github.com/gimite/mjai) compatible :left_right_arrow:
-  * Supports translation between Mjx and Mjai ([mjx_mjai_translater](https://github.com/mjx-project/mjx_mjai_translater))
-* **Beautiful visualization** :sunrise_over_mountains:
-  * Visualiation available on notebooks
+* :zap: **Fast.** 100x faster than [Mjai](https://github.com/gimite/mjai), a popular Mahjong simulator.
+* :mahjong: **Exact [Tenhou](https://tenhou.net/) compatibility.** Mjx is validated with numerous Tenhou game logs.
+* :robot: **Gym-like API.** 
+* :loop: **Easy distributed computing** for large-scale RL and evaluation with [gRPC](https://github.com/grpc/grpc).
+* :left_right_arrow: **[Mjai](https://github.com/gimite/mjai) compatible.** See [mjx_mjai_translater](https://github.com/mjx-project/mjx_mjai_translater).
+* :sunrise_over_mountains: **Beautiful visualization** 
 
 <p align="center"> 
 <img src="obs.png" alt="mjx" width="300"/>
 </p>
 
 # Quick start
-[Google colab](https://colab.research.google.com/drive/1m1wOT_K2YFtuV6IO7VgWk4ilVhTKqRFU?usp=sharing) :blue_book:
+
+:blue_book: [Google colab](https://colab.research.google.com/drive/1m1wOT_K2YFtuV6IO7VgWk4ilVhTKqRFU?usp=sharing)
 
 # Install
 
@@ -41,9 +37,7 @@
 $ pip install mjx
 ```
 
-# Requirements
-
-Mjx supports `Python3.7` or later in `Linux` and `macOS Intel` (10.15 or later).
+**Requirements.** Mjx supports `Python3.7` or later in `Linux` and `macOS Intel` (10.15 or later).
 Currently `Windows` and `macOS Apple Silicon` are NOT supported.
 Contributions for supporting `Windows` and `macOS Apple Silicon` are more than welcome!
 
