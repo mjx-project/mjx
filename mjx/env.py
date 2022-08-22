@@ -4,7 +4,6 @@ from typing import Dict, List, Optional
 import _mjx  # type: ignore
 
 from mjx.action import Action
-from mjx.const import SeedType
 from mjx.observation import Observation
 from mjx.state import State
 
