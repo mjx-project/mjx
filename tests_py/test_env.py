@@ -89,7 +89,7 @@ def test_MjxEnv():
     #  - ユーザ側から見れば、doneがtrueのタイミングでobsやrewardsにアクセスすれば、
     #    終局時の情報が得られる
     assert env.done("game")
-    assert env.done("hand")
+    assert env.done("round")
     assert len(obs_dict) == 4
     for _, obs in obs_dict.items():
         assert len(obs.legal_actions()) == 1
@@ -122,7 +122,7 @@ def test_MjxEnv():
     assert rewards["player_2"] == 0
     assert rewards["player_3"] == 0
     assert not env.done()  # done == Trueとなるタイミングは各局一度だけ
-    assert not env.done("hand")  # done == Trueとなるタイミングは各局一度だけ
+    assert not env.done("round")  # done == Trueとなるタイミングは各局一度だけ
 
     # test specifying dealer order
     obs_dict = env.reset(1234, ["player_3", "player_1", "player_2", "player_0"])
@@ -139,20 +139,20 @@ def testMjxEnvRewardsHandWin():
     random.seed(1234)
     env = mjx.env.MjxEnv()
     obs_dict = env.reset(1234)
-    while not env.done("hand"):
+    while not env.done("round"):
         action_dict = {}
         for agent, obs in obs_dict.items():
             action_dict[agent] = random_agent.act(obs)
         obs_dict = env.step(action_dict)
-        if not env.done("hand"):
-            rewards = env.rewards("hand_win")
+        if not env.done("round"):
+            rewards = env.rewards("round_win")
             assert len(rewards) == 4
             assert rewards["player_0"] == 0
             assert rewards["player_1"] == 0
             assert rewards["player_2"] == 0
             assert rewards["player_3"] == 0
 
-    rewards = env.rewards("hand_win")
+    rewards = env.rewards("round_win")
     assert len(rewards) == 4
     assert rewards["player_0"] == 0, env.state().to_json()
     assert rewards["player_1"] == 0, env.state().to_json()
@@ -165,13 +165,13 @@ def testMjxEnvRoundDone():
     random.seed(1234)
     env = mjx.env.MjxEnv()
     obs_dict = env.reset(1234)
-    while not env.done(done_type="hand"):
+    while not env.done(done_type="round"):
         action_dict = {}
         for agent, obs in obs_dict.items():
             action_dict[agent] = random_agent.act(obs)
         obs_dict = env.step(action_dict)
     assert not env.done("game")
-    assert env.done("hand")
+    assert env.done("round")
     assert len(obs_dict) == 4
     for _, obs in obs_dict.items():
         assert len(obs.legal_actions()) == 1

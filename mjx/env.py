@@ -4,7 +4,6 @@ from typing import Dict, List, Optional
 import _mjx  # type: ignore
 
 from mjx.action import Action
-from mjx.const import SeedType
 from mjx.observation import Observation
 from mjx.state import State
 
@@ -34,14 +33,14 @@ class MjxEnv:
         """
         assert done_type in (
             "game",
-            "hand",
+            "round",
         ), f'Wrong done_type: "{done_type}".'
         return self._env.done(done_type)
 
     def rewards(self, reward_type: str = "game_tenhou_7dan") -> Dict[str, int]:
         assert reward_type in (
             "game_tenhou_7dan",
-            "hand_win",
+            "round_win",
         ), f'Wrong reward_type: "{reward_type}".'
         return self._env.rewards(reward_type)
 
@@ -52,12 +51,15 @@ class MjxEnv:
 def run(
     agent_addresses: Dict[str, str],
     num_games: int,
-    num_parallels: int,
+    num_parallels: Optional[int] = None,  # default = # cpus
     show_interval: int = 100,
     states_save_dir: Optional[str] = None,
-    results_save_file: Optional[str] = None,
-    seed_type: SeedType = SeedType.RANDOM,
+    seed_type: str = "random",
 ):
+    if num_parallels is None:
+        import multiprocessing
+
+        num_parallels = multiprocessing.cpu_count()
     assert len(agent_addresses) == 4
     assert num_games >= 1
     assert num_parallels >= 1
@@ -67,11 +69,12 @@ def run(
     agents = {k: _mjx.GrpcAgent(addr) for k, addr in agent_addresses.items()}  # type: ignore
 
     # define seed geenrators
-    if seed_type == SeedType.RANDOM:
+    if seed_type == "random":
         seed_generator = _mjx.RandomSeedGenerator(list(agent_addresses.keys()))  # type: ignore
-    elif seed_type == SeedType.DUPLICATE:
+    elif seed_type == "duplicate":
         seed_generator = _mjx.DuplicateRandomSeedGenerator(list(agent_addresses.keys()))  # type: ignore
     else:
-        raise NotImplementedError()
+        assert False, f"Wrong seed_type: {seed_type}"
 
+    results_save_file: Optional[str] = None  # TODO: fix
     _mjx.EnvRunner(agents, seed_generator, num_games, num_parallels, show_interval, states_save_dir, results_save_file)  # type: ignore

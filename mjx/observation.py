@@ -9,7 +9,7 @@ from google.protobuf import json_format
 
 import mjxproto
 from mjx.action import Action
-from mjx.const import ActionType, EventType, TileType
+from mjx.const import ActionType, EventType, PlayerIdx, TileType
 from mjx.event import Event
 from mjx.hand import Hand
 from mjx.tile import Tile
@@ -25,11 +25,9 @@ class Observation:
 
         self._cpp_obj = _mjx.Observation(obs_json)  # type: ignore
 
-    def _repr_html_(self, view_idx: Optional[int] = None) -> None:
-        assert view_idx is None or 0 <= view_idx < 4
-
+    def _repr_html_(self) -> None:
         observation = self.to_proto()
-        return to_svg(observation, target_idx=view_idx)
+        return to_svg(observation, target_idx=None)
 
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, Observation):
@@ -41,11 +39,11 @@ class Observation:
             raise NotImplementedError
         raise NotImplementedError  # TODO: implement
 
-    def who(self) -> int:
+    def who(self) -> PlayerIdx:
         assert self._cpp_obj is not None
         return self._cpp_obj.who()  # type: ignore
 
-    def dealer(self) -> int:
+    def dealer(self) -> PlayerIdx:
         assert self._cpp_obj is not None
         return self._cpp_obj.dealer()  # type: ignore
 
@@ -65,7 +63,7 @@ class Observation:
         assert self._cpp_obj is not None
         return [Event._from_cpp_obj(cpp_obj) for cpp_obj in self._cpp_obj.events()]  # type: ignore
 
-    def draw_history(self) -> List[Tile]:
+    def draws(self) -> List[Tile]:
         assert self._cpp_obj is not None
         return [Tile(t) for t in self._cpp_obj.draw_history()]  # type: ignore
 
@@ -84,22 +82,6 @@ class Observation:
     def tens(self) -> List[int]:
         assert self._cpp_obj is not None
         return self._cpp_obj.tens()
-
-    def rankings(self) -> List[int]:
-        assert self._cpp_obj is not None
-        tens = self.tens()
-        order = list(range(4))
-        order.sort(key=lambda i: tens[i] - i)
-        order.reverse()
-        ret = [0] * 4
-        for i, p in enumerate(order):
-            ret[p] = i
-
-        # e.g tens = [20000, 35000, 35000, 10000]
-        #     => order = [1, 2, 0, 3]
-        #        ret   = [2, 0, 1, 3]
-
-        return ret
 
     def round(self) -> int:
         # 東一局:0, ..., 南四局:7, ...
@@ -121,7 +103,7 @@ class Observation:
         observation = self.to_proto()
         save_svg(observation, filename, view_idx)
 
-    def show(self, view_idx: Optional[int] = None) -> None:
+    def show_svg(self, view_idx: Optional[int] = None) -> None:
         assert view_idx is None or 0 <= view_idx < 4
 
         observation = self.to_proto()
@@ -137,6 +119,21 @@ class Observation:
         # TODO: use ndarray in C++ side
         feature = np.array(self._cpp_obj.to_features_2d(feature_name), dtype=np.int32)  # type: ignore
         return feature
+
+    @staticmethod
+    def add_legal_actions(obs_json: str) -> str:
+        assert len(Observation(obs_json).legal_actions()) == 0, "Legal actions are alredy set."
+        return _mjx.Observation.add_legal_actions(obs_json)
+
+    @classmethod
+    def from_proto(cls, proto: mjxproto.Observation) -> Observation:
+        return Observation(json_format.MessageToJson(proto))
+
+    @classmethod
+    def _from_cpp_obj(cls, cpp_obj) -> Observation:
+        obs = cls()
+        obs._cpp_obj = cpp_obj
+        return obs
 
     def _get_han22_features(self) -> np.ndarray:
         feature = np.full((93, 34), False, dtype=bool)
@@ -370,18 +367,3 @@ class Observation:
             ):
                 feature[8] = True
         return feature
-
-    @staticmethod
-    def add_legal_actions(obs_json: str) -> str:
-        assert len(Observation(obs_json).legal_actions()) == 0, "Legal actions are alredy set."
-        return _mjx.Observation.add_legal_actions(obs_json)
-
-    @classmethod
-    def from_proto(cls, proto: mjxproto.Observation) -> Observation:
-        return Observation(json_format.MessageToJson(proto))
-
-    @classmethod
-    def _from_cpp_obj(cls, cpp_obj) -> Observation:
-        obs = cls()
-        obs._cpp_obj = cpp_obj
-        return obs

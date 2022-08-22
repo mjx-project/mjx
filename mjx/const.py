@@ -48,25 +48,6 @@ class EventType(IntEnum):
     ABORTIVE_DRAW_NAGASHI_MANGAN = mjxproto.EVENT_TYPE_EXHAUSTIVE_DRAW_NAGASHI_MANGAN  # 流し満貫
 
 
-class AbsolutePos(IntEnum):
-    INIT_EAST = 0
-    INIT_SOUTH = 1
-    INIT_WEST = 2
-    INIT_NORTH = 3
-
-
-class RelativePos(IntEnum):
-    SELF = 0
-    RIGHT = 1
-    MID = 2
-    LEFT = 3
-
-
-class SeedType(IntEnum):
-    RANDOM = 0
-    DUPLICATE = 1
-
-
 class TileType(IntEnum):
     M1 = 0
     M2 = 1
@@ -102,6 +83,13 @@ class TileType(IntEnum):
     WD = 31
     GD = 32
     RD = 33
+
+
+class PlayerIdx(IntEnum):
+    INIT_EAST = 0  # Dealer of the 1st round, 起家
+    INIT_SOUTH = 1
+    INIT_WEST = 2
+    INIT_NORTH = 3  # ラス親
 
 
 class RelativePlayerIdx(IntEnum):

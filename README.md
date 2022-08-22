@@ -15,11 +15,10 @@
 ## Example
 
 ```py
-from mjx import MjxEnv
-from mjx.agents import RandomAgent
+import mjx
 
-agent = RandomAgent()
-env = MjxEnv()
+agent = mjx.RandomAgent()
+env = mjx.MjxEnv()
 obs_dict = env.reset()
 while not env.done():
     actions = {player_id: agent.act(obs)
@@ -28,3 +27,52 @@ while not env.done():
 returns = env.rewards()
 ```
 
+## Sever Usage
+
+<table>
+<tr><th>Server</th><th>Client</th></tr>
+
+<tr>
+<td>
+
+```py
+import random
+import mjx
+
+class RandomAgent(mjx.Agent):
+    def __init__(self):
+        super().__init__()
+
+    # When you use neural network models you may want to infer actions by batch
+    def act_batch(self, observations):
+        return [random.choice(observation.legal_actions()) for obs in observations]
+
+
+agent = RandomAgent()
+agent.serve("127.0.0.1:8080", batch_size=8)
+```
+
+</td>
+<td>
+
+```py
+
+import mjx
+
+host="127.0.0.1"
+
+mjx.run(
+    {
+        "player_0": host,
+        "player_1": host,
+        "player_2": host,
+        "player_3": host
+    },
+    num_games=1000,
+    num_parallels=16
+)
+```
+
+</td>
+</tr>
+</table>

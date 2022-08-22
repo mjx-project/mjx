@@ -2,7 +2,7 @@ from google.protobuf import json_format
 
 import mjx
 import mjxproto
-from mjx.const import ActionType
+from mjx.const import ActionType, PlayerIdx
 
 json_str = '{"tile":10}'
 
@@ -62,3 +62,10 @@ def test_tile():
     action = mjx.Action('{"who":1,"type":"ACTION_TYPE_CHI","open":30111}')
     tile = action.tile()
     assert tile is None
+
+
+def test_tile():
+    action = mjx.Action('{"tile":10}')
+    who = action.who()
+    assert who == 0
+    assert who == PlayerIdx.INIT_EAST

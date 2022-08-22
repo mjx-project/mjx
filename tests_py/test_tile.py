@@ -15,13 +15,6 @@ def test_type():
     assert tile.type() == mjx.TileType.RD
 
 
-def test_str():
-    tile = mjx.Tile(0)
-    assert str(tile) == "m1(0)"
-    tile = mjx.Tile(135)
-    assert str(tile) == "rd(3)"
-
-
 def test_num():
     tile = mjx.Tile(0)
     assert tile.num() == 1

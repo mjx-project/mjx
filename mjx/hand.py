@@ -36,9 +36,11 @@ class Hand:
         return self._cpp_obj.shanten_number()  # type: ignore
 
     def effective_draw_types(self) -> List[TileType]:
+        "Retrun the list of tile types which reduce the shanten number by drawing it"
         return [TileType(i) for i in self._cpp_obj.effective_draw_types()]  # type: ignore
 
     def effective_discard_types(self) -> List[TileType]:
+        "Retrun the list of tile types which reduce the shanten number by discarding it"
         return [TileType(i) for i in self._cpp_obj.effective_discard_types()]  # type: ignore
 
     def to_json(self) -> str:
