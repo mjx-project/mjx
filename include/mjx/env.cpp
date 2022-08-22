@@ -64,7 +64,7 @@ std::unordered_map<PlayerId, Observation> MjxEnv::Step(
 }
 
 bool MjxEnv::Done(const std::string& done_type) const noexcept {
-  assert(internal::Any(done_type, {"game", "hand"}));
+  assert(internal::Any(done_type, {"game", "round"}));
   if (done_type == "game") {
     if (state_.IsRoundOver() && state_.IsGameOver()) {
       if (state_.IsDummySet()) return false;
@@ -73,7 +73,7 @@ bool MjxEnv::Done(const std::string& done_type) const noexcept {
       return false;
     }
   } else {
-    assert(done_type == "hand");
+    assert(done_type == "round");
     if (state_.IsRoundOver() && state_.IsGameOver() && state_.IsDummySet())
       return false;
     return state_.IsRoundOver();
@@ -93,7 +93,7 @@ std::unordered_map<PlayerId, int> MjxEnv::Rewards(
     rewards[player_id] = 0;
   }
 
-  assert(internal::Any(reward_type, {"game_tenhou_7dan", "hand_win"}));
+  assert(internal::Any(reward_type, {"game_tenhou_7dan", "round_win"}));
   if (reward_type == "game_tenhou_7dan") {
     if (!Done()) return rewards;
     auto game_result = GameResult();
@@ -102,8 +102,8 @@ std::unordered_map<PlayerId, int> MjxEnv::Rewards(
     for (const auto& [player_id, ranking] : ranking_dict) {
       rewards[player_id] = reward_map.at(ranking);
     }
-  } else if (reward_type == "hand_win") {
-    if (!Done("hand")) return rewards;
+  } else if (reward_type == "round_win") {
+    if (!Done("round")) return rewards;
     auto state_proto = state_.proto();
     auto& wins = state_proto.round_terminal().wins();
     auto& players = state_proto.public_observation().player_ids();

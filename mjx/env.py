@@ -33,14 +33,14 @@ class MjxEnv:
         """
         assert done_type in (
             "game",
-            "hand",
+            "round",
         ), f'Wrong done_type: "{done_type}".'
         return self._env.done(done_type)
 
     def rewards(self, reward_type: str = "game_tenhou_7dan") -> Dict[str, int]:
         assert reward_type in (
             "game_tenhou_7dan",
-            "hand_win",
+            "round_win",
         ), f'Wrong reward_type: "{reward_type}".'
         return self._env.rewards(reward_type)
 
