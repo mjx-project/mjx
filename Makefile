@@ -54,13 +54,13 @@ py-test: dist
 	python3 -m pytest tests_py --import-mode=importlib 
 
 py-fmt:
-	black mjx tests_py examples scripts
-	blackdoc mjx tests_py examples scripts
-	isort mjx tests_py examples scripts
+	black mjx tests_py 
+	blackdoc mjx tests_py 
+	isort mjx tests_py 
 
 py-check:
-	black --check --diff mjx tests_py examples scripts
-	blackdoc --check mjx tests_py examples scripts
+	black --check --diff mjx tests_py 
+	blackdoc --check mjx tests_py 
 	isort --check --diff mjx tests_py 
 	flake8 --config pyproject.toml --ignore E203,E501,W503 mjx # tests_py examples scripts
 	# mypy --config pyproject.toml mjx

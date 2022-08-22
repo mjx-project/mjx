@@ -168,7 +168,7 @@ target_link_libraries(win_cache_generator mjx)
 
 if(MJX_BUILD_TESTS)
   add_subdirectory(tests_cpp)
-  add_subdirectory(scripts)
+  # add_subdirectory(scripts)
 endif()
 
 ####################################################################################
