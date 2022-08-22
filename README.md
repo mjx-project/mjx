@@ -46,11 +46,12 @@ class RandomAgent(mjx.Agent):
   # When you use neural network models
   # you may want to infer actions by batch
   def act_batch(self, observations):
-    return [random.choice(observation.legal_actions()) 
-      for obs in observations]
+    return [random.choice(obs.legal_actions()) 
+            for obs in observations]
 
 
 agent = RandomAgent()
+# act_batch is called instead of act
 agent.serve("127.0.0.1:8080", batch_size=8)
 ```
 
@@ -61,17 +62,16 @@ agent.serve("127.0.0.1:8080", batch_size=8)
 
 import mjx
 
-host="127.0.0.1"
+host="127.0.0.1:8080"
 
-mjx.run(
-    {
-        "player_0": host,
-        "player_1": host,
-        "player_2": host,
-        "player_3": host
-    },
-    num_games=1000,
-    num_parallels=16
+mjx.run({
+    "player_0": host,
+    "player_1": host,
+    "player_2": host,
+    "player_3": host
+  },
+  num_games=1000,
+  num_parallels=16
 )
 ```
 
