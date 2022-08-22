@@ -14,6 +14,20 @@
 <img src="icons/SVG/2-2_svg.svg" alt="mjx" width="300"/>
 </p>
 
+# Features
+
+
+- **Blazingly fast.** :zap:
+  - Mjx is 100x faster than existing OSS simulators. See [benchmark test]().
+- **Tenhou compatible.** :mahjong:
+  - The implemented rule is compatible with that of [Tenhou](https://tenhou.net/). See [compatibility tests]().
+- **Gym-like API.** :robot:
+  - Mjx supports [PettingZoo](https://github.com/PettingZoo-Team/PettingZoo) API, which provides [gym](https://github.com/openai/gym)-like API for multi-agent games.
+- **Easy distributed computing.**
+  - For large-scale reinforcement leraning and evaluation, Mjx supports distributed computing with [gRPC](https://github.com/grpc/grpc).
+- **Beautiful visualization.**
+  - Mjx supports game log visualization thanks to Tenhou platform.
+
 # Install
 
 ```
@@ -93,6 +107,11 @@ mjx.run({
 </tr>
 </table>
 
-## License
+# How to develop
+We recommend you to develop Mjx inside a container.
+Easiest way is open this repository from VsCode.
+Feel free to mention to @sotetsuk if you have any questions.
+
+# License
 
 MIT
