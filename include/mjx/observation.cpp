@@ -39,10 +39,11 @@ bool Observation::operator!=(const Observation& other) const noexcept {
   return !(*this == other);
 }
 
-std::vector<float> Observation::ToFeature(
+std::vector<std::vector<int>> Observation::ToFeatures2D(
     const std::string& version) const noexcept {
   auto obs = internal::Observation(proto_);
-  return obs.ToFeature(version);
+  assert(version == "mjx-small-v0");
+  if (version == "mjx-small-v0") return obs.ToFeaturesSmallV0();
 }
 
 std::vector<Action> Observation::legal_actions() const noexcept {

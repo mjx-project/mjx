@@ -60,7 +60,7 @@ PYBIND11_MODULE(_mjx, m) {
   py::class_<mjx::Observation>(m, "Observation")
       .def(py::init<std::string>())
       .def("to_json", &mjx::Observation::ToJson)
-      .def("to_feature", &mjx::Observation::ToFeature)
+      .def("to_features_2d", &mjx::Observation::ToFeatures2D)
       .def("legal_actions", &mjx::Observation::legal_actions)
       .def("events", &mjx::Observation::events)
       .def("draw_history", &mjx::Observation::draw_history)

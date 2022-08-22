@@ -127,13 +127,15 @@ class Observation:
         observation = self.to_proto()
         show_svg(observation, target_idx=view_idx)
 
-    def to_features(self, feature_name: str = "small_v0"):
-        if feature_name == "han22":
+    def to_features(self, feature_name: str):
+        assert feature_name in ("mjx-small-v0", "han22-v0")
+        if feature_name == "han22-v0":
             feature = self._get_han22_features()
             return feature
 
         assert self._cpp_obj is not None
-        feature = self._cpp_obj.to_feature(feature_name)  # type: ignore
+        # TODO: use ndarray in C++ side
+        feature = np.array(self._cpp_obj.to_features_2d(feature_name), dtype=np.int32)  # type: ignore
         return feature
 
     def _get_han22_features(self) -> np.ndarray:

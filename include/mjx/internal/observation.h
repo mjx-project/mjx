@@ -28,17 +28,15 @@ class Observation {
   void add_legal_action(mjxproto::Action&& legal_action);
   void add_legal_actions(const std::vector<mjxproto::Action>& legal_actions);
 
-  [[nodiscard]] std::vector<float> ToFeature(std::string version) const;
-
   [[nodiscard]] static std::vector<mjxproto::Action> GenerateLegalActions(
       const mjxproto::Observation& observation);
+
+  [[nodiscard]] std::vector<std::vector<int>> ToFeaturesSmallV0() const;
 
  private:
   // TODO: remove friends and use proto()
   friend class State;
   mjxproto::Observation proto_ = mjxproto::Observation{};
-
-  [[nodiscard]] std::vector<float> small_v0() const;
 
   // 次のブロックは主にObservationだけからでもlegal
   // actionを生成できるようにするための機能
