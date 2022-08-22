@@ -120,6 +120,21 @@ class Observation:
         feature = self._cpp_obj.to_feature(feature_name)  # type: ignore
         return feature
 
+    @staticmethod
+    def add_legal_actions(obs_json: str) -> str:
+        assert len(Observation(obs_json).legal_actions()) == 0, "Legal actions are alredy set."
+        return _mjx.Observation.add_legal_actions(obs_json)
+
+    @classmethod
+    def from_proto(cls, proto: mjxproto.Observation) -> Observation:
+        return Observation(json_format.MessageToJson(proto))
+
+    @classmethod
+    def _from_cpp_obj(cls, cpp_obj) -> Observation:
+        obs = cls()
+        obs._cpp_obj = cpp_obj
+        return obs
+
     def _get_han22_features(self) -> np.ndarray:
         feature = np.full((93, 34), False, dtype=bool)
         proto = self.to_proto()
@@ -352,18 +367,3 @@ class Observation:
             ):
                 feature[8] = True
         return feature
-
-    @staticmethod
-    def add_legal_actions(obs_json: str) -> str:
-        assert len(Observation(obs_json).legal_actions()) == 0, "Legal actions are alredy set."
-        return _mjx.Observation.add_legal_actions(obs_json)
-
-    @classmethod
-    def from_proto(cls, proto: mjxproto.Observation) -> Observation:
-        return Observation(json_format.MessageToJson(proto))
-
-    @classmethod
-    def _from_cpp_obj(cls, cpp_obj) -> Observation:
-        obs = cls()
-        obs._cpp_obj = cpp_obj
-        return obs
