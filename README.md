@@ -1,18 +1,32 @@
 [![ci](https://github.com/mjx-project/mjx/actions/workflows/ci.yml/badge.svg)](https://github.com/mjx-project/mjx/actions/workflows/ci.yml)
 
+<!-- 
 <p align="center">
 <img src="icons/1500w/png/color1/1-1_p1500.png" alt="mjx" width="150"/>
-<p align="center">
-<img src="icons/1500w/png/color1/3_p1500.png" alt="mjx" width="75"/>
+</p>
+-->
+<!-- 
+<p align="center"> 
+<img src="icons/1500w/png/color1/3_p1500.png" alt="mjx" width="200"/>
+</p>
+-->
+<p align="center"> 
+<img src="icons/SVG/2-2_svg.svg" alt="mjx" width="300"/>
 </p>
 
-## Requirements
+# Install
 
-- `Ubuntu 20.04` or later
-- `MacOS 10.15` or later <!-- <filesystem> requires macos-10.15 -->
-- `Python >= 3.7` <!-- importlib requires 3.7 -->
+```
+$ pip install mjx
+```
 
-## Example
+# Requirements
+
+Mjx supports `Python3.7` or later in `Linux` and `macOS Intel` (10.15 or later).
+Currently `Windows` and `macOS Apple Silicon` are NOT supported.
+Contributions for supporting `Windows` and `macOS Apple Silicon` are more than welcome!
+
+# Example
 
 ```py
 import mjx
@@ -27,7 +41,7 @@ while not env.done():
 returns = env.rewards()
 ```
 
-## Sever Usage
+# Sever Usage
 
 <table>
 <tr><th>Server</th><th>Client</th></tr>
@@ -78,3 +92,7 @@ mjx.run({
 </td>
 </tr>
 </table>
+
+## License
+
+MIT
