@@ -16,17 +16,24 @@
 
 # Features
 
+* **Fast** :zap:
+  * 100x faster than [Mjai](https://github.com/gimite/mjai), a popular Mahjong simulator
+* **Exact [Tenhou](https://tenhou.net/) compatibility** :mahjong:
+  * Validated with numerous Tenhou game logs
+* **Gym-like API** :robot:
+* **Easy distributed computing** :loop:
+  - For large-scale RL and evaluation, Mjx supports distributed computing with [gRPC](https://github.com/grpc/grpc).
+* [Mjai](https://github.com/gimite/mjai) compatible :left_right_arrow:
+  * Supports translation between Mjx and Mjai ([mjx_mjai_translater](https://github.com/mjx-project/mjx_mjai_translater))
+* **Beautiful visualization** :sunrise_over_mountains:
+  * Visualiation available on notebooks
 
-- **Blazingly fast.** :zap:
-  - Mjx is 100x faster than existing OSS simulators. See [benchmark test]().
-- **Tenhou compatible.** :mahjong:
-  - The implemented rule is compatible with that of [Tenhou](https://tenhou.net/). See [compatibility tests]().
-- **Gym-like API.** :robot:
-  - Mjx supports [PettingZoo](https://github.com/PettingZoo-Team/PettingZoo) API, which provides [gym](https://github.com/openai/gym)-like API for multi-agent games.
-- **Easy distributed computing.**
-  - For large-scale reinforcement leraning and evaluation, Mjx supports distributed computing with [gRPC](https://github.com/grpc/grpc).
-- **Beautiful visualization.**
-  - Mjx supports game log visualization thanks to Tenhou platform.
+<p align="center"> 
+<img src="obs.png" alt="mjx" width="300"/>
+</p>
+
+# Quick start
+[Google colab](https://colab.research.google.com/drive/1m1wOT_K2YFtuV6IO7VgWk4ilVhTKqRFU?usp=sharing) :blue_book:
 
 # Install
 
