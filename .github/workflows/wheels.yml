@@ -40,7 +40,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest]  #  [ubuntu-latest, windows-latest, macos-latest]
+        os: [ubuntu-latest, macos-latest]  # [ubuntu-latest, windows-latest, macos-latest]
 
     steps:
     - uses: actions/checkout@v2
@@ -59,8 +59,8 @@ jobs:
         # To use C++17 features
         # https://cibuildwheel.readthedocs.io/en/stable/cpp_standards/#manylinux1-and-c14
         MACOSX_DEPLOYMENT_TARGET: "10.15"  # <filesystem> requires 10.15
-        CIBW_BUILD: cp37-*  # cp37-* cp38-* cp39-* importlib.resources requires >= 3.7 
-        CIBW_SKIP: pp* cp27-win* cp35-* cp36-* cp38-* cp39-* *win*
+        CIBW_BUILD: cp37-* cp38-* cp39-* cp310-* cp311-*   # cp37-* cp38-* cp39-* importlib.resources requires >= 3.7 
+        CIBW_SKIP: pp* cp27-win* cp35-* cp36-* *win*
         # https://cibuildwheel.readthedocs.io/en/stable/options/#archs
         # universal2 arch raises this error:
         # CMake Error at mjx/external/grpc-src/third_party/boringssl-with-bazel/CMakeLists.txt:52 (message): Universal binaries not supported.
