@@ -137,7 +137,7 @@ long_description = (this_directory / "README.md").read_text()
 # logic and declaration, and simpler if you include description/version in a file.
 setup(
     name="mjx",
-    version="0.0.11",
+    version="0.1.0",
     author="Mjx Project Team",
     author_email="koyamada-s@sys.i.kyoto-u.ac.jp",
     description="",
