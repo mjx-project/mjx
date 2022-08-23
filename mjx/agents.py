@@ -24,8 +24,8 @@ class Agent(_mjx.Agent):  # type: ignore
         self,
         socket_address: str,
         batch_size: int = 64,
-        wait_limit_ms: int = 100,
-        sleep_ms: int = 10,
+        wait_limit_ms: int = 0,
+        sleep_ms: int = 0,
     ):
         _mjx.AgentServer(self, socket_address, batch_size, wait_limit_ms, sleep_ms)  # type: ignore
 
