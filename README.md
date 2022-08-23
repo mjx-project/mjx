@@ -18,7 +18,7 @@
 Mjx is a Japanese Mahjong (riichi Mahjong) simulator.
 Mjx works as a game server as [Mjai](https://github.com/gimite/mjai), a popular Mahjong simulator, to evaluate Mahjong AIs but have additional features:
 
-* **Fast.** (100x faster than [Mjai](https://github.com/gimite/mjai), a popular Mahjong simulator)
+* **Fast** (100x faster than [Mjai](https://github.com/gimite/mjai))
 * **Exact [Tenhou](https://tenhou.net/) compatibility**  (Mjx is validated with numerous Tenhou game logs)
 * **Gym-like API** 
 * **Easy distributed computing** (available for large-scale RL and evaluation thanks to [gRPC](https://github.com/grpc/grpc))
