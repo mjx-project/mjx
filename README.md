@@ -14,6 +14,8 @@
 <img src="icons/SVG/2-2_svg.svg" alt="mjx" width="300"/>
 </p>
 
+# Mjx
+
 Mjx is a Japanese Mahjong (riichi Mahjong) simulator.
 Mjx works as a game server as [Mjai](https://github.com/gimite/mjai), a popular Mahjong simulator, to evaluate Mahjong AIs but have additional features:
 
@@ -28,11 +30,11 @@ Mjx works as a game server as [Mjai](https://github.com/gimite/mjai), a popular 
 <img src="obs.png" alt="mjx" width="300"/>
 </p>
 
-# Quick start
+## Quick start
 
 [Google colab](https://colab.research.google.com/drive/1m1wOT_K2YFtuV6IO7VgWk4ilVhTKqRFU?usp=sharing)
 
-# Install
+## Install
 
 ```
 $ pip install mjx
@@ -42,7 +44,7 @@ $ pip install mjx
 Currently `Windows` and `macOS Apple Silicon` are NOT supported.
 Contributions for supporting `Windows` and `macOS Apple Silicon` are more than welcome!
 
-# Example
+## Example
 
 ```py
 import mjx
@@ -58,7 +60,7 @@ while not env.done():
 returns = env.rewards()
 ```
 
-# Sever Usage
+## Sever Usage
 
 <table>
 <tr><th>Server</th><th>Client</th></tr>
@@ -106,11 +108,11 @@ mjx.run(
 </tr>
 </table>
 
-# How to develop
+## How to develop
 We recommend you to develop Mjx inside a container.
 Easiest way is open this repository from VsCode.
 Feel free to mention to @sotetsuk if you have any questions.
 
-# License
+## License
 
 MIT
