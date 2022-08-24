@@ -47,8 +47,9 @@ Contributions for supporting `Windows` and `macOS Apple Silicon` are more than w
 
 ```py
 import mjx
+from mjx.agents import RandomAgent
 
-agent = mjx.RandomAgent()
+agent = RandomAgent()
 env = mjx.MjxEnv()
 obs_dict = env.reset()
 while not env.done():
