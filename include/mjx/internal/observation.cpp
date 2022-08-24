@@ -342,13 +342,13 @@ std::vector<std::vector<int>> Observation::ToFeaturesHan22V0() const {
       if (dora_indicator_tile_type < 9) {
         dora_tile_type = (dora_indicator_tile_type + 1) % 9;
       } else if (dora_indicator_tile_type < 18) {
-        dora_tile_type = (dora_indicator_tile_type + 1) % 9 + 9;
+        dora_tile_type = (dora_indicator_tile_type - 9 + 1) % 9 + 9;
       } else if (dora_indicator_tile_type < 27) {
-        dora_tile_type = (dora_indicator_tile_type + 1) % 9 + 18;
+        dora_tile_type = (dora_indicator_tile_type - 18 + 1) % 9 + 18;
       } else if (dora_indicator_tile_type < 31) {
-        dora_tile_type = (dora_indicator_tile_type + 1) % 4 + 27;
+        dora_tile_type = (dora_indicator_tile_type - 27 + 1) % 4 + 27;
       } else {
-        dora_tile_type = (dora_indicator_tile_type + 1) % 3 + 31;
+        dora_tile_type = (dora_indicator_tile_type - 31 + 1) % 3 + 31;
       }
 
       feature[dora_offset + dora_index][dora_indicator_tile_type] = 1;
@@ -381,7 +381,7 @@ std::vector<std::vector<int>> Observation::ToFeaturesHan22V0() const {
         auto open = Open(action.open());
         int center_tile_type = open.Tiles()[1].TypeUint();
         int stolen_tile_type = open.StolenTile().TypeUint();
-        feature[legal_action_offset + 2 + (center_tile_type - stolen_tile_type)]
+        feature[legal_action_offset + 2 + (stolen_tile_type - center_tile_type)]
                [stolen_tile_type] = 1;
       } else if (action.type() == mjxproto::ACTION_TYPE_PON) {
         auto open = Open(action.open());
