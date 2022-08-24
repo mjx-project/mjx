@@ -32,6 +32,7 @@ class Observation {
       const mjxproto::Observation& observation);
 
   [[nodiscard]] std::vector<std::vector<int>> ToFeaturesSmallV0() const;
+  [[nodiscard]] std::vector<std::vector<int>> ToFeaturesHan22V0() const;
 
  private:
   // TODO: remove friends and use proto()
