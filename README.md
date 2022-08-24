@@ -14,7 +14,6 @@
 <img src="icons/SVG/2-2_svg.svg" alt="mjx" width="300"/>
 </p>
 
-# Features
 Mjx is a Japanese Mahjong (riichi Mahjong) simulator.
 Mjx works as a game server as [Mjai](https://github.com/gimite/mjai), a popular Mahjong simulator, to evaluate Mahjong AIs but have additional features:
 
