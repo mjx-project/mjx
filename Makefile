@@ -41,7 +41,6 @@ cpp-fmt:
 	clang-format -i include/mjx/*.h include/mjx/*.cpp
 	clang-format -i include/mjx/internal/*.h include/mjx/internal/*.cpp
 	clang-format -i tests_cpp/*.cpp
-	clang-format -i scripts/*.cpp
 
 dist: setup.py include/mjx/* include/mjx/internal/* mjx/* mjx/visualizer/* include/mjx/internal/mjx.proto
 	which python3
