@@ -113,7 +113,7 @@ For Python, we provide a convinent wrapper `mjx.Agent.server()`.
 
 ## Notes
 
-Mjx is still under development. APIs might change before v1.0.
+Mjx is still under development. APIs might change without notice before v1.0.
 Especially,
 
 * Default behavior of `env.rewards(reward_type)`and `env.done(done_type)`
