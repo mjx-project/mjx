@@ -21,5 +21,5 @@ dist
 .pytest_cache
 .cache
 .ipynb_checkpoints
-workspace/suphnx-reward-shping/recouces
+workspace/suphnx-reward-shaping/recourses/*
 .DS_Store
