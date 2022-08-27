@@ -10,7 +10,6 @@ import mjxproto
 from mjx.action import Action
 from mjx.const import PlayerIdx, TileType
 from mjx.event import Event
-from mjx.feature import FeatureProducer
 from mjx.hand import Hand
 from mjx.tile import Tile
 from mjx.visualizer.svg import save_svg, show_svg, to_svg
