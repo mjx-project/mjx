@@ -4,51 +4,48 @@ from mjx import Observation
 from mjx import Tile
 from mjx import EventType
 
-class FeatureProducer:
-    @staticmethod
-    def produce(cls, obs: Observation, keys: List[str]):
-        str2func = {
-            "currentHand": self.current_hand,
-            "targetTile": self.target_tile,
-            "underRiichis": self.under_riichis,
-            "discardedTiles": self.discarded_tiles,
-            "discardedFromHand": self.discarded_from_hand,
-            "openedTiles": self.opened_tiles,
-            "shanten": self.shanten,
-            "dealer": self.dealer,
-            "doras": self.doras,
-            "effectiveDraws": self.effective_draws,
-            "effectiveDiscards": self.effective_discards,
-            "ignoredTiles": self.ignored_tiles,
-            "kyotaku": self.kyotaku,
-            "rankings": self.rankings,
-            "round": self.round,
-            "honba": self.honba,
-            "doraNumInHand": self.dora_num_in_hand,
-            "doraNumOfTarget": self.dora_num_of_target,
-        }
+import mjxproto
 
-        feature = []
-        for key in keys:
-            feature.extend(str2func[key](obs))
+def produce(obs: mjxproto.Observation) -> List[List[int]]:
+    feature = []
+    for func in [
+            current_hand,
+            target_tile,
+            under_riichis,
+            discarded_tiles,
+            discarded_from_hand,
+            opened_tiles,
+            shanten,
+            dealer,
+            doras,
+            effective_draws,
+            effective_discards,
+            ignored_tiles,
+            kyotaku,
+            rankings,
+            round,
+            honba,
+            dora_num_in_hand,
+            dora_num_of_target,
+            ]:
+        feature.extend(func(obs))
+    return feature
 
-        return feature
 
-    @staticmethod
-    def current_hand(obs: Observation):
-        # feat[i][t] := obs の観測者がtile t を(i+1)枚以上持っているか
-        #               (i=0,1,2,3)
-        # feat[i+4] := obs の観測者がsuit i の赤ドラを持っているか
-        #              (i=0,1,2)
-        feat = [[0] * 34 for _ in range(4 + 3)]
-        hand = obs.curr_hand()
-        for tile_type, cnt in enumerate(hand.closed_tile_types()):
-            for i in range(cnt):
-                feat[i][tile_type] = 1
-        for tile in hand.closed_tiles():
-            if tile.is_red():
-                feat[4 + (tile.type() // 9)] = [1] * 34
-        return feat
+def current_hand(obs: mjxproto.Observation):
+    # feat[i][t] := obs の観測者がtile t を(i+1)枚以上持っているか
+    #               (i=0,1,2,3)
+    # feat[i+4] := obs の観測者がsuit i の赤ドラを持っているか
+    #              (i=0,1,2)
+    feat = [[0] * 34 for _ in range(4 + 3)]
+    hand = obs.curr_hand()
+    for tile_type, cnt in enumerate(hand.closed_tile_types()):
+        for i in range(cnt):
+            feat[i][tile_type] = 1
+    for tile in hand.closed_tiles():
+        if tile.is_red():
+            feat[4 + (tile.type() // 9)] = [1] * 34
+    return feat
 
     @staticmethod
     def target_tile(obs: Observation):
