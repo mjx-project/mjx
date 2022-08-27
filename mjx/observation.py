@@ -112,33 +112,8 @@ class Observation:
         assert feature_name in ("mjx-small-v0", "han22-v0", "mjx-large-v0")
         assert self._cpp_obj is not None
 
-<<<<<<< HEAD
         if feature_name == "mjx-large-v0":
             feature = np.array(MjxLargeV0.produce(self))
-=======
-        if feature_name == "col-34":
-            keys = [
-                "currentHand",
-                "targetTile",
-                "underRiichis",
-                "discardedTiles",
-                "discardedFromHand",
-                "openedTiles",
-                "shanten",
-                "dealer",
-                "doras",
-                "effectiveDraws",
-                "effectiveDiscards",
-                "ignoredTiles",
-                "kyotaku",
-                "rankings",
-                "round",
-                "honba",
-                "doraNumInHand",
-                "doraNumOfTarget",
-            ]
-            feature = np.array(FeatureProducer.produce(self, keys))
->>>>>>> a2c5dddd1e8b4fc798ccef8aed665a31ff54b7db
             return feature
 
         # TODO: use ndarray in C++ side
@@ -162,7 +137,6 @@ class Observation:
         obs = cls()
         obs._cpp_obj = cpp_obj
         return obs
-<<<<<<< HEAD
 
     class MjxLargeV0:
         @staticmethod
@@ -503,5 +477,3 @@ class Observation:
                 feat[i] = [1] * 34
 
             return feat
-=======
->>>>>>> a2c5dddd1e8b4fc798ccef8aed665a31ff54b7db

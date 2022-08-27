@@ -1,32 +1,31 @@
 from typing import List, Optional
 
+import mjxproto
 from mjx import EventType, Observation, Tile
 
-
-import mjxproto
 
 def produce(obs: mjxproto.Observation) -> List[List[int]]:
     feature = []
     for func in [
-            current_hand,
-            target_tile,
-            under_riichis,
-            discarded_tiles,
-            discarded_from_hand,
-            opened_tiles,
-            shanten,
-            dealer,
-            doras,
-            effective_draws,
-            effective_discards,
-            ignored_tiles,
-            kyotaku,
-            rankings,
-            round,
-            honba,
-            dora_num_in_hand,
-            dora_num_of_target,
-            ]:
+        current_hand,
+        target_tile,
+        under_riichis,
+        discarded_tiles,
+        discarded_from_hand,
+        opened_tiles,
+        shanten,
+        dealer,
+        doras,
+        effective_draws,
+        effective_discards,
+        ignored_tiles,
+        kyotaku,
+        rankings,
+        round,
+        honba,
+        dora_num_in_hand,
+        dora_num_of_target,
+    ]:
         feature.extend(func(obs))
     return feature
 
