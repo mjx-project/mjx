@@ -13,6 +13,9 @@ from mjx.event import Event
 from mjx.hand import Hand
 from mjx.tile import Tile
 from mjx.visualizer.svg import save_svg, show_svg, to_svg
+from mjx.const import TileType
+from mjx.feature import FeatureProducer
+from mjx.visualizer.svg import save_svg
 
 
 class Observation:
@@ -108,14 +111,41 @@ class Observation:
         show_svg(observation, target_idx=view_idx)
 
     def to_features(self, feature_name: str):
-        assert feature_name in ("mjx-small-v0", "han22-v0")
+        assert feature_name in ("mjx-small-v0", "han22-v0", "col-34")
         assert self._cpp_obj is not None
+
+        if feature_name == "col-34":
+            keys = [
+                "currentHand",
+                "targetTile",
+                "underRiichis",
+                "discardedTiles",
+                "discardedFromHand",
+                "openedTiles",
+                "shanten",
+                "dealer",
+                "doras",
+                "effectiveDraws",
+                "effectiveDiscards",
+                "ignoredTiles",
+                "kyotaku",
+                "rankings",
+                "round",
+                "honba",
+                "doraNumInHand",
+                "doraNumOfTarget"]
+            feature = np.array(FeatureProducer.produce(self, keys))
+            return feature
+
         # TODO: use ndarray in C++ side
         if feature_name == "han22-v0":
             feature = np.array(self._cpp_obj.to_features_2d(feature_name), dtype=np.bool8)  # type: ignore
             return feature
         feature = np.array(self._cpp_obj.to_features_2d(feature_name), dtype=np.int32)  # type: ignore
         return feature
+
+    def to_features(self, keys: List[str]):
+        return FeatureProducer.produce(self, keys)
 
     @staticmethod
     def add_legal_actions(obs_json: str) -> str:
@@ -131,3 +161,4 @@ class Observation:
         obs = cls()
         obs._cpp_obj = cpp_obj
         return obs
+
