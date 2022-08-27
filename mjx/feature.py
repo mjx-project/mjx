@@ -1,8 +1,7 @@
 from typing import List, Optional
 
-from mjx import Observation
-from mjx import Tile
-from mjx import EventType
+from mjx import EventType, Observation, Tile
+
 
 class FeatureProducer:
     @staticmethod

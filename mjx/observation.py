@@ -10,12 +10,10 @@ import mjxproto
 from mjx.action import Action
 from mjx.const import PlayerIdx, TileType
 from mjx.event import Event
+from mjx.feature import FeatureProducer
 from mjx.hand import Hand
 from mjx.tile import Tile
 from mjx.visualizer.svg import save_svg, show_svg, to_svg
-from mjx.const import TileType
-from mjx.feature import FeatureProducer
-from mjx.visualizer.svg import save_svg
 
 
 class Observation:
@@ -133,7 +131,8 @@ class Observation:
                 "round",
                 "honba",
                 "doraNumInHand",
-                "doraNumOfTarget"]
+                "doraNumOfTarget",
+            ]
             feature = np.array(FeatureProducer.produce(self, keys))
             return feature
 
@@ -161,4 +160,3 @@ class Observation:
         obs = cls()
         obs._cpp_obj = cpp_obj
         return obs
-
