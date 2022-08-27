@@ -8,7 +8,7 @@ from google.protobuf import json_format
 
 import mjxproto
 from mjx.action import Action
-from mjx.const import PlayerIdx, TileType
+from mjx.const import EventType, PlayerIdx, TileType
 from mjx.event import Event
 from mjx.hand import Hand
 from mjx.tile import Tile
@@ -112,7 +112,7 @@ class Observation:
         assert self._cpp_obj is not None
 
         if feature_name == "mjx-large-v0":
-            feature = np.array(MjxLargeV0.produce(self))
+            feature = np.array(self.MjxLargeV0.produce(self))
             return feature
 
         # TODO: use ndarray in C++ side
@@ -139,10 +139,10 @@ class Observation:
 
     class MjxLargeV0:
         @staticmethod
-        def produce(obj: Observation) -> List[List[int]]:
+        def produce(cls, obj: Observation) -> List[List[int]]:
             feature = []
 
-            for func in [self.current_hand]:
+            for func in [cls.current_hand]:
                 feature.extend(func(obj))
 
             return feature
