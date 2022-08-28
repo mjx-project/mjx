@@ -142,7 +142,26 @@ class Observation:
         def produce(cls, obj: Observation) -> List[List[int]]:
             feature = []
 
-            for func in [cls.current_hand]:
+            for func in [
+                    cls.current_hand,
+                    cls.target_tile,
+                    cls.under_riichis,
+                    cls.discarded_tiles,
+                    cls.discarded_from_hand,
+                    cls.opened_tiles,
+                    cls.dealer,
+                    cls.doras,
+                    cls.shanten,
+                    cls.effective_discards,
+                    cls.effective_draws,
+                    cls.ignored_tiles,
+                    cls.kyotaku,
+                    cls.rankings,
+                    cls.round,
+                    cls.honba,
+                    cls.dora_num_of_target,
+                    cls.dora_num_in_hand
+                    ]:
                 feature.extend(func(obj))
 
             return feature
@@ -179,7 +198,7 @@ class Observation:
                     return last_event.tile()
 
                 elif last_event.type() == EventType.DRAW:
-                    return obs.draw_history()[-1]
+                    return obs.draws()[-1]
                 elif last_event.type() == EventType.ADDED_KAN:
                     return last_event.open().last_tile()
                 else:
@@ -421,7 +440,7 @@ class Observation:
                     return last_event.tile()
 
                 elif last_event.type() == EventType.DRAW:
-                    return obs.draw_history()[-1]
+                    return obs.draws()[-1]
                 elif last_event.type() == EventType.ADDED_KAN:
                     return last_event.open().last_tile()
                 else:
