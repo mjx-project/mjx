@@ -13,7 +13,7 @@ sys.path.append("../../")
 import mjxproto
 
 
-def to_dataset(mjxprotp_dir: str) -> Tuple[jnp.ndarray]:
+def to_dataset(mjxprotp_dir: str) -> Tuple[jnp.ndarray, jnp.ndarray]:
     features: List = []
     scores: List = []
     for _json in os.listdir(mjxprotp_dir):
@@ -26,9 +26,9 @@ def to_dataset(mjxprotp_dir: str) -> Tuple[jnp.ndarray]:
             target: int = random.randint(0, 3)
             features.append(to_feature(states, target))
             scores.append(to_final_scores(states, target))
-    features: jnp.ndarray = jnp.array(features)
-    scores: jnp.ndarray = jnp.array(scores)
-    return features, scores
+    features_array: jnp.ndarray = jnp.array(features)
+    scores_array: jnp.ndarray = jnp.array(scores)
+    return features_array, scores_array
 
 
 def _select_one_round(states: List[mjxproto.State]) -> mjxproto.State:
