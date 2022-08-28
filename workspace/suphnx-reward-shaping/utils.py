@@ -21,47 +21,40 @@ def to_dataset(mjxprotp_dir: str) -> Tuple[jnp.ndarray]:
         assert ".json" in _json
         with open(_json, "r") as f:
             lines = f.readlines()
+            _dicts = [json.loads(round) for round in lines]
+            states = [json_format.ParseDict(d, mjxproto.State()) for d in _dicts]
             target: int = random.randint(0, 3)
-            features.append(to_feature(lines, target))
-            scores.append(to_final_scores(lines, target))
+            features.append(to_feature(states, target))
+            scores.append(to_final_scores(states, target))
     features: jnp.ndarray = jnp.array(features)
     scores: jnp.ndarray = jnp.array(scores)
     return features, scores
 
 
-def to_feature(game_str: List[str], target) -> List[int]:
-    """
-    特徴量 = [終了時の点数, 自風, 親, 局, 本場, 詰み棒]
-    """
-    _dicts = [json.loads(round) for round in game_str]
-    states = [json_format.ParseDict(d, mjxproto.State()) for d in _dicts]
-    _s = select_one_round(states)
-    feature: List[int] = extract_feature(_s, target)
-    return feature
-
-
-def select_one_round(states: List[mjxproto.State]) -> mjxproto.State:
+def _select_one_round(states: List[mjxproto.State]) -> mjxproto.State:
     idx: int = random.randint(0, len(states) - 1)
     return states[idx]
 
 
-def extract_feature(state: mjxproto.State, target) -> List[int]:
+def _calc_curr_pos(init_pos: int, round: int) -> int:
+    return init_pos + round % 4
+
+
+def to_feature(states: List[mjxproto.State], target) -> List[int]:
+    """
+    特徴量 = [終了時の点数, 自風, 親, 局, 本場, 詰み棒]
+    """
+    state = _select_one_round(states)
     ten: int = state.round_terminal.final_score.tens[target]
     honba: int = state.round_terminal.final_score.honba
     tsumibo: int = state.round_terminal.final_score.riichi
     round: int = state.round_terminal.final_score.round
-    wind: int = calc_curr_pos(target, round)
-    oya: int = calc_curr_pos(0, round)
+    wind: int = _calc_curr_pos(target, round)
+    oya: int = _calc_curr_pos(0, round)
     return [ten, honba, tsumibo, round, wind, oya]
 
 
-def calc_curr_pos(init_pos: int, round: int) -> int:
-    return init_pos + round % 4
-
-
-def to_final_scores(game_str: List[str], target) -> List[int]:
-    _dicts = [json.loads(round) for round in game_str]
-    states = [json_format.ParseDict(d, mjxproto.State()) for d in _dicts]
+def to_final_scores(states: List[mjxproto.State], target) -> List[int]:
     final_state = states[-1]
     final_score = final_state.round_terminal.final_score.tens[target]
     return [final_score]
