@@ -56,4 +56,4 @@ def test_add_legal_actions():
 
 def test_mjx_large_v0():
     obs = mjx.Observation(json_str)
-    assert obs.to_feature('mjx-large-v0').shape() == (100, 34)  # debug
+    assert obs.to_features('mjx-large-v0').shape() == (100, 34)  # debug
