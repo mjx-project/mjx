@@ -143,25 +143,25 @@ class Observation:
             feature = []
 
             for func in [
-                    cls.current_hand,
-                    cls.target_tile,
-                    cls.under_riichis,
-                    cls.discarded_tiles,
-                    cls.discarded_from_hand,
-                    cls.opened_tiles,
-                    cls.dealer,
-                    cls.doras,
-                    cls.shanten,
-                    cls.effective_discards,
-                    cls.effective_draws,
-                    cls.ignored_tiles,
-                    cls.kyotaku,
-                    cls.rankings,
-                    cls.round,
-                    cls.honba,
-                    cls.dora_num_of_target,
-                    cls.dora_num_in_hand
-                    ]:
+                cls.current_hand,
+                cls.target_tile,
+                cls.under_riichis,
+                cls.discarded_tiles,
+                cls.discarded_from_hand,
+                cls.opened_tiles,
+                cls.dealer,
+                cls.doras,
+                cls.shanten,
+                cls.effective_discards,
+                cls.effective_draws,
+                cls.ignored_tiles,
+                cls.kyotaku,
+                cls.rankings,
+                cls.round,
+                cls.honba,
+                cls.dora_num_of_target,
+                cls.dora_num_in_hand,
+            ]:
                 feature.extend(func(obj))
 
             return feature
