@@ -4,6 +4,7 @@ import random
 import sys
 from typing import Dict, Iterator, List, Optional, Tuple
 
+import jax
 import jax.numpy as jnp
 import numpy as np
 from google.protobuf import json_format
@@ -12,9 +13,9 @@ sys.path.append("../../")
 import mjxproto
 
 
-def to_dataset(mjxprotp_dir: str):
-    features: List[List[int]] = []
-    scores: List[int] = []
+def to_dataset(mjxprotp_dir: str) -> Tuple[jnp.ndarray]:
+    features: List = []
+    scores: List = []
     for _json in os.listdir(mjxprotp_dir):
         _json = os.path.join(mjxprotp_dir, _json)
         assert ".json" in _json
@@ -23,12 +24,12 @@ def to_dataset(mjxprotp_dir: str):
             target: int = random.randint(0, 3)
             features.append(to_feature(lines, target))
             scores.append(to_final_scores(lines, target))
-    features = jnp.array(features)
-    scores = jnp.array(scores)
+    features: jnp.ndarray = jnp.array(features)
+    scores: jnp.ndarray = jnp.array(scores)
     return features, scores
 
 
-def to_feature(game_str: List[str], target) -> np.ndarray:
+def to_feature(game_str: List[str], target) -> List[int]:
     """
     特徴量 = [終了時の点数, 自風, 親, 局, 本場, 詰み棒]
     """
