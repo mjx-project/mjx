@@ -14,6 +14,9 @@ import mjxproto
 
 
 def to_dataset(mjxprotp_dir: str) -> Tuple[jnp.ndarray, jnp.ndarray]:
+    """
+    jsonが入っているディレクトリを引数としてjax.numpyのデータセットを作る.
+    """
     features: List = []
     scores: List = []
     for _json in os.listdir(mjxprotp_dir):
@@ -32,6 +35,9 @@ def to_dataset(mjxprotp_dir: str) -> Tuple[jnp.ndarray, jnp.ndarray]:
 
 
 def _select_one_round(states: List[mjxproto.State]) -> mjxproto.State:
+    """
+    データセットに本質的で無い相関が生まれることを防ぐために一半荘につき1ペアのみを使う.
+    """
     idx: int = random.randint(0, len(states) - 1)
     return states[idx]
 
