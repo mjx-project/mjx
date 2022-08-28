@@ -797,7 +797,6 @@ def _make_svg(
                             left_margin
                             + (len(hands[i]) + 1) * char_width
                             + left_x
-                            + char_height
                             + char_width * 2,
                             770,
                         ),
