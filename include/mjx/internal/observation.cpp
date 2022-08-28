@@ -335,7 +335,6 @@ std::vector<std::vector<int>> Observation::ToFeaturesHan22V0() const {
   // dora
   {
     const int dora_offset = 70;
-    int dora_index = 0;
     for (auto dora_indicator : proto_.public_observation().dora_indicators()) {
       int dora_indicator_tile_type = dora_indicator / 4;
       int dora_tile_type = -1;
@@ -351,11 +350,13 @@ std::vector<std::vector<int>> Observation::ToFeaturesHan22V0() const {
         dora_tile_type = (dora_indicator_tile_type - 31 + 1) % 3 + 31;
       }
 
-      feature[dora_offset + dora_index][dora_indicator_tile_type] = 1;
-      feature[dora_offset + dora_index + 4][dora_tile_type] = 1;
-
-      dora_index++;
-      if (dora_index > 3) break;
+      for (int i = 0; i < 4; i++) {
+        if (feature[dora_offset + i][dora_indicator_tile_type] == 0) {
+          feature[dora_offset + i][dora_indicator_tile_type] = 1;
+          feature[dora_offset + i + 4][dora_tile_type] = 1;
+          break;
+        }
+      }
     }
   }
 
