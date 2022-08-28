@@ -138,7 +138,7 @@ class Observation:
         return obs
 
     class MjxLargeV0:
-        @staticmethod
+        @classmethod
         def produce(cls, obj: Observation) -> List[List[int]]:
             feature = []
 
