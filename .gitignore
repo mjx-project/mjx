@@ -23,3 +23,5 @@ dist
 .ipynb_checkpoints
 workspace/suphnx-reward-shaping/recourses/*
 .DS_Store
+.vscode/
+.python_versions
