@@ -68,10 +68,18 @@ def calc_grad(
 
 
 def train(
-    weights: List[jnp.ndarray], X, Y, learning_rate: float, epochs: int, batch_size: int
+    weights: List[jnp.ndarray],
+    X: jnp.ndarray,
+    Y: jnp.ndarray,
+    learning_rate: float,
+    epochs: int,
+    batch_size: int,
+    buffer_size=3,
 ) -> List[jnp.ndarray]:
     dataset = tf.data.Dataset.from_tensor_slices((X, Y))
-    batched_dataset = dataset.batch(batch_size, drop_remainder=True)
+    batched_dataset = dataset.shuffle(buffer_size=buffer_size).batch(
+        batch_size, drop_remainder=True
+    )
     for i in range(epochs):
         for batch_x, batch_y in batched_dataset:
             loss = mse_loss(weights, batch_x.numpy(), batch_y.numpy())
@@ -87,7 +95,7 @@ def train(
     return weights
 
 
-def evaluate(weights: List[jnp.ndarray], X, Y, batch_size: int) -> float:
+def evaluate(weights: List[jnp.ndarray], X: jnp.ndarray, Y: jnp.ndarray, batch_size: int) -> float:
     dataset = tf.data.Dataset.from_tensor_slices((X, Y))
     batched_dataset = dataset.batch(batch_size, drop_remainder=True)
     loss = 0
