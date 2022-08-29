@@ -12,6 +12,8 @@ from google.protobuf import json_format
 sys.path.append("../../../")
 import mjxproto
 
+oka = [90, 40, 0, -130]
+
 
 def to_data(mjxprotp_dir: str) -> Tuple[jnp.ndarray, jnp.ndarray]:
     """
@@ -62,5 +64,8 @@ def to_feature(states: List[mjxproto.State], target) -> List[int]:
 
 def to_final_scores(states: List[mjxproto.State], target) -> List[int]:
     final_state = states[-1]
-    final_score = final_state.round_terminal.final_score.tens[target]
-    return [final_score]
+    final_scores = final_state.round_terminal.final_score.tens
+    target_score = final_scores[target]
+    sorted_scores = sorted(final_scores)
+    rank = sorted_scores.index(target_score)
+    return oka[rank]
