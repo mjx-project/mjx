@@ -7,6 +7,9 @@ from jax import grad, vmap
 
 
 def initializa_weights(layer_sizes: List[int], features: int, seed) -> List[jnp.ndarray]:
+    """
+    重みを初期化する関数. 線形層を前提としている.
+    """
     weights = []
 
     for i, units in enumerate(layer_sizes):
@@ -34,6 +37,9 @@ def relu(x: jnp.ndarray) -> jnp.ndarray:
 
 
 def linear_layer(weight: jnp.ndarray, x: jnp.ndarray, activation=None) -> jnp.ndarray:
+    """
+    線形層
+    """
     w, b = weight
     out = jnp.dot(x, w.T) + b
     if activation:
@@ -54,7 +60,7 @@ def predict(weights: List[jnp.ndarray], x: jnp.ndarray) -> jnp.ndarray:
 def mse_loss(
     weights: List[jnp.ndarray], batched_x: jnp.ndarray, batched_y: jnp.ndarray, pred_fun=predict
 ) -> jnp.ndarray:
-    batched_predict = vmap(predict, in_axes=(None, 0))
+    batched_predict = vmap(predict, in_axes=(None, 0))  # 予測関数をvector化
     preds = batched_predict(weights, batched_x)
     return jnp.power(batched_y - preds, 2).mean().sum()
 
@@ -76,6 +82,9 @@ def train(
     batch_size: int,
     buffer_size=3,
 ) -> List[jnp.ndarray]:
+    """
+    学習用の関数. 線形層を前提としており, バッチ処理やシャッフルのためにtensorflowを使っている.
+    """
     dataset = tf.data.Dataset.from_tensor_slices((X, Y))
     batched_dataset = dataset.shuffle(buffer_size=buffer_size).batch(
         batch_size, drop_remainder=True
