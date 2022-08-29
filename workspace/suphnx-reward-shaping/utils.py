@@ -9,11 +9,11 @@ import jax.numpy as jnp
 import numpy as np
 from google.protobuf import json_format
 
-sys.path.append("../../")
+sys.path.append("../../../")
 import mjxproto
 
 
-def to_dataset(mjxprotp_dir: str) -> Tuple[jnp.ndarray, jnp.ndarray]:
+def to_data(mjxprotp_dir: str) -> Tuple[jnp.ndarray, jnp.ndarray]:
     """
     jsonが入っているディレクトリを引数としてjax.numpyのデータセットを作る.
     """
