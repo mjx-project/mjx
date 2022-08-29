@@ -10,10 +10,13 @@ import numpy as np
 from google.protobuf import json_format
 
 sys.path.append("../../")
+sys.path.append("../../../")
 import mjxproto
 
+oka = [90, 40, 0, -130]
 
-def to_dataset(mjxprotp_dir: str) -> Tuple[jnp.ndarray, jnp.ndarray]:
+
+def to_data(mjxprotp_dir: str) -> Tuple[jnp.ndarray, jnp.ndarray]:
     """
     jsonが入っているディレクトリを引数としてjax.numpyのデータセットを作る.
     """
@@ -32,6 +35,12 @@ def to_dataset(mjxprotp_dir: str) -> Tuple[jnp.ndarray, jnp.ndarray]:
     features_array: jnp.ndarray = jnp.array(features)
     scores_array: jnp.ndarray = jnp.array(scores)
     return features_array, scores_array
+
+
+def normalize(array: jnp.ndarray) -> jnp.ndarray:
+    mean = array.mean(axis=0)
+    std = array.mean(axis=0)
+    return (array - mean) / std
 
 
 def _select_one_round(states: List[mjxproto.State]) -> mjxproto.State:
@@ -62,5 +71,8 @@ def to_feature(states: List[mjxproto.State], target) -> List[int]:
 
 def to_final_scores(states: List[mjxproto.State], target) -> List[int]:
     final_state = states[-1]
-    final_score = final_state.round_terminal.final_score.tens[target]
-    return [final_score]
+    final_scores = final_state.round_terminal.final_score.tens
+    target_score = final_scores[target]
+    sorted_scores = sorted(final_scores)
+    rank = sorted_scores.index(target_score)
+    return [oka[rank]]
