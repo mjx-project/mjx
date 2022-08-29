@@ -1,87 +1,71 @@
-from typing import List, Tuple
+from typing import Dict, List
 
 import jax
+import jax.nn as nn
 import jax.numpy as jnp
+import numpy as np
+import optax
 import tensorflow as tf
-from jax import grad, vmap
+from jax import grad
+from jax import jit as jjit
+from jax import numpy as jnp
+from jax import value_and_grad, vmap
 
 
-def initializa_weights(layer_sizes: List[int], features: int, seed) -> List[jnp.ndarray]:
+def initializa_params(layer_sizes: List[int], features: int, seed) -> Dict:
     """
     重みを初期化する関数. 線形層を前提としている.
+    Xavier initializationを採用
     """
-    weights = []
+    params = {}
 
     for i, units in enumerate(layer_sizes):
         if i == 0:
             w = jax.random.uniform(
-                key=seed, shape=(units, features), minval=-1.0, maxval=1.0, dtype=jnp.float32
+                key=seed,
+                shape=(features, units),
+                minval=-np.sqrt(6) / np.sqrt(units),
+                maxval=-np.sqrt(6) / np.sqrt(units),
+                dtype=jnp.float32,
             )
         else:
             w = jax.random.uniform(
                 key=seed,
-                shape=(units, layer_sizes[i - 1]),
-                minval=-1.0,
-                maxval=1.0,
+                shape=(layer_sizes[i - 1], units),
+                minval=-np.sqrt(6) / np.sqrt(units + layer_sizes[i - 1]),
+                maxval=np.sqrt(6) / np.sqrt(units + layer_sizes[i - 1]),
                 dtype=jnp.float32,
             )
-        b = jax.random.uniform(
-            key=seed, minval=-1.0, maxval=1.0, shape=(units,), dtype=jnp.float32
-        )
-        weights.append([w, b])
-    return weights
+        params["linear" + str(i)] = w
+    return params
 
 
 def relu(x: jnp.ndarray) -> jnp.ndarray:
     return jnp.maximum(0, x)
 
 
-def linear_layer(weight: jnp.ndarray, x: jnp.ndarray, activation=None) -> jnp.ndarray:
-    """
-    線形層
-    """
-    w, b = weight
-    out = jnp.dot(x, w.T) + b
-    if activation:
-        return activation(out)
-    else:
-        return out
+def net(x: jnp.ndarray, params: optax.Params) -> jnp.ndarray:
+    for k, param in params.items():
+        x = jnp.dot(x, param)
+        x = jax.nn.relu(x)
+    return x
 
 
-def predict(weights: List[jnp.ndarray], x: jnp.ndarray) -> jnp.ndarray:
-    layer_out = x
-    for i in range(len(weights[:-1])):
-        layer_out = linear_layer(weights[i], layer_out, relu)
-
-    preds = linear_layer(weights[-1], layer_out)
-    return preds.squeeze()
-
-
-def mse_loss(
-    weights: List[jnp.ndarray], batched_x: jnp.ndarray, batched_y: jnp.ndarray, pred_fun=predict
-) -> jnp.ndarray:
-    batched_predict = vmap(predict, in_axes=(None, 0))  # 予測関数をvector化
-    preds = batched_predict(weights, batched_x)
-    return jnp.power(batched_y - preds, 2).mean().sum()
-
-
-def calc_grad(
-    weights: List[jnp.ndarray], batched_x: jnp.ndarray, batched_y: jnp.ndarray
-) -> jnp.ndarray:
-    loss_grad = grad(mse_loss)
-    grads = loss_grad(weights, batched_x, batched_y)
-    return grads
+def loss(params: optax.Params, batched_x: jnp.ndarray, batched_y: jnp.ndarray) -> jnp.ndarray:
+    preds = net(batched_x, params)
+    loss_value = optax.l2_loss(preds, batched_y).sum(axis=-1)
+    return loss_value.mean()
 
 
 def train(
-    weights: List[jnp.ndarray],
+    params: optax.Params,
+    optimizer: optax.GradientTransformation,
     X: jnp.ndarray,
     Y: jnp.ndarray,
-    learning_rate: float,
     epochs: int,
     batch_size: int,
     buffer_size=3,
-) -> List[jnp.ndarray]:
+) -> optax.Params:
     """
     学習用の関数. 線形層を前提としており, バッチ処理やシャッフルのためにtensorflowを使っている.
     """
@@ -89,26 +73,29 @@ def train(
     batched_dataset = dataset.shuffle(buffer_size=buffer_size).batch(
         batch_size, drop_remainder=True
     )
+    opt_state = optimizer.init(params)
+
+    @jax.jit
+    def step(params, opt_state, batch, labels):
+        loss_value, grads = jax.value_and_grad(loss)(params, batch, labels)
+        updates, opt_state = optimizer.update(grads, opt_state, params)
+        params = optax.apply_updates(params, updates)
+        return params, opt_state, loss_value
+
     for i in range(epochs):
-        for batch_x, batch_y in batched_dataset:
-            loss = mse_loss(weights, batch_x.numpy(), batch_y.numpy())
-            gradients = calc_grad(weights, batch_x.numpy(), batch_y.numpy())
-
-            # Update Weights
-            for j in range(len(weights)):
-                weights[j][0] -= learning_rate * gradients[j][0]  # update weights
-                weights[j][1] -= learning_rate * gradients[j][1]  # update bias
-
+        for batched_x, batched_y in batched_dataset:
+            params, opt_state, loss_value = step(
+                params, opt_state, batched_x.numpy(), batched_y.numpy()
+            )
             if i % 100 == 0:  # print MSE every 100 epochs
-                print("MSE : {:.2f}".format(loss))
-    return weights
+                print(f"step {i}, loss: {loss_value}")
+    return params
 
 
-def evaluate(weights: List[jnp.ndarray], X: jnp.ndarray, Y: jnp.ndarray, batch_size: int) -> float:
+def evaluate(params: optax.Params, X: jnp.ndarray, Y: jnp.ndarray, batch_size: int) -> float:
     dataset = tf.data.Dataset.from_tensor_slices((X, Y))
     batched_dataset = dataset.batch(batch_size, drop_remainder=True)
-    loss = 0
+    cum_loss = 0
     for batch_x, batch_y in batched_dataset:
-        loss += mse_loss(weights, batch_x.numpy(), batch_y.numpy())
-
-    return loss / len(batched_dataset)
+        cum_loss += loss(params, batch_x.numpy(), batch_y.numpy())
+    return cum_loss / len(batched_dataset)

@@ -9,6 +9,7 @@ import jax.numpy as jnp
 import numpy as np
 from google.protobuf import json_format
 
+sys.path.append("../../")
 sys.path.append("../../../")
 import mjxproto
 
@@ -34,6 +35,12 @@ def to_data(mjxprotp_dir: str) -> Tuple[jnp.ndarray, jnp.ndarray]:
     features_array: jnp.ndarray = jnp.array(features)
     scores_array: jnp.ndarray = jnp.array(scores)
     return features_array, scores_array
+
+
+def normalize(array: jnp.ndarray) -> jnp.ndarray:
+    mean = array.mean(axis=0)
+    std = array.mean(axis=0)
+    return (array - mean) / std
 
 
 def _select_one_round(states: List[mjxproto.State]) -> mjxproto.State:
@@ -68,4 +75,4 @@ def to_final_scores(states: List[mjxproto.State], target) -> List[int]:
     target_score = final_scores[target]
     sorted_scores = sorted(final_scores)
     rank = sorted_scores.index(target_score)
-    return oka[rank]
+    return [oka[rank]]
