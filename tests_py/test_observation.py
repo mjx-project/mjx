@@ -52,3 +52,30 @@ def test_add_legal_actions():
     json_wo_legal_actions = '{"publicObservation":{"playerIds":["player_2","player_1","player_0","player_3"],"initScore":{"tens":[25000,25000,25000,25000]},"doraIndicators":[101],"events":[{"type":"EVENT_TYPE_DRAW"}]},"privateObservation":{"initHand":{"closedTiles":[24,3,87,124,37,42,58,134,92,82,122,18,117]},"drawHistory":[79],"currHand":{"closedTiles":[3,18,24,37,42,58,79,82,87,92,117,122,124,134]}}}'
     json_restored = mjx.Observation.add_legal_actions(json_wo_legal_actions)
     assert json_str == json_restored
+
+
+def test_mjx_large_v0():
+    obs = mjx.Observation(json_str)
+    rows = sum(
+        [
+            7,  # currentHand
+            2,  # targetTile
+            4,  # underRiichis
+            12,  # discardedTiles
+            12,  # discardedFromHand
+            28,  # openedTiles
+            4,  # dealer
+            4,  # doras
+            7,  # shanten
+            1,  # effectiveDiscards
+            1,  # effectiveDraws
+            4,  # ignoredTiles
+            5,  # kyotaku
+            12,  # rankings
+            7,  # round
+            5,  # honba
+            4,  # doraNumOfTarget
+            13,  # doraNumInHand
+        ]
+    )
+    assert obs.to_features("mjx-large-v0").shape == (rows, 34)
