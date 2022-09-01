@@ -1,8 +1,12 @@
+import os
+import pickle
+from re import I
 from typing import Dict, List
 
 import jax
 import jax.nn as nn
 import jax.numpy as jnp
+import matplotlib.pyplot as plt
 import numpy as np
 import optax
 import tensorflow as tf
@@ -96,6 +100,32 @@ def evaluate(params: optax.Params, X: jnp.ndarray, Y: jnp.ndarray, batch_size: i
     dataset = tf.data.Dataset.from_tensor_slices((X, Y))
     batched_dataset = dataset.batch(batch_size, drop_remainder=True)
     cum_loss = 0
-    for batch_x, batch_y in batched_dataset:
-        cum_loss += loss(params, batch_x.numpy(), batch_y.numpy())
+    for batched_x, batched_y in batched_dataset:
+        cum_loss += loss(params, batched_x.numpy(), batched_y.numpy())
+    print(cum_loss / len(batched_dataset))
     return cum_loss / len(batched_dataset)
+
+
+def save_params(params: optax.Params, save_dir):
+    with open(save_dir, "wb") as f:
+        pickle.dump(params, f)
+
+
+def plot_result(params: optax.Params, X, Y, result_dir):
+    x_mean, x_std = X.mean(axis=0), X.std(axis=0)
+    y_mean, y_std = Y.mean(axis=0), Y.std(axis=0)
+    for i in range(8):  # 通常の局数分
+        log_score = []
+        log_pred = []
+        for j in range(60):
+            score_mean, score_std = x_mean[0], x_std[0]
+            x = jnp.array([(j * 1000 - score_mean) / score_std, 0, 0, i, 0, 0])
+            pred = net(x, params)
+            if i == 7:
+                print(pred)
+                print(y_mean, y_std)
+            log_score.append(j * 1000)
+            log_pred.append(pred * y_std + y_mean)
+        plt.plot(log_score, log_pred)
+        save_dir = os.path.join(result_dir, "prediction_at_round" + str(i) + ".png")
+        plt.savefig(save_dir)

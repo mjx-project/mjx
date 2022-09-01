@@ -13,7 +13,7 @@ sys.path.append("../../")
 sys.path.append("../../../")
 import mjxproto
 
-oka = [90, 40, 0, -130]
+game_rewards = [90, 45, 0, -135]
 
 
 def to_data(mjxprotp_dir: str) -> Tuple[jnp.ndarray, jnp.ndarray]:
@@ -41,6 +41,10 @@ def normalize(array: jnp.ndarray) -> jnp.ndarray:
     mean = array.mean(axis=0)
     std = array.mean(axis=0)
     return (array - mean) / std
+
+
+def inv_normalize(array: jnp.ndarray, mean: jnp.ndarray, std: jnp.ndarray) -> jnp.ndarray:
+    return array * std + mean
 
 
 def _select_one_round(states: List[mjxproto.State]) -> mjxproto.State:
@@ -75,4 +79,4 @@ def to_final_scores(states: List[mjxproto.State], target) -> List[int]:
     target_score = final_scores[target]
     sorted_scores = sorted(final_scores)
     rank = sorted_scores.index(target_score)
-    return [oka[rank]]
+    return [game_rewards[rank]]
