@@ -56,4 +56,24 @@ def test_add_legal_actions():
 
 def test_mjx_large_v0():
     obs = mjx.Observation(json_str)
-    assert obs.to_features("mjx-large-v0").shape == (100, 34)  # debug
+    rows = sum([
+        7,   # currentHand
+        2,   # targetTile
+        4,   # underRiichis
+        12,  # discardedTiles
+        12,  # discardedFromHand
+        28,  # openedTiles
+        4,   # dealer
+        4,   # doras
+        7,   # shanten
+        1,   # effectiveDiscards
+        1,   # effectiveDraws
+        4,   # ignoredTiles
+        5,   # kyotaku
+        12,  # rankings
+        7,   # round
+        5,   # honba
+        4,   # doraNumOfTarget
+        13,  # doraNumInHand
+        ])
+    assert obs.to_features("mjx-large-v0").shape == (rows, 34)

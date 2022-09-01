@@ -12,6 +12,7 @@ from mjx.const import EventType, PlayerIdx, TileType
 from mjx.event import Event
 from mjx.hand import Hand
 from mjx.tile import Tile
+from mjx import utils
 from mjx.visualizer.svg import save_svg, show_svg, to_svg
 
 
@@ -405,7 +406,7 @@ class Observation:
         def rankings(obs: Observation) -> List[int]:
             # feat[q*3 + i] := player q の現在の着順(0,1,2,3) がi+1 以上か
             feat = [[0] * 34 for _ in range(3 * 4)]
-            for p, r in enumerate(obs.rankings()):
+            for p, r in enumerate(utils.rankings(obs.tens())):
                 q = (p + 4 - obs.who()) % 4
                 for i in range(r):
                     feat[q * 3 + i] = [1] * 34
