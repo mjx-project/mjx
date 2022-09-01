@@ -7,12 +7,12 @@ import numpy as np  # type: ignore
 from google.protobuf import json_format
 
 import mjxproto
+from mjx import utils
 from mjx.action import Action
 from mjx.const import EventType, PlayerIdx, TileType
 from mjx.event import Event
 from mjx.hand import Hand
 from mjx.tile import Tile
-from mjx import utils
 from mjx.visualizer.svg import save_svg, show_svg, to_svg
 
 
