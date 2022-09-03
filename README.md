@@ -109,16 +109,16 @@ mjx.run(
 </table>
 
 This sever usage uses gRPC. Thus, actually any programming language is availabe to develop your own Mahjong AI.
-For Python, we provide a convinent wrapper `mjx.Agent.server()`.
+For Python, we provide a convinent wrapper `mjx.Agent.serve()`.
 
 ## Notes
 
-Mjx is still under development. APIs might change without notice before v1.0.
+Mjx is still under active development. APIs might change without notice before v1.0.
 Especially,
 
 * Default behavior of `env.rewards(reward_type)`and `env.done(done_type)`
 * Protobuf schema
-* Feature extraction APIs (currently, `Observation.to_features()`)
+* Feature extraction APIs (currently, provided by `Observation.to_features()`)
 
 
 ## How to develop
