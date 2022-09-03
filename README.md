@@ -108,7 +108,7 @@ mjx.run(
 </tr>
 </table>
 
-This sever usage uses gRPC. Thus, actually any programming language is availabe to develop your own Mahjong AI.
+This sever usage uses gRPC. Thus, actually any programming language is available to develop your own Mahjong AI.
 For Python, we provide a convinent wrapper `mjx.Agent.serve()`.
 
 ## Notes
