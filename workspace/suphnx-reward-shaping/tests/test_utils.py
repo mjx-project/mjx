@@ -8,7 +8,7 @@ sys.path.append("../../../")
 import mjxproto
 
 sys.path.append("../")
-from utils import _preprocess_scores, _to_one_hot, to_data
+from utils import _preprocess_scores, to_data, to_final_game_reward
 
 mjxprotp_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "resources")
 
@@ -28,8 +28,3 @@ def test_to_data():
     print(features)
     assert features.shape == (num_resources, 15)
     assert scores.shape == (num_resources, 1)
-
-
-if __name__ == "__main__":
-    test_preprocess()
-    test_to_data()

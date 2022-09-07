@@ -6,8 +6,8 @@ import sys
 import jax
 import jax.numpy as jnp
 import optax
-from train_helper import evaluate, initializa_params, plot_result, train
-from utils import normalize, to_data
+from train_helper import evaluate, initializa_params, plot_result, save_params, train
+from utils import to_data
 
 mjxprotp_dir = os.path.join(
     os.path.dirname(os.path.abspath(__file__)), "resources/mjxproto"
@@ -15,18 +15,17 @@ mjxprotp_dir = os.path.join(
 
 result_dir = os.path.join(os.pardir, "suphnx-reward-shaping/result")
 
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("lr", help="Enter learning rate", type=float)
     parser.add_argument("epochs", help="Enter epochs", type=int)
     parser.add_argument("batch_size", help="Enter batch_size", type=int)
+    parser.add_argument("is_round_one_hot", nargs="?", default="0")
 
     args = parser.parse_args()
 
-    _X, _Y = to_data(mjxprotp_dir)
-    print(_X.mean(axis=0), _X.std(axis=0), _Y.mean(axis=0), _Y.std(axis=0))
-    X = normalize(_X)
-    Y = normalize(_Y)
+    X, Y = to_data(mjxprotp_dir)
 
     train_x = X[: math.floor(len(X) * 0.8)]
     train_y = Y[: math.floor(len(X) * 0.8)]
@@ -36,11 +35,17 @@ if __name__ == "__main__":
     layer_size = [32, 32, 1]
     seed = jax.random.PRNGKey(42)
 
-    params = initializa_params(layer_size, 6, seed)
+    if args.is_round_one_hot == "0":
+        params = initializa_params(layer_size, 15, seed)
+    else:
+        params = initializa_params(layer_size, 22, seed)  # featureでroundがone-hotになっている.
+
     optimizer = optax.adam(learning_rate=args.lr)
 
     params = train(params, optimizer, train_x, train_y, args.epochs, args.batch_size)
 
     print(evaluate(params, test_x, test_y, args.batch_size))
 
-    plot_result(params, _X, _Y, result_dir)
+    save_params(params, result_dir)
+
+    plot_result(params, X, Y, result_dir)

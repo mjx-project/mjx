@@ -20,8 +20,11 @@ mjx-py/.vscode/*
 dist
 .pytest_cache
 .cache
+
 .ipynb_checkpoints
 workspace/suphnx-reward-shaping/resources/*
+workspace/suphnx-reward-shaping/trained_model/*
+workspace/suphnx-reward-shaping/result/*
 .DS_Store
 .vscode/
 .python_versions
