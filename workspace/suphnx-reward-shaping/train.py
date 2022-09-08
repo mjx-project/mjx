@@ -10,13 +10,6 @@ import optax
 from train_helper import initializa_params, plot_result, save_params, train
 from utils import to_data
 
-mjxprotp_dir = os.path.join(
-    os.path.dirname(os.path.abspath(__file__)), "resources/mjxproto"
-)  # please specify your mjxproto dir
-
-result_dir = os.path.join(os.pardir, "suphnx-reward-shaping/result")
-
-
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("lr", help="Enter learning rate", type=float)
@@ -30,13 +23,9 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    mjxprotp_dir = os.path.join(
-        os.path.dirname(os.path.abspath(__file__)), args.data_path
-    )  # please specify your mjxproto dir
+    mjxprotp_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), args.data_path)
 
-    result_dir = os.path.join(
-        os.path.dirname(os.path.abspath(__file__)), args.result_path
-    )  # please specify your mjxproto dir
+    result_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), args.result_path)
 
     if args.use_saved_data == "0":
         X, Y = to_data(mjxprotp_dir, round_candidates=[args.round_candidates])
