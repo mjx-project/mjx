@@ -147,6 +147,8 @@ def save_params(params: optax.Params, save_dir):
 
 
 def plot_result(params: optax.Params, X, Y, result_dir, is_round_one_hot=False):
+    fig = plt.figure(figsize=(10, 5))
+    axes = fig.subplots(1, 2)
     for i in range(8):  # 通常の局数分
         log_score = []
         log_pred = []
@@ -155,7 +157,8 @@ def plot_result(params: optax.Params, X, Y, result_dir, is_round_one_hot=False):
             pred = net(x, params)
             log_score.append(j * 1000)
             log_pred.append(pred * 100)
-        plt.plot(log_score, log_pred, label="round_" + str(i))
+        axes[0].plot(log_score, log_pred, label="round_" + str(i))
+        axes[1].plot(log_score, log_pred, ".", label="round_" + str(i))
         plt.legend()
         save_dir = os.path.join(result_dir, "prediction_at_round" + str(i) + ".png")
         plt.savefig(save_dir)

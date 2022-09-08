@@ -2,7 +2,7 @@ import json
 import os
 import random
 import sys
-from typing import Dict, Iterator, List, Tuple
+from typing import Dict, Iterator, List, Optional, Tuple
 
 import jax
 import jax.numpy as jnp
@@ -16,7 +16,9 @@ import mjxproto
 game_rewards = [90, 45, 0, -135]
 
 
-def to_data(mjxprotp_dir: str) -> Tuple[jnp.ndarray, jnp.ndarray]:
+def to_data(
+    mjxprotp_dir: str, round_candidates: Optional[List[int]] = None
+) -> Tuple[jnp.ndarray, jnp.ndarray]:
     """
     jsonが入っているディレクトリを引数としてjax.numpyのデータセットを作る.
     """
@@ -30,19 +32,27 @@ def to_data(mjxprotp_dir: str) -> Tuple[jnp.ndarray, jnp.ndarray]:
             _dicts = [json.loads(round) for round in lines]
             states = [json_format.ParseDict(d, mjxproto.State()) for d in _dicts]
             target: int = random.randint(0, 3)
-            features.append(to_feature(states, target))
+            features.append(to_feature(states, target, round_candidates=round_candidates))
             scores.append(to_final_game_reward(states, target))
     features_array: jnp.ndarray = jnp.array(features)
     scores_array: jnp.ndarray = jnp.array(scores)
     return features_array, scores_array
 
 
-def _select_one_round(states: List[mjxproto.State]) -> mjxproto.State:
+def _select_one_round(
+    states: List[mjxproto.State], candidates: Optional[List[int]] = None
+) -> mjxproto.State:
     """
     データセットに本質的で無い相関が生まれることを防ぐために一半荘につき1ペアのみを使う.
     """
-    idx: int = random.randint(0, len(states) - 1)
-    return states[idx]
+    if candidates:
+        if min(candidates) > len(states) - 1:  # 候補のと対応する局がない場合, 一番近いものを返す.
+            return states[len(states) - 1]
+        idx = random.choice(candidates)
+        return states[idx]
+    else:
+        idx: int = random.randint(0, len(states) - 1)
+        return states[idx]
 
 
 def _calc_curr_pos(init_pos: int, round: int) -> int:
@@ -78,11 +88,16 @@ def _preprocess_scores(scores, target: int) -> List:
     return [_self, _left, _front, _right]
 
 
-def to_feature(states: List[mjxproto.State], target, is_round_one_hot=False) -> List:
+def to_feature(
+    states: List[mjxproto.State],
+    target,
+    is_round_one_hot=False,
+    round_candidates: Optional[List[int]] = None,
+) -> List:
     """
     特徴量 = [4playerの点数, 自風:one-hot, 親:one-hot, 局, 本場, 詰み棒]
     """
-    state = _select_one_round(states)
+    state = _select_one_round(states, candidates=round_candidates)
     scores: List = _preprocess_scores(state.round_terminal.final_score.tens, target)
     honba: int = state.round_terminal.final_score.honba
     tsumibo: int = state.round_terminal.final_score.riichi

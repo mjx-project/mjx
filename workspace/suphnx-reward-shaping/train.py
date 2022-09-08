@@ -24,15 +24,28 @@ if __name__ == "__main__":
     parser.add_argument("batch_size", help="Enter batch_size", type=int)
     parser.add_argument("is_round_one_hot", nargs="?", default="0")
     parser.add_argument("--use_saved_data", nargs="?", default="0")
+    parser.add_argument("--round_candidates", type=int, default=None)
 
     args = parser.parse_args()
     if args.use_saved_data == "0":
-        X, Y = to_data(mjxprotp_dir)
-        jnp.save(os.path.join(result_dir, "features"), X)
-        jnp.save(os.path.join(result_dir, "labels"), Y)
+        X, Y = to_data(mjxprotp_dir, round_candidates=[args.round_candidates])
+        if args.round_candidates:
+            jnp.save(os.path.join(result_dir, "features" + str(args.round_candidates)), X)
+            jnp.save(os.path.join(result_dir, "labels" + str(args.round_candidates)), Y)
+        else:
+            jnp.save(os.path.join(result_dir, "features"), X)
+            jnp.save(os.path.join(result_dir, "labels"), Y)
     else:
-        X: jnp.ndarray = jnp.load(os.path.join(result_dir, "features.npy"))
-        Y: jnp.ndarray = jnp.load(os.path.join(result_dir, "labels.npy"))
+        if args.round_candidates:
+            X: jnp.ndarray = jnp.load(
+                os.path.join(result_dir, "features" + str(args.round_candidates) + ".npy")
+            )
+            Y: jnp.ndarray = jnp.load(
+                os.path.join(result_dir, "labels" + str(args.round_candidates) + ".npy")
+            )
+        else:
+            X: jnp.ndarray = jnp.load(os.path.join(result_dir, "features.npy"))
+            Y: jnp.ndarray = jnp.load(os.path.join(result_dir, "labels.npy"))
 
     train_x = X[: math.floor(len(X) * 0.8)]
     train_y = Y[: math.floor(len(X) * 0.8)]
