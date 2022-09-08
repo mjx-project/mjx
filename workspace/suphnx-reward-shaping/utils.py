@@ -100,7 +100,9 @@ def to_feature(states: List[mjxproto.State], target, is_round_one_hot=False) -> 
 
 
 def to_final_game_reward(states: List[mjxproto.State], target) -> List:
-    """ """
+    """
+    順位点.
+    """
     final_state = states[-1]
     final_scores = final_state.round_terminal.final_score.tens
     target_score = final_scores[target]

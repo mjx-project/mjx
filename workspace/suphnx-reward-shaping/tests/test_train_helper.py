@@ -6,7 +6,7 @@ import jax.numpy as jnp
 import optax
 
 sys.path.append("../")
-from train_helper import evaluate, initializa_params, net, plot_result, save_params, train
+from train_helper import initializa_params, net, plot_result, save_params, train
 from utils import to_data
 
 layer_sizes = [3, 4, 5, 1]
@@ -25,33 +25,28 @@ def test_initialize_params():
 
 def test_train():
     params = initializa_params(layer_sizes, feature_size, seed)
-    featurs, scores = to_data(mjxprotp_dir)
+    features, scores = to_data(mjxprotp_dir)
     optimizer = optax.adam(0.05)
-    params = train(params, optimizer, featurs, scores, epochs=1, batch_size=1)
+    params, train_log, test_log = train(
+        params, optimizer, features, scores, features, scores, epochs=1, batch_size=1
+    )
     assert len(params) == 4
-
-
-def test_evaluate():
-    params = initializa_params(layer_sizes, feature_size, seed)
-    featurs, scores = to_data(mjxprotp_dir)
-    loss = evaluate(params, featurs, scores, batch_size=2)
-    assert loss >= 0
 
 
 def test_save_model():
     params = initializa_params(layer_sizes, feature_size, seed)
-    featurs, scores = to_data(mjxprotp_dir)
+    features, scores = to_data(mjxprotp_dir)
     optimizer = optax.adam(0.05)
-    params = train(params, optimizer, featurs, scores, epochs=1, batch_size=1)
+    params = train(params, optimizer, features, scores, features, scores, epochs=1, batch_size=1)
     save_params(params, save_dir)
 
 
 def test_plot_result():
     params = initializa_params(layer_sizes, feature_size, seed)
-    featurs, scores = to_data(mjxprotp_dir)
+    features, scores = to_data(mjxprotp_dir)
     optimizer = optax.adam(0.05)
-    params = train(params, optimizer, featurs, scores, epochs=1, batch_size=1)
-    plot_result(params, featurs, scores, result_dir)
+    params = train(params, optimizer, features, scores, features, scores, epochs=1, batch_size=1)
+    plot_result(params, features, scores, result_dir)
 
 
 def test_net():

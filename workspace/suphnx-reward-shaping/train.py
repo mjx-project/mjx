@@ -1,12 +1,13 @@
 import argparse
 import math
 import os
-import sys
+import pickle
 
 import jax
 import jax.numpy as jnp
+import matplotlib.pyplot as plt
 import optax
-from train_helper import evaluate, initializa_params, plot_result, save_params, train
+from train_helper import initializa_params, plot_result, save_params, train
 from utils import to_data
 
 mjxprotp_dir = os.path.join(
@@ -22,10 +23,16 @@ if __name__ == "__main__":
     parser.add_argument("epochs", help="Enter epochs", type=int)
     parser.add_argument("batch_size", help="Enter batch_size", type=int)
     parser.add_argument("is_round_one_hot", nargs="?", default="0")
+    parser.add_argument("--use_saved_data", nargs="?", default="0")
 
     args = parser.parse_args()
-
-    X, Y = to_data(mjxprotp_dir)
+    if args.use_saved_data == "0":
+        X, Y = to_data(mjxprotp_dir)
+        jnp.save(os.path.join(result_dir, "features"), X)
+        jnp.save(os.path.join(result_dir, "labels"), Y)
+    else:
+        X: jnp.ndarray = jnp.load(os.path.join(result_dir, "features.npy"))
+        Y: jnp.ndarray = jnp.load(os.path.join(result_dir, "labels.npy"))
 
     train_x = X[: math.floor(len(X) * 0.8)]
     train_y = Y[: math.floor(len(X) * 0.8)]
@@ -42,9 +49,14 @@ if __name__ == "__main__":
 
     optimizer = optax.adam(learning_rate=args.lr)
 
-    params = train(params, optimizer, train_x, train_y, args.epochs, args.batch_size)
+    params, train_log, test_log = train(
+        params, optimizer, train_x, train_y, test_x, test_y, args.epochs, args.batch_size
+    )
 
-    print(evaluate(params, test_x, test_y, args.batch_size))
+    plt.plot(train_log, label="train")
+    plt.plot(test_log, label="val")
+    plt.legend()
+    plt.savefig(os.path.join(result_dir, "log/leaning_curve.png"))
 
     save_params(params, result_dir)
 
