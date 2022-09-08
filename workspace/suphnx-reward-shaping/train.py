@@ -25,8 +25,19 @@ if __name__ == "__main__":
     parser.add_argument("is_round_one_hot", nargs="?", default="0")
     parser.add_argument("--use_saved_data", nargs="?", default="0")
     parser.add_argument("--round_candidates", type=int, default=None)
+    parser.add_argument("--data_path", default="resources/mjxproto")
+    parser.add_argument("--result_path", default="result")
 
     args = parser.parse_args()
+
+    mjxprotp_dir = os.path.join(
+        os.path.dirname(os.path.abspath(__file__)), args.data_path
+    )  # please specify your mjxproto dir
+
+    result_dir = os.path.join(
+        os.path.dirname(os.path.abspath(__file__)), args.result_path
+    )  # please specify your mjxproto dir
+
     if args.use_saved_data == "0":
         X, Y = to_data(mjxprotp_dir, round_candidates=[args.round_candidates])
         if args.round_candidates:
