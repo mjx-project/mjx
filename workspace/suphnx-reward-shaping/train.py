@@ -73,4 +73,4 @@ if __name__ == "__main__":
 
     save_params(params, result_dir)
 
-    plot_result(params, X, Y, result_dir)
+    plot_result(params, X, Y, result_dir, round_candidates=[args.round_candidates])

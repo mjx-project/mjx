@@ -146,10 +146,14 @@ def save_params(params: optax.Params, save_dir):
         pickle.dump(params, f)
 
 
-def plot_result(params: optax.Params, X, Y, result_dir, is_round_one_hot=False):
+def plot_result(
+    params: optax.Params, X, Y, result_dir, is_round_one_hot=False, round_candidates=None
+):
     fig = plt.figure(figsize=(10, 5))
     axes = fig.subplots(1, 2)
-    for i in range(8):  # 通常の局数分
+    if not round_candidates:
+        round_candidates = [i for i in range(8)]
+    for i in round_candidates:  # 通常の局数分
         log_score = []
         log_pred = []
         for j in range(60):

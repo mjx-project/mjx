@@ -61,6 +61,15 @@ def _calc_curr_pos(init_pos: int, round: int) -> int:
     return pos
 
 
+def _calc_wind(init_pos: int, round: int) -> int:
+    pos = (init_pos + round) % 4
+    if pos == 1:
+        return 3
+    if pos == 3:
+        return 1
+    return pos
+
+
 def _to_one_hot(total_num: int, idx: int) -> List[int]:
     _l = [0] * total_num
     _l[idx] = 1
@@ -88,6 +97,10 @@ def _preprocess_scores(scores, target: int) -> List:
     return [_self, _left, _front, _right]
 
 
+def _remaining_oya(round: int):  # 局終了時の残りの親の数
+    return [2 - (round // 4 + ((round % 4) >= i)) for i in range(4)]
+
+
 def to_feature(
     states: List[mjxproto.State],
     target,
@@ -95,22 +108,25 @@ def to_feature(
     round_candidates: Optional[List[int]] = None,
 ) -> List:
     """
-    特徴量 = [4playerの点数, 自風:one-hot, 親:one-hot, 局, 本場, 詰み棒]
+    特徴量 = [4playerの点数, 起家の風:one-hot, 親:one-hot, 残りの親の数, 局, 本場, 詰み棒]
     """
     state = _select_one_round(states, candidates=round_candidates)
-    scores: List = _preprocess_scores(state.round_terminal.final_score.tens, target)
+    scores: List = [i / 100000 for i in state.round_terminal.final_score.tens]
     honba: int = state.round_terminal.final_score.honba
     tsumibo: int = state.round_terminal.final_score.riichi
     round: int = _clip_round(state.round_terminal.final_score.round)
-    wind: List[int] = _to_one_hot(4, _calc_curr_pos(target, round))
+    wind: List[int] = _to_one_hot(4, _calc_wind(0, round))  # 起家の風のみを入力
     oya: List[int] = _to_one_hot(4, _calc_curr_pos(0, round))
+    remainning_oya = _remaining_oya(round)
     if is_round_one_hot:
         one_hot_round: List[int] = _to_one_hot(8, round)
         feature = (
-            scores + wind + oya + one_hot_round + [honba / 4, tsumibo / 4]
-        )  # len(feature) = 22
+            scores + wind + oya + remainning_oya + one_hot_round + [honba / 4, tsumibo / 4]
+        )  # len(feature) = 26
     else:
-        feature = scores + wind + oya + [round / 7, honba / 4, tsumibo / 4]  # len(feature) = 15
+        feature = (
+            scores + wind + oya + remainning_oya + [round / 7, honba / 4, tsumibo / 4]
+        )  # len(feature) = 19
     return feature
 
 
