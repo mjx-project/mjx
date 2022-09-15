@@ -31,9 +31,9 @@ def to_data(
             lines = f.readlines()
             _dicts = [json.loads(round) for round in lines]
             states = [json_format.ParseDict(d, mjxproto.State()) for d in _dicts]
-            target: int = random.randint(0, 3)
-            features.append(to_feature(states, target, round_candidates=round_candidates))
-            scores.append(to_final_game_reward(states, target))
+
+            features.append(to_feature(states, round_candidates=round_candidates))
+            scores.append(to_final_game_reward(states))
     features_array: jnp.ndarray = jnp.array(features)
     scores_array: jnp.ndarray = jnp.array(scores)
     return features_array, scores_array
@@ -103,7 +103,6 @@ def _remaining_oya(round: int):  # 局終了時の残りの親の数
 
 def to_feature(
     states: List[mjxproto.State],
-    target,
     is_round_one_hot=False,
     round_candidates: Optional[List[int]] = None,
 ) -> List:
@@ -130,13 +129,12 @@ def to_feature(
     return feature
 
 
-def to_final_game_reward(states: List[mjxproto.State], target) -> List:
+def to_final_game_reward(states: List[mjxproto.State]) -> List:
     """
-    順位点.
+    順位点. 起家から順番に. 4次元.
     """
     final_state = states[-1]
     final_scores = final_state.round_terminal.final_score.tens
-    target_score = final_scores[target]
     sorted_scores = sorted(final_scores, reverse=True)
-    rank = sorted_scores.index(target_score)
-    return [game_rewards[rank] / 100]
+    ranks = [sorted_scores.index(final_scores[i]) for i in range(4)]
+    return [game_rewards[i] / 100 for i in ranks]
