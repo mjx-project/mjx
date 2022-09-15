@@ -27,4 +27,4 @@ workspace/suphnx-reward-shaping/trained_model/*
 workspace/suphnx-reward-shaping/result/*
 .DS_Store
 .vscode/
-.python_versions
+.python_version

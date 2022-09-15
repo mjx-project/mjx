@@ -17,7 +17,7 @@ game_rewards = [90, 45, 0, -135]
 
 
 def to_data(
-    mjxprotp_dir: str, round_candidates: Optional[List[int]] = None
+    mjxprotp_dir: str, round_candidates: Optional[List[int]] = None, model=None, use_model=False
 ) -> Tuple[jnp.ndarray, jnp.ndarray]:
     """
     jsonが入っているディレクトリを引数としてjax.numpyのデータセットを作る.
@@ -31,9 +31,12 @@ def to_data(
             lines = f.readlines()
             _dicts = [json.loads(round) for round in lines]
             states = [json_format.ParseDict(d, mjxproto.State()) for d in _dicts]
-
-            features.append(to_feature(states, round_candidates=round_candidates))
-            scores.append(to_final_game_reward(states))
+            features = to_feature(states, round_candidates=round_candidates)
+            features.append(features)
+            if use_model:
+                scores.append(model(jnp.array(features)))
+            else:
+                scores.append(to_final_game_reward(states))
     features_array: jnp.ndarray = jnp.array(features)
     scores_array: jnp.ndarray = jnp.array(scores)
     return features_array, scores_array
@@ -56,13 +59,13 @@ def _select_one_round(
 
 
 def _calc_curr_pos(init_pos: int, round: int) -> int:
-    pos = (init_pos + round) % 4
+    pos = (-init_pos + round) % 4
     assert 0 <= pos <= 3
     return pos
 
 
 def _calc_wind(init_pos: int, round: int) -> int:
-    pos = (init_pos + round) % 4
+    pos = (-init_pos + round) % 4
     if pos == 1:
         return 3
     if pos == 3:

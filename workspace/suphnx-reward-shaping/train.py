@@ -52,13 +52,13 @@ if __name__ == "__main__":
     test_x = X[math.floor(len(X) * 0.8) :]
     test_y = Y[math.floor(len(X) * 0.8) :]
 
-    layer_size = [32, 32, 1]
+    layer_size = [32, 32, 4]
     seed = jax.random.PRNGKey(42)
 
     if args.is_round_one_hot == "0":
-        params = initializa_params(layer_size, 15, seed)
+        params = initializa_params(layer_size, 19, seed)
     else:
-        params = initializa_params(layer_size, 22, seed)  # featureでroundがone-hotになっている.
+        params = initializa_params(layer_size, 26, seed)  # featureでroundがone-hotになっている.
 
     optimizer = optax.adam(learning_rate=args.lr)
 

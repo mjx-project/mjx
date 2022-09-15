@@ -6,11 +6,11 @@ import jax.numpy as jnp
 import optax
 
 sys.path.append("../")
-from train_helper import initializa_params, net, plot_result, save_params, train
+from train_helper import initializa_params, loss, net, plot_result, save_params, train
 from utils import to_data
 
-layer_sizes = [3, 4, 5, 1]
-feature_size = 15
+layer_sizes = [3, 4, 5, 4]
+feature_size = 19
 seed = jax.random.PRNGKey(42)
 save_dir = os.path.join(os.pardir, "trained_model/test_param.pickle")
 result_dir = os.path.join(os.pardir, "result")
@@ -55,5 +55,12 @@ def test_net():
     print(net(features[0], params), features, params)
 
 
+def test_loss():
+    params = initializa_params(layer_sizes, feature_size, seed)
+    features, scores = to_data(mjxprotp_dir)
+    print(loss(params, features, scores))
+
+
 if __name__ == "__main__":
     test_net()
+    test_loss()
