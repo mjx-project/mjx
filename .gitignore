@@ -22,9 +22,9 @@ dist
 .cache
 
 .ipynb_checkpoints
-workspace/suphnx-reward-shaping/resources/*
-workspace/suphnx-reward-shaping/trained_model/*
-workspace/suphnx-reward-shaping/result/*
+workspace/suphx-reward-shaping/resources/*
+workspace/suphx-reward-shaping/trained_model/*
+workspace/suphx-reward-shaping/result/*
 .DS_Store
 .vscode/
 .python_version
