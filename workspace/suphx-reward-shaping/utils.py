@@ -31,10 +31,10 @@ def to_data(
             lines = f.readlines()
             _dicts = [json.loads(round) for round in lines]
             states = [json_format.ParseDict(d, mjxproto.State()) for d in _dicts]
-            features = to_feature(states, round_candidates=round_candidates)
-            features.append(features)
+            feature = to_feature(states, round_candidates=round_candidates)
+            features.append(feature)
             if use_model:
-                scores.append(model(jnp.array(features)))
+                scores.append(model(jnp.array(feature)))
             else:
                 scores.append(to_final_game_reward(states))
     features_array: jnp.ndarray = jnp.array(features)
