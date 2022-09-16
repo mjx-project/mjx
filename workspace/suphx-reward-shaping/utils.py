@@ -6,10 +6,8 @@ from typing import Dict, Iterator, List, Optional, Tuple
 
 import jax
 import jax.numpy as jnp
-import numpy as np
 from google.protobuf import json_format
 
-sys.path.append("../../")
 sys.path.append("../../../")
 import mjxproto
 
@@ -17,7 +15,7 @@ game_rewards = [90, 45, 0, -135]
 
 
 def to_data(
-    mjxprotp_dir: str, round_candidates: Optional[List[int]] = None, model=None, use_model=False
+    mjxprotp_dir: str, round_candidates: Optional[List[int]] = None, params=None, use_model=False
 ) -> Tuple[jnp.ndarray, jnp.ndarray]:
     """
     jsonが入っているディレクトリを引数としてjax.numpyのデータセットを作る.
@@ -31,10 +29,15 @@ def to_data(
             lines = f.readlines()
             _dicts = [json.loads(round) for round in lines]
             states = [json_format.ParseDict(d, mjxproto.State()) for d in _dicts]
-            feature = to_feature(states, round_candidates=round_candidates)
+            feature: List = to_feature(states, round_candidates=round_candidates)
             features.append(feature)
             if use_model:
-                scores.append(model(jnp.array(feature)))
+                x = jnp.array(features)
+                for i, param in enumerate(params.values()):
+                    x = jnp.dot(x, param)
+                    if i + 1 < len(params.values()):
+                        x = jax.nn.relu(x)
+                scores.append(x)
             else:
                 scores.append(to_final_game_reward(states))
     features_array: jnp.ndarray = jnp.array(features)
@@ -141,3 +144,16 @@ def to_final_game_reward(states: List[mjxproto.State]) -> List:
     sorted_scores = sorted(final_scores, reverse=True)
     ranks = [sorted_scores.index(final_scores[i]) for i in range(4)]
     return [game_rewards[i] / 100 for i in ranks]
+
+
+def _create_data_for_plot(score, round, is_round_one_hot) -> List:
+    scores = [score / 100000] + [(100000 - score) / 300000] * 3
+    wind = _to_one_hot(4, _calc_wind(0, round))
+    oya: List[int] = _to_one_hot(4, _calc_curr_pos(0, round))
+    remainning_oya = _remaining_oya(round)
+    if is_round_one_hot:
+        rounds = [0] * 8
+        rounds[round] = 1
+        return scores + wind + oya + remainning_oya + rounds + [0, 0]
+    else:
+        return scores + wind + oya + remainning_oya + [round / 7, 0, 0]

@@ -1,5 +1,6 @@
 import os
 import pickle
+import sys
 from cProfile import label
 from re import I
 from typing import Dict, List, Optional
@@ -15,6 +16,9 @@ from jax import grad
 from jax import jit as jjit
 from jax import numpy as jnp
 from jax import value_and_grad, vmap
+
+sys.path.append(".")
+from utils import _calc_curr_pos, _calc_wind, _create_data_for_plot, _remaining_oya, _to_one_hot
 
 
 def initializa_params(layer_sizes: List[int], features: int, seed) -> Dict:
@@ -59,7 +63,7 @@ def net(x: jnp.ndarray, params: optax.Params) -> jnp.ndarray:
 
 def loss(params: optax.Params, batched_x: jnp.ndarray, batched_y: jnp.ndarray) -> jnp.ndarray:
     preds = net(batched_x, params)
-    loss_value = optax.l2_loss(preds, batched_y)
+    loss_value = optax.l2_loss(preds, batched_y).mean(axis=-1)
     return loss_value.mean()
 
 
@@ -142,8 +146,14 @@ def train(
 
 
 def save_params(params: optax.Params, save_dir):
-    with open(save_dir + "params.pickle", "wb") as f:
+    with open(save_dir, "wb") as f:
         pickle.dump(params, f)
+
+
+def load_params(save_dir):
+    with open(save_dir, "rb") as f:
+        params = pickle.load(f)
+    return params
 
 
 def plot_result(
@@ -158,23 +168,11 @@ def plot_result(
         log_pred = []
         for j in range(60):
             x = jnp.array(_create_data_for_plot(j * 1000, i, is_round_one_hot))
-            pred = net(x, params)
+            pred = net(x, params)  # (1, 4)
             log_score.append(j * 1000)
-            log_pred.append(pred * 100)
+            log_pred.append(pred[0] * 100)
         axes[0].plot(log_score, log_pred, label="round_" + str(i))
         axes[1].plot(log_score, log_pred, ".", label="round_" + str(i))
         plt.legend()
         save_dir = os.path.join(result_dir, "prediction_at_round" + str(i) + ".png")
         plt.savefig(save_dir)
-
-
-def _create_data_for_plot(score, round, is_round_one_hot) -> List:
-    scores = [score / 100000] + [(100000 - score) / 300000] * 3
-    wind = [1, 0, 0, 0]
-    oya = [1, 0, 0, 0]
-    if is_round_one_hot:
-        rounds = [0] * 8
-        rounds[round] = 1
-        return scores + wind + oya + rounds + [0, 0]
-    else:
-        return scores + wind + oya + [round / 7, 0, 0]
