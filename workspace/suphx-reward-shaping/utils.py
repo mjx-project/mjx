@@ -8,6 +8,7 @@ import jax
 import jax.numpy as jnp
 from google.protobuf import json_format
 
+sys.path.append("../../")
 sys.path.append("../../../")
 import mjxproto
 
@@ -29,19 +30,24 @@ def to_data(
             lines = f.readlines()
             _dicts = [json.loads(round) for round in lines]
             states = [json_format.ParseDict(d, mjxproto.State()) for d in _dicts]
+            if round_candidates:
+                if len(states) <= 7 - min(round_candidates):
+                    continue
             feature: List = to_feature(states, round_candidates=round_candidates)
             features.append(feature)
             if use_model:
-                x = jnp.array(features)
-                for i, param in enumerate(params.values()):
-                    x = jnp.dot(x, param)
-                    if i + 1 < len(params.values()):
-                        x = jax.nn.relu(x)
-                scores.append(x)
+                continue
             else:
                 scores.append(to_final_game_reward(states))
-    features_array: jnp.ndarray = jnp.array(features)
     scores_array: jnp.ndarray = jnp.array(scores)
+    features_array: jnp.ndarray = jnp.array(features)
+    if use_model:
+        x = features_array
+        for i, param in enumerate(params.values()):
+            x = jnp.dot(x, param)
+            if i + 1 < len(params.values()):
+                x = jax.nn.relu(x)
+        scores_array = x
     return features_array, scores_array
 
 
@@ -53,7 +59,7 @@ def _select_one_round(
     """
     if candidates:
         if min(candidates) > len(states) - 1:  # 候補のと対応する局がない場合, 一番近いものを返す.
-            return states[len(states) - 1]
+            return states[len(states) - (7 - min(candidates))]
         idx = random.choice(candidates)
         return states[idx]
     else:
@@ -146,8 +152,9 @@ def to_final_game_reward(states: List[mjxproto.State]) -> List:
     return [game_rewards[i] / 100 for i in ranks]
 
 
-def _create_data_for_plot(score, round, is_round_one_hot) -> List:
-    scores = [score / 100000] + [(100000 - score) / 300000] * 3
+def _create_data_for_plot(score: int, round: int, is_round_one_hot, target: int) -> List:
+    scores = [(100000 - score) / 300000] * 4
+    scores[target] = score / 100000
     wind = _to_one_hot(4, _calc_wind(0, round))
     oya: List[int] = _to_one_hot(4, _calc_curr_pos(0, round))
     remainning_oya = _remaining_oya(round)

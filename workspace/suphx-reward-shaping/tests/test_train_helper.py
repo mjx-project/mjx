@@ -67,5 +67,11 @@ def test_loss():
     print(loss(params, features, scores))
 
 
+def test_to_data():
+    params = initializa_params(layer_sizes, feature_size, seed)
+    features, scores = to_data(mjxprotp_dir, use_model=True, params=params)
+    print(features.shape, scores.shape)
+
+
 if __name__ == "__main__":
-    test_save_and_load()
+    test_to_data()

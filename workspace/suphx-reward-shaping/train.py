@@ -33,10 +33,14 @@ def set_dataset(opt, mjxproto_dir: str, result_dir: str):
     if args.use_saved_data == "0":
         if opt.target_round != 7:
             params = jnp.load(
-                os.path.join(result_dir, "params" + str(opt.target_round) + ".pickle")
+                os.path.join(result_dir, "params" + str(opt.target_round + 1) + ".pickle"),
+                allow_pickle=True,
             )
             X, Y = to_data(
-                mjxproto_dir, round_candidates=[opt.target_round], params=params, use_model=True
+                mjxproto_dir,
+                round_candidates=[opt.target_round],
+                params=params,
+                use_model=True,
             )
         else:
             X, Y = to_data(mjxproto_dir, round_candidates=[opt.target_round])
@@ -49,7 +53,7 @@ def set_dataset(opt, mjxproto_dir: str, result_dir: str):
     else:
         if opt.target_round:
             X: jnp.ndarray = jnp.load(
-                os.path.join(result_dir, "features" + str(opt.traget_round) + ".npy")
+                os.path.join(result_dir, "features" + str(opt.target_round) + ".npy")
             )
             Y: jnp.ndarray = jnp.load(
                 os.path.join(result_dir, "labels" + str(opt.target_round) + ".npy")
@@ -101,8 +105,8 @@ if __name__ == "__main__":
     plt.plot(train_log, label="train")
     plt.plot(test_log, label="val")
     plt.legend()
-    plt.savefig(os.path.join(result_dir, "log/leaning_curve.png"))
+    plt.savefig(os.path.join(result_dir, "log/leaning_curve" + str(args.target_round) + ".png"))
 
     save(args, params, result_dir)
-
-    plot_result(params, X, Y, result_dir, round_candidates=[args.target_round])
+    for i in range(4):
+        plot_result(params, X, Y, result_dir, i, round_candidates=[args.target_round])

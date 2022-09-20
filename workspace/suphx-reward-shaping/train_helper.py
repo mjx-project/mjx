@@ -157,7 +157,13 @@ def load_params(save_dir):
 
 
 def plot_result(
-    params: optax.Params, X, Y, result_dir, is_round_one_hot=False, round_candidates=None
+    params: optax.Params,
+    X,
+    Y,
+    result_dir,
+    target: int,
+    is_round_one_hot=False,
+    round_candidates=None,
 ):
     fig = plt.figure(figsize=(10, 5))
     axes = fig.subplots(1, 2)
@@ -167,12 +173,18 @@ def plot_result(
         log_score = []
         log_pred = []
         for j in range(60):
-            x = jnp.array(_create_data_for_plot(j * 1000, i, is_round_one_hot))
+            x = jnp.array(_create_data_for_plot(j * 1000, i, is_round_one_hot, target))
             pred = net(x, params)  # (1, 4)
             log_score.append(j * 1000)
-            log_pred.append(pred[0] * 100)
+            log_pred.append(pred[target] * 100)
         axes[0].plot(log_score, log_pred, label="round_" + str(i))
+        axes[0].set_title("pos=" + str(target))
+        axes[0].hlines([90, 45, 0, -135], 0, 60000, "red")
         axes[1].plot(log_score, log_pred, ".", label="round_" + str(i))
+        axes[1].set_title("pos=" + str(target))
+        axes[1].hlines([90, 45, 0, -135], 0, 60000, "red")
         plt.legend()
-        save_dir = os.path.join(result_dir, "prediction_at_round" + str(i) + ".png")
+        save_dir = os.path.join(
+            result_dir, "prediction_at_round" + str(i) + "pos=" + str(target) + ".png"
+        )
         plt.savefig(save_dir)
