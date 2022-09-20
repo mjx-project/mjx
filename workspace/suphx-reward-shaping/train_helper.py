@@ -158,8 +158,6 @@ def load_params(save_dir):
 
 def plot_result(
     params: optax.Params,
-    X,
-    Y,
     result_dir,
     target: int,
     is_round_one_hot=False,

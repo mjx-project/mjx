@@ -39,7 +39,6 @@ def to_data(
                 continue
             else:
                 scores.append(to_final_game_reward(states))
-    scores_array: jnp.ndarray = jnp.array(scores)
     features_array: jnp.ndarray = jnp.array(features)
     if use_model:
         x = features_array
@@ -48,6 +47,8 @@ def to_data(
             if i + 1 < len(params.values()):
                 x = jax.nn.relu(x)
         scores_array = x
+    else:
+        scores_array: jnp.ndarray = jnp.array(scores)
     return features_array, scores_array
 
 

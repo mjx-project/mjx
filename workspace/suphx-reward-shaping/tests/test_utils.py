@@ -47,10 +47,11 @@ def test_to_final_game_reward():
 
 def test_to_data():
     num_resources = len(os.listdir(mjxprotp_dir))
-    features, scores = to_data(mjxprotp_dir)
+    features, scores = to_data(mjxprotp_dir, round_candidates=[7])
     assert features.shape == (num_resources, 19)
     assert scores.shape == (num_resources, 4)
 
 
 if __name__ == "__main__":
+    test_to_data()
     test_to_final_game_reward()
