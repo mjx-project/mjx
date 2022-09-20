@@ -30,10 +30,10 @@ def to_data(
             lines = f.readlines()
             _dicts = [json.loads(round) for round in lines]
             states = [json_format.ParseDict(d, mjxproto.State()) for d in _dicts]
-            if round_candidates:
-                if len(states) <= 7 - min(round_candidates):
-                    continue
-            feature: List = to_feature(states, round_candidates=round_candidates)
+            state = _select_one_round(states, round_candidates)
+            if not state:  # 該当する局がない場合飛ばす.
+                continue
+            feature: List = to_feature(state, round_candidates=round_candidates)
             features.append(feature)
             if use_model:
                 continue
@@ -51,16 +51,25 @@ def to_data(
     return features_array, scores_array
 
 
+def _filter_round(states: List[mjxproto.State], candidates: List[int]) -> List[int]:
+    indices = []
+    for idx, state in enumerate(states):
+        if state.public_observation.init_score.round in candidates:
+            indices.append(idx)
+    return indices
+
+
 def _select_one_round(
     states: List[mjxproto.State], candidates: Optional[List[int]] = None
-) -> mjxproto.State:
+) -> Optional[mjxproto.State]:
     """
     データセットに本質的で無い相関が生まれることを防ぐために一半荘につき1ペアのみを使う.
     """
     if candidates:
-        if min(candidates) > len(states) - 1:  # 候補のと対応する局がない場合, 一番近いものを返す.
-            return states[len(states) - (7 - min(candidates))]
-        idx = random.choice(candidates)
+        indices = _filter_round(states, candidates)
+        if len(indices) == 0:  # 該当する局がない場合は飛ばす.
+            return None
+        idx = random.choice(indices)
         return states[idx]
     else:
         idx: int = random.randint(0, len(states) - 1)
@@ -114,18 +123,17 @@ def _remaining_oya(round: int):  # 局終了時の残りの親の数
 
 
 def to_feature(
-    states: List[mjxproto.State],
+    state: mjxproto.State,
     is_round_one_hot=False,
     round_candidates: Optional[List[int]] = None,
 ) -> List:
     """
     特徴量 = [4playerの点数, 起家の風:one-hot, 親:one-hot, 残りの親の数, 局, 本場, 詰み棒]
     """
-    state = _select_one_round(states, candidates=round_candidates)
-    scores: List = [i / 100000 for i in state.round_terminal.final_score.tens]
-    honba: int = state.round_terminal.final_score.honba
-    tsumibo: int = state.round_terminal.final_score.riichi
-    round: int = _clip_round(state.round_terminal.final_score.round)
+    scores: List = [i / 100000 for i in state.public_observation.init_score.tens]
+    honba: int = state.public_observation.init_score.honba
+    tsumibo: int = state.public_observation.init_score.riichi
+    round: int = _clip_round(state.public_observation.init_score.round)
     wind: List[int] = _to_one_hot(4, _calc_wind(0, round))  # 起家の風のみを入力
     oya: List[int] = _to_one_hot(4, _calc_curr_pos(0, round))
     remainning_oya = _remaining_oya(round)

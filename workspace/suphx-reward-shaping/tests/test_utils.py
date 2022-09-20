@@ -52,10 +52,5 @@ def test_to_data():
     assert scores.shape == (num_resources, 4)
 
 
-def test_to_data():
-    num_resources = len(os.listdir(mjxprotp_dir))
-    features, scores = to_data(mjxprotp_dir)
-
-
 if __name__ == "__main__":
     test_to_final_game_reward()
