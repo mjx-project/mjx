@@ -3,7 +3,7 @@ In order to handle a round as an episode in RL, it is important to align the gam
 We call it reward shaping. we will prepare 8 NN (NN_0, ...NN_7) for each round and leaning procedure is as follows
 
 - train NN_7: input: features at the begining of round 7, target: game reward.
-- train NN_6: input: features at the begining of round 7, target: prediction by NN_7 on the data.
+- train NN_6: input: features at the begining of round 7, target: prediction by NN_7 on the round7.
 - ... 
 
 

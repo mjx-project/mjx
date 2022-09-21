@@ -31,19 +31,18 @@ def save(target_round, params, result_dir):
 
 def set_dataset(target_round, mjxproto_dir: str, result_dir: str, use_saved_data):
     if use_saved_data == "0":
-        if target_round != 7:
+        if target_round != 7:  # 南四局以外
             params = jnp.load(
                 os.path.join(result_dir, "params" + str(target_round + 1) + ".pickle"),
                 allow_pickle=True,
             )
             X, Y = to_data(
                 mjxproto_dir,
-                round_candidates=[target_round],
+                round_candidate=target_round,
                 params=params,
-                use_model=True,
             )
-        else:
-            X, Y = to_data(mjxproto_dir, round_candidates=[target_round])
+        else:  # 南四局の時.
+            X, Y = to_data(mjxproto_dir, round_candidate=target_round)
         if target_round:
             jnp.save(os.path.join(result_dir, "features" + str(target_round)), X)
             jnp.save(os.path.join(result_dir, "labels" + str(target_round)), Y)
@@ -111,9 +110,9 @@ if __name__ == "__main__":
 
         save(args.target_round, params, result_dir)
         for i in range(4):
-            plot_result(params, result_dir, i, round_candidates=[args.target_round])
+            plot_result(params, result_dir, i, round_candidate=args.target_round)
     else:  # 8局分一気に学習する
-        for target_round in range(8):
+        for target_round in range(7, -1, -1):
             X, Y = set_dataset(target_round, mjxproto_dir, result_dir, args.use_saved_data)
 
             train_x = X[: math.floor(len(X) * 0.8)]
@@ -142,4 +141,4 @@ if __name__ == "__main__":
 
             save(target_round, params, result_dir)
             for i in range(4):
-                plot_result(params, result_dir, i, round_candidates=[target_round])
+                plot_result(params, result_dir, i, round_candidate=target_round)

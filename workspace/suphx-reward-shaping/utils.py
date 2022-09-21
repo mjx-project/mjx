@@ -15,14 +15,13 @@ import mjxproto
 game_rewards = [90, 45, 0, -135]
 
 
-def to_data(
-    mjxprotp_dir: str, round_candidates: Optional[List[int]] = None, params=None, use_model=False
-) -> Tuple[jnp.ndarray, jnp.ndarray]:
+def to_data(mjxprotp_dir: str, round_candidate=7, params=None) -> Tuple[jnp.ndarray, jnp.ndarray]:
     """
     jsonが入っているディレクトリを引数としてjax.numpyのデータセットを作る.
     """
     features: List = []
     scores: List = []
+    next_features = []
     for _json in os.listdir(mjxprotp_dir):
         _json = os.path.join(mjxprotp_dir, _json)
         assert ".json" in _json
@@ -30,18 +29,25 @@ def to_data(
             lines = f.readlines()
             _dicts = [json.loads(round) for round in lines]
             states = [json_format.ParseDict(d, mjxproto.State()) for d in _dicts]
-            state = _select_one_round(states, round_candidates)
+            state = _select_one_round(states, round_candidate)
+            if params:
+                assert 0 <= round_candidate <= 6
+                next_state = _select_one_round(states, round_candidate + 1)
+                if not next_state:
+                    continue
+                next_features.append(to_feature(next_state, round_candidate))
             if not state:  # 該当する局がない場合飛ばす.
                 continue
-            feature: List = to_feature(state, round_candidates=round_candidates)
+            feature: List = to_feature(state, round_candidate=round_candidate)
             features.append(feature)
-            if use_model:
+            if params:
                 continue
             else:
                 scores.append(to_final_game_reward(states))
     features_array: jnp.ndarray = jnp.array(features)
-    if use_model:
-        x = features_array
+    if params:
+        assert next_features
+        x = jnp.array(next_features)
         for i, param in enumerate(params.values()):
             x = jnp.dot(x, param)
             if i + 1 < len(params.values()):
@@ -52,22 +58,22 @@ def to_data(
     return features_array, scores_array
 
 
-def _filter_round(states: List[mjxproto.State], candidates: List[int]) -> List[int]:
+def _filter_round(states: List[mjxproto.State], candidate: int) -> List[int]:
     indices = []
     for idx, state in enumerate(states):
-        if state.public_observation.init_score.round in candidates:
+        if state.public_observation.init_score.round == candidate:
             indices.append(idx)
     return indices
 
 
 def _select_one_round(
-    states: List[mjxproto.State], candidates: Optional[List[int]] = None
+    states: List[mjxproto.State], candidate: Optional[int] = None
 ) -> Optional[mjxproto.State]:
     """
     データセットに本質的で無い相関が生まれることを防ぐために一半荘につき1ペアのみを使う.
     """
-    if candidates:
-        indices = _filter_round(states, candidates)
+    if candidate:
+        indices = _filter_round(states, candidate)
         if len(indices) == 0:  # 該当する局がない場合は飛ばす.
             return None
         idx = random.choice(indices)
@@ -100,7 +106,7 @@ def _to_one_hot(total_num: int, idx: int) -> List[int]:
 
 def _clip_round(round: int, lim=7) -> int:
     """
-    天鳳ではてんほうでは最長西4局まで行われるが何四局以降はサドンデスなので同一視.
+    天鳳ではでは最長西4局まで行われるが何四局以降はサドンデスなので同一視.
     """
     if round < 7:
         return round
@@ -126,7 +132,7 @@ def _remaining_oya(round: int):  # 局終了時の残りの親の数
 def to_feature(
     state: mjxproto.State,
     is_round_one_hot=False,
-    round_candidates: Optional[List[int]] = None,
+    round_candidate: Optional[int] = None,
 ) -> List:
     """
     特徴量 = [4playerの点数, 起家の風:one-hot, 親:one-hot, 残りの親の数, 局, 本場, 詰み棒]

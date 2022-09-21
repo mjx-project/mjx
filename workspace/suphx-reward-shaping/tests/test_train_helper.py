@@ -69,7 +69,7 @@ def test_loss():
 
 def test_to_data():
     params = initializa_params(layer_sizes, feature_size, seed)
-    features, scores = to_data(mjxprotp_dir, use_model=True, params=params)
+    features, scores = to_data(mjxprotp_dir, params=params)
     print(features.shape, scores.shape)
 
 
