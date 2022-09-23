@@ -6,7 +6,7 @@ import jax.numpy as jnp
 import optax
 
 sys.path.append("../")
-from train_helper import initializa_params, load_params, loss, net, plot_result, save_params, train
+from train_helper import initializa_params, load_params, loss, net, train
 from utils import to_data
 
 layer_sizes = [3, 4, 5, 4]
@@ -25,53 +25,32 @@ def test_initialize_params():
 
 def test_train():
     params = initializa_params(layer_sizes, feature_size, seed)
-    features, scores = to_data(mjxprotp_dir)
+    features, targets, scores = to_data(mjxprotp_dir)
     optimizer = optax.adam(0.05)
-    params, train_log, test_log = train(
-        params, optimizer, features, scores, features, scores, epochs=1, batch_size=1
+    params, _, _, _ = train(
+        params, optimizer, features, scores, features, scores, scores, epochs=1, batch_size=1
     )
     assert len(params) == 4
 
 
-def test_save_and_load():
-    params = initializa_params(layer_sizes, feature_size, seed)
-    features, scores = to_data(mjxprotp_dir)
-    optimizer = optax.adam(0.05)
-    params, _, _ = train(
-        params, optimizer, features, scores, features, scores, epochs=1, batch_size=1
-    )
-    save_params(params, save_dir)
-    params = load_params(save_dir)
-    net(features, params)
-
-
-def test_plot_result():
-    params = initializa_params(layer_sizes, feature_size, seed)
-    features, scores = to_data(mjxprotp_dir)
-    optimizer = optax.adam(0.05)
-    params, _, _ = train(
-        params, optimizer, features, scores, features, scores, epochs=1, batch_size=1
-    )
-    plot_result(params, features, scores, result_dir)
-
-
 def test_net():
     params = initializa_params(layer_sizes, feature_size, seed)
-    features, scores = to_data(mjxprotp_dir)
+    features, targets, scores = to_data(mjxprotp_dir)
     print(net(features[0], params), scores.shape)
 
 
 def test_loss():
     params = initializa_params(layer_sizes, feature_size, seed)
-    features, scores = to_data(mjxprotp_dir)
-    print(loss(params, features, scores))
+    features, targets, scores = to_data(mjxprotp_dir)
+    print(loss(params, features, targets))
 
 
 def test_to_data():
     params = initializa_params(layer_sizes, feature_size, seed)
-    features, scores = to_data(mjxprotp_dir, params=params)
-    print(features.shape, scores.shape)
+    features, targets, scores = to_data(mjxprotp_dir, params=params, round_candidate=7)
+    print(features.shape, scores.shape, targets.shape)
 
 
 if __name__ == "__main__":
+    test_train()
     test_to_data()

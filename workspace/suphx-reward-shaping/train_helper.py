@@ -18,7 +18,15 @@ from jax import numpy as jnp
 from jax import value_and_grad, vmap
 
 sys.path.append(".")
-from utils import _calc_curr_pos, _calc_wind, _create_data_for_plot, _remaining_oya, _to_one_hot
+from utils import (
+    _calc_curr_pos,
+    _calc_wind,
+    _create_data_for_plot,
+    _preprocess_score,
+    _preprocess_score_inv,
+    _remaining_oya,
+    _to_one_hot,
+)
 
 
 def initializa_params(layer_sizes: List[int], features: int, seed) -> Dict:
@@ -53,44 +61,40 @@ def relu(x: jnp.ndarray) -> jnp.ndarray:
     return jnp.maximum(0, x)
 
 
-def net(x: jnp.ndarray, params: optax.Params) -> jnp.ndarray:
+def net(x: jnp.ndarray, params: optax.Params, use_logistic=False) -> jnp.ndarray:
     for i, param in enumerate(params.values()):
         x = jnp.dot(x, param)
         if i + 1 < len(params.values()):
             x = jax.nn.relu(x)
+        if use_logistic:
+            x = jnp.exp(x) / (1 + jnp.exp(x))
     return x
 
 
-def loss(params: optax.Params, batched_x: jnp.ndarray, batched_y: jnp.ndarray) -> jnp.ndarray:
-    preds = net(batched_x, params)
+def loss(
+    params: optax.Params, batched_x: jnp.ndarray, batched_y: jnp.ndarray, use_logistic=False
+) -> jnp.ndarray:
+    preds = net(batched_x, params, use_logistic=use_logistic)
     loss_value = optax.l2_loss(preds, batched_y).mean(axis=-1)
     return loss_value.mean()
 
 
-def train_one_step(params: optax.Params, opt_state, batched_dataset, optimizer, epoch):
-    @jax.jit
-    def step(params: optax.Params, opt_state, batch, labels):
-        loss_value, grads = jax.value_and_grad(loss)(params, batch, labels)
-        updates, opt_state = optimizer.update(grads, opt_state, params)
-        params = optax.apply_updates(params, updates)
-        return params, opt_state, loss_value
-
+def evaluate(params: optax.Params, batched_dataset, use_logistic=False) -> float:
     cum_loss = 0
     for batched_x, batched_y in batched_dataset:
-        params, opt_state, loss_value = step(
-            params, opt_state, batched_x.numpy(), batched_y.numpy(), optimizer
-        )
-        cum_loss += loss_value
-        if epoch % 100 == 0:  # print MSE every 100 epochs
-            pred = net(batched_x[0].numpy(), params)
-            print(f"step {epoch}, pred {pred}, actual {batched_y[0]}")
-    return params, cum_loss / len(batched_dataset)
+        cum_loss += loss(params, batched_x.numpy(), batched_y.numpy(), use_logistic=use_logistic)
+    return cum_loss / len(batched_dataset)
 
 
-def evaluate_one_step(params: optax.Params, batched_dataset) -> float:
+def evaluate_abs(
+    params: optax.Params, batched_dataset, use_logistic=False
+) -> float:  # 前処理する前のスケールでの絶対誤差
     cum_loss = 0
     for batched_x, batched_y in batched_dataset:
-        cum_loss += loss(params, batched_x.numpy(), batched_y.numpy())
+        cum_loss += jnp.abs(
+            _preprocess_score_inv(net(batched_x.numpy(), params, use_logistic=use_logistic))
+            - batched_y.numpy()
+        ).mean()
     return cum_loss / len(batched_dataset)
 
 
@@ -101,10 +105,12 @@ def train(
     Y_train: jnp.ndarray,
     X_test: jnp.ndarray,
     Y_test: jnp.ndarray,
+    Score_test: jnp.ndarray,
     epochs: int,
     batch_size: int,
     buffer_size=3,
-) -> optax.Params:
+    use_logistic=False,
+):
     """
     学習用の関数. 線形層を前提としており, バッチ処理やシャッフルのためにtensorflowを使っている.
     """
@@ -114,13 +120,16 @@ def train(
     )
     dataset_test = tf.data.Dataset.from_tensor_slices((X_test, Y_test))
     batched_dataset_test = dataset_test.batch(batch_size, drop_remainder=True)
+    dataset_abs_test = tf.data.Dataset.from_tensor_slices((X_test, Score_test))
+    batched_dataset_abs_test = dataset_abs_test.batch(batch_size, drop_remainder=True)
     opt_state = optimizer.init(params)
 
-    train_log, test_log = [], []
+    train_log, test_log, test_abs_log = [], [], []
 
-    @jax.jit
-    def step(params, opt_state, batch, labels):
-        loss_value, grads = jax.value_and_grad(loss)(params, batch, labels)
+    def step(params, opt_state, batch, labels, use_logistic=None):
+        loss_value, grads = jax.value_and_grad(loss)(
+            params, batch, labels, use_logistic=use_logistic
+        )
         updates, opt_state = optimizer.update(grads, opt_state, params)
         params = optax.apply_updates(params, updates)
         return params, opt_state, loss_value
@@ -129,25 +138,28 @@ def train(
         cum_loss = 0
         for batched_x, batched_y in batched_dataset_train:
             params, opt_state, loss_value = step(
-                params, opt_state, batched_x.numpy(), batched_y.numpy()
+                params, opt_state, batched_x.numpy(), batched_y.numpy(), use_logistic=use_logistic
             )
             cum_loss += loss_value
             if i % 100 == 0:  # print MSE every 100 epochs
                 pred = net(batched_x[0].numpy(), params)
                 print(f"step {i}, loss: {loss_value}, pred {pred}, actual {batched_y[0]}")
         mean_train_loss = cum_loss / len(batched_dataset_train)
-
-        mean_test_loss = evaluate_one_step(params, batched_dataset_test)
+        mean_test_loss = evaluate(params, batched_dataset_test, use_logistic=use_logistic)
+        mean_abs_test_loss = evaluate_abs(
+            params, batched_dataset_abs_test, use_logistic=use_logistic
+        )
 
         # record mean of train loss and test loss per epoch
         train_log.append(float(np.array(mean_train_loss).item(0)))
         test_log.append(float(np.array(mean_test_loss).item(0)))
-    return params, train_log, test_log
+        test_abs_log.append(float(np.array(mean_abs_test_loss).item(0)))
+    return params, train_log, test_log, test_abs_log
 
 
-def save_params(params: optax.Params, save_dir):
+def save_pickle(obs, save_dir):
     with open(save_dir, "wb") as f:
-        pickle.dump(params, f)
+        pickle.dump(obs, f)
 
 
 def load_params(save_dir):
@@ -156,30 +168,25 @@ def load_params(save_dir):
     return params
 
 
-def plot_result(
-    params: optax.Params,
-    result_dir,
-    target: int,
-    round_candidate=7,
-    is_round_one_hot=False,
-):
-    fig = plt.figure(figsize=(10, 5))
-    axes = fig.subplots(1, 2)
-    log_score = []
-    log_pred = []
+def _score_pred_pair(params, target: int, round_candidate: int, is_round_one_hot, use_logistic):
+    scores = []
+    preds = []
     for j in range(60):
         x = jnp.array(_create_data_for_plot(j * 1000, round_candidate, is_round_one_hot, target))
-        pred = net(x, params)  # (1, 4)
-        log_score.append(j * 1000)
-        log_pred.append(pred[target] * 100)
-    axes[0].plot(log_score, log_pred, label="round_" + str(round_candidate))
+        pred = net(x, params, use_logistic=use_logistic)  # (1, 4)
+        scores.append(j * 1000)
+        preds.append(pred[target] * 100)
+    return scores, preds
+
+
+def _preds_fig(scores, preds, target, round_candidate):
+    fig = plt.figure(figsize=(10, 5))
+    axes = fig.subplots(1, 2)
+    axes[0].plot(scores, preds, label="round_" + str(round_candidate))
     axes[0].set_title("pos=" + str(target))
     axes[0].hlines([90, 45, 0, -135], 0, 60000, "red")
-    axes[1].plot(log_score, log_pred, ".", label="round_" + str(round_candidate))
+    axes[1].plot(scores, preds, ".", label="round_" + str(round_candidate))
     axes[1].set_title("pos=" + str(target))
     axes[1].hlines([90, 45, 0, -135], 0, 60000, "red")
     plt.legend()
-    save_dir = os.path.join(
-        result_dir, "prediction_at_round" + str(round_candidate) + "pos=" + str(target) + ".png"
-    )
-    plt.savefig(save_dir)
+    return fig

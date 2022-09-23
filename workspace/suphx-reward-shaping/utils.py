@@ -15,7 +15,9 @@ import mjxproto
 game_rewards = [90, 45, 0, -135]
 
 
-def to_data(mjxprotp_dir: str, round_candidate=7, params=None) -> Tuple[jnp.ndarray, jnp.ndarray]:
+def to_data(
+    mjxprotp_dir: str, round_candidate=None, params=None
+) -> Tuple[jnp.ndarray, jnp.ndarray, jnp.ndarray]:
     """
     jsonが入っているディレクトリを引数としてjax.numpyのデータセットを作る.
     """
@@ -29,22 +31,20 @@ def to_data(mjxprotp_dir: str, round_candidate=7, params=None) -> Tuple[jnp.ndar
             lines = f.readlines()
             _dicts = [json.loads(round) for round in lines]
             states = [json_format.ParseDict(d, mjxproto.State()) for d in _dicts]
-            state = _select_one_round(states, round_candidate)
+            state = _select_one_round(states, candidate=round_candidate)
             if params:
-                assert 0 <= round_candidate <= 6
-                next_state = _select_one_round(states, round_candidate + 1)
+                assert (round_candidate != None) and (0 <= round_candidate <= 7)
+                next_state = _select_one_round(states, candidate=round_candidate + 1)
                 if not next_state:
                     continue
-                next_features.append(to_feature(next_state, round_candidate))
+                next_features.append(to_feature(next_state, round_candidate=round_candidate))
             if not state:  # 該当する局がない場合飛ばす.
                 continue
             feature: List = to_feature(state, round_candidate=round_candidate)
             features.append(feature)
-            if params:
-                continue
-            else:
-                scores.append(to_final_game_reward(states))
+            scores.append(to_final_game_reward(states))
     features_array: jnp.ndarray = jnp.array(features)
+    scores_array: jnp.ndarray = jnp.array(scores)
     if params:
         assert next_features
         x = jnp.array(next_features)
@@ -52,10 +52,10 @@ def to_data(mjxprotp_dir: str, round_candidate=7, params=None) -> Tuple[jnp.ndar
             x = jnp.dot(x, param)
             if i + 1 < len(params.values()):
                 x = jax.nn.relu(x)
-        scores_array = x
+        targets_array: jnp.ndarray = jnp.clip(x, -1.35, 0.9)
     else:
-        scores_array: jnp.ndarray = jnp.array(scores)
-    return features_array, scores_array
+        targets_array: jnp.ndarray = jnp.array(scores)
+    return (features_array, targets_array, scores_array)
 
 
 def _filter_round(states: List[mjxproto.State], candidate: int) -> List[int]:
@@ -72,7 +72,7 @@ def _select_one_round(
     """
     データセットに本質的で無い相関が生まれることを防ぐために一半荘につき1ペアのみを使う.
     """
-    if candidate:
+    if candidate != None:
         indices = _filter_round(states, candidate)
         if len(indices) == 0:  # 該当する局がない場合は飛ばす.
             return None
@@ -114,17 +114,6 @@ def _clip_round(round: int, lim=7) -> int:
         return 7
 
 
-def _preprocess_scores(scores, target: int) -> List:
-    """
-    局終了時の点数を100000で割って自家, 下家, 対面, 上家の順に並び替える.
-    """
-    _self: int = scores[target] / 100000
-    _left: int = scores[target - 1] / 100000
-    _front: int = scores[target - 2] / 100000
-    _right: int = scores[target - 3] / 100000
-    return [_self, _left, _front, _right]
-
-
 def _remaining_oya(round: int):  # 局終了時の残りの親の数
     return [2 - (round // 4 + ((round % 4) >= i)) for i in range(4)]
 
@@ -156,6 +145,20 @@ def to_feature(
     return feature
 
 
+def _preprocess_score(score):
+    """
+    局終了時の点数を100000で割って自家, 下家, 対面, 上家の順に並び替える.
+    """
+    return (score + 135) / 225
+
+
+def _preprocess_score_inv(processed_score):
+    """
+    変換したtargetを用て学習したNNの出力を元々のscoreの範囲に変換
+    """
+    return 225 * (processed_score) - 135
+
+
 def to_final_game_reward(states: List[mjxproto.State]) -> List:
     """
     順位点. 起家から順番に. 4次元.
@@ -168,8 +171,8 @@ def to_final_game_reward(states: List[mjxproto.State]) -> List:
 
 
 def _create_data_for_plot(score: int, round: int, is_round_one_hot, target: int) -> List:
-    scores = [(100000 - score) / 300000] * 4
-    scores[target] = score / 100000
+    scores = [_preprocess_score((100000 - score) / 3)] * 4
+    scores[target] = _preprocess_score(score)
     wind = _to_one_hot(4, _calc_wind(0, round))
     oya: List[int] = _to_one_hot(4, _calc_curr_pos(0, round))
     remainning_oya = _remaining_oya(round)
