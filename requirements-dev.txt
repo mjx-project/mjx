@@ -1,4 +1,4 @@
-grpcio-tools==1.39.0
+grpcio-tools==1.49.1
 pytest
 black
 blackdoc
