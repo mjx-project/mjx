@@ -1,8 +1,9 @@
 #ifndef MJX_PROJECT_ACTION_H
 #define MJX_PROJECT_ACTION_H
 
-#include "mjx/internal/mjx.grpc.pb.h"
 #include <optional>
+
+#include "mjx/internal/mjx.grpc.pb.h"
 
 namespace mjx {
 class Action {

@@ -3,8 +3,8 @@
 
 #include <array>
 #include <map>
-#include <utility>
 #include <optional>
+#include <utility>
 
 #include "mjx/internal/types.h"
 

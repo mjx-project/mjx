@@ -1,7 +1,8 @@
 #include <mjx/internal/win_score.h>
 
-#include "gtest/gtest.h"
 #include <optional>
+
+#include "gtest/gtest.h"
 
 using namespace mjx::internal;
 

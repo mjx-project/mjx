@@ -2,8 +2,8 @@
 #define MAHJONG_OBSERVATION_H
 
 #include <array>
-#include <utility>
 #include <optional>
+#include <utility>
 
 #include "mjx/internal/action.h"
 #include "mjx/internal/hand.h"

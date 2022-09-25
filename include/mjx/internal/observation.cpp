@@ -1,11 +1,11 @@
 #include "mjx/internal/observation.h"
 
+#include <optional>
+
 #include "mjx/hand.h"
 #include "mjx/internal/mjx.grpc.pb.h"
 #include "mjx/internal/utils.h"
 #include "mjx/internal/yaku_evaluator.h"
-
-#include <optional>
 
 namespace mjx::internal {
 Observation::Observation(const mjxproto::Observation &proto) : proto_(proto) {}

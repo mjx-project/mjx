@@ -1,9 +1,9 @@
 #include "mjx/internal/yaku_evaluator.h"
 
 #include <cassert>
+#include <optional>
 #include <tuple>
 #include <vector>
-#include <optional>
 
 #include "mjx/internal/types.h"
 #include "mjx/internal/utils.h"

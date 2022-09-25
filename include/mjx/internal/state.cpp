@@ -3,8 +3,9 @@
 #include <google/protobuf/util/json_util.h>
 #include <google/protobuf/util/message_differencer.h>
 
-#include "mjx/internal/utils.h"
 #include <optional>
+
+#include "mjx/internal/utils.h"
 
 namespace mjx::internal {
 State::State(State::ScoreInfo score_info)

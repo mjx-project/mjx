@@ -1,10 +1,10 @@
 #ifndef MAHJONG_YAKU_EVALUATOR_H
 #define MAHJONG_YAKU_EVALUATOR_H
 
+#include <optional>
 #include <tuple>
 #include <unordered_set>
 #include <vector>
-#include <optional>
 
 #include "mjx/internal/types.h"
 #include "mjx/internal/win_cache.h"

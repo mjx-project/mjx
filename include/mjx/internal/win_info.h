@@ -1,10 +1,10 @@
 #ifndef MAHJONG_WIN_INFO_H
 #define MAHJONG_WIN_INFO_H
 
+#include <optional>
 #include <unordered_set>
 #include <utility>
 #include <vector>
-#include <optional>
 
 #include "mjx/internal/open.h"
 #include "mjx/internal/tile.h"

@@ -5,12 +5,12 @@
 #include <boost/uuid/uuid.hpp>
 #include <boost/uuid/uuid_generators.hpp>
 #include <boost/uuid/uuid_io.hpp>
+#include <optional>
 #include <queue>
 #include <random>
 #include <string>
 #include <utility>
 #include <vector>
-#include <optional>
 
 #include "mjx/internal/action.h"
 #include "mjx/internal/consts.h"

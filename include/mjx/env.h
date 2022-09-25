@@ -1,10 +1,11 @@
+#include <optional>
+
 #include "mjx/action.h"
 #include "mjx/agent.h"
 #include "mjx/internal/state.h"
 #include "mjx/observation.h"
 #include "mjx/seed_generator.h"
 #include "mjx/state.h"
-#include <optional>
 
 #ifndef MJX_PROJECT_ENV_H
 #define MJX_PROJECT_ENV_H

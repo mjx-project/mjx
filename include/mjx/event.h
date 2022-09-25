@@ -1,8 +1,9 @@
 #ifndef MJX_PROJECT_EVENT_H
 #define MJX_PROJECT_EVENT_H
 
-#include "mjx/internal/mjx.grpc.pb.h"
 #include <optional>
+
+#include "mjx/internal/mjx.grpc.pb.h"
 
 namespace mjx {
 class Event {

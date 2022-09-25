@@ -3,8 +3,8 @@
 #include <google/protobuf/util/json_util.h>
 #include <google/protobuf/util/message_differencer.h>
 
-#include <utility>
 #include <optional>
+#include <utility>
 
 #include "mjx/internal/action.h"
 
