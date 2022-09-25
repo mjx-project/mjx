@@ -4,6 +4,7 @@
 #include <google/protobuf/util/message_differencer.h>
 
 #include <utility>
+#include <optional>
 
 #include "mjx/internal/action.h"
 

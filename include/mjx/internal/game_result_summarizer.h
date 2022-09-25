@@ -3,6 +3,8 @@
 
 #include "mjx/internal/state.h"
 
+#include <optional>
+
 namespace mjx::internal {
 class GameResultSummarizer {
  public:

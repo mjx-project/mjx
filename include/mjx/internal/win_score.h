@@ -4,6 +4,7 @@
 #include <array>
 #include <map>
 #include <utility>
+#include <optional>
 
 #include "mjx/internal/types.h"
 

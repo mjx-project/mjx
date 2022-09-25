@@ -4,6 +4,7 @@
 #include <google/protobuf/util/message_differencer.h>
 
 #include "mjx/internal/utils.h"
+#include <optional>
 
 namespace mjx::internal {
 State::State(State::ScoreInfo score_info)

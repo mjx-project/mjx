@@ -5,6 +5,8 @@
 #include "mjx/internal/utils.h"
 #include "mjx/internal/yaku_evaluator.h"
 
+#include <optional>
+
 namespace mjx::internal {
 Observation::Observation(const mjxproto::Observation &proto) : proto_(proto) {}
 

@@ -3,6 +3,7 @@
 
 #include <array>
 #include <utility>
+#include <optional>
 
 #include "mjx/internal/action.h"
 #include "mjx/internal/hand.h"

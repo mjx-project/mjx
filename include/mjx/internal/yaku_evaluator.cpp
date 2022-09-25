@@ -3,6 +3,7 @@
 #include <cassert>
 #include <tuple>
 #include <vector>
+#include <optional>
 
 #include "mjx/internal/types.h"
 #include "mjx/internal/utils.h"

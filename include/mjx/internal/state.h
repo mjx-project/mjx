@@ -10,6 +10,7 @@
 #include <string>
 #include <utility>
 #include <vector>
+#include <optional>
 
 #include "mjx/internal/action.h"
 #include "mjx/internal/consts.h"

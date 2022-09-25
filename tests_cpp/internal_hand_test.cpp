@@ -2,6 +2,7 @@
 #include <mjx/internal/tile.h>
 
 #include <array>
+#include <optional>
 
 #include "gtest/gtest.h"
 

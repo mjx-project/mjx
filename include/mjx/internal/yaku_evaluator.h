@@ -4,6 +4,7 @@
 #include <tuple>
 #include <unordered_set>
 #include <vector>
+#include <optional>
 
 #include "mjx/internal/types.h"
 #include "mjx/internal/win_cache.h"
