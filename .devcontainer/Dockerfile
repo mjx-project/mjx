@@ -20,7 +20,7 @@ RUN apt-get update && apt-get install -y \
 
 # install gRPC
 RUN cd / && \
-  git clone --recurse-submodules -b v1.39.0 https://github.com/grpc/grpc && \
+  git clone --recurse-submodules -b v1.49.1 https://github.com/grpc/grpc && \
   cd grpc && \
   mkdir -p cmake/build && \
   cd cmake/build && \
@@ -51,4 +51,3 @@ RUN cd /tmp && \
   make install && \
   ldconfig && \
   rm -rf /tmp/googletest
-

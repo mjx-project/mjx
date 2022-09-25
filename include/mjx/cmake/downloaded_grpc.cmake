@@ -30,7 +30,7 @@ set(FETCHCONTENT_UPDATES_DISCONNECTED ON)
 fetchcontent_declare(
   grpc
   GIT_REPOSITORY https://github.com/grpc/grpc.git
-  GIT_TAG v1.39.0
+  GIT_TAG v1.49.1
   GIT_PROGRESS TRUE
 )
 fetchcontent_makeavailable(grpc)

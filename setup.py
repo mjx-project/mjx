@@ -154,7 +154,7 @@ setup(
     install_requires=[
         "google==3.0.0",
         "protobuf==3.17.3",
-        "grpcio==1.39.0",
+        "grpcio==1.49.1",
         "numpy",
         "pillow",
         "svgwrite",
