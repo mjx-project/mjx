@@ -3,6 +3,8 @@
 namespace mjx::internal {
 std::recursive_mutex GameResultSummarizer::mtx_;
 
+#include <optional>
+
 int GameResultSummarizer::num_games() const { return num_games_; }
 
 void GameResultSummarizer::Initialize() {

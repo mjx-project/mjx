@@ -4,6 +4,8 @@
 
 #include "gtest/gtest.h"
 
+#include <optional>
+
 using namespace mjx::internal;
 
 class YakuTest : public ::testing::Test {

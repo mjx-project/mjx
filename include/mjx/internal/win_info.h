@@ -4,6 +4,7 @@
 #include <unordered_set>
 #include <utility>
 #include <vector>
+#include <optional>
 
 #include "mjx/internal/open.h"
 #include "mjx/internal/tile.h"

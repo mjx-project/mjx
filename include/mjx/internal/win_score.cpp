@@ -1,6 +1,7 @@
 #include "mjx/internal/win_score.h"
 
 #include <utility>
+#include <optional>
 
 #include "mjx/internal/types.h"
 

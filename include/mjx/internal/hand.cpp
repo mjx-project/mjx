@@ -8,6 +8,7 @@
 #include <numeric>
 #include <unordered_map>
 #include <utility>
+#include <optional>
 
 #include "mjx/internal/open.h"
 #include "mjx/internal/utils.h"

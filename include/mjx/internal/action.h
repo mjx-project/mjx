@@ -3,6 +3,7 @@
 
 #include <memory>
 #include <utility>
+#include <optional>
 
 #include "mjx/internal/mjx.pb.h"
 #include "mjx/internal/open.h"

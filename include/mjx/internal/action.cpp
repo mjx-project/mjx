@@ -3,6 +3,8 @@
 #include "mjx/internal/mjx.grpc.pb.h"
 #include "mjx/internal/utils.h"
 
+#include <optional>
+
 namespace mjx::internal {
 mjxproto::Action Action::CreateDiscard(AbsolutePos who, Tile discard,
                                        std::string game_id) {

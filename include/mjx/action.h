@@ -2,6 +2,7 @@
 #define MJX_PROJECT_ACTION_H
 
 #include "mjx/internal/mjx.grpc.pb.h"
+#include <optional>
 
 namespace mjx {
 class Action {
