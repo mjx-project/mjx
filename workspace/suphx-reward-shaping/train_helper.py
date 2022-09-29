@@ -108,7 +108,7 @@ def train(
     Score_test: jnp.ndarray,
     epochs: int,
     batch_size: int,
-    buffer_size=3,
+    buffer_size=1,
     use_logistic=False,
 ):
     """
@@ -123,7 +123,6 @@ def train(
     dataset_abs_test = tf.data.Dataset.from_tensor_slices((X_test, Score_test))
     batched_dataset_abs_test = dataset_abs_test.batch(batch_size, drop_remainder=True)
     opt_state = optimizer.init(params)
-
     train_log, test_log, test_abs_log = [], [], []
 
     def step(params, opt_state, batch, labels, use_logistic=None):
@@ -149,7 +148,6 @@ def train(
         mean_abs_test_loss = evaluate_abs(
             params, batched_dataset_abs_test, use_logistic=use_logistic
         )
-
         # record mean of train loss and test loss per epoch
         train_log.append(float(np.array(mean_train_loss).item(0)))
         test_log.append(float(np.array(mean_test_loss).item(0)))
@@ -175,7 +173,7 @@ def _score_pred_pair(params, target: int, round_candidate: int, is_round_one_hot
         x = jnp.array(_create_data_for_plot(j * 1000, round_candidate, is_round_one_hot, target))
         pred = net(x, params, use_logistic=use_logistic)  # (1, 4)
         scores.append(j * 1000)
-        preds.append(pred[target] * 100)
+        preds.append(pred[target] * 255 - 135)
     return scores, preds
 
 

@@ -22,13 +22,15 @@ def to_data(
     jsonが入っているディレクトリを引数としてjax.numpyのデータセットを作る.
     """
     features: List = []
+    targets: List = []
     scores: List = []
     next_features = []
     for _json in os.listdir(mjxprotp_dir):
         _json = os.path.join(mjxprotp_dir, _json)
-        assert ".json" in _json
-        with open(_json, "r") as f:
+        with open(_json, errors="ignore") as f:
             lines = f.readlines()
+            if len(lines) == 0:
+                continue
             _dicts = [json.loads(round) for round in lines]
             states = [json_format.ParseDict(d, mjxproto.State()) for d in _dicts]
             state = _select_one_round(states, candidate=round_candidate)
@@ -42,7 +44,8 @@ def to_data(
                 continue
             feature: List = to_feature(state, round_candidate=round_candidate)
             features.append(feature)
-            scores.append(to_final_game_reward(states))
+            targets.append(to_final_game_reward(states))
+            scores.append(list(map(_preprocess_score_inv, to_final_game_reward(states))))
     features_array: jnp.ndarray = jnp.array(features)
     scores_array: jnp.ndarray = jnp.array(scores)
     if params:
@@ -52,9 +55,9 @@ def to_data(
             x = jnp.dot(x, param)
             if i + 1 < len(params.values()):
                 x = jax.nn.relu(x)
-        targets_array: jnp.ndarray = jnp.clip(x, -1.35, 0.9)
+        targets_array: jnp.ndarray = x
     else:
-        targets_array: jnp.ndarray = jnp.array(scores)
+        targets_array: jnp.ndarray = jnp.array(targets)
     return (features_array, targets_array, scores_array)
 
 
@@ -79,8 +82,8 @@ def _select_one_round(
         idx = random.choice(indices)
         return states[idx]
     else:
-        idx: int = random.randint(0, len(states) - 1)
-        return states[idx]
+        state: mjxproto.State = random.choice(states)
+        return state
 
 
 def _calc_curr_pos(init_pos: int, round: int) -> int:
@@ -167,12 +170,12 @@ def to_final_game_reward(states: List[mjxproto.State]) -> List:
     final_scores = final_state.round_terminal.final_score.tens
     sorted_scores = sorted(final_scores, reverse=True)
     ranks = [sorted_scores.index(final_scores[i]) for i in range(4)]
-    return [game_rewards[i] / 100 for i in ranks]
+    return [(game_rewards[i] + 135) / 225 for i in ranks]
 
 
 def _create_data_for_plot(score: int, round: int, is_round_one_hot, target: int) -> List:
-    scores = [_preprocess_score((100000 - score) / 3)] * 4
-    scores[target] = _preprocess_score(score)
+    scores = [(100000 - score) / 300000] * 4
+    scores[target] = score / 100000
     wind = _to_one_hot(4, _calc_wind(0, round))
     oya: List[int] = _to_one_hot(4, _calc_curr_pos(0, round))
     remainning_oya = _remaining_oya(round)
