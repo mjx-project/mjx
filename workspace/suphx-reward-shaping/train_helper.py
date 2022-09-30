@@ -61,28 +61,40 @@ def relu(x: jnp.ndarray) -> jnp.ndarray:
     return jnp.maximum(0, x)
 
 
-def net(x: jnp.ndarray, params: optax.Params, use_logistic=False) -> jnp.ndarray:
+def net(x: jnp.ndarray, params: optax.Params, use_logistic=False, use_clip=False) -> jnp.ndarray:
     for i, param in enumerate(params.values()):
         x = jnp.dot(x, param)
         if i + 1 < len(params.values()):
             x = jax.nn.relu(x)
     if use_logistic:
         x = 1 / (1 + jnp.exp(-x))
+    if use_clip:
+        x = jnp.clip(x, a_min=0, a_max=1)
     return x
 
 
 def loss(
-    params: optax.Params, batched_x: jnp.ndarray, batched_y: jnp.ndarray, use_logistic=False
+    params: optax.Params,
+    batched_x: jnp.ndarray,
+    batched_y: jnp.ndarray,
+    use_logistic=False,
+    use_clip=False,
 ) -> jnp.ndarray:
-    preds = net(batched_x, params, use_logistic=use_logistic)
+    preds = net(batched_x, params, use_logistic=use_logistic, use_clip=use_clip)
     loss_value = optax.l2_loss(preds, batched_y).mean(axis=-1)
     return loss_value.mean()
 
 
-def evaluate(params: optax.Params, batched_dataset, use_logistic=False) -> float:
+def evaluate(params: optax.Params, batched_dataset, use_logistic=False, use_clip=False) -> float:
     cum_loss = 0
     for batched_x, batched_y in batched_dataset:
-        cum_loss += loss(params, batched_x.numpy(), batched_y.numpy(), use_logistic=use_logistic)
+        cum_loss += loss(
+            params,
+            batched_x.numpy(),
+            batched_y.numpy(),
+            use_logistic=use_logistic,
+            use_clip=use_clip,
+        )
     return cum_loss / len(batched_dataset)
 
 
@@ -98,6 +110,7 @@ def train(
     batch_size: int,
     buffer_size=1,
     use_logistic=False,
+    use_clip=False,
     min_delta=0.001,
 ):
     """
@@ -112,9 +125,9 @@ def train(
     opt_state = optimizer.init(params)
     train_log, test_log, test_abs_log = [], [], []
 
-    def step(params, opt_state, batch, labels, use_logistic=None):
+    def step(params, opt_state, batch, labels, use_logistic=False, use_clip=False):
         loss_value, grads = jax.value_and_grad(loss)(
-            params, batch, labels, use_logistic=use_logistic
+            params, batch, labels, use_logistic=use_logistic, use_clip=use_clip
         )
         updates, opt_state = optimizer.update(grads, opt_state, params)
         params = optax.apply_updates(params, updates)
@@ -124,14 +137,23 @@ def train(
         cum_loss = 0
         for batched_x, batched_y in batched_dataset_train:
             params, opt_state, loss_value = step(
-                params, opt_state, batched_x.numpy(), batched_y.numpy(), use_logistic=use_logistic
+                params,
+                opt_state,
+                batched_x.numpy(),
+                batched_y.numpy(),
+                use_logistic=use_logistic,
+                use_clip=use_clip,
             )
             cum_loss += loss_value
             if i % 100 == 0:  # print MSE every 100 epochs
-                pred = net(batched_x[0].numpy(), params, use_logistic=use_logistic)
+                pred = net(
+                    batched_x[0].numpy(), params, use_logistic=use_logistic, use_clip=use_clip
+                )
                 print(f"step {i}, loss: {loss_value}, pred {pred}, actual {batched_y[0]}")
         mean_train_loss = cum_loss / len(batched_dataset_train)
-        mean_test_loss = evaluate(params, batched_dataset_test, use_logistic=use_logistic)
+        mean_test_loss = evaluate(
+            params, batched_dataset_test, use_logistic=use_logistic, use_clip=use_clip
+        )
         diff = test_log[-1] - float(np.array(mean_test_loss).item(0))
         # record mean of train loss and test loss per epoch
         train_log.append(float(np.array(mean_train_loss).item(0)))

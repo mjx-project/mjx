@@ -134,6 +134,7 @@ def run_training(X, Y, scores, opt):
         opt.epochs,
         opt.batch_size,
         use_logistic=opt.use_logistic,
+        use_clip=opt.use_clip,
     )
     return params, train_log, test_log, test_abs_log
 
@@ -196,6 +197,7 @@ if __name__ == "__main__":
     parser.add_argument("--target_round", nargs="?", type=int)  # 対象となる局 e.g 3の時は東4局のデータのみ使う.
     parser.add_argument("--round_wise", type=int, default=0)  # roundごとにNNを作るか(TD or suphx)
     parser.add_argument("--use_logistic", type=int, default=0)  # logistic関数を使うかどうか
+    parser.add_argument("--use_clip", type=int, default=0)
     parser.add_argument("--train", type=int, default=1)
 
     args = parser.parse_args()
