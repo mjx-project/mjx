@@ -1,15 +1,17 @@
 import argparse
 import math
 import os
-import pickle
+from statistics import mean
 from typing import List, Optional
 
 import jax
 import jax.numpy as jnp
 import matplotlib.pyplot as plt
+import numpy as np
 import optax
+import tensorflow as tf
 from train_helper import _preds_fig, _score_pred_pair, initializa_params, net, save_pickle, train
-from utils import _create_data_for_plot, to_data
+from utils import _preprocess_score_inv, to_data
 
 """
 局ごとにデータとモデルを用意するので
@@ -83,7 +85,7 @@ def set_dataset_round_wise(mjxproto_dir: str, result_dir: str, opt):  # TD用
             X, Y, fin_scores = to_data(mjxproto_dir, round_candidate=opt.target_round)
         jnp.save(os.path.join(result_dir, file_name("features", opt)), X)
         jnp.save(os.path.join(result_dir, file_name("labels", opt)), Y)
-        jnp.save(os.path.join(result_dir, file_name("fin_scores", opt)), Y)
+        jnp.save(os.path.join(result_dir, file_name("fin_scores", opt)), fin_scores)
     return X, Y, fin_scores
 
 
@@ -98,7 +100,7 @@ def set_dataset_whole(mjxproto_dir: str, result_dir: str, opt):  # suphnx用
         X, Y, fin_scores = to_data(mjxproto_dir, round_candidate=None)
         jnp.save(os.path.join(result_dir, file_name("features", opt)), X)
         jnp.save(os.path.join(result_dir, file_name("labels", opt)), Y)
-        jnp.save(os.path.join(result_dir, file_name("fin_scores", opt)), Y)
+        jnp.save(os.path.join(result_dir, file_name("fin_scores", opt)), fin_scores)
     return X, Y, fin_scores
 
 
@@ -168,6 +170,20 @@ def save_params(params, opt, result_dir):
     save_pickle(params, os.path.join(result_dir, file_name("params", opt) + ".pickle"))
 
 
+def evaluate_abs(
+    params: optax.Params, X, score, batch_size, use_logistic=False
+) -> float:  # 前処理する前のスケールでの絶対誤差
+    dataset = tf.data.Dataset.from_tensor_slices((X, score))
+    batched_dataset = dataset.batch(batch_size, drop_remainder=True)
+    cum_loss = 0
+    for batched_x, batched_y in batched_dataset:
+        cum_loss += jnp.abs(
+            _preprocess_score_inv(net(batched_x.numpy(), params, use_logistic=use_logistic))
+            - batched_y.numpy()
+        ).mean()
+    return cum_loss / len(batched_dataset)
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("lr", help="Enter learning rate", type=float)
@@ -228,6 +244,7 @@ if __name__ == "__main__":
             ]
             * 8
         )
+        # plot pred
         for target in range(4):
             fig = plt.figure(figsize=(10, 5))
             axes = fig.subplots(1, 2)
@@ -252,3 +269,39 @@ if __name__ == "__main__":
                 file_name("preds", args) + "pos=" + str(target) + _type + ".png",
             )
             plt.savefig(save_dir)
+        # plot abs loss
+        fig = plt.figure(figsize=(10, 5))
+        axes = fig.subplots(1, 2)
+        abs_losses: List = []
+        for round_candidate in range(8):
+            X: jnp.ndarray = jnp.load(
+                os.path.join(
+                    result_dir, file_name("features", args) + str(round_candidate) + ".npy"
+                )
+            )
+            fin_scores: jnp.ndarray = jnp.load(
+                os.path.join(
+                    result_dir, file_name("fin_scores", args) + str(round_candidate) + ".npy"
+                )
+            )
+            abs_loss = evaluate_abs(
+                params_list[round_candidate],
+                X,
+                fin_scores,
+                args.batch_size,
+                use_logistic=args.use_logistic,
+            )
+            print(round_candidate, abs_loss, fin_scores[:3])
+            abs_losses.append(float(np.array(abs_loss).item(0)))
+        axes[0].plot(abs_losses)
+        axes[0].set_title("abs loss")
+        axes[0].hlines(mean(abs_losses), 0, 8, "red")
+        axes[1].plot(abs_losses, ".")
+        axes[1].hlines(mean(abs_losses), 0, 8, "red")
+        plt.legend()
+        _type = "TD" if args.round_wise else "suphx"
+        save_dir = os.path.join(
+            result_dir,
+            file_name("abs_loss", args) + _type + ".png",
+        )
+        plt.savefig(save_dir)

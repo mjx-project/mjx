@@ -86,18 +86,6 @@ def evaluate(params: optax.Params, batched_dataset, use_logistic=False) -> float
     return cum_loss / len(batched_dataset)
 
 
-def evaluate_abs(
-    params: optax.Params, batched_dataset, use_logistic=False
-) -> float:  # 前処理する前のスケールでの絶対誤差
-    cum_loss = 0
-    for batched_x, batched_y in batched_dataset:
-        cum_loss += jnp.abs(
-            _preprocess_score_inv(net(batched_x.numpy(), params, use_logistic=use_logistic))
-            - batched_y.numpy()
-        ).mean()
-    return cum_loss / len(batched_dataset)
-
-
 def train(
     params: optax.Params,
     optimizer: optax.GradientTransformation,
@@ -144,7 +132,7 @@ def train(
                 print(f"step {i}, loss: {loss_value}, pred {pred}, actual {batched_y[0]}")
         mean_train_loss = cum_loss / len(batched_dataset_train)
         mean_test_loss = evaluate(params, batched_dataset_test, use_logistic=use_logistic)
-        diff = test_log[-1] - mean_test_loss
+        diff = test_log[-1] - float(np.array(mean_test_loss).item(0))
         # record mean of train loss and test loss per epoch
         train_log.append(float(np.array(mean_train_loss).item(0)))
         test_log.append(float(np.array(mean_test_loss).item(0)))

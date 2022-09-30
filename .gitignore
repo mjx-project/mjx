@@ -25,6 +25,7 @@ dist
 workspace/suphx-reward-shaping/resources/*
 workspace/suphx-reward-shaping/trained_model/*
 workspace/suphx-reward-shaping/result/*
+workspace/suphx-reward-shaping/check/*
 .DS_Store
 .vscode/
 .python_version
