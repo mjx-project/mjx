@@ -48,8 +48,7 @@ def file_name(type, opt, slide_round=False) -> str:
         file_name += "_use_logistic_"
     else:
         file_name += "_no_logistic_"
-    if opt.round_wise:
-        assert opt.target_round >= 0
+    if opt.round_wise and opt.target_round != None:
         if slide_round:
             file_name += str(opt.target_round + 1)
         else:
@@ -78,6 +77,7 @@ def set_dataset_round_wise(mjxproto_dir: str, result_dir: str, opt):  # TD用
                 mjxproto_dir,
                 round_candidate=opt.target_round,
                 params=params,
+                use_logistic=opt.use_logistic,
             )
         else:  # 南四局の時.
             X, Y, fin_scores = to_data(mjxproto_dir, round_candidate=opt.target_round)
@@ -92,7 +92,7 @@ def set_dataset_whole(mjxproto_dir: str, result_dir: str, opt):  # suphnx用
         X: jnp.ndarray = jnp.load(os.path.join(result_dir, file_name("features", opt) + ".npy"))
         Y: jnp.ndarray = jnp.load(os.path.join(result_dir, file_name("labels", opt) + ".npy"))
         fin_scores: jnp.ndarray = jnp.load(
-            os.path.join(result_dir, file_name("fin_scores") + ".npy")
+            os.path.join(result_dir, file_name("fin_scores", opt) + ".npy")
         )
     else:
         X, Y, fin_scores = to_data(mjxproto_dir, round_candidate=None)
@@ -180,27 +180,75 @@ if __name__ == "__main__":
     parser.add_argument("--target_round", nargs="?", type=int)  # 対象となる局 e.g 3の時は東4局のデータのみ使う.
     parser.add_argument("--round_wise", type=int, default=0)  # roundごとにNNを作るか(TD or suphx)
     parser.add_argument("--use_logistic", type=int, default=0)  # logistic関数を使うかどうか
+    parser.add_argument("--train", type=int, default=1)
 
     args = parser.parse_args()
     mjxproto_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), args.data_path)
     result_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), args.result_path)
-    print(
-        "start_training, round_wise: {}, use_logistic: {}".format(
-            args.round_wise, args.use_logistic
+    if args.train:
+        print(
+            "start_training, round_wise: {}, use_logistic: {}, target_round: {}".format(
+                args.round_wise, args.use_logistic, args.target_round
+            )
         )
-    )
-    if args.round_wise:
-        X, Y, scores = set_dataset_round_wise(mjxproto_dir, result_dir, args)
-    else:
-        X, Y, scores = set_dataset_whole(mjxproto_dir, result_dir, args)
-    params, train_log, test_log, test_abs_log = run_training(X, Y, scores, args)
-    save_params(params, args, result_dir)
-    save_learning_log(train_log, test_log, test_abs_log, args, result_dir)
-    plot_learning_log(train_log, test_log, test_abs_log, args, result_dir)
-    if args.round_wise == 0:
-        for round in range(8):
+        if args.round_wise:
+            X, Y, scores = set_dataset_round_wise(mjxproto_dir, result_dir, args)
+        else:
+            X, Y, scores = set_dataset_whole(mjxproto_dir, result_dir, args)
+        params, train_log, test_log, test_abs_log = run_training(X, Y, scores, args)
+        save_params(params, args, result_dir)
+        save_learning_log(train_log, test_log, test_abs_log, args, result_dir)
+        plot_learning_log(train_log, test_log, test_abs_log, args, result_dir)
+        if args.round_wise == 0:
+            for round in range(8):
+                for i in range(4):
+                    plot_result(params, i, round, args, result_dir)
+        else:
             for i in range(4):
-                plot_result(params, i, round, args, result_dir)
+                plot_result(params, i, args.target_round, args, result_dir)
+
     else:
-        for i in range(4):
-            plot_result(params, i, args.target_round, args, result_dir)
+        assert not args.target_round  # target_roundが指定されていないことを確認する.
+        params_list: List = (
+            [
+                jnp.load(
+                    os.path.join(
+                        result_dir, file_name("params", args) + str(target_round) + ".pickle"
+                    ),
+                    allow_pickle=True,
+                )
+                for target_round in range(8)
+            ]
+            if args.round_wise
+            else [
+                jnp.load(
+                    os.path.join(result_dir, file_name("params", args) + ".pickle"),
+                    allow_pickle=True,
+                )
+            ]
+            * 8
+        )
+        for target in range(4):
+            fig = plt.figure(figsize=(10, 5))
+            axes = fig.subplots(1, 2)
+            for round_candidate in range(8):
+                log_score, log_pred = _score_pred_pair(
+                    params_list[round_candidate],
+                    target,
+                    round_candidate,
+                    args.is_round_one_hot,
+                    args.use_logistic,
+                )
+                axes[0].plot(log_score, log_pred, label="round" + str(round_candidate))
+                axes[0].set_title("pos" + str(target))
+                axes[0].hlines([90, 45, 0, -135], 0, 60000, "red")
+                axes[1].plot(log_score, log_pred, ".", label="round_" + str(round_candidate))
+                axes[1].set_title("pos" + str(target))
+                axes[1].hlines([90, 45, 0, -135], 0, 60000, "red")
+                plt.legend()
+            _type = "TD" if args.round_wise else "suphx"
+            save_dir = os.path.join(
+                result_dir,
+                file_name("preds", args) + "pos=" + str(target) + _type + ".png",
+            )
+            plt.savefig(save_dir)

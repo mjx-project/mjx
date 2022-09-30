@@ -16,7 +16,10 @@ game_rewards = [90, 45, 0, -135]
 
 
 def to_data(
-    mjxprotp_dir: str, round_candidate=None, params=None
+    mjxprotp_dir: str,
+    round_candidate=None,
+    params=None,
+    use_logistic=False,
 ) -> Tuple[jnp.ndarray, jnp.ndarray, jnp.ndarray]:
     """
     jsonが入っているディレクトリを引数としてjax.numpyのデータセットを作る.
@@ -55,7 +58,10 @@ def to_data(
             x = jnp.dot(x, param)
             if i + 1 < len(params.values()):
                 x = jax.nn.relu(x)
-        targets_array: jnp.ndarray = x
+        if use_logistic:
+            targets_array: jnp.ndarray = jnp.exp(x) / (1 + jnp.exp(x))
+        else:
+            targets_array: jnp.ndarray = x
     else:
         targets_array: jnp.ndarray = jnp.array(targets)
     return (features_array, targets_array, scores_array)

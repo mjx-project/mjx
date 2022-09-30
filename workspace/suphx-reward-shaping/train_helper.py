@@ -66,8 +66,8 @@ def net(x: jnp.ndarray, params: optax.Params, use_logistic=False) -> jnp.ndarray
         x = jnp.dot(x, param)
         if i + 1 < len(params.values()):
             x = jax.nn.relu(x)
-        if use_logistic:
-            x = jnp.exp(x) / (1 + jnp.exp(x))
+    if use_logistic:
+        x = 1 / (1 + jnp.exp(-x))
     return x
 
 
@@ -110,6 +110,7 @@ def train(
     batch_size: int,
     buffer_size=1,
     use_logistic=False,
+    min_delta=0.001,
 ):
     """
     学習用の関数. 線形層を前提としており, バッチ処理やシャッフルのためにtensorflowを使っている.
@@ -120,8 +121,6 @@ def train(
     )
     dataset_test = tf.data.Dataset.from_tensor_slices((X_test, Y_test))
     batched_dataset_test = dataset_test.batch(batch_size, drop_remainder=True)
-    dataset_abs_test = tf.data.Dataset.from_tensor_slices((X_test, Score_test))
-    batched_dataset_abs_test = dataset_abs_test.batch(batch_size, drop_remainder=True)
     opt_state = optimizer.init(params)
     train_log, test_log, test_abs_log = [], [], []
 
@@ -141,17 +140,21 @@ def train(
             )
             cum_loss += loss_value
             if i % 100 == 0:  # print MSE every 100 epochs
-                pred = net(batched_x[0].numpy(), params)
+                pred = net(batched_x[0].numpy(), params, use_logistic=use_logistic)
                 print(f"step {i}, loss: {loss_value}, pred {pred}, actual {batched_y[0]}")
         mean_train_loss = cum_loss / len(batched_dataset_train)
         mean_test_loss = evaluate(params, batched_dataset_test, use_logistic=use_logistic)
-        mean_abs_test_loss = evaluate_abs(
-            params, batched_dataset_abs_test, use_logistic=use_logistic
-        )
+        diff = test_log[-1] - mean_test_loss
         # record mean of train loss and test loss per epoch
         train_log.append(float(np.array(mean_train_loss).item(0)))
         test_log.append(float(np.array(mean_test_loss).item(0)))
-        test_abs_log.append(float(np.array(mean_abs_test_loss).item(0)))
+
+        # Early stoping
+        if diff < 0:
+            break
+        else:
+            if diff < min_delta:
+                break
     return params, train_log, test_log, test_abs_log
 
 
@@ -173,7 +176,7 @@ def _score_pred_pair(params, target: int, round_candidate: int, is_round_one_hot
         x = jnp.array(_create_data_for_plot(j * 1000, round_candidate, is_round_one_hot, target))
         pred = net(x, params, use_logistic=use_logistic)  # (1, 4)
         scores.append(j * 1000)
-        preds.append(pred[target] * 255 - 135)
+        preds.append(pred[target] * 225 - 135)
     return scores, preds
 
 
