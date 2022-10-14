@@ -6,7 +6,7 @@ import jax.numpy as jnp
 import optax
 
 sys.path.append("../")
-from train_helper import initializa_params, load_params, loss, net, train
+from train_helper import initializa_params, loss, net
 from utils import to_data
 
 layer_sizes = [3, 4, 5, 4]
@@ -20,16 +20,6 @@ mjxprotp_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "resourc
 
 def test_initialize_params():
     params = initializa_params(layer_sizes, feature_size, seed)
-    assert len(params) == 4
-
-
-def test_train():
-    params = initializa_params(layer_sizes, feature_size, seed)
-    features, targets, scores = to_data(mjxprotp_dir)
-    optimizer = optax.adam(0.05)
-    params, _, _, _ = train(
-        params, optimizer, features, scores, features, scores, scores, epochs=1, batch_size=1
-    )
     assert len(params) == 4
 
 
@@ -47,10 +37,5 @@ def test_loss():
 
 def test_to_data():
     params = initializa_params(layer_sizes, feature_size, seed)
-    features, targets, scores = to_data(mjxprotp_dir, params=params, round_candidate=7)
+    features, targets, scores = to_data(mjxprotp_dir, params=params, round=6)
     print(features.shape, scores.shape, targets.shape)
-
-
-if __name__ == "__main__":
-    test_train()
-    test_to_data()

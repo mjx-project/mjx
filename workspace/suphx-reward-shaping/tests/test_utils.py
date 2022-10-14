@@ -23,6 +23,9 @@ mjxprotp_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "resourc
 
 
 def test_preprocess():
+    """
+    game rewardの前処理のテスト
+    """
     assert _preprocess_score(90) == 1
     assert _preprocess_score(-135) == 0
 
@@ -38,17 +41,23 @@ def test_preprocess_inv():
 
 
 def test_calc_wind():
+    """
+    風の計算のテスト
+    """
     assert _calc_wind(1, 0) == 1
     assert _calc_wind(1, 3) == 2
 
 
 def test_to_final_game_reward():
+    """
+    game reward計算のテスト.
+    """
     for i in range(4):
         scores = [
-            [0.9, 0.0, -1.35, 0.45],
-            [0.0, -1.35, 0.45, 0.9],
-            [0.9, -1.35, 0.0, 0.45],
-            [-1.35, 0.9, 0.0, 0.45],
+            [1.0, 0.6, 0.0, 0.8],
+            [0.6, 0, 0.8, 1.0],
+            [1.0, 0, 0.6, 0.8],
+            [0.0, 1.0, 0.6, 0.8],
         ]
         _dir = os.path.join(mjxprotp_dir, os.listdir(mjxprotp_dir)[i])
         with open(_dir, "r") as f:
@@ -60,11 +69,10 @@ def test_to_final_game_reward():
 
 
 def test_to_data():
+    """
+    データ生成テスト
+    """
     num_resources = len(os.listdir(mjxprotp_dir))
-    features, target, scores = to_data(mjxprotp_dir, round_candidate=7)
+    features, target, scores = to_data(mjxprotp_dir, round=7)
     assert features.shape == (num_resources, 19)
     assert scores.shape == (num_resources, 4)
-
-
-if __name__ == "__main__":
-    test_to_data()

@@ -61,60 +61,62 @@ def relu(x: jnp.ndarray) -> jnp.ndarray:
     return jnp.maximum(0, x)
 
 
-def net(x: jnp.ndarray, params: optax.Params, use_logistic=False) -> jnp.ndarray:
+def net(x: jnp.ndarray, params: optax.Params, use_logistic=False, use_clip=False) -> jnp.ndarray:
     for i, param in enumerate(params.values()):
         x = jnp.dot(x, param)
         if i + 1 < len(params.values()):
             x = jax.nn.relu(x)
     if use_logistic:
         x = 1 / (1 + jnp.exp(-x))
+    if use_clip:
+        x = jnp.clip(x, a_min=0, a_max=1)
     return x
 
 
 def loss(
-    params: optax.Params, batched_x: jnp.ndarray, batched_y: jnp.ndarray, use_logistic=False
+    params: optax.Params,
+    batched_x: jnp.ndarray,
+    batched_y: jnp.ndarray,
+    use_logistic=False,
+    use_clip=False,
 ) -> jnp.ndarray:
-    preds = net(batched_x, params, use_logistic=use_logistic)
+    preds = net(batched_x, params, use_logistic=use_logistic, use_clip=use_clip)
     loss_value = optax.l2_loss(preds, batched_y).mean(axis=-1)
     return loss_value.mean()
 
 
-def evaluate(params: optax.Params, batched_dataset, use_logistic=False) -> float:
+def evaluate(params: optax.Params, batched_dataset, use_logistic=False, use_clip=False) -> float:
     cum_loss = 0
     for batched_x, batched_y in batched_dataset:
-        cum_loss += loss(params, batched_x.numpy(), batched_y.numpy(), use_logistic=use_logistic)
+        cum_loss += loss(
+            params,
+            batched_x.numpy(),
+            batched_y.numpy(),
+            use_logistic=use_logistic,
+            use_clip=use_clip,
+        )
     return cum_loss / len(batched_dataset)
 
 
 def train(
     params: optax.Params,
     optimizer: optax.GradientTransformation,
-    X_train: jnp.ndarray,
-    Y_train: jnp.ndarray,
-    X_test: jnp.ndarray,
-    Y_test: jnp.ndarray,
-    Score_test: jnp.ndarray,
+    train_dataset,
+    val_dataset,
     epochs: int,
-    batch_size: int,
-    buffer_size=1,
     use_logistic=False,
-    min_delta=0.001,
+    use_clip=False,
+    min_delta=0.0005,
 ):
     """
     学習用の関数. 線形層を前提としており, バッチ処理やシャッフルのためにtensorflowを使っている.
     """
-    dataset_train = tf.data.Dataset.from_tensor_slices((X_train, Y_train))
-    batched_dataset_train = dataset_train.shuffle(buffer_size=buffer_size).batch(
-        batch_size, drop_remainder=True
-    )
-    dataset_test = tf.data.Dataset.from_tensor_slices((X_test, Y_test))
-    batched_dataset_test = dataset_test.batch(batch_size, drop_remainder=True)
     opt_state = optimizer.init(params)
-    train_log, test_log, test_abs_log = [], [], []
+    train_log, test_log = [], []
 
-    def step(params, opt_state, batch, labels, use_logistic=None):
+    def step(params, opt_state, batch, labels, use_logistic=False, use_clip=False):
         loss_value, grads = jax.value_and_grad(loss)(
-            params, batch, labels, use_logistic=use_logistic
+            params, batch, labels, use_logistic=use_logistic, use_clip=use_clip
         )
         updates, opt_state = optimizer.update(grads, opt_state, params)
         params = optax.apply_updates(params, updates)
@@ -122,17 +124,29 @@ def train(
 
     for i in range(epochs):
         cum_loss = 0
-        for batched_x, batched_y in batched_dataset_train:
+        for batched_x, batched_y in train_dataset:
             params, opt_state, loss_value = step(
-                params, opt_state, batched_x.numpy(), batched_y.numpy(), use_logistic=use_logistic
+                params,
+                opt_state,
+                batched_x.numpy(),
+                batched_y.numpy(),
+                use_logistic=use_logistic,
+                use_clip=use_clip,
             )
             cum_loss += loss_value
             if i % 100 == 0:  # print MSE every 100 epochs
-                pred = net(batched_x[0].numpy(), params, use_logistic=use_logistic)
+                pred = net(
+                    batched_x[0].numpy(), params, use_logistic=use_logistic, use_clip=use_clip
+                )
                 print(f"step {i}, loss: {loss_value}, pred {pred}, actual {batched_y[0]}")
-        mean_train_loss = cum_loss / len(batched_dataset_train)
-        mean_test_loss = evaluate(params, batched_dataset_test, use_logistic=use_logistic)
-        diff = test_log[-1] - float(np.array(mean_test_loss).item(0))
+        mean_train_loss = cum_loss / len(train_dataset)
+        mean_test_loss = evaluate(
+            params, val_dataset, use_logistic=use_logistic, use_clip=use_clip
+        )
+        if i > 1:
+            diff = test_log[-1] - float(np.array(mean_test_loss).item(0))
+        else:
+            diff = 1
         # record mean of train loss and test loss per epoch
         train_log.append(float(np.array(mean_train_loss).item(0)))
         test_log.append(float(np.array(mean_test_loss).item(0)))
@@ -143,7 +157,7 @@ def train(
         else:
             if diff < min_delta:
                 break
-    return params, train_log, test_log, test_abs_log
+    return params, train_log, test_log
 
 
 def save_pickle(obs, save_dir):
@@ -157,24 +171,24 @@ def load_params(save_dir):
     return params
 
 
-def _score_pred_pair(params, target: int, round_candidate: int, is_round_one_hot, use_logistic):
+def _score_pred_pair(params, target: int, round: int, is_round_one_hot, use_logistic):
     scores = []
     preds = []
     for j in range(60):
-        x = jnp.array(_create_data_for_plot(j * 1000, round_candidate, is_round_one_hot, target))
+        x = jnp.array(_create_data_for_plot(j * 1000, round, is_round_one_hot, target))
         pred = net(x, params, use_logistic=use_logistic)  # (1, 4)
         scores.append(j * 1000)
         preds.append(pred[target] * 225 - 135)
     return scores, preds
 
 
-def _preds_fig(scores, preds, target, round_candidate):
+def _preds_fig(scores, preds, target, round):
     fig = plt.figure(figsize=(10, 5))
     axes = fig.subplots(1, 2)
-    axes[0].plot(scores, preds, label="round_" + str(round_candidate))
+    axes[0].plot(scores, preds, label="round_" + str(round))
     axes[0].set_title("pos=" + str(target))
     axes[0].hlines([90, 45, 0, -135], 0, 60000, "red")
-    axes[1].plot(scores, preds, ".", label="round_" + str(round_candidate))
+    axes[1].plot(scores, preds, ".", label="round_" + str(round))
     axes[1].set_title("pos=" + str(target))
     axes[1].hlines([90, 45, 0, -135], 0, 60000, "red")
     plt.legend()
