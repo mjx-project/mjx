@@ -171,24 +171,24 @@ def load_params(save_dir):
     return params
 
 
-def _score_pred_pair(params, target: int, round_candidate: int, is_round_one_hot, use_logistic):
+def _score_pred_pair(params, target: int, round: int, is_round_one_hot, use_logistic):
     scores = []
     preds = []
     for j in range(60):
-        x = jnp.array(_create_data_for_plot(j * 1000, round_candidate, is_round_one_hot, target))
+        x = jnp.array(_create_data_for_plot(j * 1000, round, is_round_one_hot, target))
         pred = net(x, params, use_logistic=use_logistic)  # (1, 4)
         scores.append(j * 1000)
         preds.append(pred[target] * 225 - 135)
     return scores, preds
 
 
-def _preds_fig(scores, preds, target, round_candidate):
+def _preds_fig(scores, preds, target, round):
     fig = plt.figure(figsize=(10, 5))
     axes = fig.subplots(1, 2)
-    axes[0].plot(scores, preds, label="round_" + str(round_candidate))
+    axes[0].plot(scores, preds, label="round_" + str(round))
     axes[0].set_title("pos=" + str(target))
     axes[0].hlines([90, 45, 0, -135], 0, 60000, "red")
-    axes[1].plot(scores, preds, ".", label="round_" + str(round_candidate))
+    axes[1].plot(scores, preds, ".", label="round_" + str(round))
     axes[1].set_title("pos=" + str(target))
     axes[1].hlines([90, 45, 0, -135], 0, 60000, "red")
     plt.legend()

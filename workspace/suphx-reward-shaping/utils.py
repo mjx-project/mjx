@@ -20,7 +20,7 @@ def to_data(
     round=None,
     params=None,
     use_logistic=False,
-    use_clip=False,
+    use_clip=True,
 ) -> Tuple[jnp.ndarray, jnp.ndarray, jnp.ndarray]:
     """
     jsonが入っているディレクトリを引数としてjax.numpyのデータセットを作る.
