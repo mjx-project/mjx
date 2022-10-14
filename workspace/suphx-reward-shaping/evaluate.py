@@ -16,7 +16,7 @@ from utils import _preprocess_score_inv
 
 def evaluate_abs(
     params: optax.Params, X, score, batch_size, use_logistic=False, use_clip=False
-) -> float:  #  前処理する前のスケールでの絶対誤差
+) -> float:  # 前処理する前のスケールでの絶対誤差
     dataset = tf.data.Dataset.from_tensor_slices((X, score))
     batched_dataset = dataset.batch(batch_size, drop_remainder=True)
     cum_loss = 0
