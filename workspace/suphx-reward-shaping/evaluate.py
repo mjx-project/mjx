@@ -16,7 +16,7 @@ from utils import _preprocess_score_inv
 
 def evaluate_abs(
     params: optax.Params, X, score, batch_size, use_logistic=False, use_clip=False
-) -> float:  # 前処理する前のスケールでの絶対誤差
+) -> float:  #  前処理する前のスケールでの絶対誤差
     dataset = tf.data.Dataset.from_tensor_slices((X, score))
     batched_dataset = dataset.batch(batch_size, drop_remainder=True)
     cum_loss = 0
@@ -55,28 +55,27 @@ def eval_abs_loss(meth, _type, result_dir):
         * 8
     )
     abs_losses: List = []
-    for round_candidate in range(8):
+    for round in range(8):
         X: jnp.ndarray = jnp.load(
             os.path.join(
                 result_dir,
-                "datasets/features_no_logistic__use_clip_" + str(round_candidate) + ".npy",
+                "datasets/features_no_logistic__use_clip_" + str(round) + ".npy",
             )
         )
         fin_scores: jnp.ndarray = jnp.load(
             os.path.join(
                 result_dir,
-                "datasets/fin_scores_no_logistic__use_clip_" + str(round_candidate) + ".npy",
+                "datasets/fin_scores_no_logistic__use_clip_" + str(round) + ".npy",
             )
         )
         abs_loss = evaluate_abs(
-            params_list[round_candidate],
+            params_list[round],
             X[math.floor(len(X) * 0.9) :],
             fin_scores[math.floor(len(X) * 0.9) :],
             32,
             use_logistic=use_logistic,
             use_clip=use_clip,
         )
-        print(round_candidate, abs_loss, fin_scores[:3])
         abs_losses.append(float(np.array(abs_loss).item(0)))
     return abs_losses
 

@@ -79,13 +79,13 @@ def set_dataset_round_wise(mjxproto_dir: str, result_dir: str, opt):  # TD用
             )
             X, Y, fin_scores = to_data(
                 mjxproto_dir,
-                round_candidate=opt.target_round,
+                round=opt.target_round,
                 params=params,
                 use_logistic=opt.use_logistic,
                 use_clip=opt.use_clip,
             )
         else:  # 南四局の時.
-            X, Y, fin_scores = to_data(mjxproto_dir, round_candidate=opt.target_round)
+            X, Y, fin_scores = to_data(mjxproto_dir, round=opt.target_round)
         jnp.save(os.path.join(result_dir, file_name("features", opt)), X)
         jnp.save(os.path.join(result_dir, file_name("labels", opt)), Y)
         jnp.save(os.path.join(result_dir, file_name("fin_scores", opt)), fin_scores)
@@ -104,7 +104,7 @@ def set_dataset_whole(mjxproto_dir: str, result_dir: str, opt):  # suphnx用
             os.path.join(result_dir, "datasets/fin_scores_no_logistic_" + ".npy")
         )
     else:
-        X, Y, fin_scores = to_data(mjxproto_dir, round_candidate=None)
+        X, Y, fin_scores = to_data(mjxproto_dir, round=None)
         jnp.save(os.path.join(result_dir, file_name("features", opt)), X)
         jnp.save(os.path.join(result_dir, file_name("labels", opt)), Y)
         jnp.save(os.path.join(result_dir, file_name("fin_scores", opt)), fin_scores)
@@ -190,7 +190,6 @@ if __name__ == "__main__":
     parser.add_argument("--round_wise", type=int, default=0)  # roundごとにNNを作るか(TD or suphx)
     parser.add_argument("--use_logistic", type=int, default=0)  # logistic関数を使うかどうか
     parser.add_argument("--use_clip", type=int, default=0)  # 関数値をクリップするかどうか.
-    parser.add_argument("--train", type=int, default=1)
 
     args = parser.parse_args()
     mjxproto_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), args.data_path)
