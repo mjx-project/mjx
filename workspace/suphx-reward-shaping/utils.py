@@ -20,6 +20,7 @@ def to_data(
     round_candidate=None,
     params=None,
     use_logistic=False,
+    use_clip=False,
 ) -> Tuple[jnp.ndarray, jnp.ndarray, jnp.ndarray]:
     """
     jsonが入っているディレクトリを引数としてjax.numpyのデータセットを作る.
@@ -60,8 +61,11 @@ def to_data(
                 x = jax.nn.relu(x)
         if use_logistic:
             targets_array: jnp.ndarray = jnp.exp(x) / (1 + jnp.exp(x))
+        elif use_clip:
+            targets_array: jnp.ndarray = jnp.clip(x, a_min=0, a_max=1)
         else:
             targets_array: jnp.ndarray = x
+
     else:
         targets_array: jnp.ndarray = jnp.array(targets)
     return (features_array, targets_array, scores_array)
@@ -130,7 +134,6 @@ def _remaining_oya(round: int):  # 局終了時の残りの親の数
 def to_feature(
     state: mjxproto.State,
     is_round_one_hot=False,
-    round_candidate: Optional[int] = None,
 ) -> List:
     """
     特徴量 = [4playerの点数, 起家の風:one-hot, 親:one-hot, 残りの親の数, 局, 本場, 詰み棒]

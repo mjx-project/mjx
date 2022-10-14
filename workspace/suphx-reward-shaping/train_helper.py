@@ -101,29 +101,18 @@ def evaluate(params: optax.Params, batched_dataset, use_logistic=False, use_clip
 def train(
     params: optax.Params,
     optimizer: optax.GradientTransformation,
-    X_train: jnp.ndarray,
-    Y_train: jnp.ndarray,
-    X_test: jnp.ndarray,
-    Y_test: jnp.ndarray,
-    Score_test: jnp.ndarray,
+    train_dataset,
+    val_dataset,
     epochs: int,
-    batch_size: int,
-    buffer_size=1,
     use_logistic=False,
     use_clip=False,
-    min_delta=0.001,
+    min_delta=0.0005,
 ):
     """
     学習用の関数. 線形層を前提としており, バッチ処理やシャッフルのためにtensorflowを使っている.
     """
-    dataset_train = tf.data.Dataset.from_tensor_slices((X_train, Y_train))
-    batched_dataset_train = dataset_train.shuffle(buffer_size=buffer_size).batch(
-        batch_size, drop_remainder=True
-    )
-    dataset_test = tf.data.Dataset.from_tensor_slices((X_test, Y_test))
-    batched_dataset_test = dataset_test.batch(batch_size, drop_remainder=True)
     opt_state = optimizer.init(params)
-    train_log, test_log, test_abs_log = [], [], []
+    train_log, test_log = [], []
 
     def step(params, opt_state, batch, labels, use_logistic=False, use_clip=False):
         loss_value, grads = jax.value_and_grad(loss)(
@@ -135,7 +124,7 @@ def train(
 
     for i in range(epochs):
         cum_loss = 0
-        for batched_x, batched_y in batched_dataset_train:
+        for batched_x, batched_y in train_dataset:
             params, opt_state, loss_value = step(
                 params,
                 opt_state,
@@ -150,11 +139,14 @@ def train(
                     batched_x[0].numpy(), params, use_logistic=use_logistic, use_clip=use_clip
                 )
                 print(f"step {i}, loss: {loss_value}, pred {pred}, actual {batched_y[0]}")
-        mean_train_loss = cum_loss / len(batched_dataset_train)
+        mean_train_loss = cum_loss / len(train_dataset)
         mean_test_loss = evaluate(
-            params, batched_dataset_test, use_logistic=use_logistic, use_clip=use_clip
+            params, val_dataset, use_logistic=use_logistic, use_clip=use_clip
         )
-        diff = test_log[-1] - float(np.array(mean_test_loss).item(0))
+        if i > 1:
+            diff = test_log[-1] - float(np.array(mean_test_loss).item(0))
+        else:
+            diff = 1
         # record mean of train loss and test loss per epoch
         train_log.append(float(np.array(mean_train_loss).item(0)))
         test_log.append(float(np.array(mean_test_loss).item(0)))
@@ -165,7 +157,7 @@ def train(
         else:
             if diff < min_delta:
                 break
-    return params, train_log, test_log, test_abs_log
+    return params, train_log, test_log
 
 
 def save_pickle(obs, save_dir):
