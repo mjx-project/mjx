@@ -1,6 +1,6 @@
-google==3.0.0
-protobuf==3.17.3
-grpcio==1.49.1
+protobuf==3.20.2
+google
+grpcio
 numpy
 pillow
 svgwrite
