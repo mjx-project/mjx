@@ -15,7 +15,12 @@ from utils import _preprocess_score_inv
 
 
 def evaluate_abs(
-    params: optax.Params, X, score, batch_size, use_logistic=False, use_clip=False
+    params: optax.Params,
+    X,
+    score,
+    batch_size,
+    use_logistic=False,
+    use_clip=False,
 ) -> float:  # 前処理する前のスケールでの絶対誤差
     dataset = tf.data.Dataset.from_tensor_slices((X, score))
     batched_dataset = dataset.batch(batch_size, drop_remainder=True)
@@ -36,6 +41,9 @@ def eval_abs_loss(meth, _type, result_dir):
         use_logistic = True
     use_clip = False
     if _type == "_use_clip_":
+        use_clip = True
+    if _type == "_no_logistic_after":
+        _type = "_no_logistic_"
         use_clip = True
     params_list: List = (
         [
@@ -81,9 +89,13 @@ def eval_abs_loss(meth, _type, result_dir):
 
 
 if __name__ == "__main__":
-
     train_meth = ["suphx", "TD"]
-    types = ["_no_logistic_", "_use_logistic_", "_use_clip_"]
+    types = [
+        "_no_logistic_",
+        "_use_logistic_",
+        "_no_logistic__use_clip_",
+        "_no_logistic_after",
+    ]
 
     result_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "result")
 

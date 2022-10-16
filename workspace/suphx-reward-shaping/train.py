@@ -194,27 +194,26 @@ if __name__ == "__main__":
     args = parser.parse_args()
     mjxproto_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), args.data_path)
     result_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), args.result_path)
-    if args.train:
-        for lr in [0.01, 0.001]:
-            print(
-                "start_training, round_wise: {}, use_logistic: {}, target_round: {}".format(
-                    args.round_wise, args.use_logistic, args.target_round
-                )
+    for lr in [0.01, 0.001]:
+        print(
+            "start_training, round_wise: {}, use_logistic: {}, target_round: {}".format(
+                args.round_wise, args.use_logistic, args.target_round
             )
-            if args.round_wise:
-                X, Y, scores = set_dataset_round_wise(mjxproto_dir, result_dir, args)
-            else:
-                X, Y, scores = set_dataset_whole(mjxproto_dir, result_dir, args)
-            params, train_log, val_log = run_training(X, Y, scores, args, lr)
-            save_params(params, args, result_dir)
-            save_learning_log(train_log, val_log, args, result_dir, lr)
-            plot_learning_log(train_log, val_log, args, result_dir, lr)
-            """
-            if args.round_wise == 0:
-                for round in range(8):
-                    for i in range(4):
-                        plot_result(params, i, round, args, result_dir)
-            else:
+        )
+        if args.round_wise:
+            X, Y, scores = set_dataset_round_wise(mjxproto_dir, result_dir, args)
+        else:
+            X, Y, scores = set_dataset_whole(mjxproto_dir, result_dir, args)
+        params, train_log, val_log = run_training(X, Y, scores, args, lr)
+        save_params(params, args, result_dir)
+        save_learning_log(train_log, val_log, args, result_dir, lr)
+        plot_learning_log(train_log, val_log, args, result_dir, lr)
+        """
+        if args.round_wise == 0:
+            for round in range(8):
                 for i in range(4):
-                    plot_result(params, i, args.target_round, args, result_dir)
-            """
+                    plot_result(params, i, round, args, result_dir)
+        else:
+            for i in range(4):
+                plot_result(params, i, args.target_round, args, result_dir)
+        """
