@@ -83,7 +83,7 @@ def eval_abs_loss(meth, _type, result_dir):
             32,
             use_logistic=use_logistic,
             use_clip=use_clip,
-        )
+        )  # テストデータでの絶対誤差
         abs_losses.append(float(np.array(abs_loss).item(0)))
     return abs_losses
 
