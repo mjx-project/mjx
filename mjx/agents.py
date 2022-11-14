@@ -92,7 +92,7 @@ class ShantenAgent(Agent):
         steal_actions = [
             a
             for a in legal_actions
-            if a.type() in [ActionType.CHI, ActionType.PON, ActionType, ActionType.OPEN_KAN]
+            if a.type() in [ActionType.CHI, ActionType.PON, ActionType.OPEN_KAN]
         ]
         if len(steal_actions) >= 1:
             return random.choice(steal_actions)
