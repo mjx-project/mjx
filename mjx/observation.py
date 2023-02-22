@@ -469,7 +469,6 @@ class Observation:
 
         @staticmethod
         def dora_num_in_hand(obs: Observation) -> List[int]:
-
             dora_num = 0
             for tile in obs.curr_hand().closed_tiles():
                 if tile.is_red():

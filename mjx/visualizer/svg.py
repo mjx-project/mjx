@@ -102,7 +102,6 @@ def _make_svg(
     show_name: bool = False,
     highlight_last_event: bool = False,
 ) -> Drawing:
-
     sample_data: MahjongTable
     if isinstance(proto_data, mjxproto.Observation):
         sample_data = MahjongTable.decode_observation(proto_data)
@@ -284,7 +283,6 @@ def _make_svg(
     )
 
     for i in range(4):
-
         # name
         if show_name:
             player_info[i].add(
