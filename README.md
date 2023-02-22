@@ -126,6 +126,20 @@ We recommend you to develop Mjx inside a container.
 Easiest way is open this repository from VsCode.
 Feel free to mention to @sotetsuk if you have any questions.
 
+## Citation
+
+```
+@INPROCEEDINGS{mjx2022,
+  author={Koyamada, Sotetsu and Habara, Keigo and Goto, Nao and Okano, Shinri and Nishimori, Soichiro and Ishii, Shin},
+  booktitle={2022 IEEE Conference on Games (CoG)}, 
+  title={Mjx: A framework for Mahjong AI research}, 
+  year={2022},
+  volume={},
+  number={},
+  pages={504-507},
+  doi={10.1109/CoG51982.2022.9893712}}
+```
+
 ## License
 
 MIT
