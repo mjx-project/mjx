@@ -22,7 +22,7 @@ class _ActionType:
     ValueType = typing.NewType("ValueType", builtins.int)
     V: typing_extensions.TypeAlias = ValueType
 
-class _ActionTypeEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._EnumTypeWrapper[_ActionType.ValueType], builtins.type):  # noqa: F821
+class _ActionTypeEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._EnumTypeWrapper[_ActionType.ValueType], builtins.type):
     DESCRIPTOR: google.protobuf.descriptor.EnumDescriptor
     ACTION_TYPE_DISCARD: _ActionType.ValueType  # 0
     """After draw"""
@@ -67,7 +67,7 @@ class _EventType:
     ValueType = typing.NewType("ValueType", builtins.int)
     V: typing_extensions.TypeAlias = ValueType
 
-class _EventTypeEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._EnumTypeWrapper[_EventType.ValueType], builtins.type):  # noqa: F821
+class _EventTypeEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._EnumTypeWrapper[_EventType.ValueType], builtins.type):
     DESCRIPTOR: google.protobuf.descriptor.EnumDescriptor
     EVENT_TYPE_DISCARD: _EventType.ValueType  # 0
     """Publicly observable actions"""
@@ -136,6 +136,7 @@ EVENT_TYPE_EXHAUSTIVE_DRAW_NAGASHI_MANGAN: EventType.ValueType  # 20
 """流し満貫"""
 global___EventType = EventType
 
+@typing_extensions.final
 class Score(google.protobuf.message.Message):
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
@@ -162,6 +163,7 @@ class Score(google.protobuf.message.Message):
 
 global___Score = Score
 
+@typing_extensions.final
 class Event(google.protobuf.message.Message):
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
@@ -218,6 +220,7 @@ class Event(google.protobuf.message.Message):
 
 global___Event = Event
 
+@typing_extensions.final
 class PublicObservation(google.protobuf.message.Message):
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
@@ -252,6 +255,7 @@ class PublicObservation(google.protobuf.message.Message):
 
 global___PublicObservation = PublicObservation
 
+@typing_extensions.final
 class Hand(google.protobuf.message.Message):
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
@@ -272,6 +276,7 @@ class Hand(google.protobuf.message.Message):
 
 global___Hand = Hand
 
+@typing_extensions.final
 class PrivateObservation(google.protobuf.message.Message):
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
@@ -299,6 +304,7 @@ class PrivateObservation(google.protobuf.message.Message):
 
 global___PrivateObservation = PrivateObservation
 
+@typing_extensions.final
 class Observation(google.protobuf.message.Message):
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
@@ -330,6 +336,7 @@ class Observation(google.protobuf.message.Message):
 
 global___Observation = Observation
 
+@typing_extensions.final
 class Win(google.protobuf.message.Message):
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
@@ -383,6 +390,7 @@ class Win(google.protobuf.message.Message):
 
 global___Win = Win
 
+@typing_extensions.final
 class NoWinner(google.protobuf.message.Message):
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
@@ -403,6 +411,7 @@ class NoWinner(google.protobuf.message.Message):
 
 global___NoWinner = NoWinner
 
+@typing_extensions.final
 class TenpaiHand(google.protobuf.message.Message):
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
@@ -422,6 +431,7 @@ class TenpaiHand(google.protobuf.message.Message):
 
 global___TenpaiHand = TenpaiHand
 
+@typing_extensions.final
 class RoundTerminal(google.protobuf.message.Message):
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
@@ -451,6 +461,7 @@ class RoundTerminal(google.protobuf.message.Message):
 
 global___RoundTerminal = RoundTerminal
 
+@typing_extensions.final
 class State(google.protobuf.message.Message):
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
@@ -479,6 +490,7 @@ class State(google.protobuf.message.Message):
 
 global___State = State
 
+@typing_extensions.final
 class HiddenState(google.protobuf.message.Message):
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
@@ -502,6 +514,7 @@ class HiddenState(google.protobuf.message.Message):
 
 global___HiddenState = HiddenState
 
+@typing_extensions.final
 class Action(google.protobuf.message.Message):
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
@@ -542,9 +555,11 @@ class Action(google.protobuf.message.Message):
 
 global___Action = Action
 
+@typing_extensions.final
 class GameResult(google.protobuf.message.Message):
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
+    @typing_extensions.final
     class TensEntry(google.protobuf.message.Message):
         DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
@@ -560,6 +575,7 @@ class GameResult(google.protobuf.message.Message):
         ) -> None: ...
         def ClearField(self, field_name: typing_extensions.Literal["key", b"key", "value", b"value"]) -> None: ...
 
+    @typing_extensions.final
     class RankingsEntry(google.protobuf.message.Message):
         DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
