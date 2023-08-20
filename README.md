@@ -14,6 +14,8 @@
 <img src="icons/SVG/2-2_svg.svg" alt="mjx" width="300"/>
 </p>
 
+⚠️ Currently Mjx build is broken. Also, Mjx API will change in the near future.
+
 # Mjx
 
 Mjx is a Japanese Mahjong (riichi Mahjong) simulator.
